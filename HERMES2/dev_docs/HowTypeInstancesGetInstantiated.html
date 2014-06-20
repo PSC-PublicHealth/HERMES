@@ -1,0 +1,28 @@
+<html>
+
+<head>
+
+<title>How Type Instances Get Instantiated</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>How Type Instances Get Instantiated</h1>
+
+<p>
+This applies to the classes derived from 'typemanager.ManagedType',
+including VaccineType, TruckType, etc.
+</p>
+<p>
+The call to
+vaccinetypes.VaccineTypeManager(unifiedVaccineTypeInfoFileName) causes
+a vaccine type instance to be created for each valid line of the
+UnifiedVaccineTypeInfo table.  A subsequent call to getTypeByName()
+causes the type to be 'activated', inserting it in the TypeManager's
+list of active types.  This getTypeByName() call is usually performed
+by the DemandModel or the Model itself.
+</p>
+
+</body>
+</html>

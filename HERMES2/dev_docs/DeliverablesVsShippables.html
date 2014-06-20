@@ -1,0 +1,72 @@
+<html>
+
+<head>
+
+<title>Deliverables, Shippables, and How Their Relationships Are Managed</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>Deliverables, Shippables, and How Their Relationships Are Managed</h1>
+
+This is written 20121221, near the time when the HERMES_jsw_deliverables branch
+is merged back into the trunk.
+<p>
+
+The Deliverable class is a mix-in to the Shippable class, not a derived class.
+It carries the prepForDelivery method and an associated exception.  Before being
+used, an instance of a Deliverable class is expected to have prepForDelivery called;
+it will raise the new PrepFailure exception if preparation fails.
+</p>
+<p>
+Conceptually, a Deliverable is something the patient gets, and it may require other 
+Shippables before the patient can get it.  French fries are a Deliverable; fry oil
+is a Shippable consumed in the process of perparing the french fries for delivery.  
+The obvious use here is the vaccines are Deliverables and their associated diluents
+are just Shippables without the Deliverable mix-in.  
+</p>
+<p>
+If a Shippable is defined as depending on something else, that something else is
+inherently forced to be a Shippable rather than a Deliverable.  Once all dependencies
+have been set, those things which nothing else depends on are by definition Deliverables.
+Thus, Fridges are Deliverables because they are Shippables which are not consumed to
+prepare any other Shippable for delivery.
+</p>
+<p>
+A treatment session of a UseVials process will use a DemandModel to select a
+set of vaccines to be delivered.  The shippables necessary to prepare those
+vaccines for delivery are calculated (using ShippableTypeManager.getPrepSupplies(sC)),
+and the sum of the original vaccines and the associated consumables is requested
+from the Store.  For full treatment to occur, more than one type of supply must be
+available- for example, both vaccine and diluent.  This tends to lower the supply ratio
+because there is an additional avenue by which the supply can fail.
+</p>
+<p>
+Note that <b>DemandModels return collections of Deliverables</b>, and the need for the required 
+consumable Shippables is implied.  Thus a DemandModel (and the associated demand file)
+would list a vaccine, but not its associated diluent.  HERMES fills in the need for
+the diluent.  The requirement is specified by including a 'Requires' column in the definition
+file for the Shippable type, and using standard notation (like '2*THIS_THING+THAT_THING) to
+give type names and counts for required Shippables.  Any Shippables which are not Deliverable
+and which are included in a demand file will get transported to the clinic but will not be used!
+</p>
+<p>The addition of required Shippables to the demand must take place in the model's methods 
+(getFactoryProductionFunction, getScheduledShipmentSize, getClinicShipQuantity,
+getClinicShipThreshold, getWarehouseShipQuantity, and getWarehouseShipThreshold), wherever those
+routines call the DemandModel.  It has to occur here so that on-hand consumables can be correctly
+subtracted from the order.  The rule is that the process calling the DemandModel should call 
+getPrepSupplies as soon as possible thereafter.  The UseVials processes do that when they make
+their DemandModel calls.
+</p>
+<p>
+AShippableCollection.addPrepSupplies() is currently applied to vial counts.  It could be
+applied to dose counts instead, as long as the number of doses per vial of (say) diluent is
+the same as the number of doses per vial of the associated vaccine, and as long as prep supplies
+don't overlap.  If two vaccines use the same diluent, however, there will be a problem: the 
+number of vials of diluent could be less than that needed to reconstitute the vials of vaccine
+of both types.  If that happens, we must consistently apply addPrepSupplies to collections of 
+vials.
+</p>
+</body>
+</html>

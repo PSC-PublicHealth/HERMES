@@ -1,0 +1,74 @@
+<html>
+
+<head>
+
+<title>Coding Style Conventions</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>Coding Style Conventions</h1>
+
+<p>
+  <ul>
+    <li>Variable names, property names and method names are 
+      written with camel-case 
+      with the leading character lower case.
+      <pre>
+	onHandVC= thisClinic.supplierWarehouse.getOnHandVC()
+      </pre>
+    <li>Class names are written with camel-case with the leading
+      character uppercase.
+      <pre>
+	class PeopleType(abstractbaseclasses.ManagedType):
+	    pass
+      </pre>
+    <li>Module names are all lower case, with underscores where necessary
+      for clarity.  This means that source file names are also lowercase
+      with occasional underscores.
+      <pre>
+	import util
+	import abstractbaseclasses
+	import model_generic
+      </pre>
+    <li>Constants intended to be accessed from other modules are
+      written in all uppercase with underscores as necessary.
+      <pre>
+	GLOBAL_FOO= "foo"
+
+	class MyClass:
+	    SOME_TAG= 1
+            OTHER_TAG= 2
+
+	if someVar==module_name.MyClass.OTHER_TAG:
+	    foo= module_name.GLOBAL_FOO
+        else:
+	    foo= None
+
+      </pre>
+    <li>Method names, function names and class-level or module-level 
+      variable names should be prefixed with underscore when they are
+      not intended to be accessed from outside the module.
+      <pre>
+	def _doubleThis(val):
+	    return val+val
+
+	class MyClass:
+	    def __init__(self):
+	        _someVal= 1
+	    def getVal(self):
+	        return self._someVal
+	    def getTwiceVal(self):
+	        return _doubleThis(self._someVal)
+      </pre>
+
+    <li>Items up for discussion:
+      <ul>
+	<li>Where to put utilities
+	<li>Should we move everything to src?
+      </ul>
+  </ul>
+</p>
+</body>
+</html>

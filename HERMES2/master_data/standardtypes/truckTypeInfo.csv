@@ -1,0 +1,5 @@
+Name,DisplayName,CoolVolumeCC,Storage,Notes
+Std_coldtruck,Cold truck 3570L,3570000,,
+Std_DoubleCabTruck,Double cab truck 4 large CB,0,4*Std_CB_RCW25,Source: Communication with Simona Zipursky and www.toyota.co.uk
+Std_SingleCabTruck,Single cab truck 8 large CB,0,8*Std_CB_RCW25,
+Std_motorbike,Motorbike 1 VC,0,Std_VC,

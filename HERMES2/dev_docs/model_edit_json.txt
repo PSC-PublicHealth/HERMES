@@ -1,0 +1,146 @@
+
+get a new tree node when the user expands a node that hasn't been downloaded to the client yet.
+    /json/modelRoutes/<modelId>
+    parms:
+	id:  node id being expanded
+
+    returns:
+        success:  true/false
+	updates:  update list
+	data:  list of nodes/node trees that exist below the expanded node.
+	errorString:  optional error message
+
+
+user updates a basic text field
+    /json/modelUpdate
+    parms:
+	inputId:  inputId of the field being updated
+	origStr:  the value of the field prior to being changed
+	newStr:  the new, user entered, value for the field
+    returns:
+        success:  true/false
+	updateList:  update list
+	errorString:  optional error message
+
+
+user requests to add a new tuple to a tuple list
+    /json/modelUpdateAddTuple
+    parms:
+        inputId:  inputId of the tuple list
+	value:  name part of the tuple to be added
+	count:  numeric part of the tuple to be added
+    returns:
+        success:  true/false
+	updateList:  update list
+	errorString:  optional error message
+
+
+user selects something on the pulldown edit menu:
+    /json/RequestBasicEdit
+    parms:
+        modelId:  which model
+	packedId:  input id created in client javascript.
+	context:  context data from context variable held by client
+	request:  the edit command requested (eg "cut", or "delete")
+    returns:
+        success:  true/false
+	updateList:  update list
+	errorString:  optional error message
+
+    
+user performs a drag and drop action:
+    /json/modelUpdateDND
+    parms:
+        srcId:  input id of the label of the source node (node being dragged)
+	dstId:  input id of the label of the destination node (node being dropped onto)
+	context:  context data from context variable held by client
+	dstStatus:  has the dst node had it's children fetched?  value should be one of
+                    "leaf", "populated", "unpopulated", or "other".
+    returns:
+        success:  true/false
+	updateList:  update list
+	errorString:  optional error message
+
+
+client requests a node to be resent (typically requested from an update list)
+    /json/ModelResendNode
+    parms:
+        modelId:  which model
+	nodeId:  which node
+    returns:
+        success:  true/false
+	updateList:  update list
+	errorString:  optional error message
+
+
+
+Update List Syntax:
+
+Update lists are created on the server to modify the state and appearance of the web 
+interface client.  Every JSON call to the server includes an update list that is sent
+down and in most cases, that is the only content returned.  They are simply a list of 
+dicts (each dict created with createLocalUpdateEntry() ) with the following entries:
+    inputId:  this is the id of the object being acted on.  Normally it is an inputId
+              but sometimes it is a nodeId.
+
+    value:    this is generally the value that is being set to inputId
+
+    displayValue:
+              (optional) this is a version of value meant to be displayed to the user.
+
+    updateType:
+              this is the type of update being sent.  The default is 'value' which
+              sets an input field with the id of inputId to 'value' but there are many
+              others, listed below.
+
+
+List Of Update Types:
+    value:    this is the default update type.  The value in a single update-able field 
+              in an html 'input', 'textarea', or 'select' with the id of <inputId> along 
+	      with the display-only 'fixed_<inputId>' field is set to <value> (and for
+	      certain types of input <displayValue> is displayed.  This also updates
+	      the current value of a field (as sent to the server as "OrigStr" in 
+	      a /json/modelUpdate json call.
+	      
+    html:     set the inner html of a dom object (with id of <inputId>) to <value>.
+
+    savedValue:
+              change the "current" value for an inputId (that will get sent up with
+	      a /json/modelUpdate json call as "OrigStr") to <value>.
+
+    focus:    set the focus to the element with id <inputId>
+
+    node:     replace the jstree node <inputId> with the data in <value>.  This will
+              work with the exact same structure that /json/modelRoutes/<modelId>
+	      uses except that only one node may be included per update entry (as 
+	      opposed to lists of trees of nodes that may be returned in the json
+	      call).
+
+    create:   create a new jstree node.  <inputId> is the node id of the new node.
+    	      <value> is a dict with the following fields:
+	          'parent' is the parent node of the new node.
+		  'location' is the position to create a new node relative to the 
+		  parent node and it's children.  From the jstree docs:
+		  This can be a zero based index to position the element at a specific 
+		  point among the current children. You can also pass in one of those 
+		  strings: "before", "after", "inside", "first", "last".
+		  'node' is the new node json (like the 'node' update, this may only 
+		  include one node and no children.
+              create should not be used when the parent node of the node being created
+	      has not been populated yet.  If this is the case it is better to create
+	      the new node in the database and then request that jstree open the node
+	      (generally with an 'open' update entry).
+
+    remove:   remove a node with a node id of <inputId>.
+
+    open:     request that jstree open the node <inputId>
+
+    clearUpdates:
+              This is probably deprecated now that saved values are resent completely
+	      when a node is created either in an update list or a jstree json request.
+	      This will clear all updates saved in the fieldChanges structure referring
+	      to a given node.  Use encodeItemId() to encode the specific node that is
+	      being cleared.
+
+    changeId: change the node id of a single node.  The client will immediately request
+    	      that the node be resent after the node id is updated.

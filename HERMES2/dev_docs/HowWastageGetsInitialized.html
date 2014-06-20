@@ -1,0 +1,42 @@
+<html>
+
+<head>
+
+<title>How model.wastageEstimates Gets Initialized And Updated</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>How model.wastageEstimates Gets Initialized And Updated</h1>
+
+<p>
+
+The Model base class has a method called initializeOVWEstimates()
+which attaches a VaccineCollection called wastageEstimates to the
+model.  This method is called by the owning HermesSim immediately
+after it creates and initializes its Model instance; it cannot be
+included in Model.__init__ itself because the initialization algorithm
+requires sim.vaccines.activeTypeList() to be valid, and that is
+brought about by the instantiation of the DemandModel instances by the
+model.  The model can prevent this initialization by assigning a value
+to its wastageEstimates attribute.  The values in
+model.wastageEstimates range from 0.0 (perfect efficiency) to 1.0 and
+can be used or ignored by the model in its calculation of shipment
+sizes.  If the userInput provides a filename value for 'initialovw'
+and that .csv file has the columns 'Names' and 'OVW', the open vial
+waste values from that file will be used.  If not, all values are
+initialized to 0.5 .  Note that pull shipments set their thresholds at
+time 0.0, so having good initial estimates can be important.
+</p>
+<p>
+If userInput defines a value 'wasteestfreq' which is greater than 0.0,
+the values will be updated with that frequency and a latency given by
+the input value 'wasteestupdatelatency'.  The process that does those
+updates is created by the owning HermesSim in response to
+wasteestfreq>0, during the phase in which the network is being built.
+
+
+</p>
+</body>
+</html>

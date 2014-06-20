@@ -1,0 +1,95 @@
+function,field,field2,name,val,hide,notes
+,,,,,,If the function slot is empty I can use this line as a comment
+,,,,,,
+outputName,tutorial_out_cust,,,,,sets the name of the output file (which will have the 
+,,,,,,run number and .csv appended to it)
+,,,,,,
+goto,2,1,,,,Move the cursor to position 2:1 (eqivalent to C2)
+label,,,Vaccine Availability,,,put up a text label
+skip,3,,,,,this is a relative move.  Move 3 space right
+label,,,Closed Vial Wastage,,,
+skip,3,,,,,
+label,,,Open Vial Wastage,,,
+skip,2,,,,,
+use,stores,,,,,switch over to using stores
+aggregateValues,category,,LevelName,,,
+use,routes,,,,1,
+aggregateSum,TransportCost,category,TransportCost,,1,*
+use,stores,,,,1,
+aggregateSum,BuildingCost,category,BuildingCost,,1,*
+aggregateSum,LaborCost,category,LaborCost,,1,*
+aggregateSum,StorageCost,category,StorageCost,,1,*
+,,,,,,
+use,vax,,,,,state that we're using vaccine summary data
+require,Applied,,,,,dont display content from unused vaccine types
+goto,1,2,,,,
+display,Name,,,,,display the Name column for the current data
+display,SupplyRatio,,,,,similarly display the supply ratio column
+display,VialsUsed,,,,,…
+skip,,,,,,skip without any arguments defaults to moving one space right
+display,VialsBroken,,,,,
+display,VialsExpired,,,,,
+skip,,,,,,
+display,VialsUsed,,,,,
+display,OpenVialWasteFrac,,OVW,,,
+skip,,,,,,
+display,Treated,,,,,
+,,,,,,
+,,,,,,
+goto,2,-1,,,,goto with a negative value in the row axis is based from bottom of the display.  -1 is the first unused unused row.
+skip,0,1,,,,skip down a row so we have an empty row
+statAverageField,SupplyRatio,,,,1,Take an average of the SupplyRatio Field.  Use hide to not show the label.
+statSumField,VialsUsed,,,,1,Take the sum of VialsUsed.  Continue with the hiding
+skip,,,,,,
+statSumField,VialsBroken,,,,1,
+statSumField,VialsExpired,,,,1,
+skip,,,,,,
+statSumField,VialsUsed,,,,1,
+skip,,,,,,
+skip,,,,,,
+statSumField,Treated,,,,1,
+skip,,,,,,
+goto,0,-1,,,,
+skip,0,1,,,,
+use,stores,,,,,
+display,code,,,,,
+display,category,,,,,
+display,name,,,,,
+display,cooler,,,,,
+display,tot_delivery_vol,,,,,
+saveCell,x,y,,,,save the current cursor position so it can be referenced later
+skip,,,,,,
+label,,,Central utilization,,,
+label,,,State utilization,,,
+label,,,County utilization,,,
+label,,,City utilization,,,
+goto,x,y,,,,go back to the saved cursor position
+skip,1,1,,,,
+statAverageFieldForField2Val,cooler,category,,Central,1,take an average of the cooler field of all of the rows that have the value Central in the category field
+statAverageFieldForField2Val,cooler,category,,State,1,
+statAverageFieldForField2Val,cooler,category,,County,1,
+statAverageFieldForField2Val,cooler,category,,City,1,
+goto,x,y,,,,
+skip,1,4,,,,
+label,,,Central L delivered,,,
+label,,,State L delivered,,,
+label,,,County L delivered,,,
+label,,,City L delivered,,,
+goto,x,y,,,,
+skip,1,5,,,,
+statSumFieldForField2Val,tot_delivery_vol,category,,Central,1,take the sum of tot_delivery_vol field of all of the rows that have the value Central in the field category
+statSumFieldForField2Val,tot_delivery_vol,category,,State,1,
+statSumFieldForField2Val,tot_delivery_vol,category,,County,1,
+statSumFieldForField2Val,tot_delivery_vol,category,,City,1,
+skip,,,,,,
+goto,x,y,,,,
+skip,7,0,,,,
+use,routes,,,,,
+display,RouteName,,,,,
+display,RouteFill,,Transport utilz,,,
+display,RouteTrips,,trips(tot),,,
+display,RouteTruckType,,dev type,,,
+aggregateAverage,RouteFill,RouteTruckType,Average Transport utilz,,1,
+aggregateValues,RouteTruckType,,Transport type,,1,
+aggregateAverage,RouteTrips,RouteTruckType,Total Trips by Vehicle Type,,1,
+skip,,,,,,

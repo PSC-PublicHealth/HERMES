@@ -1,0 +1,140 @@
+200 PVSD's at Central
+
+Total Time	572.127
+
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     8198   46.153    0.006  425.837    0.052 warehouse.py:309(allocateOwnerStor
+ageSpace)
+    26345   43.194    0.002   43.194    0.002 {method 'sort' of 'list' objects}
+  3117164   36.761    0.000   74.846    0.000 fridgetypes.py:51(store)
+  6704038   35.010    0.000   58.942    0.000 abc.py:128(__instancecheck__)
+  9523383   34.055    0.000   50.088    0.000 vaccinetypes.py:71(updateAge)
+  9514117   33.079    0.000   83.124    0.000 vaccinetypes.py:103(getAge)
+ 19029555   32.183    0.000   32.183    0.000 vaccinetypes.py:172(getType)
+  3111998   31.263    0.000  159.116    0.000 warehouse.py:446(store)
+  7422410   23.960    0.000   82.872    0.000 {isinstance}
+ 12519154   21.411    0.000   21.411    0.000 vaccinetypes.py:174(getCount)
+    15464   19.805    0.001  104.355    0.007 warehouse.py:596(getSupplySummary)
+
+     9126   19.493    0.002  102.449    0.011 vaccinetypes.py:501(getCollectionF
+romGroupList)
+  3128394   17.891    0.000   23.600    0.000 util.py:788(next)
+  9797916   16.162    0.000   16.162    0.000 Simulation.py:311(now)
+  3079212   13.382    0.000   18.753    0.000 vaccinetypes.py:438(getNVialsThatF
+it)
+  6977776   13.307    0.000   13.307    0.000 _weakrefset.py:68(__contains__)
+  3123708   12.230    0.000   42.186    0.000 fridgetypes.py:63(getNVialsThatFit
+)
+    78803   12.127    0.000   94.221    0.001 typemanager.py:38(__init__)
+  7425276   11.587    0.000   11.587    0.000 {method 'append' of 'list' objects
+}
+  3103373   10.821    0.000   29.730    0.000 warehouse.py:678(getNVialsThatFit)
+
+-----------------------------
+
+300 PVSDs
+
+-----------------------------
+
+500 PVSDs
+
+Total Time	4347.554
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       21    0.000    0.000    0.000    0.000 {method 'reverse' of 'list' object
+s}
+        1    0.000    0.000    0.000    0.000 Tkinter.py:336(Misc)
+      645    0.001    0.000    0.001    0.000 vaccinetypes.py:295(canFreeze)
+        1    0.000    0.000    0.000    0.000 Lib.py:581(Buffer)
+       14    0.000    0.000    0.000    0.000 __init__.py:147(_check_size)
+        3    0.000    0.000    0.000    0.000 storagetypes.py:62(getSummaryDict)
+
+       11    0.000    0.000    0.000    0.000 {method '__contains__' of 'dict' o
+bjects}
+        1    0.000    0.000    0.000    0.000 demandmodel.py:183(ScaleVaxDemandB
+yTypeModel)
+        1    0.000    0.000    0.000    0.000 fridgetypes.py:472(FridgeTypeManag
+er)
+     9464  444.553    0.047 3317.322    0.351 warehouse.py:309(allocateOwnerStor
+ageSpace)
+        1    0.000    0.000    0.000    0.000 optparse.py:200(__init__)
+        1    0.000    0.000    0.000    0.000 csv.py:26(Dialect)
+      746    0.032    0.000    0.129    0.000 model.py:493(_peopleCollectionFrom
+TableRec)
+      167    0.001    0.000    0.001    0.000 util.py:793(pushback)
+        1    0.000    0.000    0.000    0.000 {method 'itervalues' of 'dict' obj
+ects}
+      117    0.000    0.000    0.002    0.000 re.py:134(match)
+        1    0.000    0.000    0.000    0.000 util.py:287(ForkAwareLocal)
+      644    0.001    0.000    0.001    0.000 warehouse.py:1502(setNoteHolder)
+        1    0.000    0.000    0.000    0.000 util.py:398(TagAwareDict)
+    30406    0.044    0.000    0.044    0.000 util.py:289(__init__)
+
+------------------------------
+
+750 PVSDs
+
+Total Time	6272.250
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    10438  704.724    0.068 4741.979    0.454 warehouse.py:309(allocateOwnerStor
+ageSpace)
+    34251  413.974    0.012  413.974    0.012 {method 'sort' of 'list' objects}
+154638998  405.204    0.000  591.294    0.000 vaccinetypes.py:71(updateAge)
+154554651  392.442    0.000  983.394    0.000 vaccinetypes.py:103(getAge)
+ 43374205  380.787    0.000  759.894    0.000 fridgetypes.py:51(store)
+293739230  346.816    0.000  346.816    0.000 vaccinetypes.py:172(getType)
+ 87083624  328.221    0.000  549.642    0.000 abc.py:128(__instancecheck__)
+ 43291606  319.004    0.000 1614.976    0.000 warehouse.py:446(store)
+    16432  311.746    0.019 1174.344    0.071 warehouse.py:596(getSupplySummary)
+
+    13910  298.699    0.021 1155.024    0.083 vaccinetypes.py:501(getCollectionF
+romGroupList)
+202999289  249.094    0.000  249.094    0.000 vaccinetypes.py:174(getCount)
+ 89435853  219.598    0.000  769.177    0.000 {isinstance}
+ 43312482  191.156    0.000  248.462    0.000 util.py:788(next)
+156233917  185.603    0.000  185.603    0.000 Simulation.py:311(now)
+123855464  135.638    0.000  135.638    0.000 {method 'append' of 'list' objects
+}
+ 43074392  134.837    0.000  188.414    0.000 vaccinetypes.py:438(getNVialsThatF
+it)
+ 43427314  128.897    0.000  428.799    0.000 fridgetypes.py:63(getNVialsThatFit
+)
+ 87372902  120.237    0.000  120.237    0.000 _weakrefset.py:68(__contains__)
+    91635  111.840    0.001  904.693    0.010 typemanager.py:38(__init__)
+ 43401721  109.064    0.000  299.682    0.000 warehouse.py:678(getNVialsThatFit)
+
+---------------------------------
+
+1117 PVSDs
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       21    0.000    0.000    0.000    0.000 {method 'reverse' of 'list' object
+s}
+        1    0.000    0.000    0.000    0.000 Tkinter.py:336(Misc)
+      645    0.001    0.000    0.001    0.000 vaccinetypes.py:295(canFreeze)
+        1    0.000    0.000    0.000    0.000 Lib.py:581(Buffer)
+       14    0.000    0.000    0.000    0.000 __init__.py:147(_check_size)
+        3    0.000    0.000    0.000    0.000 storagetypes.py:62(getSummaryDict)
+
+       11    0.000    0.000    0.000    0.000 {method '__contains__' of 'dict' o
+bjects}
+        1    0.000    0.000    0.000    0.000 demandmodel.py:183(ScaleVaxDemandB
+yTypeModel)
+        1    0.000    0.000    0.000    0.000 fridgetypes.py:472(FridgeTypeManag
+er)
+    11912  964.359    0.081 5861.564    0.492 warehouse.py:309(allocateOwnerStor
+ageSpace)
+        1    0.000    0.000    0.000    0.000 optparse.py:200(__init__)
+        1    0.000    0.000    0.000    0.000 csv.py:26(Dialect)
+      746    0.030    0.000    0.120    0.000 model.py:493(_peopleCollectionFrom
+TableRec)
+       40    0.000    0.000    0.000    0.000 util.py:793(pushback)
+        1    0.000    0.000    0.000    0.000 {method 'itervalues' of 'dict' obj
+ects}
+      117    0.000    0.000    0.002    0.000 re.py:134(match)
+        1    0.000    0.000    0.000    0.000 util.py:287(ForkAwareLocal)
+      644    0.001    0.000    0.001    0.000 warehouse.py:1502(setNoteHolder)
+        1    0.000    0.000    0.000    0.000 util.py:398(TagAwareDict)
+    32870    0.039    0.000    0.039    0.000 util.py:289(__init__)

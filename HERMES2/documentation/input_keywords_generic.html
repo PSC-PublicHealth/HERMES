@@ -1,0 +1,117 @@
+<html>
+<head>
+<title>HERMES Input File Keywords</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body>
+
+<center><h1>HERMES Input File Keywords - <i>Generic Model, SVN  
+r1101</i></h1></center>
+
+<table>
+<table><tr><th align=right>Keyword</th><th align=center>Type</th><th align=center>Default Value</th><th align=left>Description</th></tr>
+<tr><td align=right><b>model</b></td><td align=center>string</td><td align=center>model_default</td><td align=left>model to be run: e.g. 'model_niger'</td></tr>
+<tr><td align=right><b>seed</b></td><td align=center>longOrNone</td><td align=center>None</td><td align=left>set random seed</td></tr>
+<tr><td align=right><b>monitor</b></td><td align=center>string_list</td><td align=center>None</td><td align=left>monitor this list of warehouses</td></tr>
+<tr><td align=right><b>tally</b></td><td align=center>string_list</td><td align=center>None</td><td align=left>histogram this warehouse</td></tr>
+<tr><td align=right><b>monvax</b></td><td align=center>string_list</td><td align=center>None</td><td align=left>when monitoring watch this vaccine ('all' for all)</td></tr>
+<tr><td align=right><b>trackvial</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>track a vial for this vaccine</td></tr>
+<tr><td align=right><b>trackshipment</b></td><td align=center>long</td><td align=center>0</td><td align=left>when tracking a vial of vaccine select it from this factory shipment</td></tr>
+<tr><td align=right><b>saveall</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>filename for PKL file to save all graphs</td></tr>
+<tr><td align=right><b>includecatchup</b></td><td align=center>TF</td><td align=center>FALSE</td><td align=left>adds a catchup campaign to the demandmodel</td></tr>
+<tr><td align=right><b>catchupfile</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>filename for specifying the catchup demand</td></tr>
+<tr><td align=right><b>catchupdays</b></td><td align=center>int</td><td align=center>0</td><td align=left>number of days for the catchup campaign</td></tr>
+<tr><td align=right><b>catchupstart</b></td><td align=center>int</td><td align=center>0</td><td align=left>day to start the catchup campaign</td></tr>
+<tr><td align=right><b>catchupcoverage</b></td><td align=center>float</td><td align=center>1</td><td align=left>proportion of the population for catchup to vaccinate</td></tr>
+<tr><td align=right><b>catchupvaccines</b></td><td align=center>string_list</td><td align=center>V_Dengue</td><td align=left>names of vaccines to be used in the catchup campaign</td></tr>
+<tr><td align=right><b>scaleclinicstorage</b></td><td align=center>string</td><td align=center>nolongersupported</td><td align=left>this input is no longer supported</td></tr>
+<tr><td align=right><b>scaleadminstorage</b></td><td align=center>string</td><td align=center>nolongersupported</td><td align=left>this input is no longer supported</td></tr>
+<tr><td align=right><b>scalenumberoftrucks</b></td><td align=center>string</td><td align=center>nolongersupported</td><td align=left>this input is no longer supported</td></tr>
+<tr><td align=right><b>calendarfile</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>filename for specifying the calendar demand</td></tr>
+<tr><td align=right><b>calendarcycle</b></td><td align=center>int</td><td align=center>0</td><td align=left>number of days in the calendar cycle</td></tr>
+<tr><td align=right><b>wasteestfreq</b></td><td align=center>int</td><td align=center>0</td><td align=left>how often to update the factory waste estimation algorithm</td></tr>
+<tr><td align=right><b>wasteestupdatelatency</b></td><td align=center>float</td><td align=center>50</td><td align=left>latency until start-up of OVW update process</td></tr>
+<tr><td align=right><b>rundays</b></td><td align=center>int</td><td align=center>30</td><td align=left>Number of Days for Simulation</td></tr>
+<tr><td align=right><b>storesfile</b></td><td align=center>string</td><td align=center>None</td><td align=left>filename defining the models storage units. Default of None is an illegal value making this input required</td></tr>
+<tr><td align=right><b>routesfile</b></td><td align=center>string</td><td align=center>None</td><td align=left>file defining the routes table for the model. Default of None is an illegal value making this input required</td></tr>
+<tr><td align=right><b>demandfile</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>file defining the demand for the model. </td></tr>
+<tr><td align=right><b>gapstorefile</b></td><td align=center>stringOrNone</td><td align=center>None</td>"<td align=left>file defining the storage devices by level that will be used to fill existing storage gaps, Only needed if doing gap analysis – then Defaults to None id illegal value making this input required, then Defaults to None is illegal value making this input required</td></tr>"
+<tr><td align=right><b>storesoverlayfiles</b></td><td align=center>string_list</td><td align=center>None</td><td align=left>list of csv files to ammend the base stores file</td></tr>
+<tr><td align=right><b>routesoverlayfiles</b></td><td align=center>string_list</td><td align=center>None</td><td align=left>list of csv files to ammend the base routes file</td></tr>
+<tr><td align=right><b>burnindays</b></td><td align=center>int</td><td align=center>30</td><td align=left>Number of Days of Burning for the simulation</td></tr>
+<tr><td align=right><b>verbose</b></td><td align=center>TF</td><td align=center>FALSE</td><td align=left>turns on verbose output</td></tr>
+<tr><td align=right><b>debug</b></td><td align=center>TF</td><td align=center>FALSE</td><td align=left> turns on debugging output</td></tr>
+<tr><td align=right><b>outputfile</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>filename for output text - default is stdout</td></tr>
+<tr><td align=right><b>initialovw</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>filename for input csv file containing initial OVW values</td></tr>
+<tr><td align=right><b>pickupdelayfrequency</b></td><td align=center>floatOrNone</td><td align=center>None</td><td align=left>frequency of shipping delay incurred before transport starts (0.0-1.0)</td></tr>
+<tr><td align=right><b>pickupdelaymagnitude</b></td><td align=center>floatOrNone</td><td align=center>None</td><td align=left>magnitude in days of shipping delays</td></tr>
+<tr><td align=right><b>pickupdelaysigma</b></td><td align=center>floatOrNone</td><td align=center>None</td><td align=left>if this value exists use a normal distribution for the delay with this value as the standard deviation</td></tr>
+<tr><td align=right><b>pickupdelayreorder</b></td><td align=center>TF</td><td align=center>FALSE</td><td align=left>if set we recalculate the order on a pull shipment</td></tr>
+<tr><td align=right><b>deliverydelayfrequency</b></td><td align=center>floatOrNone</td><td align=center>None</td><td align=left>frequency of shipping delay incurred during transport (0.0-1.0)</td></tr>
+<tr><td align=right><b>deliverydelaymagnitude</b></td><td align=center>floatOrNone</td><td align=center>None</td><td align=left>magnitude in days of shipping delays</td></tr>
+<tr><td align=right><b>deliverydelaysigma</b></td><td align=center>floatOrNone</td><td align=center>None</td><td align=left>if this value exists use a normal distribution for the delay with this value as the standard deviation</td></tr>
+<tr><td align=right><b>shippingdelayseed</b></td><td align=center>longOrNone</td><td align=center>None</td><td align=left>if exists use a separate random number generator seeded with this value for any shipping delay processes not explicitly overridden in the routes file</td></tr>
+<tr><td align=right><b>poweroutagefrequencyperyear</b></td><td align=center>floatOrNone</td><td align=center>None</td><td align=left> frequency of power outages per cluster per year</td></tr>
+<tr><td align=right><b>poweroutagedurationdays</b></td><td align=center>floatOrNone</td><td align=center>None</td><td align=left> duration of power outages</td></tr>
+<tr><td align=right><b>poweroutagedurationsigma</b></td><td align=center>floatOrNone</td><td align=center>None</td><td align=left> if exists use normal distribution for power outage duration with this value as the standard deviation</td></tr>
+<tr><td align=right><b>poweroutageaffectedratio</b></td><td align=center>floatOrNone</td><td align=center>None</td><td align=left> if exists percent chance of a warehouse to be affected within its cluster</td></tr>
+<tr><td align=right><b>poweroutageclusterid</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left> if exists sets a default clusterid for unlabeled poweroutage records</td></tr>
+<tr><td align=right><b>stockmonitorinterval</b></td><td align=center>float</td><td align=center>0.1</td><td align=left>interval to monitor stock at each store to look for overstocking</td></tr>
+<tr><td align=right><b>stockmonitorthresh</b></td><td align=center>float</td><td align=center>0.99</td><td align=left>Threshold for recording an overstocking</td></tr>
+<tr><td align=right><b>customoutput</b></td><td align=center>string_list</td><td align=center>None</td><td align=left>Create a custom output file based on the csv file pointed to in the argument.  There can be multiple custom outputs</td></tr>
+<tr><td align=right><b>monthlyreports</b></td><td align=center>TF</td><td align=center>FALSE</td><td align=left>turns on monthly reporting</td></tr>
+<tr><td align=right><b>discardunusedvaccine</b></td><td align=center>TF</td><td align=center>FALSE</td><td align=left>If true the clinic will discard any remaining supply of vaccine at the end of a treatment session</td></tr>
+<tr><td align=right><b>twentyeightdaymonths</b></td><td align=center>TF</td><td align=center>FALSE</td><td align=left>If true then months are 28 days long. False means 30 days. Weeks are always 7 days and years are always 12 months</td></tr>
+<tr><td align=right><b>factoryoverstockscale</b></td><td align=center>float</td><td align=center>1</td><td align=left>Scale the anticipated demand by this factor to determine factory production</td></tr>
+<tr><td align=right><b>factoryshipmentsperyear</b></td><td align=center>float</td><td align=center>4</td><td align=left>The factory will ship this many times per year at equal intervals</td></tr>
+<tr><td align=right><b>factorystartuplatency</b></td><td align=center>float</td><td align=center>0</td><td align=left>Time in days after 0.0 that the factory makes its first delivery and begins its cycle</td></tr>
+<tr><td align=right><b>defaulttrucktypename</b></td><td align=center>string</td><td align=center>default</td><td align=left>What type of truck should be used for implied pull links?  These do not appear in the Routes file</td></tr>
+<tr><td align=right><b>defaultpullmeaninterval</b></td><td align=center>float</td><td align=center>30</td><td align=left>What should be the planned time between shipments on implied pull links?  These do not appear in the Routes file</td></tr>
+<tr><td align=right><b>defaulttruckinterval</b></td><td align=center>float</td><td align=center>0</td><td align=left>What is the minimum time between shipments on implied pull links?  These do not appear in the Routes file</td></tr>
+<tr><td align=right><b>defaultshipstartuplatency</b></td><td align=center>floatOrNone</td><td align=center>None</td><td align=left>If the model respects this value it provides StartupLatencyDays information for routes with no corresponding entry</td></tr>
+<tr><td align=right><b>mergefridgeyears</b></td><td align=center>TF</td><td align=center>TRUE</td><td align=left>if set fridges the name of which includes a specific year field are replaced with their _U_-year equivalent if that type has the same storage characteristics.  This is done just to reduce the number of fridge types tracked</td></tr>
+<tr><td align=right><b>scaledemandexpected</b></td><td align=center>float</td><td align=center>1</td><td align=left>factor between 0 and 1 to scale the expected demand</td></tr>
+<tr><td align=right><b>scaledemandactual</b></td><td align=center>float</td><td align=center>1</td><td align=left>factor between 0 and 1 to scale the actual demand</td></tr>
+<tr><td align=right><b>scaledemandbytypeexpected</b></td><td align=center>string_list</td><td align=center>None</td><td align=left>factor to scale expected demand by vaccine (and other) type.  Format is a comma-separated list of vax_a:scale pairs</td></tr>
+<tr><td align=right><b>scaledemandbytypeactual</b></td><td align=center>string_list</td><td align=center>None</td><td align=left>factor to scale expected demand by vaccine (and other) type.  Format is a comma-separated list of vax_a:scale pairs</td></tr>
+<tr><td align=right><b>usestaticdemand</b></td><td align=center>TF</td><td align=center>FALSE</td><td align=left>If true the demand will not be stochastic but instead exactly what you put in Stores file which is only useful for debugging</td></tr>
+<tr><td align=right><b>pvsdbugfix</b></td><td align=center>TF</td><td align=center>FALSE</td><td align=left>if true employ the Joels PVSD bug fix</td></tr>
+<tr><td align=right><b>vaccinefile</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>file to define or override the unified vaccine type definitions</td></tr>
+<tr><td align=right><b>truckfile</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>file to define or override the unified truck type definitions</td></tr>
+<tr><td align=right><b>peoplefile</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>file to define or override the unified people type definitions</td></tr>
+<tr><td align=right><b>fridgefile</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>file to define or override the unified fridge type definitions</td></tr>
+<tr><td align=right><b>icefile</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>file to define or override the unified ice type definitions</td></tr>
+<tr><td align=right><b>currentpopulationyear</b></td><td align=center>int</td><td align=center>-1</td><td align=left>The Year in which the current population in the Storesfile is defined for</td></tr>
+<tr><td align=right><b>targetpopulationyear</b></td><td align=center>int</td><td align=center>-1</td><td align=left>The year in which the population should be extrapolated to</td></tr>
+<tr><td align=right><b>birthrate </b></td><td align=center>float</td><td align=center>-1</td><td align=left>The birth rate expressed in number of births per 1000 people</td></tr>
+<tr><td align=right><b>deathrate</b></td><td align=center>float</td><td align=center>-1</td><td align=left>The death rate expressed in number of deaths per 1000 people</td></tr>
+<tr><td align=right><b>infantmortality</b></td><td align=center>float</td><td align=center>-1</td><td align=left>The infant mortality rate expressed in number of deaths per 1000 births</td></tr>
+<tr><td align=right><b>pricetable</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>A CSV file containing costing information for items used in this simulation – 'None' implies no costing analysis</td></tr>
+<tr><td align=right><b>currencyconversionfile</b></td><td align=center>string</td><td align=center>CurrencyConversionTable.csv</td><td align=left>A CSV file providing currency conversion factors</td></tr>
+<tr><td align=right><b>currencybase</b></td><td align=center>string</td><td align=center>USD</td><td align=left>Currency code of the currency to be used for all cost calculations</td></tr>
+<tr><td align=right><b>currencybaseyear</b></td><td align=center>int</td><td align=center>2011</td><td align=left>Currency conversions will be done using tabulated data for this year</td></tr>
+<tr><td align=right><b>googleearthviz</b></td><td align=center>TF</td><td align=center>FALSE</td><td align=left>Defines whether you want to create a set of Google Earth Vizualizations</td></tr>
+<tr><td align=right><b>googleearthvizsegments</b></td><td align=center>int</td><td align=center>1</td>"<td align=left>For large simulations, this defines how many segments you would like to create in time so that everything shows up on GE</td></tr>"
+<tr><td align=right><b>googleearthvizinityear</b></td><td align=center>int</td><td align=center>2012</td><td align=left></td></tr>
+<tr><td align=right><b>googleearthvizinitmonth</b></td><td align=center>int</td><td align=center>1</td><td align=left></td></tr>
+<tr><td align=right><b>googleearthvizinitday</b></td><td align=center>int</td><td align=center>1</td><td align=left></td></tr>
+<tr><td align=right><b>googleearthvizcolumnheight</b></td><td align=center>int</td><td align=center>100000</td>"<td align=left>Height of the columns that will be displayed on Google Earth, I think these are in miles, but I am not sure.</td></tr>"
+<tr><td align=right><b>googleearthviznumberofcolors</b></td><td align=center>int</td><td align=center>100</td><td align=left>Number of colors between red and blue to display on Google earth</td></tr>
+<tr><td align=right><b>shippingdemandfile</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>file defining the demand for shipping quantity calculations used in the model</td></tr>
+<tr><td align=right><b>consumptiondemandfile</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>file defining the demand for consumption quantity calculations used in the model</td></tr>
+<tr><td align=right><b>shippingcalendarfile</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>filename for specifying the calendar demand for shipping calculations</td></tr>
+<tr><td align=right><b>consumptioncalendarfile</b></td><td align=center>stringOrNone</td><td align=center>None</td><td align=left>filename for specifying the calendar demand for consumption calculations</td></tr>
+<tr><td align=right><b>campaignvaccines</b></td><td align=center>string_list</td><td align=center>None</td><td align=left>List of vaccines that will be considered campaign vaccines and will use demandExpectation rather than instantaneous demand</td></tr>
+<tr><td align=right><b>dayspermonth</b></td><td align=center>int</td><td align=center>28</td>"<td align=left>The number of days in a month, this is dependent on which model you are planning to run</td></tr>"
+<tr><td align=right><b>levellist</b></td><td align=center>string_list</td><td align=center>Central</td><td align=left>Region</td></tr>
+<tr><td align=right><b>centrallevellist</b></td><td align=center>string_list</td><td align=center>Central</td><td align=left>The central or hub CATEGORY or level that is used in this model</td></tr>
+<tr><td align=right><b>cliniclevellist</b></td><td align=center>string_list</td><td align=center>Clinic</td><td align=left>The CATEGORYs or levels that can administer vaccines in this model</td></tr>
+<tr><td align=right><b>storagebreakage</b></td><td align=center>float_list</td><td align=center>0</td><td align=left>transit breakage fraction (one value per level).  If insufficient values specified the last value is copied.</td></tr>
+<tr><td align=right><b>transitbreakage</b></td><td align=center>float_list</td><td align=center>0</td><td align=left>transit breakage fraction (one value per level).  If insufficient values specified the last value is copied.</td></tr>
+<tr><td align=right><b>vizwidths</b></td><td align=center>float_list</td><td align=center>0.1</td><td align=left>0.05</td></tr>
+<tr><td align=right><b>vizshapes</b></td><td align=center>string_list</td><td align=center>'c'</td><td align=left>'s'</td></tr>
+</table>
+</table>
+
+</body>
+</html>

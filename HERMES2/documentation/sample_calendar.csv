@@ -1,0 +1,7 @@
+"StartDate","0To1Year","1To2Year","2To3Year","3To4Year","Notes"
+0.0,1.0,1.0,1.0,1.0,"Cover the burn-in year"
+336.0,0.25,0.0,0.5,0.25,"end burn-in and start 3 months"
+420.0,0.25,0.25,0.25,0.25,"2nd 3 months"
+504.0,0.5,0.25,0.25,0.25,"3rd 3 months"
+588.0,0.0,0.5,0.0,0.25,"4th 3 months"
+672.0,1.0,1.0,1.0,1.0,"These numbers don't matter because the run ends here"

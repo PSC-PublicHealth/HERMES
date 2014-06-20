@@ -1,0 +1,51 @@
+Background:
+
+Vaccine transit times of zero are reported from the HERMES model if either the patientWaitInterval or the orderPendingLifetime are greater than zero.
+
+patientWaitInterval (how long a human will wait at a clinic to receive vaccine if none is avaible upon arrival)
+orderPendingLifetime (how long a truck will wait for a shipment to arrive if it is not there when the truck arrives for pickup)
+
+There was some concern that this behavior was the result of a bug.  The following experiment investigates this phenomenon.
+
+Question:
+
+How does varying patientWaitInterval, orderPendingLifetime, factory shipment interval, and factory overstock fraction effect the vaccine transit time histograms.
+
+Method:
+
+Using the MozNonVR model as a test case, both the orderPendingLifetime and the patientWaitInterval were systematically varied from zero to their respective default values in a fully factorial experimental design.
+
+The resulting retention time histograms were plotted in a faceted grid using ggplot2 in R.  
+
+Discussion:
+
+Main findings are:
+
+1.) No zero-time transits are reported if both orderPendingLifetime and patientWaitInterval are zero
+
+2.) Even if both paramters are small (but not zero), transit times of zero will still be observed
+
+3.) Even if both parameters are zero, very small (but non-zero) transit times will be observed.
+
+4.) The orderPendingLifetime has a more pronounced effect on the numer of zero-time (and very short) transit times observed.
+
+Additional, interesting observations:
+
+- Certain combinations of the two parameters seem to result in more or less varied distributions of transit times (see figure1)
+
+- Certain values of orderPendingLifetime have a similar effect (see figure2)
+
+Figures:
+
+    figure1
+        ggplot(data=subset(aggregated.moznvr.csv.subday,ReportingLevel=='all'),aes(days_retention)) + geom_histogram(binwidth=0.0005) + xlim(0,0.05) + facet_grid(PatientWait ~ OrderPending)
+
+    figure2
+        ggplot(data=subset(aggregated.moznvr.csv.subday,ReportingLevel=='all'),aes(days_retention)) + geom_histogram(binwidth=0.0005) + xlim(0,0.05) + facet_grid(PatientWait ~ OrderPending)
+
+    figure3
+        ggplot(data=subset(aggregated.moznvr.csv.subday,ReportingLevel=='all' & OrderPending <= 0.05 & PatientWait <= 0.05),aes(days_retention)) + geom_histogram(binwidth=0.0005) + xlim(0,0.05) + facet_grid(OrderPending ~ PatientWait)
+
+References:
+
+See issue #133 in the hermes redmine.

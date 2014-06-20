@@ -1,0 +1,25 @@
+<html>
+<head>
+
+<title>Deliverables and Shippables</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<left><h1>Explaining Deliverables and Shippables</h1></left>
+<p>In recent repository versions (around SVN r1109), we have changed the DemandModel functionality so that there are two separate abstract base classes of deliverables. These classes are:
+<ul>
+<li><b>Shippables</b>: an object shipped across the supply chain, which may not individually be given to an end-user. Shippables may be used to prepare a Deliverable, and may be used in conjunction with other Deliverables. Their delivery is implied in the supply chain. An example of a Shippable might be diluent needed to reconstitute lyophilized vaccine, or in the case of fast food, the oil needed to fry fast food.</li>
+<li><b>Deliverables</b>: this is an object shipped across the supply chain, which must be prepared at delivery time before it is consequently given to a customer. As Joel explained it, "it is a something that a patient gets, and may require other Shippables before the patient can get it." The delivery of a deliverable is returned by their respective demand model. An example of a Deliverable might be the vaccine which is administered to the population, or the french fries given to a fast food restaurant patron.</li>
+</ul></p>
+
+<p>There is a preparation process for deliverables which happens instantaneously. More data about these preparation + delivery processes can be found in the developer documentation <a href="../dev_docs/DeliverablesVsShippables.html" target="_blank">here</a>.</p>
+
+<h3>Auxillary Notes</h3>
+<ul>
+<li>DemandModels return collections of Deliverables only; the need for consumable Shippables are implied. Therefore, DemandModels display Deliverables only.</li>
+<li>Fridges are Deliverables because they are Shippables which are not consumed to prepare any other Shippable for delivery.</li>
+</ul>
+</body>
+</html>

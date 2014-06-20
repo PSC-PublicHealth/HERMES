@@ -1,0 +1,112 @@
+<html>
+<head>
+<title>Before You Start: PSC Accounts, SVN, DAV and RedMine</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+<link href="hermes_introduction.html" rel="Prev"><link href="../STARTHERE.html" rel="Start"><link href="using_svn_repository.html" rel="Next">
+
+</head>
+<body>
+<h1>Before You Start: Obtaining a PSC Account, SVN, DAV, and RedMine</h1>
+
+<h2>1. What Exactly is the PSC? Why do we use it?</h2>
+
+<pThe PSC, more commonly known as the <a href="http://www.psc.edu/" target="_blank">Pittsburgh Supercomputing Center</a>, is a joint effort of <a href="http://www.cmu.edu/">Carnegie Mellon University</a> and the <a href="http://www.pitt.edu/">University of Pittsburgh</a> together with <a href="http://www.westinghousenuclear.com/">Westinghouse Electric Company</a>.</p>
+
+<p>The technical team out of our logistics team are staff members of the PSC. Additionally, the Python scripts needed to create HERMES are created at the PSC. A lot of our supercomputing infrastructure - including the SVN and the DAV -  are hosted on PSC servers.</p>
+
+<p>The PSC operates on a secure system created at CMU called the AFS (<a href="en.wikipedia.org/wiki/Andrew_File_System" target="_blank">Andrew File System</a>), which is where our files are located. To access the SVN and the DAV, we have to obtain an account that runs on the PSC's <a href="http://en.wikipedia.org/wiki/Kerberos_protocol" target="_blank">Kerberos authentication system</a>. Instructions on how to obtain a Kerberos account are below.</p>
+
+<br />
+
+<h2>2. Obtaining a Kerberos Account + Password from the PSC</h2>
+
+<p>Email <a href="mailto:stbrown@psc.edu?subject=PSC%20Account%20Request" target="_blank">Shawn Brown</a> (who interfaces between the VMI and the PSC Grants system) with the following information:
+
+<ul>
+<li>Name
+<li><u>Work</u> Address
+<li><u>Work</u> Phone Number
+<li>Email Address
+</ul>
+
+<p>After the account name and password have been obtained, go to the <a href="http://apr.psc.edu/" target="_blank">password change site</a> to change your Kerberos password.</p>
+
+<br />
+
+<h2>3. Basics Behind the SVN, the DAV and RedMine</h2>
+
+<p>The best way to describe the difference between the SVN and the DAV is that the SVN tends to act as a living, breathing document -- what is usually used as a "working copy" is the most recent revision of the document. However, previous versions of the document can be found, and used, where necessary. For the DAV, which is less of a flexible structure, it acts like a 'file-share system', where the most recent version of a document is uploaded for access.</p>
+
+<h3 id="SVN">SVN</h3>
+<p>The SVN, commonly known as <a href="http://en.wikipedia.org/wiki/Apache_Subversion" target="_blank">subversioning</a>, is a process through which revisions of documents are kept track of in a repository, to track the progress of document/program development over time. It's most analogous to when you create multiple versions of a particular document (e.g. an Excel spreadsheet), where the most recent version of the document is the one that you're currently working on. Using an SVN allows us to actually keep track of which PSC user made which change at which time. For the purposes of our work, we use a client called <u>TortoiseSVN</u>. Among its features, TortoiseSVN gives us the ability to visually inspect different sets of files to assess changes made to them.
+
+<p>To access the SVN, you can follow the instructions <a href="installing_hermes.html" target="_blank">here</a>.</p>
+
+<h3 id="DAV">DAV</h3>
+<p>The DAV, known as <i>Web Distributed Authoring and Versioning</i> or <a href="http://en.wikipedia.org/wiki/WebDAV" target="_blank">WebDAV</a> for short, is a method which "makes the Web a readable and writable medium"<font size="1"><sup><a href="http://en.wikipedia.org/wiki/Webdav" target="_blank">1</a></sup></font>. It allows us to upload items - documents, pictures, files - <i><u>securely</u></i> on the internet with a timestamp and allows other people to download what's been created, again, in a <i><u>highly secure</u></i> manner. For this reason, we use our Kerberos accounts to log into the DAV.</p>
+
+<p>To access the DAV, you can click or highlight this link: <a href="https://dav.psc.edu/Hermes/" target="_blank">https://dav.psc.edu/Hermes/</a>, and enter in your Kerboros username and password.</p>
+
+<h3 id="RedMine">RedMine</h3>
+<p><a href="http://en.wikipedia.org/wiki/Redmine" target="_blank">RedMine</a> is defined as a flexible project management web application, written using the Ruby on Rails framework. An open source application released under the GNU general public license, it allows for programs such as HERMES to have a central database to keep track of edits, bug and development issues. It also gives users the option to share files, through both 'wiki' (encyclopedia) and "files" functionalities. RedMine gives users the ability to keep track of multiple projects (through a Gantt chart), allows for email notifications of updates and reporitng capabilities to be in a central database.</p>
+<p>The HERMES Redmine website can be accessed <a href="https://hermes.psc.edu:3000/projects/hermes" target="_blank">here</a>. More information about RedMine in general can be found <a href="http://www.redmine.org/" target="_blank">here</a>.</p>
+
+<br />
+
+<h3>Logging into the DAV (<i>from a desktop</i>)</h3>
+
+<p>The first login screen that should show up reads:</p>
+<pre>
+Connecting to dav.psc.edu.
+User name:
+Password:
+</pre>
+
+<p>The second login screen that should show up reads:</p>
+<pre>The server dav.psc.edu at Kerberos Login requires a username and password.
+User name:
+Password:</pre>
+
+
+<h2>4. Linking the DAV on your Desktop</h2>
+
+<p>If you'd like the ability to move folders around, create new folders and/or rename files in a drag/drop interface in Windows XP or in OS X (formerly Mac's OS X Mountain Lion):</p>
+
+<u><strong>Windows XP</strong></u>
+<ol>
+<li>Open "My Network Places" (either on the Desktop or in the Control Panel).</li>
+<li>Under "Network Tasks" on the left panel, click "Add a Network Place".</li>
+<li>When the wizard pops up, click "Next".</li>
+<li>Double click "Choose another network location".</li>
+<li>Type <u>https://dav.psc.edu/Hermes/</u> in the address box and click"Next".</li>
+<li>If you see a certificate alert message, click "Yes"  (you likely won't see this message).</li>
+<li>Enter your PSC Kerberos username and password. (<em>Note: you'll probably need to do this twice, as it looks like that Windows attempts an unacceptable form of authentication on the first request.</em>)</li>
+<li> Optionally rename the network place and click "Next".</li>
+<li>Click "Next" to finish.</li>
+</ol>
+<p>From here, you'll be able to find the Hermes DAV in "My Network Places", both on the Desktop and in the "Save" dialogue windows.  If you'd like, you can right drag the Hermes DAV icon and create a shortcut in other places so that it is more accessible.</p>
+
+<br />
+
+<u><strong>OS-X</strong></u>
+<ol>
+<li>In the Finder, select <em>Connect to Server</em> under the <em>Go</em> menu.</li>
+<li>Enter https://dav.psc.edu/facilities/ in the address box.</li>
+<li>Enter your Kerberos username and password.</li>
+</ol>
+
+<u><strong>Auxiliary Notes</strong></u>
+<p>Online (WWW) and AFS access can be found at <a href="https://dav.psc.edu/app/accessdav.php" target="_blank"> https://dav.psc.edu/app/accessdav.php</a>.</p>
+
+</body>
+
+<foot>
+<p>
+<div style="float:left;width:33%;">Previously: <a href="hermes_introduction.html">HERMES Introduction</a></div>
+<div style="float:left;width:33%;"><a href="../STARTHERE.html">Home</a></div>
+<div style="float:right;width:33%;">Next: <a href="using_svn_repository.html">Using the SVN Repository</a></div>
+</p>
+</foot>
+
+</html>
+

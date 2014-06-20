@@ -1,0 +1,15 @@
+b.alert { color:red; font-weight:bold; display:block; }
+
+table, td, th
+{
+border-collapse:collapse;
+border:1px solid green;
+}
+th
+{
+background-color:green;
+color:white;
+}
+
+dl { padding-left:2em; }
+dt { font-weight:bold; }

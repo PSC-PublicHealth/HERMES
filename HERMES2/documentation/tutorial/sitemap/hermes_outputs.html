@@ -1,0 +1,147 @@
+<html>
+<head>
+<title>Reading HERMES Output Files</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+<link href="checkpage.html" rel="Prev"><link href="../STARTHERE.html" rel="Start"><link href="changing_variables.html" rel="Next">
+
+</head>
+<body>
+<h1>Reading HERMES Output Files</h1>
+<p>When the HERMES simulation is complete, a whole variety of files may appear in the repository. Some - like the <i>log</i> and the <i>error</i> files -  were <a href="checkpage.html#whatif_error" target="_blank">mentioned previously</a> as places to either obtain specific HERMES simulation characteristics or for model troubleshooting. Other files, such as the ones that depict <i>vial counts</i> and <i>stock inventory graphs</i>, are graphical displays for the flow of stock through particular locations, which can show if the supply chain is working as it has been intended to work. <i>Report</i> and <i>summary report</i> files are the results behind HERMES, and those which show public health parameters of interest.</p>
+<h2>What types of files should one look for when the simulation is running?</h2>
+<p>The output files from a HERMES run are usually: the <b>error and the log files</b> (in the repository), the <b>vial count graphs</b> (which "pop up" as the simulation is run), and <b>the report and summary report files</b> (in the repository).
+
+<h3 id="log_error">Log and Error Files</h3>
+<center><a href="screenshots_logfile_error_file.PNG" target="_blank"><img src="screenshots_logfile_error_file.PNG" width=960 height=567 border=0></a><br /><font size="2"><em>Click on the above image to have a full-screen view of the log & error files.</em></font></center>
+<p>As previously mentioned, the log and the error files are the documents which are usually used to debug the model. However, the log file also contains a <i>lot</i> of information about a simulation that has been run.</p>
+<p>A normal log file contains the following information (in order of appearance, <i>as of repository version SVN r910</i>):</p>
+<ul>
+<li><b>SVN version information</b> - lists out the version of each Python script that contributes to HERMES, along with the date of modification and whom modified the file.</li>
+<li><b>Seed number</b>, <b>Stores file</b>, <b>Routes file</b> and <b>individual supply chain tiers</b>.</li>
+<li><b>Vaccine types</b> (and <b>vaccine characteristics</b>) included in the VaccineType file.</li>
+<li><b>Cold device characteristics</b>, as specified in the UnifiedStorageTypeInfo file.</li>
+<li>A "counter" for the number of <b>burn-in days</b> and <b>run days</b> in the model.</li>
+<li>Data regarding <b>storage</b> and <b>shipping</b> parameters, characterized by <i>vaccine type</i>.</li>
+<li>Data about <b>storage</b> and <b>shipping</b> parameters, characterized by <i>cold device type</i>.</li>
+</ul>
+
+<p>Meanwhile, the error file takes the following general format (<i>specifics have been redacted</i>):</p>
+
+<pre>------------------------------------------------------------
+Exception: [ERROR MESSAGE]
+------------------------------------------------------------
+Traceback (most recent call last):
+[PATH OF ERROR MESSAGE]
+ParserException: [ERROR MESSAGE]</pre>
+
+<p>In general, to read an error message, the area between the dashed lines (where it says, "Exception") displays the error message of note. "Traceback (most recent call last):" displays a list of the various paths that failed as a result of the error -- where the very bottom of the list of paths is the first path that failed because of the error, and is where the user should look to first fix their error. The "ParserException", meanwhile, should generally display the same message as "Exception".</p>
+
+<h3 id="vial_graphs">Vial Counts Graphs</h3>
+<p>The next category of important output files are the graphs which show vaccine stock inventory of particular locations, as specified by the <font size="2" face="courier new">monitor</font> command in the <a href="input_file_intro.html#example" target="_blank">combined input file</a>. (The locations specified are specified by their ID codes, as specified by both the Routes and the Stores files.)</p>
+<p>Depending on what the <font face="courier new" size="2">monvax</font> command (which is also located in the input file) dictates, either the vaccine inventory for a specific type of vaccine <i>or</i> all vaccines can be specified <i>before the simulation is run</i>.</p>
+<p>These graphs are used as an <i>exploratory</i> look at graphical trends in the data. If publication-quality graphs are required, the <a href="hermes_basics2.html#tipsandtricks" target="_blank">-Dsaveall</a> command can be invoked in the batch file. (This command will be discussed in more detail later in the tutorial.)</p> 
+<center><img src="vial_counts_graphs.PNG"></center>
+<p>The vial count graphs shown in the screenshot above serve two functions:
+<ol>
+<li>The graph on the left shows the <i>vial counts vs. time for warehouses</i>. The y-axis, in this case, show the number of vials in stock at the location, for <i>all</i> vaccines</i>, while the x-axis shows the relevant <i>simulation timeline</i>. This graph is used to show the relation between the stock inventory and time for the particular locations. If, like the graph above, the simulation shows the central, regional, district and IHC depots, these graphs can be useful to show the flow of vaccines and ensure that the vaccine supply chain is actually working correctly.</li>
+<br/>
+<li>The graph on the right is a <i>histogram of vial counts for warehouses</i>. The y-axis in this case, are the <i>number of days</i> where a particular location is reporting a particular <i>number of vaccine vials in stock</i> (which, in this case, is the x-axis). This graph is useful in displaying the relationship between the amount of time where a particular stock inventory is located. This graph can show, although to a smaller extent, the flow of vaccines thorugh the supply chain.</li>
+</ol>
+</p>
+
+<h3 id="summary_report">Summary Report, Cost Output and Report Output Files</h3>
+<p>When people in the VMI talk about using and/or pulling "HERMES results from spreadsheets", it is most likely that these spreadsheets are being used. These spreadsheets are where the "results" for HERMES can be found.</p>
+<center><a href="summary_report_file_screenshot.PNG" target="_blank"><img src="summary_report_file_screenshot.PNG" width=960 height=600></a><br /><font size="2"><em>Click on the above image to have a full-screen view of the summary report + report files.</em></font></center>
+<p>The difference between the two "report" spreadsheet types (which are the top two in the image above, and are the results of the <a href="hermes_basics2.html" target="_blank">batch file</a> + <a href="input_file_intro.html" target="_blank">input files</a> earlier presented.) are the format in which the output data is presented. The cost spreadsheet is the direct output result of the cost input table, for the simulation parameters run..</p>
+<p id="summary_description">The <b>summary report file</b> (with the format: <font size="2" face="courier new">[OUT_SUFFIX].[number of run, starting from "0"].<u>summary</u>.csv</font>), is the "summary" which summarizes vaccination administration parameters, distances shipped, and other summary parameters, and presents them by either <i>vaccine type</i>, <i>truck type</i>, <i>refrigerator (storage) type</i> or <i>people type</i>.</p>
+<p id="report_description">The <b>report file</b> (with the format: <font size="2" face="courier new">[OUT_SUFFIX].[number of run, starting from "0"].csv</font>) is the file used to show parameters related to topics such as vaccine administration (patients who arrive, patients who are treated, numbers of vials used -- all for <i>each vaccine administered</i>) and route utilization (transportation storage space taken up, number of trips taken per route, truck type) for either a particular <i>location</i> or a particular <i>transportation route</i>.</p>
+<p id="cost_description">The <b>cost output file</b> (with the format <font size="2" face="courier new">[OUT_SUFFIX].[number of run, starting from "0"]_costs.csv</font>) is the file used to show the direct outputs of the costing model implemented in the HERMES model in May/June 2012, with pertinent results for transport routes and locations in terms of labor, transport, building and storage costs.</p>
+<p><b>Note: the above descriptions are <i>not</i> all-inclusive with their particular topics.</b> Refer to the tables <u>below</u> for a sampling of the columns that are used, but note that there are links to the full documentation pages for each of these report file types in the <u>SVN</u>.</p>
+
+<h2>Supplementary Tables: Important Column Headings to Know/Use</h2>
+<p>Note: the <b>full</b> listing of the column headings for the report and summary report files can be found in the respective documentation pages -- located <a href="../../report_file_documentation.html" target="_blank">here</a> (<i>report file</i>) and <a href="../../summary_file_documentation.html" target="_blank">here</a> (<i>summary report file</i>) [<i>Note: links work <u>only</u> in SVN repository version of the tutorial.</i>].
+
+<h3 id="report_nbheadings"> Report File – Important Headings</h3>
+<blockquote><table>
+<tr><th align="center">Column Letter</th><th align="left">Column Heading</th><th align="left">Definition</th></tr>
+<tr><td align="center">A</td><td align="left">code</td><td align="left">ID code, as defined in Stores + Routes Files.</td></tr>
+<tr><td align="center">B</td><td align="left">name</td><td align="left">Name of location, as set by Stores + Routes Files.</td></tr>
+<tr><td align="center">F-BA</td><td align="left">[Vaccine] OR [ColdDevice]<br /><p style="text-align: right;">_delivered<br />_expired<br />_outages<br />_outshipped<br />_patients<br />_treated<br />_vials<br /></p></td><td align="left">The below categories are applicable to <i>each vaccine type</i> administered , or <i>each cold device</i> present in the model.<p style="text-align: left;">The volume (or number of) vaccines or devices that were delivered to a particular location<br />The total number of expired vials for that particular vaccine type<br />Indicates the number of days when clinics are vaccinating patients that there are not enough vaccines to cover population demand.<br />The number of vaccines which were shipped out from that location<br />The total number of patients who come through the location within the scenario run time.<br />The number of individuals treated at that location during the run time.<br />The number of vaccine vials used during the run time.</td></tr>
+
+<tr><td align="center">BF</td><td align="left">RouteFill</td><td align="left">Percentage of the available storage volume of a particular route filled by a shipment.</td></tr>
+<tr><td align="center">BG</td><td align="left">RouteName</td><td align="left">Name of the route, as dictated by the Routes file. Usually takes the form of "r[IDCODE]".</td></tr>
+<tr><td align="center">BH</td><td align="left">RouteTrips</td><td align="left">Number of trips taken along the route (one way) in the scenario time frame.</td></tr>
+<tr><td align="center">BI</td><td align="left">RouteTruckType</td><td align="left">Truck type used along the route.</td></tr>
+<tr><td align="center">BM</td><td align="left">category</td><td align="left">The location classification - Niger uses "Central", "Region", "District" and "Integrated Health Center".</td></tr>
+<tr><td align="center">BN</td><td align="left">cooler</td><td align="left">Percentage of the available cool space ("+") at a location used to hold vaccines.</td></tr>
+<tr><td align="center">BP</td><td align="left">cooler_vol</td><td align="left">Total <i>net</i> cool (refrigerated) space volume, recorded in liters.</td></tr>
+<tr><td align="center">BQ</td><td align="left">cooler_vol_used</td><td align="left">Maximum amount of cool (refrigerated) space volume used to hold vaccines, recorded in liters.  Can be manipulated to include other summary stats.</td></tr>
+<tr><td align="center">BS</td><td align="left">freezer</td><td align="left">Percentage of the available cold space ("-") at a location used to hold vaccines.</td></tr>
+<tr><td align="center">BU</td><td align="left">freezer_vol</td><td align="left">Total <i>net</i> cold space volume, recorded in liters.</td></tr>
+<tr><td align="center">BV</td><td align="left">freezer_vol_used</td><td align="left">Maximum net freezer space volume used to hold vaccines, recorded in liters. Can be manipulated to include other summary stats.</td></tr>
+<tr><td align="center">BX</td><td align="left">function</td><td align="left">Function of the location. Can take values "Distribution" or "Administration".</td></tr>
+<tr><td align="center">BY</td><td align="left">one_vaccine_outages</td><td align="left">Records each day where there is at least one vaccine where there is not enough at the service location to accommodate the demand.</td></tr>
+<tr><td align="center">CB</td><td align="left">roomtemperature</td><td align="left">Percentage of room temperature space used to hold vaccines.</td></tr>
+<tr><td align="center">CD</td><td align="left">roomtemperature_vol</td><td align="left">Total net volume of room temperature space available, as defined in the stores file. It takes a value of "1E+09", recorded in liters.</td></tr>
+<tr><td align="center">CH</td><td align="left">tot_delivery_vol</td><td align="left">Total volume of vaccines delivered to that location, recorded in liters.</td></tr>
+</table></blockquote>
+
+<h3 id="summary_nbheadings">Summary Report File – Important Headings</h3>
+<blockquote><table>
+<tr><th align="center">Column Letter</th><th align="left">Column Heading</th><th align="left">Definition</th></tr>
+<tr><td align="center">C</td><td align="left">Applied</td><td align="left">Applies to Type "vaccinetype" (see Column W); shows number of <i>applied</i> doses.</td></tr>
+<tr><td align="center">E</td><td align="left">DosesPerVial</td><td align="left">Applies to Type "vaccinetype" and moderated by UnifiedVaccineTypeInfo file - shows the number of doses possible for a vial.</td></tr>
+<tr><td align="center">F</td><td align="left">Name</td><td align="left">Name, as dictated by the relevant Unified file (vaccine, storage, people, truck type). Usually assigned (in this repository) as "[COUNTRY LETTER]_[NAME]".</td></tr>
+<tr><td align="center">G</td><td align="left">OpenVialWasteFrac</td><td align="left">Applies to type "vaccinetype"; shows the percentage of open vials that are wasted. A baseline be set through an "openvialwaste" ("OVW") file in the Niger model. All other models do not use this OVW file.</td></tr>
+<tr><td align="center">H</td><td align="left">ShipKm</td><td align="left">	Shows the number of kilometers which the storage device has been shipped. This field applies to both "vaccinetype" and "trucktype".</td></tr>
+<tr><td align="center">M</td><td align="left">SupplyRatio</td><td align="left">Applies to type "vaccinetype"; shows the vaccine availability for an area. Defined by the formula [TOTAL NUMBER OF TREATED PEOPLE]/[TOTAL NUMBER OF PATIENTS].</td></tr>
+<tr><td align="center">N</td><td align="left">TotalKm</td><td align="left">Applies to type "trucktype"; shows the total number of kilometers traveled by that particular truck type.</td></tr>
+<tr><td align="center">O</td><td align="left">TotalTravelDays</td><td align="left">Applies to type "trucktype"; shows the total number of hours traveled <i>on average</i> for an individual from a particular truck type.</td></tr>
+<tr><td align="center">P</td><td align="left">TotalTrips</td><td align="left">Applies to type "trucktype"; shows total number of trips taken by a particular truck type.</td></tr>
+<tr><td align="center">Q</td><td align="left">Treated</td><td align="left">Applies to type "vaccinetype"; shows the total number of treated individuals across <i>all</i> clinics with a particular vaccine type.</td></tr>
+<tr><td align="center">R</td><td align="left">Type</td><td align="left">Shows the "type" applicable to the entries. Can be broken up into either "vaccinetype" (from <font face="courier new" size="2">UnifiedVaccineTypeInfo</font>), "fridgetype" (from <font face="courier new" size="2">UnifiedStorageTypeInfo</font>), "peopletype" (from <font face="courier new" size="2">UnifiedPeopleTypeInfo</font> file) or "trucktype" (from <font face="courier new" size="2">UnifiedTruckCapacityInfo</font> file).</td></tr>
+<tr><td align="center">S</td><td align="left">VialsBroken</td><td align="left">Applies to type "vaccinetype"; shows the average number of vials broken during the simulation itself (excluding the burn-in period). For right now, with a breakage rate of 0%, the value should be "0".</td></tr>
+<tr><td align="center">U</td><td align="left">VialsCreated</td><td align="left">Applies to type "vaccinetype"; total number of vials <i>created</i> from the <i>end</i> of the burn-in period to the end of the simulation.</td></tr>
+<tr><td align="center">W</td><td align="left">VialsExpired</td><td align="left">Applies to type "vaccinetype"; denotes total number of vials that expired during the run time (excluding the burn-in period), by vaccine type.</td></tr>
+<tr><td align="center">Y</td><td align="left">VialsUsed</td><td align="left">Applies to type "vaccinetype"; denotes total number of vials used during the simulation timespan, by vaccine type, from the <i>end</i> of the burn-in period to the end of the simulation.</td></tr>
+<tr><td align="center">AA</td><td align="left">coolerStorageFrac</td><td align="left">Applies to type "vaccinetype"; shows the average fraction of <i>cooler</i> space used to hold vaccines. If the model is working properly, this should read as "1", indicating vaccines are stored there.</td></tr>
+</table></blockquote>
+
+<h3 id="cost_nbheadings">Cost Output File – All Headings</h3>
+<blockquote><table>
+<tr><th align="center">Column Letter</th><th align="left">Column Heading</th><th align="left">Definition</th></tr>
+<tr><td align="center">A</td><td align="left">ReportingLevel</td><td align="left">The type of level reporting the cost. Can take one of the values of "Category" (i.e., one of the level names) or can be named "all" (used to show summary costs for individual levels) or "-top" (to show total costs).</td></tr>
+<tr><td align="center">B</td><td align="left">ReportingBranch</td><td align="left">Name of location, with ID code in parentheses, as defined by stores and routes files.</tr>
+<tr><td align="center">C</td><td align="left">ReportingIntervalDays</td><td align="left">Number of days in the simulation in which costs are reported, on average (if "ReportingLevel"=ALL), or in the simulation year (if "ReportingLevel"=!ALL).</td></tr>
+<tr><td align="center">D</td><td align="left">DaysPerYear</td><td align="left">Number of total days in the simulation.</td></tr>
+<tr><td align="center">E</td><td align="left">Currency</td><td align="left">The name of the currency used to calculate the incurred costs (and its year, as applicable). It appears that currencies are denoted through their <a href="http://en.wikipedia.org/wiki/ISO_4217" target="_blank">ISO 4217 currency code</a> (i.e., "THB", "USD").</td></tr>
+<tr><td align="center">F</td><td align="left">RouteTrips</td><td align="left">Number of trips taken along the route (one way) in the scenario time frame. **</td></tr>
+<tr><td align="center">G</td><td align="left">PerDiemDays</td><td align="left">Number of days in which a per diem has been given to personnel (<i>by whom?</i>) in locations.</td></tr>
+<tr><td align="center">H</td><td align="left">CostingTreatmentDays</td><td align="left">The total number of days in which costs have been recorded. For "ReportingLevel"=ALL, this is equivalent to the sum of the costing treatments across all row entries.</td></tr>
+<tr><td align="center">I</td><td align="left">PerDiemCost</td><td align="left">Amount of money costed through a per diem. If recorded in a location entry, denotes the amount of money given in that location. If recorded for "ReportingLevel"=ALL, then records the total per diem costs. Incurred for transport costs only.</td></tr>
+<tr><td align="center">J</td><td align="left">PerKmCost</td><td align="left">The cost incurred per kilometer. Incurred for route costs only.</td></tr>
+<tr><td align="center">K</td><td align="left">PerTripCost</td><td align="left">Costs incurred per trip, specifically. Incurred for route costs only.</td></tr>
+<tr><td align="center">L</td><td align="left">TransportCost</td><td align="left">Total transport cost incurred, by route type (incurred for route costs only).</td></tr>
+<tr><td align="center">M</td><td align="left">LaborCost</td><td align="left">Sum of all costs for labor (including per diems and time-card salaries), incurred by level type.</td></tr>
+<tr><td align="center">N</td><td align="left">StorageCost</td><td align="left">Sum of all costs for storage, incurred by level type.</td></tr>
+<tr><td align="center">O</td><td align="left">BuildingCost</td><td align="left">Sum of all building costs, incurred by level type.</td></tr>
+<tr><td align="center">P</td><td align="left">Currency</td><td align="left">The name of the currency used to calculate the costs (same column as Column E)</tr>
+</table></blockquote>
+
+<h3>I think I'm following how to run and use HERMES so far...</h3>
+<p>Good. Hopefully, this tutorial has so far given an idea of how to run a baseline run of HERMES.</p>
+<p>However, if HERMES needs to be run for any experiments, you'll need to know how to manipulate different parameters. That's going to be the next page of the tutorial.</p>
+</body>
+
+<br /><br />
+
+<foot>
+<p>
+<div style="float:left;width:33%;">Previously: <a href="checkpage.html">Running HERMES: Checking Your Input Files</a></div>
+<div style="float:left;width:33%;"><a href="../STARTHERE.html">Home</a></div>
+<div style="float:right;width:33%;">Next: <a href="changing_variables.html">Changing HERMES Variables for Experiments</a></div>
+</p>
+</foot>
+
+</html>
+

@@ -1,0 +1,265 @@
+RouteName,idcode,LocName,CATEGORY,Type,RouteOrder,TransitHours,TruckType,ShipIntervalDays,ShipLatencyDays,PullOrderAmountDays,Notes,Conditions,DistanceKM,,
+B,100000,Maputo National Store,National,demandfetch,1,3,M_Hilux_Gaza,1,1,60,,,216,,
+B,120000,Gaza,Province,demandfetch,0,3,M_Hilux_Gaza,1,1,60,,,216,,
+C,100000,Maputo National Store,,attached,0,,,,,,,,,,
+C,130000,Other Province Stores,Province,attached,1,,,,,,,,,,
+r120100,120000,Gaza,Province,pull,0,2,M_Hilux_Gaza,1,3,20,,,60,,
+r120100,120100,Bilene,District,pull,1,2,M_Hilux_Gaza,1,3,20,,,60,miles,hours
+r120101,120100,Bilene,District,pull,0,0.5,M_truck_Bilene,1,4,20,,,31,19.375,0.322916667
+r120101,120101,C.S.Chissano,Health Center,pull,1,0.5,M_truck_Bilene,1,4,20,,,31,19.375,0.322916667
+r120102,120100,Bilene,District,pull,0,0.5,M_truck_Bilene,1,5,20,,,45,28.125,0.46875
+r120102,120102,C.S.Licilo,Health Center,pull,1,0.5,M_truck_Bilene,1,5,20,,,45,28.125,0.46875
+r120103,120100,Bilene,District,demandfetch,1,1,M_bike_Bilene,1,4,20,,,12,7.5,0.535714286
+r120103,120103,C.S.Mangol,Health Center,demandfetch,0,1,M_bike_Bilene,1,4,20,,,12,7.5,0.535714286
+r120104,120100,Bilene,District,demandfetch,1,1,M_bike_Bilene,1,5,20,,,18,11.25,0.803571429
+r120104,120104,C.S.Mazivila,Health Center,demandfetch,0,1,M_bike_Bilene,1,5,20,,,18,11.25,0.803571429
+r120105,120100,Bilene,District,pull,0,0.5,M_truck_Bilene,1,6,20,,,47,29.375,0.489583333
+r120105,120105,C.S.Messano,Health Center,pull,1,0.5,M_truck_Bilene,1,6,20,,,47,29.375,0.489583333
+r120106,120100,Bilene,District,pull,0,0.5,M_moto_Bilene,1,4,20,,,30,18.75,0.3125
+r120106,120106,C.S.Momonha,Health Center,pull,1,0.5,M_moto_Bilene,1,4,20,,,30,18.75,0.3125
+r120107,120100,Bilene,District,pull,0,0.5,M_moto_Bilene,1,5,20,,,32,20,0.333333333
+r120107,120107,C.S.Olombe,Health Center,pull,1,0.5,M_moto_Bilene,1,5,20,,,32,20,0.333333333
+r120108,120100,Bilene,District,attached,0,,,,,,,,,,
+r120108,120108,C.S. Bilene Sede,Health Center,attached,1,,,,,,,,,,
+r120109,120100,Bilene,District,demandfetch,1,0.5,M_bus_Bilene,1,5,20,,,25,15.625,0.260416667
+r120109,120109,C.S.Tuane,Health Center,demandfetch,0,0.5,M_bus_Bilene,1,5,20,,,25,15.625,0.260416667
+r120200,120000,Gaza,Province,pull,0,2,M_Hilux_Gaza,1,4,20,,,74,,
+r120200,120200,Chibuto,District,pull,1,2,M_Hilux_Gaza,1,4,20,,,74,,
+r120201,120200,Chibuto,District,pull,0,0.5,M_truck_Chibuto,1,5,20,,,25,15.625,0.260416667
+r120201,120201,C.S. Chaimite,Health Center,pull,1,0.5,M_truck_Chibuto,1,5,20,,,25,15.625,0.260416667
+r120202,120200,Chibuto,District,pull,0,2,M_moto_Chibuto,1,5,20,,,97,60.625,1.010416667
+r120202,120202,C.S. Changanine,Health Center,pull,1,2,M_moto_Chibuto,1,5,20,,,97,60.625,1.010416667
+r120203,120200,Chibuto,District,demandfetch,1,1.5,M_Walk,1,5,20,,,5,3.125,1.25
+r120203,120203,C.S. Chimundo,Health Center,demandfetch,0,1.5,M_Walk,1,5,20,,,5,3.125,1.25
+r120204,120200,Chibuto,District,demandfetch,1,1.5,M_bike_Chibuto,1,5,20,,,32,20,1.428571429
+r120204,120204,C.S. Chipadja,Health Center,demandfetch,0,1.5,M_bike_Chibuto,1,5,20,,,32,20,1.428571429
+r120205,120200,Chibuto,District,demandfetch,1,0.5,M_Walk,1,5,20,,,0.8,0.5,0.2
+r120205,120205,C.S. Cidade de Chibuto,Health Center,demandfetch,0,0.5,M_Walk,1,5,20,,,0.8,0.5,0.2
+r120206,120200,Chibuto,District,demandfetch,1,0.5,M_bus_Chibuto,1,5,20,,,25,15.625,0.260416667
+r120206,120206,C.S. Meboi,Health Center,demandfetch,0,0.5,M_bus_Chibuto,1,5,20,,,25,15.625,0.260416667
+r120207,120200,Chibuto,District,demandfetch,1,0.5,M_bus_Chibuto,1,6,20,,,25,15.625,0.260416667
+r120207,120207,C.S. Nwavaquene,Health Center,demandfetch,0,0.5,M_bus_Chibuto,1,6,20,,,25,15.625,0.260416667
+r120208,120200,Chibuto,District,pull,0,1,M_truck_Chibuto,1,6,20,,,34,,
+r120208,120208,C.S. Vila do Milénio,Health Center,pull,1,1,M_truck_Chibuto,1,6,20,,,34,,
+r120209,120200,Chibuto,District,pull,0,1,M_moto_Chibuto,1,6,20,,,53,33.125,0.552083333
+r120209,120209,C.S.Alto Changane,Health Center,pull,1,1,M_moto_Chibuto,1,6,20,,,53,33.125,0.552083333
+r120210,120200,Chibuto,District,pull,0,0.5,M_moto_Chibuto,1,7,20,,,36,22.5,0.375
+r120210,120210,C.S.Maivene,Health Center,pull,1,0.5,M_moto_Chibuto,1,7,20,,,36,22.5,0.375
+r120211,120200,Chibuto,District,pull,0,0.5,M_truck_Chibuto,1,7,20,,,20,12.5,0.208333333
+r120211,120211,C.S.Malehice,Health Center,pull,1,0.5,M_truck_Chibuto,1,7,20,,,20,12.5,0.208333333
+r120212,120200,Chibuto,District,pull,0,1,M_moto_Chibuto,1,8,20,,,60,37.5,0.625
+r120212,120212,C.S.Maqueze,Health Center,pull,1,1,M_moto_Chibuto,1,8,20,,,60,37.5,0.625
+r120213,120200,Chibuto,District,demandfetch,1,0.5,M_bus_Chibuto,1,7,20,,,30,18.75,0.3125
+r120213,120213,C.S.Muxaxane,Health Center,demandfetch,0,0.5,M_bus_Chibuto,1,7,20,,,30,18.75,0.3125
+r120300,120000,Gaza,Province,pull,0,9,M_Hilux_Gaza,1,7,20,,,454,0,0
+r120300,120300,Chicualacuala,District,pull,1,9,M_Hilux_Gaza,1,7,20,,,454,0,0
+r120301,120300,Chicualacuala,District,pull,0,2.5,M_moto_Chic,1,6,20,,,200,125,2.083333333
+r120301,120301,C.S.Chidulo,Health Center,pull,1,2.5,M_moto_Chic,1,6,20,,,200,125,2.083333333
+r120302,120300,Chicualacuala,District,demandfetch,1,0.5,M_bike_Chic,1,6,20,,,17,10.625,0.177083333
+r120302,120302,C.S.Lithatha,Health Center,demandfetch,0,0.5,M_bike_Chic,1,6,20,,,17,10.625,0.177083333
+r120303,120300,Chicualacuala,District,pull,0,1,M_truck_Chic,1,6,20,,,64,40,0.666666667
+r120303,120303,C.S.Mahathane,Health Center,pull,1,1,M_truck_Chic,1,6,20,,,64,40,0.666666667
+r120304,120300,Chicualacuala,District,pull,0,1.5,M_truck_Chic,1,7,20,,,101,63.125,1.052083333
+r120304,120304,C.S.Mapai Ngala,Health Center,pull,1,1.5,M_truck_Chic,1,7,20,,,101,63.125,1.052083333
+r120305,120300,Chicualacuala,District,pull,0,1,M_truck_Chic,1,8,20,,,84,52.5,0.875
+r120305,120305,C.S.Mapai -Sede,Health Center,pull,1,1,M_truck_Chic,1,8,20,,,84,52.5,0.875
+r120306,120300,Chicualacuala,District,pull,0,1.5,M_moto_Chic,1,7,20,,,130,81.25,1.354166667
+r120306,120306,C.S.Mepúzi,Health Center,pull,1,1.5,M_moto_Chic,1,7,20,,,130,81.25,1.354166667
+r120307,120300,Chicualacuala,District,pull,0,1,M_moto_Chic,1,8,20,,,84,52.5,0.875
+r120307,120307,C.S.Pafúri,Health Center,pull,1,1,M_moto_Chic,1,8,20,,,84,52.5,0.875
+r120308,120300,Chicualacuala,District,attached,0,,,,,,,,,,
+r120308,120308,C.S. Chicualacuala Sede,Health Center,attached,1,,,,,,,,,,
+r120400,120000,Gaza,Province,pull,0,5,M_Hilux_Gaza,1,6,20,,,286,0,0
+r120400,120400,Chigubo,District,pull,1,5,M_Hilux_Gaza,1,6,20,,,286,0,0
+r120401,120400,Chigubo,District,pull,0,1,M_moto_Chigubo,1,7,20,,,85,53.125,0.885416667
+r120401,120401,C.S.Cubo,Health Center,pull,1,1,M_moto_Chigubo,1,7,20,,,85,53.125,0.885416667
+r120402,120400,Chigubo,District,attached,0,,,,,,,,,,
+r120402,120402,C.S.Dindiza,Health Center,attached,1,,,,,,,,,,
+r120403,120400,Chigubo,District,pull,0,2,M_truck_Chigubo,1,7,20,,,188,117.5,1.958333333
+r120403,120403,C.S.Machaila,Health Center,pull,1,2,M_truck_Chigubo,1,7,20,,,188,117.5,1.958333333
+r120404,120400,Chigubo,District,pull,0,1,M_truck_Chigubo,1,8,20,,,50,31.25,0.520833333
+r120404,120404,C.S.Nhanale,Health Center,pull,1,1,M_truck_Chigubo,1,8,20,,,50,31.25,0.520833333
+r120405,120400,Chigubo,District,pull,0,1,M_moto_Chigubo,1,8,20,,,82,51.25,0.854166667
+r120405,120405,C.S.Saúte,Health Center,pull,1,1,M_moto_Chigubo,1,8,20,,,82,51.25,0.854166667
+r120406,120400,Chigubo,District,pull,0,2,M_moto_Chigubo,1,9,20,,,164,102.5,1.708333333
+r120406,120406,C.S.Zinhane,Health Center,pull,1,2,M_moto_Chigubo,1,9,20,,,164,102.5,1.708333333
+r120500,120000,Gaza,Province,pull,0,2,M_Hilux_Gaza,1,7,20,,,121,0,0
+r120500,120500,Chókwè ,District,pull,1,2,M_Hilux_Gaza,1,7,20,,,121,0,0
+r120501,120500,Chókwè ,District,attached,0,,,,,,,,,,
+r120501,120501,C.S. Chokwe Sede,Health Center,attached,1,,,,,,,,,,
+r120502,120500,Chókwè ,District,demandfetch,1,1,M_bus_Chokwe,1,8,20,,,32,0,0
+r120502,120502,C.S. 3º Bairro,Health Center,demandfetch,0,1,M_bus_Chokwe,1,8,20,,,32,0,0
+r120503,120500,Chókwè ,District,pull,0,0.5,M_moto_Chokwe,1,8,20,,,40,25,0.416666667
+r120503,120503,C.S. Hokwe,Health Center,pull,1,0.5,M_moto_Chokwe,1,8,20,,,40,25,0.416666667
+r120504,120500,Chókwè ,District,pull,0,1,M_truck_Chokwe,1,8,20,,,50,31.25,0.520833333
+r120504,120504,C.S.Chalucuane,Health Center,pull,1,1,M_truck_Chokwe,1,8,20,,,50,31.25,0.520833333
+r120505,120500,Chókwè ,District,demandfetch,1,0.5,M_bus_Chokwe,1,9,20,,,30,18.75,0.3125
+r120505,120505,C.S.Chiaquelane,Health Center,demandfetch,0,0.5,M_bus_Chokwe,1,9,20,,,30,18.75,0.3125
+r120506,120500,Chókwè ,District,pull,0,0.5,M_truck_Chokwe,1,9,20,,,45,28.125,0.46875
+r120506,120506,C.S.Chilembene,Health Center,pull,1,0.5,M_truck_Chokwe,1,9,20,,,45,28.125,0.46875
+r120507,120500,Chókwè ,District,demandfetch,1,1,M_bike_Chokwe,1,8,20,,,15,9.375,0.669642857
+r120507,120507,C.S.Conhane,Health Center,demandfetch,0,1,M_bike_Chokwe,1,8,20,,,15,9.375,0.669642857
+r120508,120500,Chókwè ,District,demandfetch,1,0.5,M_bus_Chokwe,1,10,20,,,30,18.75,0.3125
+r120508,120508,C.S.Cumba,Health Center,demandfetch,0,0.5,M_bus_Chokwe,1,10,20,,,30,18.75,0.3125
+r120509,120500,Chókwè ,District,pull,0,0.5,M_truck_Chokwe,1,10,20,,,10,6.25,0.104166667
+r120509,120509,C.S.Lionde,Health Center,pull,1,0.5,M_truck_Chokwe,1,10,20,,,10,6.25,0.104166667
+r120510,120500,Chókwè ,District,pull,0,1,M_moto_Chokwe,1,9,20,,,75,46.875,0.78125
+r120510,120510,C.S.Machua,Health Center,pull,1,1,M_moto_Chokwe,1,9,20,,,75,46.875,0.78125
+r120511,120500,Chókwè ,District,pull,0,0.5,M_truck_Chokwe,1,11,20,,,20,12.5,0.208333333
+r120511,120511,C.S.Manjangue,Health Center,pull,1,0.5,M_truck_Chokwe,1,11,20,,,20,12.5,0.208333333
+r120512,120500,Chókwè ,District,demandfetch,1,0.5,M_bus_Chokwe,1,11,20,,,25,15.625,0.260416667
+r120512,120512,C.S.Mapapa,Health Center,demandfetch,0,0.5,M_bus_Chokwe,1,11,20,,,25,15.625,0.260416667
+r120513,120500,Chókwè ,District,demandfetch,1,1,M_bike_Chokwe,1,9,20,,,20,12.5,0.892857143
+r120513,120513,C.S.Massavasse,Health Center,demandfetch,0,1,M_bike_Chokwe,1,9,20,,,20,12.5,0.892857143
+r120514,120500,Chókwè ,District,demandfetch,1,0.5,M_bus_Chokwe,1,12,20,,,30,18.75,0.3125
+r120514,120514,C.S.Muianga,Health Center,demandfetch,0,0.5,M_bus_Chokwe,1,12,20,,,30,18.75,0.3125
+r120515,120500,Chókwè ,District,demandfetch,1,0.5,M_bus_Chokwe,1,13,20,,,25,15.625,0.260416667
+r120515,120515,C.S.Nwachicolane,Health Center,demandfetch,0,0.5,M_bus_Chokwe,1,13,20,,,25,15.625,0.260416667
+r120516,120500,Chókwè ,District,pull,0,0.5,M_moto_Chokwe,1,10,20,,,35,21.875,0.364583333
+r120516,120516,C.S.Thawene,Health Center,pull,1,0.5,M_moto_Chokwe,1,10,20,,,35,21.875,0.364583333
+r120600,120000,Gaza,Province,pull,0,2,M_Hilux_Gaza,1,8,20,,,5,,
+r120600,120600,Cidade de Xai-Xai,District,pull,1,2,M_Hilux_Gaza,1,8,20,,,5,,
+r120601,120600,Cidade de Xai-Xai,District,attached,0,,,,,,,,,,
+r120601,120601,C.S.Cidade de Xai-xai,Health Center,attached,1,,,,,,,,,,
+r120602,120600,Cidade de Xai-Xai,District,demandfetch,1,3,M_Walk,1,9,20,,,10,,
+r120602,120602,C.S.Marien Ngouby,Health Center,demandfetch,0,3,M_Walk,1,9,20,,,10,,
+r120603,120600,Cidade de Xai-Xai,District,demandfetch,1,3,M_Walk,1,9,20,,,10,,
+r120603,120603,C.S.Patrice Lumumba,Health Center,demandfetch,0,3,M_Walk,1,9,20,,,10,,
+r120604,120600,Cidade de Xai-Xai,District,demandfetch,1,3,M_Walk,1,9,20,,,10,6.25,2.5
+r120604,120604,C.S.Praia,Health Center,demandfetch,0,3,M_Walk,1,9,20,,,10,6.25,0.104166667
+r120605,120600,Cidade de Xai-Xai,District,demandfetch,1,3,M_Walk,1,9,20,,,10,0,0
+r120605,120605,C.S.Unidade 7,Health Center,demandfetch,0,3,M_Walk,1,9,20,,,10,0,0
+r120700,120000,Gaza,Province,pull,0,3,M_Hilux_Gaza,1,9,20,,,135,0,0
+r120700,120700,Guijá,District,pull,1,3,M_Hilux_Gaza,1,9,20,,,135,0,0
+r120701,120700,Guijá,District,pull,0,0.5,M_truck_Guija,1,10,20,,,45,28.125,0.46875
+r120701,120701,C.S. Mpelane,Health Center,pull,1,0.5,M_truck_Guija,1,10,20,,,45,28.125,0.46875
+r10702,120700,Guijá,District,pull,0,0.5,M_truck_Guija,1,11,20,,,26,16.25,0.270833333
+r10702,120702,C.S.Chibabel,Health Center,pull,1,0.5,M_truck_Guija,1,11,20,,,26,16.25,0.270833333
+r120703,120700,Guijá,District,pull,0,0.5,M_moto_Guija,1,10,20,,,24,15,0.25
+r120703,120703,C.S.Chimbembe,Health Center,pull,1,0.5,M_moto_Guija,1,10,20,,,24,15,0.25
+r120704,120700,Guijá,District,pull,0,0.5,M_moto_Guija,1,11,20,,,20,12.5,0.208333333
+r120704,120704,C.S.Chinhacanine,Health Center,pull,1,0.5,M_moto_Guija,1,11,20,,,20,12.5,0.208333333
+r120705,120700,Guijá,District,demandfetch,1,1,M_bike_Guija,1,10,20,,,14,8.75,0.625
+r120705,120705,C.S.Chivonguene,Health Center,demandfetch,0,1,M_bike_Guija,1,10,20,,,14,8.75,0.625
+r120706,120700,Guijá,District,demandfetch,1,1,M_bike_Guija,1,11,20,,,18,11.25,0.803571429
+r120706,120706,C.S.Mubanguene,Health Center,demandfetch,0,1,M_bike_Guija,1,11,20,,,18,11.25,0.803571429
+r120707,120700,Guijá,District,pull,0,1,M_truck_Guija,1,12,20,,,84,52.5,0.875
+r120707,120707,C.S.Nalazi,Health Center,pull,1,1,M_truck_Guija,1,12,20,,,84,52.5,0.875
+r120708,120700,Guijá,District,attached,0,,,,,,,,,,
+r120708,120708,C.S. Guija Sede,Health Center,attached,1,,,,,,,,,,
+r120800,120000,Gaza,Province,pull,0,4,M_Hilux_Gaza,1,15,20,,,220,0,0
+r120800,120800,Mabalane,District,pull,1,4,M_Hilux_Gaza,1,15,20,,,220,0,0
+r120801,120800,Mabalane,District,pull,0,0.5,M_truck_Mabalane,1,16,20,,,47,29.375,0.489583333
+r120801,120801,C.S. Combomone,Health Center,pull,1,0.5,M_truck_Mabalane,1,16,20,,,47,29.375,0.489583333
+r120802,120800,Mabalane,District,pull,0,1,M_moto_Mabalane,1,17,20,,,77,48.125,0.802083333
+r120802,120802,C.S. Macarale,Health Center,pull,1,1,M_moto_Mabalane,1,17,20,,,77,48.125,0.802083333
+r120803,120800,Mabalane,District,attached,0,,,,,,,,,,
+r120803,120803,C.S.Mabalane,Health Center,attached,1,,,,,,,,,,
+r120804,120800,Mabalane,District,pull,0,0.5,M_truck_Mabalane,1,18,20,,,30,18.75,0.3125
+r120804,120804,C.S.Mabomo,Health Center,pull,1,0.5,M_truck_Mabalane,1,18,20,,,30,18.75,0.3125
+r120805,120800,Mabalane,District,demandfetch,1,1,M_bike_Mabalane,1,19,20,,,16,10,0.714285714
+r120805,120805,C.S.Nhimbayiwe,Health Center,demandfetch,0,1,M_bike_Mabalane,1,19,20,,,16,10,0.714285714
+r120806,120800,Mabalane,District,pull,0,0.5,M_moto_Mabalane,1,20,20,,,45,28.125,0.46875
+r120806,120806,C.S.Pfukwe,Health Center,pull,1,0.5,M_moto_Mabalane,1,20,20,,,45,28.125,0.46875
+r120807,120800,Mabalane,District,pull,0,0.5,M_moto_Mabalane,1,21,20,,,25,15.625,0.260416667
+r120807,120807,C.S.Tsocate,Health Center,pull,1,0.5,M_moto_Mabalane,1,21,20,,,25,15.625,0.260416667
+r120900,120000,Gaza,Province,pull,0,1,M_Hilux_Gaza,1,11,20,,,59,0,0
+r120900,120900,Manjacaze,District,pull,1,1,M_Hilux_Gaza,1,11,20,,,59,0,0
+r120901,120900,Manjacaze,District,attached,0,,,,,,,,,,
+r120901,120901,C.S.Manjacaze,Health Center,attached,1,,,,,,,,,,
+r120902,120900,Manjacaze,District,demandfetch,1,1,M_bike_Manjacaze,1,12,20,,,20,12.5,0.892857143
+r120902,120902,C.S. Mangunze,Health Center,demandfetch,0,1,M_bike_Manjacaze,1,12,20,,,20,12.5,0.892857143
+r120903,120900,Manjacaze,District,demandfetch,1,1,M_bike_Manjacaze,1,13,20,,,12,7.5,0.535714286
+r120903,120903,C.S.Banguene,Health Center,demandfetch,0,1,M_bike_Manjacaze,1,13,20,,,12,7.5,0.535714286
+r120904,120900,Manjacaze,District,pull,0,1,M_moto_Manjacaze,1,12,20,,,76,47.5,0.791666667
+r120904,120904,C.S.Betula,Health Center,pull,1,1,M_moto_Manjacaze,1,12,20,,,76,47.5,0.791666667
+r120905,120900,Manjacaze,District,pull,0,0.5,M_truck_Manjacaze,1,12,20,,,30,18.75,0.3125
+r120905,120905,C.S.Chibondzane,Health Center,pull,1,0.5,M_truck_Manjacaze,1,12,20,,,30,18.75,0.3125
+r120906,120900,Manjacaze,District,pull,0,0.5,M_moto_Manjacaze,1,13,20,,,15,9.375,0.15625
+r120906,120906,C.S.Chicavane,Health Center,pull,1,0.5,M_moto_Manjacaze,1,13,20,,,15,9.375,0.15625
+r120907,120900,Manjacaze,District,pull,0,0.5,M_truck_Manjacaze,1,13,20,,,40,25,0.416666667
+r120907,120907,C.S.Chidenguele,Health Center,pull,1,0.5,M_truck_Manjacaze,1,13,20,,,40,25,0.416666667
+r120908,120900,Manjacaze,District,pull,0,0.5,M_moto_Manjacaze,1,14,20,,,36,22.5,0.375
+r120908,120908,C.S.Cucuine,Health Center,pull,1,0.5,M_moto_Manjacaze,1,14,20,,,36,22.5,0.375
+r120909,120900,Manjacaze,District,pull,0,1,M_truck_Manjacaze,1,14,20,,,86,53.75,0.895833333
+r120909,120909,C.S.Denguine,Health Center,pull,1,1,M_truck_Manjacaze,1,14,20,,,86,53.75,0.895833333
+r120910,120900,Manjacaze,District,pull,0,0.5,M_moto_Manjacaze,1,15,20,,,40,25,0.416666667
+r120910,120910,C.S.Incadine,Health Center,pull,1,0.5,M_moto_Manjacaze,1,15,20,,,40,25,0.416666667
+r120911,120900,Manjacaze,District,demandfetch,1,1,M_bike_Manjacaze,1,14,20,,,16,10,0.714285714
+r120911,120911,C.S.Laranjeiras,Health Center,demandfetch,0,1,M_bike_Manjacaze,1,14,20,,,16,10,0.714285714
+r120912,120900,Manjacaze,District,demandfetch,1,1,M_bike_Manjacaze,1,15,20,,,12,7.5,0.535714286
+r120912,120912,C.S.Macasselane,Health Center,demandfetch,0,1,M_bike_Manjacaze,1,15,20,,,12,7.5,0.535714286
+r120913,120900,Manjacaze,District,pull,0,0.5,M_moto_Manjacaze,1,16,20,,,35,21.875,0.364583333
+r120913,120913,C.S.Macuacua,Health Center,pull,1,0.5,M_moto_Manjacaze,1,16,20,,,35,21.875,0.364583333
+r120914,120900,Manjacaze,District,demandfetch,1,1,M_bike_Manjacaze,1,16,20,,,20,12.5,0.892857143
+r120914,120914,C.S.Macupulane,Health Center,demandfetch,0,1,M_bike_Manjacaze,1,16,20,,,20,12.5,0.892857143
+r120915,120900,Manjacaze,District,pull,0,1.5,M_moto_Manjacaze,1,17,20,,,105,65.625,1.09375
+r120915,120915,C.S.Manhique,Health Center,pull,1,1.5,M_moto_Manjacaze,1,17,20,,,105,65.625,1.09375
+r120916,120900,Manjacaze,District,demandfetch,1,1,M_bike_Manjacaze,1,17,20,,,18,11.25,0.803571429
+r120916,120916,C.S.Matsinhane,Health Center,demandfetch,0,1,M_bike_Manjacaze,1,17,20,,,18,11.25,0.803571429
+r120917,120900,Manjacaze,District,demandfetch,1,1,M_bike_Manjacaze,1,18,20,,,12,7.5,0.535714286
+r120917,120917,C.S.Mausse,Health Center,demandfetch,0,1,M_bike_Manjacaze,1,18,20,,,12,7.5,0.535714286
+r120918,120900,Manjacaze,District,pull,0,1,M_moto_Manjacaze,1,18,20,,,76,47.5,0.791666667
+r120918,120918,C.S. Messavelene,Health Center,pull,1,1,M_moto_Manjacaze,1,18,20,,,76,47.5,0.791666667
+r120919,120900,Manjacaze,District,demandfetch,1,2,M_Walk,1,12,20,,,7,4.375,1.75
+r120919,120919,C.S.Muzamane,Health Center,demandfetch,0,2,M_Walk,1,12,20,,,7,4.375,1.75
+r120920,120900,Manjacaze,District,pull,0,0.5,M_truck_Manjacaze,1,15,20,,,30,18.75,0.3125
+r120920,120920,C.S.Tavane,Health Center,pull,1,0.5,M_truck_Manjacaze,1,15,20,,,30,18.75,0.3125
+r121000,120000,Gaza,Province,pull,0,10,M_Hilux_Gaza,1,12,20,,,578,0,0
+r121000,121000,Massangena,District,pull,1,10,M_Hilux_Gaza,1,12,20,,,578,0,0
+r121001,121000,Massangena,District,pull,0,0.5,M_truck_Massengena,1,13,20,,,17,10.625,0.177083333
+r121001,121001,C.S. Mucambene,Health Center,pull,1,0.5,M_truck_Massengena,1,13,20,,,17,10.625,0.177083333
+r121002,121000,Massangena,District,pull,0,1,M_moto_Massengena,1,13,20,,,64,40,0.666666667
+r121002,121002,C.S.Mavué,Health Center,pull,1,1,M_moto_Massengena,1,13,20,,,64,40,0.666666667
+r121003,121000,Massangena,District,attached,0,,,,,,,,,,
+r121003,121003,C.S.Massengena Sede,Health Center,attached,1,,,,,,,,,,
+r121100,120000,Gaza,Province,pull,0,4,M_Hilux_Gaza,1,13,20,,,248,0,0
+r121100,121100,Massingir,District,pull,1,4,M_Hilux_Gaza,1,13,20,,,248,0,0
+r121101,121100,Massingir,District,pull,0,0.5,M_moto_Massingir,1,14,20,,,45,28.125,0.46875
+r121101,121101,C.S. Zulo,Health Center,pull,1,0.5,M_moto_Massingir,1,14,20,,,45,28.125,0.46875
+r121102,121100,Massingir,District,demandfetch,1,1,M_bike_Massingir,1,14,20,,,17,10.625,0.758928571
+r121102,121102,C.S.Cubo,Health Center,demandfetch,0,1,M_bike_Massingir,1,14,20,,,17,10.625,0.758928571
+r121103,121100,Massingir,District,pull,0,1,M_truck_Massingir,1,14,20,,,70,43.75,0.729166667
+r121103,121103,C.S.Macarringue,Health Center,pull,1,1,M_truck_Massingir,1,14,20,,,70,43.75,0.729166667
+r121104,121100,Massingir,District,pull,0,1,M_moto_Massingir,1,15,20,,,67,41.875,0.697916667
+r121104,121104,C.S.Machamba,Health Center,pull,1,1,M_moto_Massingir,1,15,20,,,67,41.875,0.697916667
+r121105,121100,Massingir,District,demandfetch,1,1,M_bus_Massingir,1,14,20,,,47,,
+r121105,121105,C.S.Massingir Chibotane,Health Center,demandfetch,0,1,M_bus_Massingir,1,14,20,,,47,,
+r121106,121100,Massingir,District,pull,0,0.5,M_truck_Massingir,1,15,20,,,22,13.75,0.229166667
+r121106,121106,C.S.Mavodze,Health Center,pull,1,0.5,M_truck_Massingir,1,15,20,,,22,13.75,0.229166667
+r121107,121100,Massingir,District,pull,0,1,M_truck_Massingir,1,16,20,,,65,40.625,0.677083333
+r121107,121107,C.S.Mucatine,Health Center,pull,1,1,M_truck_Massingir,1,16,20,,,65,40.625,0.677083333
+r121108,121100,Massingir,District,attached,0,,,,,,,,,,
+r121108,121108,C.S.Massingir Sede,Health Center,attached,1,,,,,,,,,,
+r121200,120000,Gaza,Province,pull,0,0.5,M_Hilux_Gaza,1,14,20,,,3,0,0
+r121200,121200,Xai-Xai Distrito,District,pull,1,0.5,M_Hilux_Gaza,1,14,20,,,3,0,0
+r121201,121200,Xai-Xai Distrito,District,pull,0,0.5,M_moto_XaiXai,1,15,20,,,45,28.125,0.46875
+r121201,121201,C.S.Banhine,Health Center,pull,1,0.5,M_moto_XaiXai,1,15,20,,,45,28.125,0.46875
+r121202,121200,Xai-Xai Distrito,District,pull,0,1,M_moto_XaiXai,1,16,20,,,58,36.25,0.604166667
+r121202,121202,C.S.Bungane,Health Center,pull,1,1,M_moto_XaiXai,1,16,20,,,58,36.25,0.604166667
+r121203,121200,Xai-Xai Distrito,District,demandfetch,1,0.5,M_bus_XaiXai,1,15,20,,,24,15,0.25
+r121203,121203,C.S.Chilaulene,Health Center,demandfetch,0,0.5,M_bus_XaiXai,1,15,20,,,24,15,0.25
+r121204,121200,Xai-Xai Distrito,District,pull,0,0.5,M_truck_XaiXai,1,15,20,,,13,8.125,0.135416667
+r121204,121204,C.S.Chipenhe,Health Center,pull,1,0.5,M_truck_XaiXai,1,15,20,,,13,8.125,0.135416667
+r121205,121200,Xai-Xai Distrito,District,pull,0,0.5,M_moto_XaiXai,1,17,20,,,31,19.375,0.322916667
+r121205,121205,C.S.Chongoene,Health Center,pull,1,0.5,M_moto_XaiXai,1,17,20,,,31,19.375,0.322916667
+r121206,121200,Xai-Xai Distrito,District,pull,0,0.5,M_truck_XaiXai,1,16,20,,,16,10,0.166666667
+r121206,121206,C.S.Julius Nyerere,Health Center,pull,1,0.5,M_truck_XaiXai,1,16,20,,,16,10,0.166666667
+r121207,121200,Xai-Xai Distrito,District,pull,0,0.5,M_moto_XaiXai,1,18,20,,,40,25,0.416666667
+r121207,121207,C.S.Maciene,Health Center,pull,1,0.5,M_moto_XaiXai,1,18,20,,,40,25,0.416666667
+r121208,121200,Xai-Xai Distrito,District,demandfetch,1,3,M_Walk,1,15,20,,,12,7.5,3
+r121208,121208,C.S.Ndambine,Health Center,demandfetch,0,3,M_Walk,1,15,20,,,12,7.5,3
+r121209,121200,Xai-Xai Distrito,District,pull,0,0.5,M_truck_XaiXai,1,17,20,,,44,27.5,0.458333333
+r121209,121209,C.S.Nhacutse,Health Center,pull,1,0.5,M_truck_XaiXai,1,17,20,,,44,27.5,0.458333333
+r121210,121200,Xai-Xai Distrito,District,pull,0,0.5,M_moto_XaiXai,1,19,20,,,43,26.875,0.447916667
+r121210,121210,C.S.Nhamavila,Health Center,pull,1,0.5,M_moto_XaiXai,1,19,20,,,43,26.875,0.447916667
+r121211,121200,Xai-Xai Distrito,District,attached,0,,,,,,,,,,
+r121211,121211,C.S.Chicumbane Sede,Health Center,attached,1,,,,,,,,,,
+r121212,121200,Xai-Xai Distrito,District,pull,0,0.5,M_moto_XaiXai,1,20,20,,,39,24.375,0.40625
+r121212,121212,C.S.Siaia,Health Center,pull,1,0.5,M_moto_XaiXai,1,20,20,,,39,24.375,0.40625
+r121213,121200,Xai-Xai Distrito,District,demandfetch,1,2,M_Walk,1,15,20,,,8,5,2
+r121213,121213,C.S.Vladimir Lenine,Health Center,demandfetch,0,2,M_Walk,1,15,20,,,8,5,2
+r121214,121200,Xai-Xai Distrito,District,demandfetch,1,0.5,M_bus_XaiXai,1,16,20,,,32,20,0.333333333
+r121214,121214,C.S.Zimilene,Health Center,demandfetch,0,0.5,M_bus_XaiXai,1,16,20,,,32,20,0.333333333
+r121215,121200,Xai-Xai Distrito,District,demandfetch,1,0.5,M_bus_XaiXai,1,17,20,,,32,20,0.333333333
+r121215,121215,C.S.Zongoene,Health Center,demandfetch,0,0.5,M_bus_XaiXai,1,17,20,,,32,20,0.333333333

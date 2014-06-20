@@ -1,0 +1,59 @@
+<html>
+
+<head>
+
+<title>Handling of Initial OVW Estimates</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>Handling of Initial OVW Estimates 20110920</h1>
+
+<p>
+Shipping order sizes obviously depend on open vial waste.  HERMES
+calculates overall OVW levels as an output, and since SVN r311 there
+has been a mechanism in model.UpdateWastageEstimates to continuously
+change the OVW estimates used in calculating shipment sizes based on
+the current cumulative output estimate of OVW.
+</p>
+<p>
+Unfortunately there is a problem with this for the case of 'pull'
+shipments, because they calculate and freeze in their trigger level
+and fill-up-to level based on a demand calculation done at time 0.0.
+This means they use the initial OVW estimate, not any later updated
+version.  This caused a problem with simulations with a lot of 'pull'
+shipments, which means problems for Niger.  An obvious notion would be
+to update the threshold levels at the end of the burn-in period, but
+since the time during burn-in doesn't have 'normal' shipping patterns
+the results would be improved but still not satisfactory.
+</p>
+<p>
+What is implemented now (as of roughly SVN r463) is that the user can
+specify an input table of OVW values; pull thresholds are set using
+these values or the OVW value 0.5 if no input is given.  (The behavior
+between r311 and r463 effectively used values of 0.5 or 0.0 depending
+on the specific case).  To specify input values, construct a .csv file
+like:
+<pre>
+"Name","OVW"
+"T_Tuberculosis",0.246535282898919
+"T_DTP",0.148457755923111
+"T_Oral Polio",0.125549122323316
+"T_Japanese Encephalitis",0.0430728768982778
+"T_HepB",0.0343791722296395
+"T_DTP-HepB",0.0963103122043519
+"T_MMR-unidose",0
+</pre>
+or the equivalent for the vaccine names in use.  It's probably best to
+do a simulation run and use the output OVW values for these inputs.
+If the name for the file is 'test_ovw.csv', add a line like:
+<pre>
+initialovw='test_ovw.csv'
+</pre>
+to the input.kvp file for the run.  To reproduce the results for the
+mechanism that was in place between r311 and r463, make a file filled
+with the value 0.5 or the value 0.0 .
+
+</body>
+</html>

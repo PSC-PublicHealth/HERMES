@@ -1,0 +1,167 @@
+body {
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+    background-color:#ffe;
+}
+
+.gwt-VerticalSlider {
+    border:1px solid #aaaaaa;
+    background-color:#eeeeee;
+}
+
+.gwt-VerticalSlider-focussed {
+    border:1px solid #000000;
+    background-color:#cccccc;
+}
+
+.gwt-InputControl {
+    border:1px solid #aaaaaa;
+    background-color:#eeeeee;
+    width: 30px;
+}
+
+.gwt-InputControl-focussed {
+    border:1px solid #000000;
+    background-color:#cccccc;
+}
+.gwt-MouseInputControl {
+    border:1px solid #aaaaaa;
+    background-color:#eeeeee;
+    width: 45px;
+}
+
+.gwt-MouseInputControl-focussed {
+    border:1px solid #000000;
+    background-color:#cccccc;
+}
+
+.gwt-TabPanel {
+}
+
+.gwt-TabPanelBottom {
+  border: 1px solid #87B3FF;
+}
+
+.gwt-TabBar {
+  background-color: #C3D9FF;
+}
+
+.gwt-TabBar .gwt-TabBarFirst {
+  height: 100%;
+  padding-left: 3px;
+}
+
+.gwt-TabBar .gwt-TabBarRest {
+  padding-right: 3px;
+}
+
+.gwt-TabBar .gwt-TabBarItem {
+  border-top: 1px solid #C3D9FF;
+  border-bottom: 1px solid #C3D9FF;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.gwt-TabBar .gwt-TabBarItem-selected {
+  font-weight: bold;
+  background-color: #E8EEF7;
+  border-top: 1px solid #87B3FF;
+  border-left: 1px solid #87B3FF;
+  border-right: 1px solid #87B3FF;
+  border-bottom: 1px solid #E8EEF7;
+  padding: 2px;
+  cursor: default;
+}
+
+.gwt-DialogBox {
+  sborder: 8px solid #C3D9FF;
+  border: 2px outset;
+  background-color: white;
+}
+
+.gwt-DialogBox .Caption {
+  background-color: #C3D9FF;
+  padding: 3px;
+  margin: 2px;
+  font-weight: bold;
+  cursor: default;
+}
+
+.gwt-PopupPanelGlass {
+  background-color: #000;
+  opacity: 0.3;
+  filter: alpha(opacity=30);
+}
+
+.gwt-Popup{
+    background-color: white;
+    border: 1px solid #87B3FF;
+    padding: 4px;
+    cursor: default;
+}
+
+/*
+ * This file is part of Canviz. See http://www.canviz.org/
+ * $Id: canviz.css 246 2008-12-27 08:36:24Z ryandesign.com $
+ */
+
+.canviz-body {
+	background: #eee;
+	margin: 0;
+	padding: 0;
+}
+#busy {
+	position: fixed;
+	z-index: 1;
+	left: 50%;
+	top: 50%;
+	width: 10em;
+	height: 2em;
+	margin: -1em 0 0 -5em;
+	line-height: 2em;
+	text-align: center;
+	background: #333;
+	color: #fff;
+	opacity: 0.95;
+}
+#graph_form {
+	position: fixed;
+	z-index: 2;
+	left: 0;
+	top: 0;
+	background: #eee;
+	border: solid #ccc;
+	border-width: 0 1px 1px 0;
+	opacity: 0.95;
+}
+#graph_form,
+#graph_form input,
+#graph_form select {
+	font: 12px "Lucida Grande", Arial, Helvetica, sans-serif;
+}
+#graph_form fieldset {
+	margin: 0.5em;
+	padding: 0.5em 0;
+	text-align: center;
+	border: solid #ccc;
+	border-width: 1px 0 0 0;
+}
+#graph_form legend {
+	padding: 0 0.5em 0 0;
+}
+#graph_form input.little_button {
+	width: 3em;
+}
+#graph_form select,
+#graph_form input.big_button {
+	width: 15em;
+}
+#graph_container {
+	background: #fff;
+	margin: 0 auto;
+}
+#debug_output {
+	margin: 1em;
+}

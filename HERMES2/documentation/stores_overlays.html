@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <title>Stores Overlays</title>
+    <link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+  </head>
+  <body>
+    <h1>Stores File Overlays</h1>
+
+    <p>The purpose of a stores overlay file is to allow people to have small 
+      or local changes to a stores file without recreating the entire stores file.
+      This makes creating changes for experiments easier and obviates keeping
+      experiment stores files up to date after changes are made to the master data.</p>
+    <h2>The overlay file works as follows:</h2>
+    <p>The only column that is required in an overlay is 'idcode'.  Also include
+      any additional columns you wish to update or add.</p>
+    <p>Each row of the overlay file is matched against rows in the stores file.
+      If the idcode from the overlay row matches the idcode in the stores file
+      then the changes from the overlay row are applied to that row in the stores
+      file.</p>
+    <p>On matching rows, any non-empty columns in the overlay file will result 
+      in those columns being created or overwritten to the stores data.
+    <h2>More details</h2>
+    <p>Stores overlay files are invoked by adding the storesoverlayfiles
+      keyword to the input kvp file.  You can specify multiple overlay files
+      by separating them with commas.  They will be processed in order specified.</p>
+    <p>Overlay files are processed in order, first by file and then by lines in the file.
+      This matters when there are multiple edits to the same row.</p>
+    <p>There is currently no mechanism for adding a new store via overlay files.</p>
+    <p>The code specified in idcode of the overlay file is a python regular 
+      expression.  It is considered a match against an idcode in the stores file
+      if the regex matches the full idcode string (the regex is bracketed with
+      a ^/$ pair).  For people who are not familiar with regex's:
+      <ul>
+	<li>'.' matches any single character</li>
+	<li>enclosing a set of characters in square brackets defines a set of
+	  characters so "[123]" will match a '1', '2' or '3'</li>
+	<li>look at <a href="http://docs.python.org/library/re.html">the python 
+	    regular expression documentation</a> for full details</li>
+      </ul>
+    </p>
+    <p>if the column "recdisabled" is specified then any row with a value of 1
+      in this field is considered disabled and no store is created for this row.</p>
+    <p>Fields in the stores file are updated as follows:
+      <ul>
+	<li>If there is no value in a field in the overlay file then nothing 
+	  is added or changed for that field in the stores records.</li>
+	<li>If the value in the field is "_remove_" then the field is treated
+	  as having been empty in the stores records.</li>
+	<li>If the first character in the value of the overlay record is '+' then the
+	  value in the overlay record will be added to the corresponding stores 
+	  record iff that record has an integer or floating point value.  Otherwise
+	  no change is made.</li>
+	<li>Similarly if the first character in the value of the overlay record is '*'
+	  then the value in the stores record will be multiplied.</li>
+	<li>if none of the above criteria are met, the record will just be added or
+	  overridden with the value specified in the overlay file.</li>
+      </ul>
+    </p>
+  </body>
+</html>
+	
+	  

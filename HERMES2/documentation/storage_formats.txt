@@ -1,0 +1,32 @@
+Overview of Adding Refrigerators to UnifiedStorageTypeInfo.csv
+
+Refrigerator type information is stored in master_data/unified/UnifiedStorageTypeInfo.csv .
+That file needs to have a column called 'Name', and columns for each of the names in
+storageTypeNames in storagetypes.py; at the moment those names are 'freezer', 'cooler',
+and 'roomtemperature'.  Any other columns will be ignored.  The volumes should be in liters.
+
+The data we have for Niger comes with columns 'Make', 'Model', 'Year', 'Energy', the volume 
+information, and 'Name'.  We are currently using the following pattern for the 'Name':
+
+   N_VR50F_1997_S
+   
+where 'N_' stands for Nigeria, VR50F is the model name (in this case a model from BP SOLAR),
+1997 is the year, and S is the 'energy' code.  The energy codes to be used in the name are:
+
+   E = electric
+   S = solar
+   G = gas (liquid propane)
+   P = petrole (kerosene)
+   I = ice
+   B = blue ice
+   GE = combined gas and electric
+   KE = combined kerosene and electric
+   U = unknown
+   
+Unknown years should also be abbreviated '_U_', so for example
+one current name is N_PSPR_U_U for a PSPR unit with both year and power supply unknown.
+
+ADDITIONAL RULES FOR NAMES:
+-Do not include spaces, or the '*' or '+' characters.  '-' and '/' are OK.
+-Use of all-uppercase names is encouraged.
+-The special name None means no storage.  

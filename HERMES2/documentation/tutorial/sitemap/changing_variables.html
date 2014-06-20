@@ -1,0 +1,483 @@
+<html>
+<head>
+<title>Changing HERMES Variables For Experiments</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+<link href="hermes_outputs.html" rel="Prev"><link href="../STARTHERE.html" rel="Start"><link href="final_remarks.html" rel="Next">
+
+</head>
+<body>
+<h1>Changing HERMES Variables for Experiments</h1>
+<p>The tutorial, to date, has covered the basics behind running a baseline scenario in HERMES. However, the beauty behind HERMES is <i>not</i> that it can run a baseline scenario - how a supply chain currently acts - but it can also create situations that model various real-life supply chain scenarios.</p>
+<p>The parts of the supply chain which can be modified are <a href="#popdemand"><i>population</i></a>, <a href="#transportationroutes"><i>route structure</i></a>, <a href="#vaccinepresentations"><i>vaccine presentations</i></a>, <a href="#storagecapabilities"><i>storage capabilities</i></a>, and <a href="#supplychainevents"><i>events impacting the supply chain</i></a>. There will also be instructions on invoking <a href="#hermescapabilities"><i>HERMES-specific commands</i></a> to allow for further investigations.</p>
+
+<h2>Table of Contents</h2>
+<p><blockquote>
+<a href="#popdemand">Modifying Population Demand</a><br />
+<a href="#modulatepopulation">Modulating Population Demand (Calendar)</a><br />
+<a href="#transportationroutes">Modifying Transportation Routes</a><br />
+<a href="#shippinginterval">Changing Shipping Intervals</a><br />
+<a href="#routestructure">Modifying Transport Route Structure</a><br />
+<a href="#vaccineintroduction">Introducing New Vaccines into the EPI</a><br />
+<a href="#vaccinesize">Changing Vaccine Vial Size</a><br />
+<a href="#storagecapabilities">Changing Locations' Storage Capabilities</a><br />
+<a href="#addingdevices">Adding Storage Devices to Locations</a><br />
+<a href="#movingfridges">Introducing Moving Fridges into a Simulation</a><br />
+<a href="#poweroutages">Introducing Power Outages into the Supply Chain</a><br />
+<a href="#shippingdelays">Introducing Shipping Delays into the Supply Chain</a><br />
+<a href="#gapanalysis">HERMES-Specific Capabilities: Gap Analysis</a><br />
+<a href="#geocoding">Geocoding Protocol</a><br />
+<strike><a href="#Dsaveall">Dsaveall: Saving Publication-Quality Graphs</a></strike>
+</blockquote></p>
+<br />
+
+<h2>Manipulating Scenarios in HERMES</h2>
+
+<u><h2 id="popdemand">Modifying Population Demand</h2></u>
+<p>Population demand - defined as the number of people who visit a clinic for vaccines within a particular simulation time - is usually determined by a calculation which splits up the population of a particular district (by census) evenly among clinics. (<i>Note: this procedure may change with regards to different experiments.</i>)</p>
+<p>Population demand is modified to:<br />
+A) increase the population globally to match up with population estimates for a particular year.<br />
+B) moderate population flow to increase in some areas and decrease in other areas. 
+<p>To change population demand - for example, to increase the number of individuals arriving at a particular clinic or district - it is imperative to modify the <u>Stores file</u> for the particular country.</p>
+<p>In the below stores file, the population <i>for each population cohort type</i> (e.g. 0-11 months) must be changed. The numbers can either be rearranged, with some areas getting more individuals and some areas having less individuals (relevant to a change in migration patterns), or the population can be multiplied by some growth factor (for population estimates).</p>
+<p>It must be noted that the numbers listed in each column are assumed to be the population of the location for a particular <i>year</i>. The demand, on a day-by-day basis in a month, is specified by a <a href="hermes_dictionary.html#stochasticmodel" target="_blank">stochastic model</a>.
+<center><img src="storesfile_columns_pop.PNG"></center>
+<p>In the above screenshot of a stores file, columns O-Q contain the population estimates for each location in the model (where each row = single location). By changing the numbers in these files, and saving the document (preferably under a different, <i>descriptive</i> name), can one can change the population demand for a particular area (which can give vaccines).</p>
+
+<h3>Alternate Method of Modifying Population Demand</h3>
+<p>In the input file, there is the option to use the keywords <b>"scaledemandexpected"</b> and <b>"scaledemandactual"</b>, as an alternative to changing numbers in the stores file. This command is generally used to scale demand by target coverages in current runs. More information can be found under "scaledemandbytypeactual" and "scaledemandbytypeexpected" <a href="../../input_keywords_generic.html" target="_blank">here</a>.</p>
+
+<h3 id="openvialwaste">For both types of population demand modification, <u>for the Niger model only</u>, the open vial waste file should be adjusted as well.</h3>
+<p>The OVW file defines the population-specific baseline open vial waste estimates for the Niger model. It is usually modified when the population demand is modified, as a variation in the number of individuals coming by will affect the number of vials that would be opened and administered in the model.</p>
+<center><img src="open_vial_screenshot.PNG"></center>
+<p>Above is a screenshot of the Niger open vial waste estimate file in Excel. The first column of numbers indicates the vaccines which have open vial wastes associated with them. (Note: it is okay to have multiple versions of the same vaccine type listed in the open vial waste file, as the population demand file itself specifies the types of vaccines that will be used.)</p>
+<p>The second column indicates the open vial waste - that is, the percentage of the vials that are left over after people are vaccinated. These are estimates that were initially derived from WHO texts, but were then run (and modified) with the parameters of vaccine vials, vial size and population demand in mind.</p>
+<p>To get the open vial waste estimates from a series of runs, ALL the parameters needed in the model (<i>except</i> for open vial waste estimates) need to be explicitly written into the model <u>and the model must be run</u>. When the model has been run with its modified parameters, one should open up the summary reports file and obtain the open vial waste estimates.</p>
+<center><img src="open_vial_estimates_summary.PNG"></center>
+<p>The above screenshot of the Summary Report file shows the open vial waste estimates from the baseline scenario. Everything that is in <b>Column J</b> (OpenVialWasteEstimates) must be transferred <i>back</i> into the open vial waste file AND <u>the model must be re-run with the new open vial waste parameters in mind</u>.</p>
+<br />
+
+<h3 id="modulatepopulation">Modulating Population Demand (Calendar)</h3>
+<p>By default, the population demand is stratified by <i>month</i>. (For the Niger model, this is assumed to be 28 days. (In general, a "month" in HERMES currently can either have 28 or 30 days.) It is assumed that the combined population for each month at a particular location is approximately <sup>1</sup>/<sub>12</sub> of the total population for a particular year. This assignment is based off of the <i>calendar file</i> in each of the <a href="hermes_basics.html#countryspecific" target="blank">country-specific files</a>.</p>
+<p>If there exists a need to change the calendar to match a particular migration pattern - e.g. more than <sup>1</sup>/<sub>12</sub> of the country population is going to be arriving to be vaccinated at some timepoint in the model (with the remaining difference accounted for in the percentages denoted for other months in the year) - then the respective months must have its population percentages modified.</p>
+<center><img src="hermes_calendar.PNG"></center>
+<p>As mentioned before (and as seen above in the screenshot of the baseline Niger calendar), the baseline model assumes that approximately <sup>1</sup>/<sub>12</sub> (= 0.083333) of the listed census population visits a clinic per month. By changing the percentage for a particular month (or group of months), making sure to match the population demand to the experimental structure, can one modulate the calendar dictating population demand. <i>As long as the sum of the percentages for the year</i> (0-336 days) <i>sums up to 1 (= 100%)</i>, then the model should work as planned.</p>
+<br />
+
+<u><h2 id="transportationroutes">Modifying Transportation Routes</h2></u>
+<p>The Routes file can be thought of as one of the backbones of the supply chain. It indicates the routes to deliver vaccines, which determine the flow of vaccines from location to location.</p>
+<center><img src="hermes_routes_table.PNG"></center>
+<p>As shown in the graphic above (a screenshot of the Niger routes table), there are a few columns that define the relative position of each location. They are:</p>
+<ul>
+<li><b>RouteName</b>: this column indicates the name for each route in the supply chain. <i>Each name must be unique.</i></li>
+<li><b>LocName</b>: should ideally match the name of the location, as defined in the Stores file, that a route passes through.</li>
+<li><b>idcode</b>: should match the IDcode of a particular location, as defined in the Stores file. If these parameters do not match with each other, the model will NOT work.</li>
+</ul>
+<p>Meanwhile, there are a few parameters that can be modified in a normal routes table to fit some basic experimental parameters:</p>
+<ul>
+<li><b>Type</b>: This column defines the type of shipment schedule that a particular route goes through. See the HERMES dictionary entries for <a href="hermes_dictionary.html#push" target="_blank">push</a> for definitions of "push" and "varpush" shipping schedules and <a href="hermes_dictionary.html#pull" target="_blank">pull</a> for definitions of the "pull" shipping schedule. <i>Note: if the "pull" type is specified, a "PullOrderAmountDays" should be specified as well. For the model above, that is specified to 28 days - meaning that for every pull shipment, enough vaccine is acquired to last the clinic for 28 days.</i></li>
+<li><b>RouteOrder</b>: Dictates the order in which a particular location will be serviced in a particular route. For a single "Point A to Point B" route, "0" indicates the location of origin and "1" indicates the location of arrival. For multi-stop routes (<a href="hermes_dictionary.html#shippingloop" target="_blank">shipping loops</a>), each subsequent location that is serviced will obtain another number ("2", "3", "4") until the shipping loop is complete.</li>
+<li><b>TransitHour</b>: Dictates the amount of time (in hours) that a particular route takes. Default transithours is "24" to allow for a per-diem calculation to be calculated between routes.</li>
+<li><b>TruckType</b>: Dictates the truck type used in a particular route. Values for both truck type (and number of trucks) must match those defined in both the <font face="courier new" size="2">UnifiedTruckType</font> file and the <font face="courier new" size="2">[COUNTRY]_trucks</font> file.</li>
+</ul>
+
+<h3 id="shippinginterval">Changing Shipping Intervals</h3>
+<p>Changing the shipping interval is a supply chain modification that can affect how the vaccines are shipped through the system.</p>
+<p>By default, the above model indicates that Central-to-Region shipping loops A & B have a "ShipIntervalDays" of 3 months (= 84 days), shipping loops C-I (for the Niamey region and each district in Tillaberi region in Niger) have a shipping interval of 28 days, and all district-to-IHC routes having a shipping interval of 7 days.</p>
+<p>To change the shipping interval, modify the numbers in <b>Column H</b> ("ShipIntervalDays") of the above routes file to fit some multiple of 7 (where 7 = one week). An example of a modification would be decreasing the Central-to-Region shipping interval to a monthly (= 28 day) shipment schedule.</p>
+<p>Note: "ShipLatency" indicates how many days after a shipment has arrived at a particular location that the shipments must be made. This parameter, for the most part, doesn't have to be manipulated unless it is absolutely necessary.</p>
+
+<h3 id="routestructure">Modifying Transport Route Structure</h3>
+<p>There are some situations in which the route structure has to be modified. Some of these include:<br />
+A) Removing (or partially removing) a level in a particular scenario.<br />
+B) Adding locations (which have already been specified in the Stores table) to the Routes file</p>
+
+<p>To be able to conceptualize the process of creating a route structure, one has to think about the <i>location of origin</i>, the <i>destination location(s)</i>, and the <i>route order</i>. These are the three main pieces of the routes file that differ within the overall structure of the route itself. For these pieces:</p>
+<ul>
+<li>The <u>location of origin</u> always is the first line in a new route. This location has a RouteOrder number (Column E) of "0"</li>
+<li>The <u>destination location</u> is on the next line in a new route. These locations would have a RouteOrder number (Column E) of "1", "2", "3", "4", etc., showing the order of visitation.</li>
+<li>Place the appropriate ID codes 
+<li>Make sure that the ID numbers match for all locations (Column D).</li>
+</ul>
+<p>In general, each route would have the following characteristics defined:
+<ul>
+<li><b>RouteName</b> must be a unique identifier. Shipping loops are usually denoted by a letter, while simple "Point A to Point B" routes can be described by combining "r" and the ID code of the destination location (e.g. "r10101" for a route from 10001 to 10101).</li>
+<li><b>Type</b> must be consistent for all locations in the route -- that is, the origin and destinations must have their shipping schedule consistent (e.g. all locations in a route having a "pull" route).</li>
+<li><b>TransitHours</b> should be consistent. Usually, each route would have 24 hours denoted between legs, in order to account for the per diem.</li>
+<li><b>ShipIntervalDays</b>, <b>ShipLatencyDays</b> and <b>PullOrderAmountDays</b> should all be consistent throughout the route. In general, region-to-district routes may have a shipping latency of 1 day, district-to-IHC routes my have a shipping latency of 2 days. Shipping loops can have a shipping interval of 84 days, while region-to-district routes can have a shipping interval of 28 days, and district-to-IHC routes have a shipping interval of 7 days.</li>
+</ul>
+<p>Always remember that the Routes files can be checked by:
+<ol>
+<li>Running HERMES and seeking out accumulated errors</li>
+<li>Check the <a href="http://hermes.psc.edu/hermes/output/hermes_ui.html" target="_blank">HERMES data explorer</a> to see if the routes file actually makes "sense". (Make sure to upload the stores, routes and reports file into the appropriate tabs in the Data Explorer.)</li>
+</ol></p>
+
+<br />
+<u><h2 id="vaccinepresentations">Changing Vaccine Presentations</h2></u>
+
+<h3 id="vaccineintroduction">Introducing New Vaccines into the EPI</h3>
+<p>As this is the "Decade of Vaccines", there is a high likelihood that an experiment will include a <i>new vaccine introduction</i> (henceforth referred to as a <a href="hermes_dictionary.html#NVI" target="_blank">NVI</a>) into the <a href="hermes_dictionary.html#EPI" target="_blank">EPI</a> regimen.</p>
+<p id="vacc_BD">To introduce a vaccine into a simulation, two main things have to be done. They are to:
+<ol>
+<li>Characterize the new vaccine within the <font face="courier new" size="2">UnifiedVaccineTypeInfo</font> database.</li>
+<li>Add demand for the vaccine (and the vaccine schedule) into the <font face="courier new" size="2">[COUNTRY]_demand</font> file</li>
+</ol>
+<h4 id="vacc_char">1. Characterize the new vaccine into the <font face="courier new" size="2">UnifiedVaccineTypeInfo</font> File</h4>
+<p>Broadly speaking, a vaccine can be characterized by the following general categories:
+<ul>
+<li><b>Vaccine Classification</b> - what is the vaccine named? What is its abbreviation on the market? What type of vaccine is it? (This determines what is known as the "RandomKey".)</li>
+<li><b>Vaccine Administration Method</b> -  How is it shipped to users (liquid, freeze dried), and how is it administered? How many doses are needed to achieve full vaccination coverage?</li>
+<li><b>Cold Chain Inventory Specifications</b> - How many doses are possible per vial? What's the packaged volume of both the vaccine itself and the diluent (<i>needed for freeze-dried vaccines</i>)?</li>
+<li><b>Vaccine Pricing</b> - What is the vaccine price of both the vaccine and the diluent, in USD?</li>
+<li><b>Vaccine Lifetime</b> - How long can the vaccine stay viable in A) a freezer, B) a cooler, C) a refrigerator or D) out in the open?</li>
+</ul></p><br />
+<center><img src="hermes_vaccine_table.PNG"></center>
+<p>The above spreadsheet shows the breakdown of the general categories.</p>
+<p>Data for vaccines that have already been prequalified by the <a href="hermes_dictionary.html#WHO" target="_blank">WHO</a> can be found at the <a href="http://www.who.int/immunization_standards/vaccine_quality/PQ_vaccine_list_en/en/index.html" target="_blank">WHO prequalified (PQ) database</a>.</p>
+<p>While the spreadsheet is quite easy to fill out, there are a few pieces of information to be aware of:</p>
+<ul>
+<li>Try not to include spaces into the Name column (Column B), and make sure that <i>each vaccine has a unique name</i>.</li>
+<li>If information does not exist directly on the WHO-written pages for the PQ database, look at manufacturer inserts for vaccine lifetimes and vaccine administration. They can be quite helpful!</li>
+</ul>
+<h4 id="vacc_sched">2. Add the vaccine schedule (and therefore, vaccine demand) into the <font face="courier new" size="2">[COUNTRY]_demand</font> file</h4>
+<p>Once the vaccine has been sufficiently characterized, it has to be added into the simulation through the implementation of its vaccine schedule into the <font size="2" face="courier new">[COUNTRY]_demand</font> file.</p>
+<center><img src="niger_demand.PNG"></center>
+<p>The above screenshot of the <font face="courier new" size="2">Niger_Demand.csv</font> file shows that to categorize a vaccine, two things must be considered:
+<ul>
+<li>The name of the vaccine, as described in the <font size="2" face="courier new">UnifiedVaccineTypeInfo</font> file</li>
+<li>The vaccine schedule, as administered to each population cohort that's described in the model. (The cohorts are boxed up in red text above. Examples of population cohorts can be found in the <font face="courier new" size="2">UnifiedPeopleTypeInfo</font> file.</li>
+</ul>
+<p>Create a new row in the <font face="courier new" size="2">[COUNTRY]_demand</font> file with your new vaccine's schedule. In the above file, you would write up your vaccine name underneath "N_Pneum...", and implement the proper vaccine schedule.</p>
+<p>The vaccine schedule must be distributed properly to the relevant population cohorts, i.e., if a vaccine is given three times, twice before the child is a year old and once when the child is between one-to-two years of age, then the "0-11month" cohort cell will contain a "2" and the "12-24month" cohort will contain a "1".</p>
+<h4 id="fornigeronly">3. <u>For Niger Only</u>: Modify the open vial waste spreadsheet</h4>
+<p>As the Niger model was the first model that was created by the HERMES team, there are some peculiar quirks with the model. One of these is the "open vial waste" file that is required to run the Niger country model for HERMES.</p>
+<p>The OVW file defines the baseline open vial waste policy, and is usually modified when the population demand is modified.</p>
+<center><img src="open_vial_screenshot.PNG"></center>
+<p>Follow the procedures for <a href="#openvialwaste">modifying an open vial waste file</a>, taking care to include a new blank for your new vaccine regimen.</p>
+
+
+<h3 id="vaccinesize">Changing Vaccine Vial Size</h3>
+<p>There may be some cases in which, instead of entirely replacing a vaccine (or introducing a new vaccine) into the EPI regiment, there might be an experiment that would investigate the implementation of different vaccine vial sizes on the vaccine supply chain.</p>
+<p>In this case, the two main steps <a href="#vacc_BD">previously described</a> for the implementation of new vaccines mostly hold -- with a few modifications.</p>
+<h4>1. Characterize the new vaccine into the <font face="courier new" size="2">UnifiedVaccineTypeInfo</font> File</h4>
+<p>If this step has not already been done for you, then <a href="#vacc_char">do it now</a>.</p>
+<p>If it has already been done, then...</p>
+<h4>2. <i>Modify</i> the existing vaccine schedule for a particular vaccine in the <font face="courier new" size="2">[COUNTRY]_demand.csv</font> file.</h4>
+<p>Instead of <a href="#vacc_sched">adding a new vaccine</a> into the <font size="2" face="courier new">[COUNTRY]_demand</font> file, you would <i>replace</i> the name of the relevant current vaccine with the name given to the modified vial implementation. The vaccine schedule would then be modified accordingly.</p>
+<p>For example, in the above demand file, "N_Measles" has 10 <sup>doses</sup>/<sub>vial</sub> available for consumption. If, for example, an alternate vaccine vial was created with 5 <sup>doses</sup>/<sub>vial</sub> (but with the same vaccination schedule), with the name, "N_Measles_5D", then "N_Measles_5D" would replace "N_Measles" in the above demand file.</p>
+<p>From there, <a href="#openvialwaste">modify an open vial waste file</a>, making sure that the new vaccine vial size contains the appropriate data and information.</p>
+<br />
+
+<u><h2 id="storagecapabilities">Changing Locations' Storage Capabilities</h2></u>
+<p>The Stores file contains information about the amount and type of storage space available at each location in the cold supply chain.
+<ul>
+<li>The "Walk in +(lit)" column lists the amount of walk-in cold room space, in liters, for every location.</li>
+<li>Most locations do not have a cold room, and thus have a 0 in this column.</li>
+</ul>
+The Storage column contains every refrigerator and freezer at each location. These refrigerator and freezer names correspond to device names in the <font face="courier new" size="2">UnifiedStorageInfoType</font> file.</p>
+<p>Storage may be added or removed to explore the effects of changing storage space in a constrained supply chain, or to update a model to reflect a change in the supply chain equipment inventory.</p>
+<center><img src="device_utilization_factor.PNG"></center>
+<p>In the screenshot of the Stores file above, the device storage utilization factor is for the Dagamane IHC (located in Agadez region & in Agadez district) has been changed from "1" to "0.4". This indicates that only 40% of Dagamane's usual storage space (measured in <i>net volume</i>) is being utilized.</p>
+<p>This change also indicates that all fridges that <i>start out</i> at Dagamane will be using 40% of their normal listed capacity. This is an important point to remember for the addition of <a href="#movingfridges">moving fridges</a> in the model (explained below).</p>
+<br />
+
+<h3 id="addingdevices">Adding Storage Devices to Locations</h3>
+<p>To add storage capacity in the form of a walk-in cold room, add the <b>net liters</b> (the volume of a room, if the volume from all shelving units and interior structures are removed from the overall room volume) contained in the cold room to the value in the "Walk in +(lit)" column.</p>
+<p>To add storage capacity in the form of a refrigerator or freezer, add specific refrigerator and freezer names to the Storage column. These names must match device names in the Name column of the UnifiedStorage file.</p>
+<p>To add a device with different characteristics from those in the UnifiedStorage file, add a device on a new line.
+<ul>
+<li>Add the manufacturer name in the Make column (enter "Unknown" if the make is unknown)</li>
+<li>The model name in the Model column (enter "U" if the model is unknown)</li>
+<li>The year of manufacture in the Year column (enter "YearUnk" if the year is unknown), and</li>
+<li>The energy type that powers the device in the Energy column. Use the following abbreviations:
+<ul>
+<li>E = electric</li>
+<li>S = solar</li>
+<li>I = ice</li>
+<li>B = blue ice</li>
+<li>G = gas</li>
+<li>P = petrole (kerosene)</li>
+<li>GE = combined gas and electric</li>
+<li>KE = combined kerosene and electric</li>
+<li>U = unknown</li>
+</ul>
+<li>Enter the net liters of freezer space for the device in the "freezer" column and the net liters of cold space in the "cooler" column. Room temperature will remain blank, as this column applies to the special case of space outside of any cold device.</li>
+<li>In the Name column, enter the name in the following format: <font face="courier new" size="2">[First letter of country name]_[Model]_[Year]_[Energy]</font>. <i>Do not include any spaces in the device name.</i></p>
+</ul>
+<p>Once a storage device exists in the UnifiedStorage file, it can be added to a location in the Storage column of the Stores file. To add a device to a location that currently has "None" in the Storage column, remove the word "None" and enter the name of the device to be added, exactly as the name appears in the Name column of the UnifiedStorage file.</p>
+<p>To add <b>more than one of the same device type to the same location</b>, enter the number to be added, followed by an asterisk (*), and the device name, with no spaces (e.g. 2*N_RA302_1998_G).</p>
+<p>To add <b>multiple devices of different types</b>, enter one device name, followed by a plus (+), and the next device name, with no spaces (e.g. N_MF304_1996_E+N_TC883_U_E).</p>
+<p>To <b>add devices to a location that already has storage devices</b> in the Storage column, simply add a plus (+) to the end of the last device name in that column, followed by the name of the device to be added. The notation for multiples of the same device type (*) as well as multiple devices of different types (+) can be used together for the same location (e.g. N_MF304_1996_E+2*N_RA302_1998_G+N_TC883_U_E).</p>
+<br />
+
+<h3 id="movingfridges">Introducing Moving Fridges into a Simulation</h3>
+<h4>What exactly <i>is</i> a moving fridge?</h4>
+<p>A moving fridge, alternately defined as a <i>passively-cooled vaccine storage device</i>, a <i>passive cold device</i> or a <i>passive vaccine storage device</i> (<a href="hermes_dictionary.html#PVSD" target="_blank">PVSD</a> for short), is a device used to circulate vaccines along a <a href="hermes_dictionary.html#shippingloops" target="_blank">shipping loop</a>. It is not connected to a power source, but rather is circulated and swapped along its its shipping loop.</p>
+<p>In the usual PVSD scenario, if a district serves 12 clinics, then 12 cold boxes at district are needed, with one at each clinic (for a total device ratio of 2 devices/clinic).</p>
+<center><a href="appropriate PVSD use case.PNG" target="_blank"><img src="appropriate PVSD use case.PNG" height="348" width="505"></a><br /><font size="2"><i>"Appropriate Use Case of a PVSD"</i> - taken from a previous VMI/HERMES presentation</font></center>
+<p><b>Be aware that the implementation of a moving fridge is a fairly detailed process, with many things that could easily slip up if the implementation is not done systematically.</b><br />
+Therefore, while we have included as many screenshots and instructions as we possibly could here, but make sure that if you have <i>any</i> questions, please see someone about them immediately.</p>
+<center><h4>Instructions on Introducing a Moving Fridge into a Simulation</h4>
+<img src="people_type_service.PNG"></center>
+<ol>
+<li>In the <font size="2" face="courier new">UnifiedPeopleTypeInfo</font> file, there <i>must</i> be a type labeled "service". (This has been indicated in the above *compressed* PeopleType file.)</li><br />
+<li>In the <font size="2" face="courier new">UnifiedStorageTypeInfo</font> file, there must be the column headings "ColdLifetime," "AlarmDays," and "SnoozeDays" for either a refrigerator or type AlarmedIceFridge</li><br />
+<li>In the <font size="2" face="courier new">UnifiedTruckTypeInfo</font> file, a truck type which has the capacity to hold PVSDs must be added.</li><br />
+<li>In the <font size="2" face="courier new">country-specific Stores</font> file, there must be a "storage" column present. (<a href="#addingdevices">We've discussed this previously.</a>)<br />In this column:
+<ol>
+<li>Put a cold box in the Storage column for <u>each</u> clinic</li>
+<li>At a higher level in the supply chain (e.g. the district which contains a grouping of clinics), put the total number of clinics' cold boxes into the Storage column.</li>
+</ol><br />
+<center><img src="storesfile_movingfridges.PNG"></center><br />
+<li>In the <font size="2" face="courier new">country-specific Stores</font> file, there must be a column <i>added</i> for people type "Service" - with a "1" written at each location for each cold box you want to send to that location (add to clinics, not to district).<br />
+<i>Note: in the screenshot above of a section of the Stores file, the district containing five PVSDs has part of its storage tab boxed in green, while the red-boxed area indicates the IHCs/clinics with "1" in the service column and "PVSD" added to their existing storage inventory.</i></li><br />
+<center><img src="niger_demand_PVSD.PNG"></center><br />
+<li>In the <font size="2" face="courier new">Country-specific demand</font> file (screenshot above), a demand must of "1" must be added under the "Service" column (<i>which has been added to the Demand file</i>) for the coldbox type used.<br />
+As "Service" was treated as a people type in Step 1, the cold device is treated like a vaccine, except that it refers to an item from the <font face="courier new" size="2">UnifiedStorageTypeInfo</font> file, rather than the <font face="courier new" size="2">UnifiedVaccineTypeInfo</font> file.</li><br />
+<li>In the <font size="2" face="courier new">Country-Specific input</font> file: choose to monitor cold boxes and stores for charts. (<i>Essentially, just pick the locations you want to monitor vaccine flow in.</i> Read <a href="input_file_intro.html#walkthrough" target="_blank">this</a> - concentrating on <font face="courier new" size="2">monitor</font> - if you need a refresher.)<br />
+</ol>
+<p>Other notes to consider:</p>
+<ul>
+<li>If you are using different kinds of cold boxes, multiple types of "Service" people types may need to be created.
+<ul>
+<li>If multiple cold boxes are being sent from a district to each clinic, change the number in the (Country-Specific) Demand file and correct initial amounts input into the (Country-Specific) Stores file.</li>
+<li>If different cold boxes are being sent to different clinics, an additional people type (Ex: "service2") must be created in <font size="2" face="courier new">UnifiedPeopleTypeInfo</font>. A column must be added for this people type in the (Country-Specific) Stores file, and a row addedfor this people type in the (Country-specific) demand file</li>
+</ul></li><br />
+<li>The <font size="2" face="courier new">UnifiedTruckCapacity</font> file now has a storage column.
+<ul><li><i>Note: you do <u>not</u> need to use this function right now.</i></li></ul></li></ul>
+
+<br />
+<u><h2 id="supplychainevents">Introducing Events into the Supply Chain</h2></u>
+
+<h3 id="poweroutages">Introducing Power Outages into the Supply Chain</h3>
+<p>The use of power outages can be useful in introducing disruptions in the supply chain. They only affect storage devices which run off of electrical power, turning off power and spoiling all of the vaccines in the device. This negatively impacts the area to be vaccinated, until another shipment of vaccines comes in.</p>
+<p><i>Note: most of the following information was obtained from the <a href="../../power_failures.html" target="_blank">power failures SVN documentation page</a>. (Link works in SVN versin of tutorial <u>only</u>.)</i></p>
+<p>Power failures can occur either to individual warehouses or to groups of warehouses.  It is assumed that we are ignoring any power failure that is sufficiently short that a refrigerator would not be affected.</p>
+<p>Power failure information can have default items specified in the input file and can have information specific to a warehouse in the warehouse file.</p>
+<center><img src="power_outages.PNG"></center>
+<p>The above document shows a screenshot of a Stores file, with the headings needed to invoke power outages boxed in green.</p>
+
+<p>The following fields can be set in the Stores input file:
+<blockquote><dl>
+        <dt><b>PowerOutageFrequencyPerYear</b>:
+            <dd>average number of power outages in a year at a
+	    warehouse.
+        <dt><b>PowerOutageDurationDays</b>:
+	    <dd>average duration of a power failure.  A clinic
+	    probably won't be able to do anything during a
+	    power outage since it can't store any vaccines
+	    unless it has some off grid means of vaccine
+	    storage.
+	<dt><b>PowerOutageDurationSigma</b>:
+	    <dd>if this value exists, use a normal distribution
+	    for the outage with this value as the standard
+	    deviation.
+	<dt><b>PowerOutageAffectedRatio</b>:
+	    <dd>if set only this fraction of warehouses in this
+	    cluster will be affected by any given power
+	    outage.
+	<dt><b>PowerOutageClusterId</b>:
+	    <dd>assigns this warehouse to a specific cluster
+	    for the purposes of outages.  This enables
+	    an entire area (or fraction of an area) to
+	    go down at once.  All members of a cluster
+	    must have the same set of values for frequency
+	    and duration.
+</dl></blockquote>
+</p>
+<p>
+Since it is reasonable to put a warehouse into one or more clusters of power outage groups and to have it have individual outages, any of the above fields can have a suffix to allow it to have multiple sets of power outage information.  For example you could have the following fields:
+
+<pre>
+      PowerOutageFrequencyPerYear_region,
+      PowerOutageDurationDays_region,
+      PowerOutageClusterId_region,
+      PowerOutageFrequencyPerYear_local,
+      PowerOutageDurationDays_local,
+      PowerOutageDurationSigma_local,
+      PowerOutageClusterId_local
+</pre>
+(or instead of '_region' and '_local' you could just have '1', '2', '3'...)
+</p>
+<p>
+
+<h4>Required fields:</h4>
+<p>PowerOutageFrequencyPerYear and PowerOutageDurationDays must exist either in default values for the input file or explicitly for each power outage group.</p>
+<br />
+<h3 id="shippingdelays">Introducing Shipping Delays into the Supply Chain</h3>
+<p>The introduction of shipping delays introduces a layer of complexity into the model. It introduces time delays in the model, by including a shipping delay either prior to the vaccines' leaving a location (a <i>pick up delay</i>), or introduces a time delay while the vaccine is in transit (a <i>delivery delay</i>). Both of these delay types can also be implemented at the same time.</p>
+<p><i>Note: the majority of this information was taken from <a href="../../shipping_delays.html" target="_blank">the shipping delays SVN documentation page</a>. (Link works in SVN version of the tutorial <u>only</u>.)</i></p>
+<p>Shipping delays can occur before or after the vaccines are picked up from a warehouse (or both).  They can be added in the input file and overridden or created on a per route basis in the routes file.</p>
+<center><img src="shipping_delays.PNG"></center>
+<p>In the above Routes file, the appropriate column headings for introducing a shipping delay have been boxed in green. More information can be found below:</p>
+<p>To enable or override shipping delays on a per route basis add any or all of the following fields to the routes file:
+<pre>
+        PickupDelayFrequency 
+        PickupDelayMagnitude
+	PickupDelaySigma 
+	PickupDelayReorder
+        DeliveryDelayFrequency 
+        DeliveryDelayMagnitude
+	DeliveryDelaySigma 
+</pre>
+and fill them in with the corresponding values. These values are only read from the supplier's (RouteOrder:0) line of the routes file.</p>
+<p>To enable shipping delays in the input file use the following fields:
+<dl>
+        <dt><b>pickupdelayfrequency</b>:
+                <dd>frequency of shipping delay incurred before 
+                transport starts (0.0-1.0)
+        <dt><b>pickupdelaymagnitude</b>:
+                <dd>magnitude in days of shipping delays
+	<dt><b>pickupdelaysigma</b>:
+		<dd>if this value exists and is non-zero use 
+		a normal distribution the shipping delay 
+		with this value as the standard deviation
+	<dt><b>pickupdelayreorder</b>:
+		<dd>only meaningful on pull shipments.  
+		Defaults to FALSE.  If TRUE allows the 
+		order to be recalculated after the pickup
+		delay completes.
+</dl>
+<dl>
+        <dt><b>deliverydelayfrequency</b>:
+                <dd>frequency of shipping delay incurred during 
+                transport (0.0-1.0)
+        <dt><b>deliverydelaymagnitude</b>:
+                <dd>magnitude in days of shipping delays
+	<dt><b>deliverydelaysigma</b>:
+		<dd>if this value exists and is non-zero use 
+		a normal distribution the shipping delay 
+		with this value as the standard deviation
+</dl>
+</p><br />
+
+<u><h2 id="hermescapabilities">HERMES-Specific Capabilities</h2></u>
+
+<h3 id="gapanalysis">Gap Analysis</h3>
+<h4>What exactly <i>is</i> a gap analysis?</h4>
+<p>A <b>gap analysis</b> is a HERMES procedure that predicts the amount of transport and storage space needed to increase the vaccine availability through the model, to the highest point possible.</p>
+<p>The procedure can increase storage and transportation space, and, when necessary, increase the number of trips that can be taken to the maximum value available (as set by other files in the model).</p>
+<h4>How is a gap analysis implemented?</h4>
+<p>The main difference between a "normal" HERMES run and a gap analysis is that the command "<font face="courier new" size="2">--gap</font>" must be introduced into the batch file when the model files are run.</p>
+<p>For purposes of clarity, a modified batch file was created that allowed for the introduction of the <font face="courier new" size="2">--gap</font> command. <font face="courier new" size="2">--gap</font> can be introduced into a regular HERMES file, as long as the output files are distinguished.</p>
+<center><img src="gap_analysis_batch.PNG"></center>
+<p>The text of the above batch file is:</p>
+<pre>
+cd vmi\HERMES2
+set path=c:\python27;%path%
+set hermes_data_path=%hermes_base%\master_data\niger\buydown_input_files;%hermes_base%\master_data\niger;%hermes_base%\master_data\unified;.
+"c:\Documents and Settings\leestudent\Desktop\vmi\HERMES2\main.py" --out=gap_analysis <b>--gap</b> niger_input.kvp > gap_error.txt 2>&1
+</pre>
+<p>The above batch file was run, producing the following command line window:
+<center><img src="gap_batchfile.PNG"></center>
+<p>When the simulation was done running, besides the usual "summary" and "reports" files that appeared in the repository, the following documents were present along with the normal report and summary report files:</p>
+<center><img src="gap_analysis_results.PNG"></center>
+<p>The above screenshot shows two additional output report files. The one on the left, <font face="courier new" size="2">gap_analysis_transport_gap.csv</font>, contains the following columns:</p>
+<ul>
+<li><b>ID</b>: the route number associated with each route,</li>
+<li><b>TruckName</b>: the type of truck associated with the route,</li>
+<li><b>Gap_L</b>: the amount of space needed in that particular route that could allow for all the people in locations below that route to be vaccinated.</li>
+<li><b>Gap_Over_Trips</b>: the number of extra trips needed in that particular route to allow for maximal vaccine availability</li>
+</ul>
+<p>The file on the right, meanwhile, <font face="courier new" size="2">gap_analysis_storage_gap.csv</font>, contains the following headings:</p>
+<ul>
+<li><b>ID</b>: the ID number of each location being served in the model</li>
+<li><b>Name</b>: the name of the location</li>
+<li><b>Function</b>: shows the level of that distribution location</li>
+<li><b>Refrid_Gap</b>: the amount of space needed in a refrigerator to maximize the flow of vaccines through that location</li>
+<li><b>Freezer_Gap</b>: the amount of space needed in a freezer to maximize vaccine flow through that location</li>
+<li><b>Refrid_Gap_Time_Days</b>: the number of days in which the location is currently over its refrigerated vaccine storage capacity</li>
+<li><b>Freezer_Gap_Time_Days</b>: the number of days in which the location is currently over its freezer vaccine storage capacity</li>
+</ul>
+<p>What can be seen above is that there are a lot more routes, than locations, which appear to need some amount of space to maximize the vaccine stock being transported. This assumption was concluded based on the notion that more routes, compared to static locations, reported a need for extra storage space.</p><br />
+
+<h3 id="geocoding">Geocoding Protocol</h3>
+<p><a href="hermes_dictionary.html#geocoding" target="_blank">Geocoding</a>, known as the process of finding geographic coordinates of locations, is usually used by organizations to find out distances between specific locations using geographical coordinates.</p>
+<p>While the full geocoding protocol can be found <a href="../../hermes_geocoding.html">here</a>, it has been reproduced here for the purposes of the DAV tutorial.</p>
+<p><i>Note: this protocol might be updated in the future.</i></p>
+<blockquote><ol>
+<li><b>Evaluate Current Data</b>
+<blockquote><ul>
+<li>Create summary of available data<br />(Write where you got it, how you got the data, how did they derive the data, etc.)</li>
+</ul>
+</blockquote>
+<li><b>Verify Current Data Set</b></li>
+<blockquote><ul>
+<li>Do a Comprehensive Search to See if Other Coordinate Sources Exist</li>
+<li>Write a script in Google Earth (which creates a <font face="calibri" title="Keyhole Markup Language">KML</font> file which can plot it onto the map).</li>
+<li><u>Report Our Findings</u> - start at the top and move down.</li>
+<li><i>Note: Both HERMES and Google Earth use coordinates in <font face="calibri" title="Coordinate containing only degrees (real number) (DegDec). Look at 'Geographic_coordinate_conversion' on Wikipedia for more information."><u>decimal</u> format</font>.</i></li>
+</ul></blockquote>
+<li><b>Start looking for other places.</b></li>
+<blockquote><ul>
+<li><a href="http://maps.google.com" target="_blank">Google Maps</a></li>
+<li><a href="http://www.geonames.org" target="_blank">GeoNames</a></li>
+<li><a href="http://www.bing.com/maps/" target="_blank">Bing Maps</a> (<i>as a last resort</i>)</li>
+</ul></blockquote>
+<li><b>Things to Know</b>
+<ul><li>Go for Latitude & Longitude coordinates.
+<li>Look at <i title="Wiki says that this is 'the shortest distance between any two points on the surface of a sphere measured along a path on the surface of the sphere (as opposed to going through the sphere's interior).'">Great Circle Distances</i> between Upper Levels</li>
+<blockquote>If Abnormal:
+<ul><li>Cross-Reference</li>
+<li>If Unsure:</li>
+<ul><li>Eliminate</li>
+<li><font size="4">Unknown Distances = Average of Other Locations in Levels</font></ul></ul></ul>
+<li><b>Find RoadMap Distances</b>
+<ol>
+<li><a href="http://maps.google.com" target="_blank">Google Maps</a></li>
+<li><a href="http://www.bing.com/maps/" target="_blank">Bing Maps</a> (<i>as a last resort</i>)</li>
+<li><a href="http://www.esri.com/software/arcgis/index.html" target="_blank">ArcGIS</a> (<i>useful, but may be hard to learn</i>)</li>
+</ol><ul>
+<p>Additional Notes:</p>
+<li>Run Through and Find Distances</li>
+<li>Find a ratio between distances if necessary</li>
+</ul>
+</ol>
+<p><i>Remember:
+<ul>
+<li>Cross-checking is <u>always</u> a good idea.</i></li>
+<li>Document your workings in the NOTES column in the Stores spreadsheet.</li>
+</ul>
+</p></blockquote></p>
+
+<br />
+
+<strike><h3 id="Dsaveall">'-Dsaveall': Saving Publication-Quality Graphs</h3></strike>
+<p>This command is used to create publication-quality PNG stock vaccine inventory graphs.</p>
+<p>Right now, invoking this command will invoke a memory error in HERMES. The instructions have been posted before, but should ideally not be completed until the memory fix is resolved.</p>
+<h4>How does one actually *make* these compressed files?</h4>
+<p>"Pickling" is the Python term for creating compressed files. (Another example of a compressed file is the "zip" file.) Before you ask, yes, you pronounce the *.pkl suffix as... "pickle".</p>
+<p>In order to pickle files in HERMES, we add a single command to our batch file: <font face="courier new" size="2">-Dsaveall=[name here]</font>. This tells HERMES to save a pickle file that will later be uncompressed (or, in Python terms, "unpickled"), usually in the directory where you have all your report files come out.</p>
+<p>Within a HERMES batch file, one can use the following syntax:</p>
+<pre>cd vmi\hermes2
+set path=c:\python27;%path%
+set hermes_data_path=%hermes_base%\master_data\unified;%hermes_base%\master_data\niger;.
+main.py --out=OUT_HERE niger_input.kvp <b>-Dsaveall=PKL_FILE_HERE</b> > ERROR.txt 2>&1</pre>
+<p>For the above batch file, the pickle file that would appear in the folder where your reports are coming out would be named <font face="courier new" size="2">PKL_FILE_HERE.pkl</font>.</p>
+<h4>Unpickling the "pickle" (compresed) files</h4>
+<p>A command also exists in HERMES which initiate the unpickling process! What this does is "unpickle" (unpack) the pickle file made in Step 1 into a folder, whose name that you denote when you run the script.</p>
+<p>In order to initiate the unpickling process, it is suggested to make a new "unpickling" batch file in the same folder that you have your other batch files in. The "unpickling" file doesn't run off of the 'main' main.py file which creates the reports files in HERMES -- it runs off of a script called <font face="courier new" size="2">create_all_curves.py</font>, which is located in the HERMES folder. Don't touch the script itself!</p>
+<p>A batch file that can be used to unpickle the scripts can be:</p>
+<pre>cd vmi\hermes2
+set path=c:\python27;%path%
+set hermes_data_path=%hermes_base%\master_data\unified;%hermes_base%\master_data\niger;.
+<b>create_all_curves.py --outdir=OUT_DIR_HERE --pklfile=PKL_FILE_HERE.pkl</b> > PICKLE_ERROR.txt 2>&1</pre>
+<p>There's a couple of new terms here to be aware of:</p>
+<ul>
+<li><b>--outdir</b>: a folder is created in the HERMES folder (or wherever you have your reports file come out) with this name. All the contents of the pickle file will be unpacked into this "out[put] dir[ectory]"</li>
+<li><b>--pklfile</b>: this is the name of the file that was created in step 1. Include the *.pkl suffix when denoting your pickle file.</li>
+</ul>
+<p>When the <font face="courier new" size="2">create_all_curves.py</font> script is done running, each pickle folder contains graphs for the stock inventory of <u>every location</u> for <u>every vaccine type</u>. <i>Over 6,200 graphs will be created from each pickle file.</i></p>
+<p>Each graph will have the file name syntax: <font face="courier new" size="2">"[LOCATION_NAME]_[LOCATION_ID]_[VACCINE_NAME]_storage_curve.png"</font></p>
+</body>
+
+<br /><br />
+
+<foot>
+<p>
+<div style="float:left;width:33%;">Previously: <a href="hermes_outputs.html">Reading HERMES Output Files</a></div>
+<div style="float:left;width:33%;"><a href="../STARTHERE.html">Home</a></div>
+<div style="float:right;width:33%;">Next: <a href="final_remarks.html">Final HERMES Remarks</a></div>
+</p>
+</foot>
+
+</html>

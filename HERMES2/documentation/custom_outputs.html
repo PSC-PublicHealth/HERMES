@@ -1,0 +1,238 @@
+<html>
+  <head>
+    <title>Writing Custom Outputs</title>
+    <link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+  </head>
+  <body>
+    <h1>Writing Custom Outputs</h1>
+    <p>Custom outputs use an input csv file to describe how to display some 
+      of the data stored in a HermesOutput object.  They are invoked 
+      with the customoutput field in the hermes input file like this:
+      <blockquote>
+	<pre>customoutput = 'custom_out.csv','custom_out_2.csv'</pre>
+      </blockquote>
+      where custom_out.csv and custom_out_2.csv were the names of the
+      output definition files. These output files can be renamed as necessary.</p>
+    <p>The following fields (i.e., columns, if opened in Excel and read from left to right) are recognized in the output definition file:
+      <dl>
+	<dt>function</dt>
+	<dd>this is key.  function determines how the rest of the row will 
+	  be parsed. example functions include <font face="courier new"  size="2">goto</font>
+	  (determines the placement of the cursor in the spreadsheet), <font face="courier  new" size="2">label</font>
+	  (which labels the appropriate column), <font face="courier new"  size="2">skip</font> (which skips the cursor over
+	  the appropriate number of columns), <font face="courier new"  size="2">aggregate</font> (which aggregates a list of 
+	  values into a single parameter) and <font face="courier new" size="2">stat[TYPE  OF STAT]</font> (which, depending
+	  on the type of statistical exercise performed (i.e., "AverageField", "SumField"),  will perform the appropriate action
+	  on that specific field.</dd>
+	<dt>field</dt>
+	<dt>field2</dt>
+	<dd>typically these will be columns that will be acted upon
+	  but there are other uses. (these define the points where the cursor will be as well - so you can specify the exact location of the cursor.
+	If a single field is being acted upon (e.g., a certain field is being summed, with no other sub-categorization taking place), then "field" is the only thing that should be filled in the custom output.</dd>
+	<dt>val</dt>
+	<dd>yet another argument.  Typically doesn't reference a column,
+	  but a value in a column. For the purposes of the custom input file,
+	  you can specify which level is being acted upon.</dd>
+	<dt>name</dt>
+	<dd>this is a label assigned by the user to a field or value.  In most cases
+	  if a name isn't specified a default verbose name will be 
+	  chosen.</dd>
+	<dt>hide</dt>
+	<dd>if set (i.e., filled with a "1"), this field will cause labels or columns to not be displayed 
+	  depending on the function this is associated with.</dd>
+      </dl>
+    </p>
+    <p>Each row of the input file is handled sequentially and written order 
+      matters.</p>
+    <br/>
+    <h2>Data Sets</h2>
+    <p>Custom output definitions can access any of the data that is normally
+      found in the output csv and the summary output csv.  The following data
+      sets can be accessed:
+      <ul>
+	<li>stores - the stores (warehouse and clinic) output records</li>
+	<li>routes - routes output records</li>
+	<li>vax - vaccine summary records</li>
+	<li>people - people summary records</li>
+	<li>truck - truck/transport summary records</li>
+	<li>fridge - fridge and freezer summary records</li>
+	<li>storage - storage type summary records</li>
+      </ul>
+      In addition to this, several additional columns have been added to
+      the stores records:</p>  
+    <p>There is an additional set of columns with the sum of each of 
+      the vaccine columns of that type with the prefix allvax (ie
+      allvax_outages, allvax_patients, allvax_treated, and allvax_vials).</p>
+    <p>An _availability column (_treated / _patients) has been added 
+      for each vaccine type and for the allvax type (ie 
+      allvax_avalability).</p>
+    <br/>
+    <h2>Function descriptions</h2>
+    <dl>
+      <h3>Administrative:</h3>
+      <p>These are functions that handle various administrivia.</p>
+      <dl>
+	<dt>outputName</dt>
+	<dd>arguments: field</dd>
+	<dd>save the resulting csv file to &lt;field&gt;.  The run number
+	  and '.csv' will be appended to this.</dd>
+      </dl>
+      <h3>Data Records</h3>
+      <p>These functions are used to specify which records are being worked
+	with at any given time.  By default the stores records are the 
+	current set of records being worked on.</p>
+      <dl>
+	<dt>use</dt>
+	<dd>arguments: field</dd>
+	<dd>specify a set of records to work with.  legal values for field
+	  are stores, routes, vax, people, truck, fridge, and storage.</dd>
+	<dt>require</dt>
+	<dd>arguments: field</dd>
+	<dd>ignores any records that have a 0 or no value in the column 
+	  &lt;field&gt;.  require statements are reset when another use
+	  is invoked.</dd>
+      </dl>
+      <h3>Positioning</h3>
+      <p>At all times there is a virtual cursor on the output table of 
+	cells where the next field or column will be placed.  The cursor
+	starts at position (0,0), in the upper left hand corner.  By 
+	default after placing cells or a columns the cursor moves to the 
+	right of the top right cell placed.  While movements might specify
+	negative values, it is an error for the cursor to point to a 
+        negative row or column.</p>
+      <dl>
+	<dt>goto</dt>
+	<dd>arguments: field, field2</dd>
+	<dd>move the cursor to an absolute position on the table.  The
+	  column is specified in field and the row is specified in field2.
+	  field/field2 can be either of the following:
+	  <ul>
+	    <li>a positive integer: the cursor is moved to that row or 
+	      column.</li>
+	    <li>a variable name set with saveCell: the variable is looked up 
+	      and the row or column is set with that value.</li>
+	    <li>field2 can be a negative integer where -1 is the row below
+	      the current bottom row and more negative numbers go up from
+	      there</li>
+	  </ul>
+	</dd>
+	<dt>skip</dt>
+	<dd>arguments: (field, field2)</dd>
+	<dd>move the cursor relative to the current cursor position.  If 
+	  both field and field2 are empty the default is to move one space to
+	  the right.  If either field or field2 is set the cursor will move
+	  &lt;field&gt; cells to the right (negative values go left) and
+	  &lt;field2&gt; cells down (negative values go up).</dd>
+	<dt>saveCell</dt>
+	<dd>arguments: field, field2</dd>
+	<dd>save the row number in the variable named &lt;field&gt; and the 
+	  column number in the variable named &lt;field2&gt;.  Variable names
+	  should not start with a numeric digit.</dd>
+      </dl>
+      <h3>Columnar Outputs</h3>
+      <p>The following functions generate a column in the records.  If hide 
+	is not set (i.e., is empty) then the column is displayed in the output 
+	table at the cursor and the cursor moves one cell to the right.
+	This column is actually added to the records for the duration of
+	the output script and can be referenced by subsequent functions.
+	The name of the created column will have some default based
+	on the function used to create it but the name argument overrides
+	this default if it is set.  Likewise, this name will be the label
+	at the top of the column.</p>
+      <dl>
+	<dt>display</dt>
+	<dd>arguments: field, (name, hide)</dd>
+	<dd>display the column &lt;field&gt;.  display is the exception 
+	  in this category in that it doesn't actually create a new data
+	  field.  Default label is &lt;field&gt; but can be overridden
+	  with the name argument.</dd>
+	<dt>addFields</dt>
+	<dd>arguments: field, field2, (name, hide)</dd>
+	<dd>for each row in the working data set, add &lt;field&gt; to 
+	  &lt;field2&gt; and save it in a new column.  By default this
+	  column will be named sum_&lt;field&gt;_&lt;field2&gt;.</dd>
+	<dt>divFields</dt>
+	<dd>arguments: field, field2, (name, hide)</dd>
+	<dd>for each row in the working data set, divide &lt;field&gt;
+	  by &lt;field2&gt; and save it in a new column.  By default this
+	  column will be named ratio_&lt;field&gt;_&lt;field2&gt;.</dd>
+      </dl>
+      <h3>Stores/Routes Columnar Outputs</h3>
+      <p>The following are columnar outputs that ignore the working data
+	set and work specifically on the stores data with relations to
+	the route networks.</p>
+      <dl>
+	<dt>sumClientRoutes</dt>
+	<dd>arguments: field, (name, hide)</dd>
+	<dd>takes the sum of the values in &lt;field&gt; in each route
+	  leading to a client of this store.  By default this column will 
+	  be named sumClientRoutes_&lt;field&gt;.</dd>
+	<dt>sumClients</dt>
+	<dd>arguments: field, (name, hide)</dd>
+	<dd>takes the sum of the values in &lt;field&gt; in each store
+	  that is a client of this store.  By default this column will be
+	  named sumClients_&lt;field&gt;.</dd>
+	<dt>averageClients</dt>
+	<dd>arguments: field, (name, hide)</dd>
+	<dd>take the average of the values in &lt;field&gt; in each store 
+	  that is a client of this store.  By default this column will be
+	  named meanClients_&lt;field&gt;.</dd>
+	<dt>sumClientTree</dt>
+	<dd>arguments: field, (name, hide)</dd>
+	<dd>takes the sum of the values in &lt;field&gt; in each store
+	  that is a client of this store, along with their clients, etc.
+	  By default this column will be named 
+	  sumClientTree_&lt;field&gt;.</dd>
+      </dl>
+      <h3>Single Field Statistics</h3>
+      <p>The following functions create a single field result based on the 
+	current working data set.  By default the label is placed in the 
+	current cell and the value is placed in the cell to the right.  If
+	hide is set only the value is placed in the current cell.  This 
+	does not create a row in any table.</p>
+      <dl>
+	<dt>statSumField</dt>
+	<dd>arguments: field, (name, hide)</dd>
+	<dt>statSumFieldForField2Val</dt>
+	<dd>arguments: field, field2, val, (name, hide)</dd>
+	<dt>statAverageField</dt>
+	<dd>arguments: field, (name, hide)</dd>
+	<dt>statAverageFieldForField2Val</dt>
+	<dd>arguments: field, field2, val, (name, hide)</dd>
+      </dl>
+      <h3>Aggregate Columnar Outputs</h3>
+      <p>These functions produce a column of values with one row per value
+	in the range of field2.  The outputs will be sorted by the values
+	in field2 so that multiple columns based on the same set of data
+	will line up.  This does not create a column in any table.  By 
+	default this will display two columns, a column with a range of
+	values in field2 followed by a column with the calculated values.
+	If the hide flag is set then the first column is not displayed.
+	By default the first column will be labeled with the title of the
+	column that the values came from.  If this is undesirable, use
+	the aggregateValues function and provide your own header followed
+	by your subsequent aggregate function with the hide flag set.</p>
+      <dl>
+	<dt>aggregateValues</dt>
+	<dd>arguments: field, (name)</dd>
+	<dd>this only displays a column with the range of values in 
+	  &ltfield&gt;.  By default the this column will be named 
+	  values_&lt;field&gt;.</dd>
+	<dt>aggregateSum</dt>
+	<dd>arguments: field, field2, (name, hide)</dd>
+	<dt>aggregateAverage</dt>
+	<dd>arguments: field, field2, (name, hide)</dd>
+      </dl>
+      <h3>Other</h3>
+      <p>Functions that don't fit in any of the other groups</p>
+      <dl>
+	<dt>label</dt>
+	<dd>arguments: name</dd>
+	<dd>places the text from &lt;name&gt; in the current cell.</dd>
+      </dl>
+    </dl>
+  </body>
+</html>
+
+
+  

@@ -1,0 +1,145 @@
+RouteName,idcode,LocName,CATEGORY,Type,RouteOrder,TransitHours,TruckType,ShipIntervalDays,ShipLatencyDays,PullOrderAmountDays,Notes,DistanceKM,,,,
+A,100000,Maputo National Store,National,demandfetch,1,2.16,M_Land_Cruiser_Gaza,1,1,60,,216,1,,,
+A,120000,Gaza,Province,demandfetch,0,2.16,M_Land_Cruiser_Gaza,1,1,60,,216,1,,,
+C,100000,Maputo National Store,National,attached,0,,,,,,,,,,,
+C,130000,Other Province Stores,Province,attached,1,,,,,,,,,,,
+Sul_Subzone1,120000,Gaza,Province,askingpush,0,1.21,M_Land_Cruiser_Gaza,20,3,,,121,3,,,
+Sul_Subzone1,120501,C.S. Chokwe Sede,Health Center,askingpush,1,0.5,M_Land_Cruiser_Gaza,20,3,,,50,3,0.5,0.5,0.5
+Sul_Subzone1,120504,C.S.Chalucuane,Health Center,askingpush,2,0.4,M_Land_Cruiser_Gaza,20,3,,,40,3,0.4,0.9,0.4
+Sul_Subzone1,120506,C.S.Chilembene,Health Center,askingpush,3,0.2,M_Land_Cruiser_Gaza,20,3,,,20,3,0.2,1.1,0.2
+Sul_Subzone1,120503,C.S. Hokwe,Health Center,askingpush,4,0.45,M_Land_Cruiser_Gaza,20,3,,,45,3,0.45,1.55,0.45
+Sul_Subzone1,120509,C.S.Lionde,Health Center,askingpush,5,0.15,M_Land_Cruiser_Gaza,20,3,,,15,3,0.15,1.7,0.15
+Sul_Subzone1,120507,C.S.Conhane,Health Center,askingpush,6,0.3,M_Land_Cruiser_Gaza,20,3,,,30,3,0.3,2,0.3
+Sul_Subzone1,120505,C.S.Chiaquelane,Health Center,askingpush,7,0.5,M_Land_Cruiser_Gaza,20,3,,,50,3,0.5,2.5,0.5
+Sul_Subzone1,220501,C.S. Chokwe Sede Stop,Health Center,askingpush,8,0.25,M_Land_Cruiser_Gaza,20,3,,,25,3,0.25,2.75,0.25
+Sul_Subzone1,120511,C.S.Manjangue,Health Center,askingpush,9,21.75,M_Land_Cruiser_Gaza,20,3,,,50,4,0.5,21.75,21.75
+Sul_Subzone1,120510,C.S.Machua,Health Center,askingpush,10,0.39,M_Land_Cruiser_Gaza,20,3,,,39,4,0.39,0.89,0.39
+Sul_Subzone1,120516,C.S.Thawene,Health Center,askingpush,11,0.3,M_Land_Cruiser_Gaza,20,3,,,30,4,0.3,1.19,0.3
+Sul_Subzone1,120508,C.S.Cumba,Health Center,askingpush,12,0.23,M_Land_Cruiser_Gaza,20,3,,,23,4,0.23,1.42,0.23
+Sul_Subzone1,120513,C.S.Massavasse,Health Center,askingpush,13,0.23,M_Land_Cruiser_Gaza,20,3,,,23,4,0.23,1.65,0.23
+Sul_Subzone1,120501,C.S. Chokwe Sede,Health Center,askingpush,14,0.23,M_Land_Cruiser_Gaza,20,3,,,23,4,0.23,1.88,0.23
+Sul_Subzone1,120514,C.S.Muianga,Health Center,askingpush,15,22.51,M_Land_Cruiser_Gaza,20,3,,,39,5,0.39,22.51,22.51
+Sul_Subzone1,120512,C.S.Mapapa,Health Center,askingpush,16,0.55,M_Land_Cruiser_Gaza,20,3,,,55,5,0.55,0.94,0.55
+Sul_Subzone1,120515,C.S.Nwachicolane,Health Center,askingpush,17,0.37,M_Land_Cruiser_Gaza,20,3,,,37,5,0.37,1.31,0.37
+Sul_Subzone1,120502,C.S. 3º Bairro,Health Center,askingpush,18,0.37,M_Land_Cruiser_Gaza,20,3,,,37,5,0.37,1.68,0.37
+Sul_Subzone1,220501,C.S. Chokwe Sede Stop,Health Center,askingpush,19,0.1,M_Land_Cruiser_Gaza,20,3,,,10,5,0.1,1.78,0.1
+Sul_Subzone1,120708,C.S. Guija Sede,Health Center,askingpush,20,23.06,M_Land_Cruiser_Gaza,20,3,,,84,6,0.84,23.06,23.06
+Sul_Subzone1,120707,C.S.Nalazi,Health Center,askingpush,21,0.26,M_Land_Cruiser_Gaza,20,3,,,26,6,0.26,1.1,0.26
+Sul_Subzone1,120706,C.S.Mubanguene,Health Center,askingpush,22,0.14,M_Land_Cruiser_Gaza,20,3,,,14,6,0.14,1.24,0.14
+Sul_Subzone1,120704,C.S.Chinhacanine,Health Center,askingpush,23,0.2,M_Land_Cruiser_Gaza,20,3,,,20,6,0.2,1.44,0.2
+Sul_Subzone1,220708,C.S. Guija Sede Stop,Health Center,askingpush,24,0.24,M_Land_Cruiser_Gaza,20,3,,,24,6,0.24,1.68,0.24
+Sul_Subzone1,120703,C.S.Chimbembe,Health Center,askingpush,25,22.77,M_Land_Cruiser_Gaza,20,3,,,45,7,0.45,22.77,22.77
+Sul_Subzone1,120701,C.S. Mpelane,Health Center,askingpush,26,0.23,M_Land_Cruiser_Gaza,20,3,,,23,7,0.23,0.68,0.23
+Sul_Subzone1,120705,C.S.Chivonguene,Health Center,askingpush,27,0.2,M_Land_Cruiser_Gaza,20,3,,,20,7,0.2,0.88,0.2
+Sul_Subzone1,120702,C.S.Chibabel,Health Center,askingpush,28,0.26,M_Land_Cruiser_Gaza,20,3,,,26,7,0.26,1.14,0.26
+Sul_Subzone1,220708,C.S. Guija Sede Stop,Health Center,askingpush,29,0.66,M_Land_Cruiser_Gaza,20,3,,,66,7,0.66,1.8,0.66
+Sul_Subzone1,120108,C.S. Bilene Sede,Health Center,askingpush,30,22.67,M_Land_Cruiser_Gaza,20,3,,,47,8,0.47,22.67,22.67
+Sul_Subzone1,120105,C.S.Messano,Health Center,askingpush,31,0.2,M_Land_Cruiser_Gaza,20,3,,,20,8,0.2,0.67,0.2
+Sul_Subzone1,120104,C.S.Mazivila,Health Center,askingpush,32,0.3,M_Land_Cruiser_Gaza,20,3,,,30,8,0.3,0.97,0.3
+Sul_Subzone1,120103,C.S.Mangol,Health Center,askingpush,33,0.35,M_Land_Cruiser_Gaza,20,3,,,35,8,0.35,1.32,0.35
+Sul_Subzone1,120106,C.S.Momonha,Health Center,askingpush,34,0.35,M_Land_Cruiser_Gaza,20,3,,,35,8,0.35,1.67,0.35
+Sul_Subzone1,220108,C.S. Bilene Sede Stop,Health Center,askingpush,35,0.8,M_Land_Cruiser_Gaza,20,3,,,80,8,0.8,2.47,0.8
+Sul_Subzone1,120109,C.S.Tuane,Health Center,askingpush,36,22.13,M_Land_Cruiser_Gaza,20,3,,,60,9,0.6,22.13,22.13
+Sul_Subzone1,120102,C.S.Licilo,Health Center,askingpush,37,0.45,M_Land_Cruiser_Gaza,20,3,,,45,9,0.45,1.05,0.45
+Sul_Subzone1,220108,C.S. Bilene Sede Stop,Health Center,askingpush,38,0.31,M_Land_Cruiser_Gaza,20,3,,,31,9,0.31,1.36,0.31
+Sul_Subzone1,120101,C.S.Chissano,Health Center,askingpush,39,23.02,M_Land_Cruiser_Gaza,20,3,,,38,10,0.38,23.02,23.02
+Sul_Subzone1,120107,C.S.Olombe,Health Center,askingpush,40,0.32,M_Land_Cruiser_Gaza,20,3,,,32,10,0.32,0.7,0.32
+Sul_Subzone1,220108,C.S. Bilene Sede Stop,Health Center,askingpush,41,0.6,M_Land_Cruiser_Gaza,20,3,,,60,10,0.6,1.3,0.6
+Sul_Subzone1,121211,C.S.Chicumbane Sede,Health Center,askingpush,42,23.1,M_Land_Cruiser_Gaza,20,3,,,40,11,0.4,23.1,23.1
+Sul_Subzone1,121202,C.S.Bungane,Health Center,askingpush,43,0.3,M_Land_Cruiser_Gaza,20,3,,,30,11,0.3,0.7,0.3
+Sul_Subzone1,121209,C.S.Nhacutse,Health Center,askingpush,44,0.6,M_Land_Cruiser_Gaza,20,3,,,60,11,0.6,1.3,0.6
+Sul_Subzone1,121212,C.S.Siaia,Health Center,askingpush,45,0.5,M_Land_Cruiser_Gaza,20,3,,,50,11,0.5,1.8,0.5
+Sul_Subzone1,121201,C.S.Banhine,Health Center,askingpush,46,0.3,M_Land_Cruiser_Gaza,20,3,,,30,11,0.3,2.1,0.3
+Sul_Subzone1,121207,C.S.Maciene,Health Center,askingpush,47,0.39,M_Land_Cruiser_Gaza,20,3,,,39,11,0.39,2.49,0.39
+Sul_Subzone1,121210,C.S.Nhamavila,Health Center,askingpush,48,0.43,M_Land_Cruiser_Gaza,20,3,,,43,11,0.43,2.92,0.43
+Sul_Subzone1,221211,C.S.Chicumbane Sede Stop,Health Center,askingpush,49,0.31,M_Land_Cruiser_Gaza,20,3,,,31,11,0.31,3.23,0.31
+Sul_Subzone1,121205,C.S.Chongoene,Health Center,askingpush,50,21.13,M_Land_Cruiser_Gaza,20,3,,,36,12,0.36,21.13,21.13
+Sul_Subzone1,121206,C.S.Julius Nyerere,Health Center,askingpush,51,0.33,M_Land_Cruiser_Gaza,20,3,,,33,12,0.33,0.69,0.33
+Sul_Subzone1,121204,C.S.Chipenhe,Health Center,askingpush,52,0.4,M_Land_Cruiser_Gaza,20,3,,,40,12,0.4,1.09,0.4
+Sul_Subzone1,121215,C.S.Zongoene,Health Center,askingpush,53,0.43,M_Land_Cruiser_Gaza,20,3,,,43,12,0.43,1.52,0.43
+Sul_Subzone1,121214,C.S.Zimilene,Health Center,askingpush,54,0.3,M_Land_Cruiser_Gaza,20,3,,,30,12,0.3,1.82,0.3
+Sul_Subzone1,121203,C.S.Chilaulene,Health Center,askingpush,55,0.38,M_Land_Cruiser_Gaza,20,3,,,38,12,0.38,2.2,0.38
+Sul_Subzone1,121213,C.S.Vladimir Lenine,Health Center,askingpush,56,0.18,M_Land_Cruiser_Gaza,20,3,,,18,12,0.18,2.38,0.18
+Sul_Subzone1,121208,C.S.Ndambine,Health Center,askingpush,57,0.18,M_Land_Cruiser_Gaza,20,3,,,18,12,0.18,2.56,0.18
+Sul_Subzone1,221211,C.S.Chicumbane Sede Stop,Health Center,askingpush,58,0.18,M_Land_Cruiser_Gaza,20,3,,,18,12,0.18,2.74,0.18
+Sul_Subzone2,120000,Gaza,Province,askingpush,0,0.6,M_Land_Cruiser_Gaza,20,4,,,60,3,0.6,21.86,21.86
+Sul_Subzone2,120901,C.S.Manjacaze,Health Center,askingpush,1,0.86,M_Land_Cruiser_Gaza,20,4,,,86,3,0.86,1.46,0.86
+Sul_Subzone2,120909,C.S.Denguine,Health Center,askingpush,2,0.3,M_Land_Cruiser_Gaza,20,4,,,30,3,0.3,1.76,0.3
+Sul_Subzone2,120904,C.S.Betula,Health Center,askingpush,3,0.27,M_Land_Cruiser_Gaza,20,4,,,27,3,0.27,2.03,0.27
+Sul_Subzone2,120907,C.S.Chidenguele,Health Center,askingpush,4,0.3,M_Land_Cruiser_Gaza,20,4,,,30,3,0.3,2.33,0.3
+Sul_Subzone2,120910,C.S.Incadine,Health Center,askingpush,5,0.4,M_Land_Cruiser_Gaza,20,4,,,40,3,0.4,2.73,0.4
+Sul_Subzone2,220901,C.S.Manjacaze Stop,Health Center,askingpush,6,0.3,M_Land_Cruiser_Gaza,20,4,,,30,3,0.3,3.03,0.3
+Sul_Subzone2,120920,C.S.Tavane,Health Center,askingpush,7,21.39,M_Land_Cruiser_Gaza,20,4,,,42,4,0.42,21.39,21.39
+Sul_Subzone2,120917,C.S.Mausse,Health Center,askingpush,8,0.35,M_Land_Cruiser_Gaza,20,4,,,35,4,0.35,0.77,0.35
+Sul_Subzone2,120913,C.S.Macuacua,Health Center,askingpush,9,0.2,M_Land_Cruiser_Gaza,20,4,,,20,4,0.2,0.97,0.2
+Sul_Subzone2,120911,C.S.Laranjeiras,Health Center,askingpush,10,0.18,M_Land_Cruiser_Gaza,20,4,,,18,4,0.18,1.15,0.18
+Sul_Subzone2,120903,C.S.Banguene,Health Center,askingpush,11,0.12,M_Land_Cruiser_Gaza,20,4,,,12,4,0.12,1.27,0.12
+Sul_Subzone2,220901,C.S.Manjacaze Stop,Health Center,askingpush,12,0.07,M_Land_Cruiser_Gaza,20,4,,,7,4,0.07,1.34,0.07
+Sul_Subzone2,120919,C.S.Muzamane,Health Center,askingpush,13,22.81,M_Land_Cruiser_Gaza,20,4,,,15,5,0.15,22.81,22.81
+Sul_Subzone2,120906,C.S.Chicavane,Health Center,askingpush,14,0.18,M_Land_Cruiser_Gaza,20,4,,,18,5,0.18,0.33,0.18
+Sul_Subzone2,120916,C.S.Matsinhane,Health Center,askingpush,15,0.2,M_Land_Cruiser_Gaza,20,4,,,20,5,0.2,0.53,0.2
+Sul_Subzone2,120914,C.S.Macupulane,Health Center,askingpush,16,0.33,M_Land_Cruiser_Gaza,20,4,,,33,5,0.33,0.86,0.33
+Sul_Subzone2,120902,C.S. Mangunze,Health Center,askingpush,17,0.23,M_Land_Cruiser_Gaza,20,4,,,23,5,0.23,1.09,0.23
+Sul_Subzone2,220901,C.S.Manjacaze Stop,Health Center,askingpush,18,0.35,M_Land_Cruiser_Gaza,20,4,,,35,5,0.35,1.44,0.35
+Sul_Subzone2,120905,C.S.Chibondzane,Health Center,askingpush,19,22.76,M_Land_Cruiser_Gaza,20,4,,,20,6,0.2,22.76,22.76
+Sul_Subzone2,120908,C.S.Cucuine,Health Center,askingpush,20,0.22,M_Land_Cruiser_Gaza,20,4,,,22,6,0.22,0.42,0.22
+Sul_Subzone2,120918,C.S. Messavelene,Health Center,askingpush,21,0.3,M_Land_Cruiser_Gaza,20,4,,,30,6,0.3,0.72,0.3
+Sul_Subzone2,120912,C.S.Macasselane,Health Center,askingpush,22,0.95,M_Land_Cruiser_Gaza,20,4,,,95,6,0.95,1.67,0.95
+Sul_Subzone2,120915,C.S.Manhique,Health Center,askingpush,23,0.95,M_Land_Cruiser_Gaza,20,4,,,95,6,0.95,2.62,0.95
+Sul_Subzone2,220901,C.S.Manjacaze Stop,Health Center,askingpush,24,0.38,M_Land_Cruiser_Gaza,20,4,,,38,6,0.38,3,0.38
+Sul_Subzone2,120205,C.S. Cidade de Chibuto,Health Center,askingpush,25,21.53,M_Land_Cruiser_Gaza,20,4,,,53,7,0.53,21.53,21.53
+Sul_Subzone2,120209,C.S.Alto Changane,Health Center,askingpush,26,0.25,M_Land_Cruiser_Gaza,20,4,,,25,7,0.25,0.78,0.25
+Sul_Subzone2,120206,C.S. Meboi,Health Center,askingpush,27,0.5,M_Land_Cruiser_Gaza,20,4,,,50,7,0.5,1.28,0.5
+Sul_Subzone2,120207,C.S. Nwavaquene,Health Center,askingpush,28,0.38,M_Land_Cruiser_Gaza,20,4,,,38,7,0.38,1.66,0.38
+Sul_Subzone2,120210,C.S.Maivene,Health Center,askingpush,29,0.25,M_Land_Cruiser_Gaza,20,4,,,25,7,0.25,1.91,0.25
+Sul_Subzone2,120213,C.S.Muxaxane,Health Center,askingpush,30,0.18,M_Land_Cruiser_Gaza,20,4,,,18,7,0.18,2.09,0.18
+Sul_Subzone2,120211,C.S.Malehice,Health Center,askingpush,31,0.2,M_Land_Cruiser_Gaza,20,4,,,20,7,0.2,2.29,0.2
+Sul_Subzone2,220205,C.S. Cidade de Chibuto Stop,Health Center,askingpush,32,0.97,M_Land_Cruiser_Gaza,20,4,,,97,7,0.97,3.26,0.97
+Sul_Subzone2,120202,C.S. Changanine,Health Center,askingpush,33,21.11,M_Land_Cruiser_Gaza,20,4,,,37,8,0.37,21.11,21.11
+Sul_Subzone2,120212,C.S.Maqueze,Health Center,askingpush,34,0.6,M_Land_Cruiser_Gaza,20,4,,,60,8,0.6,0.97,0.6
+Sul_Subzone2,120201,C.S. Chaimite,Health Center,askingpush,35,0.3,M_Land_Cruiser_Gaza,20,4,,,30,8,0.3,1.27,0.3
+Sul_Subzone2,120203,C.S. Chimundo,Health Center,askingpush,36,0.36,M_Land_Cruiser_Gaza,20,4,,,36,8,0.36,1.63,0.36
+Sul_Subzone2,120204,C.S. Chipadja,Health Center,askingpush,37,0.01,M_Land_Cruiser_Gaza,20,4,,,1,8,0.01,1.64,0.01
+Sul_Subzone2,120208,C.S. Vila do Milénio,Health Center,askingpush,38,0.31,M_Land_Cruiser_Gaza,20,4,,,31,8,0.31,1.95,0.31
+Sul_Subzone2,220205,C.S. Cidade de Chibuto Stop,Health Center,askingpush,39,2.3,M_Land_Cruiser_Gaza,20,4,,,230,8,2.3,4.25,2.3
+Sul_Subzone2,121108,C.S.Massingir Sede,Health Center,askingpush,40,20.45,M_Land_Cruiser_Gaza,20,4,,,70,9,0.7,20.45,20.45
+Sul_Subzone2,121103,C.S.Macarringue,Health Center,askingpush,41,0.4,M_Land_Cruiser_Gaza,20,4,,,40,9,0.4,1.1,0.4
+Sul_Subzone2,121106,C.S.Mavodze,Health Center,askingpush,42,0.38,M_Land_Cruiser_Gaza,20,4,,,38,9,0.38,1.48,0.38
+Sul_Subzone2,121107,C.S.Mucatine,Health Center,askingpush,43,0.4,M_Land_Cruiser_Gaza,20,4,,,38,9,0.4,1.88,0.4
+Sul_Subzone2,121106,C.S.Mavodze,Health Center,askingpush,44,0.45,M_Land_Cruiser_Gaza,20,4,,,45,9,0.45,2.33,0.45
+Sul_Subzone2,121101,C.S. Zulo,Health Center,askingpush,45,22.32,M_Land_Cruiser_Gaza,20,4,,,65,10,0.65,22.32,22.32
+Sul_Subzone2,121102,C.S.Cubo,Health Center,askingpush,46,0.65,M_Land_Cruiser_Gaza,20,4,,,65,10,0.65,1.3,0.65
+Sul_Subzone2,221101,C.S. Zulo Stop,Health Center,askingpush,47,0.67,M_Land_Cruiser_Gaza,20,4,,,67,10,0.67,1.97,0.67
+Sul_Subzone2,121104,C.S.Machamba,Health Center,askingpush,48,22.57,M_Land_Cruiser_Gaza,20,4,,,54,11,0.54,22.57,22.57
+Sul_Subzone2,121105,C.S.Massingir Chibotane,Health Center,askingpush,49,0.54,M_Land_Cruiser_Gaza,20,4,,,54,11,0.54,1.08,0.54
+Sul_Subzone2,221108,C.S.Massingir Sede Stop,Health Center,askingpush,50,2.48,M_Land_Cruiser_Gaza,20,4,,,248,11,2.48,3.56,2.48
+Sul_Subzone2,120601,C.S.Cidade de Xai-xai,Health Center,askingpush,51,20.52,M_Land_Cruiser_Gaza,20,4,,,8,12,0.08,20.52,20.52
+Sul_Subzone2,120602,C.S.Marien Ngouby,Health Center,askingpush,52,0.03,M_Land_Cruiser_Gaza,20,4,,,3,12,0.03,0.11,0.03
+Sul_Subzone2,120603,C.S.Patrice Lumumba,Health Center,askingpush,53,0.13,M_Land_Cruiser_Gaza,20,4,,,13,12,0.13,0.24,0.13
+Sul_Subzone2,120604,C.S.Praia,Health Center,askingpush,54,0.1,M_Land_Cruiser_Gaza,20,4,,,10,12,0.1,0.34,0.1
+Sul_Subzone2,120605,C.S.Unidade 7,Health Center,askingpush,55,0.1,M_Land_Cruiser_Gaza,20,4,,,10,12,0.1,0.44,0.1
+Norte,120000,Gaza,Province,askingpush,0,1.43,M_Land_Cruiser_Gaza,20,14,,,143,13,1.43,24.99,24.99
+Norte,120803,C.S.Mabalane,Health Center,askingpush,1,1.43,M_Land_Cruiser_Gaza,20,14,,,143,13,1.43,2.86,1.43
+Norte,120801,C.S. Combomone,Health Center,askingpush,2,1.43,M_Land_Cruiser_Gaza,20,14,,,143,13,1.43,4.29,1.43
+Norte,120802,C.S. Macarale,Health Center,askingpush,3,1.43,M_Land_Cruiser_Gaza,20,14,,,143,13,1.43,5.72,1.43
+Norte,120804,C.S.Mabomo,Health Center,askingpush,4,1.43,M_Land_Cruiser_Gaza,20,14,,,143,13,1.43,7.15,1.43
+Norte,120805,C.S.Nhimbayiwe,Health Center,askingpush,5,1.43,M_Land_Cruiser_Gaza,20,14,,,143,13,1.43,8.58,1.43
+Norte,120806,C.S.Pfukwe,Health Center,askingpush,6,1.43,M_Land_Cruiser_Gaza,20,14,,,143,13,1.43,10.01,1.43
+Norte,120807,C.S.Tsocate,Health Center,askingpush,7,1.43,M_Land_Cruiser_Gaza,20,14,,,143,13,1.43,11.44,1.43
+Norte,120308,C.S. Chicualacuala Sede,Health Center,askingpush,8,13.99,M_Land_Cruiser_Gaza,20,14,,,143,14,1.43,13.99,13.99
+Norte,120301,C.S.Chidulo,Health Center,askingpush,9,1.43,M_Land_Cruiser_Gaza,20,14,,,143,14,1.43,2.86,1.43
+Norte,120302,C.S.Lithatha,Health Center,askingpush,10,1.43,M_Land_Cruiser_Gaza,20,14,,,143,14,1.43,4.29,1.43
+Norte,120303,C.S.Mahathane,Health Center,askingpush,11,1.43,M_Land_Cruiser_Gaza,20,14,,,143,14,1.43,5.72,1.43
+Norte,120304,C.S.Mapai Ngala,Health Center,askingpush,12,1.43,M_Land_Cruiser_Gaza,20,14,,,143,14,1.43,7.15,1.43
+Norte,120305,C.S.Mapai -Sede,Health Center,askingpush,13,1.43,M_Land_Cruiser_Gaza,20,14,,,143,14,1.43,8.58,1.43
+Norte,120306,C.S.Mepúzi,Health Center,askingpush,14,1.43,M_Land_Cruiser_Gaza,20,14,,,143,14,1.43,10.01,1.43
+Norte,120307,C.S.Pafúri,Health Center,askingpush,15,1.43,M_Land_Cruiser_Gaza,20,14,,,143,14,1.43,11.44,1.43
+Norte,121003,C.S.Massengena Sede,Health Center,askingpush,16,1.43,M_Land_Cruiser_Gaza,20,14,,,143,14,1.43,12.87,1.43
+Norte,121001,C.S. Mucambene,Health Center,askingpush,17,12.56,M_Land_Cruiser_Gaza,20,14,,,143,15,1.43,12.56,12.56
+Norte,121002,C.S.Mavué,Health Center,askingpush,18,1.43,M_Land_Cruiser_Gaza,20,14,,,143,15,1.43,2.86,1.43
+Norte,120402,C.S.Dindiza,Health Center,askingpush,19,22.57,M_Land_Cruiser_Gaza,20,14,,,143,16,1.43,22.57,22.57
+Norte,120401,C.S.Cubo,Health Center,askingpush,20,1.43,M_Land_Cruiser_Gaza,20,14,,,143,16,1.43,2.86,1.43
+Norte,120403,C.S.Machaila,Health Center,askingpush,21,1.43,M_Land_Cruiser_Gaza,20,14,,,143,16,1.43,4.29,1.43
+Norte,120404,C.S.Nhanale,Health Center,askingpush,22,1.43,M_Land_Cruiser_Gaza,20,14,,,143,16,1.43,5.72,1.43
+Norte,120405,C.S.Saúte,Health Center,askingpush,23,1.43,M_Land_Cruiser_Gaza,20,14,,,143,16,1.43,7.15,1.43
+Norte,120406,C.S.Zinhane,Health Center,askingpush,24,1.43,M_Land_Cruiser_Gaza,20,14,,,143,16,1.43,8.58,1.43

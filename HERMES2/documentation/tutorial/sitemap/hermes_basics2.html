@@ -1,0 +1,82 @@
+<html>
+<head>
+<title>Conceptual Basics behind HERMES: The User Interface (Batch Files)</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+<link href="hermes_basics.html" rel="Prev"><link href="../STARTHERE.html" rel="Start"><link href="input_file_intro.html" rel="Next">
+</head>
+<body>
+
+<h1 id="batchfile">Running HERMES: Command Line and/or Batch File</h1>
+
+<h2>What is a Command Line? What is a Batch File?</h2>
+
+<h3 id="CommandLine">Command Lines</h3>
+<p>A <i>command line</i> is the text interface between a user and a program - where the user <i>commands</i> the program to do a particular action. While the command-line interface is not as common for the user to interface with Windows and Mac operating systems, which utilize a graphical interface, the command line is often the program through which the computer operates auxillary programs.</p>
+<p>The command line interface was originally used in HERMES until around ~August/September 2011, when batch files became more commonplace.</p>
+<p>In Windows, the <font title="command.exe">CMD</font> interface can be considered as the interactive command line program. The command line interface is far more prevalent (for the user) in Linux. A similar program ('shell') exists for the Mac operating system.</p>
+
+<h3 id="BatchFile">Batch File</h3>
+<p>A <i>batch file</i> is an executable program (aka, 'click-and-run') on the Windows operating system that can encode a set of commands. It basically saves the user from typing multiple commands in a command-line by being able to "save" commands for future use.</p>
+<p>A batch file usually has the extension <font face="courier new" size="2">*.BAT</font>. Saving a text document with the BAT extension will automatically convert it to a batch file. To edit a batch file, one must <i>right-click</i> on the batch file, click "Edit", and edit it in a text editor.</p>
+<p>An example batch file is written out below, with each line subsequently explained.</p>
+
+<pre>
+cd vmi\HERMES2
+set path=c:\python27;%path%
+<font color=#606060>set hermes_base=C:\Documents and Settings\leestudent\Desktop\HERMES2</font>
+set hermes_data_path=.;%hermes_base%\master_data\niger;%hermes_base%\master_data\unified
+"c:\Documents and Settings\leestudent\Desktop\HERMES2\main.py" --out=baseline niger_input.kvp >> ERROR_PAGE.txt 2>&1
+</pre>
+
+<p><i>Explanation of the Batch-File</i>, Line by Line.</p>
+
+<pre>cd vmi\HERMES2</pre>
+<p>This line uses the "cd" command (= <i>change directory</i>) to change the directory from which the batch file reads to the \Desktop<font face="courier new" size="2">\vmi\HERMES2</font> folder. What this command does is specifies the specific folder in which one wants their output files to appear.</p>
+<pre>set path=c:\python27;%path%</pre>
+<p>This line tells the computer to use the program Python, version 2.7, and sets that "path" for the duration of the run. The addition of "%path%" at the end indicates to the computer that this is the *specific* path variable being referenced for the duration of the run.</p>
+<pre><font color="#606060">set hermes_base="C:\Documents and Settings\leestudent\Desktop\HERMES2</font></pre>
+<p>This line (which is completely optional, and hence grey in colour) indicates that the variable "hermes_base" (used below) can be defined with a specific path in the username. <i>This is a completely optional step, but it allows the subsequent commands to be much shorter in length, as "hermes_base" has already been defined. "hermes_base" can also be assigned as an environmental variable in Windows through the "properties" dialog in the Control Panel (accessed by right-clicking on the "My Computer" icon).</i></p>
+<pre>set hermes_data_path=.;%hermes_base%\master_data\niger\buydown_input_files;%hermes_base%\master_data\niger;%hermes_base%\master_data\unified</pre>
+<p>This line tells the HERMES program itself to seek the necessary data input files for the combined input file, from a <u>series</u> of folders -- <u>in this order</u>:
+<ol>
+<li>The working directory (which, in this case, is <font size="2" face="courier new">vmi\HERMES2</font>) -- which is signified by the "." at the beginning of the line.</li>
+<li>The Niger folder, located in the master_data folder.</li>
+<li>The Unified folder, located in the master_data folder.</li>
+</ol>
+<p>One final note: <i>modify the names of these folders to match the <u>exact</u> folders going to be read.</i></p>
+<pre>"c:\Documents and Settings\leestudent\Desktop\HERMES2\main.py" --out=baseline niger_input.kvp</pre>
+<p>This line tells HERMES to do the following things:</p>
+<ol>
+<li>To read off of the <font face="courier new" size="2">main.py</font> file located in HERMES2</li>
+<li>To create all input files for this run with the output prefix "baseline"</li>
+<li>To utilize the niger_input.kvp file. (<i>more on this later</i>)</li>
+<li>To get all the error messages and the output (called "stderr" and "stdout" respectively) in a file marked as "ERROR_PAGE.txt", which can help to debug the model if something happens during a simulation.
+</ol>
+<p id="tipsandtricks">To specify running multiple simulations within the batch file, simply type <u>multiple</u> instances of the input file, with a space between each name (i.e., "niger_input.kvp niger_input.kvp").</p> 
+<p>If there's a specific command you want to run, let us know! What can be done so far in the batch file are the following commands:</p>
+<ul>
+<li><font face="courier new" size="2">--average</font>: averages all of the outputs of all of the simulations run, and creates an average report file and an average summary file.</li>
+<li><font face="courier new" size="2">--workers=[#]</font>: specifies the number of processes that can be run simultaneously. Most computers either are monocore or dual-core, so they can run 1 or 2 runs simultaneously. If the file is being run on Sandbox or one of the PSC systems, up to <font size="2" face="courier new">--workers=16</font> can be utilized.</li>
+<li><font face="courier new" size="2">--out=[TEXT-STRING]</font>: specifies the prefix which is affixed to all runs within the simulation. Output prefix cannot have quotation marks or spaces in it; <i>must contain alphanumeric characters and underscores</i>.</li>
+<li><font face="courier new" size="2">--zip_inputs</font>: zips all input files, which is described in the input file, into a single zip file for easy transportation.</li>
+<li><font face="courier new" size="2">--zip_outputs</font>: zips all output files from the simulations run into a single zip file for easy access.</li>
+<li><font face="courier new" size="2">-D<a href="../../input_keywords_generic.html">KEYWORD</a></font>: Basically uses a word from an input file, so the input file itself doesn't have to be changed. Usually used in the context of "-Dsaveall", which saves ALL the stockplots for each vaccine, at each location, throughout the simulations.</li>
+</ul>
+<h3>Final Note</h3>
+<p>If you are trying to find any of the input keywords that can be currently used by HERMES, you can find this through the <a href="../../../input_default.csv" target="_blank">default input keywords</a> document in the repository.</p>
+<h2>Okay, so I have that batch file thing set up... Where exactly should I be putting it in my repository?</h2>
+<p>That is a matter of personal preference. I'm relatively lazy, and I put my batch files on my Desktop, which deposits my output files in the main HERMES2 repository folder. Other people tend to make a new folder in the repository where they insert their batch files. From what I know, their results tend to be deposited in the same folder as their batch file.</p>
+<p>The benefit for the latter method is that it keeps your repository much, much cleaner and neater, and reduces the number of files that are floating around your repository.</p>
+<p>Now that we have the basics for the batch file and the input [data] files out of the way, we've got to go to the "input" file -- the file in which all the seperate input file<u>s</u> are invoked.</p>
+<p>Confused yet? I hope not! Click the link below to continue!</p>
+<br /><br />
+
+</body>
+<foot>
+<p>
+<div style="float:left;width:33%;">Previously: <a href="hermes_basics.html">Conceptual Basics behind HERMES: The User Interface (Data Input Files)</a></div>
+<div style="float:left;width:33%;"><a href="../STARTHERE.html">Home</a></div>
+<div style="float:right;width:33%;">Next: <a href="input_file_intro.html">Introduction to the Input File</a></div>
+</p>
+</foot>
+</html>

@@ -1,0 +1,263 @@
+%rebase outer_wrapper title_slogan=slogan, breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
+
+<script src="{{rootPath}}static/base64v1_0.js"></script>
+<script src="{{rootPath}}static/model_edit.js"></script>
+
+<style>
+#em_content { width: 100%; height: 100%; top: 0; bottom: 0; }
+#em_leftSide { 
+    //overflow-y: scroll; 
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    width: 70%;
+    float: left;
+}
+#em_rightSide { 
+    //overflow-y: scroll; 
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    width: 30%;
+    float: right;
+}
+</style>
+
+<div id="model_edit_info_dialog" title="This should get replaced"></div>
+
+<h2>'Edit model'</h2>
+<table>
+  <tr>
+    <td>
+<ul class='em_disp_menu'>
+  <li class='no_ul'><a href="#">store viewing options</a>
+    <ul>
+      %for c in ['Name', 'Category', 'LatLon', 'UseVials', 'UtilizationRate', 'Demand', 'fridges', 'trucks', 'Notes']:
+       <li class='no_ul'>
+	 <a href="#">store {{c}}</a>
+	 <ul>
+	   <li class='no_ul' onclick="show_attr('store{{c}}')"><a href="#">edit store {{c}}</a></li>
+	   <li class='no_ul' onclick="ro_attr('store{{c}}')"><a href="#">view store {{c}}</a></li>
+	   <li class='no_ul' onclick="hide_attr('store{{c}}')"><a href="#">hide store {{c}}</a></li>
+	 </ul>
+       </li>
+      %end
+<!--
+      <li class="storeName_Button", onclick="toggle_attr('storeName')"><a class='no_ul' href="#">toggle store names</a></li>
+-->
+    </ul>
+  </li>
+</ul>
+</td>
+<td>
+<ul class='em_disp_menu'>
+  <li class='no_ul'><a href="#">route viewing options</a>
+    <ul>
+      %for c in ['Name', 'Type', 'TransitHours', 'Distances', 'OrderAmount', 'TruckType', 'Timings', 'Conditions']:
+       <li class='no_ul'>
+	 <a class="no_ul" href="#">route {{c}}</a>
+	 <ul>
+	   <li class='no_ul' onclick="show_attr('route{{c}}')"><a href="#">edit route {{c}}</a></li>
+	   <li class='no_ul' onclick="ro_attr('route{{c}}')"><a href="#">view route {{c}}</a></li>
+	   <li class='no_ul' onclick="hide_attr('route{{c}}')"><a href="#">hide route {{c}}</a></li>
+	 </ul>
+       </li>
+      % #       <li class="route{{c}}_Button", onclick="toggle_attr('route{{c}}')"><a class="no_ul" href="#">toggle route {{c}}</a></li>
+      %end
+
+    </ul>
+  </li>
+</ul>
+</td>
+<td>
+  <ul class='em_disp_menu'>
+    <li class='no_ul'>
+      <a href="#">Model Validation</a>
+      <ul>
+	<li class='no_ul' onclick="validateModel()">
+	  <a href="#">Validate Model</a>
+	</li>
+	<li class='no_ul' onclick="clearMessages()">
+	  <a href="#">Clear Messages</a>
+	</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<!-- td>
+  <ul class='em_disp_menu_1'>
+    <li class='no_ul'>
+      <a href="#">Model XXX</a>
+      <ul class='em_disp_model_2'>
+	<li class='no_ul' onclick="validateModel()">
+	  <a href="#">XXX</a>
+	  <ul>
+	    <li><a href="#">This is a test</a></li>
+	    <li><a href="#">This is a test 1</a></li>
+	    <li><a href="#">This is a test 2</a></li>
+	  </ul>
+	</li>
+	<li class='no_ul' onclick="clearMessages()">
+	  <a href="#">Clear Messages</a>
+	</li>
+      </ul>
+    </li>
+  </ul>
+</td -->
+  </tr>
+</table>
+
+<div id="em_context">
+    <p>Route to use as template for newly created routes: 
+        <span id='routeTemplateText'>None</span>
+        <button type="button" onclick="clearRouteTemplate()">Clear</button>
+    </p>
+</div>
+<div id="em_content">
+    <div id="em_leftSide">
+        <div id="modelTree"></div>
+    </div>
+    <div id="em_rightSide">
+        <div id="orphanTree"></div>
+    </div>
+</div>
+<script>
+  $(function() {
+    $( ".em_disp_menu" ).menu();
+  });
+</script>
+<!-- script>
+  $(function() {    
+    $( ".em_disp_menu_2" ).menu({ position: { my: "left top", at: "right top" } });
+
+    $( ".em_disp_menu_1" ).menu({ position: { my: "left top", at: "left bottom" } });
+  });
+    
+</script -->
+<style>
+  .ui-menu { width: 200px; }
+</style>
+<script>
+var modelId = {{modelId}};
+var extraContext = {'routeTemplate' : null};
+
+var Attrs = {
+    "storeCategory" : { 'type' : 'store', 'title' : 'categories' },
+    "storeLatLon" :   { 'type' : 'store', 'title' : 'lat / lon' },
+    "storeName" :     { 'type' : 'store', 'title' : 'store names' },
+    "storeDemand" :   { 'type' : 'store', 'title' : 'population' },
+    "storefridges" :  { 'type' : 'store', 'title' : 'storage' },
+    "storetrucks" :   { 'type' : 'store', 'title' : 'transport' },
+    "storeUseVials" : { 'type' : 'store', 'title' : 'use vials' },
+    "storeUtilizationRate" : { 'type' : 'store', 'title' : 'utilization rate' },
+    "storeNotes" :    { 'type' : 'store', 'title' : 'notes' },
+    "routeName" : { 'type' : 'route', 'title' : 'route names' },
+    "routeTransitHours" : { 'type' : 'route', 'title' : 'transit hours' },
+    "routeType" :     { 'type' : 'route', 'title' : 'route types' },
+    "routeDistances" : { 'type' : 'route', 'title' : 'distances' },
+    "routeOrderAmount" : { 'type' : 'route', 'title' : 'order amounts' },
+    "routeTruckType" : { 'type' : 'route', 'title' : 'truck type' },
+    "routeTimings" : { 'type' : 'route', 'title' : 'route timings' },
+    "routeConditions" : { 'type' : 'route', 'title' : 'route conditions' },
+};
+
+var TreeLabels = {
+    'A' : '#modelTree',
+    'B' : '#orphanTree'
+};
+
+</script>
+<script>
+$(function() {
+    $('#modelTree')
+	.bind("load_node.jstree", function (event, data) {
+	    loadNode(event, data);
+	})
+        .bind("open_node.jstree", function (event, data) {
+	    openNode(event, data);
+	})
+	.bind("close_node.jstree", function(event, data) {
+	    closeNode(event, data);
+	})
+	.jstree({
+	    "plugins" : ["core", "themes", "json_data", "ui", "crrm"],
+	    //"plugins" : ["core", "themes", "html_data", "ui", "crrm"],
+	    "themes" : { "theme" : "classic", "icons" : false },
+	    "core" : {"html_titles" : true , "animation" : 50 },
+	    "json_data" : {
+		"ajax" : {
+		    "url" : "json/modelRoutes/{{modelId}}",
+		    "data" : function(n) { return { id : n.attr ? n.attr("id") : 'A-1' }; },
+                    "dataFilter" : function(data, type) {
+                        data = jQuery.parseJSON(data);
+			success = data.success;
+			if (!success) {
+			    if('errorString' in data) {
+				alert('error fetching node: '+data.errorString);
+			    } else {
+				alert('error fetching node');
+			    }
+			    return NULL;
+			}
+			updates = data.updates;
+			doUpdates(updates);
+                        return JSON.stringify(data.data);
+                    },
+                    "success" : function(result) {
+                        //alert('success');
+                    },
+                    "error" : function(jqxhr, textStatus, error) {
+                        alert('error fetching route tree');
+                    } 
+		}
+	    }
+	});
+});
+</script>
+
+<script>
+$(function() {
+    $('#orphanTree')
+	.bind("load_node.jstree", function (event, data) {
+	    fixNewNodes();
+	})
+	.jstree({
+	    "plugins" : ["core", "themes", "json_data", "ui", "crrm"],
+	    //"plugins" : ["core", "themes", "html_data", "ui", "crrm"],
+	    "themes" : { "theme" : "classic", "icons" : false },
+	    "core" : {"html_titles" : true , "animation" : 50 },
+	    "json_data" : {
+		"ajax" : {
+		    "url" : "json/modelRoutes/{{modelId}}",
+		    "data" : function(n) { return { id : n.attr ? n.attr("id") : 'B-2' }; },
+                    "dataFilter" : function(data, type) {
+                        data = jQuery.parseJSON(data);
+                        return JSON.stringify(data.data);
+                    },
+                    "success" : function(result) {
+                        //alert('success');
+                    },
+                    "error" : function(jqxhr, textStatus, error) {
+                        alert('error fetching unattached route tree');
+                    }
+
+		}
+	    }
+	});
+});
+</script>
+<script>
+</script>
+
+<div id="storeEditorParent"></div>
+
+<script>
+$(function () {
+	$('#storeEditorParent').data('kidcount',0);
+});
+
+</script>
+
+<script>
+    {{!setupToolTips()}}
+</script>

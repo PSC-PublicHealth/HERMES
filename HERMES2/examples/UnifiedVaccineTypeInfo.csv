@@ -1,0 +1,37 @@
+"Batch","Name","Abbreviation","Vaccine presentation","Method  of administration","Doses per vial","Packed vol/dose(cc) of vaccine","Packed vol/dose(cc) of diluent","Vaccine price/vial","Vaccine price/dose","Price Units","Doses/person","LifetimeFreezerDays","LifetimeCoolerDays","LifetimeRoomTempDays","LifetimeOpenDays","Notes"
+"Baseline","N_Tuberculosis","BCG","Freeze Dried","ID",20,1.2,0.7,2.05,0.1,"USD",1,729,730,0.04,0.25,
+,"N_Tetanus_Toxoid","VAT","Liquid","IM",10,3,0,0.9,0.09,"USD",1,0.05,330,0.04,28,
+,"N_Measles","VAR","Freeze Dried","SC",10,3.5,4,2.38,0.24,"USD",2,592,593,0.04,0.25,
+,"N_Oral Polio","VPO","Liquid","Oral",20,1,0,2.72,0.14,"USD",4,270,60,0.04,28,
+,"N_MMR","MMR","Liquid","IM",10,3,4,420,42,"USD",1,720,42,0.04,0.25,
+,"N_Yellow Fever","VAA","Freeze Dried","SC",10,2.5,6,8.32,0.83,"USD",1,729,730,0.04,0.25,
+,"N_DTP-HepB-Hib liquid","DTC-HepB-Hib","Liquid","IM",1,16.8,0,3.6,3.64,"USD",3,0.05,730,0.04,28,
+"Introductory Vaccines for Simulation Experiments","N_Meningococcal","Men A","Freeze Dried","SC",10,3.8,0,4.6,0.46,"USD",1,-1,-100,0.04,0.25,
+,"N_Meningococcal","Men A","Freeze Dried","SC",10,3.8,0,4.6,0.46,"USD",1,-1,-100,,0.25,
+,"N_RotavirusV1","Rota_liq_v1","Liquid","Oral",1,259.8,0,59.18,5.92,"USD",2,0.05,730,28,28,
+,"N_RotavirusV2","Rota_liq_v2","Liquid","Oral",1,156,0,59.18,5.92,"USD",2,-99,-100,,0.25,
+,"N_RotavirusV3","Rota_liq_v3","Liquid",,1,79.8,0,59.18,5.92,,3,,,,,
+,"N_RotavirusV4","Rota_liq_v4","Liquid",,1,45.9,0,59.18,5.92,,3,,,,,
+,"N_RotavirusV5","Rota_liq_v5","Liquid","Oral",1,17.1,0,59.18,5.92,"USD",2,0.05,730,28,28,
+,"N_RotavirusV6","Rota_liq_v6","Liquid","Oral",1,75,0,59.18,5.92,,,,,,,
+,"N_RotavirusV7","Rota_liq_v7","Freeze Dried","Oral",1,11.6,88.9,59.18,5.92,"USD",3,0.05,730,28,28,
+,"N_Pneumococcal","PCV","Liquid","IM",1,55.9,0,7,7,"USD",3,-1,-100,,28,
+"Baseline","T_Tuberculosis","BCG","Freeze Dried","ID",10,1.2,0.7,1.85,0.19,"USD",1,729,730,0.04,0.25,"Wastage 10% for 7 year olds; 50% for newborns"
+,"T_DTP","DTP","Liquid","IM",10,3,0,17.8,0.18,"USD",5,0.05,300,0.04,28,
+,"T_Measles","M","Freeze Dried","SC",10,3.5,4,0.49,0.05,"USD",1,592,593,0.04,0.25,"Wastage 50%"
+,"T_Oral Polio","OPV","Liquid","Oral",20,1,0,26.6,0.13,"USD",5,270,60,0.04,28,"Wastage 25% for ages 1-5; 10% for 7 year olds"
+,"T_Japanese Encephalitis","JE","Liquid","IM",1,12.6,11.5,10.88,5.44,"USD",3,0.05,180,0.04,0.25,"Wastage 10%"
+,"T_HepB","HB","Liquid","IM",2,13,0,11.93,5.96,"USD",2,0.05,1460,0.04,28,"Wastage 10%"
+,"T_DTP-HepB","DTP-HB","Liquid","IM",10,3,0,16.69,1.67,"USD",3,0.05,120,0.04,28,"Wastage 25%"
+,"T_Diphtheria-tetanus-lowdose","dT","Liquid","IM",10,3,0,1.85,0.19,"USD",2,0.05,730,0.04,28,"Wastage 10%"
+,"T_MMR","MMR","Liquid","IM",10,3,4,12.98,1.3,"USD",1,720,42,0.04,0.25,
+"Introductory Vaccines for Simulation Experiments","T_Pneumococcal","PCV","Liquid","IM",1,55.9,0,7,7,"USD",3,-1,-100,,28,
+,"T_MMR-unidose","MMR","Liquid","SC",1,16,20,1.98,1.98,"USD",1,720,42,0.04,0.25,
+,"T_Influenza","FLU","Liquid",,10,0.5,0,"*","*","USD",1,0.05,730,0.04,0.25,
+,"T_RotavirusV1","Rota_liq_v1","Liquid","Oral",1,259.8,0,59.18,5.92,"USD",2,0.05,730,28,28,
+,"T_RotavirusV2","Rota_liq_v2","Liquid","Oral",1,156,0,59.18,5.92,"USD",2,-99,-100,,0.25,
+,"T_RotavirusV3","Rota_liq_v3","Liquid",,1,79.8,0,59.18,5.92,"USD",3,,,,,
+,"T_RotavirusV4","Rota_liq_v4","Liquid",,1,45.9,0,59.18,5.92,"USD",3,,,,,
+,"T_RotavirusV5","Rota_liq_v5","Liquid","Oral",1,17.1,0,59.18,5.92,"USD",2,0.05,730,28,28,
+,"T_RotavirusV6","Rota_liq_v6","Liquid","Oral",1,75,0,59.18,5.92,"USD",3,,,,,
+,"T_RotavirusV7","Rota_liq_v7","Freeze Dried","Oral",1,11.6,88.9,59.18,5.92,"USD",3,0.05,730,28,28,

@@ -1,0 +1,89 @@
+<html>
+<head>
+<title>Assumptions for UnifiedStorageTypeInfo File</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body>
+<h1>Assumptions for UnifiedStorageTypeInfo File</h1>
+<p>
+As of 7 March 2012, we're splitting up the Unified input files so that entries would fall in one of the following two categories:
+<ul>
+<li><b>Unified Storage Type Info</b> - this file contains the <i>manufacturer-specific</i> data for storage devices used in the supply chain. 
+Data put into this file is shared among ALL the models in HERMES. This file will be placed in the 
+<font face="courier new" size=2>./master_data/Unified</font> folder of the SVN.
+<li><b>Country-Specific Storage Type Info</b> - this file has been created for each country (and is denoted as such in the <i>file name</i> of the input file).
+ These files contain country-specific cold device data, and will be used <i>in conjunction with</i> the unified document. This file will be placed 
+in the <font face="courier new" size=2>./master_data/[COUNTRY NAME]</font> folder of the SVN.
+</ul>
+</p>
+<p>As mentioned in the original storage format page:
+<blockquote><i>Refrigerator type information is stored in master_data/unified/UnifiedStorageTypeInfo.csv . That file needs to have a column called 'Name', 
+and columns for each of the names in storageTypeNames in storagetypes.py; at the moment those names are 'freezer', 'cooler', and 'roomtemperature'. 
+Any other columns will be ignored.<b>The volumes should be in liters.</b></blockquote></i>
+</p>
+<p>
+For either file type in the newest set of revisions, the storage file contains the columns, 'Make', 'Model', 'Year', 'Energy', 'freezer', 
+'cooler', 'roomtemperature', 'Name', ClassName', 'ColdLifetime', 'AlarmDays', 'SnoozeDays' and 'Notes'.
+</p>
+<p>
+We are currently using the following pattern for the 'Name':
+<pre>
+   VR50F_1997_S
+</pre>   
+where "VR50F" is the Model number(which appears to be from the BP Solar Make), "1997" is the Year and "S" is the energy type.
+</p>
+<p>
+The energy types possible in the Unified Storage files are:
+<pre>
+   E = electric
+   S = solar
+   G = gas (liquid propane)
+   P = petrole (kerosene)
+   I = ice
+   B = blue ice
+   GE = combined gas and electric
+   KE = combined kerosene and electric
+   U = unknown
+</pre>
+</p>
+<p>
+For a moving device, such as the PVSD, 'Name' takes a slightly different syntax:
+<pre>
+   PVSD_P6_28_I
+</pre>   
+PVSD is the name of the moving device (<u>P</u>assive <u>V</u>accine <u>S</u>torage <u>D</u>evice), P6 is the class of the PVSD being used (which is <i>not</i> mentioned
+within the input file, 28 is the number of days before the alarm function will go off, and I is the cooling system (ice).
+<p>
+Unknown energy types are abbreviated above as "U". In some cases (especially in Kenya), those devices with unknown energy sources omit the U. In those cases, the naming is as follows:
+<pre>
+   ACB324SS
+</pre>
+The above example indicates that the model number is "ACB-324SS" (from the Apex International Make), with an unknown year and an unknown fridge type.
+</p>
+<p>
+The naming schematic MUST contain a model name (Model); Year and Energy Type are helpful in distinguishing between cold devices, but are not necessary.
+<br />
+<h3>General Notes:</h3>
+<ul>
+<li>'Make' indicates the makers of the refrigerators (e.g. "Whirlpool", "Haier", etc.)
+<li>'Year' is the year in which the refrigerator was built and/or acquired by the location.
+<li>'freezer', 'cooler' and 'roomtemperature' indicate the available volume (in <i>liters</i>) which can hold vaccine
+<li>'ClassName' can be used to indicate the type of fridge being used. It can be either an "ElectricFridge" (which uses electricity, making it susceptible to power outages),
+"Fridge" (powered by gas, kerosene or solar power, so it is not susceptable to outages), "AlarmedIceFridge" (used for moving cold devices with a set cold lifetime) or "ShippableFridge" (used for mobile devices where we have not written a set cold lifetime).
+<li>'ColdLifetime', 'AlarmDays' and 'SnoozeDays' are characteristics of the AlarmedIceFridge class ONLY. 'ColdLifetime' indicates the total amount of time which the device is sufficiently cold
+to preserve vaccines. 'AlarmDays' indicates the number of days that can passed from a recycling session before an alarm goes off, triggering the next recycling session. 'SnoozeDays' is the number of days in which the alarm
+can be "snoozed" before the recycling trigger process is pulled.
+<li>An additional column (Column N, for now) indicates the country in which the cold device is located; this may be used for splitting up the UnifiedStorageTypeInfo file later.
+</ul>
+<h3>Country-Specific Notes:</h3>
+<ul>
+<li><b>Niger</b>, <b>Chad</b>, <b>Senegal</b> and <b>Kenya</b> all contain individual fridge types that don't seem to be used in any other country's supply chain. Besides the removal of the country letter at the front of each name, no other changes were made to the Names.
+<li>Storage devices located in either <b>Thailand</b> and <b>Vietnam</b> appeared NOT to make it onto the UnifiedStorageTypeInfo file. This might have to be changed shortly.
+<li><b>Kenya</b> contains model and make names, but some devices do not have a listed year or a listed energy type, so the names of these devices are shorter.
+</ul>
+<h3>Additional Rules For Names:</h3>
+<ul>
+<li>Do not include the '*', or '+' characters.  '-' and '_' is okay to use, although dashes are not commonly used.
+<li>Spaces should <u>not</u> be used.
+<li>Names should contain proper punctuation & spelling.
+</ul>

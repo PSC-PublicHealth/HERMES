@@ -1,0 +1,61 @@
+<html>
+
+<head>
+
+<title>Parsing Key-Value Pair Files with kvp_tools.KVPParser</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>Parsing Key-Value Pair Files with kvp_tools.KVPParser</h1>
+
+<p>
+
+<ul>
+<li>It uses a regex-based lexer and FSM parser</li>
+<li>It returns a dictionary</li>
+<li>Values are integers, floats, strings or lists thereof.  KVPParser
+doesn't make boolean values; its use in input.UserInput converts some
+strings to booleans.</li>
+</p>
+<p>
+Here are some examples:
+
+<pre>
+# This line is a comment
+usecalendar            # A symbol by itself is equivalent to a True boolean
+                       # so this means usecalendar=True
+somebool= True         # or False.  The value is not case sensitive.
+nonething= None        # returns a Python None
+someint= 123
+somefloat= 1.23
+otherfloat= -1.27e+3
+intlist= 123,345,678   # Comma separated values on the right produce a list
+mixedlist= 123,'hello' # The kvp module does this, but HERMES 'Input.py' module rejects them
+somestring= 'hello'    # single and double quotes both work, but it's possible to confuse the lexer
+reallyasymbol= hello   # a single unquoted symbol on the right hand side is treated as a string, 
+                       # except for True, False and None
+</pre>
+
+input.UserInput gets values from the kvp parser (or the csv parser)
+and checks that all are valid input flags as defined by
+input_default.csv .  The appearance of a key that does not appear in
+that table raises an exception.  Keys from the table for which no
+value is given get their default values.  Value types must match those
+specified in input_default.csv; if they don't they are coerced to that
+type if the proper coercion is obvious or an exception is raised.
+Note that if UserInput holds the string "None" for some key (as a
+quoted string), the value that is returned when it is referenced is
+the object None, not the string "None"; likewise for 'true' and
+'false'.
+</p>
+<p>
+In the input_default.csv file, default values of 'none', 'true' or
+'false' set the defaults to None, True or False respectively; other
+type conversions are done based on the expected value type
+(e.g. values of type 'intOrNone' that do not match 'none' are
+converted to ints.
+</p>
+</body>
+</html>

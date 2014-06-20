@@ -1,0 +1,28 @@
+<html>
+
+<head>
+
+<title>Variations In StorageHistoryVialDays Ietween 'Identical' Runs</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>Variations In StorageHistoryVialDays Ietween 'Identical' Runs 20111207</h1>
+
+<p>
+
+Runs which should be identical via identical random seed values and
+the use of the --deterministic flag still show small differences in
+the StorageHistoryVialDays for the various vaccines.  This is believed
+to happen because vial age accounting happens when the associated
+VaccineGroups have their getAge() methods called, and some
+VaccineGroups are escaping this at the time boundaries of runs under
+some circumstances.  I believe this happens because
+HermesSim.syncStatistics() does not find and touch VaccineGroups that
+are actually in transit at the times it is called.
+
+
+</p>
+</body>
+</html>

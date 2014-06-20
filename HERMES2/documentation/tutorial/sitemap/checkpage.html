@@ -1,0 +1,101 @@
+<html>
+<head>
+<title>Running HERMES: Checking Your Input Files</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+<link href="input_file_intro.html" rel="Prev"><link href="../STARTHERE.html" rel="Start"><link href="LINKHERE" rel="Next">
+</head>
+
+<body>
+<h1>Running HERMES: Checking Your Input Files</h1>
+<p>So the data input files and your combined input file have been sorted out. You want to start running HERMES. How, exactly, do you then run HERMES? How do you know what to look for?</p>
+<p>Perform the following check before you run HERMES for the first time.</p>
+<ol>
+<li id="datafiles">Check that the following <a href="hermes_basics.html#datainputfiles" target="_blank">data input files</a> are included in the combined input file. (<i>Note: the ones mentioned as in the Unified folder are not necessary to include in the input file, as they're always used in the runs.</i>):
+<br /><br />
+<ul>
+<li><b>Stores File</b> - contains data related to storage capacities at individual clinics and information on ownership of storage devices, transportation vehicles and cold rooms.</li>
+<li><b>Routes File</b> - contains data related to the routes taken between locations in the supply chain.</li>
+<li><b>Demand File</b> - contains the "vaccine demand" needed for a single patient - that is, the vaccination schedule required for each person type specified in <font face="courier new" size="2">UnifiedPeopleTypeInfo</font>).</li>
+<font color="#606060"><li><b>Calendar File</b> - this file specifies how much of a total location's defined population would visit the vaccination administration area, per month. (<i>not used in initial example</i>; syntax is "<font face="courier new" font size="2">calendarfile = Niger_Calendar_Baseline</font>")</li></font>
+<li><b>Storage Gap File</b> - contains data on the type of cold devices / fridges that the system will use to add volume and/or storage to the model in a gap analysis scenario.</li>
+<li><b>Price Table</b> - contains data related to the individual cost categories (i.e., storage, labor, transport and building) accumulated in the cost of the run.
+<li><b>Open Vial Waste</b> - a file that is, for now, <i>specific to Niger</i>. Allows the baseline open vial waste to act as a "baseline" from which open vial waste effects are noticed.</li>
+</ul></li><br />
+<li id="inputfile">Check the <a href="input_file_intro.html#example" target="_blank">combined input file</a>. It should contain the following fields:
+<br /><br />
+<ul>
+<li><b>rundays</b> - number of 'days' the scenario is going to actually run</li>
+<li><b>model</b> - name of the model</li>
+<li><b>monitor</b> - monitor the stock levels of locations with these ID codes (<i>can be commented out</i>)</li>
+<li><b>monvax</b> - monitor a specific vaccine type, or all of them</li>
+<li><b>burnindays</b> - number of 'days' for which the scenario is going to set up a stockpile</li>
+<li><b>storesfile</b> - name of your Stores file (<i>see above</i>)</li>
+<li><b>routesfile</b> - name of your Routes file (<i>see above</i>)</li>
+<li><b>demandfile</b> - name of your Population / "Vaccine Demand" file</li>
+<li><b>saveall</b> - specified name of the compressed file which will save all inventory graphs for all locations (<i>can be commented out</i>)</li>
+<li><b>outputfile</b> - specified prefix of the output files</li>
+<li><b>factoryoverstockscale</b> - denotes amount of buffer stock found in each shipment</li>
+<li><b>factoryshipmentsperyear</b> - denotes the number of factory shipments sent to the top supply chain level per year</li>
+<li><b>initialovw</b> - name of the initial open vial waste file (<i>only needed for Niger model</i> -- <i>can be commented out</i>)</li>
+<li><b>twentyeightdaymonths</b> - denotes if a simulation month is 28 ("True") or 30 ("False").</li>
+<li><b>scaledemandbyexpected</b> - denotes the expected demand for each vaccine, by proportion of the population (<i>can be commented out</i>).
+<li><b>scaledemandbyactual</b> - denotes the actual demand for each vaccine, by proportion of the population (<i>can be commented out</i>).
+<li><b>pricetable</b> - denotes the price/costing table used in the simulation
+<li><b>seed</b> - specified seed number (<i>can be commented out</i>)</li>
+</ul><br />
+
+<li id="batchfiles">Check the <a href="hermes_basics2.html" target="_blank">batch file</a>. It should have the following syntactical format - where anything with caps indicate something to be changed. (The "hermes_base" syntax has been removed from this copy of the batch file.) There's been a extra little piece added to the batch file, as well.
+<pre>
+cd [FOLDER THAT YOU WANT OUTPUT DOCUMENTS SAVED INTO]
+set path=[PATH TO PYTHON];%path%
+set hermes_data_path=.;[FOLDERS YOU WANT TO READ FROM, IN ORDER]
+[PATH TO YOUR MAIN.PY FILE] --out=[OUTPUT NAME] [NAME OF YOUR INPUT FILE] <b>>> [ERROR_PAGE].txt 2>&1</b>
+</pre>
+<p>Notes about the ">" syntax::
+<ul>
+<li>If you use <b>one</b> chevron alone (e.g. "<u>></u> error.txt 2>&1"), then it will only save the error messages from your <i>most recent</i> simulation run.</li>
+<li>If you use <b>two</b> chevrons together, (e.g. "<u>>></u> error.txt 2>&1"), then you will be able to save <i>all</i> your error files from your batch file.<br />New error messages will be appended (added) to the bottom of the old error message file.</li></p>
+</li>
+</ol>
+
+<h2>If the above input files have been checked and the batch file has been clicked on, what should HERMES look like?</h2>
+<p>If everything has been checked above, the window running the HERMES simulation should look <i>something</i> (but most probably, <i>not exactly</i>) like this:</p>
+<center><img src="screenshot_hermesrunning.PNG"></center>
+<p>If that looked intimidating, don't worry! Concentrate on that last part of the batch file -- it looks an awful lot like what was written in the example batch file before, right?</p>
+<p>As long as that black window (which is called our <i>command line window</i>) is present on the screen, the HERMES scenario is running. If it disappears, that means that the scenario is either done running, or something went awry with the model...</p>
+
+<h2 id="whatif_error">What if HERMES has randomly stopped, or that black window has disappeared?</h2>
+<p>Good question. To troubleshoot the model, look at the <b>log</b> and the <b>error</b> files in the HERMES repository - which should have been automatically created at the very beginning of the scenario.
+<p>For a normal (non-erroneous) model simulation, the log and error files would look like the ones below. (<i>Click on the image for a larger version.</i>. The error file is the one that appears blank.)</p>
+<center><a href="screenshots_logfile_error_file.PNG" target="_blank"><img src="screenshots_logfile_error_file.PNG" width=960 height=567 border=0></a></center>
+<p>In a simulation experiencing an error, the error file will contain the following lines:</p>
+<ul>
+<li><b>[OUTPUT NAME].0.log</b> - this is a text file that many provide information about your error -- and, more likely, will also show the vaccines introduced, the populations that are being supplied and the storage and transportation devices used. Depending on the scenario you're running, it can also display if fridges are moving or if the process being tested is working. <i>This file will be explained in a bit.</i>
+<li><b>error.txt</b> - yes, that little "error file" previously written into the batch file is going to specifically show the error. It'll first show a seed number (if one was unspecified) and the name mismatches between the Stores and the Routes file. The following lines, with this type of formatting, can be seen:
+<blockquote><pre>Traceback (most recent call last):
+[LOTS OF INPUT LINES HERE]
+RuntimeError: 
+seed for this run: 
+------------------------------------------------------------
+Exception: 
+------------------------------------------------------------</pre></blockquote></ul>
+<p>This is how the above error should be read to troubleshoot a run:</p>
+<ul>
+<li>Look at the <b>Traceback (most recent call last)</b>: to see where the error originated. Usually, the error that appears at the bottom of that list is the location in which the error originated. Fix that portion of the code so that the rest of the errors will not occur.</li>
+<li><b>RuntimeError</b> should tell the exact nature of your simulation's error.
+<li>Skipping over <b>Seed for this run:</b>, look at <b>Exception:</b>. This line, like <b>Runtime Error</b>, should tell the exact nature of your error. Usually, it's the same phrase as what's written in <b>RuntimeError</b>, but not always.</li></ul>
+<h2>I checked the error files mentioned above. None of these lines are showing up.</h2>
+<p>Good. It appears that HERMES is running properly.</p>
+<p>Wait for a while - depending on the model to be run, it can take anywhere from a few seconds to a couple of minutes - and then check the folder containing the batch file. It's time to read the outputs.</p>
+</body>
+
+<br /><br />
+<foot>
+<p>
+<div style="float:left;width:33%;">Previously: <a href="input_file_intro.html">HERMES Basics: Introduction to the Input File</a></div>
+<div style="float:left;width:33%;"><a href="../STARTHERE.html">Home</a></div>
+<div style="float:right;width:33%;">Next: <a href="hermes_outputs.html">Reading HERMES Output Files</a></div>
+</p>
+</foot>
+
+</html>

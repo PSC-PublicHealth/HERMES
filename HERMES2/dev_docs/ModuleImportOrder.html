@@ -1,0 +1,37 @@
+<html>
+
+<head>
+
+<title>Notes On Module Import Order</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>Notes On Module Import Order</h1>
+
+<p>
+As of the current rev for date 20111101, we're including
+'--deterministic' on the command line.  This is supposed to control
+the use of ordered dictionaries; warehouse.py chooses between ordered
+and unordered dictionaries when that module is loaded.  The
+'deterministic' flag is set in globals.py, which means that
+globals.deterministic must have its appropriate value before
+warehouse.py is imported.  Since importing any module forces all the
+modules it imports to be imported, no module imported before
+globals.deterministic is set can import warehouse.py.  But globals.py
+itself must be imported, and other modules are needed to parse the
+input.  That means that there has to be a group of modules that can be
+imported before global flags are set, and a disjoint set that must be
+imported later.
+</p>
+<p>
+As of 20111101, the first group includes globals.py, input.py,
+kvp_tools.py, util.py, and csv_tools.py.  Everything else is in the
+second group, and they have very interconnected import patterns.
+(util.filteredWriteCSV does a delayed input of storagetypes.py, but
+not until the rest of the environment is fully established).
+
+</p>
+</body>
+</html>

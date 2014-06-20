@@ -1,0 +1,739 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: HERMES_UI\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-07-23 11:47-0500\n"
+"PO-Revision-Date: 2013-07-23 11:47-0500\n"
+"Last-Translator: Shawn Brown <stbrown@psc.edu>\n"
+"Language-Team: HERMES Team <hermes-devel@psc.edu>\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.7\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-Basepath: C:\\Users\\Shawn\\Workspaces\\Eclipse 3.6 Classic"
+"\\HERMES_UI\\src\n"
+"X-Poedit-SearchPath-0: ui_server\n"
+"X-Poedit-SearchPath-1: ui_server\\views\n"
+
+#: ui_server/i18n.py:89 ui_server/matcher.py:99
+msgid "Tree Page"
+msgstr "Page de arbre"
+
+#: ui_server/matcher.py:87
+msgid "This title is set in matcher"
+msgstr "Ce titre se trouve dans le matcher."
+
+#: ui_server/matcher.py:98
+msgid "Menu Page"
+msgstr "Page de Menu"
+
+#: ui_server/matcher.py:100
+msgid "Table Page"
+msgstr "Page de Tableau"
+
+#: ui_server/matcher.py:101
+msgid "Upload Page"
+msgstr "Page de Télécharger"
+
+#: ui_server/matcher.py:106 ui_server/matcher.py:113 ui_server/matcher.py:121
+#: ui_server/matcher.py:129 ui_server/matcher.py:156 ui_server/matcher.py:164
+#: ui_server/matcher.py:180 ui_server/matcher.py:186 ui_server/matcher.py:446
+#: ui_server/views/outer_wrapper.tpl:127 ui_server\views/outer_wrapper.tpl:127
+msgid "Welcome"
+msgstr "Bienvenue"
+
+#: ui_server/matcher.py:106 ui_server/matcher.py:156 ui_server/matcher.py:164
+#: ui_server/matcher.py:180 ui_server/matcher.py:186 ui_server/matcher.py:446
+#: ui_server/views/outer_wrapper.tpl:128 ui_server\views/outer_wrapper.tpl:128
+msgid "Models"
+msgstr "Modèles"
+
+#: ui_server/matcher.py:107 ui_server/matcher.py:115 ui_server/matcher.py:123
+#: ui_server/matcher.py:132 ui_server/matcher.py:158 ui_server/matcher.py:450
+#: ui_server/matcher.py:453 ui_server/matcher.py:456 ui_server/matcher.py:461
+#: ui_server/matcher.py:464 ui_server/matcher.py:467 ui_server/matcher.py:478
+msgid "This is intended to show page-specific help"
+msgstr "C'est de montrer une aide spécifique à cette page."
+
+#: ui_server/matcher.py:114 ui_server/views/outer_wrapper.tpl:130
+#: ui_server\views/outer_wrapper.tpl:130
+msgid "Vaccines"
+msgstr "Vaccins"
+
+#: ui_server/matcher.py:122 ui_server/matcher.py:130
+msgid "Run"
+msgstr "Exécuter"
+
+#: ui_server/matcher.py:131
+msgid "Start A Run"
+msgstr "Commencez d'exécuter"
+
+#: ui_server/matcher.py:155
+msgid "We have somehow forgotten which model to show."
+msgstr "Nous avons en quelque oublié quel modèle démontrer."
+
+#: ui_server/matcher.py:157 ui_server/matcher.py:165
+msgid "Show Structure"
+msgstr "Afficher la structure"
+
+#: ui_server/matcher.py:181 ui_server/matcher.py:187
+msgid "Edit"
+msgstr "Modifier"
+
+#: ui_server/matcher.py:185
+msgid "Editing"
+msgstr "Vous modifiez"
+
+#: ui_server/matcher.py:194
+msgid "Model creation data table is missing or corrupted"
+msgstr "Le tableau de la création du modèle est manquant ou endommagé."
+
+#: ui_server/matcher.py:446
+msgid "Create"
+msgstr "Créer"
+
+#: ui_server/matcher.py:460
+msgid "We have somehow lost the names of the levels in your model."
+msgstr ""
+"Nous avons en quelque sorte perdu les noms des niveaux de votre modèle."
+
+#: ui_server/matcher.py:477
+msgid "We have somehow forgotten which step we are on in creating your model."
+msgstr ""
+"Nous avons en quelque sorte oublié qui nous sommes étape dans la création de "
+"votre modèle."
+
+#: ui_server/matcher.py:490
+msgid "Attempt to build template from {0} failed"
+msgstr "Tenter de construire modèle de {0} a échoué."
+
+#: ui_server/matcher.py:592
+msgid "This is the model info for {0}"
+msgstr "Ce sont les informations pour le modèle {0}"
+
+#: ui_server/matcher.py:593
+msgid "It comes directly from the server as HTML."
+msgstr "Il vient directement du serveur au format HTML."
+
+#: ui_server/matcher.py:658 ui_server/views/page_3.tpl:23
+#: ui_server\views/page_3.tpl:23
+msgid "A node"
+msgstr "une noeud"
+
+#: ui_server/matcher.py:666
+msgid "Another node"
+msgstr "Un autre noeud"
+
+#: ui_server/matcher.py:668 ui_server/views/page_3.tpl:25
+#: ui_server\views/page_3.tpl:25
+msgid "Child 1"
+msgstr "Enfant 1"
+
+#: ui_server/matcher.py:669
+msgid "Closed child"
+msgstr "Enfant fermé"
+
+#: ui_server/views/HERMES_UI_Header.tpl:4
+#: ui_server\views/HERMES_UI_Header.tpl:4
+msgid "User Interface Draft"
+msgstr "Projet d'Interface Utilisateur"
+
+#: ui_server/views/models_top.tpl:1 ui_server/views/run_top.tpl:1
+#: ui_server\views/models_top.tpl:1 ui_server\views/run_top.tpl:1
+msgid "Available Models"
+msgstr "Modèles disponibles"
+
+#: ui_server/views/models_top.tpl:5 ui_server/views/run_top.tpl:5
+#: ui_server\views/models_top.tpl:5 ui_server\views/run_top.tpl:5
+msgid "Do you want to:"
+msgstr "Voulez-vous:"
+
+#: ui_server/views/models_top.tpl:7 ui_server/views/model_create_begin.tpl:1
+#: ui_server/views/model_create_done.tpl:1 ui_server\views/models_top.tpl:7
+#: ui_server\views/model_create_begin.tpl:1
+#: ui_server\views/model_create_done.tpl:1
+msgid "Create A Model From Scratch"
+msgstr "Créer un modèle à partir de zéro"
+
+#: ui_server/views/models_top.tpl:8 ui_server\views/models_top.tpl:8
+msgid "Modify An Existing Model"
+msgstr "Modifier un modèle existant"
+
+#: ui_server/views/models_top.tpl:9 ui_server\views/models_top.tpl:9
+msgid "Show Supply Chain Structure"
+msgstr "Afficher la structure"
+
+#: ui_server/views/models_top.tpl:10 ui_server\views/models_top.tpl:10
+msgid "Copy An Existing Model"
+msgstr "Copier un modèle existant"
+
+#: ui_server/views/models_top.tpl:11 ui_server\views/models_top.tpl:11
+msgid "Upload A Zip Model"
+msgstr "Transférer un zip modèle"
+
+#: ui_server/views/models_top.tpl:12 ui_server\views/models_top.tpl:12
+msgid "Delete Selected model"
+msgstr "Supprimer le modèle sélectionné"
+
+#: ui_server/views/models_top.tpl:17 ui_server\views/models_top.tpl:17
+msgid "Select A Row To Edit"
+msgstr "Sélectionnez une ligne à modifier"
+
+#: ui_server/views/models_top.tpl:29 ui_server\views/models_top.tpl:29
+msgid "Modify A Model"
+msgstr "Modifier un modèle"
+
+#: ui_server/views/models_top.tpl:34 ui_server\views/models_top.tpl:34
+msgid "Model To Modify"
+msgstr "Modèle pour modifier"
+
+#: ui_server/views/models_top.tpl:42 ui_server\views/models_top.tpl:42
+msgid "Show Supply Chain For A Model"
+msgstr "Afficher la chaîne d'approvisionnement pour un modèle"
+
+#: ui_server/views/models_top.tpl:47 ui_server\views/models_top.tpl:47
+msgid "Model To Show"
+msgstr "Modèle pour afficher"
+
+#: ui_server/views/models_top.tpl:55 ui_server\views/models_top.tpl:55
+msgid "Copy A Model"
+msgstr "Copier un modèle"
+
+#: ui_server/views/models_top.tpl:60 ui_server\views/models_top.tpl:60
+msgid "Model To Copy"
+msgstr "Modèle pour copier"
+
+#: ui_server/views/models_top.tpl:64 ui_server\views/models_top.tpl:64
+msgid "Name Of The Copy"
+msgstr "Nom de la copie"
+
+#: ui_server/views/models_top.tpl:73 ui_server\views/models_top.tpl:73
+msgid "Upload a Model in Zip Form"
+msgstr "Transférer un zip modèle"
+
+#: ui_server/views/models_top.tpl:74 ui_server\views/models_top.tpl:74
+msgid "What name should the new model have?"
+msgstr "Quel est le nom du nouveau modèle devrait avoir?"
+
+#: ui_server/views/models_top.tpl:77 ui_server/views/run_top.tpl:46
+#: ui_server/views/vaccines_top.tpl:48 ui_server\views/models_top.tpl:77
+#: ui_server\views/run_top.tpl:46 ui_server\views/vaccines_top.tpl:48
+msgid "Name"
+msgstr "Nom"
+
+#: ui_server/views/model_create_begin.tpl:3
+#: ui_server\views/model_create_begin.tpl:3
+msgid "Creating Your Model"
+msgstr "Créer votre propre modèle"
+
+#: ui_server/views/model_create_begin.tpl:10
+#: ui_server\views/model_create_begin.tpl:10
+msgid "Name Your Model"
+msgstr "Nommez votre modèle"
+
+#: ui_server/views/model_create_begin.tpl:18
+#: ui_server\views/model_create_begin.tpl:18
+msgid "How Many Levels In Your Model?"
+msgstr "Combien de niveaux dans votre modèle?"
+
+#: ui_server/views/model_create_begin.tpl:38
+#: ui_server/views/model_create_countsbylevel.tpl:37
+#: ui_server/views/model_create_done.tpl:14
+#: ui_server/views/model_create_interlevel.tpl:69
+#: ui_server\views/model_create_begin.tpl:38
+#: ui_server\views/model_create_countsbylevel.tpl:37
+#: ui_server\views/model_create_done.tpl:14
+#: ui_server\views/model_create_interlevel.tpl:69
+msgid "Back"
+msgstr "Retour"
+
+#: ui_server/views/model_create_begin.tpl:40
+#: ui_server/views/model_create_countsbylevel.tpl:39
+#: ui_server/views/model_create_interlevel.tpl:71
+#: ui_server\views/model_create_begin.tpl:40
+#: ui_server\views/model_create_countsbylevel.tpl:39
+#: ui_server\views/model_create_interlevel.tpl:71
+msgid "Next"
+msgstr "Suivant"
+
+#: ui_server/views/model_create_begin.tpl:45
+#: ui_server/views/model_create_countsbylevel.tpl:44
+#: ui_server/views/model_create_done.tpl:21
+#: ui_server/views/model_create_interlevel.tpl:76
+#: ui_server\views/model_create_begin.tpl:45
+#: ui_server\views/model_create_countsbylevel.tpl:44
+#: ui_server\views/model_create_done.tpl:21
+#: ui_server\views/model_create_interlevel.tpl:76
+msgid "Invalid Entry"
+msgstr "Entrée invalide"
+
+#: ui_server/views/model_create_begin.tpl:46
+#: ui_server/views/model_create_done.tpl:22
+#: ui_server\views/model_create_begin.tpl:46
+#: ui_server\views/model_create_done.tpl:22
+msgid "The name of the model must not be blank."
+msgstr "Le nom du modèle ne doit pas être vide."
+
+#: ui_server/views/model_create_countsbylevel.tpl:1
+#: ui_server/views/model_create_interlevel.tpl:1
+#: ui_server\views/model_create_countsbylevel.tpl:1
+#: ui_server\views/model_create_interlevel.tpl:1
+msgid "Create {0} From Scratch"
+msgstr "Créer {0} à partir de zéro"
+
+#: ui_server/views/model_create_countsbylevel.tpl:3
+#: ui_server\views/model_create_countsbylevel.tpl:3
+msgid "How Many Locations At Each Level?"
+msgstr "Combien d'emplacements à chaque niveau?"
+
+#: ui_server/views/model_create_countsbylevel.tpl:4
+#: ui_server\views/model_create_countsbylevel.tpl:4
+msgid ""
+"How many locations exist at each of the following levels?  We will "
+"distribute them evenly between suppliers at the level above, and then give "
+"you a chance to make adjustments."
+msgstr ""
+"Combien d'emplacements existent à chacun des niveaux suivants? Nous allons "
+"les distribuer uniformément entre les fournisseurs au niveau au-dessus, puis "
+"vous donner une chance de faire des ajustements."
+
+#: ui_server/views/model_create_countsbylevel.tpl:45
+#: ui_server\views/model_create_countsbylevel.tpl:45
+msgid "One or more level values is blank; please fix this."
+msgstr ""
+"Un ou plusieurs niveaux sont vides; résoudre ce problème s'il vous plaît."
+
+#: ui_server/views/model_create_done.tpl:3
+#: ui_server\views/model_create_done.tpl:3
+msgid "Optionally Make Adjustments"
+msgstr "Eventuellement faire des ajustements"
+
+#: ui_server/views/model_create_done.tpl:91
+#: ui_server\views/model_create_done.tpl:91
+msgid "Model Transport Network"
+msgstr "Modèle réseau de transport"
+
+#: ui_server/views/model_create_interlevel.tpl:3
+#: ui_server\views/model_create_interlevel.tpl:3
+msgid "How are goods shipped from level to level?"
+msgstr "Comment les marchandises sont expédiées de niveau en niveau?"
+
+#: ui_server/views/model_create_interlevel.tpl:9
+#: ui_server\views/model_create_interlevel.tpl:9
+msgid "Level"
+msgstr "Niveau"
+
+#: ui_server/views/model_create_interlevel.tpl:10
+#: ui_server\views/model_create_interlevel.tpl:10
+msgid "How are vaccines obtained?"
+msgstr "Comment sont obtenus les vaccins?"
+
+#: ui_server/views/model_create_interlevel.tpl:11
+#: ui_server\views/model_create_interlevel.tpl:11
+msgid "How often?"
+msgstr "Combien de fois?"
+
+#: ui_server/views/model_create_interlevel.tpl:22
+#: ui_server/views/model_create_interlevel.tpl:24
+#: ui_server/views/model_create_interlevel.tpl:52
+#: ui_server\views/model_create_interlevel.tpl:22
+#: ui_server\views/model_create_interlevel.tpl:24
+#: ui_server\views/model_create_interlevel.tpl:52
+msgid "Receives Deliveries"
+msgstr "Reçoit les livraisons"
+
+#: ui_server/views/model_create_interlevel.tpl:22
+#: ui_server/views/model_create_interlevel.tpl:24
+#: ui_server/views/model_create_interlevel.tpl:52
+#: ui_server\views/model_create_interlevel.tpl:22
+#: ui_server\views/model_create_interlevel.tpl:24
+#: ui_server\views/model_create_interlevel.tpl:52
+msgid "Picks Up Vaccines"
+msgstr "Ramasse vaccin"
+
+#: ui_server/views/model_create_interlevel.tpl:29
+#: ui_server/views/model_create_interlevel.tpl:31
+#: ui_server/views/model_create_interlevel.tpl:55
+#: ui_server\views/model_create_interlevel.tpl:29
+#: ui_server\views/model_create_interlevel.tpl:31
+#: ui_server\views/model_create_interlevel.tpl:55
+msgid "On A Fixed Schedule"
+msgstr "Sur un horaire fixe"
+
+#: ui_server/views/model_create_interlevel.tpl:29
+#: ui_server/views/model_create_interlevel.tpl:31
+#: ui_server/views/model_create_interlevel.tpl:55
+#: ui_server\views/model_create_interlevel.tpl:29
+#: ui_server\views/model_create_interlevel.tpl:31
+#: ui_server\views/model_create_interlevel.tpl:55
+msgid "As Needed"
+msgstr "Au besoin"
+
+#: ui_server/views/model_create_interlevel.tpl:37
+#: ui_server/views/model_create_interlevel.tpl:39
+#: ui_server/views/model_create_interlevel.tpl:41
+#: ui_server/views/model_create_interlevel.tpl:59
+#: ui_server\views/model_create_interlevel.tpl:37
+#: ui_server\views/model_create_interlevel.tpl:39
+#: ui_server\views/model_create_interlevel.tpl:41
+#: ui_server\views/model_create_interlevel.tpl:59
+msgid "Year"
+msgstr "Année"
+
+#: ui_server/views/model_create_interlevel.tpl:37
+#: ui_server/views/model_create_interlevel.tpl:39
+#: ui_server/views/model_create_interlevel.tpl:41
+#: ui_server/views/model_create_interlevel.tpl:59
+#: ui_server\views/model_create_interlevel.tpl:37
+#: ui_server\views/model_create_interlevel.tpl:39
+#: ui_server\views/model_create_interlevel.tpl:41
+#: ui_server\views/model_create_interlevel.tpl:59
+msgid "Month"
+msgstr "Mont"
+
+#: ui_server/views/model_create_interlevel.tpl:37
+#: ui_server/views/model_create_interlevel.tpl:39
+#: ui_server/views/model_create_interlevel.tpl:41
+#: ui_server/views/model_create_interlevel.tpl:59
+#: ui_server\views/model_create_interlevel.tpl:37
+#: ui_server\views/model_create_interlevel.tpl:39
+#: ui_server\views/model_create_interlevel.tpl:41
+#: ui_server\views/model_create_interlevel.tpl:59
+msgid "Week"
+msgstr "Semaine"
+
+#: ui_server/views/model_create_interlevel.tpl:77
+#: ui_server\views/model_create_interlevel.tpl:77
+msgid "One or more of the values are blank; please fix this."
+msgstr ""
+"Un ou plusieurs des valeurs sont vides; résoudre ce problème s'il vous plaît."
+
+#: ui_server/views/model_create_levelnames.tpl:1
+#: ui_server\views/model_create_levelnames.tpl:1
+msgid "Create {0} from Scratch"
+msgstr "Créer {0} à partir de zéro"
+
+#: ui_server/views/model_create_levelnames.tpl:3
+#: ui_server\views/model_create_levelnames.tpl:3
+msgid "What are the names of the levels in your model?"
+msgstr "Quels sont les noms des niveaux dans votre modèle?"
+
+#: ui_server/views/model_create_levelnames.tpl:4
+#: ui_server\views/model_create_levelnames.tpl:4
+msgid ""
+"For example, a four level model might have levels named \"Central\", \"Region"
+"\", \"District\", and \"Health Post\"."
+msgstr ""
+"Par exemple, un modèle à quatre niveaux peut avoir des niveaux nommés "
+"\"Central\", \"Régional\", \" District\" et \"Poste de Santé\"."
+
+#: ui_server/views/model_show_structure.tpl:3
+#: ui_server\views/model_show_structure.tpl:3
+msgid "Click on a name to expand that part of the network."
+msgstr "Cliquez sur le nom d'étendre cette partie du réseau."
+
+#: ui_server/views/model_show_structure.tpl:183
+#: ui_server\views/model_show_structure.tpl:183
+msgid "Error: "
+msgstr "Erreur:"
+
+#: ui_server/views/notimplmented.tpl:3 ui_server\views/notimplmented.tpl:3
+msgid "This feature has not been implemented yet"
+msgstr "Cette fonctionnalité n'a pas encore été mis en œuvre."
+
+#: ui_server/views/outer_wrapper.tpl:5 ui_server\views/outer_wrapper.tpl:5
+msgid "HERMES - Supply Chain Modeling for Public Health"
+msgstr ""
+"HERMES - Modélisation de la chaîne d'approvisionnement pour la santé publique"
+
+#: ui_server/views/outer_wrapper.tpl:49 ui_server\views/outer_wrapper.tpl:49
+msgid "Continue"
+msgstr "Continuer"
+
+#: ui_server/views/outer_wrapper.tpl:53 ui_server\views/outer_wrapper.tpl:53
+msgid "Cancel"
+msgstr "Résilier"
+
+#: ui_server/views/outer_wrapper.tpl:129 ui_server\views/outer_wrapper.tpl:129
+msgid "People"
+msgstr "Personnes"
+
+#: ui_server/views/outer_wrapper.tpl:131 ui_server\views/outer_wrapper.tpl:131
+msgid "ColdStorage"
+msgstr "Stockage à froid"
+
+#: ui_server/views/outer_wrapper.tpl:132 ui_server\views/outer_wrapper.tpl:132
+msgid "Transport"
+msgstr "Transports"
+
+#: ui_server/views/outer_wrapper.tpl:133 ui_server\views/outer_wrapper.tpl:133
+msgid "Run Hermes"
+msgstr "Exécuter HERMES"
+
+#: ui_server/views/outer_wrapper.tpl:134 ui_server\views/outer_wrapper.tpl:134
+msgid "Results"
+msgstr "Résultats"
+
+#: ui_server/views/outer_wrapper.tpl:135 ui_server\views/outer_wrapper.tpl:135
+msgid "Developer"
+msgstr "Développeur "
+
+#: ui_server/views/outer_wrapper.tpl:136 ui_server\views/outer_wrapper.tpl:136
+msgid "Debug"
+msgstr "Déboguer"
+
+#: ui_server/views/outer_wrapper.tpl:137 ui_server\views/outer_wrapper.tpl:137
+msgid "Help"
+msgstr "Aide"
+
+#: ui_server/views/outer_wrapper.tpl:160 ui_server\views/outer_wrapper.tpl:160
+msgid "Sorry - No help is available for this page."
+msgstr "Désolé, l'aide n'est pas disponible pour cette page."
+
+#: ui_server/views/outer_wrapper.tpl:187 ui_server\views/outer_wrapper.tpl:187
+msgid "Language Change Warning"
+msgstr "Langue avertissement de changement"
+
+#: ui_server/views/outer_wrapper.tpl:202 ui_server\views/outer_wrapper.tpl:202
+msgid "HERMES Project"
+msgstr "HERMES projet"
+
+#: ui_server/views/outer_wrapper.tpl:202 ui_server\views/outer_wrapper.tpl:202
+msgid "All Rights Reserved."
+msgstr "Tous droits réservés"
+
+#: ui_server/views/page_2.tpl:2 ui_server\views/page_2.tpl:2
+msgid "Show A Menu"
+msgstr "Afficher un menu"
+
+#: ui_server/views/page_2.tpl:4 ui_server\views/page_2.tpl:4
+msgid "This should show a menu."
+msgstr ""
+
+#: ui_server/views/page_2.tpl:13 ui_server\views/page_2.tpl:13
+msgid "My Button"
+msgstr "Mon bouton"
+
+#: ui_server/views/page_3.tpl:2 ui_server\views/page_3.tpl:2
+msgid "This is a jsTree example"
+msgstr "Ceci est un exemple de jsTree."
+
+#: ui_server/views/page_3.tpl:25 ui_server\views/page_3.tpl:25
+msgid "A Child 2"
+msgstr "Un enfent 2"
+
+#: ui_server/views/page_3.tpl:30 ui_server\views/page_3.tpl:30
+msgid "Long format demo"
+msgstr "Démo du long format"
+
+#: ui_server/views/page_4.tpl:2 ui_server\views/page_4.tpl:2
+msgid "This will be my table"
+msgstr "Ce sera ma table"
+
+#: ui_server/views/page_4.tpl:11 ui_server\views/page_4.tpl:11
+msgid "one"
+msgstr "un"
+
+#: ui_server/views/page_4.tpl:11 ui_server/views/page_4.tpl:12
+#: ui_server/views/page_4.tpl:13 ui_server\views/page_4.tpl:11
+#: ui_server\views/page_4.tpl:12 ui_server\views/page_4.tpl:13
+msgid "name"
+msgstr "nom"
+
+#: ui_server/views/page_4.tpl:11 ui_server\views/page_4.tpl:11
+msgid "row one"
+msgstr "une rangée"
+
+#: ui_server/views/page_4.tpl:12 ui_server\views/page_4.tpl:12
+msgid "two"
+msgstr "deux"
+
+#: ui_server/views/page_4.tpl:12 ui_server\views/page_4.tpl:12
+msgid "row two"
+msgstr "deux rangée"
+
+#: ui_server/views/page_4.tpl:13 ui_server\views/page_4.tpl:13
+msgid "three"
+msgstr "trois"
+
+#: ui_server/views/page_4.tpl:13 ui_server\views/page_4.tpl:13
+msgid "row three"
+msgstr "trois rangée"
+
+#: ui_server/views/page_4.tpl:34 ui_server\views/page_4.tpl:34
+msgid "JSON Example"
+msgstr "Exemple de JSON"
+
+#: ui_server/views/page_5.tpl:4 ui_server\views/page_5.tpl:4
+msgid "This is a file uploader"
+msgstr ""
+
+#: ui_server/views/problem.tpl:1 ui_server\views/problem.tpl:1
+msgid "Problem!"
+msgstr "Problème!"
+
+#: ui_server/views/problem.tpl:3 ui_server\views/problem.tpl:3
+msgid "The User Interface Is Confused"
+msgstr "L'interface utilisateur est confondu"
+
+#: ui_server/views/problem.tpl:8 ui_server\views/problem.tpl:8
+msgid "We apologize.  Please select one of the main tabs above to continue."
+msgstr ""
+"Nous nous excusons. S'il vous plaît choisir l'un des principaux onglets ci-"
+"dessus pour continuer."
+
+#: ui_server/views/run_top.tpl:7 ui_server\views/run_top.tpl:7
+msgid "Run HERMES"
+msgstr "Exécuter HERMES"
+
+#: ui_server/views/run_top.tpl:8 ui_server\views/run_top.tpl:8
+msgid "Cancel A Run"
+msgstr "Annuler une exécution"
+
+#: ui_server/views/run_top.tpl:13 ui_server\views/run_top.tpl:13
+msgid "Run Status"
+msgstr "Exécuter statut"
+
+#: ui_server/views/run_top.tpl:47 ui_server\views/run_top.tpl:47
+msgid "Run ID"
+msgstr "Exécuter ID"
+
+#: ui_server/views/run_top.tpl:48 ui_server/views/vaccines_top.tpl:50
+#: ui_server\views/run_top.tpl:48 ui_server\views/vaccines_top.tpl:50
+msgid "Note"
+msgstr "Commentaire"
+
+#: ui_server/views/run_top.tpl:49 ui_server/views/vaccines_top.tpl:51
+#: ui_server\views/run_top.tpl:49 ui_server\views/vaccines_top.tpl:51
+msgid "Download Zip"
+msgstr "Télécharger zip"
+
+#: ui_server/views/run_top.tpl:50 ui_server/views/vaccines_top.tpl:52
+#: ui_server\views/run_top.tpl:50 ui_server\views/vaccines_top.tpl:52
+msgid "Used by SomeModel"
+msgstr ""
+
+#: ui_server/views/run_top.tpl:51 ui_server\views/run_top.tpl:51
+msgid "Run Details"
+msgstr "Exécuter les détails"
+
+#: ui_server/views/run_top.tpl:87 ui_server\views/run_top.tpl:87
+msgid "Available Runs"
+msgstr "Exécuter disponibles"
+
+#: ui_server/views/tabs.tpl:1 ui_server\views/tabs.tpl:1
+msgid "Look! This page has tabs!"
+msgstr "Regardez! Cette page contient des onglets!"
+
+#: ui_server/views/tabs.tpl:1 ui_server\views/tabs.tpl:1
+msgid "UI Experiments"
+msgstr "UI expériences"
+
+#: ui_server/views/vaccines_top.tpl:1 ui_server\views/vaccines_top.tpl:1
+msgid "Vaccines Editor"
+msgstr "Éditeur de vaccin"
+
+#: ui_server/views/vaccines_top.tpl:7 ui_server\views/vaccines_top.tpl:7
+msgid "Create A Vaccine From Scratch"
+msgstr "Créer un vaccin à partir de zéro"
+
+#: ui_server/views/vaccines_top.tpl:8 ui_server\views/vaccines_top.tpl:8
+msgid "Create A Modified Version Of A Vaccine"
+msgstr "Créer une version modifiée d'un vaccin"
+
+#: ui_server/views/vaccines_top.tpl:9 ui_server\views/vaccines_top.tpl:9
+msgid "Upload A Zip Vaccine"
+msgstr "Transférer un zip vaccin"
+
+#: ui_server/views/vaccines_top.tpl:10 ui_server\views/vaccines_top.tpl:10
+msgid "Delete Selected vaccine"
+msgstr "Supprimer vaccin choisi"
+
+#: ui_server/views/vaccines_top.tpl:15 ui_server\views/vaccines_top.tpl:15
+msgid "Known Vaccines"
+msgstr "Vaccins connus"
+
+#: ui_server/views/vaccines_top.tpl:49 ui_server\views/vaccines_top.tpl:49
+msgid "Vaccine ID"
+msgstr "Vaccin ID"
+
+#: ui_server/views/vaccines_top.tpl:53 ui_server\views/vaccines_top.tpl:53
+msgid "Vaccine Details"
+msgstr "Détails de vaccins"
+
+#: ui_server/views/vaccines_top.tpl:89 ui_server\views/vaccines_top.tpl:89
+msgid "Available Vaccines"
+msgstr "Vaccins disponibles"
+
+#: ui_server/views/welcome.tpl:1 ui_server\views/welcome.tpl:1
+msgid "Welcome to HERMES"
+msgstr "Bienvenue sur HERMES"
+
+#: ui_server/views/welcome.tpl:7 ui_server\views/welcome.tpl:7
+msgid "Vision"
+msgstr "Vision"
+
+#: ui_server/views/welcome.tpl:9 ui_server/views/welcome.tpl:14
+#: ui_server/views/welcome.tpl:19 ui_server\views/welcome.tpl:9
+#: ui_server\views/welcome.tpl:14 ui_server\views/welcome.tpl:19
+msgid "Read more"
+msgstr "Continuer à lire"
+
+#: ui_server/views/welcome.tpl:12 ui_server\views/welcome.tpl:12
+msgid "Team"
+msgstr "Equipe"
+
+#: ui_server/views/welcome.tpl:17 ui_server\views/welcome.tpl:17
+msgid "Publications"
+msgstr "Publications"
+
+#: ui_server/views/welcome.tpl:26 ui_server\views/welcome.tpl:26
+msgid "A Computational Tool to Design, Plan and Improve Supply Chains"
+msgstr ""
+"Un outil computationnelle pour concevoir, planifier et améliorer les chaînes "
+"d'approvisionnement"
+
+#: ui_server/views/welcome.tpl:27 ui_server\views/welcome.tpl:27
+msgid ""
+"Supply chains are the series of steps involved in transporting vaccines from "
+"manufacturers all the way to patients.&nbsp; Distributing vaccines (and "
+"other health care products) can be a complex process, integrating many "
+"steps, locations, personnel, and equipment.&nbsp; HERMES (Highly Extensible "
+"Resource for Modeling Supply-chains) is a computational framework for "
+"modeling and optimizing supply chains."
+msgstr ""
+"Les chaînes d'approvisionnement sont la série d'étapes impliquées dans le "
+"transport des vaccins auprès des fabricants tout le chemin pour les "
+"patients. Distribution des vaccins (et d'autres produits de soins de santé) "
+"peut être un processus complexe, intégrant de nombreuses étapes, des lieux, "
+"du personnel et du matériel. HERMES (Ressource très extensible pour les "
+"chaînes d'approvisionnement de modélisation) est un cadre de calcul pour la "
+"modélisation et l'optimisation des chaînes d'approvisionnement."
+
+#: ui_server/views/welcome.tpl:28 ui_server\views/welcome.tpl:28
+msgid "The HERMES Project is a collaboration involving..."
+msgstr "Le projet HERMES est une collaboration entre ..."
+
+#: ui_server/views/welcome.tpl:30 ui_server\views/welcome.tpl:30
+msgid ""
+"Funded through grants from the Bill and Melinda Gates Foundation and the "
+"National Institutes of Health."
+msgstr ""
+"Financé par des subventions de la Fondation Bill et Melinda Gates et de la "
+"US National Institutes of Health."
+
+#~ msgid "Model ID"
+#~ msgstr "Modèle ID"
+
+#~ msgid "Model Status"
+#~ msgstr "Modèle statut"
+
+#~ msgid "Really delete the model "
+#~ msgstr "Vraiment supprimer le modèle"

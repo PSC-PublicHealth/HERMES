@@ -1,0 +1,126 @@
+<html>
+
+<head>
+
+<title>How Cost Calculations Work</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>How Cost Calculations Work</h1>
+
+<p>
+These comments are as of 20120509.
+<p>
+The general mechanism is that costs are associated with some class instances (e.g. Warehouses, Routes,
+Trucks or Fridges), and each of them is associated with a NoteHolder.  Sometimes the association with
+the NoteHolder gets tricky, as when a PVSD moves between levels of the distribution chain.  One or more
+ReportingHierarchyNode trees can access each NoteHolder via its StatProvider interface, and those
+trees are used to produce the costing reports.  The costing calculations are managed by a CostManager
+instance, which owns a PriceTable instance.  The latter is defined by a .csv file provided by the user,
+and specifies all the specific pricing info.  The price table info is converted to a base currency on
+the fly during loading, using a CurrencyConverter instance which is passed as a parameter to the
+constructor for the PriceTable.  Note that the CurrencyConverter does not survive; it is created, used,
+and freed at the time of creation of the PriceTabe.  The file, base currency and base year are defined
+by the input parameters <em>currencyconversionfile</em>, <em>currencybase</em>, and <em>currencybaseyear</em>.
+The conversion table must be based on USD; which is to say that the conversion factors given for USD
+muse all be 1.0 .
+<p>
+Costs come in four categories:
+<ul>
+<li>Transport costs, including truck milage costs, driver per diem costs, truck per-trip costs (which might
+represent rental costs).
+<li>Storage costs, including amortization and fuel costs for refrigerators, either on trucks or in warehouses.
+<li>Labor costs, including driver salary (but not per diem) and warehouse/clinic worker salary.
+<li>Building costs, including rent associated with warehouses.
+</ul>
+
+In principle, any cost type can be associated with any Warehouse or ManagedType instance.  In practice, certain items contribute
+to certain costs and not to others, so to save computing we don't scan everything for every type of cost.  Transport costs
+come only from shipping processes, and are associated with specific trips (so that if no trips are made, transport costs
+are zero).  Note that driver per diem is a trasnsport cost, and that different coutries use different algorithms to
+calculate per diem days.  Thus there is a special model function, model.Model.calcPerDiemDays, to implement that
+calculation.
+<p>
+Costs are specified by including a "pricetable =" line in the input file for a run.  The fields of a price table
+are described in the documentation for the <em>costmodel.PriceTable class</em>; an example is provided for the
+TinyTown model.  The names that go into the price table are the names of ManagedType classes, like truck names
+or fridge type names, plus the four special names "building", "driver", "healthworker" and "labortotal".  Those 
+names are used to label cost information for building costs, driver salary and per diem and healthworker salary.
+<p>
+Storage costs come from refrigerators and are calculated only at the start and end of the costing interval.  In theory a
+refrigerator which is not operating would incur no fuel costs, but we do not check for intervals of non-operation.
+<p>
+Labor costs can be calculated in two ways: by explicit entry in the pricing table or by event.  By adding a
+pricing table entry for 'labortotal' in the 'PerYear' column, one can specify a total labor cost per year for
+the given level.  (Conditions are assumed to be 'normal' when looking up this value).  If an applicable
+entry for 'labortotal' exists for a given level, it will override and replace the value calculated for that
+level by the per-event method described below.
+<p>
+Alternately, labor costs can
+accrue for individual health workers and drivers over time by making 'PerYear' or 'PerTrip'
+table entries for 'driver' and 'PerTreatmentDay' costs for 'healthworker'.
+Labor costs for health workers are assumed to accrue only on days in which the associated clinic is open- while they
+are salaried employees, they are presumably being paid to do something else when the clinic is closed.
+Likewise, labor costs for drivers are assumed to apply only during trips, as if they were doing something else at 
+other times.  One 'healthworker' 'PerTreatmentDay' worth of costs is added per clinic open day.  One 'driver'
+'PerTrip' cost is added for every trip on every route, and the total trip time for the trip contributes to the
+cost according to the 'driver' 'PerYear' entry and the fraction of a year of trip duration.  Trip costs as
+well as 'PerDiem' costs are associated with the level at which the truck starts the trip, which is not
+necessarily the same as the level of the vaccine supplier for the trip.
+<p>
+Building costs are associated with warehouses and clinics (but not with AttachedClinics) and are proportional to time.  No
+other item type contributes to building costs.  These costs represent rent, and upkeep; their use seems kind of ambiguous. 
+<p>
+The TruckType data in the Routes file specifies the truck type, but it does not create the truck- that is done
+when the Garage is created.  As each truck is created for the Garage, its associated fridges are created by the 
+Truck() constructor.  Those fridges are associated with the truck, but that can change in the case of PVSDs.  In
+any case, there is no natural association between the truck or its fridges and any Warehouse or Route.  This will 
+be partially solved when Trucks are associated with home Warehouses, but there will still be some 'homeless' trucks.
+We need to specify a policy for which StatProvider ends up with stats for those trucks.
+<p>
+To Do:
+<ol>
+<li><b>done</b> Add over-time costs for fridges which are created on trucks.
+<li>A user doc describing PriceTable info is needed
+<li><b>done</b> Add support for 'conditions' in Routes files.  This may involve a 'truck machine' generator.
+<li><b>done</b> Are we going to do something with the Currency column? We now have a currency table, so we should translate 
+to *something* on the fly.  Should that be USD?  USD is good, but this is probably a relatively low priority task.
+<li>Should unspecified 'Conditions' in the cost table count as 'any'?  Should there be an 'any' for conditions?
+<li>Should I do a cost calculation at time zero, just to avoid maddening errors after a long simulation?
+<li><b>done</b> Add upside-down routes, so that transport can be attributed properly in models where the clinics own the trucks.
+<li><b>dropped</b> Add a check that all currencies in a given table are the same.
+<li><b>done</b> Add something to check the PriceTable for entries that can never get used.
+<li><b>done</b> Adding costs to ShipperProcess requires adding conditions to elaboratedChain, and modifying elaboratedChain
+so that it includes conditions for the return leg of the trip.  Since conditions for a leg get specified at the
+*top* of the leg, we should presumably specify transit time for the leg at the top of the leg as well.  Then 
+elaboratedChain needs to get one step longer, with the last entry being the return trip.  But don't forget the
+special logic for the last stop before the return trip.
+<li>Parsing of the 'CONDITIONS' column from the Stores file is handled by model_generic, but not by the other 
+models.
+<li>model.Model.calculatePerDiemDays needs to get specialized for different models, or at least checked.
+<li>We need to track the number of doses delivered to each Warehouse- not doses administered, but delivered.
+<li>generateTripCostNotes is working by-trip rather than by-leg, so it gets broken at the end of burn-in and
+at the end of a run.
+<li><b>done</b> Add a 'labortotal' 'PerYear' entry for each level, and add one instance of that cost per year to the simulation.
+<li><b>done</b> Add 'Currency' column to the cost output file.
+<li>Add unit test for ReportingHierarchyNode override mechanism
+<li>Clean up lon/lat keyword search in model_generic; test for blanks
+<li>try/catch clause out of util.longitudeLatitudeSep
+</ol>
+<p>
+Assignments:
+<ul>
+<li>Joel gets 14 and maybe 6
+<li>Jim writes a script to modify Routes files so that we can simplify 10; Jim gets 11
+<li>Michelle gets 2
+<li>Shawn gets 13, but must wait for Joel.
+<li>defer 5 until the users start screaming
+of published papers.
+<li>12 is implemented by asking Angela and Diana to write down the rules for our 4 countries, and that info
+gets handed off to Jim for coding.
+</ul>
+
+</body>
+</html>

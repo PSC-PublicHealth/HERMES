@@ -1,0 +1,536 @@
+digraph HermesTableStructure { rankdir=LR;
+
+subgraph cluster1 { label="Model-Specific Spreadsheets";
+     Stores [shape=plaintext, label=<
+     	    <table border="0" cellborder="1" cellspacing="0">
+	    <tr><td colspan="15">Stores</td></tr>
+	    <tr>
+		<td bgcolor="gray">CATEGORY</td>
+		<td bgcolor="gray">FUNCTION</td>
+		<td bgcolor="gray">NAME</td>
+		<td bgcolor="gray">idcode</td>
+		<td bgcolor="gray">CONDITIONS</td>
+		<td bgcolor="gray">...</td>
+		<td bgcolor="gray" port="f3">1-3months</td>
+		<td bgcolor="gray" port="f4">adult</td>
+		<td bgcolor="gray" port="f9">Service</td>
+		<td bgcolor="gray">UseVialsLatency</td>
+		<td bgcolor="gray">UseVialsInterval</td>
+		<td bgcolor="gray">CoolVolumeLiters</td>
+		<td bgcolor="gray">Inventory</td>
+		<td bgcolor="gray">...</td>		
+		<td bgcolor="gray">Notes</td>
+	    </tr>
+	    <tr>
+		<td port="f11">Central</td>
+		<td>Distribution</td>
+		<td>National Store</td>
+		<td port="f5">1</td>
+		<td> </td>
+		<td>...</td>
+		<td> </td>
+		<td> </td>
+		<td> </td>
+		<td>  </td>
+		<td>  </td>
+		<td>60.0</td>
+		<td> </td>
+		<td>...</td>
+		<td> </td>
+	    </tr>
+	    <tr>
+		<td port="f12">Community Health Center</td>
+		<td>Administration</td>
+		<td>Phu Hung</td>
+		<td port="f6">8</td>
+		<td port="f10">muddy</td>
+		<td>...</td>
+		<td>113</td>
+		<td>116</td>
+		<td>1</td>
+		<td>7.0</td>
+		<td>28.0</td>
+		<td> </td>
+		<td port="f7">2*N_FULLSIZEREFRIGERATOR</td>
+		<td>...</td>
+		<td> </td>
+	    </tr>
+	    <tr>
+		<td>Community Health Center</td>
+		<td>Administration</td>
+		<td>Point Breeze</td>
+		<td port="f6">9</td>
+		<td> </td>
+		<td>...</td>
+		<td>113</td>
+		<td>116</td>
+		<td>2</td>
+		<td>7.0</td>
+		<td>28.0</td>
+		<td> </td>
+		<td port="f8">3*N_ICECHEST</td>
+		<td>...</td>
+		<td> </td>
+	    </tr>
+	    </table>
+	    >];
+
+     Routes [shape=plaintext, label=<
+     	    <table border="0" cellborder="1" cellspacing="0">
+	    <tr><td colspan="14">Routes</td></tr>
+	    <tr>
+		<td bgcolor="gray">RouteName</td>
+		<td bgcolor="gray">Type</td>
+		<td bgcolor="gray">LocName</td>
+		<td bgcolor="gray">idcode</td>
+		<td bgcolor="gray">RouteOrder</td>
+		<td bgcolor="gray">Conditions</td>
+		<td bgcolor="gray">Distance</td>
+		<td bgcolor="gray">TransitHours</td>
+		<td bgcolor="gray">TruckType</td>
+		<td bgcolor="gray">ShipIntervalDays</td>
+		<td bgcolor="gray">ShipLatenyDays</td>
+		<td bgcolor="gray">PullMeanOrderAmount</td>
+		<td bgcolor="gray">...delay info...</td>
+		<td bgcolor="gray">Notes</td>
+	    </tr>
+	    <tr>
+		<td>r1</td>
+		<td>varpush</td>
+		<td>National Store</td>
+		<td port="f1">1</td>
+		<td>0</td>
+		<td port="f5">soggy</td>
+		<td>3500</td>
+		<td>4</td>
+		<td port="f3">N_cold_truck</td>
+		<td>30</td>
+		<td>14</td>
+		<td>  </td>
+		<td>  </td>
+		<td> </td>
+	    </tr>
+	    <tr>
+		<td>r1</td>
+		<td>varpush</td>
+		<td>Phu Hung</td>
+		<td port="f2">8</td>
+		<td>1</td>
+		<td port="f6">soggy</td>
+		<td>3500</td>
+		<td>4</td>
+		<td port="f4">N_4x4_truck</td>
+		<td>30</td>
+		<td>14</td>
+		<td> </td>
+		<td>  </td>
+		<td> </td>
+	    </tr>
+	    </table>
+	    >];
+
+     InitialOVW [shape=plaintext, label=<
+     		 <table  border="0" cellborder="1" cellspacing="0">
+		 <tr><td colspan="3">InitialOVW</td></tr>
+		 <tr>
+		     <td bgcolor="gray">Name</td>
+		     <td bgcolor="gray">OVW</td>
+		     <td bgcolor="gray">Notes</td>
+		 </tr>
+		 <tr>
+		     <td port="f1">N_Tuberculosis</td>
+		     <td>0.7</td>
+		     <td></td>
+		 </tr>
+		 <tr>
+		     <td port="f2">N_Meningococcal</td>
+		     <td>0.1</td>
+		     <td></td>
+		 </tr>
+		 </table>
+                 >];
+
+     Demand [shape=plaintext, label=<
+     	    <table border="0" cellborder="1" cellspacing="0">
+	    <tr><td colspan="6">Demand</td></tr>
+	    <tr>
+		<td bgcolor="gray">VaccineType</td>
+		<td bgcolor="gray" port="f1">1-3months</td>
+		<td bgcolor="gray" port="f2">adult</td>
+		<td bgcolor="gray" port="f6">Service</td>
+		<td bgcolor="gray">...</td>
+		<td bgcolor="gray">Notes</td>
+	    </tr>
+	    <tr>
+		<td port="f3">N_Tuberculosis</td>
+		<td>1</td>
+		<td>0</td>
+		<td>0</td>
+		<td>...</td>
+		<td> </td>
+	    </tr>
+	    <tr>
+		<td port="f4">N_Meningococcal</td>
+		<td>0</td>
+		<td>2</td>
+		<td>0</td>
+		<td>...</td>
+		<td> </td>
+       	    </tr>
+	    <tr>
+		<td port="f5">N_ICECHEST_CHARGE</td>
+		<td>0</td>
+		<td>0</td>
+		<td>1</td>
+		<td>...</td>
+		<td> </td>
+	    </tr>
+	    </table>
+	    >];
+
+     PriceTable [shape=plaintext, label=<
+     	    <table border="0" cellborder="1" cellspacing="0">
+	    <tr><td colspan="11">PriceTable</td></tr>
+	    <tr>
+		<td bgcolor="gray">Name</td>
+		<td bgcolor="gray">Currency</td>
+		<td bgcolor="gray">PerKm</td>
+		<td bgcolor="gray">PerYear</td>
+		<td bgcolor="gray">PerTrip</td>
+		<td bgcolor="gray">PerTreatmentDay</td>
+		<td bgcolor="gray">PerDiem</td>
+		<td bgcolor="gray">PerVial</td>
+		<td bgcolor="gray">Level</td>
+		<td bgcolor="gray">Conditions</td>
+		<td bgcolor="gray">Notes</td>
+	    </tr>
+	    <tr>
+		<td>driver</td>
+		<td>baht</td>
+		<td></td>
+		<td>123.4</td>
+		<td></td>
+		<td></td>
+		<td>10</td>
+		<td></td>
+		<td port="f5">Central</td>
+		<td></td>
+		<td></td>
+	    </tr>
+	    <tr>
+		<td>driver</td>
+		<td>baht</td>
+		<td></td>
+		<td>123.4</td>
+		<td></td>
+		<td></td>
+		<td>10</td>
+		<td></td>
+		<td port="f6">Central</td>
+		<td port="f4">soggy</td>
+		<td></td>
+	    </tr>
+	    <tr>
+		<td>driver</td>
+		<td>baht</td>
+		<td></td>
+		<td>112</td>
+		<td></td>
+		<td></td>
+		<td>10</td>
+		<td></td>
+		<td>Regional</td>
+		<td></td>
+		<td></td>
+	    </tr>
+	    <tr>
+		<td>healthworker</td>
+		<td>baht</td>
+		<td></td>
+		<td>112.4</td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td>Regional</td>
+		<td></td>
+		<td></td>
+	    </tr>
+	    <tr>
+		<td>healthworker</td>
+		<td>baht</td>
+		<td></td>
+		<td>112.4</td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td port="f7">Community Health Center</td>
+		<td port="f3">muddy</td>
+		<td></td>
+	    </tr>
+	    <tr>
+		<td port="f1">N_4x4_truck</td>
+		<td>baht</td>
+		<td>1</td>
+		<td>1000</td>
+		<td>50</td>
+		<td></td>
+		<td>0</td>
+		<td>0</td>
+		<td>any</td>
+		<td></td>
+		<td></td>
+	    </tr>
+	    <tr>
+		<td port="f2">N_V110GE_2006_E</td>
+		<td>baht</td>
+		<td>0</td>
+		<td>50</td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+	    </tr>
+	    </table>
+	    >];
+
+	 PriceTable:f5 -> Stores:f11
+	 PriceTable:f6 -> Stores:f11
+	 PriceTable:f7 -> Stores:f12
+	 Routes:f5 -> PriceTable:f4
+	 Routes:f6 -> PriceTable:f4
+	 /*Stores:f10 -> PriceTable:f3*/
+     Routes:f1 -> Stores:f5;
+     Routes:f2 -> Stores:f6;
+};
+
+
+subgraph cluster2 { label="Unified Files"; rank=sink;
+     People [shape=plaintext, label=<
+     	    <table border="0" cellborder="1" cellspacing="0">
+	    <tr><td colspan="3">UnifiedPeopleTypeInfo</td></tr>
+	    <tr>
+	    <td bgcolor="gray">Name</td>
+	    <td bgcolor="gray">SortOrder</td>
+	    <td bgcolor="gray">Notes</td>
+	    </tr>
+	    <tr>
+	    <td port="f1">1-3months</td>
+	    <td>1</td>
+	    <td> </td>
+	    </tr>
+	    <tr>
+	    <td port="f2">adult</td>
+	    <td>2</td>
+	    <td>adult</td>
+	    </tr>
+	    <tr>
+	    <td port="f3">Service</td>
+	    <td>1000</td>
+	    <td>for use in requesting supplies</td>
+	    </tr>
+	    </table>
+	    >];
+
+     Trucks [shape=plaintext, label=<
+     	    <table border="0" cellborder="1" cellspacing="0">
+	    <tr><td colspan="4">UnifiedTruckCapacityInfo</td></tr>
+	    <tr>
+		<td bgcolor="gray">Name</td>
+		<td bgcolor="gray">CoolVolumeCC</td>
+		<td bgcolor="gray">Storage</td>
+		<td bgcolor="gray">Notes</td>
+	    </tr>
+	    <tr>
+		<td port="f1">N_cold_truck</td><td>9292800</td>
+		<td> </td>
+	    	<td>300x176x176 cc at 100% utilization</td>
+	    </tr>
+	    <tr>
+		<td port="f2">N_4x4_truck</td><td> </td>
+		<td port="f3">2*N_ICECHEST</td>
+	    	<td>Carries 2 ice chests</td>
+	    </tr>
+	    </table>
+	    >];
+
+     Fridges [shape=plaintext, label=<
+     	    <table border="0" cellborder="1" cellspacing="0">
+	    <tr><td colspan="8">UnifiedFridgeTypeInfo</td></tr>
+	    <tr>
+		<td bgcolor="gray">Name</td>
+		<td bgcolor="gray" port="f5">freezer</td>
+		<td bgcolor="gray" port="f6">cooler</td>
+		<td bgcolor="gray" port="f7">roomtemperature</td>
+		<td bgcolor="gray">ClassName</td>
+		<td bgcolor="gray">ColdLifetime</td>
+		<td bgcolor="gray">...</td>
+		<td bgcolor="gray">Notes</td>
+	    </tr>
+	    <tr>
+		<td port="f4">N_FULLSIZEREFRIGERATOR</td>
+		<td>15.0</td>
+		<td>60.0</td>
+		<td> </td>
+		<td>Fridge</td>
+		<td> </td>
+		<td>...</td>
+		<td>This represents a standard plug-in refrigerator</td>
+	    </tr>
+	    <tr>
+		<td port="f3">N_ICECHEST</td>
+		<td> </td>
+		<td>20.0</td>
+		<td> </td>
+		<td>IceFridge</td>
+		<td>14.0</td>
+		<td>...</td>
+		<td>This represents an ice chest</td>
+	    </tr>
+	    <tr>
+		<td port="f8">N_V110GE_2006_E</td>
+		<td> </td>
+		<td>15.0</td>
+		<td> </td>
+		<td>ElectricFridge</td>
+		<td></td>
+		<td>...</td>
+		<td></td>
+	    </tr>
+	    </table>
+	    >];
+
+     StorageTypes [shape=plaintext, label=<
+     	    <table border="0" cellborder="1" cellspacing="0">
+	    <tr><td colspan="2">UnifiedStorageTypeInfo</td></tr>
+	    <tr>
+		<td bgcolor="gray">Name</td>
+		<td bgcolor="gray">Notes</td>
+	    </tr>
+	    <tr><td port="f1">freezer</td><td> </td></tr>
+	    <tr><td port="f2">cooler</td><td> </td></tr>
+	    <tr><td port="f3">roomtemperature</td><td> </td></tr>
+	    </table>
+	    >];
+
+     Vaccines [shape=plaintext, label=<
+     	    <table border="0" cellborder="1" cellspacing="0">
+	    <tr><td colspan="19">UnifiedVaccineTypeInfo</td></tr>
+	    <tr>
+		<td bgcolor="gray">Name</td>
+		<td bgcolor="gray">Abbreviation</td>
+		<td bgcolor="gray">Vaccine Presentation</td>
+		<td bgcolor="gray">Method of administration</td>
+		<td bgcolor="gray">Doses per vial</td>
+		<td bgcolor="gray">Packed vol/dose(cc) of vaccine</td>
+		<td bgcolor="gray">Packed vol/dose(cc) of diluent</td>
+		<td bgcolor="gray">Vaccine price/vial</td>
+		<td bgcolor="gray">Vaccine price/dose</td>
+		<td bgcolor="gray">Price Units</td>
+		<td bgcolor="gray">LifetimeOpenDays</td>
+		<td bgcolor="gray">RandomKey</td>
+		<td bgcolor="gray">Wastage Rate</td>
+		<td bgcolor="gray" port="f4">freezer</td>
+		<td bgcolor="gray" port="f5">cooler</td>
+		<td bgcolor="gray" port="f6">roomtemperature</td>
+		<td bgcolor="gray">...</td>
+		<td bgcolor="gray">Notes</td>
+	    </tr>
+	    <tr>
+		<td port="f1">N_Tuberculosis</td>
+		<td>BCG</td>
+		<td>Freeze Dried</td>
+		<td>ID</td>
+		<td>20</td>
+		<td>1.2</td>
+		<td>0.7</td>
+		<td>2.05</td>
+		<td>0.1</td>
+		<td>USD</td>
+		<td>0.25</td>
+		<td>1000</td>
+		<td> </td>
+		<td>0.04</td>
+		<td>336</td>
+		<td>0.02</td>
+		<td>...</td>
+		<td> </td>
+	    </tr>
+	    <tr>
+		<td port="f2">N_Meningococcal</td>
+		<td>Men A</td>
+		<td>Freeze Dried</td>
+		<td>SC</td>
+		<td>10</td>
+		<td>3.8</td>
+		<td>0</td>
+		<td>4.6</td>
+		<td>0.46</td>
+		<td>USD</td>
+		<td>5</td>
+		<td>7000</td>
+		<td> </td>
+		<td>0.04</td>
+		<td>504</td>
+		<td>0.02</td>
+		<td>...</td>
+		<td> </td>
+	    </tr>
+	    </table>
+	    >];
+
+     Ice [shape=plaintext, label=<
+     	    <table border="0" cellborder="1" cellspacing="0">
+	    <tr><td colspan="6">UnifiedIceTypeInfo</td></tr>
+	    <tr>
+		<td bgcolor="gray">Name</td>
+		<td bgcolor="gray">VolCC</td>
+		<td bgcolor="gray">FridgeType</td>
+		<td bgcolor="gray">RandKey</td>
+		<td bgcolor="gray">ClassName</td>
+		<td bgcolor="gray">Notes</td>
+	    </tr>
+	    <tr>
+		<td port="f1">N_ICECHEST_CHARGE</td>
+		<td>1</td>
+		<td>0</td>
+		<td>0</td>
+		<td>...</td>
+		<td> </td>
+	    </tr>
+	    </table>
+	    >];
+
+     Vaccines:f4 -> StorageTypes:f1 [constraint=false];
+     Vaccines:f5 -> StorageTypes:f2 [constraint=false];
+     Vaccines:f6 -> StorageTypes:f3 [constraint=false];
+     Fridges:f5 -> StorageTypes:f1 [constraint=false];
+     Fridges:f6 -> StorageTypes:f2 [constraint=false];
+     Fridges:f7 -> StorageTypes:f3 [constraint=false];
+     Trucks:f3 -> Fridges:f3;
+};
+
+
+     // These are the edges
+     Demand:f1 -> People:f1;
+     Demand:f2 -> People:f2;
+     Demand:f3 -> Vaccines:f1;
+     Demand:f4 -> Vaccines:f2;
+     Demand:f5 -> Ice:f1;
+     Demand:f6 -> People:f3;
+     Stores:f7 -> Fridges:f4;
+     Stores:f8 -> Fridges:f3;
+     Stores:f3 -> People:f1;
+     Stores:f4 -> People:f2;
+     Stores:f9 -> People:f3;
+     Routes:f3 -> Trucks:f1;
+     Routes:f4 -> Trucks:f2;
+     PriceTable:f1 -> Trucks:f2;
+     PriceTable:f2 -> Fridges:f8;
+     InitialOVW:f1 -> Vaccines:f1;
+     InitialOVW:f2 -> Vaccines:f2;
+ }

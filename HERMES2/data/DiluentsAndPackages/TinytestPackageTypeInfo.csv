@@ -1,0 +1,57 @@
+Name,Contains,Count,Category,Volume(CC),SortOrder,Notes
+N_Tuberculosis_Box,N_Tuberculosis,25,box,660,1,First guess
+N_Tuberculosis_Carton,N_Tuberculosis,1000,carton,29040,2,First guess
+N_Tuberculosis_Diluent_Box,N_Tuberculosis_Diluent,25,box,385,101,First guess
+N_Tuberculosis_Diluent_Carton,N_Tuberculosis_Diluent,1000,carton,16940,102,First guess
+N_Tetanus_Toxoid_Box,N_Tetanus_Toxoid,25,box,825,201,First guess
+N_Tetanus_Toxoid_Carton,N_Tetanus_Toxoid,1000,carton,36300,202,First guess
+N_Measles_Box,N_Measles,25,box,580.53,301,First guess
+N_Measles_Carton,N_Measles,1000,carton,25543.1,302,First guess
+N_Measles_Diluent_Box,N_Measles_Diluent,25,box,137.5,401,First guess
+N_Measles_Diluent_Carton,N_Measles_Diluent,1000,carton,6050,402,First guess
+N_Oral Polio_Box,N_Oral Polio,25,box,550,501,First guess
+N_Oral Polio_Carton,N_Oral Polio,1000,carton,24200,502,First guess
+N_Yellow Fever_Box,N_Yellow Fever,25,box,687.5,601,First guess
+N_Yellow Fever_Carton,N_Yellow Fever,1000,carton,30250,602,First guess
+N_Yellow Fever_Diluent_Box,N_Yellow Fever_Diluent,25,box,1650,701,First guess
+N_Yellow Fever_Diluent_Carton,N_Yellow Fever_Diluent,1000,carton,72600,702,First guess
+N_DTP-HepB-Hib liquid_Box,N_DTP-HepB-Hib liquid,25,box,462,801,First guess
+N_DTP-HepB-Hib liquid_Carton,N_DTP-HepB-Hib liquid,1000,carton,20328,802,First guess
+N_Meningococcal_Box,N_Meningococcal,25,box,1045,901,First guess
+N_Meningococcal_Carton,N_Meningococcal,1000,carton,45980,902,First guess
+N_MenAfriVac_Box,N_MenAfriVac,25,box,715,1001,First guess
+N_MenAfriVac_Carton,N_MenAfriVac,1000,carton,31460,1002,First guess
+N_MenAfriVac_Diluent_Box,N_MenAfriVac_Diluent,25,box,715,1101,First guess
+N_MenAfriVac_Diluent_Carton,N_MenAfriVac_Diluent,1000,carton,31460,1102,First guess
+N_RotavirusV1_Box,N_RotavirusV1,25,box,7144.5,1201,First guess
+N_RotavirusV1_Carton,N_RotavirusV1,1000,carton,314358,1202,First guess
+N_RotavirusV2_Box,N_RotavirusV2,25,box,4290,1301,First guess
+N_RotavirusV2_Carton,N_RotavirusV2,1000,carton,188760,1302,First guess
+N_RotavirusV3_Box,N_RotavirusV3,25,box,2194.5,1401,First guess
+N_RotavirusV3_Carton,N_RotavirusV3,1000,carton,96558,1402,First guess
+N_RotavirusV4_Box,N_RotavirusV4,25,box,1273.25,1501,First guess
+N_RotavirusV4_Carton,N_RotavirusV4,1000,carton,56023,1502,First guess
+N_RotavirusV5_Box,N_RotavirusV5,25,box,470.25,1601,First guess
+N_RotavirusV5_Carton,N_RotavirusV5,1000,carton,20691,1602,First guess
+N_RotavirusV6_Box,N_RotavirusV6,25,box,2062.5,1701,First guess
+N_RotavirusV6_Carton,N_RotavirusV6,1000,carton,90750,1702,First guess
+N_RotavirusV7_Box,N_RotavirusV7,25,box,319,1801,First guess
+N_RotavirusV7_Carton,N_RotavirusV7,1000,carton,14036,1802,First guess
+N_RotavirusV7_Diluent_Box,N_RotavirusV7_Diluent,25,box,2444.75,1901,First guess
+N_RotavirusV7_Diluent_Carton,N_RotavirusV7_Diluent,1000,carton,107569,1902,First guess
+N_Pneumococcal_Box,N_Pneumococcal,25,box,1537.25,2001,First guess
+N_Pneumococcal_Carton,N_Pneumococcal,1000,carton,67639,2002,First guess
+N_Pneumococcal13_Box,N_Pneumococcal13,25,box,330,2101,First guess
+N_Pneumococcal13_Carton,N_Pneumococcal13,1000,carton,14520,2102,First guess
+N_Measles-unidose_Box,N_Measles-unidose,25,box,704.28,2201,First guess
+N_Measles-unidose_Carton,N_Measles-unidose,1000,carton,30988.1,2202,First guess
+N_Measles-unidose_Diluent_Box,N_Measles-unidose_Diluent,25,box,13.75,2301,First guess
+N_Measles-unidose_Diluent_Carton,N_Measles-unidose_Diluent,1000,carton,605,2302,First guess
+N_Measles-twodose_Box,N_Measles-twodose,25,box,693,2401,First guess
+N_Measles-twodose_Carton,N_Measles-twodose,1000,carton,30492,2402,First guess
+N_Measles-twodose_Diluent_Box,N_Measles-twodose_Diluent,25,box,27.5,2501,First guess
+N_Measles-twodose_Diluent_Carton,N_Measles-twodose_Diluent,1000,carton,1210,2502,First guess
+N_Measles-fivedose_Box,N_Measles-fivedose,25,box,649,2601,First guess
+N_Measles-fivedose_Carton,N_Measles-fivedose,1000,carton,28556,2602,First guess
+N_Measles-fivedose_Diluent_Box,N_Measles-fivedose_Diluent,25,box,68.75,2701,First guess
+N_Measles-fivedose_Diluent_Carton,N_Measles-fivedose_Diluent,1000,carton,3025,2702,First guess

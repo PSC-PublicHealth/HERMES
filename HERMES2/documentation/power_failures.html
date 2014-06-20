@@ -1,0 +1,65 @@
+<html>
+<head>
+<title>Overview of power failures</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body>
+<h1>Overview of power failures</h1>
+
+<p>
+Power failures occur to individual warehouses or to groups of warehouses.  Input is somewhat complicated to enable this.  It is assumed that we are ignoring any power failure that is sufficiently short that a refrigerator would not be affected.
+</p>
+<p>
+Power failure information can have default items specified in the input file and can have information specific to a warehouse in the warehouse file.
+</p>
+<h3>Fields:</h3>
+The following fields can be set in the Stores input file:
+<dl>
+        <dt>PowerOutageFrequencyPerYear:
+            <dd>average number of power outages in a year at a
+	    warehouse.
+        <dt>PowerOutageDurationDays:
+	    <dd>average duration of a power failure.  A clinic
+	    probably won't be able to do anything during a
+	    power outage since it can't store any vaccines
+	    unless it has some off grid means of vaccine
+	    storage.
+	<dt>PowerOutageDurationSigma:
+	    <dd>if this value exists, use a normal distribution
+	    for the outage with this value as the standard
+	    deviation.
+	<dt>PowerOutageAffectedRatio:
+	    <dd>if set only this fraction of warehouses in this
+	    cluster will be affected by any given power
+	    outage.
+	<dt>PowerOutageClusterId:
+	    <dd>assigns this warehouse to a specific cluster
+	    for the purposes of outages.  This enables
+	    an entire area (or fraction of an area) to
+	    go down at once.  All members of a cluster
+	    must have the same set of values for frequency
+	    and duration.
+</dl>
+</p>
+<p>
+Since it is reasonable to put a warehouse into one or more clusters of power outage groups and to have it have individual outages, any of the above fields can have a suffix to allow it to have multiple sets of power outage information.  For example you could have the following fields:
+<pre>
+
+      PowerOutageFrequencyPerYear_region,
+      PowerOutageDurationDays_region,
+      PowerOutageClusterId_region,
+      PowerOutageFrequencyPerYear_local,
+      PowerOutageDurationDays_local,
+      PowerOutageDurationSigma_local,
+      PowerOutageClusterId_local
+</pre>
+(or instead of '_region' and '_local' you could just have '1', '2', '3'...)
+</p>
+<p>
+<h3>Defaults:</h3>
+Any of these fields can be defaulted in the input file with lower case versions of their names (ie poweroutagefrequencyperyear).  The default will apply to all warehouses with nothing filled into a field and all suffix groups.
+
+<h3>Required fields:</h3>
+PowerOutageFrequencyPerYear and PowerOutageDurationDays must exist either in default values for the input file or explicitly for each power outage group.
+</body>
+</html>

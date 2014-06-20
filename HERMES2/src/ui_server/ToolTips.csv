@@ -1,0 +1,10 @@
+Location,Path,Button ID,en_US,fr_FR,Notes
+Hermes>Models>Show Supply Chain Structure,models-top,#show_structure_model_button,Show the supply chain structure of an existing model.,Some french-language expression,
+Hermes>Models>Show Supply Chain Structure>Model to Show dropdown,models-top,#model_show_dlg_model_select,Select which model's supply chain structure to view.,,
+Hermes>Models>Copy an Existing Model,models-top,#copy_model_button,Make a copy of an existing model.,,
+Hermes>Models>Copy an Existing Model>Model to Copy dropdown,models-top,#model_copy_dlg_model_select,Select which model to copy.,,
+Hermes>Models>Copy an Existing Model>Model to Copy dropdown,models-top,#model_copy_dlg_new_name,Name the new model copy. The new model's name must be different from the original model's name.,,
+Hermes>Models>Upload a Zip Model,models-top,#upload_model_button,Upload an existing .zip model file.,,
+Hermes>Models>Delete Selected Model,models-top,#delete_model_button,Delete the selected model.,,
+Hermes>Models>Edit Supply Chain,model-edit-structure ,.store-edit-menu,Edit or delete this store.,,
+any,*,[id^=store_edit_wgt_f5],Change the Category of this store.,,

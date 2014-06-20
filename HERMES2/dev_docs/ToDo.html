@@ -1,0 +1,88 @@
+<html>
+
+<head>
+
+<title>To Do List</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>To Do List</h1>
+
+<p>
+
+<table>
+<tr><td colspan=2 align=center>High Priority</td></tr>
+<tr><th>Description</th><th>Who</th><tr>
+<tr><td>Enhancements to custom output</td><td>Jim</td></tr>
+<tr><td>Do something better than the 'pvsdbugfix' flag</td><td>Joel</td></tr>
+<tr>
+  <td>Change the Shippable.Tag constants to be upper case, as per the
+  style guide.</td>
+  <td>Joel</td></tr>
+<tr><td colspan=2>&nbsp;</td></tr>
+<tr><td colspan=2></td></tr>
+
+
+
+
+<tr><td colspan=2 align=center>Deferred</td></tr>
+<tr><th>Description</th><th>Who</th><tr>
+<tr>
+  <td>
+    Actually unify the unified input files, so that the entries are
+    not country dependent.
+  </td>
+  <td>Michelle?</td>
+</tr>
+<tr>
+  <td>
+    Allow overlays of unified input.  The idea here is that
+    there would be a Unified file with actually-unified data and 
+    additional files with country- or model-specific data.
+  </td>
+  <td>
+    ???
+  </td>
+</tr>
+<tr>
+  <td>
+    Make things correspond to the style guide.
+  </td>
+  <td>
+    ???
+  </td>
+</tr>
+<tr><td>Coerce SVN IDs into a single highest svn rev number that can be printed.</td><td>???</td></tr>
+<tr><td>
+    Make an overview programming guide covering any global programming conventions that need 
+    to be followed for hermes to run.  This includes but is not limited to:<ul>
+      <li>opening data files and creating output files using tools in util</li>
+      <li>rules to make --deterministic work</li>
+    </ul>
+</td><td>???</td></tr>
+<tr><td>optionally copy contents of all inputs to an output file.  In this manner we'd have a 
+    set of outputs with all of the inputs that created it (with svn versions of the code ideally)
+    that can be used to know exactly what was in a hermes run.</td><td>???</td></tr>
+<tr><td>Make the interface handle the input and output zip files</td><td>???</td></tr>
+<tr><td>Make the interface be able to read a HermesOutput and do basic things with it</td><td>???</td></tr>
+<tr><td>Explore using a backing database for the data sets.  Since this is <em>just</em> a backing 
+    datastore, would any of the many nosql implementations make more sense?  Maybe dbm style with 
+    transactional support?</td><td>???</td></tr>
+<tr><td>Explore persistent accounts</td><td>???</td></tr>
+
+    
+
+
+<tr><td colspan=2>&nbsp;</td></tr>
+<tr><td colspan=2></td></tr>
+<tr><td colspan=2 align=center>Completed</td></tr>
+<tr><th>Description</th><th>Who</th><tr>
+<tr><td>Write names doc and to-do list</td><td>Joel</td></tr>
+<tr><td>Support for attached clinics in Routes file</td><td>Joel</td></tr>
+<tr><td>Print SVN IDs into the log files and possibly other locations.</td><td>Joel</td></tr>
+</table>
+</p>
+</body>
+</html>

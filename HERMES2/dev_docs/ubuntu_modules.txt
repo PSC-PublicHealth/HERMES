@@ -1,0 +1,14 @@
+Necessary ubuntu modules to run hermes:
+core:
+python-simpy
+
+graphing:
+python-matplotlib
+
+Database stuff:
+mysql-client
+mysql-server
+python-sqlalchemy
+python-mysqldb
+sqlite
+python-sqlite

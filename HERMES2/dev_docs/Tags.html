@@ -1,0 +1,46 @@
+<html>
+
+<head>
+
+<title>Tags, And Their Meanings And Effects</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>Tags, And Their Meanings And Effects</h1>
+
+<p>
+
+Tags are associated with Shippable instances and are defined in
+abstractbaseclasses.Shippable .  They are boolean values manipulated
+and tested by the Shippable methods setTag(), clearTag(), getTag(),
+and getTagList().  The intention is that the routines which manipulate
+Shippables will use specific tags to signal to each other about the
+intended fate of the associated Shippable.  This does not preclude the
+Shippable manipulating its own tags, but this is not expected to be
+the most common case.  An example might be an Ice shippable setting
+its DoNotUse tag when its 'melting' timer has gone off.
+<p>
+In abstractbaseclasses.Shippable, we have:<br>
+<table>
+<tr><th>Name<th>Value<th align=left>Meaning</tr>
+
+<tr><td><a href="Recycling.html">RecycleTag</a>
+<td>"recycle"<td>This tag labels the Shippable to be
+picked up and carried upstream by the recycling mechanism.</tr>
+
+<tr><td><a href="DoNotUseTag.html">DoNotUseTag</a>
+<td>"donotuse"<td>This tag marks a Shippable as
+unuseable.  For example, Shippables marked DoNotUse are not allocated
+for outbound shipping, and Fridge instances marked DoNotUse do not
+contribute to available storage at their location.</tr>  
+
+<tr><td>InUseTag<td>
+"inuse"<td>This tag is intended to be set while a Shippable is 'in
+use', so that it will not be doubly used.  For example, an Ice
+instance which is associated with a specific IceFridge would have this
+tag set by the process that makes the association.</tr>
+</table>                    
+</body>
+</html>

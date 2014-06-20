@@ -1,0 +1,40 @@
+<html>
+<head>
+
+<title>Multiple Demand and Calendar Files</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body bgcolor="white">
+
+
+<left><h1>Multiple Demand and Calendar Files (SVN r1094)</h1></left>
+<p>As of SVN repository version 1094, there exists the capability for the user to use either multiple demand files or multiple calendar files in their simulation.</p>
+
+<p>There are several reasons in which this type of feature would become necessary:
+<ul><li>Specifying the specific vaccine schedules required by various people types allows for a clinic to order a different amount of vaccines than what is actually consumed by the actual people type(s).</li>
+<li>Specifying varying calendar types - for various people types with the same characteristics - allows for the location to predict the demand for their vaccine consumption independently of the actual consumption.</li></ul>
+
+<p>Under default conditions, either <font face="courier new" size="2">calendarfile</font> or <font face="courier new" size="2">demandfile</font> (denoted in the input.kvp file) are utilized both in shipping/ordering policies (which are essentially the same thing in HERMES) AND in the actual use/consumption of product.</p>
+
+<h2>How to Specify the Multiple Demand and/or Calendar Files</h2>
+
+<p>In order to use this functionality, multiple people types must first be designated in the UnifiedPeopleTypeInfo file. The people types must have the same characteristics (i.e., same randomkeynumber) as similar existing people types.</p>
+
+<p>Then, either two demand files or two calendar files must be created. These files must, for the most part, look like each other, but use the different people types defined previously. For example's sake, for a scenario using two demand files, the new file is called ConsumptionDemand.csv and the original file is called Demand.csv. (<em>For what it's worth, the previous two steps can be done in any order.</em>)</p>
+
+<p>Then, modify the relevant input.kvp file so that you specify the two data input files -- one for the shipping (what is predicted by the model) and one for the actual consumption (what the population consumes) -- in the input.kvp file, instead of a singular file used for both shipping and consumption.</p>
+
+<p>Therefore, for our example above (the multiple demand file scenario), instead of,
+<pre>        demandfile = "Demand.csv"</pre>
+the input file should read:
+<pre>        shippingdemandfile = "Demand.csv"
+        consumptiondemandfile = "ConsumptionDemand.csv"</pre></p>
+
+<p>Conversely, for a scenario which uses multiple calendar files, instead of
+<pre>        calendarfile = "Calendar.csv"</pre>
+the input file should read:
+<pre>        shippingcalendarfile = "Calendar.csv"
+        consumptioncalendarfile = "ConsumptionCalendar.csv"</pre></p>
+
+</body>
+</html>

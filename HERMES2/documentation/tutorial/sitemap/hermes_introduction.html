@@ -1,0 +1,69 @@
+<html>
+<head>
+<title>HERMES Introduction: What is HERMES, and How do I Use It?</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+<link href="vmi_introduction.html" rel="Prev"><link href="../STARTHERE.html" rel="Start"><link href="first_steps.html" rel="Next">
+</head>
+<body>
+<h1>HERMES Introduction</h1>
+<h2>What is HERMES, and How do I Use It?</h2>
+<p><b>HERMES</b> stands for the <b>H</b>ighly <b>E</b>xtensible <b>R</b>esource for <b>M</b>odeling <b>S</b>upply-chains. It is designed as a computational tool to design, plan and model supply chains.<br /></p>
+<blockquote><p>Developed by the Vaccine Modeling Initiative (VMI)---funded by the Bill and Melinda Gates Foundation and based at the University of Pittsburgh---HERMES is a software platform that allows users to generate a detailed discrete event simulation model of any vaccine supply chain. This simulation model can serve as a "virtual laboratory" for decision makers (e.g., policy makers, health officials, funders, investors, vaccine and other technology developers, manufacturers, distributors, logisticians, scientists, and researchers) to address a variety of questions such as:</p>
+
+<ul>
+<li>    What will be the impact of introducing new technologies (e.g., vaccines, storage, or monitoring)?
+<li>    What the effects of altering the characteristics of vaccines and other technologies (e.g., vaccine vial size, vaccine thermostability, or cold device capacity)?
+<li>    How do the configuration and the operations of the supply chain (e.g., storage devices, shipping frequency, personnel, or ordering policy) affect performance and cost?
+<li>    What may be the effects of differing conditions and circumstances (e.g., power outages, delays, inclement weather, transport breakdown, or limited access)?
+<li>    How should one invest or allocate resources (e.g., adding refrigerators vs. increasing transport frequency)?
+<li>    How can vaccine delivery be optimized (e.g., minimize the cost per immunized child or maximize immunization availability)?</blockquote>
+</ul>
+
+<p>
+More information can be found on the <a href="https://vaccinemodeling.org/index.php/hermes-home" target="_blank">VMI's HERMES website</a> or on the <a href="https://hermes.psc.edu" target="_blank">HERMES project website</a>.
+</p>
+
+<br />
+
+<h2>How Does One Use HERMES to Generate a Supply Chain Simulation Model?</h2>
+
+<blockquote><center><img src="https://vaccinemodeling.pitt.edu/images/stories/HERMES_TEAM/Slide03.jpg"><br />
+<p>Figure 1 demonstrates how the simulation model can represent each storage location.</p></center>
+
+<p>The user feeds data on the supply chain of interest into HERMES's standard input deck.  This includes data on the structure of the supply chain (e.g., storage locations and shipping routes), storage devices (e.g., capacity), transport devices, ordering policies, vaccine characteristics, and vaccine demand.  Although HERMES can generate a model with any amount of data, the detail of the model depends on the detail of the data.  Less data means a less detailed model, which can address very general questions.  More data means a more detailed model, which can address more specific and complex questions.</p>
+
+<h3>What is the Structure of the Simulation Model?</h3>
+
+<p>The model can represent every storage location (Figure 1), immunization location (Figure 2), storage device, transport vehicle/device, personnel, vaccine vial, and vaccine accessory in a supply chain.  The model represents each vaccine vial, diluent vial, or vaccine accessory with an entity, which can assume a variety of characteristics such as type, size, number of doses per vial, temperature profile, age, and expiration date.   Millions of different vaccine vials and accessories can flow through the model simultaneously just like a real supply chain.  There is practically no limit to the number of vaccines, storage locations, devices, and vehicles that the model can simulate.</p>
+
+<center><img src="https://vaccinemodeling.pitt.edu/images/stories/HERMES_TEAM/Slide04.jpg"><br />
+<p>Figure 2 illustrates the simulation model's representation of each immunization location.</p></center>
+
+<p>As Figure 2 demonstrates, at each immunization location virtual, people arrive each day when they are ready to receive a particular vaccine or set of vaccines.  The policy at that location determines when the health workers open vaccine vials and, if necessary, reconstitute the vaccines.  (The user can specify policies for each immunization location).  The client arrival rates can come from either actual demand data or census plus birth data.  If the correct vaccine is available at the immunization location then the person is successfully immunized.  If the vaccine is not available, then the person counts as a missed vaccination opportunity.  Once an immunization occurs, the remaining vial and accessories count as medical waste.  Unused doses in open vaccine vials count as open vial wastage.</p>
+
+<br />
+
+<h2>What Outcomes and Measures can HERMES Simulation Models Generate?</h2>
+
+<blockquote>
+<p>Since HERMES-generated models are detailed simulations (i.e., virtual representations), the user can choose to pull nearly any type of measure.  For example, a user could even track the daily inventory by vaccine vial type in any individual refrigerator in the supply chain.  Examples of common model outputs include vaccine availability (i.e., the percentage of clients arriving at an immunization location who are successfully vaccinated), vaccine wastage, storage capacity utilization (e.g., the percentage of available space used each day), transport capacity utilization, number of stockouts (i.e., the number of times a location runs out of a particular vaccine), vaccine doses delivered or administered, and time-to-patient.  The Project OPTIMIZE (also funded by the Gates Foundation) costing tool can then translate the relevant HERMES measures into nearly any economic measure of interest (e.g., cost per dose administered, cost by location, and cost by activity).  HERMES can also generate various visualizations, such as stock plot graphs and vial inventory graphs.</p>
+
+<center><img src="https://vaccinemodeling.pitt.edu/images/stories/HERMES_TEAM/Slide2_sm.jpg"><br />
+<p>HERMES-generated inventory graphs at some sample Niger locations at different levels before and after rotavirus (RV) and pneumococcal (PCV) introductions. The red arrows indicate stock-outs.</p>
+
+<img src="https://vaccinemodeling.pitt.edu/images/stories/HERMES_TEAM/Vietnam_diag.jpg"><br />
+<p>HERMES-generated visualization depicting maximum storage capacity utilization (red being the highest and purple being the lowest) at different storage locations in Vietnam.</p></center>
+
+</body>
+
+<br />
+<br />
+
+<foot>
+<p>
+<div style="float:left;width:33%;">Previously: <a href="vmi_introduction.html">Introduction to VMI</a></div>
+<div style="float:left;width:33%;"><a href="../STARTHERE.html">Home</a></div>
+<div style="float:right;width:33%;">Next: <a href="first_steps.html">Before You Start: Obtaining a PSC Account, SVN, DAV, and RedMine</div>
+</p>
+</foot>
+</html>

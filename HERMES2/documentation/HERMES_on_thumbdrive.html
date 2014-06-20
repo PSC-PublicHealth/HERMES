@@ -1,0 +1,49 @@
+<html>
+<head>
+
+<title>Running HERMES Off An External Drive or Thumb Drive</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body bgcolor="white">
+
+<left><h1>Running HERMES Off An External Drive or Thumb Drive</h1></left>
+
+<p><em>These directions are current as of 27 February 2013.</em></p>
+
+<p>It is possible to use HERMES input files that are located on a drive independent of the computer hard drive (usually "C:\" on a Windows system). This function is useful if a computer is to be shared among multiple users, and/or if input files cannot be saved on a particular computer.</p>
+
+<p><strong><em>Note: All components of HERMES (i.e., Python, TortoiseSVN, SimPy) must be present [and properly installed] on a computer in order for this functionality to work.</em></strong></p>
+
+<h2>How to use HERMES Using Multiple Disk Drives</h2>
+
+<ol>
+
+<li>Place the input files and/or input.kvp files that you wish to use for the simulation in a folder in your external hard drive / thumb drive. <em>Make sure that the input file in your thumb drive includes the correct keywords for implementing your change (i.e., "storesoverlaysfiles" for including an <a href="stores_overlays.html" target="_blank">overlay file</a>)</em>.</li>
+
+<br />
+
+<li>Create a batch file in the external hard drive / thumb drive. <em>Make sure that the batch file running the HERMES simulation contains a line of code in <font size="2" face="courier new">hermes_data_path</font> that will lead the computer to look in your alternate computer drive.</em> Place this line of code at the <em>front</em> of hermes_data_path, to ensure that HERMES looks for this particular folder before any other folder. This is useful, especially when the file of interest <i>may</i> be named in the same convention as baseline files.
+
+<pre>
+set path=C:\Python27;%path%
+set hermes_data_path=<strong>"I:\running_HERMES_on_batch_file"</strong>;"C:\Documents and Settings\leestudent\desktop\vmi\hermes2\master_data\niger";"C:\Documents and Settings\leestudent\desktop\vmi\hermes2\master_data\Unified";
+"C:\Documents and Settings\leestudent\desktop\vmi\hermes2\main.py" niger_input.kvp --out=niger_extracoldroom >> niger_extracoldroom_error.txt 2>&1
+</pre>
+
+In the sample script above, it can be seen that the bolded line refers to a completely different drive (in this case, a folder named "running_HERMES_on_batch_file" located on a thumb drive in the "I:\" drive).<br />The order in which this batch file will search for folders is:
+<ul>
+<li>the "running_HERMES_on_batch_file" folder that is present on the thumbdrive, which contains scenario-specific model input files</li>
+<li>the "master_data\niger" folder, which contains Niger-specific model input files</li>
+<li>the "master_data\unified" folder, which contains model input files shared among multiple country models</li>
+</ul>
+Also, note that there is <em>no</em> <font face="courier new" size="2">cd ...</font> command in this batch file. This indicates that the batch file will be run in the same folder as where its outputs come out.
+</li>
+
+<br />
+
+<li>Make sure that your input KVP file resides in your thumbdrive, if you have some input KVP file which has a file name matching a baseline input kvp model (i.e., both your and the default Niger model input.kvp file have the file name, "niger_input.kvp").</li>
+
+<br />
+<li>Execute the batch file in the thumb drive. Assuming that you have set up everything properly, the batch file will then initialize and start running the model. The batch file will first read the input files on the external/thumb drive, before reading the other input files in HERMES. <em>Note that the output files will be created in the same folder from the input files.</em></li>
+</body>
+</html>

@@ -1,0 +1,91 @@
+Notes on Internationalization:
+Written by Shawn Brown <stbrown@psc.edu> 7/23/2013
+
+The internationalization of the HERMES GUI is mainly an organizational task.  New implements are as follows:
+
+i18n.py:
+
+This contains the i18n.py class that handles all of the internationalization functions.  
+
+The class looks at the src/ui_server/locales
+
+Inside this directory, there will be several directories, one for each locale the HERMES GUI supports.  As of writing this README, there is a directory for en_US (US version of English) and fr_FR (formal French).
+
+The directory structure is as follows:
+
+locale
+   |
+   |
+   ____<local name>
+		|
+		|
+		______LC_MESSAGES
+				|
+				|___HERMES_UI.po
+				|
+				|___HERMES_UI.mo
+
+
+The HERMES_UI.po file is a text file that is extracted from all of the source files and has the actual text translations.  The HERMES_UI.mo file is a compiled binary file.
+
+To create this structure, I am using a program called poEdit, available at: http://www.poedit.net/
+
+I will place directions on the wiki for setting up poEdit with a clean installation.
+
+The .po files are to be checked into the repository, the .mo files will have to be compiled.
+
+To compile the .mo files, one can install the python package 'zest.pocompiler', and then simply in the ui_server directory type 'pocompile'. Then all of the mo files should be generated for your architecture and you can move forward.
+
+Current Capability:
+
+There is a select box on all of the pages that use outer_wrapper.tpl to display that allows one to change the language.  A dialog box comes up to warn the user that changing the language might erase unsaved work, this happens if the page is moving through a large set of javascript functions, such as those on "Developers" tab.
+
+Needed Packages:
+gettext
+zest.pocompile
+
+These are available through pip and easy_install.
+
+Notes on internationalizing files:
+
+in Python:
+
+It is trivial, one needs to add the following lines to the code at import time:
+
+import i18n
+import gettext
+
+inlizer = i18n.i18n('locale')
+_=inlizer.translateString
+
+
+Then when one wants a sting to be internationally mutable, you wrap it in _().
+
+If you have a formated string, you cannot use the % nomenclature for formatting.  You need to go to the following syntax:
+
+"This string should display {0}".format(stringToDisplay)
+
+it becomes:
+
+_("This string should display {0}").format(stringToDisplay)
+
+
+in Bottle Templates, you need to add the following variables to the template call in python:
+
+bottle.template("template.tpl",....,_=_,inlizer=inlizer)
+
+then in the template file, if you call any rebase, you need to add these variables as well to pass them allong the template change.
+
+inside the template, you can wrap the call in:
+
+{{_()}}
+
+If you are in the Javascript portions, you have to make sure that the quotation marks are preserved, so if you have the string in Javascript:
+
+"Name"
+
+it becomes:
+
+"{{_('Name')}}"
+
+

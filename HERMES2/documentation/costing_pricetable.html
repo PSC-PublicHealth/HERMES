@@ -1,0 +1,104 @@
+<html>
+<head>
+<title>Costing Price Table</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+
+<body>
+<h1>Costing Price Table</h1>
+<p><em>These notes were written on May 17<sup>th</sup>, 2012 and May 21<sup>st</sup>, 2012.</em></p>
+
+<p>In order to implement the costing calculations in HERMES, a "price table" with different categories has been implemented. So far, this table only exists in the <font face="courier new" size="2">/data/tinytest</font> model, but will be soon implemented in all HERMES models. 
+
+<p>As mentioned in <a href="../dev_docs/CostCalculations.html" target="_blank">the development docs for CostCalculations</a>, certain items contribute to certain costs and not to other cost types. To save both computing power and time, only those which significantly contribute to costs are used within each cost type. (More information on the cost breakdown can be found in the development document linked above.)</p>
+
+<p>Specific notes about the cost calculations, as taken from the above development docs:
+<ol>
+<li>Costs come in four categories:
+<ul>
+    <li><b>Transport costs</b>, including truck mileage costs, driver per diem costs, truck per-trip costs (which might represent rental costs).</li>
+    <li><b>Storage costs</b>, including amortization and fuel costs for refrigerators, either on trucks or in warehouses.</li>
+    <li><b>Labor costs</b>, including driver salary (but not per diem) and warehouse/clinic worker salary.</li>
+    <li><b>Building costs</b>, including rent associated with warehouses.</li>
+</ul></li>
+<li>Transport costs come only from shipping processes, and are associated with specific trips (so that if no trips are made, transport costs are zero)</li>
+<li>Driver per diem (an added monetary cost implemented per each day en route) is a transport cost, and that different coutries use different algorithms to calculate per diem days. The general rules applying to per diems for the relevant existing models is below:</li>
+<ul>
+    <li><b>Senegal</b>: per diem is applied to a trip, to all people involved, only if that trip takes over a day (~8 hours of travel time). With regard to region-to-district trips, per diems are applied to trips going to all districts <i>except</i> for Saint-Louis. For any Saint-Louis trip, <i>no</i> per diem is applied.</li>
+    <li><b>Niger</b>: per diem is applied to each trip taken to all people involved, regardless of the trip length.</li>
+    <li><b>Chad</b>: per diem is paid to both the logistician and driver, only if the trip takes more than one day.</li>
+    <li><b>Benin</b>: per diems are paid if A) a trip either is over 100 km or if B) a trip is overnight (i.e., takes more than one day). A trip that is over 100 km <i>and</i> is overnight will incur two per diems.  Conversely, no per diems are applied if a trip is under 100 km.
+</ul></li>
+<li>Storage costs come from refrigerators and are calculated only at the start and end of the costing interval. In theory a refrigerator which is not operating would incur no fuel costs, but we do not check for intervals of non-operation.</li>
+<li>Labor costs for health workers are assumed to accrue only on days in which the associated clinic is open- while they are salaried employees, they are presumably being paid to do something else when the clinic is closed. Likewise, labor costs for drivers are assumed to apply only during trips, as if they were doing something else at other times.</li>
+<li>We don't know much about Building costs, except that they are associated directly with Warehouses and Clinics and are proportional to time.</li>
+</ol>
+
+<p>To implement a costing model price table, the line <b><font face="courier new" size="2">pricetable = </font></b> must be specified in the input file. The price table can be implemented with other model data files in either <font size="2" face="Courier New">/master_data/</font> or <font face="Courier New" size="2">/data/</font>.</p>
+
+<p>If the cost table is implemented in HERMES, the columns 'Name', 'Currency', 'PerKm', 'PerTrip', 'PerTreatmentDay', 'PerYear', 'PerVial' and 'PerDiem' <u>MUST</u> be filled out in the costing table if the specific field applies to the item being costed. <i>Optional</i> columns are 'Notes', 'Level' and/or 'Conditions'.</p>
+
+<p>The fields needed to populate the price table can be found below, as read from left to right in the Costs table.</p> 
+
+<font face="courier new" size="2"><p><u>Auxillary Notes</u>:</p>
+<p>In the HERMES application program interface (API), refer to module <b>costmodel</b>, class <b>Price Table</b> to obtain specific user data (including Python code) for the costing price table. This can be found <a href="https://repo.midas.psc.edu/hermes/api/costmodel.PriceTable-class.html" target="_blank">here</a>.</p>
+<p>(<em>Notes: Kerberos login will be necessary to access this document, and access may not be granted to all members of the hermes listhost.</em>)
+</p></font>
+
+<h2>Costing Price Table Fields</h2>
+<p>Note: definitions for floating point numbers ("float", "floating point number") and string values (text) can be found <a href="quickstart_commandline.html" target="'_blank">here</a> (<i>opens in a new window</i>).</p>
+
+<table>
+ <tr><th align="left">FIELD</th><th align="left">Definition, Field Type and Type Usage</th></tr>
+ <tr>
+  <td align="left"><font face="courier new">Name</font></td>
+  <td align=”left”>Describes the name of the object being costed. Can be either a cold device (i.e., refrigerator, vaccine carrier), transport vehicle (i.e., "N_cold_truck"), personnel type (i.e., driver, healthworker), vaccine type or building (referred to here as "building"). <i>If applicable, values must match what is listed in the relevant Stores file.</i> Must be repeated for every level at which a cost is repeating -- so, for example, if costs needed to be determined for drivers at four different levels of the supply chain (central, regional, district, health clinic), the term"driver" would be repeated four times in "names" (for a total of four rows), with different values assigned to each row instance of "driver". This value is written as a text string, using either letters, numbers, underscores (and in some cases, spaces).<br />
+  </td>
+ </tr>
+ <tr>
+  <td align="left"><font face="courier new">Currency</font></td>
+  <td align="left">Lists the currency type used to cost the specific item. A currency conversion table will be introduced that can convert most currencies into USD. Currencies can either be written through typing their names into the table (i.e., "baht", "dollars") or by using their <a href="http://en.wikipedia.org/wiki/ISO_4217" target="_blank">ISO 4217 currency code</a> (i.e., "THB", "USD"). It appears that a single model can use multiple currencies. (For Thailand, items can either be placed in baht and dollars, and the model will output total costs in US$). As of right now, currencies should be single words, but this syntax may change as new currencies are introduced into the table. Takes the value of a text string.</td>
+ </tr>
+ <tr>
+  <td align="left"><font face="courier new">PerKm</font></td>
+  <td align="left">Denotes the cost of an item, as applied per each kilometer traveled. Applicable to transport vehicles. Takes a value of a floating point number.</td>
+ </tr>
+ <tr>
+  <td align="left"><font face="courier new">PerYear</font></td>
+  <td align="left">Denotes the cost of an item, as applied through the costs incurred in a single year. Applicable to transport vehicles, drivers, buildings and cold devices. This field is NOT applicable to healthcare workers. Takes a value of a floating point number.</td>
+ </tr>
+ <tr>
+  <td align="left"><font face="courier new">PerTrip</font></td>
+  <td align="left">Denotes the cost of an item, as applied to a single trip taken either between locations or within a shipping loop (preferred). Used for transport vehicles. Takes a value of either an integer or a floating point number.</td>
+ </tr>
+ <tr>
+  <td align="left"><font face="courier new">PerTreatmentDay</font></td>
+  <td align="left">Denotes the cost of an item, as applied to a single day of treatment. This field is mostly applicable to healthcare workers, whose salaries depend on the number of treatment days which they work. Takes the value of a floating point number.</td>
+ </tr>
+ <tr>
+  <td align="left"><font face="courier new">PerDiem</font></td>
+  <td align="left">Denotes the "per diem" (basically, a "daily cost") applied to a particular process. It is used for vehicle drivers, whose salary depends on the number of days driven. (The rules for existing country models can be seen above.) Takes the value of a floating point number.</td>
+ </tr>
+<tr>
+  <td align="left"><font face="courier new">PerVial</font></td>
+  <td align="left">Denotes the cost applied per vial of vaccine used. Applicable mostly to the vials of either EPI (baseline) or new vaccines being introduced in a particular simulation. Takes the value of a floating point number.</td>
+ </tr>
+<tr>
+  <td align="left"><font face="courier new">Level</font></td>
+  <td align="left">Denotes the level in which a certain cost can be applied. Each row, as dictated by "Name" (first column in the PriceTable), must indicate a seperate level in "Level" if costs are going to be implemented at different levels. If this column is left blank, it indicates that the cost can be used at <i>all</i> levels of the supply chain. Name must specifically those that match the column "CATEGORY" (as denoted in the Stores file) of the model you want to run. (e.g. "Central", "District", "Integrated Health Center" <i>Capitalization must match.</i> Takes the value of a text string.</td>
+ </tr>
+<tr>
+  <td align="left"><font face="courier new">Conditions</font></td>
+  <td align="left">Denotes the specific conditions which may affect the costing of a particular object or process, and manipulates costing processes accordingly. For example, some conditions could be "soggy" or "muddy", "expensive" or "cheap". If this column is left blank, it is assumed that the cost undergoes normal conditions. <u>If implemented in the costing table,  the "conditions" column must have an additional "Conditions" column in the Stores file, Routes file and all applicable model files.</u> If this is not done, the model may error out or not take the specified conditions into consideration. Values in this column utilize a value of a text string.</td>
+ </tr>
+<tr>
+  <td align="left"><font face="courier new">Notes</font></td>
+  <td align="left">Allows for specific notes to be included about the situations specified in the costing table. Value here can take numbers, letters, underscores <i>and</i> spaces. This column takes text string values.</td>
+ </tr>
+</table>
+
+<br />
+
+</body>
+
+</html>

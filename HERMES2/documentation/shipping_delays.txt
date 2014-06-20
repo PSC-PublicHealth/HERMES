@@ -1,0 +1,67 @@
+Overview of using shipping delays:
+
+Shipping delays can occur before or after the vaccines are picked up 
+from a warehouse (or both).  They can be added in the input file and 
+overridden or created on a per route basis in the routes file.
+
+To enable shipping delays in the input file use the following fields:
+        pickupdelayfrequency:
+                frequency of shipping delay incurred before 
+                transport starts (0.0-1.0)
+        pickupdelaymagnitude:
+                magnitude in days of shipping delays
+	pickupdelaysigma:
+		if this value exists and is non-zero use 
+		a normal distribution the shipping delay 
+		with this value as the standard deviation
+	pickupdelayreorder:
+		only meaningful on pull shipments.  
+		Defaults to FALSE.  If TRUE allows the 
+		order to be recalculated after the pickup
+		delay completes.
+
+        deliverydelayfrequency:
+                frequency of shipping delay incurred during 
+                transport (0.0-1.0)
+        deliverydelaymagnitude:
+                magnitude in days of shipping delays
+	deliverydelaysigma:
+		if this value exists and is non-zero use 
+		a normal distribution the shipping delay 
+		with this value as the standard deviation
+
+
+To enable or override shipping delays on a per route basis add
+any or all of the following fields to the routes file:
+        PickupDelayFrequency 
+        PickupDelayMagnitude
+	PickupDelaySigma 
+	PickupDelayReorder
+        DeliveryDelayFrequency 
+        DeliveryDelayMagnitude
+	DeliveryDelaySigma 
+and fill them in with the corresponding values.  These values 
+are only read from the supplier's (RouteOrder:0) line of the      
+routes file.
+
+The how the duration of the delay is calculated is based
+on whether *sigma exists for that route.  If it exists
+the duration of the delay is a normal distribution with
+*magnitude for the average number of days and *sigma for 
+the standard deviation.  Otherwise the duration is 
+rand() * magnitude days.
+
+If the calculated delay is less than 0 it becomes 0.
+
+Delays are not implemented if *magnitude is 0 even though
+this might be meaningful for a normal distribution (use 
+something like 0.01 instead).
+
+As stated above *reorder is only meaningful on pickup of 
+pull shipments.  If *reorder is set then the order is 
+recalculated after the shipping delay occurs.
+
+if a delay occurs the following is printed in the debug output:
+        <routeprocessname>: shipment is delayed by <days> days 
+or
+        <routeprocessname>: shipment is delayed en route by <days> days

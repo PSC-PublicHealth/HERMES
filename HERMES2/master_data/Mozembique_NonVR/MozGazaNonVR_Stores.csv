@@ -1,0 +1,134 @@
+CATEGORY,FUNCTION,NAME,idcode,Device Utilization Rate,UseVialsLatency,UseVialsInterval,Latitude,Longitude,Newborn,0-11months,PW,Conditions,Inventory
+National,Distribution,Maputo National Store,100000,1,0,0,0,0,,,,,M_National_WICR1+M_National_WICR2+M_National_WICR3+M_National_WICR4+M_National_WICR5+M_National_WIFR_1+M_National_WIFR_2+2*M_TCW3000_2009_E+M_TCW3000_2012_E
+Province,Distribution,Gaza,120000,1,0,0,0,0,,,,,M_MF214_2008_E+M_MK304_2008_E+2*M_SB302_2010_S+M_TC883_2010_E+M_TCW2000_2010_E+4*M_TCW3000_2005_E+M_Hilux_Gaza
+Province,Surrogate,OtherProvs,130000,1,4,60,0,0,894672,872311,1118362,,
+District,Distribution,Bilene,120100,1,0,0,0,0,,,,,2*M_RCW50AC_2009_E+M_truck_Bilene+M_moto_Bilene
+Health Center,Administration,C.S.Chissano,120101,1,1,1,-24.6369,33.1778,899,877,1124,,M_RCW50EGCF_2009_E
+Health Center,Administration,C.S.Licilo,120102,1,1,1,-23.4281,32.5547,684,667,855,,M_RCW50DCCF_2011_S+M_RCW42EKCF_2009_G
+Health Center,Administration,C.S.Mangol,120103,1,1,1,0,0,108,105,135,,M_RCW42EKCF_2006_G+M_RCW50DC_2011_G+M_bike_Bilene
+Health Center,Administration,C.S.Mazivila,120104,1,1,1,-24.8011,33.8158,564,550,705,,M_RCW42EKCF_2011_E+M_bike_Bilene
+Health Center,Administration,C.S.Messano,120105,1,1,1,-25.0075,33.7878,864,842,1079,,M_RCW50AC_2009_E
+Health Center,Administration,C.S.Momonha,120106,1,1,1,0,0,180,175,225,,M_RCW50DCCF_2008_S+M_RCW42EKCF_2011_G
+Health Center,Administration,C.S.Olombe,120107,1,1,1,0,0,384,374,480,,M_RCW50DCCF_2011_S 
+Health Center,Administration,C.S. Bilene Sede,120108,1,1,1,0,0,2639,2573,3299,,
+Health Center,Administration,C.S.Tuane,120109,1,1,1,0,0,96,94,120,,M_RCW50DC_2011_G+M_RCW50DCCF_2009_S+M_bus_Bilene
+District,Distribution,Chibuto,120200,1,0,0,0,0,,,,,M_RCW50AC_2009_E+M_RCW50AC_2010_E+M_truck_Chibuto+M_moto_Chibuto
+Health Center,Administration,C.S. Chaimite,120201,1,1,1,-24.6722,34.0692,1149,1121,1437,,M_RCW50EK_2008_G+M_RCW50EK_2009_G
+Health Center,Administration,C.S. Changanine,120202,1,1,1,-24.5947,34.3961,368,359,460,,M_RCW50DCCF_2008_S
+Health Center,Administration,C.S. Chimundo,120203,1,1,1,-24.6794,33.0169,210,204,262,,M_RCW50EK_2008_G +M_Walk
+Health Center,Administration,C.S. Chipadja,120204,1,1,1,-24.6881,33.2586,321,313,401,,M_RCW50DCCF_2008_S+M_bike_Chibuto
+Health Center,Administration,C.S. Cidade de Chibuto,120205,1,1,1,-24.7961,34.1875,2369,2309,2961,,M_RCW50AC_2009_E+M_Walk
+Health Center,Administration,C.S. Meboi,120206,1,1,1,0,0,283,276,354,,M_RCW50EG_U_S+M_bus_Chibuto
+Health Center,Administration,C.S. Nwavaquene,120207,1,1,1,-24.17,32.6411,280,273,350,,M_RCW50DCCF_2008_S+M_bus_Chibuto
+Health Center,Administration,C.S. Vila do Milénio,120208,1,1,1,0,0,492,479,615,,M_RCW50AC_2009_E
+Health Center,Administration,C.S.Alto Changane,120209,1,1,1,-24.6858,33.9664,264,257,330,,M_RCW50DC_2008_G
+Health Center,Administration,C.S.Maivene,120210,1,1,1,-24.6625,33.3458,55,54,69,,M_RCW50DCCF_2010_S
+Health Center,Administration,C.S.Malehice,120211,1,1,1,-24.6681,33.0953,1647,1606,2059,,M_RCW50EK_2006_G
+Health Center,Administration,C.S.Maqueze,120212,1,1,1,0,0,439,428,548,,M_RCW50DC_2011_G
+Health Center,Administration,C.S.Muxaxane,120213,1,1,1,-24.5858,33.0639,249,242,311,,M_RCW50DCCF_2010_S+M_bus_Chibuto
+District,Distribution,Chicualacuala,120300,1,0,0,0,0,,,,,M_RCW50DCCF_2008_S+M_moto_Chic+M_truck_Chic
+Health Center,Administration,C.S.Chidulo,120301,1,1,1,0,0,60,58,75,,M_RCW50DCCF_2008_S
+Health Center,Administration,C.S.Lithatha,120302,1,1,1,-24.4286,32.8425,143,140,179,,M_RCW50DCCF_2008_S+M_bike_Chic
+Health Center,Administration,C.S.Mahathane,120303,1,1,1,0,0,176,172,220,,2*M_RCW50DCCF_2011_S 
+Health Center,Administration,C.S.Mapai Ngala,120304,1,1,1,0,0,143,140,179,,M_RCW50DCCF_2008_S
+Health Center,Administration,C.S.Mapai -Sede,120305,1,1,1,0,0,516,503,645,,M_RCW50DCCF_2008_S
+Health Center,Administration,C.S.Mepúzi,120306,1,1,1,0,0,72,70,90,,M_CF491S_2011_S
+Health Center,Administration,C.S.Pafúri,120307,1,1,1,0,0,84,82,105,,M_RCW50DCCF_2011_S 
+Health Center,Administration,C.S. Chicualacuala Sede,120308,1,1,1,0,0,504,491,630,,
+District,Distribution,Chigubo,120400,1,0,0,0,0,,,,,M_RCW50DCCF_2008_S+M_moto_Chigubo+M_truck_Chigubo
+Health Center,Administration,C.S.Cubo,120401,1,1,1,0,0,87,85,109,,M_RCW50DCCF_2008_S
+Health Center,Administration,C.S.Dindiza,120402,1,1,1,0,0,243,237,304,,
+Health Center,Administration,C.S.Machaila,120403,1,1,1,-24.7042,33.7042,195,190,243,,M_RCW50DCCF_2008_S
+Health Center,Administration,C.S.Nhanale,120404,1,1,1,-24.9478,33.7536,195,190,243,,M_RCW50DCCF_2008_S
+Health Center,Administration,C.S.Saúte,120405,1,1,1,0,0,99,97,124,,M_RCW50DCCF_2008_S
+Health Center,Administration,C.S.Zinhane,120406,1,1,1,-24.806,33.7406,170,166,212,,M_RCW50DCCF_2009_S
+District,Distribution,Chókwè ,120500,1,0,0,0,0,,,,,M_RCW50AC_2010_E+M_truck_Chokwe+M_moto_Chokwe
+Health Center,Administration,C.S. Chokwe Sede,120501,1,1,1,0,0,2142,2088,2677,,
+Health Center,Administration,C.S. 3º Bairro,120502,1,1,1,0,0,67,66,84,,M_RCW50EG_U_S+M_bus_Chokwe
+Health Center,Administration,C.S. Hokwe,120503,1,1,1,-21.9694,32.1147,542,529,678,,M_RCW50AC_2008_E
+Health Center,Administration,C.S.Chalucuane,120504,1,1,1,0,0,1005,980,1256,,M_RCW42EKCF_2009_G
+Health Center,Administration,C.S.Chiaquelane,120505,1,1,1,0,0,173,168,216,,M_RCW50DCCF_2008_S+M_bus_Chokwe
+Health Center,Administration,C.S.Chilembene,120506,1,1,1,0,0,731,713,914,,M_RCW50AC_2009_E
+Health Center,Administration,C.S.Conhane,120507,1,1,1,-24.8606,33.2836,173,169,216,,M_RCW50AC_2009_E+M_bike_Chokwe
+Health Center,Administration,C.S.Cumba,120508,1,1,1,0,0,22,21,27,,M_RCW50DCCF_2008_S+M_bus_Chokwe
+Health Center,Administration,C.S.Lionde,120509,1,1,1,-24.5394,32.7508,573,559,716,,M_RCW50AC_2009_E
+Health Center,Administration,C.S.Machua,120510,1,1,1,-24.6339,33.8375,98,96,123,,M_RCW50DCCF_2008_S
+Health Center,Administration,C.S.Manjangue,120511,1,1,1,-24.9578,33.2169,811,790,1013,,M_RCW50EK_2009_G
+Health Center,Administration,C.S.Mapapa,120512,1,1,1,0,0,311,303,389,,M_RCW42EKCF_2002_G+M_bus_Chokwe
+Health Center,Administration,C.S.Massavasse,120513,1,1,1,0,0,154,150,193,,M_RCW42EKCF_2006_G+M_bike_Chokwe
+Health Center,Administration,C.S.Muianga,120514,1,1,1,0,0,118,115,148,,M_RCW50AC_2011_E+M_bus_Chokwe
+Health Center,Administration,C.S.Nwachicolane,120515,1,1,1,0,0,149,145,186,,M_RCW50AC_2008_E+M_bus_Chokwe
+Health Center,Administration,C.S.Thawene,120516,1,1,1,0,0,57,56,51,,M_RCW50DCCF_2011_S 
+District,Distribution,Cidade de Xai-Xai,120600,1,0,0,0,0,,,,,M_TCW3000_2005_E+M_RCW42EKCF_2008_E
+Health Center,Administration,C.S.Cidade de Xai-xai,120601,1,1,1,0,0,2384,2324,2980,,
+Health Center,Administration,C.S.Marien Ngouby,120602,1,1,1,0,0,886,863,1107,,M_TCW1990_2010_G+M_Walk
+Health Center,Administration,C.S.Patrice Lumumba,120603,1,1,1,-25.0297,33.0922,983,958,1229,,M_RCW42EKCF_2010_E+M_TCW3000_2005_E+M_Walk
+Health Center,Administration,C.S.Praia,120604,1,1,1,-22.8467,31.9656,246,240,308,,M_RCW42EKCF_2010_G+M_Walk
+Health Center,Administration,C.S.Unidade 7,120605,1,1,1,0,0,344,336,431,,M_RCW50AC_2008_E+M_Walk
+District,Distribution,Guijá,120700,1,0,0,0,0,,,,,M_RCW50EK_2009_G+M_truck_Guija+M_moto_Guija
+Health Center,Administration,C.S. Mpelane,120701,1,1,1,0,0,478,466,597,,M_CF491S_2009_S
+Health Center,Administration,C.S.Chibabel,120702,1,1,1,0,0,824,804,1031,,M_RCW50AC_2008_E
+Health Center,Administration,C.S.Chimbembe,120703,1,1,1,0,0,219,213,273,,M_RCW50DC_2009_G
+Health Center,Administration,C.S.Chinhacanine,120704,1,1,1,0,0,404,394,505,,M_RCW50AC_2009_E
+Health Center,Administration,C.S.Chivonguene,120705,1,1,1,0,0,236,230,294,,M_RCW50DC_2008_G+M_bike_Guija
+Health Center,Administration,C.S.Mubanguene,120706,1,1,1,0,0,168,164,210,,M_RCW42EKCF_2009_E+M_bike_Guija
+Health Center,Administration,C.S.Nalazi,120707,1,1,1,0,0,485,472,606,,M_CF491S_2008_S
+Health Center,Administration,C.S. Guija Sede,120708,1,1,1,0,0,552,538,690,,
+District,Distribution,Mabalane,120800,1,0,0,0,0,,,,,M_RCW42EKCF_2009_G+M_RCW50DCCF_2008_S+M_truck_Mabalane+M_moto_Mabalane
+Health Center,Administration,C.S. Combomone,120801,1,1,1,0,0,281,274,351,,M_RCW50DCCF_2010_S
+Health Center,Administration,C.S. Macarale,120802,1,1,1,0,0,147,143,183,,M_RCW50DCCF_2011_S
+Health Center,Administration,C.S.Mabalane,120803,1,1,1,-24.2889,33.5661,381,371,476,,
+Health Center,Administration,C.S.Mabomo,120804,1,1,1,0,0,223,217,279,,M_NLR40_2011_G
+Health Center,Administration,C.S.Nhimbayiwe,120805,1,1,1,0,0,167,163,209,,M_RCW50DCCF_2011_S+M_bike_Mabalane
+Health Center,Administration,C.S.Pfukwe,120806,1,1,1,0,0,126,123,158,,M_RCW50DCCF_2008_S
+Health Center,Administration,C.S.Tsocate,120807,1,1,1,-24.5875,33.2331,87,85,109,,M_RCW50DCCF_2009_S
+District,Distribution,Manjacaze,120900,1,0,0,0,0,,,,,3*M_RCW50AC_2009_E+M_moto_Manjacaze+M_truck_Manjacaze
+Health Center,Administration,C.S.Manjacaze,120901,1,1,1,0,0,1214,1183,1517,,
+Health Center,Administration,C.S. Mangunze,120902,1,1,1,-24.5731,33.7569,313,305,392,,M_RCW50DC_2008_G+M_RCW50EK_2008_G+M_bike_Manjacaze
+Health Center,Administration,C.S.Banguene,120903,1,1,1,0,0,178,174,223,,M_RCW50AC_2009_G+M_RCW50EK_2006_G+M_bike_Manjacaze
+Health Center,Administration,C.S.Betula,120904,1,1,1,-24.3667,33.2028,364,355,455,,M_RCW50DC_2008_G 
+Health Center,Administration,C.S.Chibondzane,120905,1,1,1,-24.5115,33.1033,402,392,503,,M_RCW50DCCF_2008_S
+Health Center,Administration,C.S.Chicavane,120906,1,1,1,0,0,182,178,228,,M_RCW50AC_2009_G 
+Health Center,Administration,C.S.Chidenguele,120907,1,1,1,-24.2375,32.8375,1154,1125,1443,,M_RCW50EK_2006_G
+Health Center,Administration,C.S.Cucuine,120908,1,1,1,-23.8122,32.0439,319,311,399,,M_RCW42EKCF_2009_E
+Health Center,Administration,C.S.Denguine,120909,1,1,1,0,0,406,396,508,,M_RCW50DC_2008_G
+Health Center,Administration,C.S.Incadine,120910,1,1,1,-24.0498,33.3274,309,301,386,,M_RCW42EKCF_2009_G
+Health Center,Administration,C.S.Laranjeiras,120911,1,1,1,0,0,221,216,277,,M_RCW50EG_2009_S+M_bike_Manjacaze
+Health Center,Administration,C.S.Macasselane,120912,1,1,1,-23.9192,32.0303,311,303,389,,M_RCW50AC_2009_G+M_bike_Manjacaze
+Health Center,Administration,C.S.Macuacua,120913,1,1,1,-24.0314,32.4344,366,357,458,,M_RCW50AC_2008_E
+Health Center,Administration,C.S.Macupulane,120914,1,1,1,-24.5919,33.1628,362,353,452,,M_RCW50DC_2009_G+M_bike_Manjacaze
+Health Center,Administration,C.S.Manhique,120915,1,1,1,-22.7322,32.0608,232,226,290,,M_CF491S_2011_S
+Health Center,Administration,C.S.Matsinhane,120916,1,1,1,0,0,222,216,277,,M_RCW50EK_2009_G+M_bike_Manjacaze
+Health Center,Administration,C.S.Mausse,120917,1,1,1,-23.8564,32.2242,267,260,334,,M_RCW50AC_2009_G+M_bike_Manjacaze
+Health Center,Administration,C.S. Messavelene,120918,1,1,1,0,0,233,227,291,,M_RCW50DC_2009_G
+Health Center,Administration,C.S.Muzamane,120919,1,1,1,0,0,276,269,346,,M_RCW50AC_2008_E+M_Walk
+Health Center,Administration,C.S.Tavane,120920,1,1,1,-24.8144,33.1331,411,400,513,,M_RCW50AC_2008_G
+District,Distribution,Massangena,121000,1,0,0,0,0,,,,,M_RCW50DCCF_2009_S+M_TCW1990_2010_G+M_truck_Massengena+M_moto_Massengena
+Health Center,Administration,C.S. Mucambene,121001,1,1,1,0,0,142,138,177,,M_RCW50DCCF_2011_S
+Health Center,Administration,C.S.Mavué,121002,1,1,1,0,0,128,125,160,,M_RCW50DCCF_2008_S
+Health Center,Administration,C.S.Massengena Sede,121003,1,1,1,0,0,397,387,497,,
+District,Distribution,Massingir,121100,1,0,0,0,0,,,,,M_RCW50EGCF_2008_E+M_moto_Massingir+M_truck_Massingir
+Health Center,Administration,C.S. Zulo,121101,1,1,1,0,0,153,149,191,,M_RCW50DCCF_2009_S
+Health Center,Administration,C.S.Cubo,121102,1,1,1,0,0,105,103,132,,M_RCW50DCCF_2011_S+M_bike_Massingir
+Health Center,Administration,C.S.Macarringue,121103,1,1,1,0,0,196,191,245,,M_RCW50DCCF_2010_S
+Health Center,Administration,C.S.Machamba,121104,1,1,1,0,0,50,48,62,,M_RCW50DCCF_2009_S
+Health Center,Administration,C.S.Massingir Chibotane,121105,1,1,1,-23.8392,32.5297,139,135,173,,M_RCW50AC_2008_E+M_bus_Massingir
+Health Center,Administration,C.S.Mavodze,121106,1,1,1,0,0,238,232,297,,M_RCW50DCCF_2008_S
+Health Center,Administration,C.S.Mucatine,121107,1,1,1,0,0,156,152,195,,M_RCW50DCCF_2008_S
+Health Center,Administration,C.S.Massingir Sede,121108,1,1,1,0,0,268,262,335,,
+District,Distribution,Xai-Xai Distrito,121200,1,0,0,0,0,,,,,M_RCW42EKCF_2010_E+M_RCW50AC_2008_E+M_TCW3000_2005_E+M_moto_XaiXai+M_truck_XaiXai
+Health Center,Administration,C.S.Banhine,121201,1,1,1,0,0,418,407,522,,M_CF491S_2009_S
+Health Center,Administration,C.S.Bungane,121202,1,1,1,-24.3628,32.9033,448,436,559,,M_RCW50DC_2010_G
+Health Center,Administration,C.S.Chilaulene,121203,1,1,1,-24.8922,33.7306,219,214,274,,M_RCW50DCCF_2008_S+M_bus_XaiXai
+Health Center,Administration,C.S.Chipenhe,121204,1,1,1,-24.9333,33.3628,1022,996,1277,,M_RCW42EKCF_2008_G
+Health Center,Administration,C.S.Chongoene,121205,1,1,1,0,0,680,663,850,,2*M_RCW42EKCF_2009_G
+Health Center,Administration,C.S.Julius Nyerere,121206,1,1,1,-23.4575,33.4253,1251,1220,1564,,M_RCW50EK_2009_G
+Health Center,Administration,C.S.Maciene,121207,1,1,1,-22.2653,32.5283,277,270,346,,M_RCW50AC_2010_E
+Health Center,Administration,C.S.Ndambine,121208,1,1,1,0,0,630,614,787,,M_RCW50EK_2010_G+M_Walk
+Health Center,Administration,C.S.Nhacutse,121209,1,1,1,0,0,825,805,1031,,M_RCW50EK_2009_G+M_RCW42EKCF_2009_G
+Health Center,Administration,C.S.Nhamavila,121210,1,1,1,0,0,453,442,567,,M_RCW50DCCF_2011_S
+Health Center,Administration,C.S.Chicumbane Sede,121211,1,1,1,0,0,1511,1473,1888,,
+Health Center,Administration,C.S.Siaia,121212,1,1,1,-22.5461,32.4631,739,720,924,,M_RCW50EK_2010_G
+Health Center,Administration,C.S.Vladimir Lenine,121213,1,1,1,0,0,250,244,312,,M_RCW50DCCF_2006_S+M_Walk
+Health Center,Administration,C.S.Zimilene,121214,1,1,1,0,0,167,163,209,,M_RCW50DCCF_2009_S+M_bus_XaiXai
+Health Center,Administration,C.S.Zongoene,121215,1,1,1,0,0,775,756,969,,M_RCW42EKCF_2010_G +M_RCW50DCCF_2006_S+M_bus_XaiXai

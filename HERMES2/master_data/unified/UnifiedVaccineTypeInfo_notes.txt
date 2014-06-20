@@ -1,0 +1,22 @@
+The original source for this document was "Vaccine Presentations Niger
+EPI 2008.xls".
+
+Storage type information was added from "Vaccine storage.xlsx"
+
+Storage lifetime information was added from "Vaccine Presentations
+Niger EPI 2008 6.10.09.xls".  Where an interval was given, I've used
+the middle of the interval.  That value goes in the column for the
+best storage category for that vaccine. For freeze dried vaccines, I
+have put a value in the "freezer" column which is only slightly less,
+since storage in the freezer is not advised but seems to be
+non-harmful.  For oral polio, since it seems to survive for a while at
+the clinic level where it is stored in the cooler, I assumed it has
+2 months' lifetime in that environment.  Entries for which the
+times are negative are those for which I don't have good values, but I
+know which storage medium is best.  (Best is greatest absolute value).
+
+I got initial information on Meningococcal Rotavirus (freeze-dried
+and liquid) and Pneumococcal from "Vaccine_Volume_Calculator_2009.xls".
+
+Tina supplied some restrictions on what can and cannot be frozen in an
+email conversation on 20100107.

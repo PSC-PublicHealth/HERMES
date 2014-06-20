@@ -1,0 +1,9 @@
+CATEGORY,FUNCTION,NAME,idcode,Walk in -(lit), Walk in +(lit),IGNORE VOL - (lit),IGNORE VOL + (lit),Newborn,0-11months,12-24months,PW,UseVialsLatency,UseVialsInterval,Storage,Notes,
+Central,Distribution,N'Djamena Central,10000000,6238,9714,,,,,,,0,7,,"Each pop. number is the total number of that particular group in the district divided by the number of health centers that have storage capacity, rounded up to the next integer",
+SubNational,Distribution,Moundou,10200000,0,2857,,,,,,,0,7,,,513
+District,Distribution,Moundou District,10201300,0,0,612,420,,,,,0,7,2*C_MF314+2*C_MK304+C_V170KE+C_V170GE+C_Brant_CF4915,690,
+Health Center,Administration,Bah,10201301,0,0,36,55,96,743,743,872,7,7,C_V170KE,592,
+District,Distribution,Laokassy,10201200,0,0,36,55,,,,,7,7,C_MF314+C_V170KE,,849
+Health Center,Administration,Baila Laoutaye,10201201,0,0,36,55,96,96,702,824,7,7,C_V170KE,,791
+District,Distribution,Benoye,10201100,0,0,336,142,,,,,7,7,C_MF314+2*C_V170KE,,
+Health Center,Administration,Bira Manda,10201106,0,0,36,55,96,552,552,665,7,7,C_V170KE,,

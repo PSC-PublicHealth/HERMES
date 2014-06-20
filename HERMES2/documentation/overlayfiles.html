@@ -1,0 +1,102 @@
+<html>
+<head>
+
+<title>Using Stores and Routes Overlay Files</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body bgcolor="white">
+
+<left><h1>Using Stores and Routes Overlay Files</h1></left>
+
+<p><em>These directions are current as of 1 March 2013.</em></p>
+
+<p><a href="stores_overlays.html" target="_blank">Previously</a>, instructions were written on how to use the stores file overlay system. As this previous documentation mentioned:
+
+<blockquote><em>The purpose of [an overlay file] is to allow people to have small or local changes to [an input] file without recreating the entire [input] file. This makes creating changes for experiments easier and obviates keeping [experimental input] files up to date after changes are made to the master data.</em></blockquote>
+
+<p>As of SVN r1093, the overlay mechanism was reworked by Jim to allow for both stores and routes files to be sufficiently overlayed. (The documentation, however, was not written until SVN r1220.)</p>
+
+<p>Examples where this type of file structure would be useful would be:</p>
+
+<ul>
+<li>Changing the shipping frequency of a particular route, but not wanting to change/add another entire routes file</li>
+<li>Add a new storage device to a particular location (or group of locations)</li>
+<li>Change a population of a particular people type at a particular location (or group of locations)</li>
+</ul>
+
+<h2><em>Necessary Components of the Overlay Files</em></h2>
+<p>The table below shows the components that <em>must</em> be present in the model for the overlay mechanism to work as anticipated.</p>
+
+<p>A <strong>primary key</strong> is a column that MUST be present in the overlay file for the model to identify which routes/locations (i.e., rows in Excel) will be changed through the overlay file.</p>
+
+<p>A <strong>secondary key</strong> is a column that will take precedence over the primary key in identifying locations (primarily) to be changed through the input file. In the case of the stores file, the inclusion of the "Category" column will allow for ALL locations of a particular category (i.e., all districts, all regions) to be affected by the same change, instead of a change being implemented on a location-by-location basis.</p>
+
+<table>
+<tr>
+<td></td><th>Primary Key of Overlay File</th><th>Additional Primary Key of Overlay File</th><th>Secondary Key</th><th>Examples of Column(s) of Interest To Be Manipulated</th>
+</tr>
+<tr>
+<th>Stores Overlay File</th><td><strong><center>idcode</center></strong></td><td><div align="right">N/A</div></td><td><strong><center>Category</center></strong></td><td>Population [specify people type available], Storage [adding, removing,</td>
+</tr>
+<tr>
+<th>Routes Overlay File</th><td><strong><center>RouteID</center></strong></td><td><strong><center>RouteOrder</center></strong></td><td><div align="right">N/A</div></td><td>ShippingFrequency, ShippingLatency, PullOrder</td>
+</tr>
+</table>
+
+<br />
+
+<h2>Invoking the Stores or Routes Overlay Files</h2>
+
+<ul>
+<li>To invoke the <em><u>stores</u> overlay file</em>, the <font face="courier new" size="2">storesoverlayfiles</font> keyword must be used in the input.kvp file.
+<li>To invoke the <em><u>routes</u> overlay file</em>, the <font face="courier new" size="2">routesoverlayfiles</font> keyword must be used in the input.kvp file.
+</ul>
+
+<p>If both the stores and routes overlay keywords are invoked in the input kvp file, the input kvp file resemble the below block of text:</p>
+
+<pre>
+#
+#  This is a simple niger model input
+#
+
+rundays = 336
+model = 'model_niger_generic'
+#monitor = 1,80001,80101,80102
+#monvax = 'all'
+burnindays = 28
+storesfile = 'NigerStoreInfo_REALITY_2011_NewPopModel.csv'
+routesfile = 'NigerRoutes.csv'
+demandfile = 'Niger_Demand.csv'
+gapstorefile = 'Niger_Storage_Gap.csv'
+#saveall = test
+#outputfile = 'niger_out'
+factoryoverstockscale = 1.25
+factoryshipmentsperyear = 2.0
+initialovw = 'N_OVW.csv'
+twentyeightdaymonths=True
+#scaledemandbytypeexpected = 'N_Tuberculosis:.95','N_DTP-HepB-Hib liquid:.9','N_Pneumococcal13:.6','N_RotavirusV4:.8','N_Yellow Fever:.9','N_Measles:.9','N_Tetanus_Toxoid:.9','N_Oral Polio:.9',
+#scaledemandbytypeactual = 'N_Tuberculosis:.95','N_DTP-HepB-Hib liquid:.9','N_Pneumococcal13:.6','N_RotavirusV4:.8','N_Yellow Fever:.9','N_Measles:.9','N_Tetanus_Toxoid:.9','N_Oral Polio:.9',
+pricetable='Niger_Costs_2011.csv'
+levellist = 'Central','Region','District','Integrated Health Center'
+centrallevellist = 'Central'
+cliniclevellist = 'Integrated Health Center'
+customoutput = 'N_custom_out_updated.csv'
+<strong>storesoverlayfiles = 'Niger_overlaysheet_for_storage.csv'
+routesoverlayfiles = 'Niger_overlaysheet_for_transport.csv'</strong>
+</pre>
+</body>
+</html>
+
+<h2>Additional Notes</h2>
+
+<p>To <i>add</i> a storage device to a particular location (i.e., add a new fridge to a particular location), the "Storage" cell in the Stores overlay file (as read in Excel) will have to contain the following characters in front of the new device to be added: "++". <i>Note that a subsequent check of the stores overlay file will have to be done in Notepad to ensure that Excel formatting has not changed the file.</i></p>
+
+<p>Other than this above note, all other descriptions of how to modify an overlay file (reproduced below from the stores overlay file documentation) still hold.</p>
+
+<ul>
+<li>If there is no value in a field in the overlay file then nothing is added or changed for that field in the stores records.</li>
+<li>If the value in the field is "_remove_" then the field is treated as having been empty in the stores records.</li>
+<li>If the first character in the value of the overlay record is '+' then the value in the overlay record will be added to the corresponding stores record iff that record has an integer, floating point <i>or string</i> value. Otherwise no change is made.</li>
+<li>Similarly if the first character in the value of the overlay record is '*' then the value in the stores record will be multiplied.</li>
+<li>If none of the above criteria are met, the record will just be added or overridden with the value specified in the overlay file.</li>
+</ul>

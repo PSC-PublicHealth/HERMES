@@ -1,0 +1,5 @@
+ez_setup.py installs the Python module 'Setuptools', and provides
+the package installation script easy_install . 
+
+See http://pythonhosted.org/setuptools/ for details.
+

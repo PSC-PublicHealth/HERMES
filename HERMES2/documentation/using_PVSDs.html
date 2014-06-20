@@ -1,0 +1,51 @@
+<html>
+<head>
+
+<title>Using PVSDs in HERMES</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body bgcolor="white">
+
+
+<left><h1>Using PVSDs in HERMES</h1></left>
+<em>Note: these rules are applicable as of SVN r1179 (11 January 2013).</em>
+
+<p>It came to our attention that there was no set of PVSD rules that was easily findeable (besides the example written into the tutorial), so I wrote up the notes that I used to invoke PVSDs with the latest repository version into a document that could be easily found in the documentation folder of HERMES.</p>
+
+<h2>Unified Files to Change</h2>
+
+<h3>UnifiedTruckCapacityInfo</h3>
+<ul><li>Truck should hold the cold device/PVSD that will be used.</li></ul>
+
+<h3>UnifiedStorageTypeInfo</h3>
+<ul><li>PVSD should have the class name "AlarmedIceFridge" and have the fields 'ColdLifetime', 'AlarmDays' & 'SnoozeDays' filled out.</li></ul>
+
+<h3>UnifiedPeopleTypeInfo</h3>
+<ul><li>Each Service type (in this case, analogous to "peopletype"), have their own row in UnifiedPeopleTypeInfo.</li>
+<li>Each Service type should be given a <i>distinct</i> SortOrder number, to distinguish themselves from any specific population type.</li></ul>
+
+<h2>Country-Specific Files to Change</h2>
+
+<h3>Country-Specific Stores Info</h3>
+<ul><li>Column with the Service name should be added to the Stores file. The number of PVSDs that the location would use should be entered in the relevant row in the Service column.</li>
+<li>The number of PVSDs should be added to the Storage/Inventory column (e.g., "2*PVSD_name") in each row where the Service column(s) is/are invoked</li>
+<li>To ensure that proper recycling is going on, any location which is providing a clinic with PVSDs should have <i>two times</i> the number of PVSDs that it should be providing in total. (The calculation can be thought of as, <i>2*n*PVSD_name</i>, where "n" is the number of total PVSDs that the upstream location is providing <i>all</i> of its downstream locations.)</li></ul>
+
+<h3>Country-Specific Routes File</h3>
+<ul><li>All routes which use a PVSD should either be a demandfetch or a pull route. More information on the route types and how to use/invoke them can be found <a href="newroutetypes.html" target="_blank">here</a>.</li>
+<li>The truck being used on routes which use PVSDs should be a type that can contain PVSDs (see UnifiedTruckCapacityInfo notes above).</ul>
+
+<h3>Country-Specific Demand File</h3>
+<ul><li>The PVSD itself should have its own row (possibly below the vaccines being used in the model).</li>
+<li>There should be a column with a heading of the service type (i.e., "Service") placed at the end of the table.</li>
+<li>In the cell which is the intersection of this new row and column, there should be a "1" (or how many other PVSDs will be used in the model, at a location at a time).</li></ul>
+
+<h3>Miscellaneous</h3>
+<ul><li>The <a href="event_logger.html" target="_blank">event logging</a> capabilities should be turned on for the model, to ensure that PVSDs are being traded through the model properly.</li></ul>
+
+<h2>Example/Screenshots</h2>
+
+<p>An example using Leila's notes (which will be updated shortly) can be found <a href="tutorial/sitemap/changing_variables.html#movingfridges" target="_blank">here</a>.</p>
+ 
+</body>
+</html>

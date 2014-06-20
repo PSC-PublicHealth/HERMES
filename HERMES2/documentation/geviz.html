@@ -1,0 +1,39 @@
+<html>
+<head>
+
+<title>Geographic Visualization (GEViz)</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body bgcolor="white">
+
+
+<left><h1>Geographic Visualization (GEViz)</h1></left>
+
+<p>As of SVN repository 1044 (last update: 1094), Shawn's implemented a Google Earth (GE) visualization capability, which can visualize the coordinates of supply chain locations on GE. As of SVN r1044, GEViz produces an animation that can dynamically show the storage capacity and transport capacity utilization between routes. In particular, GEViz appears to visualize the rundays of the model; burnindays are not taken into account with this script.</p>
+
+<p>(<i>Note: <a href="http://www.google.com/earth/index.html" target="_blank">Google Earth</a> must be installed on the computer prior to the use of this script.</i>)</p>
+
+<p>In order to invoke GE viz, the following parameters should be written into the input.kvp file [as of the initial SVN r1044 checkin]. (Unless specified, parameters are supposed to be entered as integers.):</p>
+
+<ul>
+<li><b>googleearthviz</b>
+<ul><li>Denotes whether or not the visualization is turned on or not. Denoted as a "TF" (True/False) statement -- defaults to FALSE.</li></ul></li>
+<li><b>googleearthvizsegments</b>
+<ul><li>Denotes [SOMETHING]. Defaults to "1".</li></ul></li>
+<li><b>googleearthvizinityear</b>
+<ul><li>Denotes the year of the data being displayed. Comprises part of the initial date. Defaults to 2012 in current model.</li></ul></li>
+<li><b>googleearthvizinitmonth</b>
+<ul><li>Denotes the initial month when the animation is supposed to run. Comprises part of the initial date. Defaults to "1" (i.e., the first month) in baseline.</li></ul></li>
+<li><b>googleearthvizinitday</b>
+<ul><li>Denotes the initial day when the animation is supposed to run. Comprises part of the initial date. Defaults to "1" (i.e., the first day) in baseline.</li></ul></li>
+<li><b>googleearthvizcolumnheight</b>
+<ul><li>Denotes the maximal height of the columns created for the animation, which denotes the storage capacity utilization of each location. Defaults to "100000" in baseline.</li></ul></li>
+<li><b>googleearthviznumberofcolors</b>
+<ul><li>Denotes the maximum number of colors that can be used in the animation. Defaults to "100" in baseline.</li></ul></li></ul>
+
+<p>Later versions of GEViz invoke static visualizations (static images instead of animations). Additional arrays in GEViz define radii and shapes, which allows for a shape to be drawn around coordinates -- which is useful if we want to visually check if a downstream location is within a certain radius of its upper location.</p>
+
+<p>In essence, GEViz writes a KML (Keyhole Markup Language) file, which is subsequently used by Google Earth. If you're curious on how to write one for yourself (it's similar to HTML, which is used to write websites), documentation on how to write a KML file can be found at <a href="https://developers.google.com/kml/documentation/mapsSupport" target="_blank">the Google developers documentation</a>.</p>
+
+</body>
+</html>

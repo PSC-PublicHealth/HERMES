@@ -1,0 +1,254 @@
+This document contains developer's notes for the HERMES source.
+
+-------------------------------------------------------------------------------------
+Handling of Initial OVW Estimates (as of 20110920)
+
+Shipping order sizes obviously depend on open vial waste.  HERMES calculates overall OVW 
+levels as an output, and since SVN r311 there has been a mechanism in model.UpdateWastageEstimates
+to continuously change the OVW estimates used in calculating shipment sizes based on the
+current cumulative output estimate of OVW.
+
+Unfortunately there is a problem with this for the case of 'pull' shipments, because they calculate
+and freeze in their trigger level and fill-up-to level based on a demand calculation done at time 0.0.
+This means they use the initial OVW estimate, not any later updated version.  This caused a problem
+with simulations with a lot of 'pull' shipments, which means problems for Niger.  An obvious notion
+would be to update the threshold levels at the end of the burn-in period, but since the time during
+burn-in doesn't have 'normal' shipping patterns the results would be improved but still not satisfactory.
+
+What is implemented now (as of roughly SVN r463) is that the user can specify an input table of OVW
+values; pull thresholds are set using these values or the OVW value 0.5 if no input is given.  (The
+behavior between r311 and r463 effectively used values of 0.5 or 0.0 depending on the specific case).
+To specify input values, construct a .csv file like:
+
+"Name","OVW"
+"T_Tuberculosis",0.246535282898919
+"T_DTP",0.148457755923111
+"T_Oral Polio",0.125549122323316
+"T_Japanese Encephalitis",0.0430728768982778
+"T_HepB",0.0343791722296395
+"T_DTP-HepB",0.0963103122043519
+"T_MMR-unidose",0
+
+or the equivalent for the vaccine names in use.  It's probably best to do a simulation run and use
+the output OVW values for these inputs.  If the name for the file is 'test_ovw.csv', add a line like:
+
+initialovw='test_ovw.csv'
+
+to the input.kvp file for the run.  To reproduce the results for the mechanism that was in place
+between r311 and r463, make a file filled with the value 0.5 or the value 0.0 .
+
+
+-------------------------------------------------------------------------------------
+Parsing Key-Value Pair Files with kvp_tools.KVPParser:
+ * it uses a regex-based lexer and FSM parser
+ * it returns a dictionary
+ * Values are integers, floats, strings or lists thereof.  KVPParser doesn't make boolean values;
+   its use in input.UserInput converts some strings to booleans.
+ * Here are some examples:
+
+# This line is a comment
+usecalendar            # A symbol by itself is equivalent to a True boolean
+                       # so this means usecalendar=True
+somebool= True         # or False.  The value is not case sensitive.
+nonething= None        # returns a Python None
+someint= 123
+somefloat= 1.23
+otherfloat= -1.27e+3
+intlist= 123,345,678   # Comma separated values on the right produce a list
+mixedlist= 123,'hello' # The kvp module does this, but HERMES 'Input.py' module rejects them
+somestring= 'hello'    # single and double quotes both work, but it's possible to confuse the lexer
+reallyasymbol= hello   # a single unquoted symbol on the right hand side is treated as a string, 
+                       # except for True, False and None
+
+input.UserInput gets values from the kvp parser (or the csv parser) and checks that all are valid
+input flags as defined by input_default.csv .  The appearance of a key that does not appear in that
+table raises an exception.  Keys from the table for which no value is given get their default values. 
+Value types must match those specified in input_default.csv; if they don't they are coerced to that type 
+if the proper coercion is obvious or an exception is raised.  Note that if UserInput holds the string
+"None" for some key (as a quoted string), the value that is returned when it is referenced is the object None,
+not the string "None"; likewise for 'true' and 'false'.
+
+In the input_default.csv file, default values of 'none', 'true' or 'false' set the defaults to
+None, True or False respectively; other type conversions are done based on the expected
+value type (e.g. values of type 'intOrNone' that do not match 'none' are converted to ints.
+
+-------------------------------------------------------------------------------------
+How Type Instances Get Instantiated
+
+This applies to the classes derived from 'typemanager.ManagedType', including VaccineType,
+TruckType, etc.
+
+The call to vaccinetypes.VaccineTypeManager(unifiedVaccineTypeInfoFileName) causes a vaccine type
+instance to be created for each valid line of the UnifiedVaccineTypeInfo table.  A subsequent
+call to getTypeByName() causes the type to be 'activated', inserting it in the TypeManager's list
+of active types.  This getTypeByName() call is usually performed by the DemandModel or the Model
+itself.
+
+-------------------------------------------------------------------------------------
+How model.wastageEstimates Gets Initialized And Updated
+
+The Model base class has a method called initializeOVWEstimates() which attaches a VaccineCollection
+called wastageEstimates to the model.  This method is called by the owning HermesSim immediately after
+it creates and initializes its Model instance; it cannot be included in Model.__init__ itself because 
+the initialization algorithm requires sim.vaccines.activeTypeList() to be valid, and that is brought
+about by the instantiation of the DemandModel instances by the model.  The model can prevent this
+initialization by assigning a value to its wastageEstimates attribute.  The values in model.wastageEstimates
+range from 0.0 (perfect efficiency) to 1.0 and can be used or ignored by the model in its calculation
+of shipment sizes.  If the userInput provides a filename value for 'initialovw' and that .csv file
+has the columns 'Names' and 'OVW', the open vial waste values from that file will be used.  If not,
+all values are initialized to 0.5 .  Note that pull shipments set their thresholds at time 0.0, so 
+having good initial estimates can be important.
+
+If userInput defines a value 'wasteestfreq' which is greater than 0.0, the values will be updated
+with that frequency and a latency given by the input value 'wasteestupdatelatency'.  The process that
+does those updates is created by the owning HermesSim in response to wasteestfreq>0, during the
+phase in which the network is being built.
+
+-------------------------------------------------------------------------------------
+Notes on Module Import order
+
+As of the current rev for date 20111101, we're including '--deterministic' on the command line.
+This is supposed to control the use of ordered dictionaries;  warehouse.py chooses between 
+ordered and unordered dictionaries when that module is loaded.  The 'deterministic' flag is 
+set in globals.py, which means that globals.deterministic must have its appropriate value before
+warehouse.py is imported.  Since importing any module forces all the modules it imports to be imported, 
+no module imported before globals.deterministic is set can import warehouse.py.  But globals.py
+itself must be imported, and other modules are needed to parse the input.  That means that there 
+has to be a group of modules that can be imported before global flags are set, and a disjoint set
+that must be imported later.
+
+As of 20111101, the first group includes globals.py, input.py, kvp_tools.py, util.py, and csv_tools.py.
+Everything else is in the second group, and they have very interconnected import patterns.  
+(util.filteredWriteCSV does a delayed input of storagetypes.py, but not until the rest of the environment
+is fully established).
+
+-------------------------------------------------------------------------------------
+Render Unto SimPy What Belongs To SimPy: Notes on handling SimPy resources 20111117
+
+HERMES is a discrete event simulation, which means that everything that happens occurs at a specific moment
+in time.  More specifically, there is a set-up period in which the simulation environment (consisting of warehouses, 
+UseVials and transport processes, etc.) gets built, then sim.simulate() gets called, and thereafter events
+are driven by SimPy processes which 'awaken' when their time slice comes up.  The set-up period happens
+'before time' and we are free to set things up as we see fit, but anything that happens during a SimPy
+process's run() method is dealing with a system state which is partly maintained by SimPy.  Any time a process
+wakes up, other processes may be waiting to be allocated supplies from warehouses, for example, so no 
+code at the HERMES level should 'instantaneously' add or remove supplies from warehouses.  If we do
+that, the pending SimPy allocation may never be resolved, and the process that was waiting for it will
+essentially deadlock.  We can't change the number of trucks in the truck pool, for example, since that
+is a SimPy resource and some process may be waiting for a truck to come free.  We also can't change the
+number of vaccine vials in any Warehouse's .theBuffer, because SimPy manages that buffer.
+
+We can, however, change the state of vaccines in a Warehouse' .theBuffer, or change any attribute of
+the Warehouse that SimPy does not directly reference, or spawn new processes that will do things to the
+SimPy data structures by the normal SimPy mechanisms when *their* time slice comes up.
+
+There is also a hack which allows us to do manipulations on vaccines in .theBuffer.  Vaccines are stored
+in VaccineGroups; those groups are referenced from .theBuffer and potentially from other lists like
+the storage lists of the StorageBlocks of specific refrigerators.  Vaccines are always removed from Warehouses
+using a SimPy 'get filter function' (see http://simpy.sourceforge.net/SimPy_Manual/Manuals/Manual.html#using-the-get-filter-function )
+which counts out vials of specific vaccine types.  The HERMES code never does a 'yield get' for VaccineGroups
+directly.  This allows the get filter function to manipulate .theBuffer, as long as the total number of 
+vaccines of each type is preserved.  The hermes code can thus break up groups, or mark them as having
+expired.  It can't delete the expired groups, however- it must wait for them to be returned in response 
+to a 'yield get' and then drop them.  The groups are dropped when the 'get' function filters them; that
+function executes in the time slice of the process which issued the 'yield get' rather than in the time
+slice of the process which changed the VaccineGroup state and thus avoids potentially screwing up the
+SimPy state.
+
+-------------------------------------------------------------------------------------
+The '--deterministic' option 20111207
+
+This option is intended to make runs more reproducible across minor code changes, for code validation 
+purposes.  Assuming two runs with minor code changes are done with the same input data and seed value,
+the major source of variation is the order in which simultaneous transactions get serviced, which in
+turn is determined by the order in which they come off some list.  In particular, python dictionaries 
+do not produce a consistent order in response to .items() and similar methods.  When the --deterministic
+flag is given, Warehouse uses an 'ordered dictionary' instead of a generic dictionary, at some cost in
+speed.  GenericCollection does not use an ordered dictionary, but it sorts its output lists, producing
+a functionally equivalent result at lower cost in time.  
+
+There is still variation, however- the runs are not yet completely deterministic.  One source of variation
+is the order in which SimPy executes events which occur simultaneously, for example all the stuff that
+happens at time 0.0 or 1.0 in a simulation.  The general strategy for handling this is to add a small random
+delay to each of these process' run() methods, to desynchronize things and thus make execution order
+predictable.  
+
+-------------------------------------------------------------------------------------
+Variations in StorageHistoryVialDays between 'identical' runs 20111207
+
+Runs which should be identical via identical random seed values and the use of the --deterministic flag still
+show small differences in the StorageHistoryVialDays for the various vaccines.  This is believed to
+happen because vial age accounting happens when the associated VaccineGroups have their getAge() methods
+called, and some VaccineGroups are escaping this at the time boundaries of runs under some circumstances.
+I believe this happens because HermesSim.syncStatistics() does not find and touch VaccineGroups that are
+actually in transit at the times it is called.
+
+-------------------------------------------------------------------------------------
+Tags, and their meanings and effects 
+
+Tags are associated with Shippable instances and are defined in abstractbaseclasses.Shippable .  They are 
+boolean values manipulated and tested by the Shippable methods setTag(), clearTag(), getTag(), and getTagList().
+The intention is that the routines which manipulate Shippables will use specific tags to signal to each
+other about the intended fate of the associated Shippable.  This does not preclude the Shippable manipulating
+its own tags, but this is not expected to be the most common case.  An example might be an Ice shippable 
+setting its DoNotUse tag when its 'melting' timer has gone off.
+
+In abstractbaseclasses.Shippable, we have:
+RecycleTag = "recycle"   : This tag labels the Shippable to be picked up and carried 
+                           upstream by the recycling mechanism.
+DoNotUseTag = "donotuse" : This tag marks a Shippable as unuseable.  For example, Shippables marked DoNotUse are
+                           not allocated for outbound shipping, and Fridge instances marked DoNotUse do not 
+                           contribute to available storage at their location.
+InUseTag    = "inuse"    : This tag is intended to be set while a Shippable is 'in use', so that it will not
+                           be doubly used.  For example, an Ice instance which is associated with a specific
+                           IceFridge would have this tag set by the process that makes the association.
+                           
+-------------------------------------------------------------------------------------
+How Recycling Works 20120210
+
+When a Fridge or Ice instance is delivered to a Clinic, the oldest already-attached instance of the same Fridge
+or Ice instance of the same FridgeType or IceType gets its RecycleTag set.  Immediately after the incoming 
+delivery is complete, a get is done using recyclingGroupFilter() to select the instances with RecycleTag set.
+
+If any instances with RecycleTag set are on board at the end of the recycling pickup at the last client, 
+ShipperProcess or OnDemandShipment will make a stop at the supplier warehouse and drop off all the recycling.
+This is done with a put which simply deposits everything with the recycling tag set.
+
+DESIGN QUESTION: We don't have a distance value from the last client back to the supplier for ShipperProcess
+deliveries.  At the moment (r808) the distance from the supplier to the first client is used.
+
+After delivery at the supplier, the recycling tags on Fridge instances are cleared by Warehouse.attachStorage().
+Recycling tags on Ice instances are cleared when the instance is stored at freezing temperatures.  Thus, it's 
+possible for Ice to skip the recycling trip if appropriate freezer space becomes available at the Clinic where
+it was used.
+
+During the client delivery cycle of ShipperProcess, allocateSomeGroups is used to control the supply of
+Shippable instances with RecyleTag set.  allocateSomeGroups(excludeRecycling=True) excludes them, but 
+without the flag they are included. allocateSomeGroups is called with excludeRecycling=True in ShipperProcess 
+to determine what to take off the truck.  This is necessary to avoid dropping off recycling items from one 
+client warehouse at the next client in the delivery chain.
+
+-------------------------------------------------------------------------------------
+How The DoNotUse Tag Works 20120210
+
+the DoNotUse tag is set on Ice instances when they are stored at other than freezer temperature,
+and cleared when stored at freezer temperature.
+
+allocateSomeGroups(excludeRecycling=False) excludes items with DoNotUse set.   This is the default, but as of 
+r808 it is never called this way.
+
+When any Shippable instance has DoNotUseTag set, allocateOwnerStorageSpace stores it at room temperature, 
+and ignores any storage space it may contribute.  Similary, Warehouse.getStorageBlocks() excludes the blocks
+of any CanStore instance with DoNotUse set.
+
+DoNotUse things are *not* excluded by warehouse.Warehouse.gotAnyOfThese(), at least at the moment.
+
+warehouse.Warehouse.attachStorage(thing) sets DoNotUse on things containing the string 'PVSD' if 
+pvsdbugfix=True.  (It also calls thing.discharge() if callingProc is not None). 
+THIS NEEDS TO BE CLEANED UP.
+
+warehouse.Warehouse.detachStorage(thing) clears DoNotUse (and calls thing.recharge())
+
+warehouse.Warehouse.attachIce() clears DoNotUse.  This is necessary so that allocateStorageSpace will assign
+it to freezer space.
+

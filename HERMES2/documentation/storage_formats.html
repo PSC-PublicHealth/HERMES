@@ -1,0 +1,41 @@
+<html>
+<head>
+<title>Overview of Adding Refrigerators to UnifiedStorageTypeInfo.csv</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body>
+<h1>Overview of Adding Refrigerators to UnifiedStorageTypeInfo.csv</h1>
+<p>
+Refrigerator type information is stored in master_data/unified/UnifiedStorageTypeInfo.csv .
+That file needs to have a column called 'Name', and columns for each of the names in
+storageTypeNames in storagetypes.py; at the moment those names are 'freezer', 'cooler',
+and 'roomtemperature'.  Any other columns will be ignored.  The volumes should be in liters.
+</p>
+<p>
+The data we have for Niger comes with columns 'Make', 'Model', 'Year', 'Energy', the volume 
+information, and 'Name'.  We are currently using the following pattern for the 'Name':
+<pre>
+   N_VR50F_1997_S
+</pre>   
+where 'N_' stands for Nigeria, VR50F is the model name (in this case a model from BP SOLAR),
+1997 is the year, and S is the 'energy' code.  The energy codes to be used in the name are:
+<pre>
+   E = electric
+   S = solar
+   G = gas (liquid propane)
+   P = petrole (kerosene)
+   I = ice
+   B = blue ice
+   GE = combined gas and electric
+   KE = combined kerosene and electric
+   U = unknown
+</pre>
+Unknown years should also be abbreviated '_U_', so for example
+one current name is N_PSPR_U_U for a PSPR unit with both year and power supply unknown.
+
+<h3>Additional Rules For Names:</h3>
+<ul>
+<li>Do not include spaces, or the '*' or '+' characters.  '-' and '/' are OK.
+<li>Use of all-uppercase names is encouraged.
+<li>The special name None means no storage.  
+</ul>

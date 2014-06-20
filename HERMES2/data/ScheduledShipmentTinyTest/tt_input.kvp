@@ -1,0 +1,24 @@
+#
+# This is a simpe run of the Senegal model
+#
+
+rundays = 676
+model = 'model_chad'
+monitor= 10201200,10201201,10201100,10201106,10201300,10201301 
+monvax='C_DTP_HepB_Hib_large'
+wasteestfreq=10
+storesfile = 'TT_Stores_Info_h.csv'
+routesfile = 'TT_Routes.csv'
+demandfile = 'TT_Demand.csv'
+truckcountfile = 'TT_Trucks.csv'
+#outputfile = 'generic_senegal'
+factorystartuplatency = 1.0
+factoryshipmentsperyear = 2.0
+factoryoverstockscale = 1.25
+#defaultshipstartuplatency = 3.0
+discardunusedvaccine = false
+burnindays = 0
+twentyeightdaymonths = TRUE
+usestaticdemand = TRUE
+#defaultpullmeaninterval = 28.0
+#seed=4567

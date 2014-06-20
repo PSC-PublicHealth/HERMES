@@ -1,0 +1,63 @@
+<html>
+<head>
+
+<title>HERMES Results - Documentation</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body bgcolor="white">
+
+<left><h1>HERMES Results ["Report File" & How to Interpret Them (SVN r1195)</h1></left>
+<p>
+
+<table>
+<tr><th align="center">Column Letter<th align="left">Column Heading<th align="left">Definition</tr>
+<tr><td align="center">A</td><td align="left">code</td><td align="left">ID code, as defined in Stores + Routes Files. A value of "zero" exists for a vehicle linked to a particular route.</td></tr>
+<tr><td align="center">B</td><td align="left">name</td><td align="left">Name of location, as set by Stores + Routes Files.</td></tr>
+<tr><td align="center">C</td><td align="left">BuildingCost</td><td align="left">The total building costs, by location.</td></tr>
+<tr><td align="center">D</td><td align="left">CostingTreatmentDays</td><td align="left">The number of treatment days applied to the particular route.</td></tr>
+<tr><td align="center">E</td><td align="left">LaborCost</td><td align="left">The total labor costs, by location. Includes per diems and salaries.</td></tr>
+
+<tr><td align="center">F-BA</td><td align="left">[Vaccine] OR [ColdDevice]<br /><p style="text-align: right;">_delivered<br />_expired<br />_outages<br />_outshipped<br />_patients<br />_treated<br />_vials<br /></p></td><td align="left">The below categories are applicable to <i>each vaccine type</i> administered , or <i>each cold device</i> present in the model.<p style="text-align: left;">The volume (or number of) vaccines or devices that were delivered to a particular location<br />The total number of expired vials for that particular vaccine type<br />Indicates the number of days when clinics are vaccinating patients that there are not enough vaccines to cover population demand.<br />The number of vaccines which were shipped out from that location<br />The total number of patients who come through the location within the scenario run time.<br />The number of individuals treated at that location during the run time.<br />The number of vaccine vials used during the run time.</td></tr>
+
+<tr><td align="center">BB</td><td align="left">PerDiemCost</td><td align="left">Average per diem cost, administered by location.</td></tr>
+<tr><td align="center">BC</td><td align="left">PerDiemDays</td><td align="left">The number of days in which a per diem has been administered, by location.</td></tr>
+<tr><td align="center">BD</td><td align="left">PerKmCost</td><td align="left">The total cost allocated, per kilometer.</td></tr>
+<tr><td align="center">BE</td><td align="left">PerTripCost</td><td align="left">This is the total cost allocated, per trip.</tr>
+<tr><td align="center">BF<td align="left">RouteFill<td align="left">Percentage of the available storage volume of a particular route filled by a shipment.</td></tr>
+<tr><td align="center">BG</td><td align="left">RouteName</td><td align="left">Name of the route, as dictated by the Routes file. Usually takes the form of "r[IDCODE]".</td></tr>
+<tr><td align="center">BH</td><td align="left">RouteTrips</td><td align="left">Number of trips taken along the route (one way) in the scenario time frame.</td></tr>
+<tr><td align="center">BI</td><td align="left">RouteTruckType</td><td align="left">Truck type used along the route.</td></tr>
+<tr><td align="center">BJ</td><td align="left">Route_L_vol_used_time</td><td align="left"><i>Definition not yet available.</i></td></tr>
+<tr><td align="center">BK</td><td align="left">StorageCost</td><td align="left">Total storage costs, stratified by location.</td></tr>
+<tr><td align="center">BL</td><td align="left">TransportCost</td><td align="left">Total transport costs, stratified by location.</td></tr>
+<tr><td align="center">BM</td><td align="left">category</td><td align="left">The location classification - Niger uses "Central", "Region", "District" and "Integrated Health Center".</td></tr>
+<tr><td align="center">BN</td><td align="left">cooler</td><td align="left">Percentage of the available cool space ("+") at a location used to hold vaccines</td>.</tr>
+<tr><td align="center">BO</td><td align="left">cooler_timestamp</td><td align="left"><i>Definition not yet available.</i></td></tr>
+<tr><td align="center">BP</td><td align="left">cooler_vol</td><td align="left">Total <i>net</i> cool (refrigerated) space volume, recorded in liters.</td></tr>
+<tr><td align="center">BQ</td><td align="left">cooler_vol_used</td><td align="left">Maximum amount of cool (refrigerated) space volume used to hold vaccines, recorded in liters.  Can be manipulated to include other summary stats.</td></tr>
+<tr><td align="center">BR</td><td align="left">cooler_vol_used_time</td><td align="left"><i>Definition not yet available.</i></td></tr>
+<tr><td align="center">BS</td><td align="left">freezer</td><td align="left">Percentage of the available cold space ("-") at a location used to hold vaccines.</td></tr>
+<tr><td align="center">BT</td><td align="left">freezer_timestamp</td><td align="left"><i>Definition not yet available</i>.</td></tr>
+<tr><td align="center">BU</td><td align="left">freezer_vol</td><td align="left">Total <i>net</i> cold space volume, recorded in liters.</td></tr>
+<tr><td align="center">BV</td><td align="left">freezer_vol_used</td><td align="left">Maximum net freezer space volume used to hold vaccines, recorded in liters. Can be manipulated to include other summary stats.</td></tr>
+<tr><td align="center">BW</td><td align="left">freezer_vol_used_time</td><td align="left"><i>Definition not yet available.</i></td></tr>
+<tr><td align="center">BX</td><td align="left">function</td><td align="left">Function of the location. Can take values "Distribution" or "Administration".</td></tr>
+<tr><td align="center">BY</td><td align="left">one_vaccine_outages</td><td align="left">Records each day where there is at least one vaccine where there is not enough at the service location to accommodate the demand.</td></tr>
+
+<tr><td align="center">BZ</td><td align="left">[FRIDGE]_delivered</td><td align="left">This column may record the number of "on the fly" refrigerators delivered in the model (i.e., those athat aren't explicitly delineated in the model, and which are created by the model to handle moving product).</td></tr>
+
+
+<tr><td align="center">CA</td><td align="left">overstock_time</td><td align="left">Total time (in days) in which a location has been overstocked (over 100%).</td></tr>
+<tr><td align="center">CB</td><td align="left">roomtemperature</td><td align="left">Percentage of room temperature space used to hold vaccines.</td></tr>
+<tr><td align="center">CC</td><td align="left">roomtemperature_timestamp</td><td align="left"><i>Definition not yet available.</td></tr>
+<tr><td align="center">CD</td><td align="left">roomtemperature_vol</td><td align="left">Total net volume of room temperature space available, as defined in the stores file. It takes a value of "1E+09", recorded in liters.</td></tr>
+<tr><td align="center">CE</td><td align="left">roomtemperature_vol_used</td><td align="left">Maximum volume of room temperature space used, recorded in liters. Can be manipulated to include other summary stats.</td></tr>
+<tr><td align="center">CF</td><td align="left">roomtemperature_vol_used_time</td><td align="left"><i>Definition not yet available.</i></td></tr>
+<tr><td align="center">CG</td><td align="left">stockout_time</td><td align="left">The number of days in which a location has no vaccines in cooler or freezer storage.</td></tr>
+<tr><td align="center">CH</td><td align="left">tot_delivery_vol</td><td align="left">Total volume of vaccines delivered to that location, recorded in liters.</td></tr>
+
+<tr><td align="center">CI</td><td align="left">triptimes_timestamp</td><td align="left">As far as I understood it, this was a temporary metric used by Shawn in creating the output visualizations.</td></tr>
+
+</table>
+</body>
+</html>

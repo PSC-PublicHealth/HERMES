@@ -1,0 +1,63 @@
+<html>
+<head>
+
+<title>Changing Buffer Stock and Shipping Thresholds in HERMES</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body bgcolor="white">
+
+
+<left><h1>Changing Buffer Stock and Shipping Thresholds in HERMES</h1></left>
+<em>Note: these rules are applicable as of SVN r1123 (09 November 2012).</em>
+
+<p>To change the buffer stock and the shipping thresholds of HERMES, the following functions have to be changed accordingly in <b><font face="courier new">model_generic.py</font></b>:
+<ul>
+<li><font face="courier new" size="2">clinicShipQuantityFunc</font> - the function which affects how the clinics obtain their shipments on a pull schedule.</li>
+<li><font face="courier new" size="2">clinicShipThresholdFunc</font> - the function which affects the lower threshold which triggers the pull shipment.</li>
+<li><font face="courier new" size="2">warehouseShipQuantityFunc</font> - the function which determines how distribution-only warehouses obtain pull shipments.</li>
+<li><font face="courier new" size="2">warehouseShipThresholdFunc</font> - the function determining the lower stock threshold which triggers a pull shipment.</li>
+<li><font face="courier new" size="2">getScheduledShipmentSize</font> - the general function that is called whenever a shipment is being set up, which determines the buffer stock used at all supply chain locations</li>
+</ul>
+</p>
+
+<p>Out of the functions above,
+<ul>
+<li><u>Buffer stock</u> is determined by <font face="courier new" size="2">clinicShipQuantityFunc</font>, <font face="courier new" size="2">warehouseShipQuantityFunc</font> and <font face="courier new" size="2">getScheduledShipmentSize</font>.
+<li><u>Stock threshold</u> is determined by <font face="courier new" size="2">clinicShipThresholdFunc</font> and <font face="courier new" size="2">warehouseShipThresholdFunc</font>.</li>
+</ul>
+</p>
+
+<h2>Lines to Change in model_generic.py</h2>
+<p>These are the lines to change for each type of function:
+<ul>
+<li><b>Buffer Stock</b><br /></li>
+<ul>
+<li><font face="courier new" size="2">clinicShipQuantityFunc</font>: line 254
+<pre>vaccinesOnlyVC *= 1.25</pre></li>
+<li><font face="courier new" size="2">warehouseShipQuantityFunc</font>: line 300
+<pre>vaccineVialsVC *= 1.25</pre></li>
+<li><font face="courier new" size="2">getScheduledShipmentSize</font>: lines 363-364
+<pre> # Warehouses try for a buffer stock of 1.25.
+vaccineVialsVC *= 1.25</pre></li>
+</ul>
+<li><b>Threshold Functions</b></li>
+<ul>
+<li><font face="courier new" size="2">clinicShipThresholdFunc</font>: line 280
+<pre>vaccinesOnlyVC *= 0.25</pre></li>
+<li><font face="courier new" size="2">warehouseShipThresholdFunc</font>: line 324
+<pre>threshVC= scaledVaccineVialsVC*0.25</pre></li>
+</ul>
+</ul>
+
+<h2>Notes about Changing Buffer + Stock Thresholds</h2>
+<p>Per GAVI, UNICEF and WHO regulations, a supply chain is usually supposed to have a 25% buffer stock on top of their regular stock, and trigger a reordering to occur at 25% of the total stock levels<sup><a href="http://www.gavialliance.org/glossary/a-e/" target="_blank">1</a>, <a href="http://www.scribd.com/doc/86848202/31/Distribution-of-Vaccines-and-Logistics" target="_blank">2</a>, <a href="www.who.int/vaccines/en/avi/fvaccineforecasting.ppt" target="_blank">3</a></sup>.</p>
+
+<p>To eliminate the buffer stock from the model, you would change all lines which control the buffer stock, from "1.25" to "1.00".</p>
+
+<p>To modify the stock threshold, you would change all the lines which control the stock threshold, from "0.25" to whichever number you'd like to trigger a reordering point. Examples:
+<ul>
+<li>"0.10" for a 10% stock threshold - meaning that the vaccines will not be reordered until the stock gets to 10% of the average usage</li>
+<li>"0.50" for a 50% stock threshold - meaning that vaccines will not be reordered until the stock hits 50% of the average usage.</li>
+</ul>
+</body>
+</html>

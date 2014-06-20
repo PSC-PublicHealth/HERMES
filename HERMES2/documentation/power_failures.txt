@@ -1,0 +1,49 @@
+Overview of power failures:
+
+Power failures occur to individual warehouses or to groups of warehouses.  Input is somewhat complicated to enable this.  It is assumed that we are ignoring any power failure that is sufficiently short that a refrigerator would not be affected.
+
+Power failure information can have default items specified in the input file and can have information specific to a warehouse in the warehouse file.
+
+The following fields are can be set in the warehouse file:
+        PowerOutageFrequencyPerYear:
+            average number of power outages in a year at a
+	    warehouse.
+        PowerOutageDurationDays:
+	    average duration of a power failure.  A clinic
+	    probably won't be able to do anything during a
+	    power outage since it can't store any vaccines
+	    unless it has some off grid means of vaccine
+	    storage.
+	PowerOutageDurationSigma:
+	    if this value exists, use a normal distribution
+	    for the outage with this value as the standard
+	    deviation.
+	PowerOutageAffectedRatio:
+	    if set only this fraction of warehouses in this
+	    cluster will be affected by any given power
+	    outage.
+	PowerOutageClusterId:
+	    assigns this warehouse to a specific cluster
+	    for the purposes of outages.  This enables
+	    an entire area (or fraction of an area) to
+	    go down at once.  All members of a cluster
+	    must have the same set of values for frequency
+	    and duration.
+
+Since it is reasonable to put a warehouse into one or more clusters of power outage groups and to have it have individual outages, any of the above fields can have a suffix to allow it to have multiple sets of power outage information.  For example you could have the following fields:
+
+      PowerOutageFrequencyPerYear_region,
+      PowerOutageDurationDays_region,
+      PowerOutageClusterId_region,
+      PowerOutageFrequencyPerYear_local,
+      PowerOutageDurationDays_local,
+      PowerOutageDurationSigma_local,
+      PowerOutageClusterId_local
+
+(or instead of '_region' and '_local' you could just have '1', '2', '3'...)
+
+Defaults:
+Any of these fields can be defaulted in the input file with lower case versions of their names (ie poweroutagefrequencyperyear).  The default will apply to all warehouses with nothing filled into a field and all suffix groups.
+
+Required fields:
+PowerOutageFrequencyPerYear and PowerOutageDurationDays must exist either in default values for the input file or explicitly for each power outage group.

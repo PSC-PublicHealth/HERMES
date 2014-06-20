@@ -1,0 +1,8 @@
+# Copy this file to "HERMES2/localbuildpaths" and modify this to match
+# up with your local configuration
+
+# root of your pyjamas install
+PYJAMAS_ROOT = /home/jim/work/pyjamas
+
+# debugging or other flags for pyjamas
+PJCDEBUG = --debug

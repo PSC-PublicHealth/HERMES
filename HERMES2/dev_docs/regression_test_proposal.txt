@@ -1,0 +1,41 @@
+Regression Test Proposal
+
+The basic idea is to set up multiple Hermes scenarios that are simulated for very short duration (to minimize or remove any large scale stochastic effects) and to have a set of checks against the output files.
+
+
+The details:
+
+* Several scenarios need to be designed that can incorporate most of the aspects and features of Hermes.  Stores, routes and other files can be mixed and matched along with overlay files to create many specific scenarios.
+
+* In most cases, stores should be preseeded with supplies rather than waiting for them to filter down from the factory.
+
+* After each scenario is run, a list of checks are performed of the nature of:
+      "Measles_delivered" field of store "60818" "==" "120"
+
+* Any failed test is reported to the user.
+
+
+Minimal set of work required:
+
+* A framework for defining checks and running them against the output will need to be built.
+    * These checks fit reasonably into a CSV format
+    * The check routine can either sit within Hermes or be a standalone utility.
+
+* A framework for running multiple scenarios along with the check routine will need to be built.
+
+* One or more scenarios will need to be built.
+
+* Checks for those scenarios designed.
+
+
+Additional work to make this work better:
+
+* Create a stronger framework for random number generation.  This can include:
+    * Having a "random" number generator that cycles through a supplied list of values
+
+* Having the ability to apply random seeds or offsets to more fine grained parts of Hermes such as ability to set seeds/offsets on:
+    * individual routes
+    * individual demand elements of each store
+This would allow much more robustness on the tests and allow tests to be modified without rebuilding all or most or the results in a given scenario.
+
+

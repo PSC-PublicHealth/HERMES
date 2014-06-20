@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>Installing HERMES On Windows</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+<link href="../STARTHERE.html" rel="Prev"><link href="first_steps.html" rel="Next">
+</head>
+<body>
+<h1>Installing HERMES On Windows</h1>
+<p>Before you start, what do you need?</p>
+<p>You would need:
+<ul>
+<li><a href="http://www.psc.edu" target="_blank">PSC</a> Kerberos account + password
+<li>Administrator privileges on your computer
+<li>The following software (for Windows): <a href="http://tortoisesvn.net/" target="_blank">TortoiseSVN</a>, <a href="http://www.python.org/" target="_blank">Python</a> and <a href="http://simpy.sourceforge.net" target="_blank">SimPy</a>
+</ul>
+<p>
+Here are the instructions, as Jim's put in the "documentation" folder in the SVN, with links.
+</p>
+
+<pre>
+log in as admin
+
+install tortoise svn
+
+install python (in c:\python27)
+
+add python to path:
+Right-click "My Computer", and then click "Properties".
+Click the "Advanced" tab.
+Click "Environment variables".
+Under "System variables" select "Path"
+Click "Edit"
+In the box "Variable value:" go to the end of the value and append ";C:\Python27"
+Click "Ok"
+Click "Ok"
+Click "Ok"
+
+installing python once installer has been executed:
+In a DOS window (alt, "command prompt", or the black-and-white box accessed by typing in "cmd" under "run" in windows xp),
+type in the command "cd" until you're in the python directory
+i.e., If you're on your desktop and trying to get back to c:\python27, first type in "cd ../../" and press the enter key
+until the directory you're in is "C:/" (every "cd ../" gets you one file name backwards in the directory tree)
+and then type in "cd python27" and press the enter key -- this should get you in to the python folder
+Type in "python.exe" and press enter.
+A Python interpreter should come up, signifying that Python has been installed properly.
+
+install simpy:
+download and extract simpy to desktop
+ (assuming simpy-2.3)
+open command prompt
+type "cd desktop\simpy-2.3"
+type "python setup.py install"
+
+log back in as user
+
+right click on an empty space on the desktop and click "svn checkout"
+in "URL of repository" type, replacing the square brackets with your user name:
+   "svn+ssh://[your_user_name]@hermes.psc.edu/repo/vmirep/trunk/HERMES2"
+(remove "[your_user_name]" from the above if you are sharing the repository)
+If you get a "PuTTY Security Alert" click "Yes" to "Store key in cache?"
+
+</pre>
+
+<img src="tortoise_plink_cuewindow_2.PNG"><br /><br />
+<font size="2">above: what to look out for when your password is cued: a password prompt window + TortoisePlink buttons on the desktop bar.</font><br />
+
+<pre>
+
+enter your repository password and click "OK"
+      You may need to enter your password multiple times.
+This will take a minute or so.  Click "OK" when finished.
+</pre>
+</body>
+
+
+<foot>
+<p>
+<div style="float:left;width:33%;">Previously: <a href="../STARTHERE.html">Home</a></div>
+<div style="float:right;width:33%;">Return to <a href="first_steps.html">Before You Start: Obtaining a PSC Account, SVN vs. DAV</a></div>
+</p>
+</foot>
+</html>
+

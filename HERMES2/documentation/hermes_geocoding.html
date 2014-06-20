@@ -1,0 +1,106 @@
+<html>
+<head>
+<title>Geocoding Notes/Protocol from HERMES</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+<body>
+<h1>HERMES Geocoding Notes & Protocol</h1>
+<i>Note: If there's a term you're not clear about, mouse over the term.<br />There should be a tool tip that shows up upon mouseover.</i>
+
+<h2>Usual Sources for Coordinates (when we first did the geocoding)</h2>
+<ul>
+<li>World Health Organization</li>
+<li>Cold Chain Equipment Manager (CCEM)</li>
+<li>Others</li>
+<ul><li>Niger - 2007 CCI (<i>see below</i>)</li></ul></ul>
+<h2>In the case of Niger...</h2>
+<p>We got a Cold Chain Inventory (CCI) from the WHO in 2007.</p>
+<p>In it, we had the following levels, with geocodes for the following levels</p>
+<ul>
+<li>Central</li>
+<li>Region</li>
+<li>Districts</li>
+<li><u>Nothing</u> for <font title="Integrated Health Clinics">IHC</font>s</li>
+</ul>
+<p>The next step was to cross-reference between our <font title="Cold Chain Inventory">CCI</font> and Google Maps, but we didn't have the exact street address, but only the towns in which they were located.</p>
+<p>We also did some general checking using the locations that we were given for the higher levels.</p>
+
+<h3>Decision Hierarchy (<i>for Niger</i>)</h3>
+<ol>
+<li>WHO Coordinates (<i>where there's nothing for clinics</i>)
+<li><a href="http://www.geonames.org" target="_blank">GeoNames</a> (<i>where we started with clinics</i>)
+<p>From there:</p>
+<p>If found -- then we gave <font title="Latitude and Longitude">Lat & Long</font> coordinates for the particular location.<br />
+If <u>not</u> found -- then we didn't include those coordinates.</p>
+</ol>
+<p>We made sure that we were using a <i>populated</i> area.
+<blockquote>The problem is that the names that were given in the inventory was that the names were either a mixture of Anglophone, Francophone and other mismatches of names.</blockquote>
+We also looked at <i>alternative names</i>, combined with <i>fuzzy searching</i>, to figure out if the locations that we had "matched".<br />
+When we looked up distances for Niger, we definitely used straight-line distances.<br /><u>Judgment calls did have to be made with regards to distances on some locations.</u><br />Spot-checking was also done for locations with GoogleMaps.</p>
+<p>This may never be an exact science - so it's better to get the locations which we're absolutely sure about RIGHT. For the distances which are extremely far, we spot-checked and reconsidered them, but we would nonetheless eventually use averages.</p>
+<blockquote>GoogleEarth, sometimes, was absymally wrong with regards to road distances in Niger.</blockquote></p>
+<h4>Other Notes</h4>
+<ul>
+<li>Niamey had some administrative boundaries; we assumed that distances within Niamey were 0 kilometers away from each other.
+</ul>
+<p>Based on what we see above, HERE is the protocol that we're using for geocoding:</p>
+<table align="center">
+<tr><td>
+<font face="calibri"><h2 id="DecisionMaking">Decision-Making Protocol for Geocoding</h2></font>
+<font size="3" face="calibri"><ol>
+<li><b>Evaluate Current Data</b>
+<blockquote><ul>
+<li>Create summary of available data<br />(Write where you got it, how you got the data, how did they derive the data, etc.)</li>
+</ul>
+</blockquote>
+<li><b>Verify Current Data Set</b></li>
+<blockquote><ul>
+<li>Do a Comprehensive Search to See if Other Coordinate Sources Exist</li>
+<li>Write a script in Google Earth (which creates a <font face="calibri" title="Keyhole Markup Language">KML</font> file which can plot it onto the map).</li>
+<li><u>Report Our Findings</u> - start at the top and move down.</li>
+<li><i>Note: Both HERMES and Google Earth use coordinates in <font face="calibri" title="Coordinate containing only degrees (real number) (DegDec). Look at 'Geographic_coordinate_conversion' on Wikipedia for more information."><u>decimal</u> format</font>.</i></li>
+</ul></blockquote>
+<li><b>Start looking for other places.</b></li>
+<blockquote><ul>
+<li><a href="http://maps.google.com" target="_blank">Google Maps</a></li>
+<li><a href="http://www.geonames.org" target="_blank">GeoNames</a></li>
+<li><a href="http://www.bing.com/maps/" target="_blank">Bing Maps</a> (<i>as a last resort</i>)</li>
+</ul></blockquote>
+<li><b>Things to Know</b>
+<ul><li>Go for Latitude & Longitude coordinates.
+<li>Look at <i title="Wiki says that this is 'the shortest distance between any two points on the surface of a sphere measured along a path on the surface of the sphere (as opposed to going through the sphere's interior).'">Great Circle Distances</i> between Upper Levels</li>
+<blockquote>If Abnormal:
+<ul><li>Cross-Reference</li>
+<li>If Unsure:</li>
+<ul><li>Eliminate</li>
+<li><font size="4">Unknown Distances = Average of Other Locations in Levels</font></ul></ul></ul>
+<li><b>Find RoadMap Distances</b>
+<ol>
+<li><a href="http://maps.google.com" target="_blank">Google Maps</a></li>
+<li><a href="http://www.bing.com/maps/" target="_blank">Bing Maps</a> (<i>as a last resort</i>)</li>
+<li><a href="http://www.esri.com/software/arcgis/index.html" target="_blank">ArcGIS</a> (<i>useful, but may be hard to learn</i>)</li>
+</ol><ul>
+<p>Additional Notes:</p>
+<li>Run Through and Find Distances</li>
+<li>Find a ratio between distances if necessary</li>
+</ul>
+</ol>
+<p><i>Remember:
+<ul>
+<li>Cross-checking is <u>always</u> a good idea.</i></li>
+<li>Document your workings in the NOTES column in the Stores spreadsheet.</li>
+</ul>
+</p>
+</font>
+</td></tr>
+</table>
+
+</body>
+
+<foot>
+<p>
+<center><a href="index.html">Documentation Home</a></center>
+</p>
+</foot>
+
+</html>

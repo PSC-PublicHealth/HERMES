@@ -1,0 +1,167 @@
+<html>
+<head>
+<title>HERMES Dictionary</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+<link href="../STARTHERE.html" rel="Start">
+</head>
+<body>
+<h1>HERMES Dictionary</h1>
+<p>
+Here's a list of terms (still being compiled) that are used to reference things in HERMES or partners that the VMI works with.
+</p>
+
+<h2>Table of Contents</h2>
+<blockquote><p><a href="#supplychainbasics">Supply Chain Basics</a><br />
+<a href="#vaccinesupplychainterminology">Vaccine Supply Chain Terminology</a><br />
+<a href="#probabilitydistributions">Probability Distributions</a><br />
+<a href="#technologyterms">Technology-Related Terms</a><br />
+<a href="#organizations">Organizations to Know</a><br />
+<a href="#vaccinesupplychaintools">Tools Used in Vaccine Supply Chain Analysis</a><br />
+<a href="#vmiprojects">Projects for VMI (Past and Current)</a></p></blockquote>
+
+<h2 id="supplychainbasics">Supply Chain Basics</h2>
+
+<blockquote>
+<p id="supplychain"><strong>Supply Chain</strong><br />The term for a system of processes through which product is moved from a manufacturer to the user.</p>
+
+<p id="push"><strong>Push [system]</strong><br />Alternately called an <i>allocation system</i>. In this type of system, the person who issues the supplies (e.g. the vendor, the higher level) calculates the quantities sent through to the next level. Quantities can either be fixed in size or variable with regards to the demand (referred to in HERMES as "<i>varpush</i>").</p>
+
+<p id="pull"><strong>Pull [system]</strong><br />Alternately called a <i>requisition system</i>. In this type of system, the location which recieves the supplies (at the lower level) calculates the quantities that are required at their level. Quantities are usually variable, as these systems request whatever stock is needed.</p>
+
+<p id="coldchain"><strong>Cold Chain</strong><br />The supply chain when it utilizes cold devices, such as refrigerators, freezers and vaccine carriers, as well as cold vehicles (e.g. cold trucks). Important in the vaccine supply chain because vaccine efficacy is maintained <i>only</i> when vaccines are kept in the cold chain; otherwise vaccines lose efficacy.</p>
+
+<p id="leafnodes"><strong>Leaf Nodes</strong><br />Alternately called <i>service delivery points</i> or <i>SDPs</i>. According to the <a href="http://deliver.jsi.com/dlvr_content/resources/allpubs/guidelines/LogiHand.pdf" target="_blank">USAID Logistics Handbook</a>, it is defined as "any facility where users receive supplies related to health services." These locations are usually hospitals and health centers, but may also include mobile units, community-based distributors, laboratories, and health posts. For the purposes of our modeling, "leaf nodes" refer to health clinics.</p>
+
+<p id="supplychainlevels"><strong>Supply Chain Levels</strong><br />The administrative depots where products are usually kept and vaccine is transferred to and from. For the purposes of our experiments, we usually use the levels of <i>Central</i>, <i>Region</i>, <i>District</i>, and <i>Clinics</i> (alternately called <i>Integrated Health Clinic</i> and <i>Integrated Health Center</i>, <i>depending on the country</i>)
+
+<p id="shippingloop"><strong>Shipping Loop</strong><br />A type of shipping route in which a vehicle travels to multiple destinations, before returning to its point of origin. (Alternatively, there are <i>point-to-point shipments</i>, in which the vehicle delivers or picks up just enough vaccine for its one delivery location.)</p>
+
+</blockquote>
+
+<h2 id="vaccinesupplychainterminology">Vaccine Supply Chain Terminology</h2>
+
+<blockquote>
+<p id="EPI"><strong>EPI</strong><br /><b>E</b>xpanded <b>P</b>rogram on <b>I</b>mmunization. A program started by the <a href="http://www.who.int" target="_blank">World Health Organization</a> in 1974, with the goal of making vaccines for childhood diseases available to children throughout the world. This is the program that dictates the specific vaccines, ages and doses per child for each specific country</p>
+
+<p id="NVI"><strong>NVI</strong><br /><b>N</b>ew <b>V</b>accine <b>I</b>ntroduction. The catch-all term for the introduction of new vaccines into the standard EPI regimen.</p>
+
+<p id="stockout"><strong>Stockout</strong><br />The term for when a location runs out of a particular product's stock. Can either be a partial stockout (a stockout for a particular product) or a full stockout (when the location has run out of ALL products' stock).</p>
+
+<p id="supplyratio"><strong>Supply Ratio</strong> (<b>Vaccine Availability</b>)<br />Defined as <font size="2" face="courier new">[treated individuals]/[total number of individuals]</font>. Analogous to <i>prevalence</i>, which is a measure in public health. When applied specifically to vaccines, it can be denoted as <i>vaccine availability</i>.</p>
+
+<p id="openvialwaste"><strong>Open Vial Waste</strong><br />Occurs when vials are opened but not all the doses are completely consumed before the vaccine vial expires. This process has been detailed by a previously published VMI file and the WHO's <a href="http://whqlibdoc.who.int/hq/2000/WHO_V&B_00.09.pdf" target="_blank">Multi-Dose Vial Policy</a> (<i>MDVP</i>)</p>
+
+<p id="baselinescenario"><strong>Baseline Scenario</strong><br />The supply chain as it currently stands - with no population, storage, transportation or policy modifications.</p>
+
+<p id="4x4truck"><strong>4x4 Truck</strong><br />Refers in this case to a pick-up truck, <i>not</i> an all-terrain vehicle (ATV). The space available for vaccines varies based on the specifications for the country-specific truck, as well as if it is a single-cab or a double-cab truck.</p>
+
+<p id="vaccinecarrier"><strong>Vaccine Carrier</strong><br />A type of cold box carried to the <a href="hermes_dictionary.html#leafnodes">leaf nodes</a> of a supply chain, usually on a motorcycle.</p>
+
+<p id="MDVP"><strong>MDVP</strong><br /><b>M</b>ulti-<b>D</b>ose <b>V</b>accine <b>P</b>olicy. Created by the WHO to document the use of multi-dose vials for multiple immunization sessions. (Essentially, all vaccines, once reconstituted, can be used up to 6 hours after reconstitution.) See <i>open vial waste</i> for more details. </p>
+</blockquote>
+
+<h2 id="probabilitydistributions">Probability Distributions</h2>
+
+<blockquote>
+<p id="stochasticmodel"><strong>Stochastic Model</strong><br />Alternately called a <i>probabilistic model</i>. The outputs of the model will vary slightly each time, as the model is based on the selection of a random number.<br /><i>Stochasticity</i> refers to a process which uses a random variable and/or uses a random sampling procedure which, over time and many trials, can approximate a certain outcome (opposed to a <i>deterministic</i> process, which parameterizes a variable into a discrete unit, which is subsequently used to create a certain outcome).</p>
+
+<p id="poissondistribution"><strong>Poisson Distribution</strong><br />The distribution from which the number of patients arriving at a clinic per vaccination session, and any other process involving a random number selection, is based. It is a discrete statistical distribution which expresses the probability of a given number of events occurring in a fixed interval of time and/or space if these events occur with a known average rate and independently of the time since the last event. It is usually based on the <i>Poisson law of small numbers</i>. This distribution is characterized by the parameters: mean = &#955; and standard deviation = <font face="courier new" size="2">sqrt</font>(&#955;).</p>
+</blockquote>
+
+<h2 id="technologyterms">Technology-Related Terms</h2>
+
+<blockquote>
+<p id="HERMES"><strong>HERMES</strong><br /><b>H</b>ighly <b>E</b>xtensible <b>R</b>esource for <b>M</b>odeling <b>S</b>upply-chains, the software that VMI is currently producing. More information can be found <a href="hermes_introduction.html">here</a></p>
+
+<p id="batchfile"><strong>Batch File</strong><br />For our purposes, a batch file is a file which can be edited in a text file (e.g. Notepad, Wordpad), yet can be run when the program is clicked on. Denoted by the filetype <font face="courier new" size="2">*.bat</font>.</p>
+
+<p id="DAV"><strong>DAV</strong><br />More formally called <i>Web Distributed Authoring and Versioning</i>, or <i>WebDAV</i> for short. More information can be found <a href="first_steps.html#DAV">here</a></p>
+
+<p id="SVN"><strong>SVN</strong><br />Short for <i>subversioning network</i>. More information can be found <a href="first_steps.html#SVN">here</a>.</p>
+</blockquote>
+
+<h2 id="organizations">Organizations to Know (<i>In Alphabetical Order</i>)</h2>
+
+<blockquote>
+<p id="BMGF"><strong>BMGF</strong><br /><b>B</b>ill and <b>M</b>elinda <b>G</b>ates <b>F</b>oundation. Initially set up by Bill Gates in 1994 as the <i>William H Gates Foundation</i>, it now serves as a highly philanthropic organization working in program areas related to global health, global development, scholarships and other grants. VMI has worked with the BMGF through a series of investigative modeling exercises done in November 2011 and January-February 2012, in which the supply chains of Niger and Chad (with future plans to include Senegal and Kenya) were modeled. Future meetings are planned in the coming quarters with the organization. More information can be found <a href="http://www.gatesfoundation.org/Pages/home.aspx" target="_blank">here</a>.</p>
+
+<p id="CHAI"><strong>CHAI</strong><br /><b>C</b>linton <b>H</b>ealth <b>A</b>ccess <b>I</b>nitiative. An organization created by President Clinton in 2002, it acts as a "global health organization committed to strengthening integrated health systems in the developing world and expanding access to care and treatment for HIV/AIDS, malaria and tuberculosis." Although VMI has been visited by the CHAI team in the past, there currently are no collaborative efforts between the groups. More information can be found <a href="http://www.clintonfoundation.org/what-we-do/clinton-health-access-initiative" target="_blank">here</a>.</p>
+
+<p id="IVGG"><strong>IVGG</strong><br /><b>I</b>ntellectual <b>V</b>entures and <b>G</b>lobal <b>G</b>ood. Initially started as a partnership between Nathan Myhrvold (Microsoft), Edward Jung (Microsoft), Peter Detkin (Intel) and Gregory Gorder (Perkins Coie) in 2000, the organization now ranks in the top 5 companies in the US in terms of number of patents. IVGG are the creators of the <i>passive vaccine storage device</i> (PVSD), which HERMES has been testing the implementation of within dynamic models of supply chains. More information can be found <a href="http://www.intellectualventures.com/aboutus.aspx" target="_blank">here</a>.</p>
+
+<p id="JSI"><strong>JSI</strong><br /><b>J</b>ohn <b>S</b>now <b>I</b>ncorporated, a healthcare consulting company based out of Boston. Does significant work with vaccine supply chain logistics & helps to organize <i>Project Optimize</i>. More information can be found <a href="http://www.jsi.com/" target="_blank">here</a>.</p>
+
+<p id="PAHO"><strong>PAHO</strong><br /><b>P</b>an-<b>A</b>merican <b>H</b>ealth <b>O</b>rganization. A regional office of the WHO, it serves to work on health issues that are related to the Americas (primarily Central and South America). PAHO is planning to visit the VMI group in Pittsburgh on April 9<sup>th</sup>, 2012, in relation to an ongoing collaboration with regards to the Guatemalan supply chain and other public health projects. More information can be found <a href="http://www.paho.org/" target="_blank">here</a>.</p>
+
+<p id="PATH"><strong>PATH</strong><br />Derived from <b>P</b>rogram for <b>A</b>ppropriate <b>T</b>echnology in <b>H</b>ealth, PATH is a global health non-profit dedicated to improving access to health services worldwide. It has significant research interests in contraception, childhood nutrition, childhood diseases, epidemic diseases and health technologies. As of 2012, VMI has a strong collaboration with PATH. Data collected through PATH created the Senegal vaccine supply chain model, while VMI is working with PATH to pilot the EVM+ (Effective Vaccine Management +) tool, which is to use HERMES and the existing EVM tool as complements. PATH also has contributed significant expertise in vaccine supply chain costing during the Bill and Melinda Gates Foundation meetings, and are the costing experts behind HERMES. More information can be found <a href="http://www.path.org" target="_blank">here</a>.</p>
+
+<p id="PSU"><strong>PSU</strong><br /><b>P</b>rince of <b>S</b>ongkhla <b>U</b>niversity, located in Hat Yai City, Songkhla Provice, in southern Thailand. PSU has been instrumental in assisting VMI to set up the Thailand vaccine supply chain model, and has contributed significant work into research projects involving the influence of dengue and flu vaccinations. More information can be found <a href="http://www.psu.ac.th/en" target="_blank">here</a>.</p>
+
+<p id="projectoptimize"><strong>[Project] Optimize</strong><br />A collaborative program between PATH and the WHO (with significant insights by JSI), funded by the Bill and Melinda Gates Foundation, it is a program spanning from 2007 to 2012, which aims to document the ideal characteristics of a supply chain, and eventually create a roadmap which allows for the optimization of vaccine supply chains. The project has done significant analyses in Albania, Guatemala, Senegal, Tunisia and Vietnam; we have obtained information from them to create our Vietnamese and Senegalese supply chain models. More information can be found <a href="http://www.path.org/projects/project-optimize.php" target="_blank">here</a>.</p>
+
+<p id="USAIDdeliver"><strong>USAID|DELIVER</strong><br />A program run by <b>USAID</b>, the <b>U</b>nited <b>S</b>tates <b>A</b>gency for <b>I</b>nternational <b>D</b>evelopment (the US federal agency responsible for development projects abroad) and <a href="hermes_dictionary.html#JSI" target="_blank">JSI</a>. The program is dedicated to, "[strengthening] supply systems for essential health commodities and works to ensure their sustainability". More information can be found <a href="http://deliver.jsi.com/dhome" target="_blank">here</a>.</p>
+
+<p id="UNICEF"><strong>UNICEF</strong><br />Now called the <i>United Nations Childrens Fund</i>, its acronymic name was derived from the previous name, <b>U</b>nited <b>N</b>ations <b>I</b>nternational <b>C</b>hildren's <b>E</b>mergency <b>F</b>und. Provides long-term humanitarian and development support to women and children, with a focus on education, water and sanitation, child protection and child health. It is a member of the United Nations Development Program (UNDP). UNICEF helps to administer many of the <a href="hermes_dictionary.html#EPI">EPI</a> vaccines currently avaliable on the market. More information can be found <a href="http://www.unicef.org/" target="_blank">here</a>.</p>
+
+<p id="WHO"><strong>WHO</strong><br /><b>W</b>orld <b>H</b>ealth <b>O</b>rganization. An inter-governmental organization that acts as the directing and coordinating health authority within the United Nations system. Does significant work in vaccine supply logistics through its Department of Vaccines and Biologicals, and creates many of the tools currently used to analyze supply chains. More information can be found <a href="http://www.who.int/about/en/" target="_blank">here</a>.</p>
+
+<p id="worldbank"><strong>World Bank</strong><br />An international financial institution that provides loans to developing countries for projects involving infrastructure and capital. While VMI doesn't have a strong collaboration with the World Bank, at one point, VMI analyzed the indicators measuring the progress of the Bank's Buy-Down program. More information can be found <a href="http://www.worldbank.org/" target="_blank">here</a>.</p>
+
+</blockquote>
+
+<h2 id="vaccinesupplychaintools">Tools Used in Vaccine Supply Chain Analysis</h2>
+
+<blockquote>
+<p id="CCEM"><strong>CCEM</strong><br /><b>C</b>old <b>C</b>hain <b>E</b>quipment <b>M</b>anagement tool. Co-developed by PATH and WHO, it is aimed to document all of the existing cold chain equipment (e.g. refrigerators, freezers, cold rooms) that exist at individual locations in the supply chain. The tool is based in Microsoft Access, and also contains a user manual and questionnaire forms. More information can be found <a href="http://www.path.org/publications/detail.php?i=1569" target="_blank">here</a>.</p>
+
+<p id="cMYP"><strong>cMYP</strong><br /><b>C</b>omprehensive <b>M</b>ulti-<b>Y</b>ear <b>P</b>lan. A document whose guidelines have been prescribed by WHO/UNICEF. which aims to document existing supply chain conditions in individual countries. It aims to act as a planning framework for a vaccine supply chain at the national level, to optimize delivery through the supply chain, and to incorporate costing elements within the national expenditures. More information can be found <a href="http://www.who.int/immunization_financing/tools/cmyp/en/index.html" target="_blank">here</a>.</p>
+
+<p id="costingspreadsheet"><strong>Costing Spreadsheet</strong><br />A document designed to break up the total supply chain costs by discrete categories. General categories include <i>labor costs</i>, <i>transport costs</i>, <i>storage costs</i> and <i>building costs</i>. The costing spreadsheets we use right now were created with close collaboration with <a href="hermes_dictionary.html#PATH">PATH</a></p>
+
+<p id="EVM"><strong>EVM</strong><br /><b>E</b>ffective <b>V</b>accine <b>M</b>anagement tool. A tool designed by the World Health Organization to observe the knowledge of vaccine supply and 'cold' chain procedures by personnel. Contains an explicit focus on knowledge-based procedures related to vaccine arrival procedures, storage temperatures and conditions, maintenance, stock management, and information systems at all levels. First implemented in 2009, replacing both the EVSM and the VMA. More information can be found <a href="http://www.who.int/immunization_delivery/systems_policy/logistics/en/index6.html" target="_blank">here</a>.</p>
+
+<p id="EVM+"><strong>EVM+</strong> (<i>in pilot stage</i>)<br /><b>E</b>ffective <b>V</b>accine <b>M</b>anagement 'Plus'. A tool which planes to combine the EVM and HERMES to observe both static and dynamic effects in the supply chain. To be piloted in Benin in 2012 by PATH and VMI.</p>
+
+<p id="EVSM"><strong>EVSM</strong><br /><b>E</b>ffective <b>V</b>accine <b>S</b>tore <b>M</b>anagement. The previous tool used by the WHO (<i>which was replaced by the EVM</i>) to assess the knowledge of the supply chain procedures by personnel. Had an explicit focus on the national store, and contained many of the same categories as the EVM (except for 'human and financial resources', 'timely deliveries' and 'damage during distribution'). First used in 2003; replaced in 2009 by the EVM.</p>
+
+<p id="LIAT"><strong>LIAT</strong><br /><b>L</b>ogistics <b>I</b>ndicators <b>A</b>ssessment <b>T</b>ool. A facility questionnaire developed by USAID|DELIVER to 'assess health commodity logistics system performance and commodity availability' at the health facility level. Used in conjunction with the LSAT to assess supply chain performance. A copy of the tool can be found <a href="http://pdf.usaid.gov/pdf_docs/PNADE735.pdf" target="_blank">here</a>.</p>
+
+<p id="LMIS"><strong>LMIS</strong><br /><b>L</b>ogistics <b>M</b>anagement and <b>I</b>nformation <b>S</b>ystem. An information system (in the process of being computerized) designed to keep track of stock inventory data in a supply chain. LMIS is compiled from paper records collected at lower levels, to give a sense of the product flow through a supply chain. Known as a "static" form of supply chain analysis.</p>
+
+<p id="LSAT"><strong>LSAT</strong><br /><b>L</b>ogistics <b>S</b>ystems <b>A</b>ssessment <b>T</b>ool.  A facility questionnaire developed by USAID|DELIVER, 'to complete an annual assessment [of a supply chain] as an integral part of the work planning process. The information collected using the LSAT is analyzed to identify issues and opportunities and, from those, used to outline further assessment and/or appropriate interventions'. Can be used at multiple levels (not just health facility level). Used in conjunction with the LIAT to assess supply chain performance. A copy of the tool's user manual can be found <a href="http://pdf.usaid.gov/pdf_docs/PNADO527.pdf" target="_blank">here</a>.</p>
+
+<p id="VMA"><strong>VMA</strong><br /><b>V</b>accine <b>M</b>anagement <b>A</b>ssessment tool. Tool used by the <a href="hermes_dictionary.html#WHO">WHO</a> to analyze content knowledge of supply chain procedures at <i>all levels</i> of the supply chain. Included a focus on vaccine vial monitor use, diluent use, multi-dose vaccine policy (MDVP) and vaccine wastage control. First used in 2003; replaced by the EVM in 2009.</p>
+
+<p id="VPAT"><strong>VPAT</strong><br /><b>V</b>accine <b>P</b>resentation <b>A</b>ssessment <b>T</b>ool. A tool co-designed by PATH and BMGF to 'model the logistical and financial impact of adding a new vaccine to an immunization schedule' in a static manner (through a spreadsheet tool). [In contrast, HERMES models the same type of impact through a <i>dynamic</i> manner - showing what the supply chain would look like at multiple points in time.] A copy of the tool (courtesy of its working group) can be found <a href="http://sites.google.com/site/vppagp/vpat" target="_blank">here</a>.</p>
+</blockquote>
+
+<h2 id="vmiprojects">Projects for VMI (Past and Current)</h2>
+
+<blockquote>
+<p id="PVSD"><strong>PVSD</strong><br /><b>P</b>assive <b>V</b>accine <b>S</b>torage <b>D</b>evice, alternately known as a <em>passive cold device</em>. The PVSD is the product of research from many sources - such as the refrigerator maker Dometic and <a href="hermes_dictionary.html#IVGG">Intellectual Ventures & Global Good</a>. While we currently collaborate with Global Good, we cannot publish anything on the specifications that have been provided by GG. The main aim of the device is to facilitate immunization outreach to out-of-the-way clinics, and to perhaps replace powered refrigerators at clinic locations.</p>
+
+<p id="bluesky"><strong>Blue Sky Scenario</strong><br />A scenario in which all levels but the national level and the <a href="hermes_dictionary.html#leafnodes">leaf nodes</a> are removed from a supply chain, indicating a direct delivery of goods from the highest level to the lowest level. Devised during the <a href="hermes_dictionary.html#BMGF">BMGF</a> meetings as an alternate supply chain structure. </p>
+
+<p id="mobile"><strong>Mobile scenario</strong><br />A scenario in which PVSDs are implemented as "mobile fridges" between levels in the supply chain, most likely between the district and the clinic levels, eliminating the need for both cold transportation and stationary cold devices. Scenarios using this framework were devised during the BMGF meetings in early 2012.</p>
+
+<p id="geocoding"><strong>Geocoding</strong><br />The process behind finding out geographical coordinates of locations. Usually starting out with a search for geographical locations and an evaluation of currently-available data, it subsequently becomes a search for distances that are used in calculating vehicle costs through a <a href="hermes_dictionary.html#costingspreadsheet">costing spreadsheet</a>. A protocol for the geocoding process can be found <a href="../../hermes_geocoding.html">here</a>.</p>
+
+<p id="buydown"><strong>Buy-Down Project</strong><br />A project funded by the World Bank, dedicated to polio eradication in Niger and Pakistan. Uses a funding mechanism which, if specific indicators are met, converts a loan into a grant. Indicators used are related to vaccine timeliness and vaccine stock inventory. VMI attempted an analysis of supply chain indicators, including those used by the Project. (This project is still being worked on.)</p>
+</blockquote>
+
+<br /><br />
+
+<h3>Is this dictionary missing any terms?</h3>
+<blockquote>
+<p>If you have any suggestions for term(s) to include in the dictionary, email the tutorial webmaster <a href="mailto:mms160@pitt.edu?subject=Add%20or%20Modify%20HERMES%20Dictionary%20Terms" target="_blank">here</a>.</p>
+</blockquote>
+<br /><br />
+</body>
+
+<foot>
+<p>
+<p><center>Back to <a href="../STARTHERE.html">Home</a>.</center></p>
+</p>
+</foot>
+
+</html>

@@ -1,0 +1,50 @@
+<html>
+<head>
+
+<title>HERMES Results - Documentation</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body bgcolor="white">
+
+<left><h1>HERMES Results "Summary File" & How to Interpret Them (SVN r1195)</h1></left>
+<p>
+
+<table>
+<tr><th align="center">Column Letter<th align="left">Column Heading<th align="left">Definition</tr>
+<tr><td align="center">A<td align="left">code<td align="left">Artifact of old processes. Currently not meaningful.</tr>
+<tr><td align="center">B<td align="left">name<td align="left">Artifact of old processes. Currently not meaningful.<br />(<i>Note: there is a distinction between "<font face="courier new" size="2">name</font>" and "<font face="courier new" size="2">Name</font>".</i> See Column I for details.)</tr>
+<tr><td align="center">C<td align="left">Applied<td align="left">Applies to Type "vaccinetype" (see Column W); shows number of <i>applied</i> doses.</tr>
+
+<tr><td align="center">D<td align="left">DisplayName<td align="left">Applies to Type "Vaccinetype" - indicates the generic name for which a vaccine is classified. For example, "N_Tuberculosis" (in the model) has a display name of "BCG", indicating that it is a vaccine of the BCG type.</tr>
+
+<tr><td align="center">E<td align="left">DosesPerVial<td align="left">Applies to Type "vaccinetype" and moderated by UnifiedVaccineTypeInfo file - shows the number of doses possible for a vial.</tr>
+
+<tr><td align="center">F<td align="left">Name<td align="left">Name, as dictated by the relevant Unified file (vaccine, storage, people, truck type). Usually assigned (in this repository) as "[COUNTRY LETTER]_[NAME]".</tr>
+<tr><td align="center">G<td align="left">OpenVialWasteFrac<td align="left">Applies to type "vaccinetype"; shows the percentage of open vials that are wasted. A baseline be set through an "openvialwaste" ("OVW") file in the Niger model. All other models do not use this OVW file.</tr>
+
+<tr><td align="center">H<td align="left">ShipKm<td align="left">Shows the number of kilometers which the storage device has been shipped. This field applies to both "vaccinetype" and "trucktype".</tr>
+
+<tr><td align="center">I<td align="left">ShipTimeDays<td align="left">Shows the number of days in which a storage device has been shipped. Takes into account the days needed to do a round trip. Applies to both types "vaccinetype" and "trucktype".</tr>
+
+<tr><td align="center">J<td align="left">ShipVialDays<td align="left">Applies to type "vaccinetype"; shows the total number of days of vaccine shipments, by vaccine type.</tr>
+<tr><td align="center">K<td align="left">ShipVialKm<td align="left">Applies to type "vaccinetype"; shows the estimated total distance in kilometers a vaccine type's vaccine shipments has traveled.</tr>
+<tr><td align="center">L<td align="left">StorageHistoryVialDays<td align="left">Applies to type "vaccinetype"; shows the estimated number of days a vaccine type is kept in storage.</tr>
+<tr><td align="center">M<td align="left">SupplyRatio<td align="left">Applies to type "vaccinetype"; shows the vaccine availability for an area. Defined by the formula [TOTAL NUMBER OF TREATED PEOPLE]/[TOTAL NUMBER OF PATIENTS]</tr>
+<tr><td align="center">N<td align="left">TotalKm<td align="left">Applies to type "trucktype"; shows the total number of kilometers traveled by that particular truck type.</tr>
+<tr><td align="center">O<td align="left">TotalTravelDays<td align="left">Applies to type "trucktype"; shows the total number of hours traveled <i>on average</i> for an individual from a particular truck type.</tr>
+<tr><td align="center">P<td align="left">TotalTrips<td align="left">Applies to type "trucktype"; shows total number of trips taken by a particular truck type.</tr>
+<tr><td align="center">Q<td align="left">Treated<td align="left">Applies to type "vaccinetype"; shows the total number of treated individuals across <i>all</i> clinics with a particular vaccine type.</tr>
+<tr><td align="center">R<td align="left">Type<td align="left">Shows the "type" applicable to the entries. Can be broken up into either "vaccinetype" (from <font face="courier new" size="2">UnifiedVaccineTypeInfo</font>), "fridgetype" (from <font face="courier new" size="2">UnifiedStorageTypeInfo</font>), "peopletype" (from <font face="courier new" size="2">UnifiedPeopleTypeInfo</font> file) or "trucktype" (from <font face="courier new" size="2">UnifiedTruckCapacityInfo</font> file).</tr>
+<tr><td align="center">S<td align="left">VialsBroken<td align="left">Applies to type "vaccinetype"; shows the average number of vials broken during the simulation itself (excluding the burn-in period). For right now, with a breakage rate of 0%, the value should be "0".</tr>
+<tr><td align="center">T<td align="left">VialsBrokenAbsolute<td align="left">Applies to type "vaccinetype"; shows the number of vials broken, from the <i>beginning</i> of the burn-in period to the end of the simulation. Should have a value of "0", for reasons specified above in <font face="courier new" size="2">VialsBroken</font>.</tr>
+<tr><td align="center">U<td align="left">VialsCreated<td align="left">Applies to type "vaccinetype"; total number of vials <i>created</i> from the <i>end</i> of the burn-in period to the end of the simulation.</tr>
+<tr><td align="center">V<td align="left">VialsCreatedAbsolute<td align="left">Applies to type "vaccinetype"; denotes total number of vials created from the <i>beginning</i> of the burn-in period to the end of the simulation.</tr>
+<tr><td align="center">W<td align="left">VialsExpired<td align="left">Applies to type "vaccinetype"; denotes total number of vials that expired during the run time (excluding the burn-in period), by vaccine type.</tr>
+<tr><td align="center">X<td align="left">VialsExpiredAbsolute<td align="left">Applies to type "vaccinetype"; denotes total number of expired vials, from the <i>beginning</i> of the burn-in period to the end of the simulation, by vaccine type.
+<tr><td align="center">Y<td align="left">VialsUsed<td align="left">Applies to type "vaccinetype"; denotes total number of vials used during the simulation timespan, by vaccine type, from the <i>end</i> of the burn-in period to the end of the simulation..</tr>
+<tr><td align="center">Z<td align="left">VialsUsedAbsolute<td align="left">Applies to type "vaccinetype"; denotes total number of vials used during the simulation, by vaccine type, from the <i>beginning</i> of the burn-in period to the end of the simulation.</tr>
+<tr><td align="center">AA<td align="left">coolerStorageFrac<td align="left">Applies to type "vaccinetype"; shows the average fraction of <i>cooler</i> space used to hold vaccines. If the model is working properly, this should read as "1", indicating vaccines are stored there.</tr>
+<tr><td align="center">AB<td align="left">roomtemperatureStorageFrac<td align="left">Applies to type "vaccinetype"; shows the average fraction of <i>outdoor</i> space used to hold vaccines. If the model is working properly, this should read as "0". </tr>
+</table>
+</body>
+</html>

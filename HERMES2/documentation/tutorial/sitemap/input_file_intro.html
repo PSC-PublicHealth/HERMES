@@ -1,0 +1,111 @@
+<html>
+<head>
+<title>Introduction to the HERMES Input File</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+<link href="hermes_basics2.html" rel="Prev"><link href="../STARTHERE.html" rel="Start"><link href="checkpage.html" rel="Next">
+
+</head>
+<body>
+<h1>HERMES Basics: Introduction to the Input File</h1>
+
+<h2>How Does the 'Input File' Differ from the Input File<u>s</u> Mentioned Before?</h2>
+<p>The input files which were previously mentioned were <i>data input files</i>. They were basically spreadsheets, which allowed us to input various pieces of data which, all together, comprised the various facets of a vaccine supply chain. Those files were free-standing - that is, they contained <i>everything</i> that was pertinent to a particular focus area of the supply chain - but individually, could not actually "run" HERMES.</p>
+<p>The input file described in <i>this</i> page is the <i>combined</i> input file. This type of file - <i>much</i> smaller in size than any of the data input files - helps to "combine" the various input files in a manner that can be read by HERMES. It basically 'calls' each necessary (data) input file that was previously created and <u>utilizes</u> each one of them in the simulation.</p>
+<p><strong>Both types of input files are used together to run HERMES.</strong> You <u>cannot</u> run HERMES without any of these components!</p>
+
+<h2 id="inputstructure">Structure of an Input File</h2>
+<p>An <i>input file</i> is a text file - usually in a <font title="Comma Seperated Value">CSV</font> or a <font title="Key-Value Pair">KVP</font> format - which allows a user to specify each of the individual data input files created, so that HERMES can adequately run with the intended parameters.</p>
+<p>Each line in the input file pertains to a different command and/or data input file.</p>
+<p>The (data) input files that are mentioned in the text input file are those that are <i>country-specific</i>, and therefore, their file names should be entered in <i>exactly</i> as they appear in the <a href="hermes_basics.html#countryspecific" target="_blank">country-specific folder</a> in the SVN.</p>
+
+<h3>Wait, what's the difference between a CSV and a KVP file?</h3>
+<p>In terms of content - nothing, if you use the same data and parameters in either type of input file. The model *should* read either type of file in a similar fashion.</p>
+<p>However, in terms of the input data entry and parsing of the input file, the KVP file wins out. Instead of having data contained in two seperate cells (as it would be in a CSV file), data in the KVP file is only contained on line. This makes the KVP file easier to parse out, and smaller in size.</p>
+<p>Some people find using the CSV format quite a bit easier due to its user-friendliness - through values being input into cells. That said, due to the difference in the way the CSV file is parsed out between Excel and a text editor such as Notepad, there is a higher likelihood that the file will have some mistake that can be hidden from the user until it must be used.</p>
+<p>The KVP format is, by far, more streamlined and easier to use than the CSV format. Therefore, the way one uses a CSV input file will not be discussed in this tutorial. Rather, if you want to use a CSV input file, please let us know -- we'll teach you how to use it.</p>
+
+<h2 id="example">Example Input File and How to Read It</h2>
+<p>For the Niger model, the input file in the <b>KVP</b> format, is below.<br />
+<b>Note that any line with a "#" in front of the indicates that this line will be "commented" out -- that is, the computer will not read these lines, and will not incoperate their content into the route.</b></p>
+
+<pre>
+#
+#  This is a simple niger model input
+#
+
+rundays = 336
+model = 'model_niger'
+#monitor = 1,10001,10101,10102
+monvax = 'all'
+burnindays = 28
+storesfile = 'NigerStoreInfo_REALITY_2011_NewPopModel.csv'
+routesfile = 'NigerRoutes.csv'
+demandfile = 'Niger_Demand.csv'
+#saveall = test
+outputfile = 'niger_out'
+factoryoverstockscale = 1.25
+factoryshipmentsperyear = 2.0
+initialovw = 'N_OVW.csv'
+twentyeightdaymonths=True
+#scaledemandbytypeexpected = 'N_Tuberculosis:.95','N_DTP-HepB-Hib liquid:.9','N_Pneumococcal13:.6','N_RotavirusV4:.8','N_Yellow Fever:.9','N_Measles:.9','N_Tetanus_Toxoid:.9','N_Oral Polio:.9',
+#scaledemandbytypeactual = 'N_Tuberculosis:.95','N_DTP-HepB-Hib liquid:.9','N_Pneumococcal13:.6','N_RotavirusV4:.8','N_Yellow Fever:.9','N_Measles:.9','N_Tetanus_Toxoid:.9','N_Oral Polio:.9',
+pricetable='Niger_Costs_2011.csv'
+#seed = 4567
+</pre>
+
+<h3 id="walkthrough">Alright, so that's the input file with all the fields. Great. What do each of these lines <i>mean</i>?</h3>
+<p>As mentioned before, the first three lines, with the "#" at the front of them, indicate that these are <i>commented</i> lines. They contribute nothing to the input files (in terms of data needed to run HERMES), but they can provide insight that's user-readable (i.e., what the file is, who made the file, etc.)</p>
+<pre>rundays = 336</pre>
+<p>The above line indicates that the model itself - what we would refer to as the "run time" - is going to run for a period of 336 days. In HERMES-land, due to our use of the 28-day month, our years end up being 336 days.
+<br />The number of days used here should be a <a href="../../quickstart_commandline.html" target="blank">integer</a> number, so no decimal points can be used. (<i>Note: link works on the SVN version of this tutorial only.</i>)</p>
+<pre>model = 'model_niger'</pre>
+<p>We're using the <font face="courier new" size="2">model_niger.py</font> file, which is located in the main HERMES2 folder in your <a href="first_steps.html#SVN" target="_blank">SVN</a>.</p>
+<pre>#monitor = 1,10001,10101,10102</pre>
+<p>This line has been commented out, so it won't be used for this particular scenario. The locations with the following ID codes will have their vaccine stocks monitored and displayed in a graphical format: 1, 10001, 10101 and 10102 (which is, for Niger, the Central Depot, Agadez District Depot, Agadez Regional Depot and Caisse IHC respectively).</p>
+<pre>monvax = 'all'</pre>
+<p>All vaccines types will be monitored at the same time. If a vaccine name is put there instead of 'all' (e.g. 'N_TetanusToxin'), then only that vaccine type will have its stock levels monitored.</p>
+<pre>burnindays = 28</pre>
+<p>In order to initialize the model, there is a specified "burn-in time" where the vaccine stocks are pre-distributed the system, in order to allow for the first month of users to be sufficiently vaccinated. This 'burn in time' does *not* count as part of the simulation time.
+<br />The number of days used here should be a <a href="../../quickstart_commandline.html" target="blank">integer</a> number, so no decimal points can be used.</p>
+<pre>storesfile = 'NigerStoreInfo_REALITY_2011_NewPopModel.csv'</pre>
+<p>The stores file that is being used in the above simulation is <font face="courier new" size="2">NigerStoreInfo_REALITY_2011_NewPopModel.csv</font>. This indicates that we're running a <i>baseline scenario</i>, where no perturbations to the system are applied.</p>
+<pre>routesfile = 'NigerRoutes.csv'</pre>
+<p>The routes file being used is <font face="courier new" size="2">NigerRoutes.csv</font>, a baseline input file.</p>
+<pre>demandfile = 'Niger_Demand.csv'</pre>
+<p>The population demand file being used in the simulation is <font face="courier new" size="2">Niger_Demand.csv</font>.
+<pre>#saveall = test</pre>
+<p>This command - <i>which is commented out</i> (and therefore, <i>is not being used</i>) - denotes that if we wanted to create a "<font size="2" face="courier new">saveall</font>" file (which would save the vaccine inventory graphs of <i>all locations and all vaccines</i> in the supply chain), the saveall file would have the name <font face="courier new" size="2">test.pkl</font>. (<i>More on the PKL extension later.</i> It's a pretty advanced topic to get your head around.)</p>
+<pre>factoryoverstockscale = 1.25</pre>
+<p>factoryoverstockscale is the amount of buffer stock that the factory provides per factory shipment. The above value suggests that besides the shipment being supplied (100%), there is an extra 25% buffer stock added to the shipment (125% = 1.25).</p>
+<pre>factoryshipmentsperyear = 2.0</pre>
+<p>factoryshipmentperyear is the number of factory shipments to the central store per year. The above statement suggests that two shipments are made from the factory to the Central level per year at baseline.</p>
+<pre>outputfile = 'niger_out'</pre>
+<p>The name of any output file from this specific simulation would have the root <font face="courier new" size="2">niger_out</font>. Example files from these scenarios (assuming a <a href="hermes_basics.html#multiplesims" target="_blank">single run of HERMES</a>) could be <font face="courier new" size="2">niger_out.0_summary.csv</font> or <font face="courier new" size="2">niger_out.0.csv</font></p>
+<pre>initialovw = 'N_OVW'</pre>
+<p>The initial open vial waste file is denoted as <font face="courier new" size="2">N_OVW</font>. <i>Note: this syntax only applies for the <u>Niger</u> model. All of the other models do not use this type of input file.</i></p>
+<pre>twentyeightdaymonths=True</pre>
+<p>If this line is rendered "True", then the model will run on a 28-day schedule per month. If this line is rendered "False", the model will run on a 30-day schedule per month.</p>
+<pre>#scaledemandbytypeexpected = 'N_Tuberculosis:.95','N_DTP-HepB-Hib liquid:.9','N_Pneumococcal13:.6','N_RotavirusV4:.8','N_Yellow Fever:.9','N_Measles:.9','N_Tetanus_Toxoid:.9','N_Oral Polio:.9',</pre>
+<p>This line shows the expected demand for each vaccine, scaled to the proportion of the population expected to get each vaccine type. (This line has been commented out; the estimates listed are for 2015, not 2011.)</p>
+<pre>#scaledemandbytypeactual = 'N_Tuberculosis:.95','N_DTP-HepB-Hib liquid:.9','N_Pneumococcal13:.6','N_RotavirusV4:.8','N_Yellow Fever:.9','N_Measles:.9','N_Tetanus_Toxoid:.9','N_Oral Polio:.9',</pre>
+<p>This line shows the actual demand for each vaccine, scaled to the proportion of the population who will actually get each vaccine type. (This line has been commented out; the estimates listed are for 2015, not 2011.</p>
+<pre>pricetable='Niger_Costs_2011.csv'</pre>
+<p>The costing/price table being used in this baseline simulation is <font size="2" face="courier new">Niger_Costs_2011.csv</font>.</p>
+<pre>#seed = 4567</pre>
+<p>This line has been commented out as well. As mentioned before, a <a href="hermes_dictionary.html#stochasticmodel" target="_blank">stochastic process</a> is one that's dependent on the selection of random processes. The seed number determines the random number from which the HERMES simulation is run. If this line is <i>uncommented</i>, this indicates that for every scenario you are running, the same random number will be selected, so your results should be consistently the same as long as other parameters are not changed.  <i>If you want to run multiple simulations at once, do <u>not</u> include the seed number.</i> (Instead, delete or comment out the row (by including a hash mark (#) in front of the row -- which has been done for you in this specific batch file).</p><br/>
+
+<h3>What If I want to use some other command that hasn't been covered in this tutorial?</h3>
+<p>A full list of the commands that are possible to use in the HERMES input file can be found <a href="../../input_keywords_generic.html" target="_blank">here</a>. (<b>A complete, always up-to-date version of this document can be found in the <a href="../../../input_default.csv" target="_blank">default input keywords</a> document in the repository.</b></p>
+<br /><br />
+</body>
+
+<foot>
+<p>
+<div style="float:left;width:33%;">Previously: <a href="hermes_basics2.html">Running HERMES: Command Line and/or Batch File</a></div>
+<div style="float:left;width:33%;"><a href="../STARTHERE.html">Home</a></div>
+<div style="float:right;width:33%;">Next: <a href="checkpage.html">Checking All Your Inputs + Running HERMES</a></div>
+</p>
+</foot>
+
+</html>
+

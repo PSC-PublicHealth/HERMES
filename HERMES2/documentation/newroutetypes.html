@@ -1,0 +1,102 @@
+<html>
+<head>
+<title>New Route Types</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+
+<body>
+<h1>New Route Types</h1>
+<p><em>These notes were written on May 24<sup>th</sup>, 2012.</em></p>
+
+<p>The Routes tables were redesigned as part of the costing model update in late May, 2012. The way that the Routes now works is that the routes are described as distinct entities, instead of simply being parsed by the model as a connection between the distributor and the client.</p>
+
+<p>This change indicates that transportation is now "housed" at a particular location, instead of materializing to ship stock between locations. As such, this now means that we have to distinguish between routes in which the stock is shipped directly from the higher level to the lower level, and routes where a transport vehicle travels from a lower level to pick up stock from a higher level.</p>
+
+<p><em>Note: "push" and "pull" routes refer to the side of the route from where a order is placed. This new system now allows for greater flexibility in two regards, as it takes into account both the location where a transportation vehicle resides, and the the location from which an order is placed.</em></p>
+<br />
+
+<table width=75%>
+ <tr><th align="left">Route Type</th><th align="left">Usage</th></tr>
+ <tr>
+  <td align="left"><font face="courier new">push</font></td>
+  <td align=”left” style="vertical-align:middle">
+<ul>
+<li>Truck resides at the <i>higher</i> level of the supply chain.</li>
+<li>The calculation of the order comes from the <i>higher</i> level of the supply chain, according to a specific schedule.</li>
+<li>A <i>fixed</i> amount is shipped each month.</li>
+</ul>
+  </td>
+ </tr>
+ <tr>
+  <td align="left"><font face="courier new">varpush</font></td>
+  <td align="left" style="vertical-align:middle">
+<ul>
+<li>Truck resides at the <i>higher</i> level of the supply chain.</li>
+<li>The calculation of the order comes from the <i>higher</i> level of the supply chain, according to a specific schedule.</li>
+<li> A <i>variable</i> amount (enough to fit the clinic's need, plus buffer) of product is shipped each month.</li>
+</ul>
+  </td>
+ </tr>
+ <tr>
+  <td align="left"><font face="courier new">pull</font></td>
+  <td align="left" style="vertical-align:middle">
+<ul>
+<li>Truck resides at the <i>higher</i> level of the supply chain.</li>
+<li>The calculation of the order comes from the <i>lower</i> level of the supply chain, and is not scheduled - clinics order whenever they need product.</li>
+<li>The amount of product shipped is <i>variable</i>, depending on the recipients' needs.</li>
+</ul>
+  </td>
+ </tr>
+ <tr>
+  <td align="left"><font face="courier new">attached</font></td>
+  <td align="left" style="vertical-align:middle">
+&nbsp; &nbsp; &nbsp; &nbsp;
+<em>All characteristics associated with this class of routes are associated with the location to which the attached location is linked.</em><br />
+<ul>
+<li>Truck is usually associated with the location which is being linked to.</li>
+<li>Order calculation is ignored, as the attached location just "grabs" product from the stocked location.</li>
+<li>The amount of product shipped is ignored, as the attached location just "grabs" product from the stocked location.</li>
+<li><em>Most of the columns associated with a route is ignored for this class.</em></li>
+</ul>
+  </td>
+ </tr>
+ <tr>
+  <td align="left"><font face="courier new">schedfetch</font></td>
+  <td align="left" style="vertical-align:middle">
+<ul>
+<li>Truck resides at the <i>lower</i> level of the supply chain; truck must travel to higher level to pick up stock.</li>
+<li>The calculation of the order comes from the <i>higher</i> level of the supply chain, according to a specific schedule.</li>
+<li>A <i>fixed</i> amount is shipped each month.</li>
+<li>Truck supplier must <i>always</i> be "0", so the RouteOrder would be "1" (upper level) and "0" (lower level) for a two-point route.</li>
+</ul>
+  </td>
+ </tr>
+ <tr>
+  <td align="left"><font face="courier new">schedvarfetch</font></td>
+  <td align="left" style="vertical-align:middle">
+<ul>
+<li>Truck resides at the <i>lower</i> level of the supply chain; truck must travel to higher level to pick up stock.</li>
+<li>The calculation of the order comes from the <i>higher</i> level of the supply chain, according to a specific schedule.</li>
+<li> A <i>variable</i> amount (enough to fit the clinic's need, plus buffer) of product is shipped each month.</li>
+<li>Truck supplier must <i>always</i> be "0", so the RouteOrder would be "1" (upper level) and "0" (lower level) for a two-point route.</li>
+</ul>
+  </td>
+ </tr>
+ <tr>
+  <td align="left"><font face="courier new">demandfetch</font></td>
+  <td align="left">
+<ul>
+<li>Truck resides at the <i>lower</i> level of the supply chain; truck must travel to higher level to pick up stock.</li>
+<li>The calculation of the order comes from the <i>lower</i> level of the supply chain</li>
+<li>The calculation of the order comes from the <i>lower</i> level of the supply chain, and is not scheduled - clinics order whenever they need product.</li>
+<li>Truck supplier must <i>always</i> be "0", so the RouteOrder would be "1" (upper level) and "0" (lower level) for a two-point route.</li>
+</ul>
+  </td>
+ </tr>
+</table>
+
+<br />
+
+</body>
+
+</html>

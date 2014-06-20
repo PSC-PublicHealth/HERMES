@@ -1,0 +1,93 @@
+<html>
+<head>
+
+<title>Event Logging in HERMES</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body bgcolor="white">
+
+
+<left><h1>Event Logging in HERMES</h1></left>
+<em>Note: these rules are applicable as of SVN r1127 (16 November 2012).</em>
+
+<p>There has been two scripts implemented in the <font size="2" face="courier new">/tools</font> directory of HERMES - <b><font size="2" face="courier new">eventlog.py</font></b> and <b><font size="2" face="courier new">restructure_eventlog.py</font></b> - which allow for an individual to track the events surrounding a particular location in HERMES.</p>
+
+<p>To utilize the <b>eventlog.py</b> script, the following input expressions must be implemented into a HERMES input.kvp file:
+<ul>
+<li><b>eventlog</b>: specified by the user, it denotes the file into which event logging records are written. <i>Example: "eventlog = Niger_eventlog"</i></li>
+<li><b>eventlogregex</b>: a regular expression (regex) to be used to filter out unwanted event log entries. They are usually written as strings surrounded by quotation marks - single being convention, but HERMES allows for double quotation marks. Examples of regexes can include 'Niamey', 'Depot Central' or 'Dosso'. <i>Note that for the last regex, as the place name is shared among multiple location entities, multiple entries (for Dosso region and Dosso district) will be pulled up. Additionally, to write multiple regexes, you must surround your regex with quotation marks, in the following manner: <b>'((Location1)|(Location2))'</b>, with a vertical bar between each entity.</i></li>
+<li><b>eventloglist</b>: list of events to record in the log. Events can include request (ordering a fixed amount), scaled request (ordering a varied amount), pickup (location picks up their request), delivery (request is delivered to a location) recycle (marks when a recycled thing is picked up) and recycledelivery (recycled object is dropped off at the upstream warehouse). An empty list means all event types should be recorded.</li>
+</ul>
+</p>
+
+<p>For the purposes of demonstration, these are the keywords taken from an example of niger_input.kvp - which is creating an event-log CSV file named Niger_EventLog.csv, finding all mentions of events involving "Depot Central" in the model:
+<pre>        eventlog = Niger_EventLog
+        eventlogregex = 'Depot Central'
+</pre>
+</p>
+
+<p>When the eventlog.py script is implemented, a CSV file is written with the string denoted under the "eventlog" input keyword mentioned above, with the run number appended to it. (For the example input keywords above, the CSV file written is "Niger_EventLog.0.csv")</p>
+
+<p>If this CSV file is opened up, the following columns can be seen (though not necessarily in this order):
+<ul>
+<li><b>time</b>: time, in days, when the event occurs in the simulation.</li>
+<li><b>event</b>: type of event experienced -- definitions are listed above under "eventloglist".</li>
+<li><b>supplier</b>: location that supplies the shipment of vaccines.</li>
+<li><b>route</b>: the route name, as delineated by delivery schedule, endpoints in route and/or shipping route. Delivery schedule, in this case, can either be thought of as "ShipperProcess" (push/varpush or schedfetch/schedvarfetch) or "FetchOnDemandShipment" (pull/demfetch). For "push" shipment routes, the route ID may be delineated on the route. Otherwise, the locations are delineated by the routes file, or simplistically as [<i>location where truck originates</i>] - [<i>location which holds vaccines</i>].
+<li><b>client</b>: location that recieves the shipment of vaccines.</li>
+<li><b>tripID</b>: delineates a trip ID assigned by the script. A user can use the tripID to track the events associated with a particular trip.</b>
+<li><b>[vaccine_name]</b>: delineates how many vials of a particular vaccine are used in that particular event</li>
+</ul>
+</p>
+
+<p>At this point, the CSV file may be human-readable. However, the headings for each column in the CSV are affixed to the data strings itself with the format, "[HEADING]:[DATA]". To make it more legible for human purposes, <b>restructure_eventlog.py</b> should be subsequently run.</p>
+
+<p>The simplified (non-verbose, non-debugging) syntax for <b>restructure_eventlog.py</b> is:
+<pre>        restructure_eventlog.py fname.csv outname.csv</pre></p>
+
+<p>The meaning of the terms in this line are as follows:
+<ul>
+<li><b>fname.csv</b>: the name of the CSV file specified under "eventlog". For our example above, this would be "Niger_EventLog.0.csv" (provided this file is in the same /tools folder as restructure_eventlog.py itself).</li>
+<li><b>outname.csv</b>: the name of the CSV file that is going to be written. This can be anything you'd like, although it's preferable to have a slightly different name to the file used for <font face="courier new" size="2">fname.csv</font>.</li>
+</ul>
+
+For our example above, this string could be seen as
+<pre>        restructure_eventlog.py Niger_EventLog.0.csv Niger_EventLog_R.csv</pre>
+
+<p>The resulting file, with the filename denoted as the string provided for outname (which is, above "Niger_EventLog_R.csv"), will strip the headings from the data strings, and create column headings from that.</p>
+
+<h3>In essence:</h3>
+
+<p>After <b>eventlog.py</b> is run, the CSV file that is written appears in the following format:</p>
+
+<table width="100%">
+<tr>
+<td>time:0.135000</td><td>"event":"request"</td><td>"supplier":"Depot Central"</td><td>"route":"FetchOnDemandShipment_Niamey_Depot Central"</td><td>"tripID":3</td><td>"N_DTP-HepB-Hib liquid":13351.0</td><td>"N_Yellow Fever":1186.0</td><td>"N_Tuberculosis":1196.0</td><td>"N_Measles":1186.0</td><td>"N_Oral Polio":1225.0</td><td>"N_Tetanus_Toxoid":1224.0</td></tr>
+<tr>
+<td>time:0.135000</td><td>"event":"scaledrequest"</td><td>"supplier":"Depot Central"</td><td>"route":"FetchOnDemandShipment_Niamey_Depot Central"</td><td>"tripID":3</td><td>"N_DTP-HepB-Hib liquid":6224</td><td>"N_Yellow Fever":552</td><td>"N_Tuberculosis":557</td><td>"N_Measles":552</td><td>"N_Oral Polio":571</td><td>"N_Tetanus_Toxoid":570</td>
+</tr>
+<tr>
+<td>time: ...</td><td>"event": ...</td><td>"supplier": ...</td><td>"route": ...</td><td>"tripID": ...</td><td>"N_DTP-HepB-Hib liquid": ...</td><td>"N_Yellow Fever": ...</td><td>"N_Tuberculosis": ...</td><td>"N_Measles": ...</td><td>"N_Oral Polio": ..</td><td>"N_Tetanus_Toxoid": ...</td>
+</tr>
+<table>
+</p>
+
+<p>After this table is run through <b>restructure_eventlog.py</b>, the data comes out in the following CSV format:
+
+<table>
+<tr>
+<td>time</td><td>"event"</td><td>"route"</td><td>"tripID"</td><td>"supplier"</td><td>"client"</td><td>"N_DTP-HepB-Hib liquid"</td><td>"N_Measles"</td><td>"N_Oral Polio"</td><td>"N_Tetanus_Toxoid"</td><td>"N_Tuberculosis"</td><td>"N_Yellow Fever"</td>
+</tr>
+<tr>
+<td>0.01</td><td>"request"</td><td>"ShipperProcess_Depot Central_A"</td><td>7</td><td>"Depot Central"</td><td>  </td><td>333418</td><td>21812</td><td>31862</td><td>31835</td><td>21946</td><td>21812</td>
+</tr>
+<tr>
+<td>0.01</td><td>"scaledrequest"</td><td>"ShipperProcess_Depot Central_A"</td><td>7</td><td> "Depot Central"</td><td>  </td><td>333418</td><td>21812</td><td>31862</td><td>31835</td><td>21946</td><td>21812</td>
+</tr>
+</table>
+</p>
+
+<h3>Output File Examples</h3>
+<p>Pertinent example files can be found on the DAV <a href="https://dav.psc.edu/Hermes/Project/EventLoggerTest/" target="_blank">here</a>. The files ending with the suffix *.xlsx have been color-coded to better show the progression of different processes in HERMES.</p>
+</body>
+</html>

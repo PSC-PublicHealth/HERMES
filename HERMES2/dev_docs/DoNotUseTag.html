@@ -1,0 +1,55 @@
+<html>
+
+<head>
+
+<title>How The DoNotUse Tag Works</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>How The DoNotUse Tag Works 20120210</h1>
+<p>
+The general purpose of the DoNotUse tag is to take things out of the 
+allocation cycle.  For example, if a portable fridge is not to be used
+to store goods at a particular location, the tag should be set on that
+fridge.  If an Ice instance is in a melted state, the tag should be set
+on that instance.
+</p>
+<p>
+When any Shippable instance has DoNotUseTag set,
+allocateOwnerStorageSpace stores it at room temperature, and ignores
+any storage space it may contribute.  Similary,
+Warehouse.getStorageBlocks() excludes the blocks of any CanStore
+instance with DoNotUse set.
+</p>
+<p>
+DoNotUse things are *not* excluded by
+warehouse.Warehouse.gotAnyOfThese(), at least at the moment.
+</p>
+<p>
+The DoNotUse tag is set on Ice instances when they are stored at other
+than freezer temperature, and cleared when stored at freezer
+temperature.
+</p>
+<p>
+allocateSomeGroups(excludeRecycling=False) excludes items with
+DoNotUse set.  This is the default, but as of r808 it is never called
+this way.
+</p>
+<p>
+warehouse.Warehouse.attachStorage(thing) sets DoNotUse on things
+containing the string 'PVSD' if pvsdbugfix=True.  (It also calls
+thing.discharge() if callingProc is not None).  
+<b class='alert'>THIS NEEDS TO BE CLEANED UP.</b>
+</p>
+<p>
+warehouse.Warehouse.detachStorage(thing) clears DoNotUse (and calls
+thing.recharge())
+</p>
+<p>
+warehouse.Warehouse.attachIce() clears DoNotUse.  This is necessary so
+that allocateStorageSpace will assign it to freezer space.
+</p>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<html>
+<head>
+<title>Assumptions for UnifiedTruckCapacityInfo File</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body>
+<h1>Assumptions for UnifiedTruckCapacityInfo File</h1>
+<p>
+As of 5 March 2012, we're splitting up the Unified input files so that entries would fall in one of the following two categories:
+<ul>
+<li><b>Unified Truck Capacity Info</b> - this file contains the capacities for commonly-used transportation vehicles in the supply chain. 
+Data put into this file are the "generic" vehicles that are not linked to any particular country or manufacturer type. This file will be placed in the 
+<font face="courier new" size=2>./master_data/Unified</font> folder of the SVN.
+<li><b>Country-Specific Truck Capacity Info</b> - this file has been created for each country (and is denoted as such in the <i>file name</i> of the input file). 
+These files contains country-specific transport data data, and if its entries are used in the country model's Routes and Trucks files, this file overrides the Unified file. 
+This file will be placed 
+in the <font face="courier new" size=2>./master_data/[COUNTRY NAME]</font> folder of the SVN.
+</ul>
+</p>
+<p>
+The truck  file contains the columns, 'Name', 'CoolVolumeCC', 'Storage' and 'Notes'. The distinction between 'CoolVolumeCC' and 'Storage' is that the <u>former</u> category
+denotes the amount of cold space <i>intrinsically</i> located within the transport device, while the <u>latter</u> category denotes the amount of storage space available to hold
+other cold devices which contain vaccines, as currently denoted in the <font face="courier new" size=2>UnifiedStorageTypeInfo</font> file located in <font face="courier new" size=2>./master_data/Unified</font>.
+<b>Both of these categories report volumes in <u>liters</u>.</b>
+</p>
+<p>For the 'Storage' column, where applicable, volume is given in multiples of storage devices, e.g.:
+<pre>
+   67*C_RCW25 (<i>for 'truck_A' in Chad</i>)
+</pre>
+The above indicates that the available amount of cold space available for that vehicle, which is <i>not</i> the native volume of that vehicle, but rather, the amount of space allocated to the vehicle by its carrying other devices, is equivalent to:
+<pre>
+   67*(20.7) = 1,242 L
+</pre>
+where 20.7 is the capacity of a single <font face="courier new" size=2>C_RCW25</font> device, given in liters.</p>
+<p>
+The naming scheme for the Unified file is as follows:
+<pre>
+   generic_plane
+</pre>   
+where 'generic' indicates that the vehicle type doesn't have a particular manufacturer or model associated with it. "Generic" also indicates (with the exception of the plane) current use
+by the supply chains of <u>multiple</u> countries.*</p>
+<p>As a rule, if "generic_" exists in front of a transport type, this indicates that it is one used by multiple countries. <br /><font size=1>* The plane, although not used in multiple supply chains now, can be generalizable for use in future supply chains.</font>
+</p>
+<h3>General Notes:</h3>
+<ul>
+<li>There may be a move in the near future to standardize all the storage devices for each country, rendering the current names within the 'Storage' column obsolete. This move must be discussed with the creators of each of these respective country models.
+<li>For the Unified document, the countries in which these vehicles are used are explicitly mentioned in the 'Notes' column.
+</ul>
+<h3>Country-Specific Notes:</h3>
+<ul>
+<li><b>Vietnam</b> had two TruckCapacityInfo sheets created for its supply chain because in the baseline supply chain, <i>each route</i> had its own vehicle type denoted. In the "_alt" spreadsheet, different commune routes using a vehicle with similar volume had 
+their respective vehicles combined into a <font face="courier new" size=2>CommuneTransport[n]</font> truck type. The "VietnamTruckCapacityInfo" file had each vehicle type as written in the original Unified (pre-compilation) document.
+<li>Both the <b>Chad</b> and <b>Unified</b> files both contained a Toyota_4x4_Hilux, albeit with different "Storage" spaces. 
+The Unified truck (without the storage space) has the tag "generic_" placed in front of its name; the Chad truck (with the storage space) has no tag.
+<li>The <b>Kenya</b> model used the same truck types as the <b>Chad</b> model due to a lack of notes on transportation type; those commonly-used vehicles were placed into the Unified file with appropriate notes.
+</ul>
+<h3>Additional Rules For Names:</h3>
+<ul>
+<li>Do not include the '*' or '+' characters.  '_' and '-' are okay to use.
+<li>Names should contain proper punctuation & spelling.
+</ul>

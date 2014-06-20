@@ -1,0 +1,99 @@
+<html>
+<head>
+<title>Assumptions for UnifiedVaccineTypeInfo File</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body>
+<h1>Assumptions for UnifiedVaccineTypeInfo File</h1>
+<p>
+As of 5 March 2012, we're splitting up the Unified input files so that entries would fall in one of the following two categories:
+<ul>
+<li><b>Unified Vaccine Type Info</b> - this file contains the <i>manufacturer-specific</i> data for vaccines commonly used in EPI regiments. 
+Data put into this file will be denoted as the <u>baseline</u> EPI vaccine regiment. This file will be placed in the 
+<font face="courier new" size=2>./master_data/Unified</font> folder of the SVN.
+<li><b>Country-Specific Vaccine Type Info</b> - this file has been created for each country (and is denoted as such in the <i>file name</i> of the input file).
+ These files contain country-specific data about vaccines, and will be used to override the unified vaccinetypeinfo document. This file will be placed 
+in the <font face="courier new" size=2>./master_data/[COUNTRY NAME]</font> folder of the SVN.
+</ul>
+</p>
+<p>
+In either case, the vaccine file contains the columns, 'Batch', 'Name', 
+'Abbreviation', 'Vaccine presentation', 'Method  of administration', 'Doses per vial',
+'Packed vol/dose(cc) of vaccine', 'Packed vol/dose(cc) of diluent', 'Vaccine price/vial', 
+'Vaccine price/dose', 'Price Units', 'Doses/person', 'LifetimeFreezerDays', 'LifetimeCoolerDays',
+'LifetimeRoomTempDays', 'LifetimeOpenDays', 'RandomKey' (which denotes what vaccine type it actually is),
+'Wastage Rate' and 'Notes'.
+</p>
+<p>
+We are currently using the following pattern for the 'Name':
+<pre>
+   Tuberculosis_ID_20dose_SII
+</pre>   
+where 'Tuberculosis' is the name of the vaccine, 'ID' is the vaccination method (in this case, "<u>i</u>ntra<u>d</u>ermal"),
+'20dose' indicates that the vial contains 20 doses of vaccine, and 'SII' indicates the possible origin of the vaccine (Serum Institute of India), 
+as defined by the <a href="http://www.who.int/immunization_standards/vaccine_quality/PQ_vaccine_list_en/en/index.html" target="_blank">WHO Prequalified Vaccine Database</a>.
+</p>
+<p>
+The manufacturer names used in the naming schematic (which are usually 2-3 characters in length, but can be longer) are:
+<pre>
+   SII = Serum Institute of India Ltd (India)
+   QSMI = Queen Saovabha Memorial Institute (Thailand) 
+   SSI = Statens Serum Institut (Denmark)
+   GSK = GlaxoSmithKline (Belgium, Hungary)
+   IPD = Institute Pasteur Dakar (Senegal)
+   NOV = Novartis (Italy)
+   BFI = BioFarma/Inde (Indonesia)
+   BBK = Bena/Bio/KORE (Republic of Korea)
+   II = I India (India)
+   BBNIB = BB-NCIPD Ltd/Intervax (Bulgaria)
+   BB = Bena Biotech {<i>Berna</i>?} (Republic of Korea)
+   SP = Sanofi Pasteur (France)
+   WYE = Wyeth (USA)
+   MER = Merck (USA)
+   GPO = The Government Pharmaceutical Organization (Thailand)
+   LGLSGPO = LG Life Sciences Ltd (Republic of Korea) + The Government Pharmaceutical Organization (Thailand)
+   SKC = SK Chemicals (Republic of Korea)
+   MBP = Merieux Biological Produts (France)
+   MBPGPO = Merieux Biological Products (France) + The Government Pharmaceutical Organization (Thailand)
+   SHGPO = Shantha Biotechnics Ltd (India) + The Government Pharmaceutical Organization (Thailand)
+   SPGPO = Sanofi Pasteur (France) + The Government Pharmaceutical Organization (Thailand)
+   SKCPO = SK Chemicals (Republic of Korea) + The Government Pharmaceutical Organization (Thailand)
+   SDI = Standard Diagnostics Inc
+   U = Unknown
+   UGPO = Unknown [Manufacturer] + The Government Pharmaceutical Organization (Thailand)
+   JBCGL = Japan BCG Laboratory
+   HAF = Haffkine Bio Pharmaceutical Corporation Ltd (India)
+</pre>
+</p>
+<p>
+Unknown vaccination/administration methods can also be abbreviated as 'U'. Using this syntax, an example of the name of the vaccine with unknown
+administration method and unknown manufacterer could be written as:
+<pre>
+   RotaV3_U_1dose_U
+</pre>
+The above example indicates that the Rotavirus version 3 (V3) vaccine, with a single-dose presentation, has an unknown administration method and an unknown manufacturer.
+</p>
+<br />
+<h3>General Notes:</h3>
+<ul>
+<li>Categories within the column 'Batch' are either Baseline [EPI Vaccines] (as of 2011) or vaccines to be introduced (as of 2011)
+<li>Vaccines that are administered either intradermally or intramuscularly, which are lyophilized (freeze-dried), are given a vial of diluent (a solvent used to dissolve the vaccine powder).<br />Both of these features are indicated 
+as taking up storage in the supply chain.
+<li>'Packed volume' indicates that there may exist primary/secondary/tertiary packaging for multiple vials in a package.
+<li>'Vaccine Prices', unless otherwise stated by a manufacturer, was calculated using the WHO's <a href="http://www.who.int/immunization_delivery/systems_policy/logistics/en/index4.html" target="_blank">Vaccine Volume Calculator</a>.
+<li>'Price units', unless stated otherwise, are in US dollars (USD).
+</ul>
+<h3>Country-Specific Notes:</h3>
+<ul>
+<li><b>Niger</b>'s model uses vaccine types defined by assumptions for the most common "type" of vaccine used in the UNICEF EPI supply chain, as defined by the <a href="http://www.who.int/immunization_standards/vaccine_quality/PQ_vaccine_list_en/en/index.html" target="_blank">Prequalified Vaccines Database</a>.
+<li><b>Thailand</b> vaccine data was compiled from the powerpoint, "Modeling the Vaccine Supply Chain in Trang Province" (<font face="courier new" size=2>Thailand 2.22.10 TA.ppt</font>)
+<li><b>Vietnam</b> vaccine data was compiled from the spreadsheet, <font face="courier new" size=2>Copy of VPAT_Vietnam_28Jul10.xls</font>.
+<li><b>Chad</b> and <b>Senegal</b> had all of its vaccine types explicitly defined by manufacturer in the 'Notes' column of the Unified Vaccine Type sheet.
+<li><b>Kenya</b> contained some information about the manufacturers of its vaccines, but not extensive notes, within the 'Notes' column, as defined above.
+</ul>
+<h3>Additional Rules For Names:</h3>
+<ul>
+<li>Do not include the '*' or '+' characters.  '_' and '-' are okay to use. Spaces can be used, although they are not recommended.
+<li>Names should contain proper punctuation & spelling.
+<li>If an abbreviation for the vaccine type exists that is commonly used, that can be used to define the name for the vaccine.
+</ul>

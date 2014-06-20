@@ -1,0 +1,37 @@
+<html>
+
+<head>
+
+<title>The --deterministic Option</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>The --deterministic Option 20140417</h1>
+
+<p>
+
+This option is intended to make runs more reproducible across minor
+code changes, for code validation purposes.  When --deterministic is 
+in effect, Warehouse uses an 'ordered dictionary' instead of a generic 
+dictionary, at some cost in speed.  This prevents variation due to the 
+fact that the order of dict.keys() etc. is not guaranteed for standard 
+dictionaries. When the --deterministic flag is given, GenericCollection 
+does not use an ordered dictionary, but it sorts its output lists, 
+producing a functionally equivalent result at lower cost in time.
+</p>
+SimPy guarantees that two events scheduled at the same time will be 
+evaluated in the order in which the events were created, so that should
+not be a cause of variation.
+</p>
+<p>
+There is still variation, however- the runs are not yet completely
+deterministic.  The reasons for this are not completely clear.  One 
+observed source of variability is that when VaccineGroups are split 
+exactly in half, the half that gets selected for transport is random.
+Other issues may also exist.
+
+</p>
+</body>
+</html>

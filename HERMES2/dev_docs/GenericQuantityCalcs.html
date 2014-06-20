@@ -1,0 +1,103 @@
+<html>
+
+<head>
+
+<title>How Shipping Quantities Are Calculated in the Generic Model</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>How Shipping Quantities Are Calculated in the Generic Model</h1>
+
+<p>
+These comments are as of 20121108, for SVN rev 1120.
+<p>
+We have to consider several separate mechanisms.  Pull and varfetch
+shipments use one pattern, with different variants between warehouses
+and clinics.  Scheduled shipments use a different pattern, and factory
+shipments use yet another.  Verifying this basically involves working
+through the callback functions in model_generic, which either call
+demandmodel methods directly or call recursive warehouse methods which
+in turn call demandmodel methods.  These algorithms apply only to vaccines,
+of course- things like PVSDs are separated out.
+<p>
+For clinics receiving pull or varpush shipments, the algorithm for the
+shipping quantity is as follows:
+<ol>
+<li>estimate how many vials it will need, including open vial waste,
+using the cumulative distribution function trick.
+<li>multiply this number (which may not be an integer) by 1.25.
+<li>round up.
+<li>Take the minimum of this amount and the amount that fits in the 
+clinic storage.
+<li>Round down.
+<li>Subtract the amount of vaccine already on hand.
+<li>If the resulting value is less than zero, use zero.
+</ol>
+The algorithm for calculating the trigger thresholds for clinics is as
+follows.
+<ol>
+<li>estimate how many vials it will need, including open vial waste,
+using the cumulative distribution function trick.
+<li>multiply this number (which may not be an integer) by 0.25.
+<li>round up.
+<li>Take the minimum of this amount and the amount that fits in the 
+clinic storage.
+<li>Round down.
+</ol>
+<p>
+For warehouses receiving pull or varpush shipments, the algorithm for
+the shipping quantity is as follows:
+<ol>
+<li>Calculate the sum of the expected number of vials used at each of 
+the clinics downstream, using the cumulative distribution function trick
+separately for each clinic.  Each of these terms is not necessarily an
+integer, so the sum isn't necessarily an integer.  Note that if two client
+clinics have expected demand of 1.5 vials, this step produces only 3 vials;
+the downstream demand is expected to average out over time.
+<li>multiply the result by 1.25.
+<li>if that value is greater than the amount that fits, use only the
+amount that fits.
+<li>round down (to avoid having that last vial not fit in available space)
+<li>Subtract the amount of vaccine already on hand.
+<li>If the resulting value is less than zero, use zero.
+</ol>
+The algorithm for calculating the trigger thresholds for warehouses is
+different, I think mainly for historical reasons.  Remember that the trigger
+threshold algorithms need to be executed before the simulation actually starts
+to run.
+<ol>
+<li>Calculate the demand expectation for the total of all downstream clients, in doses.
+<li>Scale to vials without rounding.
+<li>Divide by (1-wastage), using vaccine-specific wastage values loaded from the 'initialovw'
+file.
+<li>Round up.
+<li>Take the minimum of this amount and the amount that fits in the warehouse storage.
+<li>Multiply by 0.25.
+<li>Round down.
+</ol>
+<p>
+All scheduled shipments use the following pattern, for both clinics and warehouses.
+<ol>
+<li>Calculate the sum of the expected number of vials used at each of 
+the clinics downstream, using the cumulative distribution function trick
+separately for each clinic.  Each of these terms is not necessarily an
+integer, so the sum isn't necessarily an integer.  Note that if two client
+clinics have expected demand of 1.5 vials, this step produces only 3 vials;
+the downstream demand is expected to average out over time.
+<li>Multiply by 1.25.
+<li>Take the minimum of this amount and the amount that fits in the warehouse storage.
+<li>Round down.
+<li>Subtract the number of vials already in stock.
+<li>If the result is less than zero, use zero.
+<li>Round up.
+</ol>
+<p>
+Factory production is calculated by the same algorithm as scheduled shipment size, except that:
+<ol>
+<li>Instead of multiplying by 1.25, multiply by factoryOverstockScale.
+<li>Use the storage space available at the warehouse to which the factory delivers.
+</ol>
+</body>
+</html>

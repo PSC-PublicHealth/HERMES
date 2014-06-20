@@ -1,0 +1,32 @@
+<html>
+<head>
+
+<title>HERMES Cost Output File - Documentation</title>
+<link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+</head>
+<body bgcolor="white">
+
+<left><h1>HERMES Cost Output File Interpretations (SVN r1040)</h1></left>
+<p>
+
+<table>
+<tr><th align="center">Column Letter</th><th align="left">Column Heading</th><th align="left">Definition</th></tr>
+<tr><td align="center">A</td><td align="left">ReportingLevel</td><td align="left">The type of level reporting the cost. Can take one of the values of "Category" (i.e., one of the level names) or can be named "all" (used to show summary costs for individual levels) or "-top" (to show total costs).</td></tr>
+<tr><td align="center">B</td><td align="left">ReportingBranch</td><td align="left">Name of location, with ID code in parentheses, as defined by stores and routes files.</tr>
+<tr><td align="center">C</td><td align="left">ReportingIntervalDays</td><td align="left">Number of days in the simulation in which costs are reported, on average (if "ReportingLevel"=ALL), or in the simulation year (if "ReportingLevel"=!ALL).</td></tr>
+<tr><td align="center">D</td><td align="left">DaysPerYear</td><td align="left">Number of total days in the simulation.</td></tr>
+<tr><td align="center">E</td><td align="left">Currency</td><td align="left">The name of the currency used to calculate the incurred costs (and its year, as applicable). It appears that currencies are denoted through their <a href="http://en.wikipedia.org/wiki/ISO_4217" target="_blank">ISO 4217 currency code</a> (i.e., "THB", "USD").</td></tr>
+<tr><td align="center">F</td><td align="left">RouteTrips</td><td align="left">Number of trips taken along the route (one way) in the scenario time frame. **</td></tr>
+<tr><td align="center">G</td><td align="left">PerDiemDays</td><td align="left">Number of days in which a per diem has been given to personnel (<i>by whom?</i>) in locations.</td></tr>
+<tr><td align="center">H</td><td align="left">CostingTreatmentDays</td><td align="left">The total number of days in which costs have been recorded. For "ReportingLevel"=ALL, this is equivalent to the sum of the costing treatments across all row entries.</td></tr>
+<tr><td align="center">I</td><td align="left">PerDiemCost</td><td align="left">Amount of money costed through a per diem. If recorded in a location entry, denotes the amount of money given in that location. If recorded for "ReportingLevel"=ALL, then records the total per diem costs. Incurred for transport costs only.</td></tr>
+<tr><td align="center">J</td><td align="left">PerKmCost</td><td align="left">The cost incurred per kilometer. Incurred for route costs only.</td></tr>
+<tr><td align="center">K</td><td align="left">PerTripCost</td><td align="left">Costs incurred per trip, specifically. Incurred for route costs only.</td></tr>
+<tr><td align="center">L</td><td align="left">TransportCost</td><td align="left">Total transport cost incurred, by route type (incurred for route costs only).</td></tr>
+<tr><td align="center">M</td><td align="left">LaborCost</td><td align="left">Sum of all costs for labor (including per diems and time-card salaries), incurred by level type.</td></tr>
+<tr><td align="center">N</td><td align="left">StorageCost</td><td align="left">Sum of all costs for storage, incurred by level type.</td></tr>
+<tr><td align="center">O</td><td align="left">BuildingCost</td><td align="left">Sum of all building costs, incurred by level type.</td></tr>
+<tr><td align="center">P</td><td align="left">Currency</td><td align="left">The name of the currence used to calculate the costs (same column as Column E)</tr>
+</table>
+</body>
+</html>

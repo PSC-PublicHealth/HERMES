@@ -1,0 +1,34 @@
+#
+#  This is a tiny niger model input
+#
+
+rundays = 364
+model = 'model_tinytest'
+monitor = 1000000,1030000,1030300,1030301,1030302,1030303
+monvax = 'N_Yellow Fever'
+burnindays = 0
+storesfile = 'TinyStoreInfo_refrigerators.csv'
+storesoverlayfiles = 'TinyStoresOverlay.csv'
+routesfile = 'TinyRoutes_new.csv'
+demandfile = 'Tiny_Demand.csv'
+vaccinefile = 'TinytestVaccineTypeInfo.csv'
+icefile = 'TinytestIceTypeInfo.csv'
+packagefile = 'TinytestPackageTypeInfo.csv'
+outputfile = 'tiny_out'
+#calendarfile = 'Tiny_Calendar_Baseline.csv'
+levellist = 'Central','Region','District','Integrated Health Center'
+cliniclevellist = 'Integrated Health Center'
+calendarcycle = 672
+initialovw = 'N_OVW_test.csv'
+seed = 1234
+levellist = 'Central','Region','District','Integrated Health Center'
+cliniclevellist = 'Integrated Health Center'
+pricetable = 'TinyCosts.csv'
+eventlog = 'EventLog'
+#eventloglist = 'pickup','delivery'
+#eventlogregex = 'Agadez'
+autoupdatethresholds = TRUE
+storagebreakage = 0.01,0.01,0.01,0.01
+transitbreakage = 0.01,0.01,0.01,0.01
+
+

@@ -1,0 +1,13 @@
+Name,OVW
+N_Tuberculosis,0.8526
+N_DTP,0.34
+N_Tetanus_Toxoid,0.0017
+N_Measles,0.7126
+N_Measles-unidose,0
+N_Measles-twodose,0.21
+N_Measles-fivedose,0.56
+N_Oral Polio,0.0033
+N_Yellow Fever,0.706
+N_DTP-HepB-Hib liquid,0
+N_RotavirusV5,0
+N_Pneumococcal13,0

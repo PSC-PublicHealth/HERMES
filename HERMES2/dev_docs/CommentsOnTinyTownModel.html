@@ -1,0 +1,43 @@
+<html>
+
+<head>
+
+<title>Comments on the TinyTown Model</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>Comments on the TinyTown Model</h1>
+
+<p>
+These comments were created on  20120418 and updated on 20130110.
+<p>
+The TinyTown model (data/tinytest) is meant to test a variety of HERMES 
+features in one small model.  Not all of those features are fully implemented,
+however, and they don't all fit together well.
+<p>
+The branches Pittsburgh(1030300)->Wilkinsburg(1030302)->PointBreeze(1030303) 
+and Pittsburgh(1030300)->RegentSquare(1030301) are intended as a test
+of moving ice, but the part of the code that implements the pairing of ice and
+the cold boxes that use it has not yet been implemented.  Thus the cold boxes 
+in the clinics get used for the first shipment, but then they are left without
+ice, leaving the clinics with zero storage volume.  This essentially turns off
+the vaccine deliveries to the clinics; the time course shows vaccine being delivered
+on the first shipment but not thereafter.  I have added a (too large) refrigerator
+to PointBreeze(1030303) so that it continues to get vaccine after the others fail.
+RegentSquare(1030301) is fed by a pull link; the other two are on varpush route D.
+<p>
+There are currently no straight push routes (as opposed to varpush) in this 
+model.  
+<p>
+This is because it uses model_generic, which uses the ProjectedDemand
+mechanism to calculate demand.
+<p>
+tiny_input_popsicles.kvp is intended to use UnifiedVaccineTypeInfo_popsicles.csv, which is
+intended as a stress test for the shippables-vs-deliverables code: massive numbers of popsicles
+are pulled through the pipeline to accompany demand for a vaccine.  UnifiedVaccineTypeInfo_popsicles
+should really overlay the default UnifiedVaccineTypeInfo.
+</p>
+</body>
+</html>

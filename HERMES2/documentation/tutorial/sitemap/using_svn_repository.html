@@ -1,0 +1,78 @@
+<html>
+<head>
+<title>Using the SVN Repository</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+<link href="first_steps.html" rel="Prev"><link href="../STARTHERE.html" rel="Start"><link href="hermes_basics.html" rel="Next">
+
+</head>
+<body>
+
+<h1>Using the SVN Repository</h1>
+<p>So the repository works on your computer (which, admittedly, is a <a href="installing_hermes.html" target="_blank">feat all its own</a>). The next step is to use the SVN to upload or download changes to the repository as they are made.</p>
+<p>The main steps that people take when they want to use the repository are to A) <a href="using_svn_repository.html#updating_repo">download</a> the newest version of the repository (called the "HEAD") onto their computer or B) <a href="using_svn_repository.html#committing_repo">commit their own files</a> (and/or their <a href="using_svn_repository.html#adding_repo">own folders</a>) to the repository.</p>
+
+<strong>One final note: in the time between when this tutorial was first created and now, the repository was redirected to a new web address. If you're confused by the address <u>[USERNAME]@repository.psc.edu</u> (as it pertains to the previous address), please note that the correct address is now <u>[USERNAME]@hermes.psc.edu</u>. Thank you!</strong>
+
+<h2 id="tortoisesvn_menu">TortoiseSVN Menu</h2>
+<p>The TortoiseSVN program can have two menus. One menu, the "checkout menu" can be seen when you're trying to check out a version of a repository into a folder (e.g. your desktop):</p>
+<center><img src="tortoisesvn_menu_ondesktop.PNG"></center>
+<p>This menu guides the user towards obtaining a repository on their desktop. In particular, the focus of this menu is the "SVN Checkout" in the main (left-hand) menu. Clicking on this menu item will give a window from which an individual can "check out" a copy of the repository use on the desktop. More information can be found about this <a href="installing_hermes.html" target="_blank">here</a>.</p>
+<p>The other TortoiseSVN menu, which appears *only* when someone is trying to make an update to an already existing repository, can be seen below:</p>
+<center><img src="tortoisesvn_menu.PNG"></center>
+<p>For the average HERMES SVN user, this menu is used to <b>update</b> the repository, <b>commit</b> something to the repository, or <b>add</b> folders to the repository.</p>
+
+<h2 id="updating_repo">Updating the SVN Repository</h2>
+<p>With a SVN/DAV account from the PSC, a user has already obtained a username, password, and access to the <u>hermes_devel</u> (<i>HERMES development</i>) listhost. If a user received an email from hermes_devel, saying that someone made an update to the repository, how could the repository be updated?</p>
+<p>Right-click on the folder in which the HERMES repository is located. Locate the menu, "Update SVN repository". in your menu. Double-click on it.</p>
+<center><img src="tortoisesvn_menu_update.PNG"></center>
+<p id="password_prompt">When you've double-clicked on that menu item, you will see the following screen:</p>
+<center><img src="repository_screenshot_update.PNG"></center>
+<p>If the <a href="installing_hermes.html">HERMES installation steps</a> were done properly, "[USER]" should be replaced by one's username. If that is the case, then type in the associated password and click "OK".</p>
+<p>At this point, if the password was typed correctly, the following type of screen should pop-up:</p>
+<center><img src="repository_screenshot_update2.PNG"></center>
+<p>The above screen shows that files have either been <i>updated</i> (in black font) from previous versions, <i>added</i> to the repository (in purple font) or <i>skipped</i> (in updates; in black font). Files or folders which have been <i>deleted</i> show up in the update window in red font.</p>
+<p>If one looks at the HERMES repository, especially one that has been extensively modified from the updated baseline repository, the following symbols may appear:</p>
+<center><img src="hermes_repository.PNG"></center>
+<p>In the above window, the following can be observed:
+<ul>
+<li>If a folder or file contains a <i>green circle with a white checkmark</i>, it means that the file/folder matches what is seen in the current version of the repository. The file exists both in the repository and on the user's desktop.</li>
+<li>If a folder or file contains a <i>red circle with an white exclamation point</i>, it means that the file/folder has been modified past what is observed in the current repository version. The file exists as a common copy on the repository, but has been modified by the user -- and the modifications are local (on the user's desktop) only.</li>
+<li>If a folder or file contains a <i>yellow triangle with a black exclamation point</i>, it means that there the file/folder is experiencing a conflict -- that is, there is some part of the version of the file/folder that differs in content within a line (or some group of lines) between the "updated" version in the repository and a modified version. The file will need to have its conflict resolved. (Information on how to do this can be found <a href="http://tortoisesvn.net/docs/nightly/TortoiseSVN_en/tsvn-dug-conflicts.html" target="_blank">here</a>, until we run into such a situation where screenshots may be deemed necessary.)</li>
+<li>If a folder or file contains a <i>dark blue circle with a white question mark</i>, it means that the file has not been committed to the repository. This means that the file will NOT be committed to the repository (is not open to the public), but exists only on the local (user's) machine. This type of file can only be modified by the user, until it is committed to the repository.</li>
+</ul>
+<br />
+<h2 id="committing_repo">Committing to the SVN Repository</h2>
+<p>The process through which a file needs to be added to the SVN - whether for an experiment, for reference, or for documentation purposes - is called a <i>commit</i> to the SVN repository.</p>
+<p>To commit a file to the SVN repository, the repository icon must be right-clicked, and the menu item labeled "commit to SVN" located.</p>
+<center><img src="tortoisesvn_menu_commit.PNG"></center>
+<p>When that item is double-clicked, the following menu appears:</p>
+<center><img src="repository_screenshot_commit.PNG"></center>
+<p>The first line in the menu, "Commit to: svn+ssh://[USER]@repository.psc.edu/repo/vmi/trunk", indicates that the person who will be committing these files to the page will have their name associated with the update.</p>
+<p>"Message:" is the box in which the user inputs comments about their update. Suggestions for messages include, "This is an update that will fix a bug in [FILE NAME]" or "Information pertaining to [SUBJECT] was added to [FILE NAME]". In general, the messages should be concise and/or clear, so that someone searching through previous repository have a clear idea of what was changed and/or committed in the repository. <i>These messages are usually kept on an archive log in HERMES_devel, for future reference.</i></p>
+<p>"Changes made" and "Path" contain check-boxes for the files that are going to be committed into the repository. In general, the files that have been manipulated, but have previous versions checked into the repository, will have their names towards the top of the windows. New files will have their user names located, by alphabetical order, by folder name, in the list of folders.</p>
+<p>Clicking "OK" to this list will prompt for a username and password, in a matter similar to the <a href="#password_prompt">repository update</a>. The pertinent files will then be added and <i>committed</i> to the repository.
+<h4>Note: a commit to the repository will increase the repository version number. Keep track of these numbers both for future reference, and for HERMES error debugging.</h4>
+<br />
+
+<h2 id="adding_repo">Adding (Folders) to the SVN Repository</h2>
+<p>If one wants to add <i>folders</i> to the repository, it isn't <i>quite</i> the same process as adding files to the repository. This is because the SVN acts as a <i>directory tree</i>, where folders are nested within each other in a tree-like structure. Therefore, to add folders (and the files that they contain) properly into HERMES, the folders themselves must first be <i>added</i> into the repository before their files can be <a href="#committing_repo">committed</a>.</p>
+<p>To add a folder into HERMES, the repository icon must be right-clicked, and the menu item, "SVN Add" selected:</p>
+<center><img src="tortoisesvn_menu_add.PNG"></center>
+<p>When this menu item is selected, the following menu appears:</p>
+<center><img src="repository_screenshot_add.PNG"></center>
+<p>The specific folder(s) (and sometimes, their accompanying files) must be selected, and "OK" clicked. A <a href="#password_prompt">password prompt</a> appears, and when the required details are added, the folder will be <i>added</i> into the directory tree.</p>
+<p>At this point, to truly <i>commit</i> the contained files into the repository, the steps for <a href="#committing_repo">committing to the SVN repository</a> must be followed.
+<br/><br />
+</body>
+
+
+<foot>
+<p>
+<div style="float:left;width:33%;">Previously: <a href="first_steps.html">Before You Start: Obtaining a PSC Account, SVN, DAV, and RedMine</a></div>
+<div style="float:left;width:33%;"><a href="../STARTHERE.html">Home</a></div>
+<div style="float:right;width:33%;">Next: <a href="hermes_basics.html">Conceptual Basics behind HERMES: The User Interface</a></div>
+</p>
+</foot>
+
+</html>
+

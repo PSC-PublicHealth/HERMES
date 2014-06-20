@@ -1,0 +1,28 @@
+#
+# Baseline Benin Input File 2012
+#
+rundays = 260
+model = 'model_moz'
+storesfile = 'MozGazaNonVR_Stores.csv'
+routesfile = 'MozGazaNonVR_Routes.csv'
+demandfile = 'Moz_Demand.csv'
+factorystartuplatency = 1.0
+factoryshipmentsperyear = 4.0
+factoryoverstockscale = 2.0
+discardunusedvaccine = false
+burnindays = 40
+usestaticdemand = False
+customoutput='MozGaza_custom_out.csv'
+pricetable="MozGazaNonVR_Costs_2012.csv"
+dayspermonth=20
+levellist = 'National','Province','District','Health Center'
+centrallevellist = 'National'
+cliniclevellist = 'Health Center'
+vizwidths=0.2,0.1,0.05,0.02
+vizshapes='c','s','c','s'
+autoupdatethresholds=True
+vaccinefile = 'MozVaccineTypeInfo.csv'
+truckfile = 'MozUnifiedTruckCapacityInfo.csv'
+fridgefile = 'MozGazaStorageTypeInfo.csv'
+wasteestfreq = 10
+mdvp = True

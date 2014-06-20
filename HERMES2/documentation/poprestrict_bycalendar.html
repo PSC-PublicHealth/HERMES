@@ -1,0 +1,73 @@
+<html>
+  <head>
+    <title>Restricting Population Demand by Setting Calendar File</title>
+    <link rel='stylesheet' href='../dev_docs/hermes_doc.css'>
+  </head>
+  <body>
+<center><h1>Restricting Population Demand by Setting Calendar File</h1></center>
+<p>It is possible for an individual to modulate population demand in the HERMES model by modifying the calendar file. This modification runs off of the assumption written into the model, that any time a population does not arrive at a clinic, vaccines will not be given. This option gives individuals the ability to moderate how a vaccine is administered to a population, without compromising shipping and ordering schedules to the locations.</p>
+
+<h2>Calendar + Population Demand Basics</h2>
+<p>The calendar file moderates the percentage of the population vaccinated, by delineating what percentage of the population can attend a clinic in a particular time period. The columns are comprised of people types, as defined in the UnifiedPeopleTypeInfo file (in the <font face="courier new" size="2">/master_data/unified</font> file), and the rows comprise the <i>beginning</i> timepoints of each time interval to be delineated.</p>
+
+<p>Below is an snippet of data, taken from the baseline calendar file (SVN r1101), which shows constant demand throughout the year (8.3% of the population is allocated to go every 28-day month).</p>
+
+<center>
+<table bordercolor="#030303" cellpadding="4px">
+
+<tr><td>StartDate</td><td>PW</td><td>Newborn</td><td>0-11months</td></tr>
+<tr align=right><td>0</td><td>0.083333</td><td>0.083333</td><td>0.083333</td></tr>
+<tr align=right><td>28</td><td>0.083333</td><td >0.083333</td><td>0.083333</td></tr>
+<tr align=right><td>56</td><td>0.083333</td><td>0.083333</td><td>0.083333</td></tr>
+<tr align=right><td>84</td><td>0.083333</td><td>0.083333</td><td>0.083333</td></tr>
+
+</table>
+</center>
+
+<p>For the example above, we can assume that there are four periods of time, where  for each, 8.3% of the population will come to the location to be vaccinated. These time periods are are 0-28 days (1st data row), 28-56 days (2nd data row), 56-84 days (3rd data row) and 84-112 days (4th data row).</p>
+
+<h2>How to Modulate your Population to Different Days</h2>
+
+<p>Say that you'd like to modulate your population so that there are some days in which you have the people to be vaccinated to come by, and there are some days where the people will not come by the clinic.</p>
+
+<p>(For the purposes of demonstration, we will assume that there are 7 days in a given week, 4 of which will experience some type of population demand.)</p>
+
+<p>We would assume here that for each day in the week which is experiencing a vaccination, 25% (1/4) of the population will have the chance to come by their respective locations for vaccinations.</p>
+
+<p>In the calendar file, we would allocate the population in the following manner:</p>
+
+<center>
+<table bordercolor="#030303" cellpadding="4px">
+
+<tr><td>StartDate</td><td>PW</td><td>Newborn</td><td>0-11months</td></tr>
+<tr align=right><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr align=right><td>1</td><td>0.25</td><td >0.25</td><td>0.25</td></tr>
+<tr align=right><td>2</td><td>0.25</td><td>0.25</td><td>0.25</td></tr>
+<tr align=right><td>3</td><td>0</td><td>0</td><td>0</td></tr>
+<tr align=right><td>4</td><td>0.25</td><td>0.25</td><td>0.25</td></tr>
+<tr align=right><td>5</td><td>0.25</td><td>0.25</td><td>0.25</td></tr>
+<tr align=right><td>6</td><td>0</td><td>0</td><td>0</td></tr>
+
+</table>
+</center>
+
+<p>In the input kvp file, we would change the parameters relating to the calendar. If they do not already exist in the file, the following parameters would have to be included:</p>
+
+<pre>
+       calendarfile='FILE_NAME'
+       calendarcycle=7
+</pre>
+
+<p>The parameters above as as follows:
+<ul>
+<li><b>calendarfile</b>: the name of the calendar, written as a string. The "default" (constant demand) calendar is <font size="2" face="courier new">Niger_Calendar_Baseline.csv</font></li>
+<li><b>calendarcycle</b>: delineated as an integer, it denotes the amount of time through which the calendar cycles before restarting again.<br />For the example above, we wrote "7", because the calendar will cycle through a 7-day week, every week, for the duration of the simulation run.</li>
+</ul>
+</p>
+<br />
+
+<h2>Extra Notes</h2>
+<p>The calendar does not have to be limited to three people types -- it can be used for as many people types as necessary!<br />Just partition out the population so that the sum of the the proportions of the population, through the calendarcycle, is equal to 1.</p>
+
+</body>
+</html>

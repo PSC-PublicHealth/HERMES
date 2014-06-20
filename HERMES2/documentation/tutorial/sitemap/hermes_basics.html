@@ -1,0 +1,59 @@
+<html>
+<head>
+<title>Conceptual Basics behind HERMES: The User Interface (Data Input Files)</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+<link href="using_svn_repository.html" rel="Prev"><link href="../STARTHERE.html" rel="Start"><link href="hermes_basics2.html" rel="Next">
+</head>
+<body>
+<h1>Conceptual Basics behind HERMES: The User Interface (Data Input Files)</h1>
+<p>For the user, HERMES is based on two main user interfaces (<i>UI</i> for short): input files and the command line <i>or</i> batch file.</p>
+<h2 id="datainputfiles">HERMES Data: Input Files</h2>
+<p>An input file is a spreadsheet file (usually a <font title="Comma-Seperated Value: a file in which entries are seperated by commas">CSV</font> file), which is read by HERMES as the values being input into the model.</p>
+<p>As of July 16<sup>th</sup>, 2012, the following input files are located in the <font title="Subversioning Network">SVN</font>:
+<h4 id="masterdata">In the <font face="courier new">\HERMES2\master_data\<b>Unified</b></font> folder:</h4>
+<p>These input files are usually used to contain data which can be applicable to <i>many</i> countries (i.e., the data should not be country-specific).</p>
+<p>Entries within these files are usually related to <i>vaccines</i>, <i>patients</i>, <i>ice</i>, <i>vehicles</i>, and <i>storage/cold devices</i>.</p>
+<ul>
+<li><b>UnifiedVaccineTypeInfo</b> - contains data about the vaccine types being used both for the <a href="hermes_dictionary.html#EPI" target="_blank">EPI</a> and <a href="hermes_dictionary.html#NVI" target="_blank">NVI</a> programs. Includes details related to cost, cold chain volumes, vaccine lifetimes and method of administration.</li>
+<li><b>UnifiedPeopleTypeInfo</b> - contains data about the patient cohorts which are being administered the vaccines. Usual categories include newborns, individual age groups (e.g. '0-11Months', '1To2Year'), pregnant women, school administrations, and region-specific vaccines (e.g. children obtaining yellow fever vaccine in only a few regions in Kenya). Can be modulated to allow for multiple population groups to be vaccinated.
+<li><b>UnifiedTruckCapacityInfo</b> - contains data about the vehicle types used in the simulation. Categories include vehicle name, cold and/or storage volume and individual notes (e.g. dimensions of a truck)</li>
+<li><b>UnifiedStorageTypeInfo</b> - contains data about the storage devices used in the simulation. Categories include fridge make, model, year, energy type, freezer/refrigerator/roomtemperature space, and type of fridge. Fridges which are <i>moving</i> also contain categories for cold lifetime, number of days before a cycle is triggered and a snooze day.</li>
+<li><b>UnifiedIceTypeInfo</b> - contains data about the ice needed to keep moving fridges (without a constant source of power) cold. This category is not as applicable to the beginning user of HERMES.</li>
+<li><b>UnifiedPackageTypeInfo</b> - contains data about packaging for different vaccine types. <i>This is still a prototype</i> -- and is not applicable to the beginning HERMES user.</i></li>
+<li><b>CurrencyConversionTable</b> - this table contains information about the conversion rate between foreign currencies and the US dollar (USD), for the years 2002-2011.
+</ul>
+<h4 id="countryspecific">In the <font face="courier new">\HERMES2\master_data\<b>[COUNTRY NAME]</b></font> folder:</h4>
+<p>These input files usually contain data pertinent to a <i>single</i> country. Data here is usually country-specific and is derived from country-specific sources.</p>
+<p>Entries within these files usually pertain to the <i>storage capacity available at each location</i>, <i>supply chain routes</i>, <i>vaccine schedule</i>, <i>number of trucks available</i>, <i>a calendar</i>  and (in some cases) the <i>open vial waste</i> recommendations.</p>
+<p>Each location is identified by a unique identification code ('idcode'), which is assigned to both the Stores and the Routes files.</p>
+<ul>
+<li><b>Stores File</b> - contains data related to storage capacities at individual locations, as well as information about the number of storage devices, cold rooms and transport vehicles at individual locations.</li>
+<li><b>Routes File</b> - contains data related to the routes taken between locations in the supply chain, particularly those pertaining to transportation vehicles.</li>
+<li><b>Demand File</b> - contains the "vaccine demand" needed for a single patient - particularly, the vaccination schedule required for each person type specified in <font face="courier new" size="2">UnifiedPeopleTypeInfo</font>).</li>
+<li><b>Calendar File</b> - this file specifies how much of a total location's defined population would visit the vaccination administration area, per month.</li>
+<li><b>Price (Costs) File</b> - contains data related to the total types of costs incurred in a scenario year, specifically within the categories of labor, building, storage and transportation.</li>
+<li><b>Storage Gap File</b> - contains data on the type of cold devices / fridges that the system will use to add volume and/or storage to the model in a gap analysis scenario
+<li><b>Open Vial Waste</b> - a file that is, for now, <u>specific to Niger</u>. Allows the baseline open vial waste to act as a "baseline" from which open vial waste effects are noticed.<br /><i>Do <u>not</u> modify this file <u>unless</u> you're changing a location's population.</i></li>
+</ul>
+<h3>Supplementary Notes on Input Files</h3>
+<p>Data for an input file (usually) comes from one of the following sources:
+<ul>
+<li>WHO's <a href="http://www.who.int/immunization_delivery/systems_policy/evm/en/index3.html
+" target="_blank">Effective Vaccine Management (EVM)</a> tool</li>
+<li><a href="http://www.path.org/publications/detail.php?i=1569 
+" target="_blank">Cold Chain Equipment Manager (CCEM)</a></li>
+<li>Country Census Data</li>
+<li>In-Country Resources' Data</li>
+<li>Personal communications with in-country officials</li>
+</ul>
+<p>Next step -- learning about the "clickable interface" of HERMES: the <i>batch file</i>.
+<br /><br />
+</body>
+<foot>
+<p>
+<div style="float:left;width:33%;">Previously: <a href="using_svn_repository.html">Using the SVN Repository</a></div>
+<div style="float:left;width:33%;"><a href="../STARTHERE.html">Home</a></div>
+<div style="float:right;width:33%;">Next: <a href="hermes_basics2.html">Running HERMES: Command Line and/or Batch File</a></div>
+</p>
+</foot>
+</html>

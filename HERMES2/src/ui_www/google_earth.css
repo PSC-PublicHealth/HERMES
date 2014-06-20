@@ -1,0 +1,94 @@
+#ge_map3d { 
+  position: relative;
+  top: 10px;
+  left: 10px;
+  height: 500px;
+  width:  600px;
+  z-index: 2;
+  float: left;
+  visibility:visible;
+}
+
+#ge_buttons { 
+  position: relative;
+  top: 10px;
+  height: 500px;
+  width: 300px;
+  z-index: 2;
+  visibility: visible;
+  border-style:solid;
+  border-width: 2px;
+  float: right;
+  border-radius:2px;
+}
+
+#ge_content-for-iframe { 
+  visibility: hidden;
+  z-index:98;
+  border:1px;
+} 
+
+#ge_content { 
+  z-index: 101;
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
+#content-iframe { 
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 0px;
+  width:  0px;
+  z-index:55;
+  visibility:hidden;
+}
+
+.ge_layer_button_table { 
+  width:100%;
+}
+
+.ge_layer_button_table .td { 
+  padding:10px;
+}
+
+#ge_layers {
+  position:absolute;
+  top:10px;
+  left:10px;
+  width:280px;
+  height:200px;
+  border-style:solid;
+  border-width:1px;
+  border-radius:3px;
+
+}
+
+.ge_layer_button_container { 
+  align: center;
+}
+
+.ge_layer_button { 
+  width:125px;
+  height:75px;
+}
+
+/* for jqGrid tables */
+.ui-jqgrid {font-size:small}
+.ui-jqgrid tr.jqgrow td {font-size:small}
+.ui-jqgrid tr.jqgroup td {
+	font-size:small;
+	background-color: rgb(88,88,88);
+	color: white;
+}
+th.ui-th-column div {
+	word-wrap: break-word;
+	white-space: pre-wrap; /* CSS3 */
+    	white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    	white-space: -pre-wrap; /* Opera 4-6 */
+    	white-space: -o-pre-wrap; /* Opera 7 */
+    	overflow: hidden;
+    	height: auto !important;
+    	vertical-align: middle;
+	font-size:small;
+}

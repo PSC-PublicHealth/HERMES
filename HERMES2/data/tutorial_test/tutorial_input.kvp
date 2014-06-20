@@ -1,0 +1,25 @@
+#
+#  This is a tiny tutorial test input
+#
+
+rundays = 336
+model = 'model_generic'
+monitor = 1000000,1030000,1030300,1030301,1030302,1030303
+monvax = 'all'
+burnindays = 28
+storesfile = 'TutorialStoreInfo_refrigerators.csv'
+routesfile = 'TutorialRoutes_new.csv'
+demandfile = 'Tutorial_Demand.csv'
+outputfile = 'tutorial_out'
+calendarfile = 'Tutorial_Calendar_Baseline.csv'
+levellist = 'Central','State','County','City'
+cliniclevellist = 'City'
+calendarcycle = 672
+initialovw = 'Tutorial_OVW_test.csv'
+#seed = 1234
+pricetable = 'TutorialCosts.csv'
+customoutput = 'tutorial_custom_out.csv'
+eventlog = 'Tutorial_EventLog'
+#eventloglist = 'pickup','delivery'
+eventlogregex = 'California'
+

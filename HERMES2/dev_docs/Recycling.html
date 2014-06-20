@@ -1,0 +1,54 @@
+<html>
+
+<head>
+
+<title>How Recycling Works</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>How Recycling Works 20120210</h1>
+
+<p>
+
+
+When a Fridge or Ice instance is delivered to a Clinic, the oldest
+already-attached instance of the same Fridge or Ice instance of the
+same FridgeType or IceType gets its RecycleTag set.  Immediately after
+the incoming delivery is complete, a get is done using
+recyclingGroupFilter() to select the instances with RecycleTag set.
+</p>
+<p>
+If any instances with RecycleTag set are on board at the end of the
+recycling pickup at the last client, ShipperProcess or
+OnDemandShipment will make a stop at the supplier warehouse and drop
+off all the recycling.  This is done with a put which simply deposits
+everything with the recycling tag set.
+</p>
+<p>
+<b class=alert>DESIGN QUESTION:</b> 
+We don't have a distance value from the last client
+back to the supplier for ShipperProcess deliveries.  At the moment
+(r808) the distance from the supplier to the first client is used.
+</p>
+<p>
+After delivery at the supplier, the recycling tags on Fridge instances
+are cleared by Warehouse.attachStorage().  Recycling tags on Ice
+instances are cleared when the instance is stored at freezing
+temperatures.  Thus, it's possible for Ice to skip the recycling trip
+if appropriate freezer space becomes available at the Clinic where it
+was used.
+</p>
+<p>
+During the client delivery cycle of ShipperProcess, allocateSomeGroups
+is used to control the supply of Shippable instances with RecyleTag
+set.  allocateSomeGroups(excludeRecycling=True) excludes them, but
+without the flag they are included. allocateSomeGroups is called with
+excludeRecycling=True in ShipperProcess to determine what to take off
+the truck.  This is necessary to avoid dropping off recycling items
+from one client warehouse at the next client in the delivery chain.
+
+</p>
+</body>
+</html>

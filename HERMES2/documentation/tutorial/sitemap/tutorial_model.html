@@ -1,0 +1,193 @@
+<html>
+<head>
+<title>Practice HERMES on a Tutorial Model</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+<link href="changing_variables.html" rel="Prev"><link href="../STARTHERE.html" rel="Start">
+
+</head>
+
+<body>
+<h1>Practice HERMES on a Tutorial Model</h1>
+<p>Now that you've been able to learn about HERMES through a general tutorial, you can now practice using HERMES with a tiny model!</p>
+<p>This model was heavily based off of the "tiny_town" model regularly used by the development team to test data and code changes. The main changes to this model include making a supply chain of US-based locations (instead of a hodgepodge of domestic & international locations). If the model runs as intended (i.e., with no significant errors), it will take less than a minute to run.</p>
+
+<p>This tutorial example page can be read in either one of two ways:
+<ol>
+<li>It can be read from top to bottom, following the exercises on the page after reading the tutorial in its entirity.</li>
+<li>It can be read in sections - as each section is linked to its individual page in the tutorial.</li>
+</ol> 
+
+<h2 id="TOC">Tutorial Model Walk-Through Table of Contents</h2>
+<a href="#reachtutorial">Finding the Tutorial Data Folder in the HERMES Repository</a><br />
+<a href="#tutorialfiles">Tutorial Input files</a><br />
+<a href="#tutorialinput">Using the Tutorial Input KVP file</a><br />
+<a href="#tutorialbatch">Batch File to Run the Model</a><br />
+<a href="#model_run">Running the Model + Obtaining Stockplot Graphs</a><br />
+<a href="#model_outputs">Reading Through Model Output Files</a><br />
+<br /><br />
+
+<h2>Setting Up the Tutorial Model for Use with a Batch File</h2>
+
+<h3 id="reachtutorial">Finding the Tutorial Data Folder in the HERMES Repository</h3>
+<p>From the SVN repository, <a href="using_svn_repository.html#updating_repo" target="_blank">update your repository to the latest version of HERMES.</a></p>
+
+<p>To reach the tutorial model data files in your HERMES repository, first click on the <b>Data</b> folder, then click on the <b>tutorial_test</b> folder.</p>
+
+<center><img src="togettotutorial_test.PNG"></center>
+
+<p>The screenshot below shows the general files that should be present in your tutorial_test file.</p>
+
+<center><img src="tutorial_test1.PNG"></center>
+
+<div align="right"><a href="#TOC">Return to Table of Contents</a></div>
+
+<h3 id="tutorialfiles">Tutorial Input files</h3>
+<p>Under the tutorial_test folder, you will see the following <a href="hermes_basics.html" target="_blank">general and model-specific files</a> (unless linked otherwise):<br />
+<center><table>
+<tr><th>File Name in tutorial_test</th><th>Function in HERMES</th></tr>
+<tr><td>Tutorial_Calendar_Baseline.csv</td><td>Calendar File</td></tr>
+<tr><td>Tutorial_Demand.csv</td><td>Population Demand File</td></tr>
+<tr><td>tutorial_input.kvp</td><td><a href="input_file_intro.html#example" target="_blank">Input KVP File</a></td></tr>
+<tr><td>Tutorial_OVW_test.csv</td><td>Open Vial Waste File</td></tr>
+<tr><td>TutorialCosts.csv</td><td>Model Costs File ("Price (Costs) File")</td></tr>
+<tr><td>TutorialRoutes_new.csv</td><td>Transport Routes File ("Routes File")</td></tr>
+<tr><td>TutorialStoreInfo_refrigerators.csv</td><td>Location-Specific Storage File ("Stores File")</td></tr>
+<tr><td>UnifiedPeopleTypeInfo.csv</td><td>Unified People Types File</td></tr>
+<tr><td>UnifiedStorageTypeInfo.csv</td><td>General Storage Device File</td></tr>
+<tr><td>UnifiedTruckCapacityInfo.csv</td><td>General Transport Vehicle File</td></tr>
+<tr><td>tutorial_custom_out.csv</td><td>Custom Output File</td></tr>
+</table></center>
+
+<p>Between the HERMES revisions describing the original multi-page tutorial and now, there has been one additional file added to the tiny tutorial. It is the "Custom Out" sheet, typically used to display the results of HERMES into a single output worksheet. <i>This document will not have to be modified by a new user to HERMES.</i></p>
+
+<div align="right"><a href="#TOC">Return to Table of Contents</a></div>
+
+<h3 id="tutorialinput">Using the Tutorial Input KVP file</h3>
+<p>As mentioned previously, the Input KVP file is the type of file that "ties" together all of the data input files, so that the model knows what files to read exactly.</p>
+
+<p>The input file used for this particular scenario is:<br />
+<pre>#
+#  This is a tiny tutorial test input
+#
+
+rundays = 336
+model = 'model_generic'
+monitor = 1000000,1030000,1030300,1030301,1030302,1030303
+monvax = 'all'
+burnindays = 28
+storesfile = 'TutorialStoreInfo_refrigerators.csv'
+routesfile = 'TutorialRoutes_new.csv'
+demandfile = 'Tutorial_Demand.csv'
+outputfile = 'tutorial_out'
+calendarfile = 'Tutorial_Calendar_Baseline.csv'
+levellist = 'Central','State','County','City'
+cliniclevellist = 'City'
+calendarcycle = 672
+initialovw = 'Tutorial_OVW_test.csv'
+#seed = 1234
+pricetable = 'TutorialCosts.csv'
+customoutput = 'tutorial_custom_out.csv'
+eventlog = 'Tutorial_EventLog'
+#eventloglist = 'pickup','delivery'
+eventlogregex = 'California'
+</pre>
+
+<p>On its face, this input KVP file looks like previous iterations of its file type, as mentioned in <a href="input_file_intro.html#example" target="_blank">the tutorial</a>. However, there are some fundamental differences in this input file. These are:</p>
+
+<ul>
+<li>All of the data input files referenced in this input KVP file are tutorial-specific. (See <a href="#tutorialfiles">above</a> for correlations between file function and file usage.)</li>
+<li><font size="2" face="courier new">model = 'model_generic'</font>: the model being used in this scenario is the generic model, not a country-specific model.</li>
+<li><font size="2" face="courier new">levellist = 'Central','State','Country','City'</font> and <font size="2" face="courier new">cliniclevellist = 'City'</font>: newer iterations of model_generic must specify the individual levels of the supply chain (from the highest level, moving downwards). For this instance of the model, the levels are "Central", "State", Country" and "City", with "City" acting as the clinic (administration) level.</li>
+<li><font size="2" face="courier new">customoutput = 'tutorial_custom_out.csv'</font>: this line denotes the name of the custom output file used for the tutorial model.</li>
+<li><font size="2" face="courier new">eventlog = 'Tutorial_EventLog'</font>, <font size="2" face="courier new">#eventloglist = 'pickup','delivery'</font> and <font face="courier new" size="2">eventlogregex = 'California'</font>: some of the newest developments in HERMES have been involved in logging events (i.e., trucks leaving a location, shipments being picked up). These three lines in the input.kvp file are involved in A) denoting the file that will be written as the "event log", B) the events that will be logged in HERMES and C) specify the regular expression ("regex") that will be searched for. More documentation about this class of features can be found <a href="../../event_logger.html" target="_blank">here</a>.</li>
+</ul>
+
+<div align="right"><a href="#TOC">Return to Table of Contents</a></div>
+
+<h3 id="tutorialbatch">Batch File to Run the Model</h3>
+<p>As <a href="hermes_basics2.html#BatchFile" target="_blank">previously mentioned</a>, the batch file is an executable program on a Windows operating system which can hold a series of commands that run if the icon is clicked.</p>
+<p>To create a batch file:
+<ol>
+<li>In the folder where one would want the batch file, right click on empty space, and create a "New" <i>text file</i>. <i>Do not save this text file.</i></li>
+<li>Click and highlight within the name of the text file. Delete the file name, and rename the icon with a new name. Save the text file with the extension <b>*.BAT</b>. The text file, for example, could have a saved file name of "tutorial_file.bat".</li>
+<li>Press "Enter" when you are done renaming the icon. A window may come up, saying, "If you change the file name extension, the file may become unusable. Are you sure you want to change it?" Click "Yes" for this window.</li>
+
+<div align="center"><p><img src="how_to_rename_batchfile.PNG" /><br /><em>The graphic above shows steps #2 and #3 on creating a batch file (shown above).</em></p></div>
+
+<li>Right-click on the icon of the new batch file, and click "Edit". A Notepad-like interface should come up, allowing you to edit the information within the Batch file.</li>
+<li>Paste the batch file (reproduced below) into this text file. Check that the commands in the batch file are referencing the correct documents in your HERMES repository. Save this batch file, by simply pressing Ctrl+S.</li>
+<li>Return to the location of the folder where the batch file is kept. Double-click the batch file. If everything has been saved as anticipated, the model should start running.</li>
+</ol>
+
+<p>The batch file used to run the tutorial model is:</p>
+<pre>cd tutorial_output
+set path=C:\python27;%path%
+set hermes_data_path=.;"C:\Documents and Settings\leestudent\Desktop\HERMES2\data\tutorial_test";"C:\Documents and Settings\leestudent\Desktop\HERMES2\master_data\unified";
+"C:\Documents and Settings\leestudent\Desktop\HERMES2\main.py" tutorial_input.kvp --out=Tutorial_test >> tutorial_error.txt 2>&1</pre>
+
+<p>In the above tutorial model batch file, we can see that there is a line marked, <font size="2" face="courier new">cd tutorial_output</font>. This line indicates that the output will be written into a folder (existing in the same folder as the batch file), where we can subsequently check our results. (If you're confused, look at the graphic below for appropriate batch file / output file placement.)
+
+<center><img src="tutorial_output.PNG"></center>
+
+<div align="right"><a href="#TOC">Return to Table of Contents</a></div>
+
+<h2>Running + Interpreting the Model</h2>
+
+<h3 id="model_run">Running the Model + Obtaining Stockplot Graphs</h3>
+
+<p>Once the batch file has been clicked upon, the model should take no more than a minute to run.</p>
+
+<p>Once the model has nearly completed running, assuming that nothing in the input files (data or KVP) has been changed, the following stockplots should appear:</p>
+
+<center><img src="tutorial_stockplots.PNG"></center>
+
+<p>Each one of these graphs indicate the vial counts at individual warehouses. There are two plots that come out of this model: the histogram of vial counts at warehouses, and vial counts versus time for warehouses.</p>
+
+<p>The stockplot on the left, "Histogram of vial counts for warehouses, run #0", indicates the number of days (y-axis) in which a certain vial count (x-axis) was denoted at a particular location (title of the stockplot). This histogram does <i>not</i> plot the relationship between vial counts at various points in time, but it gives a general idea of the number of days a range of certain vial counts was noted. A general idea of the number of stockouts can be observed, if one looks at the number of days at which the vial count is 0 ("0" on the x-axis).</p>
+
+<p>The stockplot on the right, "Vial counts vs. time for warehouses, run #0", indicates the vial counts at a particular warehouse (y-axis) throughout the time period that the model runs in (x-axis). This stockplot gives a sense of the vial counts per time, and can therefore show when shipments were implemented in the model, as these times would be periods where the location quickly runs out of vaccines. Subsequent areas with high vial counts can display when new shipments of vaccines came in the model. Taken together, reading these data trends can show when shipments and overstocks occured in the model.</p>
+
+<p>If you need a refresher on how to read stockplots, an example of where stockplots have been used before can be found <a href="hermes_outputs.html#vial_graphs" target="_blank">here</a>.</p>
+
+<div align="right"><a href="#TOC">Return to Table of Contents</a></div>
+
+<h3 id="model_outputs">Reading Through Model Output Files</h3>
+
+<p>One these stockplots are closed, the model finishes running. Going into the tutorial_ouput folder previously created, we see the following files:</p>
+
+<center><img src="tutorial_output_folder.PNG"></center>
+
+<p>As you can see, the output files that are available are:
+<ul>
+<li><font face="courier new" size="2">Tutorial_EventLog</font>: the event log file, which displays times in which a certain event was denoted at a particular location in the supply chain. (This feature was mentioned in the input file <a href="#tutorialinput" target="_blank">above</a>.) More documentation on the event logging feature can be found in <a href="../../event_logger.html" target="_blank">the event logger documentation page</a>.</li>
+<li><font face="courier new" size="2">Tutorial_test...log</font>: the log file of the simulation, which denotes particular processes related to each transport device type, each storage device type and each vaccine type. It also denotes the SVN repository version of each script component in HERMES. More documentation on the log file can be found <a href="hermes_outputs.html#log_error" target="_blank">here</a>. </li>
+<li><font face="courier new" size="2">Tutorial_test...costs</font>: this file denotes the general output costs that come out of the model - specifically, the building, storage, labor and transport costs. This file was originally based off of the calculations done by PATH.</li>
+<li><font face="courier new" size="2">Tutorial_test</font>: this file is the report file that shows, on a per-location and/or per-route basis, statistics related to population demand, transport trips and amount of storage utilized at a particular location. More documentation about the report file can be found <a href="hermes_outputs.html#summary_report" target="_blank">here</a>.</li>
+<li><font face="courier new" size="2">Tutorial_test...summary</font>: this file denotes the summary statistics that show utilization, based on individual storage device types, transport device types and vaccines. More documentation about this can be found <a href="hermes_outputs.html#summary_report" target="_blank">here</a>.</li>
+<li><font face="courier new" size="2">tutorial_out_cust...csv</font>: this is the "custom output" reporting file, which takes data from parallel mechanisms to the report and summary files, and compresses them into a singular output file. More documentation about this can be found <a href="../../custom_outputs.html" target="_blank">here</a>.</li>
+<li><font face="courier new" size="2">tutorial_error.txt</font>: this is the error document that was created as part of the <a href="#tutorialbatch" target="_blank">batch file</a> above. This document is used to log any errors, should the model fail to complete its simulation. If the model has completed as anticipated, this document should (ideally) remain blank. More documentation on the error file can be found <a href="../../event_logger.html" target="_blank">here</a>. </li>
+</ul>
+
+<div align="right"><a href="#TOC">Return to Table of Contents</a></div>
+
+<br /><br />
+<h2>Have any questions?</h2>
+<p>The first draft ("beta test") of this tutorial was constructed from April 4-12, 2012.</p>
+<p>The tutorial model created as a hands-on example to HERMES was created from November 19-20, 2012.</p>
+<p>This tutorial will be updated accordingly as new developments come into the picture.</p>
+<p>If you have any other questions that haven't been approached in this document, feel free to email the tutorial webmaster <a href="mailto:mms160@pitt.edu?subject=HERMES%20Tutorial%20Questions%20or%20Comments" target="_blank">here</a>.</p>
+<br />
+<center><h2>Thank you for going through this tutorial! &#9786;</h2></center>
+</body>
+
+
+<br /><br />
+
+<foot>
+<p>
+<div style="float:left;width:33%;">Previously: <a href="final_remarks.html">Final HERMES Remarks</a></div>
+<div style="float:left;width:33%;"><a href="../STARTHERE.html">Home</a></div>
+</p>
+</foot>
+
+</html>

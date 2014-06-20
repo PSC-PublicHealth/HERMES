@@ -1,0 +1,68 @@
+<html>
+
+<head>
+
+<title>Render Unto SimPy What Belongs To SimPy: Notes on Handling SimPy
+Resources</title>
+<link rel='stylesheet' href='hermes_doc.css'>
+</head>
+
+<body bgcolor="white">
+
+<h1>Render Unto SimPy What Belongs To SimPy: Notes on Handling SimPy
+Resources 20111117</h1>
+
+<p>
+HERMES is a discrete event simulation, which means that everything
+that happens occurs at a specific moment in time.  More specifically,
+there is a set-up period in which the simulation environment
+(consisting of warehouses, UseVials and transport processes, etc.)
+gets built, then sim.simulate() gets called, and thereafter events are
+driven by SimPy processes which 'awaken' when their time slice comes
+up.  The set-up period happens 'before time' and we are free to set
+things up as we see fit, but anything that happens during a SimPy
+process's run() method is dealing with a system state which is partly
+maintained by SimPy.  Any time a process wakes up, other processes may
+be waiting to be allocated supplies from warehouses, for example, so
+no code at the HERMES level should 'instantaneously' add or remove
+supplies from warehouses.  If we do that, the pending SimPy allocation
+may never be resolved, and the process that was waiting for it will
+essentially deadlock.  We can't change the number of trucks in the
+truck pool, for example, since that is a SimPy resource and some
+process may be waiting for a truck to come free.  (<b>Note:</b>
+Since that time Trucks have become a distinct type stored in a SimPy
+Store named Garage, so we can easily insert more during a simulation.) 
+We also can't change
+the number of vaccine vials in any Warehouse's .theBuffer, because
+SimPy manages that buffer.
+</p>
+<p>
+We can, however, change the state of vaccines in a Warehouse'
+.theBuffer, or change any attribute of the Warehouse that SimPy does
+not directly reference, or spawn new processes that will do things to
+the SimPy data structures by the normal SimPy mechanisms when <em>their</em>
+time slice comes up.
+</p>
+<p>
+There is also a hack which allows us to do manipulations on vaccines
+in .theBuffer.  Vaccines are stored in VaccineGroups; those groups are
+referenced from .theBuffer and potentially from other lists like the
+storage lists of the StorageBlocks of specific refrigerators.
+Vaccines are always removed from Warehouses using a SimPy <a
+href="http://simpy.sourceforge.net/SimPy_Manual/Manuals/Manual.html#using-the-get-filter-function" target="_blank">
+'get filter function' 
+</a>
+which counts out vials of specific vaccine types.  The HERMES code
+never does a 'yield get' for VaccineGroups directly.  This allows the
+get filter function to manipulate .theBuffer, as long as the total
+number of vaccines of each type is preserved.  The hermes code can
+thus break up groups, or mark them as having expired.  It can't delete
+the expired groups, however- it must wait for them to be returned in
+response to a 'yield get' and then drop them.  The groups are dropped
+when the 'get' function filters them; that function executes in the
+time slice of the process which issued the 'yield get' rather than in
+the time slice of the process which changed the VaccineGroup state and
+thus avoids potentially screwing up the SimPy state.
+</p>
+</body>
+</html>
