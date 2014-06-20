@@ -1,4 +1,5 @@
 Notes on Internationalization:
+
 Written by Shawn Brown <stbrown@psc.edu> 7/23/2013
 
 The internationalization of the HERMES GUI is mainly an organizational task.  New implements are as follows:
