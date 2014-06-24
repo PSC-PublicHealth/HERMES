@@ -311,7 +311,7 @@ function setPrintGrid(gid,pid,pgTitle){
             onServerSuccess: null,
             onServerError: null,
             onServerFail: null,
-            callbackData: null
+            callbackData: null,
         }, options );
         
         var opFuncNames = ['afterBuild','onChange','onServerSuccess','onServerError','onServerFail','callbackData'];
@@ -336,12 +336,12 @@ function setPrintGrid(gid,pid,pgTitle){
  				var sel = $(document.createElement("select"));
  				$elem.append(sel);
  				var myThis = this;
-				sel.change( function() {
+				sel.change( function(evt) {
 					$.getJSON('{{rootPath}}json/set-selected-model', {id:sel.val()})
 					.done(function(data) {
 						sel.data('modelName',data['name']);
 						if ('onChange' in settings && settings.onChange != null) {
-							settings.onChange.bind($(myThis))(sel,data);
+							settings.onChange.bind($(myThis))(evt, sel.val());
 						}
 	    			})
 	  				.fail(function(jqxhr, textStatus, error) {
@@ -369,9 +369,6 @@ function setPrintGrid(gid,pid,pgTitle){
 				if (arg=='selId') {
 					return sel.val();
 				}
-				else if (arg=='selName') {
-					return decodeURIComponent(sel.data('currencyName'));
-				}
 				else if (arg=='rebuild') {
 					var modelId;
 					if (settings.modelId instanceof Function) {
@@ -392,8 +389,8 @@ function setPrintGrid(gid,pid,pgTitle){
 					})
 					.done(function(data) {
 						if (data.success) {
-							sel.data('prev_value',sel.val());
     						sel.html(decodeURIComponent(data['menustr']));
+							sel.data('prev_value',sel.val());
     						if ('afterBuild' in settings  && settings.afterBuild != null) {
     							settings.afterBuild.bind(sel.parent())(sel,data);
     						}
@@ -405,6 +402,9 @@ function setPrintGrid(gid,pid,pgTitle){
   					.fail(function(jqxhr, textStatus, error) {
   						alert("Error: "+jqxhr.responseText);
 					});
+				}
+				else if (arg=='save') {
+					sel.data('prev_value', sel.val());
 				}
 				else if (arg=='revert') {
 					sel.val(sel.data('prev_value'));
@@ -423,77 +423,13 @@ function setPrintGrid(gid,pid,pgTitle){
  				var myThis = this;
 				sel.change( function(evt) {
 					if ('onChange' in settings && settings.onChange != null) {
-						var currencyId = $(evt.target).val();
-						if ( settings.onChange.bind($(myThis))(evt, currencyId) ) {
-							sel.data('prev_value',sel.val());
-							var modelId;
-							if (settings.modelId instanceof Function) {
-								modelId = settings.modelId.bind($(myThis))(sel);
-							}
-							else modelId = settings.modelId;
-							$.getJSON('{{rootPath}}json/set-default-currency', 
-								{id:encodeURIComponent(sel.val()), modelId:modelId})
-							.done(function(data) {
-								if ( data.success ) {
-									sel.data('currencyName',decodeURIComponent(data['name']));
-								}
-								else {
-  									alert('{{_("Failed: ")}}'+data.msg);
-								}
-	    					})
-	  						.fail(function(jqxhr, textStatus, error) {
-	  							alert("Error: "+jqxhr.responseText);
-							});
-						}
-						else {
-							$elem.currencySelector('revert');
-						}
+						settings.onChange.bind($(myThis))(evt, $(evt.target).val());
+					}
+					else {
+						$elem.currencySelector('save');
 					}
 				});
 				$elem.currencySelector('rebuild');
-
-
-/*
- 				$elem = $(elem);
- 				$elem.html('<label>'+settings['label']+'</label>');
- 				var sel = $(document.createElement("select"));
- 				$elem.append(sel);
- 				var myThis = this;
-				sel.change( function() {
-					$.getJSON('{{rootPath}}json/set-selected-currency', {id:sel.val()})
-					.done(function(data) {
-						if ( data.success ) {
-							sel.data('currencyName',data['name']);
-							if ('onChange' in settings && settings.onChange != null) {
-								settings.onChange.bind($(myThis))(sel,data);
-							}
-						}
-						else {
-  							alert('{{_("Failed: ")}}'+data.msg);
-						}
-	    			})
-	  				.fail(function(jqxhr, textStatus, error) {
-	  					alert("Error: "+jqxhr.responseText);
-					});
-				});
-
-				$.getJSON('{{rootPath}}list/select-currency')
-				.done(function(data) {
-					if ( data.success ) {
-    					sel.append(data['menustr']);
-    					sel.data('currencyName',data['selname']);
-    					if ('afterBuild' in settings && settings.afterBuild != null) {
-    						settings.afterBuild.bind($elem)(sel,data);
-    					}
-					}
-					else {
-  						alert('{{_("Failed: ")}}'+data.msg);
-					}
-    			})
-  				.fail(function(jqxhr, textStatus, error) {
-  					alert("Error: "+jqxhr.responseText);
-				});
-*/
  			});
  		}
  		else if (settings['widget']=='typeSelector') {
@@ -759,6 +695,43 @@ function setPrintGrid(gid,pid,pgTitle){
     				settings.afterBuild.bind($elem)($tbl);
     			};
 
+ 			});
+ 		}
+ 		else if (settings['widget']=='floatTextBox') {
+			$.fn.floatTextBox = function( arg, arg2 ) {
+	 			var tId = this.attr('id');
+ 				if (tId == undefined) $.error('text input has no id');
+	 			var tp = this.attr('type');
+	 			if (tp != 'text') $.error('element is not a text input');
+ 				if (arg=='saveState') {
+ 					this.data('prev_value',this.val());
+ 				}
+ 				else if (arg=='revertState') {
+ 					this.val(this.data('prev_value'));
+ 				}
+				else {
+					$.error('Unknown operation '+arg.toString());
+				}
+			}
+
+ 			return this.each(function(index,elem) {
+ 				$elem = $(elem);
+	 			var tId = $elem.attr('id');
+ 				if (tId == undefined) $.error('text input has no id');
+	 			var tp = $elem.attr('type');
+	 			if (tp != 'text') $.error('element is not a text input');
+	 			$elem.keypress(validateFloat);
+	 			$elem.floatTextBox('saveState');
+	 			$elem.off('blur.floatTextBox');
+ 				$elem.on('blur.floatTextBox', function(evt) {
+					if ('onBlur' in settings && settings.onBlur != null) {
+						settings.onBlur.bind($elem)($elem);
+					}
+ 				});
+
+    			if ('afterBuild' in settings && settings.afterBuild != null) {
+    				settings.afterBuild.bind($elem)($elem);
+    			};
  			});
  		}
  		else if (settings['widget']=='tooltips') {

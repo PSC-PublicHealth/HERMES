@@ -59,7 +59,7 @@ class CurrencyConverter:
         if not found:
             raise RuntimeError("Cannot find an entry for USD in the currency conversion table")
         
-        baseRecList = [r for r in recs if r['Currency Code']==self.cb]
+        baseRecList = [r for r in recs if r['Currency Code']=='USD']
         if len(baseRecList) == 0:
             raise RuntimeError("The currency table record for %s is missing"%self.cb)
         baseFac = None
@@ -75,18 +75,20 @@ class CurrencyConverter:
         self.table= {}
         for r in recs:
             curCode = r['Currency Code']
-            try:
+            if self.yearKey in r:
                 v = r[self.yearKey]
-            except:
-                v = 1.0
-            if v == '' or v is None: v = 1.0 # believed to be USD
-            if v > 0.0:
-                self.table[curCode] = baseFac/v
+                if v is not None and v > 0.0:
+                    self.table[curCode] = baseFac/v
         
     def convert(self, curCode, val):
         if curCode in self.table:
             return self.table[curCode] * val
         raise RuntimeError("No conversion factor to take %s to %s"%(curCode,self.cb))
+    
+    def convertTo(self, curCode, val, newCurCode):
+        if curCode in self.table and newCurCode in self.table:
+            return (self.table[curCode] * val)/self.table[newCurCode]
+        raise RuntimeError("No conversion factor to take %s to %s"%(curCode,newCurCode))
     
     def getBaseCurrency(self):
         return self.cb

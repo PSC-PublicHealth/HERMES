@@ -4,8 +4,6 @@
 	<tr>
 		<td colspan=2>
 			<div align='center' id='model_sel_widget'></div>
-			<div align='center' id='currency_sel_widget'></div>
-
 		</td>
 	</tr>
 	<tr>
@@ -15,37 +13,50 @@
 				<tr>
 					<th>{{_("Commodity")}}</th>
 					<th>{{_("Price")}}</th>
+					<th></th>
 					<th>{{_("Per")}}</th>
 				</tr>
 				
 				<tr>
 					<td>{{_("LP gas")}}</td>
 					<td><input type='text' id='price_propane'></input></td>
+					<td><div id='price_propane_units'></div></td>
 					<td>{{_("Kg")}}</td>
 				</tr>
 
 				<tr>
 					<td>{{_("Kerosene")}}</td>
-					<td><input type='text' id='price_propane'></input></td>
+					<td><input type='text' id='price_kerosene'></input></td>
+					<td><div id='price_kerosene_units'></div></td>
 					<td>{{_("Liter")}}</td>
 				</tr>
 
 				<tr>
 					<td>{{_("Gasoline")}}</td>
-					<td><input type='text' id='price_propane'></input></td>
+					<td><input type='text' id='price_gasoline'></input></td>
+					<td><div id='price_gasoline_units'></div></td>
 					<td>{{_("Liter")}}</td>
 				</tr>
 
 				<tr>
 					<td>{{_("Diesel")}}</td>
-					<td><input type='text' id='price_propane'></input></td>
+					<td><input type='text' id='price_diesel'></input></td>
+					<td><div id='price_diesel_units'></div></td>
 					<td>{{_("Liter")}}</td>
 				</tr>
 
 				<tr>
 					<td>{{_("Electric Mains")}}</td>
-					<td><input type='text' id='price_propane'></input></td>
+					<td><input type='text' id='price_electric'></input></td>
+					<td><div id='price_electric_units'></div></td>
 					<td>{{_("Kilowatt Hour")}}</td>
+				</tr>
+
+				<tr>
+					<td>{{_("Solar Power")}}</td>
+					<td><input type='text' id='price_solar'></input></td>
+					<td><div id='price_solar_units'></div></td>
+					<td>{{_("Installed Kilowatt")}}</td>
 				</tr>
 			</table>
 			</div>
@@ -57,7 +68,6 @@
     <table width=100%>
       <tr>
         <td></td>
-        <td width=10%><input type="button" id="cancel_button" value={{_("Cancel")}}></td>
         <td width=10%><input type="button" id="done_button" value={{_("Done")}}></td>
       </tr>
     </table>
@@ -65,43 +75,137 @@
 
 
 <script>
+{ // local scope
+
+function buildPage(modelId) {
+	$.getJSON('{{rootPath}}json/get-fuel-price-info',{ modelId:modelId })
+	.done(function(data) {
+		if (data.success) {
+			var rowNames = ['propane', 'kerosene', 'gasoline', 'diesel', 'electric', 'solar'];
+			for ( var i = 0; i<rowNames.length; i++ ) {
+				var rowName = rowNames[i];
+				function frzOnBlur(currentRowName) {
+					return function(evt) {
+						$.getJSON( '{{rootPath}}json/set-fuel-price/'+currentRowName, { 
+							modelId:modelId,
+							price:$('#price_'+currentRowName).val(),
+							id:$('#price_'+currentRowName+'_units').currencySelector('selId')
+						 })
+						.done( function(data) {
+							if (data.success) {
+								var $priceEl = $('#price_'+currentRowName);
+								$priceEl.val(data.price);
+				    			$priceEl.floatTextBox('saveState');
+							}
+							else {
+				    			alert('{{_("Failed: ")}}'+data.msg);
+				    			$('#price_'+currentRowName).floatTextBox('revertState');
+							}
+						})
+						.fail( function(jqxhr, textStatus, error) {
+				    		alert('{{_("Error: ")}}'+jqxhr.responseText);
+				    		$('#price_'+currentRowName).floatTextBox('revertState');
+						});
+					}
+				};
+				function frzCurSelChange(currentRowName) {
+					return function(evt, currencyId) {
+						$.getJSON('{{rootPath}}json/set-fuel-price-currency/'+currentRowName, {
+							modelId:modelId,
+							id:encodeURIComponent($('#price_'+currentRowName+'_units').currencySelector('selId')),
+							price:$('#price_'+currentRowName).val()
+						})
+						.done(function(data) {
+							if ( data.success ) {
+								if (decodeURIComponent(data.id) == currencyId) {
+									$('#price_'+currentRowName+'_units').currencySelector('save');
+									if (data.price) {
+										$('#price_'+currentRowName).val( data.price.toString() );
+									}
+								}
+								else {
+									alert( '{{_("Failed: Currency type mismatch")}}' );
+									$('#price_'+currentRowName+'_units').currencySelector('revert');
+								}
+							}
+							else {
+								alert('{{_("Failed: ")}}'+data.msg);
+								$('#price_'+currentRowName+'_units').currencySelector('revert');
+							}
+    					})
+  						.fail(function(jqxhr, textStatus, error) {
+  							alert("Error: "+jqxhr.responseText);
+  							return false;
+						});
+					};
+				};
+				$('#price_'+rowName).hrmWidget({
+					widget:'floatTextBox',
+					onBlur:frzOnBlur(rowName)
+				});
+				var widgetArgs = {
+					widget:'currencySelector',
+					modelId:modelId,
+					label:'',
+					onChange:frzCurSelChange(rowName)
+				};
+				if (data[rowName+'Price']) {
+					$('#price_'+rowName).val( data[rowName+'Price'].toString() );
+					$('#price_'+rowName+'_units').hrmWidget( $.extend({},
+						{selected:decodeURIComponent(data[rowName+'Currency'])},
+						widgetArgs));
+				}
+				else {
+					$('#price_'+rowName).val('');
+					$('#price_'+rowName+'_units').hrmWidget(widgetArgs);
+				}
+			}
+		}
+	    else {
+	    	alert('{{_("Failed: ")}}'+data.msg);
+	    }
+	})
+	.fail(function(jqxhr, textStatus, error) {
+	    alert('{{_("Error: ")}}'+jqxhr.responseText);
+	});
+}
+
+
+
 $(function() {
 	$("#model_sel_widget").hrmWidget({
 		widget:'modelSelector',
 		label:'{{_("Showing fuel costs for")}}',
 		afterBuild:function(mysel,mydata) {
-
-			// Build the currency selector, which depends on the model
-			$("#currency_sel_widget").hrmWidget({
-				widget:'currencySelector',
-				label:'{{_("Prices are in")}}',
-				modelId: function() {
-					return $('#model_sel_widget').modelSelector('selId');
-				},
-				afterBuild:function(mysel,mydata) {
-				},
-				onChange:function(mysel,mydata) {
-					return true; // which accepts the change
-				},
-			});
-
+			buildPage( mydata.selid );
 		},
-		onChange:function(mysel,mydata) {
-			// rebuild the currencySelector, which depends on the model
-			$("#currency_sel_widget").currencySelector("rebuild");
+		onChange:function(evt, selId) {
+			buildPage( selId );
+			return true;
 		},
 	});
-
-	
-	var buttonNames = ['fuel', 'power', 'truck', 'fridge', 'vaccine', 'salary', 'building'];
-	for ( var i = 0; i<buttonNames.length; i++ ) {
-		$('#cost_'+buttonNames[i]+'_btn').button().click( function(evt) {
-			var btnName = this.id.split('_')[1];
-			window.location = "{{rootPath}}cost_edit_"+btnName;
-			evt.preventDefault();
-		});
-	}
 });
 
+$(function() {
+	var btn = $("#done_button");
+	btn.button();
+	btn.click( function() {
+		$.getJSON("{{rootPath}}json/generic-pop")
+		.done(function(data) {
+			if (data.success) {
+				window.location = data.goto;
+			}
+			else {
+				alert('{{_("Failed: ")}}'+data.msg);
+			}
+    	})
+  		.fail(function(jqxhr, textStatus, error) {
+  			alert("Error: "+jqxhr.responseText);
+		});
+	})
+})
+
+
+} // end local scope
 </script>
  

@@ -89,7 +89,6 @@ def _getToolTips():
     else: pD = {}
     if '*' in _toolTipDict[inlizer.currentLocaleName]:
         pD.update(_toolTipDict[inlizer.currentLocaleName]['*'])
-    print pD
     for k,v in pD.items(): sio.write("'%s':'%s',\n"%(k,v))
     uiSession = session_support.UISession.getFromRequest(bottle.request)
     if 'developerMode' in uiSession and uiSession['developerMode']:
@@ -217,4 +216,17 @@ def jsonChangeLanguage(db, uiSession):
     _logMessage("Returning %s"%result)
     return result
 
+@bottle.route('/json/generic-pop')
+def jsonGenericPop(db, uiSession):
+    try:
+        crumbTrack = uiSession.getCrumbs()
+        oldPath = crumbTrack.currentPath()
+        crumbTrack.pop()
+        newPath = crumbTrack.currentPath()
+        _logMessage('/json/generic-pop: %s -> %s'%(oldPath, newPath))
+        result = { 'success':True, 'goto':newPath}
+    except Exception,e:
+        result = { 'success':False, 'msg':str(e)}        
+    return result
+    
 application= session_support.wrapBottleApp(bottle.app())
