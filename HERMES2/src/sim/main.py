@@ -48,7 +48,6 @@ except ImportError as e:
 import input
 import globals
 import copy
-#import GEViz
 import pickle
 # more delayed imports below, so that values in globals can be changed before import
 
