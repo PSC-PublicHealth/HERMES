@@ -255,7 +255,9 @@ function doUpdate(u) {
 	fieldChanges[u.inputId] = u.value;
     } else if (u.updateType == 'html') {
 	// generic update of innerHTML
-	document.getElementById(u.inputId).innerHTML = u.value;
+	var element = document.getElementById(u.inputId);
+	if (element)
+	    element.innerHTML = u.value;
     } else if (u.updateType == 'savedValue') {
         fieldChanges[u.inputId] = u.value;
     } else if (u.updateType == 'focus') {
@@ -321,6 +323,8 @@ function doUpdate(u) {
 	handleNewMessage(u.inputId, u.value);
     } else if (u.updateType == 'clearMessages') {
 	clearMessages();
+    } else if (u.updateType == 'alert') {
+	alert(u.value);
     } else {
 	alert('invalid update type: '+u.updateType);
     }
@@ -785,7 +789,38 @@ function updateRSEValue(unique, storeId, tree, action) {
 	    'field' : field,
 	    'unique' : unique,
 	    'action' : action,
-	    'value' : value
+	    'value' : value,
+	    'secondary' : 'X'
+	},
+	success: function(data, textStatus, jqXHR) {
+	    changeStringSuccess(data, textStatus, jqXHR);
+	}
+    });
+	    
+}
+
+function updateRSETypeValue(unique, storeId, tree) {
+    var category = getSelectValue('rse_category_' + unique);
+    var field = getSelectValue('rse_field_' + unique);
+    var action = getSelectValue('rse_input_action_' + unique);
+    var value = document.getElementById('rse_input_value_' + unique).value;
+    var type = getSelectValue('rse_input_type_' + unique);
+    
+    var div = document.getElementById('rse_content_' + unique);
+    div.innerHTML = '<p>Updating.  This may take a moment...</p>';
+
+    var request = $.ajax({
+	url:'json/meUpdateRSEValue',
+	data: {
+	    'modelId' : modelId,
+	    'idcode' : storeId,
+	    'tree' : tree,
+	    'category' : category,
+	    'field' : field,
+	    'unique' : unique,
+	    'action' : action,
+	    'value' : value,
+	    'secondary' : type
 	},
 	success: function(data, textStatus, jqXHR) {
 	    changeStringSuccess(data, textStatus, jqXHR);

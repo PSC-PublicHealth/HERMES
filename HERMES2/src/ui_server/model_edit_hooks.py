@@ -135,6 +135,7 @@ def createLocalUpdateEntry(inputId, value, updateType='value', displayValue=None
                    Use encodeItemId() to encode the node type.
     changeId : change the node id of a single node.  The client will immediately request
                that the node be resent as well.
+    alert : generate a popup text message for the user.
     """
     #if updateType == 'value':
     #    displayValue = h(displayValue)
@@ -653,7 +654,7 @@ def addTupleFieldUpdates(modelId, itemId, fieldInfo):
         update = createLocalUpdateEntry(inputId, et.count, 'savedValue')
         ULCM.addUpdate(update)
 
-def updateBasicTupleList(storeOrRoute, groupClassName, editableField):
+def updateBasicTupleList(storeOrRoute, groupClassName, editableField, updateFocus=True):
     """
     creating the updates for a tuple list largely means recreating
     the entire tuple list html and then adding some extra bookkeeping.
@@ -682,10 +683,11 @@ def updateBasicTupleList(storeOrRoute, groupClassName, editableField):
     # to make sure nothing is stale.
     addTupleFieldUpdates(modelId, itemId, editableField)
 
-    # overwriting the html where the page focus is resets focus.
-    # Put the focus back to where the user expects it.
-    addSelInputId = 'addSel_' + inputId
-    ULCM.addUpdate(createLocalUpdateEntry(addSelInputId, 0, 'focus'))
+    if updateFocus:
+        # overwriting the html where the page focus is resets focus.
+        # Put the focus back to where the user expects it.
+        addSelInputId = 'addSel_' + inputId
+        ULCM.addUpdate(createLocalUpdateEntry(addSelInputId, 0, 'focus'))
 
 
 def renderBasicTupleList(storeOrRoute, groupClassName, EditableField):
@@ -1003,13 +1005,17 @@ def updateFloat(inputId, model, origStr, newStr):
     setattr(obj, attr, newVal)
     return str(newVal)
     
+def getDemandTypeList(model):
+    people = model.people.values()
+    people.sort(key=lambda p: '%08d%s'%(p.SortOrder, p.Name))
+    return people
 
 def storeDemandOpts(store):
     opts = []
     model = store.model
 
-    people = model.people.values()
-    people.sort(key=lambda p: '%08d%s'%(p.SortOrder, p.Name))
+    people = getDemandTypeList(model)
+
     for p in people:
         value = p.Name
         if 0 != store.countDemand(value):
@@ -1074,12 +1080,16 @@ def addTupleStoreDemand(inputId, model, value, count):
     etl = storeDemandEtl(store)
 
     efi = EditableFieldInfo('storeDemand',
-                            'demand',
+                            'population',
                             etl,
                             fieldType='tuplelist',
                             pullDownOpts=opts)
     return updateBasicTupleList(store, 'storeDemand', efi)
         
+def getInvTypeList(model, iType):
+    inv = getattr(model, iType).values()
+    inv.sort(key=lambda i: i.getDisplayName())
+    return inv
 
 _storeInvTitles = {
     'fridges' : 'storage',
@@ -1089,8 +1099,7 @@ def storeInvOpts(store, iType):
     opts = []
     model = store.model
 
-    inv = getattr(model, iType).values()
-    inv.sort(key=lambda i: i.getDisplayName())
+    inv = getInvTypeList(model, iType)
     for i in inv:
         value = i.Name
         if 0 != store.countInventory(i):
@@ -2631,6 +2640,7 @@ def rseDispUtilization(store, field, category, unique):
     ret.append('<p>Set utilization rate:')
     ret.append('<input type="text" id="rseInput_set_%s" />'%unique)
     ret.append('<button type="button" onclick="updateRSEValue(%s,%s,\'%s\',\'set\');">Ok</button>'%(unique, store.idcode, currentTree))
+    ret.append('</p>')
     ret.append('<p>Mutliply rate by a factor:')
     ret.append('<input type="text" id="rseInput_mult_%s" />'%unique)
     ret.append('<button type="button" onclick="updateRSEValue(%s,%s,\'%s\',\'mult\');">Ok</button>'%(unique, store.idcode, currentTree))
@@ -2638,7 +2648,7 @@ def rseDispUtilization(store, field, category, unique):
     ret = string.join(ret, '\n')
     ULCM.addUpdate(divId, ret, 'html')
 
-def rseUpdateUtilization(store, field, category, unique, action, value):
+def rseUpdateUtilization(store, field, category, unique, action, value, secondary):
     try:
         value = value.strip()
         value = float(value)
@@ -2660,11 +2670,161 @@ def rseUpdateUtilization(store, field, category, unique, action, value):
         inputId = packInputId(store.modelId, client, 'storeUtilizationRate')
         ULCM.addUpdate(inputId, str(client.utilizationRate))
 
+def rseDispStorage(store, field, category, unique):
+    rseDispInventory('fridges', store, field, category, unique)
+
+def rseDispTransport(store, field, category, unique):
+    rseDispInventory('trucks', store, field, category, unique)
+
+def rseDispDemand(store, field, category, unique):
+    rseDispInventory('demand', store, field, category, unique)
+
+def rseDispInventory(iType, store, field, category, unique):
+    global currentTree
+    divId = 'rse_content_%s'%unique
+    if iType == 'demand':
+        inv = getDemandTypeList(store.model)
+    else:
+        inv = getInvTypeList(store.model, iType)
+
+    ret = []
+    ret.append('<table>')
+    ret.append('  <tr>')
+    ret.append('    <td>action</td>')
+    ret.append('    <td>count</td>')
+    ret.append('    <td>type</td>')
+    ret.append('    <td></td>')
+    ret.append('  </tr>')
+    ret.append('  <tr>')
+    ret.append('    <td>')
+    ret.append('      <select id="rse_input_action_%s">'%unique)
+    ret.append('        <option value="add">Add</option>')
+    ret.append('        <option value="set">Set</option>')
+    ret.append('        <option value="clear">Clear all</opton>')
+    ret.append('      </select>')
+    ret.append('    </td><td>')
+    ret.append('      <input id="rse_input_value_%s" type="text" size="7" />'%unique)
+    ret.append('    </td><td>')
+    ret.append('      <select id="rse_input_type_%s">'%unique)
+    for i in inv:
+        ret.append('    <option value="%s">%s</option>'%(i.Name,i.getDisplayName()))
+    ret.append('      </select>')
+    ret.append('    </td><td>')
+    ret.append('      <button type="button" onclick="updateRSETypeValue(%s,%s,\'%s\');">Ok</button>'%(unique, store.idcode, currentTree))
+    ret.append('    </td>')
+    ret.append('  </tr>')
+    ret.append('<table>')
+
+    ret = string.join(ret, '\n')
+    ULCM.addUpdate(divId, ret, 'html')
+
+def rseUpdateStorage(store, field, category, unique, action, value, secondary):
+    rseUpdateInventory('fridges', store, field, category, unique, action, value, secondary)
+
+def rseUpdateTransport(store, field, category, unique, action, value, secondary):
+    rseUpdateInventory('trucks', store, field, category, unique, action, value, secondary)
+
+def rseUpdateDemand(store, field, category, unique, action, value, secondary):
+    rseUpdateInventory('demand', store, field, category, unique, action, value, secondary)
+
+def rseUpdateInventory(iType, store, field, category, unique, action, value, secondary):
+    if action not in ['set', 'add', 'clear']:
+        raise InvalidRecursiveUpdate('invalid action %s'%action)
+
+    if action in ['set', 'add']:
+        try:
+            count = value.strip()
+            count = int(count)
+        except:
+            raise InvalidRecursiveUpdate('invalid count for update')
+
+        try:
+            invName = secondary
+            if iType == 'demand':
+                invType = store.net.people[invName]
+            else:
+                invType = store.net.types[invName]
+        except:
+            raise InvalidRecursiveUpdate('invalid type name for update')
+
+    clients = store.recursiveClients()
+    for client, cRoute in clients:
+        if client.CATEGORY != category:
+            continue
+        
+    belowZeroMsg = False
+    clients = store.recursiveClients()
+    for client, cRoute in clients:
+        if client.CATEGORY != category:
+            continue
+
+        if action == 'clear':
+            if iType == 'demand':
+                invList = client.demand[:]
+            else:
+                invList = client.inventory[:]
+            for i in invList:
+                if iType == 'demand':
+                    client.updateDemand(0)
+                else:
+                    name = i.invName
+                    if name in getattr(store.net, iType):
+                        client.updateInventory(name, 0)
+
+        elif action in ['set', 'add']:
+            if action == 'set':
+                if iType == 'demand':
+                    client.updateDemand(invName, count)
+                else:
+                    client.updateInventory(invName, count)
+            elif action == 'add':
+                if iType == 'demand':
+                    client.addDemand(invName, count)
+                else:
+                    client.addInventory(invName, count)
+
+            if iType == 'demand':
+                if client.countDemand(invName) < 0:
+                    client.updateDemand(invName, 0)
+                    if not belowZeroMsg:
+                        ULCM.addUpdate('X', 'This update caused one or more populations to be set negative.  Those have been reset to 0', 'alert')
+                        belowZeroMsg = True
+            else:
+                if client.countInventory(invName) < 0:
+                    client.updateInventory(invName, 0)
+                    if not belowZeroMsg:
+                        ULCM.addUpdate('X', 'This update caused one or more inventory items to be set negative.  Those have been reset to 0', 'alert')
+                        belowZeroMsg = True
+
+        if iType == 'demand':
+            opts = storeDemandOpts(client)
+            etl = storeDemandEtl(client)
+            efi = EditableFieldInfo('storeDemand',
+                                    'population',
+                                    etl,
+                                    fieldType='tuplelist',
+                                    pullDownOpts=opts)
+            updateBasicTupleList(client, 'storeDemand', efi, updateFocus=False)
+        else:
+            opts = storeInvOpts(client, iType)
+            etl = storeInvEtl(client, iType)
+            efi = EditableFieldInfo('store'+iType,
+                                    _storeInvTitles[iType],
+                                    etl,
+                                    fieldType='tuplelist',
+                                    pullDownOpts=opts)
+            updateBasicTupleList(client, 'store'+iType, efi, updateFocus=False)
+                                
+
+
     
 
 rseFields = {
     'None' : ['choose a field', rseDispNone, rseUpdateNone],
     'utilizationRate' : ['utilizationRate', rseDispUtilization, rseUpdateUtilization],
+    'storage' : ['storage', rseDispStorage, rseUpdateStorage],
+    'transport' : ['transport', rseDispTransport, rseUpdateTransport],
+    'population' : ['population', rseDispDemand, rseUpdateDemand],
     }
     
 def rseRenderAvailableFields(unique, store):
@@ -2765,6 +2925,7 @@ def jsonUpdateRSEValue(db, uiSession):
         action = getParm('action')
         value = getParm('value')
         value = value.strip()
+        secondary = getParm('secondary')
 
         title, dispFn, updateFn = rseFields[field]
         with ULCM():
@@ -2772,7 +2933,7 @@ def jsonUpdateRSEValue(db, uiSession):
                 success = True
                 errorString = None
                 try:
-                    updateFn(store, field, category, unique, action, value)
+                    updateFn(store, field, category, unique, action, value, secondary)
 
                 except InvalidRecursiveUpdate as e:
                     success = False
