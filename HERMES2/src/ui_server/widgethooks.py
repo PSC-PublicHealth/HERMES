@@ -34,6 +34,10 @@ _typeCategoryNameMap = {'people':_('population types'),
                         'fridges':_('cold storage'),
                         'packaging':_('packaging')}
 
+@bottle.route('/hrmwidgets.js')
+def getHrmWidgetsJS(db, uiSession):
+    return bottle.template("hrmwidgets.tpl") # to fill in rootPath
+
 @bottle.route('/clientArray', method='POST')
 def noOpCall():
     """
