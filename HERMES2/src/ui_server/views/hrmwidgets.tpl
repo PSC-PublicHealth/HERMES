@@ -211,8 +211,25 @@ function setPrintGrid(gid,pid,pgTitle){
 					})
 					.done(function(data) {
 						if (data.success) {
+							var items = {};
+							/*
+			    			//for (var i = 0; i < data.pairs.length; i++) {
+				    		for (var i = 0; i < 10; i++) {
+			    				var curCode = decodeURIComponent(data.pairs[i][1]);
+			    				var curStr = decodeURIComponent(data.pairs[i][0]);
+			    				items[curCode] = {name:curStr, type:'radio'};
+			    			}
+			    			*/
     						sel.html(decodeURIComponent(data['menustr']));
 							sel.data('prev_value',sel.val());
+							/*
+							console.log(items);
+							$.contextMenu({
+								selector:".hrm_cur_sel",
+								items:items
+							});
+							console.log('did it');
+							*/
     						if ('afterBuild' in settings  && settings.afterBuild != null) {
     							settings.afterBuild.bind(sel.parent())(sel,data);
     						}
