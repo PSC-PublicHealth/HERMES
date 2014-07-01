@@ -119,7 +119,7 @@ def handleListCurrency(db,uiSession):
                 "selname":urllib.quote(selectedCurrencyName), "success":True}
     except Exception,e:
         _logStacktrace()
-        return {"success":False, "msg":str(e)} 
+        return {"success":False, "msg":str(e)}
 
 @bottle.route('/json/set-currency-base-year')
 def jsonSetCurrencyBaseYear(db, uiSession):
