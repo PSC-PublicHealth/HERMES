@@ -587,12 +587,6 @@ $(function() {
 //
 
 
-
-
-
-
-
-
 	});
 	
 	$.getJSON('{{rootPath}}json/test-clipboard-type',{type:'vaccine'})
