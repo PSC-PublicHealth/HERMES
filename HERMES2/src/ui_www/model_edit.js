@@ -707,10 +707,10 @@ function meRecursiveStoreEdit(modelId, storeId, tree, nodeType) {
 	height:"auto", 
 	width:"auto",
 	buttons: {
-	    Ok: function() {
-		$( this ).find('form').submit();
-	    },
-	    Cancel: function() {
+	    //Ok: function() {
+	    //$( this ).find('form').submit();
+	    //},
+	    Done: function() {
 	      	$( this ).dialog( "close" );
 	    }
 	}
