@@ -32,10 +32,10 @@
 					<td><button id="cost_fuel_btn">{{_("Start")}}</button></td>
 				</tr>
 				<tr>
-					<td>{{_("Vehicles")}}</td><td><button id="cost_truck_btn">{{_("Start")}}</button></td>
+					<td>{{_("Storage Equipment")}}</td><td><button id="cost_fridge_btn">{{_("Start")}}</button></td>
 				</tr>
 				<tr>
-					<td>{{_("Storage Equipment")}}</td><td><button id="cost_fridge_btn">{{_("Start")}}</button></td>
+					<td>{{_("Vehicles")}}</td><td><button id="cost_truck_btn">{{_("Start")}}</button></td>
 				</tr>
 				<tr>
 					<td>{{_("Vaccines")}}</td><td><button id="cost_vaccine_btn">{{_("Start")}}</button></td>
@@ -68,14 +68,22 @@
 
 { // local scope
 
-function buildPage(modelId, modelName) {
-	$('#currency_sel_widget').currencySelector('rebuild');
-	$.getJSON('{{rootPath}}json/get-currency-info',{modelId:modelId})
+var buttonNames = ['fuel', 'truck', 'fridge', 'vaccine', 'salary', 'building'];
+
+var getCurrentModelId = function(){ return $('#model_sel_widget').modelSelector('selId'); };
+var getCurrentModelName = function(){ return $('#model_sel_widget').modelSelector('selName'); };
+
+function buildPage() {
+	$.getJSON('{{rootPath}}json/get-currency-info',{modelId:getCurrentModelId})
 	.done(function(data) {
 		if (data.success) {
 			$("#currency_sel_widget>select").val(data.baseCurrencyId);
 			$("#cost_base_year").val(data.currencyBaseYear);
 			$('#cost_inflation').val(data.priceInflation);
+			for ( var i = 0; i<buttonNames.length; i++ ) {
+				var lbl = data[buttonNames[i]+'Label'];
+				if (lbl) $('#cost_'+buttonNames[i]+'_btn').button('option','label',lbl);
+			}
 		}
 	    else {
 	    	alert('{{_("Failed: ")}}'+data.msg);
@@ -89,61 +97,39 @@ function buildPage(modelId, modelName) {
 
 $(function() {
 	{{!setupToolTips()}}
-
-
+	
 	$("#model_sel_widget").hrmWidget({
 		widget:'modelSelector',
 		label:'{{_("Showing costs for")}}',
 		afterBuild:function(mysel,mydata) {
-			var modelId = this.modelSelector('selId');
-			var modelName = this.modelSelector('selName');
-			$.getJSON('{{rootPath}}json/get-currency-info',{modelId:modelId})
-			.done(function(data) {
-				if (data.success) {
-					$("#currency_sel_widget").hrmWidget({
-						widget:'currencySelector',
-						label:'{{_("Base Currency")}}',
-						modelId:function(){ return $('#model_sel_widget').modelSelector('selId'); },
-						afterBuild:function(mysel,mydata) {
-							$(this).first().find('select').val(data.baseCurrencyId);
-						},
-						onChange:function(mysel,mydata) {
-							$.getJSON( '{{rootPath}}json/set-base-currency', {
-								modelId:$('#model_sel_widget').modelSelector('selId'),
-								id:encodeURIComponent($('#currency_sel_widget').currencySelector('selId'))
-							})
-							.done(function(data) {
-								if ( data.success ) {
-									$('#currency_sel_widget').currencySelector('save');
-								}
-								else {
-  									alert('{{_("Failed: ")}}'+data.msg);
-									$('#currency_sel_widget').currencySelector('revert');
-								}
-	    					})
-	  						.fail(function(jqxhr, textStatus, error) {
-	  							alert("Error: "+jqxhr.responseText);
-								$('#currency_sel_widget').currencySelector('revert');
-							});
+			$("#currency_sel_widget").hrmWidget({
+				widget:'currencySelector',
+				label:'{{_("Base Currency")}}',
+				modelId:getCurrentModelId,
+				afterBuild:function(mysel,mydata) { buildPage(); },
+				onChange:function(mysel,mydata) {
+					$.getJSON( '{{rootPath}}json/set-base-currency', {
+						modelId:getCurrentModelId,
+						id:function(){ return encodeURIComponent($('#currency_sel_widget').currencySelector('selId')); }
+					})
+					.done(function(data) {
+						if ( data.success ) {
+							$('#currency_sel_widget').currencySelector('save');
 						}
+						else {
+							alert('{{_("Failed: ")}}'+data.msg);
+							$('#currency_sel_widget').currencySelector('revert');
+						}
+					})
+					.fail(function(jqxhr, textStatus, error) {
+						alert("Error: "+jqxhr.responseText);
+						$('#currency_sel_widget').currencySelector('revert');
 					});
-					$("#currency_sel_widget>select").val(data.baseCurrencyId);
-					$("#cost_base_year").val(data.currencyBaseYear);
-					$('#cost_inflation').val(data.priceInflation);
 				}
-	    		else {
-	    			alert('{{_("Failed: ")}}'+data.msg);
-	    		}
-			})
-			.fail(function(jqxhr, textStatus, error) {
-	    		alert('{{_("Error: ")}}'+jqxhr.responseText);
 			});
-
 		},
 		onChange:function(mysel,mydata) {
-			var modelId = this.modelSelector('selId');
-			var modelName = this.modelSelector('selName');
-			buildPage(modelId, modelName);
+			$('#currency_sel_widget').currencySelector('rebuild');
 		},
 	});
 
@@ -183,7 +169,6 @@ $(function() {
 		});
 	})
 
-	var buttonNames = ['fuel', 'truck', 'fridge', 'vaccine', 'salary', 'building'];
 	for ( var i = 0; i<buttonNames.length; i++ ) {
 		$('#cost_'+buttonNames[i]+'_btn').button().click( function(evt) {
 			var btnName = this.id.split('_')[1];
@@ -194,7 +179,7 @@ $(function() {
 	$('#cost_check_completeness_btn').button().click( function(evt) {
 			window.location = "{{rootPath}}cost-check-complete";
 			evt.preventDefault();
-		});;
+		});
 		
 		
 });

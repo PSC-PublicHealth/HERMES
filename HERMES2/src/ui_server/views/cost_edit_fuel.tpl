@@ -144,10 +144,10 @@ function buildPage(modelId) {
 					onBlur:frzOnBlur(rowName)
 				});
 				var widgetArgs = {
-					widget:'currencySelector',
-					modelId:modelId,
-					label:'',
-					onChange:frzCurSelChange(rowName)
+						widget:'currencySelector',
+						modelId:modelId,
+						label:'',
+						onChange:frzCurSelChange(rowName)
 				};
 				if (data[rowName+'Price']) {
 					$('#price_'+rowName).val( data[rowName+'Price'].toString() );

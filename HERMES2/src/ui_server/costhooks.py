@@ -16,6 +16,7 @@ import privs
 import htmlgenerator
 import typehelper
 import costmodel
+import typehelper
 
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _safeGetReqParam
 
@@ -35,7 +36,6 @@ def costTopPage(db, uiSession):
     return bottle.template("cost_top.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs"),
                                            "minYear":minYear, "maxYear":maxYear})
 
-@bottle.route('/cost-edit-power')
 @bottle.route('/cost-edit-truck')
 @bottle.route('/cost-edit-fridge')
 @bottle.route('/cost-edit-vaccine')
@@ -49,6 +49,11 @@ def costUnimplemented(db, uiSession):
 def costEditFuel(db, uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Fuel")))
     return bottle.template("cost_edit_fuel.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs")})
+
+@bottle.route('/cost-edit-fridge')
+def costEditFridge(db, uiSession):
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Storage")))
+    return bottle.template("cost_edit_fridge.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs")})
 
 _currencyInfoTuple = None
 _currencyModelId = None
@@ -156,7 +161,14 @@ def jsonGetCurrencyInfo(db, uiSession):
         currencyBaseYear = m.getParameterValue('currencybaseyear')
         priceInflation = int(round(100*m.getParameterValue('priceinflation')))
         result = { 'success':True, 'baseCurrencyId':baseCurrencyId, 'currencyBaseYear':currencyBaseYear,
-                  'priceInflation':priceInflation }
+                  'priceInflation':priceInflation,
+                  'fuelLabel':getFuelButtonLabel(db, uiSession, m),
+                  'truckLabel':getTruckButtonLabel(db, uiSession, m),
+                  'fridgeLabel':getFridgeButtonLabel(db, uiSession, m),
+                  'vaccineLabel':getVaccineButtonLabel(db, uiSession, m),
+                  'salaryLabel':getSalaryButtonLabel(db, uiSession, m),
+                  'buildingLabel':getBuildingButtonLabel(db, uiSession, m),
+                  }
         return result
     except Exception,e:
         _logStacktrace()
@@ -224,6 +236,30 @@ def jsonSetBaseCurrency(db, uiSession):
 _fuelNames = {'propane':'pricepropaneperkg', 'kerosene':'pricekeroseneperl', 
               'gasoline':'pricegasolineperl', 'diesel':'pricedieselperl', 
               'electric':'priceelectricperkwh','solar':'pricesolarperkw'}
+
+def getFuelButtonLabel(db, uiSession, m):
+    vList = _fuelNames.values();
+    nSet = sum([v is not None and v!='' for v in [m.getParameterValue(vv) for vv in vList]])
+    print '!!!!! nSet: %d len: %d'%(nSet, len(vList))
+    if nSet==0: return _("Begin")
+    elif nSet==len(vList): return _("Revisit")
+    else: return _("Continue")
+
+def getTruckButtonLabel(db, uiSession, m):
+    return _("Unimplemented");
+
+def getFridgeButtonLabel(db, uiSession, m):
+    return _("Unimplemented");
+
+def getVaccineButtonLabel(db, uiSession, m):
+    return _("Unimplemented");
+
+def getSalaryButtonLabel(db, uiSession, m):
+    return _("Unimplemented");
+
+def getBuildingButtonLabel(db, uiSession, m):
+    return _("Unimplemented");
+
 
 def _getCurrencyConverter(db, uiSession, m):
     currencyBase = m.getParameterValue('currencybase')
@@ -302,3 +338,29 @@ def jsonSetFuelPriceCurrency(db, uiSession, fuelName):
     except Exception,e:
         _logStacktrace()
         return {"success":False, "msg":str(e)} 
+
+@bottle.route('/json/manage-fridge-cost-table')
+def jsonManageFridgeTable(db, uiSession):
+    modelId = int(bottle.request.params['modelId'])
+    try:
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+    except privs.PrivilegeException:
+        raise bottle.BottleException('User may not read model %d'%modelId)
+    tList = typehelper.getTypeList(db, modelId, 'fridges', fallback=False)
+    for rec in tList:
+        if 'DisplayName' not in rec['DisplayName'] \
+            or rec['DisplayName'] is None or rec['DisplayName']=='':
+            rec['DisplayName'] = rec['Name']
+    nPages,thisPageNum,totRecs,tList = orderAndChopPage(tList,
+                                                        {'name':'DisplayName'},
+                                                        bottle.request)
+    result = {
+              "total":nPages,    # total pages
+              "page":thisPageNum,     # which page is this
+              "records":totRecs,  # total records
+              "rows": [ {"name":t['DisplayName'], 
+                         "cell":[t['DisplayName'], 'foo', 'bar', 'mycurrency', t['Name']]}
+                       for t in tList ]
+              }
+    return result
+    
