@@ -183,16 +183,91 @@ function setPrintGrid(gid,pid,pgTitle){
  			});
  		}
  		else if (settings['widget']=='currencySelector') {
+ 			$.fn.currencySelector = function( arg ) {
+ 				var myThis = this;
+ 				var sel = this.first().find("select");
+ 				if (arg=='selId') {
+ 					return sel.val();
+ 				}
+ 				else if (arg=='rebuild') {
+ 					var modelId;
+ 					if (settings.modelId instanceof Function) {
+ 						modelId = settings.modelId.bind($(myThis))(sel);
+ 					}
+ 					else {
+ 						modelId = settings.modelId;
+ 					}
+ 					var selected = '';
+ 					if (settings.selected) {
+ 						if (settings.selected instanceof Function) {
+ 							selected = settings.selected.bind($(myThis))(sel);
+ 						}
+ 						else selected = settings.selected;
+ 					}
+
+ 					$.getJSON('{{rootPath}}list/select-currency', { 
+ 						modelId: modelId,
+ 						idstring: encodeURIComponent(selected)
+ 					})
+ 					.done(function(data) {
+ 						if (data.success) {
+ 							sel.html(decodeURIComponent(data['menustr']));
+ 							sel.data('prev_value',sel.val());
+ 							if ('afterBuild' in settings  && settings.afterBuild != null) {
+ 								settings.afterBuild.bind(sel.parent())(sel,data);
+ 							}
+ 						}
+ 						else {
+ 							alert('{{_("Failed: ")}}'+data.msg);
+ 						}
+ 					})
+ 					.fail(function(jqxhr, textStatus, error) {
+ 						alert("Error: "+jqxhr.responseText);
+ 					});
+ 				}
+ 				else if (arg=='save') {
+ 					sel.data('prev_value', sel.val());
+ 				}
+ 				else if (arg=='revert') {
+ 					sel.val(sel.data('prev_value'));
+ 				}
+ 				else {
+ 					$.error('Unknown operation '+arg.toString());
+ 				}
+ 			}
+
+ 			return this.each(function(index,elem) {
+ 				var $elem = $(elem);
+ 				$elem.html('<label>'+settings['label']+'</label>');
+ 				var sel = $(document.createElement("select"));
+ 				$elem.append(sel);
+ 				var myThis = this;
+ 				sel.change( function(evt) {
+ 					if ('onChange' in settings && settings.onChange != null) {
+ 						settings.onChange.bind($(myThis))(evt, $(evt.target).val());
+ 					}
+ 					else {
+ 						$elem.currencySelector('save');
+ 					}
+ 				});
+ 				$elem.currencySelector('rebuild');
+ 			});
+ 		}
+
+ 		else if (settings['widget']=='currencySelector2') {
 			$.fn.currencySelector = function( arg ) {
  				var myThis = this;
+ 				var $ul = this.first().find("ul");
+ 				/*
 				var sel = this.first().find("select");
+				*/
 				if (arg=='selId') {
-					return sel.val();
+					return $ul.data('code');
 				}
 				else if (arg=='rebuild') {
 					var modelId;
 					if (settings.modelId instanceof Function) {
-						modelId = settings.modelId.bind($(myThis))(sel);
+						modelId = settings.modelId.bind($(myThis))($ul);
 					}
 					else {
 						modelId = settings.modelId;
@@ -200,7 +275,7 @@ function setPrintGrid(gid,pid,pgTitle){
 					var selected = '';
 					if (settings.selected) {
 						if (settings.selected instanceof Function) {
-							selected = settings.selected.bind($(myThis))(sel);
+							selected = settings.selected.bind($(myThis))($ul);
 						}
 						else selected = settings.selected;
 					}
@@ -211,27 +286,56 @@ function setPrintGrid(gid,pid,pgTitle){
 					})
 					.done(function(data) {
 						if (data.success) {
-							var items = {};
 							/*
-			    			//for (var i = 0; i < data.pairs.length; i++) {
-				    		for (var i = 0; i < 10; i++) {
+							$ul = $(document.createElement('ul'));
+							$ul.addClass('hrm_cur_select');
+							*/
+			    			for (var i = 0; i < data.pairs.length; i++) {
 			    				var curCode = decodeURIComponent(data.pairs[i][1]);
 			    				var curStr = decodeURIComponent(data.pairs[i][0]);
-			    				items[curCode] = {name:curStr, type:'radio'};
+			    				$li = $(document.createElement('li'))
+			    				.data('code',curCode)
+			    				.data('str',curStr)
+				    			.text(curStr)
+				    			.addClass('ui-front')
+			    				.click( function() {
+			    					var outerThis = this;
+			    					if ($ul.hasClass('hrm_cur_select_open')) {
+			    						$ul.removeClass('hrm_cur_select_open');
+			    					}
+			    					else {
+			    						$ul.addClass('hrm_cur_select_open');			    						
+			    					}
+			    					$(this).parent().find('li').each( function(ind,elt) {
+			    						if (outerThis == elt) {
+			    							$(elt).addClass('selected');
+			    							if ($ul.hasClass('hrm_cur_select_open')) {
+			    								$(elt).text( $(elt).data('str'));
+			    							}
+			    							else {
+			    								$(elt).text( $(elt).data('code'));
+			    							}
+			    						}
+			    						else {
+			    							$(elt).removeClass('selected');
+			    						}
+			    					});
+			    				});
+			    				if (curCode == data.selid) {
+			    					$li.addClass('selected')
+				    				.text(curCode);
+			    				}
+			    				$ul.append($li);
+								$ul.data('prev_value',data.selid);
 			    			}
-			    			*/
-    						sel.html(decodeURIComponent(data['menustr']));
-							sel.data('prev_value',sel.val());
+							//$(".cur_sel").append($ul);
+							
 							/*
-							console.log(items);
-							$.contextMenu({
-								selector:".hrm_cur_sel",
-								items:items
-							});
-							console.log('did it');
+							sel.html(decodeURIComponent(data['menustr']));
+							sel.data('prev_value',sel.val());
 							*/
     						if ('afterBuild' in settings  && settings.afterBuild != null) {
-    							settings.afterBuild.bind(sel.parent())(sel,data);
+    							settings.afterBuild.bind($ul.parent())($ul,data);
     						}
 						}
 						else {
@@ -243,10 +347,17 @@ function setPrintGrid(gid,pid,pgTitle){
 					});
 				}
 				else if (arg=='save') {
+					/*
 					sel.data('prev_value', sel.val());
+					*/
+					$ul.data('prev_value', sel.val());
 				}
 				else if (arg=='revert') {
+					/*
 					sel.val(sel.data('prev_value'));
+					*/
+					$ul.val(sel.data('prev_value'));
+
 				}
 				else {
 					$.error('Unknown operation '+arg.toString());
@@ -257,10 +368,21 @@ function setPrintGrid(gid,pid,pgTitle){
 
  				var $elem = $(elem);
  				$elem.html('<label>'+settings['label']+'</label>');
+ 				/*
  				var sel = $(document.createElement("select"));
+ 				*/
+				var $ul = $(document.createElement('ul'));
+				$ul.addClass('hrm_cur_select');
+				/*
  				$elem.append(sel);
+ 				*/
+ 				$elem.append($ul);
+ 				console.log($elem);
  				var myThis = this;
+ 				/*
 				sel.change( function(evt) {
+				*/
+				$ul.change( function(evt) {
 					if ('onChange' in settings && settings.onChange != null) {
 						settings.onChange.bind($(myThis))(evt, $(evt.target).val());
 					}

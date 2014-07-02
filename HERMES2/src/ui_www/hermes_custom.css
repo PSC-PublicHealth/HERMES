@@ -27,6 +27,61 @@ th.ui-th-column div {
     padding-top:2px;
 }
 
+ul.hrm_cur_select {
+	margin:0;
+	padding:0;
+	height:1.65em;
+}
+
+ul.hrm_cur_select li {
+  background: #cf5a5a;
+  color: #fff;
+  cursor: pointer;
+  display: none;
+  font-size: 11px;
+  line-height: 1.7em;
+  list-style: none;
+  margin: 0;
+  padding: 1px 12px;
+  width: 40px;
+}
+
+ul.hrm_cur_select_open li {
+	display:block;
+  	width: 276px;
+  	position: relative;
+  	z-index: 2;
+}
+
+ul.hrm_cur_select_open li:hover {
+	background: #9e0000;
+	color: #fff;
+}
+
+ul.hrm_cur_select li.selected {
+	color: #fff;
+	display: block;
+}
+
+ul.hrm_cur_select_open li.selected {
+	color: #fff;
+	display: block;
+}
+
+ul.hrm_cur_select:hover li.selected,
+ul.hrm_cur_select_open li.selected {
+	background: #9e0000;
+	display:block;
+}
+
+ul.hrm_cur_select_open li:hover, 
+ul.hrm_cur_select li.hrm_cur_select_open,
+ul.hrm_cur_select_open li.selected:hover {
+	background: #9e0000;
+	color:#fff;
+	cursor: pointer;
+}
+
 .hrm_boxcalendar tr td {
 	border:none;
 }
