@@ -364,6 +364,7 @@ function changeStringSuccess(data, textStatus, jqXHR) {
 	    alert('unknown server error');
 	}
     }
+    $(document).tooltips('applyTips');
 }
 
 function changeString(inputId) {

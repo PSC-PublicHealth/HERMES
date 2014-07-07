@@ -2614,7 +2614,7 @@ def rseRenderAffectedCategories(unique, store, clients):
             categories[cat] = 1
 
     ret = []
-    ret.append('<select id="rse_category_%d" onchange="updateRSEDialog(%d,%d,\'%s\');">'%\
+    ret.append('<select class="rse_category_select" id="rse_category_%d" onchange="updateRSEDialog(%d,%d,\'%s\');">'%\
                    (unique, unique, store.idcode, currentTree))
     for cat,count in categories.items():
         ret.append('<option value="%s">%s (%d)</option>'%\
@@ -2638,12 +2638,12 @@ def rseDispUtilization(store, field, category, unique):
     divId = 'rse_content_%s'%unique
     ret = []
     ret.append('<p>Set utilization rate:')
-    ret.append('<input type="text" id="rseInput_set_%s" />'%unique)
-    ret.append('<button type="button" onclick="updateRSEValue(%s,%s,\'%s\',\'set\');">Ok</button>'%(unique, store.idcode, currentTree))
+    ret.append('<input type="text" class="rse_utilization_set_input" id="rseInput_set_%s" />'%unique)
+    ret.append('<button type="button" class="rse_utilization_set_button" onclick="updateRSEValue(%s,%s,\'%s\',\'set\');">Ok</button>'%(unique, store.idcode, currentTree))
     ret.append('</p>')
     ret.append('<p>Mutliply rate by a factor:')
-    ret.append('<input type="text" id="rseInput_mult_%s" />'%unique)
-    ret.append('<button type="button" onclick="updateRSEValue(%s,%s,\'%s\',\'mult\');">Ok</button>'%(unique, store.idcode, currentTree))
+    ret.append('<input type="text" class="rse_utilization_mult_input" id="rseInput_mult_%s" />'%unique)
+    ret.append('<button type="button" class="rse_utilization_mult_button" onclick="updateRSEValue(%s,%s,\'%s\',\'mult\');">Ok</button>'%(unique, store.idcode, currentTree))
     ret.append('</p>')
     ret = string.join(ret, '\n')
     ULCM.addUpdate(divId, ret, 'html')
@@ -2690,27 +2690,27 @@ def rseDispInventory(iType, store, field, category, unique):
     ret = []
     ret.append('<table>')
     ret.append('  <tr>')
-    ret.append('    <td>action</td>')
-    ret.append('    <td>count</td>')
-    ret.append('    <td>type</td>')
+    ret.append('    <td class="rse_%s_action_header">action</td>'%iType)
+    ret.append('    <td class="rse_%s_count_header">count</td>'%iType)
+    ret.append('    <td class="rse_%s_type_header">type</td>'%iType)
     ret.append('    <td></td>')
     ret.append('  </tr>')
     ret.append('  <tr>')
     ret.append('    <td>')
-    ret.append('      <select id="rse_input_action_%s">'%unique)
+    ret.append('      <select class="rse_%s_action_select" id="rse_input_action_%s">'%(iType,unique))
     ret.append('        <option value="add">Add</option>')
     ret.append('        <option value="set">Set</option>')
     ret.append('        <option value="clear">Clear all</opton>')
     ret.append('      </select>')
     ret.append('    </td><td>')
-    ret.append('      <input id="rse_input_value_%s" type="text" size="7" />'%unique)
+    ret.append('      <input class="rse_%s_count_input" id="rse_input_value_%s" type="text" size="7" />'%(iType, unique))
     ret.append('    </td><td>')
-    ret.append('      <select id="rse_input_type_%s">'%unique)
+    ret.append('      <select class="rse_%s_type_select" id="rse_input_type_%s">'%(iType,unique))
     for i in inv:
         ret.append('    <option value="%s">%s</option>'%(i.Name,i.getDisplayName()))
     ret.append('      </select>')
     ret.append('    </td><td>')
-    ret.append('      <button type="button" onclick="updateRSETypeValue(%s,%s,\'%s\');">Ok</button>'%(unique, store.idcode, currentTree))
+    ret.append('      <button class="rse_%s_update_button" type="button" onclick="updateRSETypeValue(%s,%s,\'%s\');">Ok</button>'%(iType, unique, store.idcode, currentTree))
     ret.append('    </td>')
     ret.append('  </tr>')
     ret.append('<table>')
@@ -2830,7 +2830,7 @@ rseFields = {
 def rseRenderAvailableFields(unique, store):
     ret = []
     global currentTree
-    ret.append('<select id="rse_field_%d" onchange="updateRSEDialog(%d,%d,\'%s\');">'%\
+    ret.append('<select class="rse_field_select" id="rse_field_%d" onchange="updateRSEDialog(%d,%d,\'%s\');">'%\
                    (unique, unique, store.idcode, currentTree))
     for field, fDef in rseFields.items():
         ret.append('<option value="%s">%s</option>'%(field, fDef[0]))
