@@ -717,8 +717,8 @@ function setPrintGrid(gid,pid,pgTitle){
 				}
 			}
 
-			$(document).tooltip({show:{effect:"slideDown", duration:800, delay:1000},
-								hide:{effect:"slideUp", duration:800, delay:1000}});
+			$(document).tooltip({show:{effect:"slideDown", duration:70, delay:1300},
+								hide:{effect:"slideUp", duration:70, delay:200}});
 
  			return this.first().each(function(index,elem) {
  				$(elem).tooltips('applyTips');
