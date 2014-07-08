@@ -285,7 +285,6 @@ class VizStore:
         ## Get Utilization Data
         ### HACK need to alleviate
         self.storageTypes = ["cooler","freezer"]
-        print "STORE FICKING HERE " + str(self.iD)
         self.storageFillDict = {}
         self.inventoryList = []
         self.transportList = []
