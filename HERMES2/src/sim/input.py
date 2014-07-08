@@ -155,7 +155,8 @@ class InputDefault:
     def __getitem__(self, key):
         return self.TokenDict[key].default
        
-    def processKeywordValue(self,key,val=None):     
+    def processKeywordValue(self,key,val=None):   
+        print "HERE" + str(val)  
         if key not in self.TokenDict.keys():
             raise RuntimeError("Keyword %s not in default inputs list"%str(key))
         
@@ -168,7 +169,7 @@ class InputDefault:
                 return val
             elif isinstance(val,types.NoneType):
                 return False
-            elif isinstance(val,types.StringType):
+            elif isinstance(val,types.StringType) or isinstance(val,unicode):
                 if val.lower() in ['true', 't']: return True
                 elif val.lower() in ['false', 'f']: return False
                 else: 
