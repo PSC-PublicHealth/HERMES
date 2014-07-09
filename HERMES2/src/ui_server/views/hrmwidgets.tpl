@@ -182,8 +182,8 @@ function setPrintGrid(gid,pid,pgTitle){
 				});
  			});
  		}
- 		else if (settings['widget']=='currencySelector') {
- 			$.fn.currencySelector = function( arg ) {
+ 		else if (settings['widget']=='currencySelector1') {
+ 			$.fn.currencySelector1 = function( arg ) {
  				var myThis = this;
  				var sel = this.first().find("select");
  				if (arg=='selId') {
@@ -247,117 +247,113 @@ function setPrintGrid(gid,pid,pgTitle){
  						settings.onChange.bind($(myThis))(evt, $(evt.target).val());
  					}
  					else {
- 						$elem.currencySelector('save');
+ 						$elem.currencySelector1('save');
  					}
  				});
- 				$elem.currencySelector('rebuild');
+ 				$elem.currencySelector1('rebuild');
  			});
  		}
-
- 		else if (settings['widget']=='currencySelector2') {
-			$.fn.currencySelector = function( arg ) {
+ 		else if (settings['widget']=='currencySelector') {
+			$.fn.currencySelector = function( arg, arg2 ) {
  				var myThis = this;
- 				var $ul = this.first().find("ul");
- 				/*
-				var sel = this.first().find("select");
-				*/
+ 				var $btn = this.find("button").first();
 				if (arg=='selId') {
-					return $ul.data('code');
+					if (arg2 == 'undefined') {
+						return $btn.data('code');
+					}
+					else {
+						$btn.data('code',arg2);
+						$btn.button('option','label',arg2);						
+					}
 				}
 				else if (arg=='rebuild') {
 					var modelId;
 					if (settings.modelId instanceof Function) {
-						modelId = settings.modelId.bind($(myThis))($ul);
+						modelId = settings.modelId.bind($(myThis))($btn);
 					}
 					else {
 						modelId = settings.modelId;
 					}
-					var selected = '';
+					var selected='';
 					if (settings.selected) {
-						if (settings.selected instanceof Function) {
-							selected = settings.selected.bind($(myThis))($ul);
-						}
-						else selected = settings.selected;
+						if (settings.selected instanceof Function)
+							selected = settings.selected.bind($(myThis))($btn);
+						else 
+							selected = settings.selected;
 					}
-				
-					$.getJSON('{{rootPath}}list/select-currency', { 
-						modelId: modelId,
-						idstring: encodeURIComponent(selected)
-					})
-					.done(function(data) {
-						if (data.success) {
-							/*
-							$ul = $(document.createElement('ul'));
-							$ul.addClass('hrm_cur_select');
-							*/
-			    			for (var i = 0; i < data.pairs.length; i++) {
-			    				var curCode = decodeURIComponent(data.pairs[i][1]);
-			    				var curStr = decodeURIComponent(data.pairs[i][0]);
-			    				$li = $(document.createElement('li'))
-			    				.data('code',curCode)
-			    				.data('str',curStr)
-				    			.text(curStr)
-				    			.addClass('ui-front')
-			    				.click( function() {
-			    					var outerThis = this;
-			    					if ($ul.hasClass('hrm_cur_select_open')) {
-			    						$ul.removeClass('hrm_cur_select_open');
-			    					}
-			    					else {
-			    						$ul.addClass('hrm_cur_select_open');			    						
-			    					}
-			    					$(this).parent().find('li').each( function(ind,elt) {
-			    						if (outerThis == elt) {
-			    							$(elt).addClass('selected');
-			    							if ($ul.hasClass('hrm_cur_select_open')) {
-			    								$(elt).text( $(elt).data('str'));
-			    							}
-			    							else {
-			    								$(elt).text( $(elt).data('code'));
-			    							}
-			    						}
-			    						else {
-			    							$(elt).removeClass('selected');
-			    						}
-			    					});
-			    				});
-			    				if (curCode == data.selid) {
-			    					$li.addClass('selected')
-				    				.text(curCode);
-			    				}
-			    				$ul.append($li);
-								$ul.data('prev_value',data.selid);
-			    			}
-							//$(".cur_sel").append($ul);
-							
-							/*
-							sel.html(decodeURIComponent(data['menustr']));
-							sel.data('prev_value',sel.val());
-							*/
-    						if ('afterBuild' in settings  && settings.afterBuild != null) {
-    							settings.afterBuild.bind($ul.parent())($ul,data);
-    						}
-						}
-						else {
-  							alert('{{_("Failed: ")}}'+data.msg);
-						}
-    				})
-  					.fail(function(jqxhr, textStatus, error) {
-  						alert("Error: "+jqxhr.responseText);
-					});
+					var $dlgDiv = $('#hrm_cur_sel_dlg_div_shared');
+					if ($dlgDiv.length == 0) {
+						$dlgDiv = $(document.createElement('div'))
+						.attr('id','hrm_cur_sel_dlg_div_shared');
+		 				this.append($dlgDiv);
+					}
+		 			if (! $dlgDiv.hasClass('ui-dialog-content')) {
+						$dlgDiv.dialog({
+							autoOpen:false,
+							draggable:false,
+							dialogClass:'hrm_dialog_no_title',
+							maxHeight:600,
+							minHeight:100,
+							position:{my:'left top', at:'left top', of:$btn},
+							resizable:true,
+							closeOnEscape:true,
+							buttons: {
+								'{{_("Close")}}': function(evt) {
+									$('#hrm_cur_sel_dlg_div_shared').dialog('close');
+								}
+							},
+						});
+						$.getJSON('{{rootPath}}list/select-currency', { 
+							modelId: modelId,
+							idstring: encodeURIComponent(selected)
+						})
+						.done(function(data) {
+							if (data.success) {
+								$dlgDiv.html("");
+								var $ul = $(document.createElement('ul'));
+				    			for (var i = 0; i < data.pairs.length; i++) {
+				    				var curCode = decodeURIComponent(data.pairs[i][1]);
+				    				var curStr = decodeURIComponent(data.pairs[i][0]);
+				    				var $li = $(document.createElement('li'))
+				    				.data('code',curCode)
+				    				.data('str',curStr);
+				    				var $a = $(document.createElement('a'))
+				    				.attr('href','#')
+					    			.text(curCode + ' : ' + curStr);
+				    				$li.append($a);
+				    				$ul.append($li);
+				    			}
+				    			$ul.menu();
+				    			$dlgDiv.append($ul);
+			    				var selId = decodeURIComponent(data.selid);
+				    			$('.hrm_cur_sel_btn').each(function() {
+				    				if ( ! $(this).button('option','text') ) {
+				    					$(this).button('option','label', selId)
+				    					.button('option','text', true)
+				    					.data('code',selId)
+				    					.data('prev_value',selId);
+				    				}
+				    			});
+							}
+							else {
+	  							alert('{{_("Failed: ")}}'+data.msg);
+							}
+	    				})
+	  					.fail(function(jqxhr, textStatus, error) {
+	  						alert("Error: "+jqxhr.responseText);
+						});
+					}
+    				if ('afterBuild' in settings  && settings.afterBuild != null) {
+    					settings.afterBuild.bind($btn.parent())($btn);
+    				}
 				}
 				else if (arg=='save') {
-					/*
-					sel.data('prev_value', sel.val());
-					*/
-					$ul.data('prev_value', sel.val());
+					$btn.data('prev_value', $btn.data('code'));
 				}
 				else if (arg=='revert') {
-					/*
-					sel.val(sel.data('prev_value'));
-					*/
-					$ul.val(sel.data('prev_value'));
-
+					var oldCode = $btn.data('prev_value');
+					$btn.data('code', oldCode);
+					$btn.button('option','label',oldCode);						
 				}
 				else {
 					$.error('Unknown operation '+arg.toString());
@@ -365,34 +361,73 @@ function setPrintGrid(gid,pid,pgTitle){
 			}
 
  			return this.each(function(index,elem) {
-
  				var $elem = $(elem);
  				$elem.html('<label>'+settings['label']+'</label>');
- 				/*
- 				var sel = $(document.createElement("select"));
- 				*/
-				var $ul = $(document.createElement('ul'));
-				$ul.addClass('hrm_cur_select');
-				/*
- 				$elem.append(sel);
- 				*/
- 				$elem.append($ul);
- 				console.log($elem);
- 				var myThis = this;
- 				/*
-				sel.change( function(evt) {
-				*/
-				$ul.change( function(evt) {
-					if ('onChange' in settings && settings.onChange != null) {
-						settings.onChange.bind($(myThis))(evt, $(evt.target).val());
-					}
-					else {
-						$elem.currencySelector('save');
-					}
-				});
+				var $btn = $(document.createElement('button'));
+				var selected;
+				if (settings.selected) {
+					if (settings.selected instanceof Function)
+						selected = settings.selected.bind($(this))($btn);
+					else 
+						selected = settings.selected;
+				}
+ 				$elem.append($btn);
+ 				if (selected) {
+ 					$btn.button({
+ 						icons: { secondary:'ui-icon-triangle-1-s' },
+ 						label:selected
+ 					})
+ 					.data('code',selected)
+ 					.data('prev_value',selected);
+ 				}
+ 				else {
+ 					$btn.button({
+ 						icons: { secondary:'ui-icon-triangle-1-s' },
+ 						text:false
+ 					}) 					
+ 				}
+				$btn.click( function(evt) { 
+					var $b = $(evt.target).parent();
+					var $dlgDiv = $('#hrm_cur_sel_dlg_div_shared');
+    				
+    				$dlgDiv.data('currentBtn',$b)
+				    .find('a').each( function() {
+				    	var $li = $(this).parent();
+				    	$li.removeClass('selected');
+				    	if ($li.data('code') == $b.data('code'))
+				    		$li.addClass('selected');				    		
+				    });
+    				// Need to use this instance's menu select handler to get
+    				// options context right.
+    				$dlgDiv.find('ul').first()
+    				.off('menuselect')
+    				.on('menuselect', function(evt,ui) {
+    					var $li = $(ui.item);
+    					var newCode = $li.data('code');
+    					$dlgDiv.find('a').removeClass('selected');
+    					$li.addClass('selected');
+    					var $btn = $dlgDiv.data('currentBtn');
+    					$btn.button('option','label', newCode)
+    					.data('code',newCode);
+    					$dlgDiv.dialog('close');
+     					if ('onChange' in settings && settings.onChange != null) {
+     						settings.onChange.bind($btn.parent())(evt, newCode);
+     					}
+     					else {
+     						$elem.currencySelector('save');
+     					}
+    				}); 
+    				$dlgDiv.dialog('option', 'position',
+    						{my:'left top', at:'left top', of:this}
+    				)
+    				.dialog('open'); 
+    			})
+    			.addClass('hrm_cur_sel_btn');
+				
 				$elem.currencySelector('rebuild');
  			});
  		}
+ 		
  		else if (settings['widget']=='typeSelector') {
 			$.fn.typeSelector = function( arg ) {
 				var sel = this.first().find("select");
