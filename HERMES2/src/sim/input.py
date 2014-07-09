@@ -156,7 +156,6 @@ class InputDefault:
         return self.TokenDict[key].default
        
     def processKeywordValue(self,key,val=None):   
-        print "HERE" + str(val)  
         if key not in self.TokenDict.keys():
             raise RuntimeError("Keyword %s not in default inputs list"%str(key))
         
