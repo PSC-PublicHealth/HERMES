@@ -2648,7 +2648,7 @@ def rseDispUtilization(store, field, category, unique):
     ret = string.join(ret, '\n')
     ULCM.addUpdate(divId, ret, 'html')
 
-def rseUpdateUtilization(store, field, category, unique, action, value, secondary):
+def rseUpdateUtilization(store, field, category, unique, action, value, secondary, tertiary):
     try:
         value = value.strip()
         value = float(value)
@@ -2688,24 +2688,41 @@ def rseDispInventory(iType, store, field, category, unique):
         inv = getInvTypeList(store.model, iType)
 
     ret = []
-    ret.append('<table>')
+    ret.append('<table id="rse_input_table_%s">'%unique)
     ret.append('  <tr>')
     ret.append('    <td class="rse_%s_action_header">action</td>'%iType)
     ret.append('    <td class="rse_%s_count_header">count</td>'%iType)
     ret.append('    <td class="rse_%s_type_header">type</td>'%iType)
+    ret.append('    <td style="display:none" class="rse_%s_repl_header">replace with</td>'%iType)
     ret.append('    <td></td>')
     ret.append('  </tr>')
     ret.append('  <tr>')
     ret.append('    <td>')
-    ret.append('      <select class="rse_%s_action_select" id="rse_input_action_%s">'%(iType,unique))
+    aeoString = 'onchange="autohideColumns({'
+    aeoString += "'selectorId' : 'rse_input_action_%s', "%unique
+    aeoString += "'tableId' : 'rse_input_table_%s', "%unique
+    aeoString += "'defShow' : [1,2], "
+    aeoString += "'defHide' : [3], "
+    aeoString += "'conditionals' : {'clear' : [1,2], 'repl' : [1,3]}"
+    aeoString += '});"'
+    ret.append('      <select class="rse_%s_action_select" id="rse_input_action_%s"'%(iType,unique))
+    ret.append('        %s>'%aeoString)
     ret.append('        <option value="add">Add</option>')
     ret.append('        <option value="set">Set</option>')
+    ret.append('        <option value="scaleUp">Scale (round up)</option>')
+    ret.append('        <option value="scaleDn">Scale (round dn)</option>')
+    ret.append('        <option value="repl">Replace with</option>')
     ret.append('        <option value="clear">Clear all</opton>')
     ret.append('      </select>')
     ret.append('    </td><td>')
     ret.append('      <input class="rse_%s_count_input" id="rse_input_value_%s" type="text" size="7" />'%(iType, unique))
     ret.append('    </td><td>')
     ret.append('      <select class="rse_%s_type_select" id="rse_input_type_%s">'%(iType,unique))
+    for i in inv:
+        ret.append('    <option value="%s">%s</option>'%(i.Name,i.getDisplayName()))
+    ret.append('      </select>')
+    ret.append('    </td><td style="display:none">')
+    ret.append('      <select class="rse_%s_repl_select" id="rse_input_repl_%s">'%(iType,unique))
     for i in inv:
         ret.append('    <option value="%s">%s</option>'%(i.Name,i.getDisplayName()))
     ret.append('      </select>')
@@ -2718,17 +2735,17 @@ def rseDispInventory(iType, store, field, category, unique):
     ret = string.join(ret, '\n')
     ULCM.addUpdate(divId, ret, 'html')
 
-def rseUpdateStorage(store, field, category, unique, action, value, secondary):
-    rseUpdateInventory('fridges', store, field, category, unique, action, value, secondary)
+def rseUpdateStorage(store, field, category, unique, action, value, secondary, tertiary):
+    rseUpdateInventory('fridges', store, field, category, unique, action, value, secondary, teriary)
 
-def rseUpdateTransport(store, field, category, unique, action, value, secondary):
-    rseUpdateInventory('trucks', store, field, category, unique, action, value, secondary)
+def rseUpdateTransport(store, field, category, unique, action, value, secondary, tertiary):
+    rseUpdateInventory('trucks', store, field, category, unique, action, value, secondary, tertiary)
 
-def rseUpdateDemand(store, field, category, unique, action, value, secondary):
-    rseUpdateInventory('demand', store, field, category, unique, action, value, secondary)
+def rseUpdateDemand(store, field, category, unique, action, value, secondary, tertiary):
+    rseUpdateInventory('demand', store, field, category, unique, action, value, secondary, tertiary)
 
-def rseUpdateInventory(iType, store, field, category, unique, action, value, secondary):
-    if action not in ['set', 'add', 'clear']:
+def rseUpdateInventory(iType, store, field, category, unique, action, value, secondary, tertiary):
+    if action not in ['set', 'add', 'clear', 'repl', 'scaleUp', 'scaleDn']:
         raise InvalidRecursiveUpdate('invalid action %s'%action)
 
     if action in ['set', 'add']:
@@ -2738,6 +2755,16 @@ def rseUpdateInventory(iType, store, field, category, unique, action, value, sec
         except:
             raise InvalidRecursiveUpdate('invalid count for update')
 
+    if action in ['scaleUp', 'scaleDn']:
+        try:
+            factor = value.strip()
+            factor = float(factor)
+            if factor < 0.0:
+                raise InvalidRecursiveUpdate('scaling factor must be a non-negative number')
+        except:
+            raise InvalidRecursiveUpdate('scaling factor must be a non-negative number')
+
+    if action in ['set', 'add', 'repl', 'scaleUp', 'scaleDn']:
         try:
             invName = secondary
             if iType == 'demand':
@@ -2746,6 +2773,17 @@ def rseUpdateInventory(iType, store, field, category, unique, action, value, sec
                 invType = store.net.types[invName]
         except:
             raise InvalidRecursiveUpdate('invalid type name for update')
+
+    if action in ['repl']:
+        try:
+            replName = tertiary
+            if iType == 'demand':
+                replType = store.net.people[invName]
+            else:
+                replType = store.net.types[invName]
+        except:
+            raise InvalidRecursiveUpdate('invalid type name for update')
+
 
     clients = store.recursiveClients()
     for client, cRoute in clients:
@@ -2758,6 +2796,11 @@ def rseUpdateInventory(iType, store, field, category, unique, action, value, sec
         if client.CATEGORY != category:
             continue
 
+        # make sure that any case where the client is updated that we reach
+        # the end of this loop clause so that the updates can be sent to the
+        # interface
+
+        # handle 'clear'
         if action == 'clear':
             if iType == 'demand':
                 invList = client.demand[:]
@@ -2771,6 +2814,36 @@ def rseUpdateInventory(iType, store, field, category, unique, action, value, sec
                     if name in getattr(store.net, iType):
                         client.updateInventory(name, 0)
 
+        # handle 'scaleUp', 'scaleDn', 'repl'
+        elif action in ['scaleUp', 'scaleDn', 'repl']:
+            if iType == 'demand':
+                count = client.countDemand(invName)
+            else:
+                count = client.countInventory(invName)
+
+            if count == 0:
+                continue
+
+            if action == 'scaleUp':
+                count = int(math.ceil(float(count) * factor))
+            elif action == 'scaleDn':
+                count = int(float(count) * factor)
+
+            if action in ['scaleUp', 'scaleDn']:
+                if iType == 'demand':
+                    client.updateDemand(invName, count)
+                else:
+                    client.updateInventory(invName, count)
+            else:
+                if iType == 'demand':
+                    client.updateDemand(invName, 0)
+                    client.updateDemand(replName, count)
+                else:
+                    client.updateInventory(invName, 0)
+                    client.updateInventory(replName, count)
+
+
+        # handle 'set', 'add'
         elif action in ['set', 'add']:
             if action == 'set':
                 if iType == 'demand':
@@ -2782,7 +2855,7 @@ def rseUpdateInventory(iType, store, field, category, unique, action, value, sec
                     client.addDemand(invName, count)
                 else:
                     client.addInventory(invName, count)
-
+            
             if iType == 'demand':
                 if client.countDemand(invName) < 0:
                     client.updateDemand(invName, 0)
@@ -2796,6 +2869,7 @@ def rseUpdateInventory(iType, store, field, category, unique, action, value, sec
                         ULCM.addUpdate('X', 'This update caused one or more inventory items to be set negative.  Those have been reset to 0', 'alert')
                         belowZeroMsg = True
 
+        # now perform the updates for the changed inventory
         if iType == 'demand':
             opts = storeDemandOpts(client)
             etl = storeDemandEtl(client)
@@ -2926,6 +3000,7 @@ def jsonUpdateRSEValue(db, uiSession):
         value = getParm('value')
         value = value.strip()
         secondary = getParm('secondary')
+        tertiary = getParm('tertiary')
 
         title, dispFn, updateFn = rseFields[field]
         with ULCM():
@@ -2933,7 +3008,7 @@ def jsonUpdateRSEValue(db, uiSession):
                 success = True
                 errorString = None
                 try:
-                    updateFn(store, field, category, unique, action, value, secondary)
+                    updateFn(store, field, category, unique, action, value, secondary, tertiary)
 
                 except InvalidRecursiveUpdate as e:
                     success = False

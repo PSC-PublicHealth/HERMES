@@ -744,6 +744,23 @@ function meRecursiveStoreEdit(modelId, storeId, tree, nodeType) {
     $newdiv.dialog('option','title',"Editing location "+storeId+" of model "+modelId);
 }
 
+// a start of a more generic version of getSelectValue
+function getInputValue(id) {
+    var element = document.getElementById(id);
+    if (!element) {
+	return false;
+    }
+
+    if (element.nodeName == "SELECT") {
+	var index = element.selectedIndex
+	var value = element.options[index].value;
+	return value;
+    } else {
+	return false;
+    }
+}
+	
+
 function getSelectValue(id) {
     var element = document.getElementById(id);
     var index = element.selectedIndex
@@ -791,7 +808,8 @@ function updateRSEValue(unique, storeId, tree, action) {
 	    'unique' : unique,
 	    'action' : action,
 	    'value' : value,
-	    'secondary' : 'X'
+	    'secondary' : 'X',
+	    'tertiary' : 'X'
 	},
 	success: function(data, textStatus, jqXHR) {
 	    changeStringSuccess(data, textStatus, jqXHR);
@@ -806,7 +824,7 @@ function updateRSETypeValue(unique, storeId, tree) {
     var action = getSelectValue('rse_input_action_' + unique);
     var value = document.getElementById('rse_input_value_' + unique).value;
     var type = getSelectValue('rse_input_type_' + unique);
-    
+    var repl = getSelectValue('rse_input_repl_' + unique);
     var div = document.getElementById('rse_content_' + unique);
     div.innerHTML = '<p>Updating.  This may take a moment...</p>';
 
@@ -821,7 +839,8 @@ function updateRSETypeValue(unique, storeId, tree) {
 	    'unique' : unique,
 	    'action' : action,
 	    'value' : value,
-	    'secondary' : type
+	    'secondary' : type,
+	    'tertiary' : repl
 	},
 	success: function(data, textStatus, jqXHR) {
 	    changeStringSuccess(data, textStatus, jqXHR);
@@ -981,3 +1000,122 @@ function clearMessages() {
 function disableClearMessageButton(disabled) {
     //document.getElementById('clear_messages_button').disabled = disabled;
 }
+
+function listify(a) {
+    if (Array.isArray(a))
+	return a;
+    return [a];
+}
+
+function cloneListify(a) {
+    if (Array.isArray(a))
+	return a.slice(0);
+    return [a];
+}
+
+function disableElement(id, disable) {
+    disable = (typeof disable === "undefined") ? true : disable;
+    var element = document.getElementById(id);
+    if (element) {
+	element.disabled = disable;
+    }
+}
+
+// enable or disable input fields based on the value of another input field
+function autoenableOptions(opt) {
+    var sId = opt.selectorId;
+    var sVal = getInputValue(sId);
+    var enabled = [];
+    var disabled = [];
+    var cond = {};
+
+    if ('defEnabled' in opt)
+	enabled = listify(opt.defEnabled);
+    if ('defDisabled' in opt)
+	disabled = listify(opt.defDisabled);
+    if ('conditionals' in opt)
+	cond = opt.conditionals;
+
+
+    var curCond = [];
+    if (sVal in cond)
+	curCond = listify(cond[sVal]);
+
+    //alert(JSON.stringify(curCond));
+
+    var len = enabled.length;
+    for (var i = 0; i < len; ++i) {
+	var id = enabled[i]
+	var disable = !(-1 == curCond.indexOf(id));
+	disableElement(id, disable);
+    }
+    
+    var len = disabled.length;
+    for (var i = 0; i < len; ++i) {
+	var id = disabled[i]
+	var disable = (-1 == curCond.indexOf(id));
+	disableElement(id, disable);
+    }
+    
+}
+
+
+function hideColumn(tableId, col, show) {
+    show = (typeof show === "undefined") ? false : show;
+
+    var disp;
+    if (show) 
+	disp = 'table-cell';
+    else 
+	disp = 'none';
+
+    var tbl = document.getElementById(tableId);
+    var rows = tbl.getElementsByTagName('tr');
+
+    for (var row=0; row < rows.length; ++row) {
+	var cells = rows[row].getElementsByTagName('td');
+	cells[col].style.display=disp;
+    }
+}
+
+
+// show or hide columns based on the value of an input field
+function autohideColumns(opt) {
+    var sId = opt.selectorId;
+    var sVal = getInputValue(sId);
+
+    var tableId = opt.tableId;
+
+    var hide = [];
+    var show = [];
+    var cond = {};
+
+    if ('defShow' in opt)
+	show = listify(opt.defShow);
+    if ('defHide' in opt)
+	hide = listify(opt.defHide);
+    if ('conditionals' in opt)
+	cond = opt.conditionals;
+
+
+    var curCond = [];
+    if (sVal in cond)
+	curCond = listify(cond[sVal]);
+
+    //alert(JSON.stringify(curCond));
+
+    var len = show.length;
+    for (var i = 0; i < len; ++i) {
+	var col = show[i];
+	var status = (-1 == curCond.indexOf(col));
+	hideColumn(tableId, col, status);
+    }
+    
+    var len = hide.length;
+    for (var i = 0; i < len; ++i) {
+	var col = hide[i];
+	var status = !(-1 == curCond.indexOf(col));
+	hideColumn(tableId, col, status);
+    }
+}
+
