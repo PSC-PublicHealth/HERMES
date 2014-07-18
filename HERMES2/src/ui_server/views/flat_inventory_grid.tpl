@@ -196,6 +196,21 @@ $("#store_edit_wgt_{{invtype}}_tbl_{{unique}}").jqGrid({ //set your grid id
 				$("#store_edit_wgt_{{invtype}}_tbl_{{unique}}_iladd").removeClass('ui-state-disabled');
     		}
     	});
+      // resize grid to fit dialog
+    	var gridParentDialog = $(this).parent().parent().parent().parent().parent().parent().parent().parent().parent();
+    	var uaSpecificWidth = 0; //default tested on Firefox
+    	var uaSpecificHeight = 0;
+    	if (navigator.userAgent.match(/webkit/i)) {
+        uaSpecificWidth = 0;   //Webkit specific
+        uaSpecificHeight = 5;
+    	} else if (navigator.userAgent.match(/trident/i) || navigator.userAgent.match(/msie/i)) {
+        uaSpecificWidth = 0;   //IE specific
+        uaSpecificHeight = 8;
+    	}
+    	gridParentDialog.bind("dialogresize", function () {
+        $this.jqGrid('setGridWidth', gridParentDialog.width()-uaSpecificWidth-40);
+        $this.jqGrid('setGridHeight', gridParentDialog.height()-uaSpecificHeight-150);
+    	});
     },
 	loadError: function(xhr,status,error){
     	alert('{{_("Error: ")}}'+status);

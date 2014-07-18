@@ -246,7 +246,7 @@ function resize_grid() {
   }
   $(idGrid).jqGrid('setGridHeight', $(window).height()-offset.top-130);
 }
-$(document).ready(resize_grid); //necessary to trigger resize_grid onload due to loading breadcrumbs changing grid offset
+$(window).load(resize_grid); //necessary to trigger resize_grid onload due to loading breadcrumbs changing grid offset
 $(window).resize(resize_grid);  //bind resize_grid to window resize
 
 $("#manage_vaccine_grid").jqGrid('navGrid','#manage_vaccine_pager',{edit:false,add:false,del:false});

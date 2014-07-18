@@ -147,7 +147,22 @@ $(function() {
 					}
 				});
    			}
-   		}
+   		},
+   	gridComplete: function(){
+      var $this = $(this);
+      // resize grid to fit dialog
+    	var uaSpecificWidth = 0; //default tested on Firefox
+    	var uaSpecificHeight = 0;
+    	if (navigator.userAgent.match(/webkit/i)) {
+        uaSpecificWidth = 0;   //Webkit specific
+        uaSpecificHeight = 4;
+      }
+      var gridParentDialog = $(this).parent().parent().parent().parent().parent().parent().parent().parent().parent();
+    	gridParentDialog.bind("dialogresize", function () {
+        $this.jqGrid('setGridWidth', gridParentDialog.width()-uaSpecificWidth-40);
+        $this.jqGrid('setGridHeight', gridParentDialog.height()-uaSpecificHeight-120);
+    	});
+   	}
 	});
 	
 	var grid = $('#route_edit_wgt_stops_tbl_{{unique}}'), headerRow, rowHight, resizeSpanHeight;
