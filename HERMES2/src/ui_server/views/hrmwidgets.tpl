@@ -258,12 +258,13 @@ function setPrintGrid(gid,pid,pgTitle){
  				var myThis = this;
  				var $btn = this.find("button").first();
 				if (arg=='selId') {
-					if (arg2 == 'undefined') {
+					if (! arg2) {
 						return $btn.data('code');
 					}
 					else {
 						$btn.data('code',arg2);
 						$btn.button('option','label',arg2);						
+						return $btn.data('code');
 					}
 				}
 				else if (arg=='rebuild') {
@@ -424,7 +425,15 @@ function setPrintGrid(gid,pid,pgTitle){
     			})
     			.addClass('hrm_cur_sel_btn');
 				
-				$elem.currencySelector('rebuild');
+			if ($('#hrm_cur_sel_dlg_div_shared').length == 0
+					|| ! $('#hrm_cur_sel_dlg_div_shared').hasClass('ui-dialog-content')) {
+					$elem.currencySelector('rebuild');					
+				}
+				else {
+    				if ('afterBuild' in settings  && settings.afterBuild != null) {
+    					settings.afterBuild.bind($btn.parent())($btn);
+    				}					
+				}
  			});
  		}
  		

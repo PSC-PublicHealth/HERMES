@@ -18,8 +18,9 @@ from gridtools import orderAndChopPage
 import privs
 import htmlgenerator
 import typehelper
+from fridgetypes import energyTranslationDict
 
-from ui_utils import _logMessage, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults
+from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults
 
 inlizer=session_support.inlizer
 _=session_support.translateString
@@ -34,16 +35,8 @@ fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'stri
             {'row':2, 'label':_('Room Temperature Volume (L)'), 'key':'roomtemperature', 'id':'roomtemperature', 
              'type':'float'},
             {'row':3, 'label':_('Energy'), 'key':'Energy', 'id':'energy', 'type':'select',
-             'options':[('E',_('electric'),[],[]),
-                        ('S',_('solar'),[],[]),                        
-                        ('G',_('propane'),[],[]),
-                        ('P',_('kerosene'),[],[]),
-                        ('I',_('ice'),[],[]),
-                        ('B',_('blue ice'),[],[]),
-                        ('GE',_('propane and electric'),[],[]),
-                        ('KE',_('kerosene and electric'),[],[]),
-                        ('U',_('unknown'),[],[]),
-                        ]},  
+             'options':[(k,_(v[0]),[],[]) for k,v in energyTranslationDict.items()
+                        if v[0] != 'Unknown']},
             {'row':3, 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'type':'string'},  
             {'row':3, 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'type':'string'},
             {'row':4, 'label':_('Type'), 'key':'ClassName', 'id':'classname', 'type':'select',
@@ -159,5 +152,6 @@ def jsonFridgeEditForm(db, uiSession):
     except privs.PrivilegeException:
         result = { 'success':False, 'msg':_('User cannot read this model')}
     except Exception,e:
+        _logStacktrace()
         result = { 'success':False, 'msg':str(e)}
     return result    

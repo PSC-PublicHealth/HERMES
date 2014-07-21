@@ -23,10 +23,10 @@ This is a utility to compare pairs of csv files.
 _hermes_svn_id_="$Id: csv_compare.py 826 2012-02-16 23:14:57Z welling $"
 
 import sys,os,optparse,types
-
+import ipath
 import csv_tools
 
-defaultMatchBy= ["idcode"]
+defaultMatchBy= ["idcode","Name","RouteName","Keyword"]
               
 ###########
 # main
@@ -39,7 +39,7 @@ def buildMatchKey(rec,matchBy):
 
 def main():
     weakMode= False
-    verbose= False
+    verbose= True
     debug= False
     
     parser= optparse.OptionParser(usage="""
@@ -57,6 +57,10 @@ def main():
                       action="append",default=[])
     parser.add_option("--weak",action="store_true",
                       help="Compare only to the degree that string reps of numbers agree.  This reduces sensitivity to the low-order bits of floats.")
+    parser.add_option("-L","--label",action="append",default=[],
+                      help="Label (for compatibility with diff)")
+    parser.add_option("-u","--unified",action="store_true",default=[],
+                      help="ignored (for compatibility with diff)")
  
     opts,args= parser.parse_args()
 
@@ -78,11 +82,20 @@ def main():
         matchBy= defaultMatchBy
     ignoreThese= opts.ignore
 
-    # Clean up command line parser
-    parser.destroy()
-
     fname1= args[0]
     fname2= args[1]
+    
+    if len(opts.label) > 0:
+        label1 = opts.label[0]
+        if len(opts.label) > 1:
+            label2 = opts.label[1]
+        else:
+            label2 = fname2
+    else:
+        label1 = fname1
+
+    # Clean up command line parser
+    parser.destroy()
 
     # Ingest the files
     with open(fname1,"rU") as f:
@@ -90,11 +103,24 @@ def main():
     with open(fname2,"rU") as f:
         keys2,recs2= csv_tools.parseCSV(f)
         
+    culledMatchBy = []
+    leftHits = 0
+    rightHits = 0
     for m in matchBy:
-        if m not in keys1:
-            exit('%s does not contain matchby key %s'%(fname1,m))
-        if m not in keys2:
-            exit('%s does not contain matchby key %s'%(fname2,m))
+        if m in keys1:
+            leftHits += 1
+            if m in keys2:
+                rightHits += 1
+                culledMatchBy.append(m)
+    if leftHits==0:
+        if rightHits==0:
+            exit('Neither input file contains any matchby key in %s'%matchBy)
+        else:
+            exit('%s does not contain any matchby key in %s'%(label1,matchBy))
+    elif rightHits==0:
+        exit('%s does not contain any matchby key in %s'%(label2,matchBy))
+    matchBy = culledMatchBy
+    if verbose: print "matching on %s"%matchBy
         
     match= True
     
@@ -114,10 +140,11 @@ def main():
     if len(key1Mismatches) != 0 or len(key2Mismatches)!= 0:
         match= False
         if len(key1Mismatches)!=0:
-            print "File 1 has extra keys %s"%key1Mismatches
+            print "%s has extra keys %s"%(label1,key1Mismatches)
         if len(key2Mismatches)!=0:
-            print "File 2 has extra keys %s"%key2Mismatches
-        sys.exit('Key mismatch!')
+            print "%s has extra keys %s"%(label2,key2Mismatches)
+        #sys.exit('Key mismatch!')
+        
         
     matchedRecDict= {}
     duplicates1= []
@@ -142,7 +169,7 @@ def main():
             extras1.append(k)
             del matchedRecDict[k]
         
-    for fn,dupList,extraList in [('File1',duplicates1,extras1),('File2',duplicates2,extras2)]:
+    for fn,dupList,extraList in [(label1,duplicates1,extras1),(label2,duplicates2,extras2)]:
         if len(dupList)!=0:
             match= False
             print "%s has duplicate records for these %s values: %s"%(fn,matchBy,dupList)

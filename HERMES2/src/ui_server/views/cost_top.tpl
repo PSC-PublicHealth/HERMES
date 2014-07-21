@@ -77,7 +77,7 @@ function buildPage() {
 	$.getJSON('{{rootPath}}json/get-currency-info',{modelId:getCurrentModelId})
 	.done(function(data) {
 		if (data.success) {
-			$("#currency_sel_widget>select").val(data.baseCurrencyId);
+			$("#currency_sel_widget").currencySelector('selId',data.baseCurrencyId);
 			$("#cost_base_year").val(data.currencyBaseYear);
 			$('#cost_inflation').val(data.priceInflation);
 			for ( var i = 0; i<buttonNames.length; i++ ) {

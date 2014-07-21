@@ -33,7 +33,7 @@ import trackabletypes
 import storagemodel
 import warehouse 
 import util
-from shadow_network import TimeUnitsEnums
+from enums import TimeUnitsEnums
 
 allVaccineTypes= [] #: List of all VaccineType instances
 activeVaccineTypes= [] #: List of currently active VaccineType instances

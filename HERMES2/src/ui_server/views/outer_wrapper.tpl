@@ -211,7 +211,6 @@ $(function() {
 });
 
 %end
-
 </script>
 
 <style>.art-content .art-postcontent-0 .layout-item-0 { padding: 0px;  }

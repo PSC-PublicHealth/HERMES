@@ -1,87 +1,75 @@
-Make,Model,DisplayName,Year,Energy,freezer,cooler,roomtemperature,Name,ClassName,ColdLifetime,AlarmDays,SnoozeDays,Notes,
-mothernature,outdoors,outdoors,U,U,,,1000000000,OUTDOORS,Fridge,,,,,
-Electrolux,RCW 42 EG/CF,RCW 42 EG/CF,YearUnk,GE,0,10.5,,Std_RCW42EGCF_GE,Fridge,,,,,
-Electrolux,RCW 42 EK/CF,RCW 42 EK/CF,YearUnk,KE,1.2,18.2,,Std_RCW42EKCF_KE,ElectricFridge,,,,,
-Electrolux,TCW 1152/CF,TCW 1152/CF,YearUnk,E,0,169,,Std_TCW1152CF_E,ElectricFridge,,,,,
-Electrolux,RCW 42AC/CF,RCW 42AC/CF,YearUnk,E,12,12,,Std_RCW42ACCF_E,ElectricFridge,,,,,
-Electrolux,RCW 42DC/CF,RCW 42DC/CF,YearUnk,S,14,14,,Std_RCW42DCCF_S,Fridge,,,,,
-BP Solar,VR50F,VR50F,YearUnk,S,5,17.5,,Std_VR50F_S,Fridge,,,,,
-Vestfrost,MK 144,MK 144,YearUnk,E,0,45,,Std_MK144_E,ElectricFridge,,,,,
-Electrolux,TCW 1990,TCW 1990,YearUnk,E,0,37.5,,Std_TCW1990_E,ElectricFridge,,,,,
-LEC RefrigerationPLC,VC 139 F,VC 139 F,YearUnk,E,0,107.5,,Std_VC139F_E,ElectricFridge,,,,,
-Norcoast,NRC 30-10,NRC 30-10,YearUnk,S,12.2,15.5,,Std_NRC30-10_S,Fridge,,,,,
-Fortum AES,CFS49 ISI,CFS49 ISI,YearUnk,S,8,20,,Std_CFS49ISI_S,Fridge,,,,,
-Electrolux,FCW 20 EG/CF,FCW 20 EG/CF,YearUnk,GE,14,0,,Std_FCW20EGCF_GE,Fridge,,,,,
-Electrolux,FCW 20 EK/CF,FCW 20 EK/CF,YearUnk,KE,14,0,,Std_FCW20EKCF_KE,ElectricFridge,,,,,
-Vestfrost,MK 074,MK 074,YearUnk,E,0,20,,Std_MK074_E,ElectricFridge,,,,,
-Sun Frost,RFVB-134a,RFVB-134a,YearUnk,S,32.5,38.7,,Std_RFVB-134a_S,Fridge,,,,,
-Dulas,VC-150 F,VC-150 F,YearUnk,S,24,85,,Std_VC-150F_S,Fridge,,,,,
-Electrolux,TFW 800,TFW 800,YearUnk,E,145,0,,Std_TFW800_E,ElectricFridge,,,,,
-Vestfrost,MK 204,MK 204,YearUnk,E,0,63,,Std_MK204_E,ElectricFridge,,,,,
-Vestfrost,MK 304,MK 304,YearUnk,E,0,108,,Std_MK304_E,ElectricFridge,,,,,
-TATA BP Solar,TBP VR 50,TBP VR 50,YearUnk,S,5,18,,Std_TBPVR50_S,Fridge,,,,,
-Sibir,V 170 GE,V 170 GE,YearUnk,GE,36,55,,Std_V170GE_GE,Fridge,,,,,
-Sibir,V 170 EK,V 170 EK,YearUnk,KE,36,55,,Std_V170EK_KE,ElectricFridge,,,,,
-Sibir,V 110 GE,V 110 GE,YearUnk,GE,15,17,,Std_V110GE_GE,Fridge,,,,,
-Sibir,V 110 KE,V 110 KE,YearUnk,KE,15,17,,Std_V110KE_KE,ElectricFridge,,,,,
-Electrolux,RCW 50 EG/CF,RCW 50 EG/CF,YearUnk,GE,0,24,,Std_RCW50EGCF_GE,Fridge,,,,,
-Zero,PR 245 K/E,PR 245 K/E,YearUnk,KE,20,18,,Std_PR245KE_KE,ElectricFridge,,,,,
-Zero,GR 245 G/E,GR 245 G/E,YearUnk,GE,20,18,,Std_GR245GE_GE,Fridge,,,,,
-Electrolux,RCW 50 EK,RCW 50 EK,YearUnk,KE,0,24,,Std_RCW50EK_KE,ElectricFridge,,,,,
-Norcoast,Model 120-30,Model 120-30,YearUnk,S,30,63,,Std_Model120-30_S,Fridge,,,,,
-Electrolux,RCW 50DC/CF,RCW 50DC/CF,YearUnk,S,8,24,,Std_RCW50DCCF_S,Fridge,,,,,
-Electrolux,RCW 50 AC,RCW 50 AC,YearUnk,E,8,24,,Std_RCW50AC_E,ElectricFridge,,,,,
-Zero,PF 230 IP KE,PF 230 IP KE,YearUnk,KE,144,0,,Std_PF230IPKE_KE,ElectricFridge,,,,,
-Vestfrost,MF 114,MF 114,YearUnk,E,72,0,,Std_MF114_E,ElectricFridge,,,,,
-Vestfrost,MF 214,MF 214,YearUnk,E,192,0,,Std_MF214_E,ElectricFridge,,,,,
-Vestfrost,MF 314,MF 314,YearUnk,E,264,0,,Std_MF314_E,ElectricFridge,,,,,
-Electrolux,FCW 300,FCW 300,YearUnk,E,264,0,,Std_FCW300_E,ElectricFridge,,,,,
-Electrolux,FCW 200,FCW 200,YearUnk,E,144,0,,Std_FCW200_E,ElectricFridge,,,,,
-Solamatic,PVR150,PVR150,YearUnk,S,12,30,,Std_PVR150_S,Fridge,,,,,
-Zero,GR 265 K/E,GR 265 K/E,YearUnk,KE,0,16,,Std_GR265KE_KE,ElectricFridge,,,,,
-Dulas,VC-65 F,VC-65 F,YearUnk,S,16,37.5,,Std_VC-65F_S,Fridge,,,,,
-Kyocera Solar,VaccPack XL 2100,VaccPack XL 2100,YearUnk,S,24,21,,Std_VaccPackXL2100_S,Fridge,,,,,
-Kyocera Solar,VaccPack XL 6000,VaccPack XL 6000,YearUnk,S,16,60,,Std_VaccPackXL6000_S,Fridge,,,,,
-Bright Light Solar,PS65,PS65,YearUnk,S,16,37.5,,Std_PS65_S,Fridge,,,,,
-Dometic,TCW 3000,TCW 3000,YearUnk,E,0,126.5,,Std_TCW3000_E,ElectricFridge,,,,,
-Zero,PR 265 K/E,PR 265 K/E,YearUnk,KE,9.6,37.5,,Std_PR265KE_KE,ElectricFridge,,,,,
-Bright Light Solar,PS40,PS40,YearUnk,S,4,18,,Std_PS40_S,Fridge,,,,,
-PT. Dilihan Glory,DOVLINE,DOVLINE,YearUnk,E,0,16,,Std_DOVLINE_E,ElectricFridge,,,,,
-Dometic,TCW 2000,TCW 2000,YearUnk,E,42,60,,Std_TCW2000_E,ElectricFridge,,,,,
-Electrolux,TFW 791,TFW 791,YearUnk,E,145,0,,Std_TFW791_E,ElectricFridge,,,,,
-Electrolux,TCW 1151,TCW 1151,YearUnk,E,0,169,,Std_TCW1151_E,ElectricFridge,,,,,
-Unknown,Unknown,Unknown 108L,YearUnk,U,0,108,,Std_Unknown_U,Fridge,,,,,
-Tropicool,25RT 345P,25RT 345P,YearUnk,U,0,60,,Std_25RT345P_U,Fridge,,,,,
-Aniston,589 S/N 179 73,589 S/N 179 73,YearUnk,U,0,24,,Std_589SN17973_U,Fridge,,,,,
-Vestfrost,S8 300,S8 300,YearUnk,U,0,200,,Std_S8300_U,Fridge,,,,,
-Taver,Model 2 001,Model 2 001,YearUnk,U,0,60,,Std_Model2001_U,Fridge,,,,,
-Laden,Viet 2 ports,Viet 2 ports,YearUnk,U,0,200,,Std_Viet2portStd_U,Fridge,,,,,
-LG Express Cool,LG Express,LG Express,YearUnk,U,0,50,,Std_LGExpresStd_U,Fridge,,,,,
-Sundanzer,,Sundanzer 52L,2011,,0,52,,Std_Sundanzer,Fridge,,,,,
-TruEnergy,Mercys,TruEnergy 52L,2011,U,0,52,,Std_TruEnergy_U,Fridge,,,,,
-EcoLD,Mercys,EcoLD 52L,2011,U,100,52,,Std_EcoLDFreeze_U,Fridge,,,,,
-Cold Room Fridge,Cold Room Fridge,Cold room 30m3,YearUnk,U,0,6667,,Std_ColdRoomFridge_U,Fridge,,,,,
-Cold Room Freezer,Cold Room Freezer,Freezer room 30m3,YearUnk,U,6667,0,,Std_ColdRoomFreezer_U,Fridge,,,,,
-generic,CB,Generic CB 20.7L,YearUnk,,0,20.7,,Std_CB_RCW25,ShippableFridge,,,,Source: none,
-RCW25CF,CB,CB RCW 25 CF ,YearUnk,,0,20.7,,Std_CB_RCW25CF,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-Blowking,VC,BK VC 2.6 CF,YearUnk,,0,2.6,,Std_VC_BK2.6CF,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-XW001,CB,CB XW001,YearUnk,,0,4,,Std_CB_CBXW001,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-Giostyle,CB,Giostyle CB  20L,YearUnk,,0,20,,Std_CB_Giostyle,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-Giostyle,VC,Giostyle VC 5L,YearUnk,,0,5,,Std_VC_Giostyle,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-Blowking,VC,BK VC 1.7 CF,YearUnk,,0,1.7,,Std_VC_BK1.7CF,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-Blowking,VC,BK VDC 24 CF,YearUnk,,0,1,,Std_VC_VDC24CF,ShippableFridge,,,,,
-unknown,CB,Generic CB 20L,YearUnk,,0,20,,Std_CB,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-Unknown,VC,Generic VC 5L,YearUnk,,0,5,,Std_VC,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-Portevaccine,VC,Portevaccine VC 5L,YearUnk,,0,5,,Std_VC_Portevaccine,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-Ifacredo,CB,Ifacredo CB 20L,YearUnk,,0,20,,Std_CB_Ifacredo,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-Ifacredo,VC,Ifacredo VC 5L,YearUnk,,0,5,,Std_VC_Ifacredo,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-Ifacredo,VC,Ifacredo VC 4L,YearUnk,,0,4,,Std_VC_Ifacredo_small,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-Electrolux,VC,Electrolux VC 1L,YearUnk,,0,1,,Std_VC_Electrolux,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-Portevaccine,VC,Portevaccine VC 1L,YearUnk,,0,1,,Std_VC_PortevaccineRC2,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-Giostyle,VC,Giostyle VC 1L,YearUnk,,0,1,,Std_VC_Giostyleportevaccine,ShippableFridge,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx,
-generic,CB,Generic CB 170L,YearUnk,,0,170,,Std_BigBox,ShippableFridge,,,,,
-RCW4/30,CB,CB RCW4,YearUnk,,0,3.6,,Std_CB_RCW430,ShippableFridge,,,,,
-RCW4/30,CB_WO_IcePack,CB RCW4 no ice,YearUnk,,0,14,,Std_CB_RCW430_WO,ShippableFridge,,,,,
-RCW8,CB,CB RCW8,YearUnk,,0,7.1,,Std_CB_RCW8,ShippableFridge,,,,,
-RCW12,CB,CB RCW12,YearUnk,,0,9.2,,Std_CB_RCW12,ShippableFridge,,,,,
-Sundanzer,BFRV55,BFRV55,YearUnk,,0,54.5,,Std_BFRV55_S,Fridge,,,,,
+Make,Model,DisplayName,Year,Energy,Category,Technology,BaseCost,BaseCostCur,BaseCostYear,PowerRate,PowerRateUnits,NoPowerHoldoverDays,freezer,cooler,roomtemperature,Name,ClassName,chain,ColdLifetime,AlarmDays,SnoozeDays,Notes
+mothernature,outdoors,outdoors,YearUnk,S,outdoors,none,0,EUR,2014,0,kW,,0,0,1000000000,OUTDOORS,Fridge,,,,,
+Apex,AICB 444 L,Apex CB 18L,YearUnk,I,ColdBox,ice,135,USD,2009,17.6,liters/charge,5.83,0,18,,Std_CB_Apex_AICB,ShippableFridge,,5.83,,,PQS 2013
+Dometic/Electrolux,RCW12,CB RCW12,YearUnk,I,ColdBox,ice,473,EUR,2010,8.4,liters/charge,4.7875,0,7,,Std_CB_RCW12,ShippableFridge,,4.7875,,,PQS 2013
+Dometic/Electrolux,RCW25,CB RCW 25,YearUnk,I,ColdBox,ice,600,EUR,2010,14.4,liters/charge,5.6083,0,20,,Std_CB_RCW25CF,ShippableFridge,,5.6083,,,PQS 2013
+Dometic/Electrolux,RCW8,CB RCW8,YearUnk,I,ColdBox,ice,245,EUR,2010,6.6,liters/charge,2.4125,0,6,,Std_CB_RCW8,ShippableFridge,,2.4125,,,PQS 2013 – ice packs are actually 10*0.6L + 2*0.3L
+generic,CB,Generic CB 20L,YearUnk,I,ColdBox,ice,135,USD,2009,17.6,liters/charge,5.83,0,20,,Std_CB,ShippableFridge,,5.83,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx – details from Apex AICB.
+Cold Room Freezer,Cold Room Freezer,Freezer room 30m3,YearUnk,U,ColdRoom,,,,,,,,6667,0,,Std_ColdRoomFreezer_U,Fridge,,,,,
+Cold Room Fridge,Cold Room Fridge,Cold room 30m3,YearUnk,U,ColdRoom,,,,,,,,0,6667,,Std_ColdRoomFridge_U,Fridge,,,,,
+Dometic/Electrolux,FCW 20 EG/CF,FCW 20 EG/CF,YearUnk,GE,Freezer,absorption,757,EUR,2000,0.6,Kg/day,0.458,8.4,0,,Std_FCW20EGCF_GE,ChainedFridge,Std_FCW20EGCF_EG_chain,,,,PQS 2000
+Dometic/Electrolux,FCW 20 EG/CF,FCW 20 EG/CF,YearUnk,EG,-chained-,absorption,757,EUR,2000,2.9,kWh/day,0.458,8.4,0,,Std_FCW20EGCF_EG_chain,ElectricFridge,,,,,
+Dometic/Electrolux,FCW 20 EK/CF,FCW 20 EK/CF,YearUnk,KE,Freezer,absorption,925,EUR,2000,0.65,liters/day,0.458,8.4,0,,Std_FCW20EKCF_KE,ChainedFridge,Std_FCW20EKCF_KE_chain,,,,PQS 2000 – many empty table entries – values are for 32 degrees rather than 43 – holdover is from Std_FCW20EGCF_EG
+Dometic/Electrolux,FCW 20 EK/CF,FCW 20 EK/CF,YearUnk,EK,-chained-,absorption,925,EUR,2000,2.7,kWh/day,0.458,8.4,0,,Std_FCW20EKCF_KE_chain,ElectricFridge,,,,,
+Dometic/Electrolux,FCW 200,FCW 200,YearUnk,E,Freezer,compression,665,USD,2000,1.44,KwH/day,0.583,144,0,,Std_FCW200_E,ElectricFridge,,,,,PQS 2000
+Dometic/Electrolux,FCW 300,FCW 300,YearUnk,E,Freezer,absorption,821,EUR,2000,2.98,kWh/day,0.625,264,0,,Std_FCW300_E,ElectricFridge,,,,,PQS 2000
+Dometic/Electrolux,TFW 800,TFW 800,YearUnk,E,Freezer,compression,2284,EUR,2012,3.35,kWh/day,,112,0,,Std_TFW800_E,ElectricFridge,,,,,PQS 2013
+Zero,PF 230 IP KE,PF 230 IP KE,YearUnk,KE,Freezer,absorption,906,USD,2000,0.93,liters/day,,144,0,,Std_PF230IPKE_KE,ChainedFridge,Std_PF230IPKE_KE_chain,,,,PQS 2000 – values are for 32 degrees rather than 43 – holdover time and electric power not given
+Zero,PF 230 IP KE,PF 230 IP KE,YearUnk,EK,-chained-,absorption,906,USD,2000,0.93,liters/day,,144,0,,Std_PF230IPKE_KE_chain,ElectricFridge,,,,,
+Dometic/Electrolux,TCW 1152/CF,TCW 1152/CF,YearUnk,E,IceLinedRefrigerator,compression,1598,EUR,2000,4.09,kWh/day,0.987,0,169,,Std_TCW1152CF_E,ElectricFridge,,,,,PQS 2000
+LEC RefrigerationPLC,VC 139 F,VC 139 F,YearUnk,E,IceLinedRefrigerator,compression,996,GBP,2000,1.92,kWh/day,0.708,0,107.5,,Std_VC139F_E,ElectricFridge,,,,,PQS 2000 – electric power rate is at 32 degrees rather than 43
+Vestfrost,MK 144,MK 144,YearUnk,E,IceLinedRefrigerator,compression,559,EUR,2011,2.3,kWh/day,1.797,0,48,,Std_MK144_E,ElectricFridge,,,,,PQS 2013
+Vestfrost,MK 204,MK 204,YearUnk,E,IceLinedRefrigerator,compression,639,EUR,2009,1.89,kWh/day,0.8375,0,75,,Std_MK204_E,ElectricFridge,,,,,PQS 2013
+Vestfrost,MK 304,MK 304,YearUnk,E,IceLinedRefrigerator,compression,744,EUR,2009,3.2,kWh/day,1.09,0,105,,Std_MK304_E,ElectricFridge,,,,,PQS 2013
+Dometic/Electrolux,TCW 1990,TCW 1990,YearUnk,E,IceLinedRefrigeratorFreezer,compression,1177,EUR,2000,,,0.717,17,37.5,,Std_TCW1990_E,ElectricFridge,,,,,PQS 2000 – freezer volume is raw capacity rather than cold pack capacity – electric power is at 32 degrees rather than 43
+Dometic/Electrolux,TCW 2000 AC,TCW 2000 AC,YearUnk,E,IceLinedRefrigeratorFreezer,compression,2109,EUR,2011,1.87,kWh/day,1.642,12,60,,Std_TCW2000_E,ElectricFridge,,,,,Source: www.domestic.com
+Dometic/Electrolux,TCW 3000 AC,TCW 3000 AC,YearUnk,E,IceLinedRefrigeratorFreezer,compression,2201,EUR,2011,1.37,kWh/day,2.215,112.2,150,,Std_TCW3000_E,ElectricFridge,,2.215,,,PQS 2013
+Vestfrost,MF 114,MF 114,YearUnk,E,IceLinedRefrigeratorFreezer,compression,411,EUR,2011,2.24,kWh/day,0.1167,38.4,0,,Std_MF114_E,ElectricFridge,,,,,PQS 2013
+Vestfrost,MF 214,MF 214,YearUnk,E,IceLinedRefrigeratorFreezer,compression,478,EUR,2011,3,kWh/day,0.1208,96,0,,Std_MF214_E,ElectricFridge,,,,,PQS 2013
+Vestfrost,MF 314,MF 314,YearUnk,E,IceLinedRefrigeratorFreezer,compression,559,EUR,2011,4.23,kWh/day,0.1667,153.6,0,,Std_MF314_E,ElectricFridge,,,,,PQS 2013
+Vestfrost,MKF 074,MKF 074,YearUnk,E,IceLinedRefrigeratorFreezer,compression,699,EUR,2009,3.46,kWh/day,2.204,5.4,16,,Std_MK074_E,ElectricFridge,,,,,PQS 2013
+Sundanzer,BFRV55,BFRV55,YearUnk,S,Refrigerator,solar direct,2300,USD,2011,0.24,kW,3.478,0,54.5,,Std_BFRV55_S,Fridge,,,,,PQS 2013
+BP Solar,VR50F,VR50F,YearUnk,S,RefrigeratorFreezer,battery solar,1350,GBP,2000,0.314,kW,0.104,5,17.5,,Std_VR50F_S,Fridge,,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx + PQS 2000
+Dometic/Electrolux,RCW 42 AC/CF,RCW 42AC/CF,YearUnk,E,RefrigeratorFreezer,compression,1269,EUR,2000,,kWh/day,0.333,,12,,Std_RCW42ACCF_E,ElectricFridge,,,,,PQS 2000 – most table entries are empty including power requirements
+Dometic/Electrolux,RCW 42 DC/CF,RCW 42DC/CF,YearUnk,S,RefrigeratorFreezer,battery solar,1439,EUR,2000,0.2,kW,0.0175,14,14,,Std_RCW42DCCF_S,Fridge,,,,,PQS 2000 – most table entries are empty – power requirements may be interpreted incorrectly – most info is for 32 degrees rather than 43
+Dometic/Electrolux,RCW 42 EG/CF,RCW 42 EG/CF,YearUnk,GE,RefrigeratorFreezer,absorption,988,EUR,2000,,Kg/day,,1.6,10.5,,Std_RCW42EGCF_GE,ChainedFridge,Std_RCW42EGCF_GE_chain,,,,PQS 2000 – most table entries are empty – freezer capacity is raw liters – figures are for 32 degrees rather than 43
+Dometic/Electrolux,RCW 42 EG/CF,RCW 42 EG/CF,YearUnk,EG,-chained-,absorption,988,EUR,2000,2.52,kWh/day,,1.6,10.5,,Std_RCW42EGCF_GE_chain,ElectricFridge,,,,,
+Dometic/Electrolux,RCW 42 EK/CF,RCW 42 EK/CF,YearUnk,KE,RefrigeratorFreezer,absorption,1169,EUR,2000,0.7,liters/day,0.521,1.2,18.2,,Std_RCW42EKCF_KE,ChainedFridge,Std_RCW42EKCF_KE_chain,,,,PQS 2000 – freezer capacity is raw liters – figures are for 32 degrees rather than 43
+Dometic/Electrolux,RCW 42 EK/CF,RCW 42 EK/CF,YearUnk,EK,-chained-,absorption,1169,EUR,2000,1.6,kWh/day,0.521,1.2,18.2,,Std_RCW42EKCF_KE_chain,ElectricFridge,,,,,
+Dometic/Electrolux,RCW 50 AC,RCW 50 AC,YearUnk,E,RefrigeratorFreezer,compression,1289,EUR,2000,2.02,kWh/day,0.333,4.8,24,,Std_RCW50AC_E,ElectricFridge,,,,,PQS 2000
+Dometic/Electrolux,RCW 50 EG/CF,RCW 50 EG/CF,YearUnk,GE,RefrigeratorFreezer,absorption,1234,EUR,2000,0.54,Kg/day,0.183,2.4,24,,Std_RCW50EGCF_GE,ChainedFridge,Std_RCW50EGCF_GE_chain,,,,PQS 2000
+Dometic/Electrolux,RCW 50 EG/CF,RCW 50 EG/CF,YearUnk,EG,-chained-,absorption,1234,EUR,2000,3.5,kWh/day,0.183,2.4,24,,Std_RCW50EGCF_GE_chain,ElectricFridge,,,,,
+Dometic/Electrolux,RCW 50 EK,RCW 50 EK,YearUnk,KE,RefrigeratorFreezer,absorption,1395,EUR,2000,1,liters/day,0.271,2.4,24,,Std_RCW50EK_KE,ChainedFridge,Std_RCW50EK_KE_chain,,,,PQS 2000 – freezer volume from Std_RCW50EGCF – electric power from Std_RCW50EGCF
+Dometic/Electrolux,RCW 50 EK,RCW 50 EK,YearUnk,EK,-chained-,absorption,1395,EUR,2000,3.5,KwH/day,0.271,2.4,24,,Std_RCW50EK_KE_chain,ElectricFridge,,,,,
+Dometic/Electrolux,RCW 50DC/CF,RCW 50DC/CF,YearUnk,S,RefrigeratorFreezer,battery solar,1395,EUR,2000,0.257,kW,0.208,4.8,24,,Std_RCW50DCCF_S,Fridge,,,,,PQS 2000
+Dometic/Electrolux,TCW 2000 DC,TCW 2000 DC,YearUnk,S,RefrigeratorFreezer,battery solar,2193,EUR,2009,0.107,kW,0.566,30,76,,Std_TCW2000_S,Fridge,,,,,PQS 2013. Solar requirements estimated from 0.58kWh/Day & 6 hours light & 90% charge/discharge efficiency
+Dometic/Electrolux,TCW 3000 DC,TCW 3000 DC (cooler mode),YearUnk,S,RefrigeratorFreezer,battery solar,2219,EUR,2010,0.187,kW,0.975,0,126.5,,Std_TCW3000_S,Fridge,,,,,PQS 2013. Solar requirements estimated from 1.01kWh/Day & 6 hours light & 90% charge/discharge efficiency
+Dometic/Electrolux,TCW 3000 DC,TCW 3000 DC (freezer mode),YearUnk,S,RefrigeratorFreezer,battery solar,2219,EUR,2010,0.187,kW,,48,0,,Std_TCW3000_S_freezer,Fridge,,,,,PQS 2013. Solar requirements estimated from 1.01kWh/Day & 6 hours light & 90% charge/discharge efficiency
+Dulas,VC-150 F,VC-150 F,YearUnk,S,RefrigeratorFreezer,battery solar,1562,GBP,2000,0.444,kW,0.2,24,85,,Std_VC-150F_S,Fridge,,,,,PQS 2000
+Dulas,VC-65 F,VC-65 F,YearUnk,S,RefrigeratorFreezer,battery solar,1999,USD,2004,0.124,kW,0.158,16,37.5,,Std_VC-65F_S,Fridge,,,,,Source: http://www.who.int/immunization_standards/vaccine_quality/dulas_e3_103.pdf
+Fortum AES,CFS49 ISI,CFS49 ISI,YearUnk,S,RefrigeratorFreezer,battery solar,1500,USD,2000,0.076,kW,0.1875,4.8,20,,Std_CFS49ISI_S,Fridge,,,,,PQS 2000
+Norcoast,Model 120-30,Model 120-30,YearUnk,S,RefrigeratorFreezer,battery solar,2600,USD,2000,0.18,kW,0.0958,30,63,,Std_Model120-30_S,Fridge,,,,,PQS 2000 – freezer capacity is raw liters
+Norcoast,NRC 30-10,NRC 30-10,YearUnk,S,RefrigeratorFreezer,battery solar,1900,USD,2000,0.157,kW,0.0875,12.2,15.5,,Std_NRC30-10_S,Fridge,,,,,PQS 2000
+Sibir,V 110 GE,V 110 GE,YearUnk,GE,RefrigeratorFreezer,absorption,6350,SEK,2000,0.26,Kg/day,0.0583,15,17,,Std_V110GE_GE,ChainedFridge,Std_V110GE_GE_chain,,,,PQS 2000 – freezer volume is raw capacity rather than cold pack capacity – electric power is estimated by scaling from Std_V170GE_GE
+Sibir,V 110 GE,V 110 GE,YearUnk,EG,-chained-,absorption,6350,SEK,2000,5.3,kWh/day,0.0583,15,17,,Std_V110GE_GE_chain,ElectricFridge,,,,,
+Sibir,V 110 KE,V 110 KE,YearUnk,KE,RefrigeratorFreezer,absorption,7186,SEK,2000,0.58,liters/day,0.0583,15,17,,Std_V110KE_KE,ChainedFridge,Std_V110KE_KE_chain,,,,PQS 2000 – freezer volume is raw capacity rather than cold pack capacity – electric power is estimated by scaling from Std_V170GE_GE – kero power rate extrapolated from 32 degrees to 43 based on Std_V170KE_KE – holdover taken from Std_V110GE_GE
+Sibir,V 110 KE,V 110 KE,YearUnk,EK,-chained-,absorption,7186,SEK,2000,5.3,kWh/day,0.0583,15,17,,Std_V110KE_KE_chain,ElectricFridge,,,,,
+Sibir,V 170 GE,V 170 GE,YearUnk,GE,RefrigeratorFreezer,absorption,7436,SEK,2000,0.41,Kg/day,0.0625,36,55,,Std_V170GE_GE,ChainedFridge,Std_V170GE_GE_chain,,,,PQS 2000
+Sibir,V 170 GE,V 170 GE,YearUnk,EG,-chained-,absorption,7436,SEK,2000,8.3,kWh/day,0.0625,36,55,,Std_V170GE_GE_chain,ElectricFridge,,,,,
+Sibir,V 170 KE,V 170 KE,YearUnk,KE,RefrigeratorFreezer,absorption,9879,SEK,2000,1.4,liters/day,0.1,36,55,,Std_V170KE_KE,ChainedFridge,Std_V170KE_KE_chain,,,,PQS 2000 – electric power rate comes from Std_V170GE_GE
+Sibir,V 170 KE,V 170 KE,YearUnk,EK,-chained-,absorption,9879,SEK,2000,8.3,kWh/day,0.1,36,55,,Std_V170KE_KE_chain,ElectricFridge,,,,,
+Solamatic,PVR150,PVR150,YearUnk,S,RefrigeratorFreezer,battery solar,2000,USD,2000,0.181,kW,0.229,7.2,30,,Std_PVR150_S,Fridge,,,,,PQS 2000
+Sun Frost,RFVB-134a,RFVB-134a,YearUnk,S,RefrigeratorFreezer,battery solar,1555,USD,2000,0.119,kW,0.129,32.5,38.7,,Std_RFVB-134a_S,Fridge,,,,,PQS 2000 – freezer capacity is raw liters
+TATA BP Solar,TBP VR 50,TBP VR 50,YearUnk,S,RefrigeratorFreezer,battery solar,1530,USD,2000,0.278,kW,0.25,5,18,,Std_TBPVR50_S,Fridge,,,,,PQS 2000 – freezer capacity is raw liters
+True Energy,PS40,PS40,YearUnk,S,RefrigeratorFreezer,battery solar,1300,USD,2006,0.044,kW,0.101,2.4,18,,Std_PS40_S,Fridge,,,,,aka Bright Light Solar – see http://www.who.int/immunization_standards/vaccine_quality/bright_light_e3_109.pdf
+True Energy,PS65i,PS65i,YearUnk,S,RefrigeratorFreezer,battery solar,2950,USD,2012,0.117,kW,0.183,9.6,37.5,,Std_PS65_S,Fridge,,,,,PQS 2013 aka Bright Light Solar – see also http://www.who.int/immunization_standards/vaccine_quality/bright_light_e3_106.pdf
+Zero,GR 245 G/E,GR 245 G/E,YearUnk,GE,RefrigeratorFreezer,absorption,615,USD,2000,0.255,Kg/day,0.125,20,18,,Std_GR245GE_GE,ChainedFridge,Std_GR245GE_GE_chain,,,,PQS 2000 – many empty table entries – values are for 32 degrees rather than 43 – freezer volume is raw liters – electric power consumption not given
+Zero,GR 245 G/E,GR 245 G/E,YearUnk,EG,-chained-,absorption,615,USD,2000,,kWh/day,0.125,20,18,,Std_GR245GE_GE_chain,ElectricFridge,,,,,
+Zero,PR 245 K/E,PR 245 K/E,YearUnk,KE,RefrigeratorFreezer,absorption,670,USD,2000,0.45,liters/day,1.333,20,18,,Std_PR245KE_KE,ChainedFridge,Std_PR245KE_KE_chain,,,,PQS 2000 – values are for 32 degrees rather than 43 – electric power rate not given
+Zero,PR 245 K/E,PR 245 K/E,YearUnk,EK,-chained-,absorption,670,USD,2000,,kWh/day,1.333,20,18,,Std_PR245KE_KE_chain,ElectricFridge,,,,,
+Blowkings,BK-VC 1.7-CF,BK VC 1.7 CF,YearUnk,I,VaccineCarrier,ice,12,USD,2009,1.6,liters/charge,1.583,0,1.7,,Std_VC_BK1.7CF,ShippableFridge,,1.583,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx + PQS 2013
+Blowkings,BK-VC 2.6-CF,BK VC 2.6 CF,YearUnk,I,VaccineCarrier,ice,16.5,USD,2009,2.4,liters/charge,1.792,0,2.6,,Std_VC_BK2.6CF,ShippableFridge,,1.792,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx + PQS 2013
+Blowkings,VDC-24-CF,BK VDC 24 CF,YearUnk,I,VaccineCarrier,ice,9,USD,2009,0.8,liters/charge,0.833,0,0.9,,Std_VC_VDC24CF,ShippableFridge,,0.833,,,PQS 2013
+Dometic/Electrolux,RCW4,VC RCW4,YearUnk,I,VaccineCarrier,ice,210,EUR,2010,2.1,liters/charge,1.2625,0,3,,Std_CB_RCW430,ShippableFridge,,1.2625,,,PQS 2013
+Generic,VC,Generic VC 5L,YearUnk,I,VaccineCarrier,ice,235,EUR,2010,6,liters/charge,2,0,5,,Std_VC,ShippableFridge,,,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx – pricing + ice charge + holdover estimated from RCW8
+Giostyle,VC 2.6 L,Giostyle VC 2.6L,YearUnk,I,VaccineCarrier,ice,25.9,USD,2011,3.2,liters/charge,1.728,0,2.6,,Std_VC_Giostyle_2_6,ShippableFridge,,1.728,,,PQS 2013

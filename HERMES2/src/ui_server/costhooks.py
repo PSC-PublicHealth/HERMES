@@ -17,6 +17,7 @@ import htmlgenerator
 import typehelper
 import costmodel
 import typehelper
+from fridgetypes import energyTranslationDict
 
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _safeGetReqParam
 
@@ -235,12 +236,12 @@ def jsonSetBaseCurrency(db, uiSession):
 
 _fuelNames = {'propane':'pricepropaneperkg', 'kerosene':'pricekeroseneperl', 
               'gasoline':'pricegasolineperl', 'diesel':'pricedieselperl', 
-              'electric':'priceelectricperkwh','solar':'pricesolarperkw'}
+              'electric':'priceelectricperkwh','solar':'pricesolarperkw',
+              'ice':'priceiceperpack'}
 
 def getFuelButtonLabel(db, uiSession, m):
     vList = _fuelNames.values();
     nSet = sum([v is not None and v!='' for v in [m.getParameterValue(vv) for vv in vList]])
-    print '!!!!! nSet: %d len: %d'%(nSet, len(vList))
     if nSet==0: return _("Begin")
     elif nSet==len(vList): return _("Revisit")
     else: return _("Continue")
@@ -290,11 +291,13 @@ def jsonGetFuelPriceInfo(db, uiSession):
             if fuelCurString not in uiSession: uiSession[fuelCurString] = currencyBase
             result[fuelCurString] = urllib.quote(uiSession[fuelCurString])
             fuelPrice = m.getParameterValue(fuelParamName)
+            print "%s: %s"%(fuelParamName, fuelPrice)
             if fuelPrice is None:
                 result[fuelPriceString] = None
             else:
                 result[fuelPriceString] = currencyConverter.convertTo(currencyBase, fuelPrice, uiSession[fuelCurString])
         result['success'] = True
+        print 'returning %s'%result
         return result
     except Exception,e:
         _logStacktrace()
@@ -359,8 +362,15 @@ def jsonManageFridgeTable(db, uiSession):
               "page":thisPageNum,     # which page is this
               "records":totRecs,  # total records
               "rows": [ {"name":t['DisplayName'], 
-                         "cell":[t['DisplayName'], 'foo', 'bar', 'mycurrency', t['Name']]}
-                       for t in tList ]
+                         "cell":[t['DisplayName'],
+                                 t['Name'],
+                                 12.34,
+                                 'mycurrency',
+                                 1357,
+                                 45.6,
+                                 energyTranslationDict[t['Energy']][1],
+                                 energyTranslationDict[t['Energy']][2]]}
+                       for t in tList if t['Name'] not in typehelper.hiddenTypesSet]
               }
     return result
     

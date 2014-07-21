@@ -33,6 +33,68 @@ import constants as C
 import warehouse
 import copy
 
+# energyTranslationDict maps the 'Energy' field of the type record to a tuple containing a short name, a longer name, a string 
+# for rate units for that energy type, and a string for scalar (non-rate) units.
+energyTranslationDict = {'E':('Electric','Electric Mains','KwH/day','Kilowatt Hour'),
+                         'K':('Kerosene','Kerosene','liters/day','Liter'),
+                         'G':('Propane','LP Gas','Kg/day','Kg'),
+                         'P':('Petrol','Petrol','liters/day','Liter'),
+                         'S':('Solar','Solar Power','Kilowatts','Installed Kilowatt'),
+                         'I':('Ice','Ice Packs','Packs/charge','Ice Pack'),
+                         'B':('BlueIce','Blue Ice Packs','Packs/charge','Blue Ice Pack'),
+                         'U':('Unknown',None,None,None),
+                         '':('Unknown',None,None,None),
+                         None:('Unknown',None,None,None),
+                         }
+
+#              'options':[('E',_('electric'),[],[]),
+#                         ('S',_('solar'),[],[]),                        
+#                         ('G',_('propane'),[],[]),
+#                         ('P',_('kerosene'),[],[]),
+#                         ('I',_('ice'),[],[]),
+#                         ('B',_('blue ice'),[],[]),
+#                         ('GE',_('propane and electric'),[],[]),
+#                         ('KE',_('kerosene and electric'),[],[]),
+#                         ('U',_('unknown'),[],[]),
+#                         ]},  
+# energyTypeUnitsMap = {
+#                       'S':(_('Solar'), _('Installed Kilowatt')),
+#                       'E':(_('Electric Mains'), _('KwH/day')),
+#                       '':(_('unknown'), _('none')),
+#                       None:(_('unknown'), _('none')),
+#                       'U':(_('unknown'), _('none')),
+#                       'EnergyUnk':(_('unknown'),_('none')),
+#                       'KE':(_('Kerosene'), _('liters/day')),
+#                       'K':(_('Kerosene'), _('liters/day')),
+#                       'GE':(_('Liquid Propane'),_('Kg/day')),
+#                       'G':(_('Liquid Propane'), _('Kg/day')),
+#                       'I':(_('Ice'), _('Packs/day')),
+#                       'B':(_('Blue Ice'), _('Packs/day')),
+#                       'P':(_('Petrol'), _('liters/day')),
+#                       'EK':(_('Electric Mains'), _('KwH/day')),           # electric/kerosene
+#                       }
+
+
+def fridgeDisplayNameFromRec(rec):
+    """
+    A standard way to construct an ad-hoc display name from a FridgeTyep record
+    """
+    nameString = ""
+    if 'Make' in rec and rec['Make'] is not None:
+        nameString+=str(rec['Make']) + " "
+    if 'Model' in rec and rec['Model'] is not None:
+        nameString+=str(rec['Model']) + " "
+    if 'Year' in rec and rec['Year'] is not None \
+        and rec['Year'] != 'YearUnk':
+        nameString+= "("+str(rec['Year']) + ")"
+    if 'Energy' in rec and rec['Energy'] is not None \
+        and rec['Energy'] != 'U':
+        if energyTranslationDict.has_key(rec['Energy']):
+            nameString+= ": " +  energyTranslationDict[rec['Energy']][0]
+    
+    return nameString
+        
+
 class FridgeType(abstractbaseclasses.CanStoreType, abstractbaseclasses.NonScalingType):
     typeName= 'refrigerators'
     def __init__(self, typeManager, recDict, instanceClassName):
@@ -77,20 +139,8 @@ class FridgeType(abstractbaseclasses.CanStoreType, abstractbaseclasses.NonScalin
         return fridgeInstanceClass.classPartner(typeManager, recDict, className)
 
     def getDisplayName(self):
-        energyDict = {'E':'Electric','K':'Kerosene','EK':'Electric/Kerosene',
-                      'S':'Solar','U':'Unknown'}
-        nameString = ""
-        if self.recDict['Make']:
-            nameString+=str(self.recDict['Make']) + " "
-        if self.recDict['Model']:
-            nameString+=str(self.recDict['Model']) + " "
-        if self.recDict['Year'] and self.recDict['Year'] != 'YearUnk':
-            nameString+= "("+str(self.recDict['Year']) + ")"
-        if self.recDict['Energy'] and self.recDict['Energy'] != "U":
-            if energyDict.has_key(self.recDict['Energy']):
-                nameString+= ": " +  energyDict[self.recDict['Energy']]
-        
-        return nameString
+        return fridgeDisplayNameFromRec(self.recDict)
+
     def createInstance(self,count=1,name=None,currentAge=0.0,tracked=False):
         """
         Create an instance of this FridgeType.  The instance will be a Fridge; the 'place' parameter specifies

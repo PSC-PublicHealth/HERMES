@@ -141,7 +141,10 @@ class HermesUserFS(object):
 
         if shortName in self.shortNames:
             if deleteIfPresent:
-                os.remove(self.getFileInfoByShortName(shortName)['serverSideName'])
+                try:
+                    os.remove(self.getFileInfoByShortName(shortName)['serverSideName'])
+                except:
+                    pass
                 self.removeFileInfo(self.getFileKeyByShortName(shortName))
             else:
                 raise HermesServiceException('shortName %s already exists'%shortName)

@@ -53,11 +53,19 @@
 				</tr>
 
 				<tr>
-					<td>{{_("Solar Power")}}</td>
-					<td><input type='text' id='price_solar'></input></td>
-					<td><div id='price_solar_units'></div></td>
-					<td>{{_("Installed Kilowatt")}}</td>
-				</tr>
+				<td>{{_("Solar Power")}}</td>
+				<td><input type='text' id='price_solar'></input></td>
+				<td><div id='price_solar_units'></div></td>
+				<td>{{_("Installed Kilowatt")}}</td>
+			    </tr>
+
+				<tr>
+				<td>{{_("Ice")}}</td>
+				<td><input type='text' id='price_ice'></input></td>
+				<td><div id='price_ice_units'></div></td>
+				<td>{{_("Freeze One Kg of Ice")}}</td>
+			    </tr>
+			    
 			</table>
 			</div>
 		</td>
@@ -81,7 +89,7 @@ function buildPage(modelId) {
 	$.getJSON('{{rootPath}}json/get-fuel-price-info',{ modelId:modelId })
 	.done(function(data) {
 		if (data.success) {
-			var rowNames = ['propane', 'kerosene', 'gasoline', 'diesel', 'electric', 'solar'];
+			var rowNames = ['propane', 'kerosene', 'gasoline', 'diesel', 'electric', 'solar', 'ice'];
 			for ( var i = 0; i<rowNames.length; i++ ) {
 				var rowName = rowNames[i];
 				function frzOnBlur(currentRowName) {
@@ -89,7 +97,7 @@ function buildPage(modelId) {
 						$.getJSON( '{{rootPath}}json/set-fuel-price/'+currentRowName, { 
 							modelId:modelId,
 							price:$('#price_'+currentRowName).val(),
-							id:$('#price_'+currentRowName+'_units').currencySelector('selId')
+							id:encodeURIComponent($('#price_'+currentRowName+'_units').currencySelector('selId'))
 						 })
 						.done( function(data) {
 							if (data.success) {
@@ -112,7 +120,7 @@ function buildPage(modelId) {
 					return function(evt, currencyId) {
 						$.getJSON('{{rootPath}}json/set-fuel-price-currency/'+currentRowName, {
 							modelId:modelId,
-							id:encodeURIComponent($('#price_'+currentRowName+'_units').currencySelector('selId')),
+							id:encodeURIComponent(currencyId),
 							price:$('#price_'+currentRowName).val()
 						})
 						.done(function(data) {
@@ -149,16 +157,16 @@ function buildPage(modelId) {
 						label:'',
 						onChange:frzCurSelChange(rowName)
 				};
-				if (data[rowName+'Price']) {
+				if (data[rowName+'Price'] != 'undefined' && data[rowName+'Price'] != null) {
 					$('#price_'+rowName).val( data[rowName+'Price'].toString() );
-					$('#price_'+rowName+'_units').hrmWidget( $.extend({},
-						{selected:decodeURIComponent(data[rowName+'Currency'])},
-						widgetArgs));
 				}
 				else {
 					$('#price_'+rowName).val('');
-					$('#price_'+rowName+'_units').hrmWidget(widgetArgs);
 				}
+				$('#price_'+rowName).floatTextBox('saveState');
+				$('#price_'+rowName+'_units').hrmWidget( $.extend({},
+						{selected:decodeURIComponent(data[rowName+'Currency'])},
+						widgetArgs));
 			}
 		}
 	    else {

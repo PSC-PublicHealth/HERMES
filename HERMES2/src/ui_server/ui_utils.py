@@ -17,7 +17,6 @@ _outTmpDir= _sI.outTmpDir()
 _logFileName= "%s/hermes_service.log"%_scratchDir
 _logFileHandle = None
 
-
 def _logMessage(lstr):
     lstr = lstr.rstrip()
     if len(lstr) == 0:

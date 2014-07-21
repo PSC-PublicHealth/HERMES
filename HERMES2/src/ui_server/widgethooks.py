@@ -36,6 +36,7 @@ _typeCategoryNameMap = {'people':_('population types'),
 
 @bottle.route('/hrmwidgets.js')
 def getHrmWidgetsJS(db, uiSession):
+    bottle.response.set_header('content-type','text/javascript')
     return bottle.template("hrmwidgets.tpl") # to fill in rootPath
 
 @bottle.route('/clientArray', method='POST')

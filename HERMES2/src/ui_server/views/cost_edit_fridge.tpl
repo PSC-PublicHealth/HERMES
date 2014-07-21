@@ -56,19 +56,25 @@ function buildPage(modelId) {
 		rowNum:9999, // temporary until storage types are grouped in a nested grid
 		colNames:[
 		          "{{_('Name')}}",
-		          "{{_('Foo')}}",
-		          "{{_('Bar')}}",
+		          "{{_('Details')}}",
+		          "{{_('Base Cost')}}",
 		          "{{_('Currency')}}",
-		          "{{_('Details')}}"
+		          "{{_('Lifetime')}}",
+		          "{{_('Ongoing')}}",
+		          "{{_('Of')}}",
+		          "{{_('Ongoing Units')}}"
 		], //define column names
 		colModel:[
 		          {name:'name', index:'name', width:400, key:true},
-		          {name:'foo', index:'foo', align:'center'},
-		          {name:'bar', index:'bar', width:200, editable:true, edittype:'text'},
-		          {name:'currency', index:'currency', width:300, align:'center', sortable:false,
-		        	  formatter:currencyFormatter},
 		          {name:'info', index:'info', width:110, align:'center', sortable:false,
-		        	  formatter:fridgeInfoButtonFormatter}
+		        	  formatter:fridgeInfoButtonFormatter},
+		          {name:'basecost', index:'basecost', align:'center'},
+		          {name:'currency', index:'currency', width:70, align:'center', sortable:false,
+		        	  formatter:currencyFormatter},
+			      {name:'lifetime', index:'lifetime', align:'center', editable:true, edittype:'integer'},
+		          {name:'ongoing', index:'ongoing', width:200, editable:true, edittype:'text'},
+		          {name:'ongoingwhat', index:'ongoingwhat', width:200},
+		          {name:'ongoingunits', index:'ongoingunits', width:200}
 		], //define column models
 		pager: 'fridge_cost_pager', //set your pager div id
 		pgbuttons: false, //since showing all records on one page, remove ability to navigate pages

@@ -33,10 +33,12 @@ from util import listify, logContext, raiseRuntimeError, logWarning
 from util import parseInventoryString
 import load_networkrecords
 import storagetypes
+from fridgetypes import energyTranslationDict, fridgeDisplayNameFromRec
 import input, HermesInput
 import globals as G
 from datatypes import *
 from curry import curry
+from enums import TimeUnitsEnums
 import math
 import struct
 import operator
@@ -52,6 +54,7 @@ try:
     from sqlalchemy.orm import relationship, backref, object_mapper
     from sqlalchemy.orm.properties import RelationshipProperty
     from sqlalchemy.orm.collections import attribute_mapped_collection
+    from sqlalchemy.ext.hybrid import hybrid_property
 
     from db_routines import Base
     
@@ -224,7 +227,7 @@ def _copyAttrsToRec(rec, src, attrs = None):
                         rec[recName] = ''
                     else:
                         rec[recName] = getattr(src, name)
-                except:
+                except Exception,e:
                     rec[recName] = ''
                     pass
             
@@ -267,14 +270,20 @@ def _makeColumns(clas, attrs = None):
 
     for attr in attrs:
         a = _parseAttr(attr)
-        name = a['name']
         t = a['type']
 
         if t is not None and t.dbType() is not None:
             #print name
             #print t.dbArgs()
             #print t.dbKwargs()
-            setattr(clas, name, Column(*t.dbArgs(), **t.dbKwargs()))
+            if 'hybridName' in a:
+                name = a['hybridName']
+                dbArgs = [a['name']] + t.dbArgs()
+                setattr(clas, name, Column(*dbArgs, **t.dbKwargs()))
+
+            else:
+                name = a['name']
+                setattr(clas, name, Column(*t.dbArgs(), **t.dbKwargs()))
         
 
 def _initBasic(instance, args, kwargs, startAttr=1):
@@ -2544,27 +2553,46 @@ class ShdPeopleType(ShdType):
 _makeColumns(ShdPeopleType)
 
 
-class ShdStorageType(ShdType):
+class ShdStorageType(ShdType, ShdCopyable):
     __tablename__ = "storagetypes"
     shdType = 'fridges'
     __mapper_args__ = {'polymorphic_identity':shdType}
 
     storagetypeId = Column(Integer, ForeignKey('types.typeId'), primary_key=True)
     attrs = [('Name',       DataType(STRING, dbType=None)),
-             ('DisplayName', STRING_NONE),
+             ('DisplayName', STRING_NONE, 'hybridName', '_DisplayName'),
              ('Make',       STRING_NONE),
              ('Model',      STRING_NONE),
              ('Year',       STRING_NONE),
              ('Energy',     STRING_NONE),
+             ('Category',   STRING_NONE),
+             ('Technology', STRING_NONE),
+             ('BaseCost',   FLOAT_NONE),
+             ('BaseCostCurCode', STRING_NONE, 'recordName', 'BaseCostCur'),
+             ('BaseCostYear', INTEGER),
+             ('PowerRate',  FLOAT_NONE),
+             ('PowerRateUnits', STRING_NONE),
+             ('NoPowerHoldoverDays', FLOAT_ZERO),
              ('freezer',    FLOAT_ZERO),
              ('cooler',     FLOAT_ZERO),
              ('roomtemperature', FLOAT_ZERO),
              ('ClassName',  STRING_NONE),
+             ('chain',      STRING_NONE),
              ('ColdLifetime', FLOAT_NONE),
              ('AlarmDays',  FLOAT_NONE),
              ('SnoozeDays', FLOAT_NONE),
              ('Requires',   STRING_NONE),
              ('Notes',      NOTES_STRING)]
+    
+    @hybrid_property
+    def DisplayName(self):
+        result = self.getDisplayName()
+        return result
+    
+    @DisplayName.setter
+    def setDisplayName(self, value):
+        if value != self.getDisplayName():
+            self._DisplayName = value
 
     def __init__(self, *args, **kwargs):
         _initShdType(self, args, kwargs)
@@ -2573,23 +2601,20 @@ class ShdStorageType(ShdType):
         return ShdStorageType(self.createRecord())
     
     def getDisplayName(self):
-        energyDict = {'E':'Electric','K':'Kerosene','EK':'Electric/Kerosene',
-                      'S':'Solar','U':'Unknown'}
-        if self.DisplayName is not None:
-            return self.DisplayName
-        
-        nameString = ""
-        if self.Make:
-            nameString+=str(self.Make) + " "
-        if self.Model:
-            nameString+=str(self.Model) + " "
-        if self.Year and self.Year != 'YearUnk':
-            nameString+= "("+str(self.Year) + ")"
-        if self.Energy and self.Energy != "U":
-            if energyDict.has_key(self.Energy):
-                nameString+= ": " +  energyDict[self.Energy]
-        
-        return nameString
+        if getattr(self,'_DisplayName') is not None:
+            return getattr(self,'_DisplayName')
+        else:
+            # We can't use utility functions here, because they may end
+            # up calling this routine recursively
+            rec = {}
+            for attr in self.attrs:
+                lA = listify(attr)
+                if 'hybridName' in lA:
+                    rec[lA[0]] = ''
+                else:
+                    rec[lA[0]] = getattr(self,lA[0])
+            result = fridgeDisplayNameFromRec(rec)
+            return result
     
 _makeColumns(ShdStorageType)
 
@@ -2619,16 +2644,6 @@ class ShdTruckType(ShdType):
         return ShdTruckType(self.createRecord())
 
 _makeColumns(ShdTruckType)
-
-class TimeUnitsEnums:
-    # enumerations for demand and calendarType
-    TYPE_DAY = 'D'
-    TYPE_WEEK = 'W'
-    TYPE_MONTH = 'M'
-    
-    eStr = {'D': 'days',
-            'W': 'weeks',
-            'M': 'months'}
 
 class ShdVaccineType(ShdType, ShdCopyable):
     __tablename__ = "vaccinetypes"
