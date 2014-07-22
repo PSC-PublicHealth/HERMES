@@ -2736,7 +2736,7 @@ def rseDispInventory(iType, store, field, category, unique):
     ULCM.addUpdate(divId, ret, 'html')
 
 def rseUpdateStorage(store, field, category, unique, action, value, secondary, tertiary):
-    rseUpdateInventory('fridges', store, field, category, unique, action, value, secondary, teriary)
+    rseUpdateInventory('fridges', store, field, category, unique, action, value, secondary, tertiary)
 
 def rseUpdateTransport(store, field, category, unique, action, value, secondary, tertiary):
     rseUpdateInventory('trucks', store, field, category, unique, action, value, secondary, tertiary)
