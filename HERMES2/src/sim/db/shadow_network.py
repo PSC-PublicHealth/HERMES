@@ -2601,8 +2601,9 @@ class ShdStorageType(ShdType, ShdCopyable):
         return ShdStorageType(self.createRecord())
     
     def getDisplayName(self):
-        if getattr(self,'_DisplayName') is not None:
-            return getattr(self,'_DisplayName')
+        s_DN = getattr(self,'_DisplayName')
+        if s_DN is not None:
+            return s_DN
         else:
             # We can't use utility functions here, because they may end
             # up calling this routine recursively
