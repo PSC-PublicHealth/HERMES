@@ -1,3 +1,15 @@
+// Thanks to Patrick Desjardins http://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-money-in-javascript
+Number.prototype.formatMoney = function(c, d, t){
+var n = this, 
+    c = isNaN(c = Math.abs(c)) ? 2 : c, 
+    d = d == undefined ? "." : d, 
+    t = t == undefined ? "," : t, 
+    s = n < 0 ? "-" : "", 
+    i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + "", 
+    j = (j = i.length) > 3 ? j % 3 : 0;
+   return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
+ };
+
 // setup grid print capability for jqGrid.  Add print button to navigation bar and bind to click.
 // Thanks to nelsonm: http://www.trirand.com/blog/?page_id=393/help/improved-print-grid-function/
 function setPrintGrid(gid,pid,pgTitle){
@@ -92,6 +104,21 @@ function setPrintGrid(gid,pid,pgTitle){
 					}
 				});
 				if (opts.debug) console.log('loadError and beforeProcessing set');
+				if (opts.resizable) {
+					function resize_grid() {
+						var offset = $grid.offset() //position of grid on page
+						//hardcoded minimum width
+						if ( $(window).width() > 710 ) {
+							$grid.jqGrid('setGridWidth', $(window).width()-offset.left-50);
+						}
+						$grid.jqGrid('setGridHeight', $(window).height()-offset.top-130);
+					}
+					$(window).load(resize_grid); //necessary to trigger resize_grid onload due to loading breadcrumbs changing grid offset
+					$(window).resize(resize_grid);  //bind resize_grid to window resize
+					resize_grid();
+					if (opts.debug) console.log('resize handling set');
+					
+				}
 				if (opts.printable) {
 					if (opts.debug) console.log('starting printable handling');
 					var gridId = this.id;
@@ -108,6 +135,19 @@ function setPrintGrid(gid,pid,pgTitle){
 					}
 					if (opts.debug) console.log('finished printable handling');
 				}
+//				if (opts.groupby) {
+//					if (opts.debug) console.log('group by '+opts.groupby);
+//					$grid.jqGrid('setGridParam',{ grouping:true });
+//					$grid.jqGrid('groupingGroupBy', opts.groupby, {
+//						groupField:[opts.groupby],
+//						groupDataSorted:true,
+//						groupText:['<b>{0} - {1} '+"{{_('Item(s)')}}"+'</b>'],
+//						groupColumnShow:[false]
+//					});
+//					$grid.jqGrid('groupingSetup');
+//					this.grid.populate();
+//					if (opts.debug) console.log('finished grouping');
+//				}
             	if (opts.debug) {
     				console.log('finished hermify');
     			}
