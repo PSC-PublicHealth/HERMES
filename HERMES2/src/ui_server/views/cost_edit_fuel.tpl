@@ -63,7 +63,7 @@
 				<td>{{_("Ice")}}</td>
 				<td><input type='text' id='price_ice'></input></td>
 				<td><div id='price_ice_units'></div></td>
-				<td>{{_("Freeze One Kg of Ice")}}</td>
+				<td>{{_("Freeze One Liter of Ice")}}</td>
 			    </tr>
 			    
 			</table>
@@ -102,7 +102,7 @@ function buildPage(modelId) {
 						.done( function(data) {
 							if (data.success) {
 								var $priceEl = $('#price_'+currentRowName);
-								$priceEl.val(data.price);
+								$priceEl.val(data.price.formatMoney(2));
 				    			$priceEl.floatTextBox('saveState');
 							}
 							else {
@@ -128,7 +128,7 @@ function buildPage(modelId) {
 								if (decodeURIComponent(data.id) == currencyId) {
 									$('#price_'+currentRowName+'_units').currencySelector('save');
 									if (data.price) {
-										$('#price_'+currentRowName).val( data.price.toString() );
+										$('#price_'+currentRowName).val( data.price.formatMoney(2) );
 									}
 								}
 								else {
@@ -158,7 +158,7 @@ function buildPage(modelId) {
 						onChange:frzCurSelChange(rowName)
 				};
 				if (data[rowName+'Price'] != 'undefined' && data[rowName+'Price'] != null) {
-					$('#price_'+rowName).val( data[rowName+'Price'].toString() );
+					$('#price_'+rowName).val( data[rowName+'Price'].formatMoney(2) );
 				}
 				else {
 					$('#price_'+rowName).val('');
