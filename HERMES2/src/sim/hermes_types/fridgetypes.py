@@ -39,41 +39,17 @@ energyTranslationDict = {'E':('Electric','Electric Mains','KwH/day','Kilowatt Ho
                          'K':('Kerosene','Kerosene','liters/day','Liter'),
                          'G':('Propane','LP Gas','Kg/day','Kg'),
                          'P':('Petrol','Petrol','liters/day','Liter'),
-                         'S':('Solar','Solar Power','Kilowatts','Installed Kilowatt'),
-                         'I':('Ice','Ice Packs','Packs/charge','Ice Pack'),
-                         'B':('BlueIce','Blue Ice Packs','Packs/charge','Blue Ice Pack'),
+                         'S':('Solar','Solar Power','Kw','Installed Kilowatt'),
+                         'I':('Ice','Ice','liters/charge','Liter'),
+                         'B':('BlueIce','Blue Ice','liters/charge','Liters'),
+                         'EK':('Electric/Kerosene','Electric with option for Kerosene','KwH/day','Kilowatt Hour'),
+                         'KE':('Kerosene/Electric','Kerosene with option for Electric','liters/day','Liter'),
+                         'EG':('Electric/Propane','Electric with option for Propane','KwH/day','Kilowatt Hour'),
+                         'GE':('Propane/Electric','LP Gas with option for Electric','Kg/day','Kg'),
                          'U':('Unknown',None,None,None),
                          '':('Unknown',None,None,None),
                          None:('Unknown',None,None,None),
                          }
-
-#              'options':[('E',_('electric'),[],[]),
-#                         ('S',_('solar'),[],[]),                        
-#                         ('G',_('propane'),[],[]),
-#                         ('P',_('kerosene'),[],[]),
-#                         ('I',_('ice'),[],[]),
-#                         ('B',_('blue ice'),[],[]),
-#                         ('GE',_('propane and electric'),[],[]),
-#                         ('KE',_('kerosene and electric'),[],[]),
-#                         ('U',_('unknown'),[],[]),
-#                         ]},  
-# energyTypeUnitsMap = {
-#                       'S':(_('Solar'), _('Installed Kilowatt')),
-#                       'E':(_('Electric Mains'), _('KwH/day')),
-#                       '':(_('unknown'), _('none')),
-#                       None:(_('unknown'), _('none')),
-#                       'U':(_('unknown'), _('none')),
-#                       'EnergyUnk':(_('unknown'),_('none')),
-#                       'KE':(_('Kerosene'), _('liters/day')),
-#                       'K':(_('Kerosene'), _('liters/day')),
-#                       'GE':(_('Liquid Propane'),_('Kg/day')),
-#                       'G':(_('Liquid Propane'), _('Kg/day')),
-#                       'I':(_('Ice'), _('Packs/day')),
-#                       'B':(_('Blue Ice'), _('Packs/day')),
-#                       'P':(_('Petrol'), _('liters/day')),
-#                       'EK':(_('Electric Mains'), _('KwH/day')),           # electric/kerosene
-#                       }
-
 
 def fridgeDisplayNameFromRec(rec):
     """
@@ -512,6 +488,12 @@ class Fridge(abstractbaseclasses.CanStore, abstractbaseclasses.Costable):
             s += "%s: %f CC available, %f used; "%(bl.storageType.name,bl.volAvail,bl.volUsed)
         if s!="": s= s[:-2] # drop tailing ;
         return "<%s(%s)>"%(self.fridgeType.name,s)
+
+class ChainedFridge(Fridge):
+    pass
+
+abstractbaseclasses.CanStore.register(ChainedFridge) # @UndefinedVariable because PyDev can't see abc.register()
+abstractbaseclasses.Costable.register(ChainedFridge) # @UndefinedVariable because PyDev can't see abc.register()
 
 class ElectricFridge(Fridge):
     classPartner = FridgeType
