@@ -5,8 +5,8 @@ Dometic/Electrolux,RCW12,CB RCW12,YearUnk,I,ColdBox,ice,473,EUR,2010,8.4,liters/
 Dometic/Electrolux,RCW25,CB RCW 25,YearUnk,I,ColdBox,ice,600,EUR,2010,14.4,liters/charge,5.6083,0,20,,Std_CB_RCW25CF,ShippableFridge,,5.6083,,,PQS 2013
 Dometic/Electrolux,RCW8,CB RCW8,YearUnk,I,ColdBox,ice,245,EUR,2010,6.6,liters/charge,2.4125,0,6,,Std_CB_RCW8,ShippableFridge,,2.4125,,,PQS 2013 – ice packs are actually 10*0.6L + 2*0.3L
 generic,CB,Generic CB 20L,YearUnk,I,ColdBox,ice,135,USD,2009,17.6,liters/charge,5.83,0,20,,Std_CB,ShippableFridge,,5.83,,,Source: Senegal cost model_phase II_ 25Oct2011.xlsx – details from Apex AICB.
-Cold Room Freezer,Cold Room Freezer,Freezer room 30m3,YearUnk,U,ColdRoom,,,,,,,,6667,0,,Std_ColdRoomFreezer_U,Fridge,,,,,
-Cold Room Fridge,Cold Room Fridge,Cold room 30m3,YearUnk,U,ColdRoom,,,,,,,,0,6667,,Std_ColdRoomFridge_U,Fridge,,,,,
+Cold Room Freezer,Cold Room Freezer,Freezer room 30m3,YearUnk,E,ColdRoom,compression,,,,,kWh/day,,6667,0,,Std_ColdRoomFreezer_U,Fridge,,,,,
+Cold Room Fridge,Cold Room Fridge,Cold room 30m3,YearUnk,E,ColdRoom,compression,,,,,kWh/day,,0,6667,,Std_ColdRoomFridge_U,Fridge,,,,,
 Dometic/Electrolux,FCW 20 EG/CF,FCW 20 EG/CF,YearUnk,GE,Freezer,absorption,757,EUR,2000,0.6,Kg/day,0.458,8.4,0,,Std_FCW20EGCF_GE,ChainedFridge,Std_FCW20EGCF_EG_chain,,,,PQS 2000
 Dometic/Electrolux,FCW 20 EG/CF,FCW 20 EG/CF,YearUnk,EG,-chained-,absorption,757,EUR,2000,2.9,kWh/day,0.458,8.4,0,,Std_FCW20EGCF_EG_chain,ElectricFridge,,,,,
 Dometic/Electrolux,FCW 20 EK/CF,FCW 20 EK/CF,YearUnk,KE,Freezer,absorption,925,EUR,2000,0.65,liters/day,0.458,8.4,0,,Std_FCW20EKCF_KE,ChainedFridge,Std_FCW20EKCF_KE_chain,,,,PQS 2000 – many empty table entries – values are for 32 degrees rather than 43 – holdover is from Std_FCW20EGCF_EG
