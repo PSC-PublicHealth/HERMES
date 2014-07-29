@@ -2569,7 +2569,7 @@ class ShdStorageType(ShdType, ShdCopyable):
              ('Technology', STRING_NONE),
              ('BaseCost',   FLOAT_NONE),
              ('BaseCostCurCode', STRING_NONE, 'recordName', 'BaseCostCur'),
-             ('BaseCostYear', INTEGER),
+             ('BaseCostYear', INTEGER_NONE),
              ('PowerRate',  FLOAT_NONE),
              ('PowerRateUnits', STRING_NONE),
              ('NoPowerHoldoverDays', FLOAT_ZERO),

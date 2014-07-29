@@ -15,6 +15,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 import csv_tools
 import os.path
+import types
 
 def upgrade():
     
@@ -59,6 +60,7 @@ def upgrade():
             energy = 'U'
         else:
             energy = row[storagetypes.c.Energy]
+        print ['%s:%s'%(k,v) for k,v in row.items()]
         conn.execute( newstoragetypes.insert().values( storagetypeId=row[storagetypes.c.storagetypeId],
                                                        DisplayName=row[storagetypes.c.DisplayName],
                                                        Make=row[storagetypes.c.Make],
@@ -90,8 +92,7 @@ def upgrade():
     op.rename_table('newstoragetypes','storagetypes')
     op.drop_table('oldstoragetypes')
 
-    storagetypes2 = sa.Table('storagetypes', meta, autoload=True, autoload_with=conn.engine)
-    print [str(c) for c in storagetypes2.columns]
+    storagetypes2 = sa.Table('storagetypes', meta, autoload=True, extend_existing=True, autoload_with=conn.engine)
 
     print '##### clearing AllTypesModel storagetypes #####'
     models = sa.Table('models', meta, autoload=True, autoload_with=conn.engine)
@@ -111,7 +112,14 @@ def upgrade():
         
     print '##### inserting standard types #####'
     for rec in recs: 
-        print rec['Name']
+        #print rec['Name']
+        for k in ['Year', 'BaseCost', 'BaseCostYear', 'NoPowerHoldoverDays', 'PowerRate', 'freezer', 'cooler',
+                  'roomtemperature', 'ColdLifetime', 'AlarmDays', 'SnoozeDays']:
+            if rec[k] == '': rec[k] = None
+        for k,v in rec.items():
+            if type(v) == types.StringType:
+                rec[k] = v.decode('utf8')
+            
         result = conn.execute( typeTable.insert().values(typeClass='fridges', modelId=allTypesModelId, Name=rec['Name']))
         conn.execute( storagetypes2.insert().values( storagetypeId=result.inserted_primary_key[0],
                                                        DisplayName=rec['DisplayName'],
