@@ -39,7 +39,37 @@ def googleEarthTopPage(db, uiSession):
                                "pageHelpText":_("This is intended to show page-specific help")},
                                _=_,inlizer=inlizer,modelId=modelId,runId=runId)
 
+@bottle.route('/geojson_demo')
+def geojsonTopPage(db,uiSession):
+    modelId= _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
+    return bottle.template('geojson_demo.tpl',{"breadcrumbPairs":[("top",_("Welcome"))],
+                                               "pageHelpText":_("This is intended to show page-specific help")},
+                                               _=_,inlizer=inlizer,modelId=modelId)
+@bottle.route('/json/utilgeojson')
+def generateJSON(db, uiSession):
+    from visualizationUtils import circleLonLat
+    try:
+        from geojson import Feature,Point,Polygon,FeatureCollection,dumps
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        # 
+        f = {'success':True,'features':[]}
+        
+        for storeId,store in m.stores.items():
+            f['features'].append(Feature(geometry=Polygon([circleLonLat(store.Longitude+0.001,store.Latitude+0.001,0.01,20)]),
+                                         properties={'popupContent':store.NAME}))
+            
+            
+            
+        return f
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
 
+    
 @bottle.route('/json/google-earth-kmlstring')
 def jsonGoogleEarthKMLString(db,uiSession):
     try:
