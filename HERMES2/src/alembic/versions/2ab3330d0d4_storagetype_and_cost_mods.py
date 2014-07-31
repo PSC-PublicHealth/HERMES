@@ -55,45 +55,47 @@ def upgrade():
     newstoragetypes.create(conn, checkfirst=True)
     
     print '##### transcribing old storagetype records #####'
-    knownIds = set()
-    for row in conn.execute(sa.select([storagetypes])):
+    result = conn.execute(sa.select([storagetypes]))
+    rows = result.fetchall()
+    
+    for i in range(len(rows)):
+        row = rows[i]
         if row[storagetypes.c.Energy] in ['U','EnergyUnk']:
             energy = u'U'
         else:
             energy = row[storagetypes.c.Energy]
-        print ['%s:%s'%(k,v) for k,v in row.items()]
-        if row[storagetypes.c.storagetypeId] in knownIds:
-            print 'known ID; skipping'
-        else:
-            knownIds.add(row[storagetypes.c.storagetypeId])
-            try:
-                conn.execute( newstoragetypes.insert().values( storagetypeId=row[storagetypes.c.storagetypeId],
-                                                               DisplayName=row[storagetypes.c.DisplayName],
-                                                               Make=row[storagetypes.c.Make],
-                                                               Model=row[storagetypes.c.Model],
-                                                               Year=row[storagetypes.c.Year],
-                                                               Energy=energy,
-                                                               Category=None,
-                                                               Technology=None,
-                                                               BaseCost=None,
-                                                               BaseCostCurCode=None,
-                                                               BaseCostYear=None,
-                                                               NoPowerHoldoverDays=None,
-                                                               PowerRate=None,
-                                                               PowerRateUnits=None,
-                                                               freezer=row[storagetypes.c.freezer],
-                                                               cooler=row[storagetypes.c.cooler],
-                                                               roomtemperature=row[storagetypes.c.roomtemperature],
-                                                               ClassName=row[storagetypes.c.ClassName],
-                                                               chain=None,
-                                                               ColdLifetime=row[storagetypes.c.ColdLifetime],
-                                                               AlarmDays=row[storagetypes.c.AlarmDays],
-                                                               SnoozeDays=row[storagetypes.c.SnoozeDays],
-                                                               Requires=row[storagetypes.c.Requires],
-                                                               Notes=row[storagetypes.c.Notes]
-                                                               ) )
-            except Exception,e:
-                print 'dropping bad record on error: %s'%str(e)
+        
+        try:
+            conn.execute( newstoragetypes.insert().values( storagetypeId=row[storagetypes.c.storagetypeId],
+                                                            DisplayName=row[storagetypes.c.DisplayName],
+                                                            Make=row[storagetypes.c.Make],
+                                                            Model=row[storagetypes.c.Model],
+                                                            Year=row[storagetypes.c.Year],
+                                                            Energy=energy,
+                                                            Category=None,
+                                                            Technology=None,
+                                                            BaseCost=None,
+                                                            BaseCostCurCode=None,
+                                                            BaseCostYear=None,
+                                                            NoPowerHoldoverDays=None,
+                                                            PowerRate=None,
+                                                            PowerRateUnits=None,
+                                                            freezer=row[storagetypes.c.freezer],
+                                                            cooler=row[storagetypes.c.cooler],
+                                                            roomtemperature=row[storagetypes.c.roomtemperature],
+                                                            ClassName=row[storagetypes.c.ClassName],
+                                                            chain=None,
+                                                            ColdLifetime=row[storagetypes.c.ColdLifetime],
+                                                            AlarmDays=row[storagetypes.c.AlarmDays],
+                                                            SnoozeDays=row[storagetypes.c.SnoozeDays],
+                                                            Requires=row[storagetypes.c.Requires],
+                                                            Notes=row[storagetypes.c.Notes]
+                                                           ) )
+        except Exception,e:
+            print 'dropping bad record on error: %s'%str(e)
+            result = conn.execute(sa.select([storagetypes]))
+            rows = result.fetchall()
+            
 
     print '##### swapping tables #####'
     op.rename_table('storagetypes','oldstoragetypes')
