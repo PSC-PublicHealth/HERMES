@@ -209,8 +209,6 @@ $(function () {
 		}
 	});
 	
-	
-	
     $( "#zipupload-dialog-form" ).dialog({
     	autoOpen: false,
      	height: 300,
@@ -252,11 +250,12 @@ $(function () {
         	$("#zipfilename").val('');
 		},
 		open: function(e,ui) {
-			$(this).keypress(function(e) {
+			$(this)[0].onkeypress = function(e) {
 				if (e.keyCode == $.ui.keyCode.ENTER) {
+					e.preventDefault();
 					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
  				}
- 		    });
+ 		    };
 		}
     });
     
@@ -332,11 +331,12 @@ $(function() {
         	}
         },
 		open: function(e,ui) {
-			$(this).keypress(function(e) {
+			$(this)[0].onkeypress = function(e) {
 				if (e.keyCode == $.ui.keyCode.ENTER) {
+					e.preventDefault();
 					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
 				}
-		    });
+		    };
 		}
 	});
 
@@ -374,6 +374,7 @@ $(function() {
         open: function(e,ui) {
         	$(this).keypress(function(e) {
         		if (e.keyCode == $.ui.keyCode.ENTER) {
+        			e.preventDefault();
         			$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
         		}
         	});
@@ -414,6 +415,7 @@ $(function() {
 		open: function(e,ui) {
 			$(this).keypress(function(e) {
 				if (e.keyCode == $.ui.keyCode.ENTER) {
+					e.preventDefault();
 					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
 				}
 			});
