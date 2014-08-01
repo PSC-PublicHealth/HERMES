@@ -305,7 +305,7 @@ $(function() {
       	modal: true,
 		autoOpen:false,
      	buttons: {
-			OK: function() {
+			OK:	function() {
 				var srcModelId = $("#model_copy_dlg_model_select").val();
 				var dstName = $("#model_copy_dlg_new_name").val();
 				if (dstName == "") {
@@ -330,7 +330,14 @@ $(function() {
         	Cancel: function() {
           		$( this ).dialog( "close" );
         	}
-        }
+        },
+		open: function(e,ui) {
+			$(this).keypress(function(e) {
+				if (e.keyCode == $.ui.keyCode.ENTER) {
+					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+				}
+		    });
+		}
 	});
 
 	var btn = $("#copy_model_button");
@@ -363,6 +370,13 @@ $(function() {
         	Cancel: function() {
           		$( this ).dialog( "close" );
         	}
+        },
+        open: function(e,ui) {
+        	$(this).keypress(function(e) {
+        		if (e.keyCode == $.ui.keyCode.ENTER) {
+        			$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+        		}
+        	});
         }
 	});
 
@@ -396,7 +410,14 @@ $(function() {
         	Cancel: function() {
           		$( this ).dialog( "close" );
         	}
-        }
+        },
+		open: function(e,ui) {
+			$(this).keypress(function(e) {
+				if (e.keyCode == $.ui.keyCode.ENTER) {
+					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+				}
+			});
+		}
 	});
 
 	var btn = $("#edit_sc_button");
