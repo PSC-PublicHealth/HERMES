@@ -254,6 +254,9 @@ def _createModel(db,uiSession):
     db.add(newFridge)
     shdNetwork.types[attrRec['Name']] = newFridge
     
+    # All models need a copy of the currencyConversion table- grab it from the AllTypesModel
+    shdNetwork.addCurrencyTable( aM.getCurrencyTableRecs()[1] )
+    
     _logMessage("Created the model '%s'"%newModelInfo['name'])
     return shdNetwork.name,shdNetwork.modelId
 

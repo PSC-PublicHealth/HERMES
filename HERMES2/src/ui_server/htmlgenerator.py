@@ -386,6 +386,7 @@ def _buildEditFieldTable(fieldMap):
                         s = ",".join([str(v).replace('"','&quot;') for v in oldVal])
                         escapedStr= str(s)
                     else:
+                        print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
                         escapedStr = oldVal.replace('"','&quot;')
                     sio.write('  <td><input type=text value="%s" id="%s" %s></td>\n'%(escapedStr,d['id'],hideStr))
                 else:
@@ -397,6 +398,12 @@ def _buildEditFieldTable(fieldMap):
                               (oldVal,d['id'],hideStr))
                 else:
                     sio.write('  <td><input type=text value="0.0" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(d['id'],hideStr))
+                    
+            elif d['type'] == 'price':
+                if oldVal is not None:
+                    sio.write('  <td><input class="hrm_price" type=text value="%s" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(oldVal,d['id'],hideStr))
+                else:
+                    sio.write('  <td><input class="hrm_price" type=text value="0.0" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(d['id'],hideStr))
                     
             elif d['type'] == 'bool':
                 if oldVal: # True
@@ -429,12 +436,22 @@ def _buildEditFieldTable(fieldMap):
                         sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W">%s</option><option value="M" selected>%s</option></select></div></td>\n'%\
                                   (d['id'],_("Days"),_("Weeks"),_("Months")))
                     else:
-                        raise RuntimeError("Nonsense lifetype units code %s"+units)
+                        raise RuntimeError("Nonsense lifetime units code %s"+units)
                 else:
                     sio.write('  <td><div %s class="hrm_lifetime"><input type=text id="%s" onkeypress="validateFloat(event)" %s>\n'%\
                               (hideStr,d['id']))
                     sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W">%s</option><option value="M">%s</option></select></div></td>\n'%\
                               (d['id'],_("Days"),_("Weeks"),_("Months")))
+            elif d['type'] == 'currency':
+                if oldVal is None:
+                    sio.write('  <td><div class="hrm_currency" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
+
+                else:
+                    print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
+                    sio.write('  <td><div class="hrm_currency" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
+                if 'price' in d and 'year' in d:
+                    # We have enough info to make a cost editing triple
+                    pass
             else:
                 raise HermesServiceException(_("Unknown type {0} in fieldmap entry for {1}".format(d['type'],d['key'])))
             

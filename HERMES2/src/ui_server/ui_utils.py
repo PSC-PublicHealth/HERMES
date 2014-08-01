@@ -9,7 +9,11 @@ from HermesServiceException import HermesServiceException
 
 import shadow_network_db_api
 
-def _(s): raise HermesServiceException("Inlizer needed but not imported")
+#def _(s): raise HermesServiceException("Inlizer needed but not imported")
+def _(s):
+    # Delayed import to avoid circular import dependencies
+    from session_support_wrapper import translateString
+    return translateString(s)
 
 _sI = site_info.SiteInfo()
 _scratchDir= _sI.scratchDir()

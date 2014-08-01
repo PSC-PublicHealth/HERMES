@@ -19,6 +19,7 @@ import privs
 import htmlgenerator
 import typehelper
 from fridgetypes import energyTranslationDict
+from currencyhelper import getCurrencyDict
 
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults
 
@@ -37,19 +38,28 @@ fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'stri
             {'row':3, 'label':_('Energy'), 'key':'Energy', 'id':'energy', 'type':'select',
              'options':[(k,_(v[0]),[],[]) for k,v in energyTranslationDict.items()
                         if v[0] != 'Unknown']},
+            {'row':3, 'label':_('Category'), 'key':'Category', 'id':'category', 'type':'string'},  
+            {'row':3, 'label':_('Technology'), 'key':'Technology', 'id':'technology', 'type':'string'},  
             {'row':3, 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'type':'string'},  
-            {'row':3, 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'type':'string'},
-            {'row':4, 'label':_('Type'), 'key':'ClassName', 'id':'classname', 'type':'select',
+            {'row':4, 'label':_('Base Cost'), 'key':'BaseCost', 'id':'basecost', 'type':'price'},  
+            {'row':4, 'label':_('Base Cost Year'), 'key':'BaseCostYear', 'id':'basecostyear', 'type':'int'},  
+            {'row':4, 'label':_('Currency'), 'key':'BaseCostCur', 'id':'basecostcur', 'type':'currency',
+             'price':'basecost','year':'basecostyear'},
+            {'row':5, 'label':_('Power Rate'), 'key':'PowerRate', 'id':'powerrate', 'type':'float'},  
+            {'row':5, 'label':_('Power Rate Units'), 'key':'PowerRateUnits', 'id':'powerrateunits', 'type':'string'},  
+            {'row':5, 'label':_('Holdover Days'), 'key':'NoPowerHoldoverDays', 'id':'nopowerholdoverdays', 'type':'float'},  
+            {'row':5, 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'type':'string'},
+            {'row':6, 'label':_('Behavior'), 'key':'ClassName', 'id':'classname', 'type':'select',
              'options':[('Fridge',_('standard non-portable'),[],['alarmdays','snoozedays','coldlifetime']),
                         ('ElectricFridge',_('electric non-portable'),[],['alarmdays','snoozedays','coldlifetime']),
                         ('ShippableFridge',_('portable'),[],['alarmdays','snoozedays','coldlifetime']),
                         ('IceFridge',_('ice-cooled portable'),['coldlifetime'],['alarmdays','snoozedays']),
                         ('AlarmedIceFridge',_('ice-cooled with pull support'),['alarmdays','snoozedays','coldlifetime'],[])
                         ]},  
-            {'row':4, 'label':_('ColdLifetime'), 'key':'ColdLifetime', 'id':'coldlifetime', 'type':'float',
+            {'row':6, 'label':_('ColdLifetime'), 'key':'ColdLifetime', 'id':'coldlifetime', 'type':'float',
              'default':5.0},
-            {'row':4, 'label':_('AlarmDays'), 'key':'AlarmDays', 'id':'alarmdays', 'type':'float'},
-            {'row':4, 'label':_('SnoozeDays'), 'key':'SnoozeDays', 'id':'snoozedays', 'type':'float'},
+            {'row':6, 'label':_('AlarmDays'), 'key':'AlarmDays', 'id':'alarmdays', 'type':'float'},
+            {'row':6, 'label':_('SnoozeDays'), 'key':'SnoozeDays', 'id':'snoozedays', 'type':'float'},
             ]
 
 @bottle.route('/fridge-top')
@@ -69,7 +79,7 @@ def fridgeEditPage(db, uiSession):
                                "protoname":protoName,"modelId":modelId})
     except Exception,e:
         return bottle.template("error.tpl",{"breadcrumbPairs":uiSession.getCrumbs(),
-                               "bugtext":str(e)})
+                                "bugtext":str(e)})
 
 @bottle.route('/edit/edit-fridge.json', method='POST')
 def editFridge(db, uiSession):    
@@ -91,37 +101,58 @@ def editFridge(db, uiSession):
 
 @bottle.route('/json/manage-fridge-table')
 def jsonManageFridgeTable(db, uiSession):
-    modelId = int(bottle.request.params['modelId'])
     try:
-        uiSession.getPrivs().mayReadModelId(db, modelId)
-    except privs.PrivilegeException:
-        raise bottle.BottleException('User may not read model %d'%modelId)
-    tList = typehelper.getTypeList(db,modelId,'fridges')
-    nPages,thisPageNum,totRecs,tList = orderAndChopPage(tList,
-                                                        {'name':'Name', 'usedin':'modelId', 'dispnm':'DisplayName'},
-                                                        bottle.request)
-    result = {
-              "total":nPages,    # total pages
-              "page":thisPageNum,     # which page is this
-              "records":totRecs,  # total records
-              "rows": [ {"name":t['Name'], 
-                         "cell":[t['Name'], t['_inmodel'], t['DisplayName'], t['Name']]}
-                       for t in tList ]
-              }
-    return result
+        modelId = int(bottle.request.params['modelId'])
+        try:
+            uiSession.getPrivs().mayReadModelId(db, modelId)
+        except privs.PrivilegeException:
+            raise bottle.BottleException('User may not read model %d'%modelId)
+        tList = typehelper.getTypeList(db,modelId,'fridges')
+        tList = [t for t in tList if t['Category'] != '-chained-'
+                 and t['Name'] not in typehelper.hiddenTypesSet]
+        for rec in tList:
+            if 'DisplayName' not in rec \
+                or rec['DisplayName'] is None or rec['DisplayName']=='':
+                rec['DisplayName'] = rec['Name']
+            if 'Category' not in rec \
+                or rec['Category'] is None or rec['Category']=='':
+                rec['Category'] = _('Uncategorized')
+        nPages,thisPageNum,totRecs,tList = orderAndChopPage(tList,
+                                                            {'category':'Category',
+                                                             'name':'Name', 
+                                                             'usedin':'modelId', 
+                                                             'dispnm':'DisplayName'},
+                                                            bottle.request)
+        result = {
+                  "total":nPages,    # total pages
+                  "page":thisPageNum,     # which page is this
+                  "records":totRecs,  # total records
+                  "rows": [ {"name":t['Name'], 
+                             "cell":[t['Category'],
+                                     t['Name'], t['_inmodel'], t['DisplayName'], t['Name']]}
+                           for t in tList]
+                  }
+        return result
+    except Exception,e:
+        return {'success':False, 'msg':str(e)}
+        
     
 @bottle.route('/json/fridge-edit-verify-commit')
 def jsonFridgeEditVerifyAndCommit(db, uiSession):
-    m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, fieldMap) # @UnusedVariable
-    if badStr and badStr!="":
-        result = {'success':True, 'value':False, 'msg':badStr}
-    else:
-        newFridge = shadow_network.ShdStorageType(attrRec.copy()) 
-        db.add(newFridge)
-        m.types[attrRec['Name']] = newFridge
-        crumbTrack = uiSession.getCrumbs().pop()
-        result = {'success':True, 'value':True, 'goto':crumbTrack.currentPath()}
-    return result
+    try:
+        m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, fieldMap) # @UnusedVariable
+        if badStr and badStr!="":
+            result = {'success':True, 'value':False, 'msg':badStr}
+        else:
+            newFridge = shadow_network.ShdStorageType(attrRec.copy()) 
+            db.add(newFridge)
+            m.types[attrRec['Name']] = newFridge
+            crumbTrack = uiSession.getCrumbs().pop()
+            result = {'success':True, 'value':True, 'goto':crumbTrack.currentPath()}
+        return result
+    except Exception, e:
+        result = {'success':False, 'msg':str(e)}
+        return result
             
 @bottle.route('/json/fridge-info')
 def jsonFridgeInfo(db, uiSession):

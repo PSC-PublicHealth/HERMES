@@ -149,12 +149,14 @@ $("#manage_fridge_grid").jqGrid({ //set your grid id
 	//height:401, //temporarily optimized for minimum 1024x600
 	rowNum:9999, // temporary until storage types are grouped in a nested grid
 	colNames:[
+	          "{{_('Category')}}",
 	          "{{_('Name')}}",
 	          "{{_('Used in ')}}"+sel_model_name,
 	          "{{_('DisplayName')}}",
 	          "{{_('Details')}}"
 	], //define column names
 	colModel:[
+	          {name:'category', index:'category'},
 	          {name:'name', index:'name', width:200, key:true},
 	          {name:'usedin', index:'usedin', align:'center', formatter:checkboxFormatter},
 	          {name:'dispnm', index:'dispnm', width:200, editable:true, edittype:'text'},
@@ -204,22 +206,30 @@ $("#manage_fridge_grid").jqGrid({ //set your grid id
 	rowattr: function(rowdata){
 		if (!rowdata.usedin) return {"class":"not-editable-row"};
 	},
+	grouping:true,
+	groupingView:{
+		groupField:['category'],
+		groupDataSorted:true,
+		groupText:['<b>{0} - {1} '+"{{_('Item(s)')}}"+'</b>'],
+		groupColumnShow:[false],
+		groupCollapse:true
+	},
     caption:"{{_("Available Cold Storage Types")}}"
 }).jqGrid('hermify',{debug:true});
 $("#manage_fridge_grid").jqGrid('navGrid','#manage_fridge_pager',{edit:false,add:false,del:false});
 
 // resize jqGrid according to window size
 function resize_grid() {
-  var idGrid = "#manage_fridge_grid"
-  var offset = $(idGrid).offset() //position of grid on page
-  //hardcoded minimum width
-  if ( $(window).width() > 710 ) {
-    $(idGrid).jqGrid('setGridWidth', $(window).width()-offset.left-50);
-  }
-  $(idGrid).jqGrid('setGridHeight', $(window).height()-offset.top-130);
-}
-$(window).load(resize_grid); //necessary to trigger resize_grid onload due to loading breadcrumbs changing grid offset
-$(window).resize(resize_grid);  //bind resize_grid to window resize
+	  var idGrid = "#manage_fridge_grid"
+	  var offset = $(idGrid).offset() //position of grid on page
+	  //hardcoded minimum width
+	  if ( $(window).width() > 710 ) {
+	    $(idGrid).jqGrid('setGridWidth', $(window).width()-offset.left-50);
+	  }
+	  $(idGrid).jqGrid('setGridHeight', $(window).height()-offset.top-130);
+	}
+	$(window).load(resize_grid); //necessary to trigger resize_grid onload due to loading breadcrumbs changing grid offset
+	$(window).resize(resize_grid);  //bind resize_grid to window resize
 
 
 $(function() {

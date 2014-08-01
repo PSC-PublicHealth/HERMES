@@ -228,5 +228,12 @@ def jsonGenericPop(db, uiSession):
     except Exception,e:
         result = { 'success':False, 'msg':str(e)}        
     return result
-    
+
+@bottle.route('/json/no-op')
+@bottle.route('/json/no-op',method='POST')
+def jsonNoOp(db, uiSession):
+    if 'developerMode' in uiSession and uiSession['developerMode']:
+        _logMessage('no-op with params %s'%[(k,v) for k,v in bottle.request.params.items()])
+    return {'success':True}
+
 application= session_support.wrapBottleApp(bottle.app())

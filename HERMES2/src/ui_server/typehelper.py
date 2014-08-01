@@ -26,6 +26,8 @@ from model import parseInventoryString
 inlizer = i18n.i18n('locale')
 _=inlizer.translateString
 
+hiddenTypesSet = set(['OUTDOORS'])
+
 def _getAllTypesModel(db):
     return db.query(shadow_network.ShdNetwork).filter(shadow_network.ShdNetwork.name==allTypesModelName).one()
 

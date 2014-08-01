@@ -18,8 +18,9 @@ import typehelper
 import costmodel
 import typehelper
 from fridgetypes import energyTranslationDict
+import currencyhelper
 
-from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _safeGetReqParam
+from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _safeGetReqParam, _mergeFormResults
 
 inlizer=session_support.inlizer
 _=session_support.translateString
@@ -28,12 +29,12 @@ _=session_support.translateString
 def costTopPage(db, uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Costs")))
     if 'selectedModelId' in uiSession:
-        _maybeScanCurrencyTable(db, uiSession['selectedModelId'])
-        minYear = _currencyInfoTuple[0]
-        maxYear = _currencyInfoTuple[1]
+        minYear = currencyhelper.getCurrencyMinYear(db, uiSession['selectedModelId'])
+        maxYear = currencyhelper.getCurrencyMaxYear(db, uiSession['selectedModelId'])
     else:
-        minYear = 2002
-        maxYear = 2011
+        aTMId = typehelper._getAllTypesModel(db).modelId
+        minYear = currencyhelper.getCurrencyMinYear(db, aTMId)
+        maxYear = currencyhelper.getCurrencyMaxYear(db, aTMId)
     return bottle.template("cost_top.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs"),
                                            "minYear":minYear, "maxYear":maxYear})
 
@@ -56,41 +57,6 @@ def costEditFridge(db, uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Storage")))
     return bottle.template("cost_edit_fridge.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs")})
 
-_currencyInfoTuple = None
-_currencyModelId = None
-
-def _maybeScanCurrencyTable(db, modelId):
-    global _currencyInfoTuple
-    global _currencyModelId
-    if modelId == _currencyModelId and _currencyInfoTuple is not None:
-        return
-    m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-    start = True
-    minYear = None
-    maxYear = None
-    currencyDict = {}
-    for rec in m.currencyTable:
-        if start:
-            start = False
-            minYear = rec.year
-            maxYear = rec.year
-            code = rec.code.strip()
-            currencyDict[code] = rec.currency.strip()
-        else:
-            if rec.year < minYear: minYear = rec.year
-            elif rec.year > maxYear: maxYear = rec.year
-            code = rec.code.strip()
-            if code not in currencyDict:
-                currencyDict[code] = rec.currency.strip()
-    _currencyInfoTuple = (minYear, maxYear, currencyDict)
-    _currencyModelId = modelId
-            
-    
-
-def getCurrencyDict(db, modelId):
-    _maybeScanCurrencyTable(db, modelId)
-    return _currencyInfoTuple[2]
-
 @bottle.route('/list/select-currency')
 def handleListCurrency(db,uiSession):
     try:
@@ -101,7 +67,7 @@ def handleListCurrency(db,uiSession):
         if (selectedCurrencyId is None or selectedCurrencyId=='') and 'defaultCurrencyId' in uiSession:
             selectedCurrencyId = uiSession['defaultCurrencyId']
         selectedCurrencyName = ''
-        orderedPairs = [(b,a) for a,b in getCurrencyDict(db, modelId).items()]
+        orderedPairs = [(b,a) for a,b in currencyhelper.getCurrencyDict(db, modelId).items()]
         orderedPairs.sort()
         s = ""
         for name, thisId in orderedPairs: 
@@ -117,6 +83,7 @@ def handleListCurrency(db,uiSession):
         quotedPairs = [(urllib.quote(a), urllib.quote(b)) for a,b in orderedPairs]
         return {"menustr":s, "pairs":quotedPairs, 
                 "selid":urllib.quote(selectedCurrencyId), 
+                "defaultid":urllib.quote(uiSession['defaultCurrencyId']),
                 "selname":urllib.quote(selectedCurrencyName), "success":True}
     except Exception,e:
         _logStacktrace()
@@ -182,7 +149,9 @@ def jsonGetDefaultCurrency(db, uiSession):
         uiSession.getPrivs().mayReadModelId(db, modelId)
         if 'defaultCurrencyId' in uiSession:
             currencyId = uiSession['defaultCurrencyId']
-            result = { 'id':urllib.quote(currencyId), 'name':urllib.quote(getCurrencyDict(db,modelId)[currencyId]), 'success':True }
+            result = { 'id':urllib.quote(currencyId), 
+                      'name':urllib.quote(currencyhelper.getCurrencyDict(db,modelId)[currencyId]),
+                      'success':True }
         else:
             result = { 'id':None, 'name':None, 'success':True }
         return result
@@ -198,7 +167,9 @@ def jsonSetDefaultCurrency(db, uiSession):
         rawCurrencyId = _getOrThrowError(bottle.request.params, 'id') # Note that this is a string!
         currencyId = urllib.unquote(rawCurrencyId)
         uiSession['defaultCurrencyId'] = currencyId
-        result = { 'id':rawCurrencyId, 'name':urllib.quote(getCurrencyDict(db,modelId)[currencyId]), 'success':True }
+        result = { 'id':rawCurrencyId, 
+                  'name':urllib.quote(currencyhelper.getCurrencyDict(db,modelId)[currencyId]), 
+                  'success':True }
         return result
     except Exception,e:
         _logStacktrace()
@@ -211,7 +182,9 @@ def jsonGetBaseCurrency(db, uiSession):
         uiSession.getPrivs().mayReadModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         baseCurrency = m.getParameterValue('currencybase')
-        result = { 'id':urllib.quote(baseCurrency), 'name':urllib.quote(getCurrencyDict(db,modelId)[baseCurrency]), 'success':True }
+        result = { 'id':urllib.quote(baseCurrency), 
+                  'name':urllib.quote(currencyhelper.getCurrencyDict(db,modelId)[baseCurrency]), 
+                  'success':True }
         return result
     except Exception,e:
         _logStacktrace()
@@ -228,7 +201,9 @@ def jsonSetBaseCurrency(db, uiSession):
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         m.addParm(shadow_network.ShdParameter('currencybase',currencyId))
         uiSession['defaultCurrencyId'] = currencyId
-        result = { 'id':rawCurrencyId, 'name':urllib.quote(getCurrencyDict(db,modelId)[currencyId]), 'success':True }
+        result = { 'id':rawCurrencyId, 
+                  'name':urllib.quote(currencyhelper.getCurrencyDict(db,modelId)[currencyId]), 
+                  'success':True }
         return result
     except Exception,e:
         _logStacktrace()
@@ -237,19 +212,29 @@ def jsonSetBaseCurrency(db, uiSession):
 _fuelNames = {'propane':'pricepropaneperkg', 'kerosene':'pricekeroseneperl', 
               'gasoline':'pricegasolineperl', 'diesel':'pricedieselperl', 
               'electric':'priceelectricperkwh','solar':'pricesolarperkw',
-              'ice':'priceiceperpack'}
+              'ice':'priceiceperliter'}
 
 def getFuelButtonLabel(db, uiSession, m):
     vList = _fuelNames.values();
-    nSet = sum([v is not None and v!='' for v in [m.getParameterValue(vv) for vv in vList]])
+    nSet = sum([v is not None and v!='' and v!=0.0 for v in [m.getParameterValue(vv) for vv in vList]])
     if nSet==0: return _("Begin")
     elif nSet==len(vList): return _("Revisit")
     else: return _("Continue")
 
-def getTruckButtonLabel(db, uiSession, m):
-    return _("Unimplemented");
-
 def getFridgeButtonLabel(db, uiSession, m):
+    count = 0
+    possible = 0
+    tList = typehelper.getTypeList(db, m.modelId, 'fridges', fallback=False)
+    for t in tList:
+        for fld in ['BaseCost','BaseCostCur','BaseCostYear','PowerRate']:
+            v = t[fld]
+            possible += 1
+            if v is None or v=='' or v==0: count += 1
+    if count == 0: return _("Begin")
+    elif count == possible: return _("Revisit")
+    else: return _("Continue")
+
+def getTruckButtonLabel(db, uiSession, m):
     return _("Unimplemented");
 
 def getVaccineButtonLabel(db, uiSession, m):
@@ -313,9 +298,10 @@ def jsonSetFuelPrice(db, uiSession, fuelName):
         currencyId = urllib.unquote(_getOrThrowError(bottle.request.params, 'id'))
         currencyParamName = _fuelNames[fuelName]
         price = _safeGetReqParam(bottle.request.params, 'price', isFloat=True)
-        priceInBaseCurrency = _getCurrencyConverter(db, uiSession, m).convertTo(currencyId,price,
-                                                                                m.getParameterValue('currencybase'))
-        m.addParm(shadow_network.ShdParameter(currencyParamName, priceInBaseCurrency))
+        if price is not None and price!='':
+            priceInBaseCurrency = _getCurrencyConverter(db, uiSession, m).convertTo(currencyId,price,
+                                                                                    m.getParameterValue('currencybase'))
+            m.addParm(shadow_network.ShdParameter(currencyParamName, priceInBaseCurrency))
         result = {'success':True, 'price':price, 'id':urllib.quote(currencyId)}
         return result
     except Exception,e:
@@ -343,34 +329,125 @@ def jsonSetFuelPriceCurrency(db, uiSession, fuelName):
         return {"success":False, "msg":str(e)} 
 
 @bottle.route('/json/manage-fridge-cost-table')
-def jsonManageFridgeTable(db, uiSession):
-    modelId = int(bottle.request.params['modelId'])
+def jsonManageFridgeCostTable(db, uiSession):
     try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        try:
+            uiSession.getPrivs().mayReadModelId(db, modelId)
+        except privs.PrivilegeException:
+            raise bottle.BottleException('User may not read model %d'%modelId)
+        tList = typehelper.getTypeList(db, modelId, 'fridges', fallback=False)
+        tList = [t for t in tList if t['Category'] != '-chained-'
+                 and t['Name'] not in typehelper.hiddenTypesSet]
+        for rec in tList:
+            if 'DisplayName' not in rec \
+                or rec['DisplayName'] is None or rec['DisplayName']=='':
+                rec['DisplayName'] = rec['Name']
+            if 'Category' not in rec \
+                or rec['Category'] is None or rec['Category']=='':
+                rec['Category'] = _('Uncategorized')
+        nPages,thisPageNum,totRecs,tList = orderAndChopPage(tList,
+                                                            {'category':'Category',
+                                                             'name':'Name',
+                                                             'displayname':'DisplayName',
+                                                             'basecost':'BaseCost',
+                                                             'currency':'BaseCostCurCode',
+                                                             'basecostyear':'BaseCostYear',
+                                                             },
+                                                            bottle.request)
+        for t in tList:
+            for k in ['BaseCost','BaseCostYear','PowerRate']: 
+                if t[k] == 0: t[k] = None
+            if t['PowerRateUnits'] and energyTranslationDict[t['Energy']][2] and t['PowerRateUnits'].lower() != energyTranslationDict[t['Energy']][2].lower():
+                raise RuntimeError("Power units for %s are inconsistent: %s vs. %s"%\
+                                   (t['Name'],t['PowerRateUnits'],energyTranslationDict[t['Energy']][2]))
+                
+        result = {
+                  'success':True,
+                  "total":nPages,    # total pages
+                  "page":thisPageNum,     # which page is this
+                  "records":totRecs,  # total records
+                  "rows": [ {"name":t['Name'], 
+                             "cell":[t['Name'],
+                                     t['Category'],
+                                     t['DisplayName'],
+                                     t['Name'],
+                                     t['BaseCost'],
+                                     t['BaseCostCur'],
+                                     t['BaseCostYear'],
+                                     t['PowerRate'],
+                                     t['PowerRateUnits'],
+                                     energyTranslationDict[t['Energy']][1]]
+                             }
+                           for t in tList if t['Name'] not in typehelper.hiddenTypesSet]
+                  }
+        return result
+    except Exception,e:
+        return {'success':False, 'msg':str(e)}
+
+@bottle.route('/json/get-cost-info-fridge')
+def jsonGetCostInfoFridge(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayReadModelId(db, modelId)
-    except privs.PrivilegeException:
-        raise bottle.BottleException('User may not read model %d'%modelId)
-    tList = typehelper.getTypeList(db, modelId, 'fridges', fallback=False)
-    for rec in tList:
-        if 'DisplayName' not in rec['DisplayName'] \
-            or rec['DisplayName'] is None or rec['DisplayName']=='':
-            rec['DisplayName'] = rec['Name']
-    nPages,thisPageNum,totRecs,tList = orderAndChopPage(tList,
-                                                        {'name':'DisplayName'},
-                                                        bottle.request)
-    result = {
-              "total":nPages,    # total pages
-              "page":thisPageNum,     # which page is this
-              "records":totRecs,  # total records
-              "rows": [ {"name":t['DisplayName'], 
-                         "cell":[t['DisplayName'],
-                                 t['Name'],
-                                 12.34,
-                                 'mycurrency',
-                                 1357,
-                                 45.6,
-                                 energyTranslationDict[t['Energy']][1],
-                                 energyTranslationDict[t['Energy']][2]]}
-                       for t in tList if t['Name'] not in typehelper.hiddenTypesSet]
-              }
-    return result
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        amortYears = int(round(m.getParameterValue('amortizationstorageyears')))
+        result = { 
+                  'success':True,
+                  'amortYears':amortYears
+                  }
+        return result
+    except Exception,e:
+        _logStacktrace()
+        return {"success":False, "msg":str(e)} 
+
+@bottle.route('/edit/edit-cost-fridge', method='POST')
+def editCostFridge(db, uiSession):
+    try:
+        #print [(k,v) for k,v in bottle.request.params.items()]
+        if bottle.request.params['oper']=='edit':
+            modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+            uiSession.getPrivs().mayModifyModelId(db, modelId)
+            m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+            typeName = _getOrThrowError(bottle.request.params, 'name')
+            if typeName in m.types:
+                tp = m.types[typeName]
+                for opt in ['category', 'displayname', 'ongoingunits','ongoingwhat']:
+                    if opt in bottle.request.params:
+                        raise RuntimeError(_('Editing of {0} is not supported').format(opt))
+                if 'basecost' in bottle.request.params:
+                    tp.BaseCost = _safeGetReqParam(bottle.request.params, 'basecost', isFloat=True)
+                if 'currency' in bottle.request.params:
+                    tp.BaseCostCurCode = _safeGetReqParam(bottle.request.params, 'currency')
+                if 'basecostyear' in bottle.request.params:
+                    tp.BaseCostYear = _safeGetReqParam(bottle.request.params, 'basecostyear', isInt=True)
+                if 'ongoing' in bottle.request.params:
+                    tp.PowerRate = _safeGetReqParam(bottle.request.params, 'ongoing', isFloat=True)
+                return {'success':True}
+            else:
+                raise RuntimeError(_('Model {0} does not contain type {1}').format(m.name, typeName))
+        else: raise RuntimeError(_('Unsupported operation {0}').format(bottle.request.params['oper']))
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        _logStacktrace()
+        return {'success':False, 'msg':str(e)}
+            
+@bottle.route('/json/set-fridge-amort-years')
+def jsonSetFridgeAmortYears(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        amortYears = _getOrThrowError(bottle.request.params, 'amortYears', isInt=True)
+        if amortYears is not None and amortYears!='':
+            m.addParm(shadow_network.ShdParameter('amortizationstorageyears', amortYears))
+        result = {'success':True, 'amortYears':amortYears}
+        return result
+    except Exception,e:
+        _logStacktrace()
+        return {"success":False, "msg":str(e), 
+                'amortYears':int(round(m.getParameterValue('amortizationstorageyears')))
+                } 
+
     

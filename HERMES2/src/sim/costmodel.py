@@ -79,6 +79,17 @@ class CurrencyConverter:
                 v = r[self.yearKey]
                 if v is not None and v is not '' and v > 0.0:
                     self.table[curCode] = baseFac/v
+                    
+    def _toJSON(self):
+        """
+        This makes the user interface's life easier.
+        """
+        return { 
+                'currencyBase':self.cb,
+                'currencyBaseYear':self.year,
+                'table':self.table
+                }
+
         
     def convert(self, curCode, val):
         if curCode in self.table:

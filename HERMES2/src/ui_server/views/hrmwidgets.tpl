@@ -299,6 +299,7 @@ function setPrintGrid(gid,pid,pgTitle){
  				var $btn = this.find("button").first();
 				if (arg=='selId') {
 					if (! arg2) {
+						console.log('returning '+$btn.data('code'));
 						return $btn.data('code');
 					}
 					else {
@@ -350,6 +351,7 @@ function setPrintGrid(gid,pid,pgTitle){
 						})
 						.done(function(data) {
 							if (data.success) {
+								$dlgDiv.data('defaultSelection',decodeURIComponent(data.defaultid));
 								$dlgDiv.html("");
 								var $ul = $(document.createElement('ul'));
 				    			for (var i = 0; i < data.pairs.length; i++) {
@@ -368,7 +370,8 @@ function setPrintGrid(gid,pid,pgTitle){
 				    			$dlgDiv.append($ul);
 			    				var selId = decodeURIComponent(data.selid);
 				    			$('.hrm_cur_sel_btn').each(function() {
-				    				if ( ! $(this).button('option','text') ) {
+				    				if ( ! $(this).button('option','text') 
+				    						|| $(this).button('option','label') == '') {
 				    					$(this).button('option','label', selId)
 				    					.button('option','text', true)
 				    					.data('code',selId)
@@ -422,12 +425,27 @@ function setPrintGrid(gid,pid,pgTitle){
  					.data('prev_value',selected);
  				}
  				else {
- 					$btn.button({
- 						icons: { secondary:'ui-icon-triangle-1-s' },
- 						text:false
- 					}) 					
+					var $dlgDiv = $('#hrm_cur_sel_dlg_div_shared');
+					if ($('#hrm_cur_sel_dlg_div_shared').length == 0
+							|| ! $('#hrm_cur_sel_dlg_div_shared').hasClass('ui-dialog-content')) {
+	 					$btn.button({
+	 						icons: { secondary:'ui-icon-triangle-1-s' },
+	 						text:false
+	 					}) 					
+					}
+					else {
+						selected = $dlgDiv.data('defaultSelection');
+	 					$btn.button({
+	 						icons: { secondary:'ui-icon-triangle-1-s' },
+	 						label:selected
+	 					})
+	 					.data('code',selected)
+	 					.data('prev_value',selected);						
+					}
  				}
 				$btn.click( function(evt) { 
+					evt.preventDefault();
+					
 					var $b = $(evt.target).parent();
 					var $dlgDiv = $('#hrm_cur_sel_dlg_div_shared');
     				
@@ -452,6 +470,7 @@ function setPrintGrid(gid,pid,pgTitle){
     					.data('code',newCode);
     					$dlgDiv.dialog('close');
      					if ('onChange' in settings && settings.onChange != null) {
+     						console.log('calling onChange handler');
      						settings.onChange.bind($btn.parent())(evt, newCode);
      					}
      					else {
@@ -465,8 +484,8 @@ function setPrintGrid(gid,pid,pgTitle){
     			})
     			.addClass('hrm_cur_sel_btn');
 				
-			if ($('#hrm_cur_sel_dlg_div_shared').length == 0
-					|| ! $('#hrm_cur_sel_dlg_div_shared').hasClass('ui-dialog-content')) {
+				if ($('#hrm_cur_sel_dlg_div_shared').length == 0
+						|| ! $('#hrm_cur_sel_dlg_div_shared').hasClass('ui-dialog-content')) {
 					$elem.currencySelector('rebuild');					
 				}
 				else {
@@ -807,6 +826,70 @@ function setPrintGrid(gid,pid,pgTitle){
  			return this.first().each(function(index,elem) {
  				$(elem).tooltips('applyTips');
  			});
+ 		}
+ 		else if (settings['widget']=='editFormManager') {
+			$.fn.editFormManager = function( arg, arg2 ) {
+ 				if (arg=='getEntries') {
+ 					var dict = {modelId:settings.modelId}
+ 					$(this).find('input,select').each( function( index ) {
+ 						var tj = $(this);
+ 						dict[tj.attr('id')] = tj.val();
+ 						
+ 					});
+ 					$(this).find('.hrm_currency').each(function() {
+ 						var tj = $(this);
+ 						dict[tj.attr('id')] = tj.currencySelector('selId');
+ 					})
+ 					return dict;
+ 				}
+				else {
+					$.error('Unknown operation '+arg.toString());
+				}
+			}
+
+ 			return this.each(function(index,elem) {
+ 				$elem = $(elem);
+ 				$elem.html(settings.html);
+ 				$(document).ready( function() {
+ 	 				$elem.find('.hrm_currency').each( function(idx) {
+ 	 					$field = $(this);
+ 	 					var sel = $field.text();
+ 	 					$field.text('');
+ 	 					$field.hrmWidget({
+ 	 						widget:'currencySelector',
+ 	 						modelId:settings.modelId,
+ 	 						label:'',
+ 	 						selected:sel
+ 	 					})
+ 	 				});
+ 	 				$elem.find('.hrm_price').each( function(idx) {
+ 	 					$field = $(this);
+ 	 					console.log($field.val());
+ 	 					$field.val( parseFloat($field.val()).formatMoney(2) );
+ 	 				})
+ 	 				$elem.change( function( eventObj ) {
+ 	 					var elem = $(eventObj.target);
+ 	 					if (elem.is('select')) {
+ 	 						var opt = elem.children(":selected");
+ 	 						var enableIdList = opt.attr("data-enable").split(",");
+ 	 						var disableIdList = opt.attr("data-disable").split(",");
+ 	 						for (i in enableIdList) { 
+ 	 							var id = enableIdList[i];
+ 	 							$("#"+id).show(); 
+ 	 						};
+ 	 						for (i in disableIdList) { 
+ 	 							var id = disableIdList[i];
+ 	 							$("#"+id).hide(); 
+ 	 						};
+ 	 					}
+ 	 				});
+	    			if ('afterBuild' in settings && settings.afterBuild != null) {
+	 	    				settings.afterBuild.bind($elem)($elem);
+	 	    			};
+ 				})
+
+ 			});
+ 			
  		}
  		else {
  			var opFuncs = {};
