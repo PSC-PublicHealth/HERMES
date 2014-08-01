@@ -554,6 +554,7 @@ def maybeInstallAlembic():
     pass
 
 def installPip():
+    """ Bootstrap pip, which will read requirements.txt to install dependencies """
     pathBase = sI.srcDir()
     subprocess.check_call(['easy_install','pip'],cwd = pathBase)
 
