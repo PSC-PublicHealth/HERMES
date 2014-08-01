@@ -1,3 +1,4 @@
+% title_slogan=_("Population Types")
 %rebase outer_wrapper **locals()
 
 <table>

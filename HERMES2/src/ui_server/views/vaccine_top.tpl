@@ -1,3 +1,4 @@
+% title_slogan=_("Vaccine Types")
 %rebase outer_wrapper **locals()
 
 <table>

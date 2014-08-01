@@ -1,3 +1,4 @@
+% title_slogan=_("Transport Types")
 %rebase outer_wrapper **locals()
 
 <table>

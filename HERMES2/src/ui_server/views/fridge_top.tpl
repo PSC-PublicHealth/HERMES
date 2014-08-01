@@ -1,3 +1,4 @@
+% title_slogan=_("Cold Storage Types")
 %rebase outer_wrapper **locals()
 
 <table>
