@@ -348,7 +348,7 @@ $(function() {
 								$.getJSON('json/get-clipboard-name')
 								.done(function(data) {
 									var proposedName = data.value;
-									$.getJSON('check-unique-hint',
+									$.getJSON('{{rootPath}}check-unique-hint',
 											{modelId:$("#people_top_model_select").val(),typeName:proposedName})
 									.done(function(data) {
 										if (data.success) {

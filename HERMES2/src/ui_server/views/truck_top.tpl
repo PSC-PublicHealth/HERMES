@@ -256,7 +256,7 @@ $(function() {
 		buttons: {
 	    	Ok: function() {
 	    		var newNm = $("#get_paste_name_dlg_new_name").val();
-				$.getJSON('check-unique-hint',
+				$.getJSON('{{rootPath}}check-unique-hint',
 						{modelId:$("#truck_top_model_select").val(),typeName:newNm})
 				.done(function(data) {
 					if (data.success) {
@@ -389,7 +389,7 @@ $(function() {
 								$.getJSON('{{rootPath}}json/get-clipboard-name')
 								.done(function(data) {
 									var proposedName = data.value;
-									$.getJSON('check-unique-hint',
+									$.getJSON('{{rootPath}}check-unique-hint',
 											{modelId:$("#truck_top_model_select").val(),typeName:proposedName})
 									.done(function(data) {
 										if (data.success) {

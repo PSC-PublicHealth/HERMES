@@ -553,8 +553,17 @@ def maybeInstallSqlalchemy():
 def maybeInstallAlembic():
     pass
 
+def installPip():
+    pathBase = sI.srcDir()
+    subprocess.check_call(['easy_install','pip'],cwd = pathBase)
+
+def installRequirements():
+    pathBase = sI.srcDir()
+    requirementsFile = '%s/../../requirements.txt' % pathBase
+    subprocess.check_call(['pip','-r',requirementsFile],cwd = pathBase)
+
 def callAlembicUpgrade():
-    pathBase = os.path.join(sI.srcDir(),'../..')
+    pathBase = os.path.join(sI.srcDir(),'..','..',)
     if platform.system() == 'Windows': sep = ';'
     else: sep = ':'
     if 'PYTHONPATH' in os.environ:
@@ -594,9 +603,11 @@ def addTypeHolderModel():
 
 def main():
     
-    #installEZInstall()
+    installEZInstall()
     #maybeInstallSqlalchemy()
     #maybeInstallAlembic()
+    installPip()
+    installRequirements()
     
     scratchDir = sI.scratchDir()
     if not os.path.isdir(scratchDir): os.makedirs(scratchDir)

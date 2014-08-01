@@ -288,7 +288,7 @@ $(function() {
 		buttons: {
 	    	Ok: function() {
 	    		var newNm = $("#get_paste_name_dlg_new_name").val();
-				$.getJSON('check-unique-hint',
+				$.getJSON('{{rootPath}}check-unique-hint',
 						{modelId:$("#vaccine_top_model_select").val(),typeName:newNm})
 				.done(function(data) {
 					if (data.success) {
@@ -464,7 +464,7 @@ $(function() {
                     function(data) {
                         console.log(data);
 						var proposedName = data.value;
-						return $.getJSON('check-unique-hint',
+						return $.getJSON('{{rootPath}}check-unique-hint',
 							{
                                 modelId:$("#vaccine_top_model_select").val(),
                                 typeName:proposedName
@@ -523,7 +523,7 @@ $(function() {
 //								$.getJSON('{{rootPath}}json/get-clipboard-name')
 //								.done(function(data) {
 //									var proposedName = data.value;
-//									$.getJSON('check-unique-hint',
+//									$.getJSON('{{rootPath}}check-unique-hint',
 //											{modelId:$("#vaccine_top_model_select").val(),typeName:proposedName})
 //									.done(function(data) {
 //										if (data.success) {
