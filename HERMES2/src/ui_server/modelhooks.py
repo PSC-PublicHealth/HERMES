@@ -1181,6 +1181,7 @@ def uploadModel(db,uiSession):
     #uiSession['notes'] += ', upload request'
     fileKey = None
     try:
+        print "Bottle Request: " +str(bottle.request)
         info = uploadAndStore(bottle.request, uiSession)
         clientData= makeClientFileInfo(info)
         clientData['code']= 0
@@ -1189,6 +1190,7 @@ def uploadModel(db,uiSession):
                                 "name": info['shortName'],
                                 "size": os.path.getsize(info['serverSideName'])
         }]
+        print "Client Data = " + str(clientData)
         import HermesInput
         from input import UnifiedInput
         unifiedInput = UnifiedInput()
@@ -1250,6 +1252,26 @@ def downloadModel(db,uiSession):
     return bottle.static_file(zipFileName,os.path.dirname(fullZipFileName),
                               mimetype='application/zip',download=zipFileName)
 
+
+@bottle.route('/json/get-existing-model-names')
+def jsonGetExistingModelNames(db,uiSession):
+    try:
+        mList = []
+        #prv = uiSession.getPrivs()
+        for m in db.query(shadow_network.ShdNetwork):
+            try:
+                #prv.mayReadModelId(db, m.name)
+                mList.append(m.name)
+            except privs.PrivilegeException:
+                pass
+        result = {'names':mList,'success':True}
+        return result
+    except bottle.HTTPResponse:
+        raise
+    except Exception as e:
+        result = {'success':False, 'msg':str(e)}
+        return result  
+    
 
 @bottle.route('/json/get-model-name')
 def jsonGetModelName(db,uiSession):

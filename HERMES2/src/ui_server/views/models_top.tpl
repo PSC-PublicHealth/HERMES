@@ -21,7 +21,8 @@
 </tr>
 </table>
 
-<input id="zipmodelupload" type="file" name="files[]" data-url="{{rootPath}}upload-model" style="display:none">
+<input id="zipmodelupload" type="file" name="files[]" 
+	data-url="{{rootPath}}upload-model" style="display:none">
 <div id="progress">
     <div class="bar" style="width: 0%;"></div>
 </div>
@@ -73,9 +74,25 @@
 <div id="zipupload-dialog-form" title={{_("Upload a Model in Zip Form")}}>
   <p class="validateTips">{{_('What name should the new model have?')}}</p>
   <form>
-  <fieldset>
-    <label for="shortname">{{_('Name')}}</label>
-    <input type="text" name="shortname" id="shortname" class="text ui-widget-content ui-corner-all" />
+  	<fieldset>
+  		<table>
+  			<tr>
+  				<td>
+  					<label for="shortname">{{_('Name')}}</label>
+  				</td>
+  				<td>
+  					<input type="text" name="shortname" id="shortname" class="text ui-widget-content ui-corner-all" />
+  				</td>
+  			</tr>
+  			<tr>
+  				<td>
+  					<label for="filename">{{_('File')}}</label>
+  				</td>
+  				<td>
+  					<input id="zipfilename" type="file" name="files[]" accept="application/zip">
+  				</td>
+  			</tr>
+  		</table>
   </fieldset>
   </form>
 </div>
@@ -89,9 +106,8 @@
 <script>
 {{!setupToolTips()}}
 
-function modelsInfoButtonFormatter(cellvalue, options, rowObject)
-{
-    // cellvalue will be an integer
+function modelsInfoButtonFormatter(cellvalue, options, rowObject) {
+	// cellvalue will be an integer
 	return "<button type=\"button\" class=\"hermes_info_button\" id="+escape(cellvalue)+">Info</button>";
 }
 
@@ -120,7 +136,7 @@ $("#manage_models_grid").jqGrid({ //set your grid id
 	pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
   pginput: false, //ditto
 	sortname: 'name', //the column according to which data is to be sorted; optional
-	viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Z” optional
+	viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� optional
 	sortorder: "asc", //sort order; optional
 	gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
    	onSelectRow: function(id){
@@ -182,40 +198,78 @@ $(function() {
 });
 
 $(function () {
+	var names = [];
+	$.ajax({
+		url:'{{rootPath}}json/get-existing-model-names',
+		async: false,
+		dataType: 'json',
+		success: function(json) {
+			console.log(json.names);
+			names = json.names;
+		}
+	});
+	
+	
+	
     $( "#zipupload-dialog-form" ).dialog({
     	autoOpen: false,
      	height: 300,
-    	width: 350,
+    	width: 400,
     	modal: true,
     	buttons: {
-        	"Upload model": function() {
-          		$("#shortname").removeClass( "ui-state-error" );
- 
-         		var bValid = true;
- 				// We could validate shortname here
-        		if ( bValid ) {
-        			$( this ).data("confirm_me").formData = [ {name:'shortname', value:$("#shortname").val()} ];	
-        			$("#ajax_busy").show()
-        			$( this ).data("confirm_me").submit();
-            		$( this ).dialog( "close" );
+        	'OK': {
+        		text: "Upload model",
+        		click: function() {
+          			$("#shortname").removeClass( "ui-state-error" );
+          			// Error Checking
+          			if(names.indexOf($("#shortname").val()) > -1){
+          				alert("The Model Name "+$('#shortname').val()+" already exists. Please choose another.");
+          			}
+          			else if(!$('#shortname').val()) {
+          				alert("The Model Name field must be set to proceed.");
+          			}
+          			else if(!$('#zipfilename').val()){
+          				alert("You must choose a file to be uploaded.");
+          			}
+          			else {
+          				var files = $("#zipfilename").prop("files");
+          				$('#zipmodelupload').fileupload('add',{files:files,formData:[{name:'shortname',value:$("#shortname").val()}]});
+          				console.log("done submitting");
+          				$("#ajax_busy").show();
+          				$(this).dialog("close");
+          			}
+        		}
+          	},
+          	"CANCEL": {
+        		text: "Cancel",
+       			click: function() {
+          			$( this ).dialog( "close" );
           		}
-        	},
-        	Cancel: function() {
-          		$( this ).dialog( "close" );
-        	}
+			}
 		},
       	close: function() {
         	$("#shortname").val( "" ).removeClass( "ui-state-error" );
+        	$("#zipfilename").val('');
+		},
+		open: function(e,ui) {
+			$(this).keypress(function(e) {
+				if (e.keyCode == $.ui.keyCode.ENTER) {
+					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+ 				}
+ 		    });
 		}
     });
- 
+    
+    $('#zipfilename').change( function () {
+    	$("#shortname").val($(this).val().split('\\').pop().replace(/\.[^/.]+$/,""));
+    });
+    
     $('#zipmodelupload').fileupload({
         dataType: 'json',
         formData: [],
-        add: function (e, data) {
-        	$("#shortname").val(data.files[0].name);
-			$("#zipupload-dialog-form").data("confirm_me",data).dialog("open");
-		},
+        autoUpload: true,
+        url: "{{rootPath}}upload-model",
+        // Add is overriden by the programatic call in the dialog box
         done: function (e, data) {
         	if (typeof data.result.files == 'undefined') {
         		alert(data.result.message);
@@ -233,7 +287,6 @@ $(function () {
         	$('#progress .bar').css('width',progress + '%');
         }
     });
-
 });
 
 $(function() {
@@ -367,7 +420,7 @@ $(function() {
 	var btn = $("#upload_model_button");
 	btn.button();
 	btn.click( function() {
-		$("#zipmodelupload").click();
+		$("#zipupload-dialog-form").dialog("open");
 	});
 
 });
@@ -416,8 +469,8 @@ $(function() {
 			$("#model_confirm_delete").dialog("open");
 		}
 	});
-
 });
+
 
   
 </script>
