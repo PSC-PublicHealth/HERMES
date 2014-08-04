@@ -56,8 +56,9 @@ function setPrintGrid(gid,pid,pgTitle){
     				console.log('starting hermify with opts: '
                         + JSON.stringify(opts));
     			}
+				
+                var $grid = $(this);
 
-				var $grid = $(this);
     			var cM = $grid.jqGrid('getGridParam','colModel');
     			var lastT = null;
     			for (var i = 0; i < cM.length; i++) {
@@ -113,7 +114,9 @@ function setPrintGrid(gid,pid,pgTitle){
 						if ( $(window).width() > 710 ) {
 							$grid.jqGrid('setGridWidth', $(window).width()-offset.left-50);
 						}
-						$grid.jqGrid('setGridHeight', $(window).height()-offset.top-130);
+                        if (!opts.subgrid) {
+    						$grid.jqGrid('setGridHeight', $(window).height()-offset.top-130);
+                        }
 					}
 					$(window).load(resize_grid); //necessary to trigger resize_grid onload due to loading breadcrumbs changing grid offset
 					$(window).resize(resize_grid);  //bind resize_grid to window resize
