@@ -421,8 +421,6 @@ $(function() {
 	btn.button({disabled:true});
 	btn.click( function() {
 
-
-
 		$.getJSON(
             '{{rootPath}}check-may-modify?modelId=' +
             $("#vaccine_top_model_select").val()
@@ -509,9 +507,80 @@ $(function() {
 					}
                 );
 
+	});
+	
+	$.getJSON('{{rootPath}}json/test-clipboard-type',{type:'vaccine'})
+	.done(function(data) {
+		if (data.success) {
+			if (data.value) {
+				$("#paste_vaccine_button").button("option","disabled",false);
+			}
+			else {
+				$("#paste_vaccine_button").button("option","disabled",true);
+			}
+		}
+		else {
+			alert('{{_("Failed: ")}}'+data.msg);
+		}
+    })
+  	.fail(function(jqxhr, textStatus, error) {
+  		alert("Error: "+jqxhr.responseText);
+	});
+	
 
+});
 
+$(function() {
+	var sel = $("#vaccine_top_model_select");
+	sel.change( function() {
+		$.getJSON('{{rootPath}}json/set-selected-model', {id:$("#vaccine_top_model_select").val()})
+		.done(function(data) {
+			sel_model_name = data['name'];
+			$("#manage_vaccine_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
+			$("#manage_vaccine_grid").trigger("reloadGrid"); // to update checkboxes
+	    })
+	  	.fail(function(jqxhr, textStatus, error) {
+	  		alert("Error: "+jqxhr.responseText);
+		});
+	});
 
+    // trigger reload when the 'subkey' (the subgrid grouping key) is changed
+	$("#vaccine_top_subkey_select").change( function() {
+		$("#manage_vaccine_grid").trigger("reloadGrid");
+	});
+
+	$.getJSON('{{rootPath}}list/select-model')
+	.done(function(data) {
+		var sel = $("#vaccine_top_model_select");
+    	sel.append(data['menustr']);
+    	sel_model_name = data['selname'];
+        sel_model_id = data['selid'];
+        $("#vaccine_top_model_select").val(sel_model_id);
+        // make the subkey, subval available for later use
+        $.getJSON('{{rootPath}}list/select-subkey',
+          {'modelId': sel_model_id}
+          ).done(function(data) {
+    		var subkey_sel = $("#vaccine_top_subkey_select");
+        	subkey_sel.append(data['menustr']);
+            sel_subkey_name = data['selname']; 
+            sel_subkey_id = data['selid']; 
+            $("#vaccine_top_subkey_select").val(sel_subkey_id);
+            $("#manage_vaccine_grid").trigger("reloadGrid");
+        })
+      	.fail(function(jqxhr, textStatus, error) {
+      		alert("Error: "+jqxhr.responseText);
+    	});
+    })
+  	.fail(function(jqxhr, textStatus, error) {
+  		alert("Error: "+jqxhr.responseText);
+	});
+
+});
+  
+</script>
+
+<!-- this was the original error handling, replaced by depasse.
+// ... line 510 ...
 //		$.getJSON('{{rootPath}}check-may-modify?modelId='+$("#vaccine_top_model_select").val())
 //		.done(function(data) {
 //			if (data.success) {
@@ -586,89 +655,6 @@ $(function() {
 //			alert('{{_("Error 5: ")}}'+jqxhr.responseText);
 //		});
 //
+-->
 
 
-	});
-	
-	$.getJSON('{{rootPath}}json/test-clipboard-type',{type:'vaccine'})
-	.done(function(data) {
-		if (data.success) {
-			if (data.value) {
-				$("#paste_vaccine_button").button("option","disabled",false);
-			}
-			else {
-				$("#paste_vaccine_button").button("option","disabled",true);
-			}
-		}
-		else {
-			alert('{{_("Failed: ")}}'+data.msg);
-		}
-    })
-  	.fail(function(jqxhr, textStatus, error) {
-  		alert("Error: "+jqxhr.responseText);
-	});
-	
-
-});
-
-$(function() {
-	var sel = $("#vaccine_top_model_select");
-	sel.change( function() {
-		$.getJSON('{{rootPath}}json/set-selected-model', {id:$("#vaccine_top_model_select").val()})
-		.done(function(data) {
-			sel_model_name = data['name'];
-			$("#manage_vaccine_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
-			$("#manage_vaccine_grid").trigger("reloadGrid"); // to update checkboxes
-	    })
-	  	.fail(function(jqxhr, textStatus, error) {
-	  		alert("Error: "+jqxhr.responseText);
-		});
-	});
-
-    // trigger reload when the 'subkey' (the subgrid grouping key) is changed
-	$("#vaccine_top_subkey_select").change( function() {
-		$("#manage_vaccine_grid").trigger("reloadGrid");
-	});
-
-	$.getJSON('{{rootPath}}list/select-model')
-	.done(function(data) {
-		var sel = $("#vaccine_top_model_select");
-    	sel.append(data['menustr']);
-    	sel_model_name = data['selname'];
-        sel_model_id = data['selid'];
-        $("#vaccine_top_model_select").val(sel_model_id);
-        // make the subkey, subval available for later use
-        $.getJSON('{{rootPath}}list/select-subkey',
-          {'modelId': sel_model_id}
-          ).done(function(data) {
-    		var subkey_sel = $("#vaccine_top_subkey_select");
-        	subkey_sel.append(data['menustr']);
-            sel_subkey_name = data['selname']; 
-            sel_subkey_id = data['selid']; 
-            $("#vaccine_top_subkey_select").val(sel_subkey_id);
-            $("#manage_vaccine_grid").trigger("reloadGrid");
-        })
-      	.fail(function(jqxhr, textStatus, error) {
-      		alert("Error: "+jqxhr.responseText);
-    	});
-    })
-  	.fail(function(jqxhr, textStatus, error) {
-  		alert("Error: "+jqxhr.responseText);
-	});
-
-});
-  
-</script>
- 
-
-
-
-
-
-
-
-
-
-
-##
-##
