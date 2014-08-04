@@ -236,7 +236,7 @@ $("#manage_vaccine_grid").jqGrid({ //set your grid id
        }).jqGrid('hermify',{debug:true, subgrid:true, resizable:true});
     }
 // parent grid hermify options
-}).jqGrid('hermify',{debug:true, subgrid:false, resizable:true});
+}).jqGrid('hermify',{debug:true, subgrid:false, resizable:true, has_subgrid:true});
 
 // resize jqGrid according to window size
 function resize_grid() {

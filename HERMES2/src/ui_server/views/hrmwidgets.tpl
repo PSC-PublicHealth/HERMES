@@ -112,7 +112,14 @@ function setPrintGrid(gid,pid,pgTitle){
 						var offset = $grid.offset() //position of grid on page
 						//hardcoded minimum width
 						if ( $(window).width() > 710 ) {
-							$grid.jqGrid('setGridWidth', $(window).width()-offset.left-50);
+                            // the maximum width should be set as a freaction of the available
+                            // space, rather than subtracting a fixed amount.
+                            if (!opts.subgrid) {
+							    $grid.jqGrid('setGridWidth', $(window).width()-offset.left-50);
+                            }
+                            else {
+                                $grid.jqGrid('setGridWidth', $(window).width()-offset.left-70);
+                            }
 						}
                         if (!opts.subgrid) {
     						$grid.jqGrid('setGridHeight', $(window).height()-offset.top-130);
