@@ -51,9 +51,11 @@ function setPrintGrid(gid,pid,pgTitle){
 		hermify: function(opts) {
     		this.each(function(){
             	if (!this.grid) { return; }
+
             	if (opts.debug) {
-    				console.log('starting hermify with opts '+opts);
+    				console.log('starting hermify with opts: ' + JSON.stringify(opts));
     			}
+
 				var $grid = $(this);
     			var cM = $grid.jqGrid('getGridParam','colModel');
     			var lastT=null;
