@@ -561,7 +561,7 @@ def installPip():
 def installRequirements():
     pathBase = sI.srcDir()
     requirementsFile = '%s/../../requirements.txt' % pathBase
-    subprocess.check_call(['pip','-r',requirementsFile],cwd = pathBase)
+    subprocess.check_call(['pip','install','-r',requirementsFile],cwd = pathBase)
 
 def callAlembicUpgrade():
     pathBase = os.path.join(sI.srcDir(),'..','..',)
