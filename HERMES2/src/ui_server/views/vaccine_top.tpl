@@ -137,7 +137,7 @@ $("#manage_vaccine_grid").jqGrid({ //set your grid id
 	],
 	pager: '#manage_vaccine_pager',
 	pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
-  pginput: false, //ditto
+    pginput: false, //ditto
 	sortname: 'name',
 	sortorder: "asc",
 	gridview: true,
@@ -232,10 +232,11 @@ $("#manage_vaccine_grid").jqGrid({ //set your grid id
 			  event.stopPropagation();
 		    });
 	      },
-
-       });
+        // set hermify options for subgrids
+       }).jqGrid('hermify',{debug:true, subgrid:true, resizable:true});
     }
-});
+// parent grid hermify options
+}).jqGrid('hermify',{debug:true, subgrid:false, resizable:true});
 
 // resize jqGrid according to window size
 function resize_grid() {

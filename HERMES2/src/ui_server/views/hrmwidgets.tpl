@@ -53,18 +53,19 @@ function setPrintGrid(gid,pid,pgTitle){
             	if (!this.grid) { return; }
 
             	if (opts.debug) {
-    				console.log('starting hermify with opts: ' + JSON.stringify(opts));
+    				console.log('starting hermify with opts: '
+                        + JSON.stringify(opts));
     			}
 
 				var $grid = $(this);
     			var cM = $grid.jqGrid('getGridParam','colModel');
-    			var lastT=null;
+    			var lastT = null;
     			for (var i = 0; i < cM.length; i++) {
     				if (cM[i].edittype == 'text') {
     					lastT = i;
     				}
     			}
-    			if (opts.debug) console.log("lastT is "+lastT);
+    			if (opts.debug) console.log("lastT is " + lastT);
     			if (lastT) {
 					var eO = $.extend({},cM[lastT].editoptions);
 					var dA = (eO.dataEvents || []);
@@ -72,22 +73,21 @@ function setPrintGrid(gid,pid,pgTitle){
 		 				type:'keydown',
 		 				fn: function(e) {
 		 					var key = e.charCode || e.keyCode;
-		 					if (key == 9) // tab
-		 						{
-		 							var rowId = $grid.jqGrid('getGridParam','selrow');
-		 							var ids = $grid.jqGrid('getDataIDs');
-		 							var indexHere = $grid.jqGrid('getInd',rowId) - 1;
-		 							var newIndex = (indexHere + 1) % ids.length;
-		 							if (newIndex == indexHere) {
-		 								e.preventDefault(); // only one row, so do nothing
-		 							}
-		 							else {
-		 								var extraP = $grid.jqGrid('getGridParam','postData');
-										$grid.jqGrid("saveRow", rowId, { extraparam:extraP });
-		 								$grid.jqGrid('setSelection',ids[newIndex]);
-										e.preventDefault();
-									}
-		 						}
+		 					if (key == 9) { // tab
+		 						var rowId = $grid.jqGrid('getGridParam','selrow');
+		 						var ids = $grid.jqGrid('getDataIDs');
+		 						var indexHere = $grid.jqGrid('getInd',rowId) - 1;
+		 						var newIndex = (indexHere + 1) % ids.length;
+		 						if (newIndex == indexHere) {
+		 							e.preventDefault(); // only one row, so do nothing
+								}
+	 							else {
+	 								var extraP = $grid.jqGrid('getGridParam','postData');
+									$grid.jqGrid("saveRow", rowId, { extraparam:extraP });
+		 							$grid.jqGrid('setSelection',ids[newIndex]);
+									e.preventDefault();
+								}
+		 					}
 		 				}
 					});
 					eO.dataEvents = dA;
