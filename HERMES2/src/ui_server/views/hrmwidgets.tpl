@@ -163,6 +163,36 @@ function setPrintGrid(gid,pid,pgTitle){
             	if (opts.debug) {
     				console.log('finished hermify');
     			}
+
+                // BEGIN subgrid expand-collapse all
+                if (opts.has_subgrid) {
+                    var plusIcon = 'ui-icon-plus';
+                    var minusIcon = 'ui-icon-minus';
+                    $("#jqgh_" + $grid[0].id + "_subgrid")
+                        .html('<a style="cursor: pointer;">'
+                            + '<span class="ui-icon ' + plusIcon
+                            + '" title={{_("expand/collapse")}}>'
+                            + '</span></a>')
+                        .click(function () {
+                            var $spanIcon = $(this).find(">a>span"),
+                                $body = $(this).closest(".ui-jqgrid-view")
+                                    .find(">.ui-jqgrid-bdiv>div>.ui-jqgrid-btable>tbody");
+                            if ($spanIcon.hasClass(plusIcon)) {
+                                $spanIcon.removeClass(plusIcon)
+                                    .addClass(minusIcon);
+                                $body.find(">tr.jqgrow>td.sgcollapsed")
+                                    .click();
+                            } else {
+                                $spanIcon.removeClass(minusIcon)
+                                    .addClass(plusIcon);
+                                $body.find(">tr.jqgrow>td.sgexpanded")
+                                    .click();
+                            }
+                        }
+                    );
+                }
+                // FINISH subgrid expand-collapse all
+
     		});
     		return this;
     	}
