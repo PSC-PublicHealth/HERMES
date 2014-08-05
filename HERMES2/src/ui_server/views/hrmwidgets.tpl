@@ -45,6 +45,35 @@ function setPrintGrid(gid,pid,pgTitle){
     }
 }
 
+// adds a 'expand/collapse all' button to the header row; this should only be
+// used for grids that contain subgrids (goverened by opts.has_subgrid)
+function addToggleExpansionButton($grid) {
+    var plusIcon = 'ui-icon-plus';
+    var minusIcon = 'ui-icon-minus';
+    $("#jqgh_" + $grid[0].id + "_subgrid")
+        .html('<a style="cursor: pointer;">'
+            + '<span class="ui-icon ' + plusIcon
+            + '" title={{_("expand/collapse")}}>'
+            + '</span></a>')
+        .click(function () {
+            var $spanIcon = $(this).find(">a>span"),
+                $body = $(this).closest(".ui-jqgrid-view")
+                    .find(">.ui-jqgrid-bdiv>div>.ui-jqgrid-btable>tbody");
+            if ($spanIcon.hasClass(plusIcon)) {
+                $spanIcon.removeClass(plusIcon)
+                    .addClass(minusIcon);
+                $body.find(">tr.jqgrow>td.sgcollapsed")
+                    .click();
+            } else {
+                $spanIcon.removeClass(minusIcon)
+                    .addClass(plusIcon);
+                $body.find(">tr.jqgrow>td.sgexpanded")
+                    .click();
+            }
+        }
+    );
+}
+
 // Add a method to jqGrid that will allow us to customize.
 (function( $ ) {
 	$.jgrid.extend({
@@ -164,34 +193,10 @@ function setPrintGrid(gid,pid,pgTitle){
     				console.log('finished hermify');
     			}
 
-                // BEGIN subgrid expand-collapse all
+                // expand-collapse all button if we have subgrids
                 if (opts.has_subgrid) {
-                    var plusIcon = 'ui-icon-plus';
-                    var minusIcon = 'ui-icon-minus';
-                    $("#jqgh_" + $grid[0].id + "_subgrid")
-                        .html('<a style="cursor: pointer;">'
-                            + '<span class="ui-icon ' + plusIcon
-                            + '" title={{_("expand/collapse")}}>'
-                            + '</span></a>')
-                        .click(function () {
-                            var $spanIcon = $(this).find(">a>span"),
-                                $body = $(this).closest(".ui-jqgrid-view")
-                                    .find(">.ui-jqgrid-bdiv>div>.ui-jqgrid-btable>tbody");
-                            if ($spanIcon.hasClass(plusIcon)) {
-                                $spanIcon.removeClass(plusIcon)
-                                    .addClass(minusIcon);
-                                $body.find(">tr.jqgrow>td.sgcollapsed")
-                                    .click();
-                            } else {
-                                $spanIcon.removeClass(minusIcon)
-                                    .addClass(plusIcon);
-                                $body.find(">tr.jqgrow>td.sgexpanded")
-                                    .click();
-                            }
-                        }
-                    );
+                    addToggleExpansionButton($grid);
                 }
-                // FINISH subgrid expand-collapse all
 
     		});
     		return this;
