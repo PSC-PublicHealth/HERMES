@@ -46,7 +46,8 @@ function setPrintGrid(gid,pid,pgTitle){
 }
 
 // adds a 'expand/collapse all' button to the header row; this should only be
-// used for grids that contain subgrids (goverened by opts.has_subgrid)
+// used for grids that contain subgrids (goverened by opts.has_subgrid); this
+// function is called from hermify
 function addToggleExpansionButton($grid) {
     var plusIcon = 'ui-icon-plus';
     var minusIcon = 'ui-icon-minus';
