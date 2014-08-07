@@ -18,6 +18,8 @@ import session_support_wrapper as session_support
 import shadow_network
 import util
 import kml_jquery_shdNtwk as kml
+import htmlgenerator
+
 
 from HermesServiceException import HermesServiceException
 from ui_utils import _logMessage, _logStacktrace, _safeGetReqParam, _getOrThrowError
@@ -69,6 +71,137 @@ def generateJSON(db, uiSession):
         result = {'success':False, 'msg':str(e)}
         return result
 
+
+@bottle.route('/json/get-general-info-for-store')   
+def generateGeneralStoreInfoJson(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        storeId = _getOrThrowError(bottle.request.params,'storeId',isInt=False)
+        storeIdClean = storeId.replace("store_","")
+        ### Check permissions
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+    
+        model = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        store = model.getStore(storeIdClean)
+    
+        features = ["Name","ID","Level"]
+        values = [store.NAME,str(store.idcode),store.CATEGORY]
+        
+        if store.Latitude > 0.0:
+            features.append("Latitude")
+            values.append(str(store.Latitude))
+            features.append("Longitude")
+            values.append(str(store.Longitude))
+        
+        ### put 
+        rows = []
+        for feature in features:
+            rows.append({"feature":feature,"value":values[features.index(feature)]})
+        
+        result = {'success':True, 
+                  'rows':rows,
+                  'total':1,
+                  'page':1}
+        return result
+    except Exception,e:
+        result = {'success':False,
+                  'msg':str(e)}
+        return result
+        
+@bottle.route('/json/get-population-listing-for-store')
+def generatePopulationListingForStore(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        storeId = _getOrThrowError(bottle.request.params,'storeId',isInt=False)
+        ### Check permissions
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        
+        storeIdClean = storeId.replace("store_","")
+        model = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        thisStore = model.getStore(storeIdClean)
+        
+        ### Convert to Rest somehow
+        excludeList = ['Service1']
+        storeIdsToAdd = [thisStore.idcode]
+        
+        for client in thisStore.clients():
+            if client[1].Type == "attached" and client[0].FUNCTION != "Surrogate":
+                storeIdsToAdd.append(client[0].idcode)
+        
+        ### Get all attached clinics for this location
+        
+        peopleServedDict = {'all':{'displayName':'Total Served','count':0}}
+        for storeId in storeIdsToAdd:
+            store = model.getStore(storeIdClean)
+            for demand in store.demand:
+                if demand.invName not in excludeList:
+                    if not peopleServedDict.has_key(demand.invName):
+                        peopleServedDict[demand.invName] = {'count':0,
+                                                            'displayName':demand.invType.getDisplayName()}
+                    
+                    peopleServedDict[demand.invName]['count']+= demand.count
+                    peopleServedDict['all']['count'] += demand.count
+        
+        
+        rows = []
+        if peopleServedDict['all']['count'] == 0:
+            rows.append({'class':'Total Served','count':'No Population Vaccinated at Location'})
+        else:
+            for psD in peopleServedDict.values():
+                rows.append({'class':psD['displayName'],'count':psD['count']})
+            
+        #classes = [x['displayName'] for x in peopleServedDict.values()]
+        #counts  = [x['count'] for x in peopleServedDict.values()]
+        results = {'success':True,
+                   'total':1,
+                   'page':1,
+                   'rows':rows
+                   }
+        
+                   #'class':classes,
+                   #'count':counts}
+        
+        return results
+    
+    except Exception,e:
+        result = {'success':False,
+                  'msg':str(e)}
+        return result
+    
+@bottle.route('/json/get-device-listing-for-store')
+def generateDeviceListingForStore(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        storeId = _getOrThrowError(bottle.request.params,'storeId',isInt=False)
+        ### Check permissions
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        
+        storeIdClean = storeId.replace("store_","")
+        model = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        thisStore = model.getStore(storeIdClean)
+        
+        ### Convert to Rest somehow
+        excludeList = ['Service1']
+        storeIdsToAdd = [thisStore.idcode]
+    
+        rows =[]
+        for device in thisStore.inventory:
+            if type(device.invType) == shadow_network.ShdStorageType:
+                rows.append({'name':device.invType.getDisplayName(),
+                             'count':device.count,
+                             'cooler':device.invType.cooler,
+                             'freezer':device.invType.freezer})
+                
+        return {'success':True,
+                'total':1,
+                'page':1,
+                'rows':rows
+                }
+            
+    except Exception,e:
+        result = {'success':False,
+                  'msg':str(e)}
+        return result
     
 @bottle.route('/json/google-earth-kmlstring')
 def jsonGoogleEarthKMLString(db,uiSession):

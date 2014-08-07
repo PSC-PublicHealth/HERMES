@@ -1131,6 +1131,28 @@ def jsonModelStoreInfo(db, uiSession):
     else:
         raise bottle.BottleException("Ill-formed model-store-info request")
     return result
+
+@bottle.route('/json/model-structure-tree-d3')
+def jsonModelStructureTreeD3(db,uiSession):
+    try:
+        import locale
+        print locale.getdefaultlocale()[1]
+        modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        model = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        json = model.getWalkOfClientsDictForJson(model.rootStores()[0].idcode)
+        #json = model.getWalkOfClientsDictForJson(120306)
+#         print sys.stdout.encoding;
+        #print unicode.decode(json['name'])
+        #print "Json = " + str(json)
+        json['success']=True
+        
+        return json
+    except Exception,e:
+        return {'success':False,
+                'msg':str(e)
+                }
         
 @bottle.route('/json/model-structure-tree')
 def jsonModelStructureTree(db, uiSession):

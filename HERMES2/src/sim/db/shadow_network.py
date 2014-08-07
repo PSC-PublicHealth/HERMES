@@ -43,6 +43,8 @@ import math
 import struct
 import operator
 
+#import sys
+#sys.setrecursionlimit(1500)
 import re
 import copy
 import pickle
@@ -70,7 +72,6 @@ except:
 
     Column = Index = ForeignKey = relationship = backref = attribute_mapped_collection = emptyFunc
     Integer = saEvent = Base = EmptyClass
-
 
 def _parseAttr(attr):
     """
@@ -3687,6 +3688,25 @@ class ShdNetwork(Base):
             clientIds += self.getWalkOfClientIds(client[0].idcode)
         
         return clientIds
+
+### STB - Helper function here to creat a json, it was just easier    
+    def getWalkOfClientsDictForJson(self,idcode):
+        ''' This member will walk up from an store through the network 
+            and return a dict for heirarchical reps for all of the client chain for
+            the store
+        '''
+        thisStore = self.stores[idcode]
+        #print type(thisStore.NAME)
+        levels = self.getLevelList()
+        thisClientList = [x for x in thisStore.clients() if x[1].Type != "attached"]
+        if len(thisClientList) > 0:
+            clientDict = {'name':thisStore.NAME,'level':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode,'children':[]}
+            for client in thisClientList:
+                if client[1].Type != "attached":
+                    clientDict['children'].append(self.getWalkOfClientsDictForJson(client[0].idcode))
+        else:
+            clientDict = {'name':thisStore.NAME,'level':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode}
+        return clientDict
     
     def createRouteListOrderdByWalkOfClients(self, idcode):
         ''' This member will create a list of routes that are 
