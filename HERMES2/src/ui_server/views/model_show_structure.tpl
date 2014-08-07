@@ -56,6 +56,7 @@ path.link {
 
 $(function() {
 	initStoreInfoDialogNoResults("model_store_info_dialog");
+	$('#ajax_busy_image').show();
 });
 
 (function() {
@@ -633,7 +634,7 @@ treeJSON = d3.json("{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}
     update(root);
     centerNode(root);
     currentNode = root;
-    
+    $('#ajax_busy_image').hide();
     window.addEventListener('resize',function(event){
     	var wH = window.innerHeight-300;
     	var wW = window.innerWidth - margin*2;
@@ -646,6 +647,7 @@ treeJSON = d3.json("{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}
     	baseSvg.attr("width",wW).attr("height",wH);
     	console.log("resizing");
     	centerNode(currentNode);
+    	
     
     });
 });
