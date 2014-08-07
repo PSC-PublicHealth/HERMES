@@ -26,8 +26,9 @@ def _logMessage(lstr):
     if len(lstr) == 0:
         return
     try:
-        with open(_logFileName,'a+') as f:
-            f.write("%s %s\n"%(time.strftime('%Y/%m/%d %H:%M:%S'),lstr))
+        if _logFileName is not None:
+            with open(_logFileName,'a+') as f:
+                f.write("%s %s\n"%(time.strftime('%Y/%m/%d %H:%M:%S'),lstr))
     except Exception,e:
         print 'exception %s on %s'%(e,lstr)
         pass
