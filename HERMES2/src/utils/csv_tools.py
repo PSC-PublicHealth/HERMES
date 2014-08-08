@@ -290,16 +290,35 @@ class castTypes:
     
     @staticmethod
     def CastString(val):
+        ### This is not an exhaustive list, so if this bombs on your system, we may need to add
+        codecs = ['iso-8859-1','cp1252','latin-1','utf-8']
+        ### This will not cast all strings as UNICODE
         if None == val:
             return False, val
         try:
-            if isinstance(val,types.StringType):
-                ret = unicode(val,'utf-8',errors='replace')
-            elif isinstance(val,types.UnicodeType):
+            if isinstance(val,types.UnicodeType):
                 ret = val
+            elif isinstance(val,types.StringType):
+                ret = None
+                for i in codecs:
+                    try:
+                        dVal = val.decode(i)
+                        break
+                    except Exception as e:
+                        print str(e)
+                        pass
+                try:
+                    ret = unicode(dVal)
+                except Exception as e:
+                    print "UNICODE FAILED: " + str(e)
+                
+                if ret is None:
+                    ret = unicode(val,'utf-8',errors='replace')   
             else:
+                ## Default if it can figure it out.
                 ret = unicode(str(val),'utf-8',errors='replace')
-        except:
+        except Exception as e:
+            print str(e)
             return False, val
         return True, ret
     
