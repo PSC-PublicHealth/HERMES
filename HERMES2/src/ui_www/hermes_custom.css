@@ -765,7 +765,8 @@ ul.art-hmenu
 .art-nav-inner{
    text-align: left;
    margin:0 auto;
-   width: 1000px;
+   /*width: 1000px;
+   commented out to allow navigation bar to wrap*/
 }
 
 .desktop-nav .art-nav-inner{
