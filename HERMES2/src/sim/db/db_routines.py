@@ -81,9 +81,9 @@ class DbInterface:
             engine = create_engine(uri, echo = echo, pool_recycle=3600)
         elif dbType == 'sqlite':
             uri = 'sqlite:///%s/%s.db'%(scratchDir,name)
-                        
-            engine = create_engine(uri, echo = echo)
-        
+            
+            engine = create_engine(uri, echo = echo, encoding = 'utf-8')
+            engine.raw_connection().connection.text_factory=str
         else:
             raise RuntimeError("invalid dbType")
         self.uri = uri
