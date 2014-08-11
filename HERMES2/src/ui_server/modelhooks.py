@@ -1142,10 +1142,6 @@ def jsonModelStructureTreeD3(db,uiSession):
         model = shadow_network_db_api.ShdNetworkDB(db,modelId)
         
         json = model.getWalkOfClientsDictForJson(model.rootStores()[0].idcode)
-        #json = model.getWalkOfClientsDictForJson(120306)
-#         print sys.stdout.encoding;
-        #print unicode.decode(json['name'])
-        #print "Json = " + str(json)
         json['success']=True
         
         return json

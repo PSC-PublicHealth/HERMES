@@ -179,7 +179,6 @@ treeJSON = d3.json("{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}
     }
 
     // Define the zoom function for the zoomable tree
-
     function zoom() {
         svgGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     }
@@ -431,6 +430,9 @@ treeJSON = d3.json("{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}
 
     function rightClick(d) {
     	d3.event.preventDefault();
+    	if (d.level == 9999){
+    		return;
+    	}
     	if ($("#model_store_info_dialog").is(':ui-dialog')) {
     		$("#model_store_info_dialog").dialog('close');
     	}
@@ -481,6 +483,7 @@ treeJSON = d3.json("{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}
         var nodeEnter = node.enter().append("g")
             //.call(dragListener)
             .attr("class", "node")
+            .attr("xlink:href","{{rootPath}}static/icons/loopicon.jpg")
             .attr("transform", function(d) {
                 return "translate(" + source.y0 + "," + source.x0 + ")";
             })
@@ -489,9 +492,27 @@ treeJSON = d3.json("{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}
            
         nodeEnter.append("circle")
             .attr('class', 'nodeCircle')
-            .attr("r", function(d){return 20.0/(d.level+1);})
+            .attr("r", function(d){
+            	if (d.level == 9999){
+            		return 10.0;
+            	}
+            	else {
+            		return 20.0/(d.level+1);
+            	}
+            	})
             .style("fill", function(d) {
-                return d._children ? "lightsteelblue" : "#fff";
+            	console.log("level = " + d.level);
+            	if (d.level > 10){
+            		console.log("setting to black");
+            		return "black";
+            	}
+            	else if (d._children) {
+            		return "lightsteelblue";
+            	}
+            	else {
+            		return "#fff";
+            	}
+                //return d._children ? "lightsteelblue" : "#fff";
             });
 
         nodeEnter.append("text")
@@ -525,7 +546,12 @@ treeJSON = d3.json("{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}
         // Update the text to reflect whether node has children or not.
         node.select('text')
             .attr("x", function(d) {
-                return d.children || d._children ? (15.0/(1+d.level)) +10 : 10 + (15.0/(1+d.level)); 
+            	if (d.level == 9999){
+            		return (15.0/(3))+10;
+            	}
+            	else{
+            		return d.children || d._children ? (15.0/(1+d.level)) +10 : 10 + (15.0/(1+d.level)); 
+            	}
             })
             .attr("text-anchor", function(d) {
                 return d.children || d._children ? "start" : "start";
@@ -538,7 +564,18 @@ treeJSON = d3.json("{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}
         node.select("circle.nodeCircle")
             //.attr("r", 4.5)
             .style("fill", function(d) {
-                return d._children ? "lightsteelblue" : "#fff";
+            	if (d._children){
+            		if (d.level == 9999){
+            			return "black";
+            		}
+            		else {
+            			return "lightsteelblue";
+            		}
+            	}
+            	else{
+            		return "#fff";
+            	}
+                //return d._children ?  : "#fff";
             });
 
         // Transition nodes to their new position.
@@ -634,6 +671,7 @@ treeJSON = d3.json("{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}
     update(root);
     centerNode(root);
     currentNode = root;
+    
     $('#ajax_busy_image').hide();
     window.addEventListener('resize',function(event){
     	var wH = window.innerHeight-300;

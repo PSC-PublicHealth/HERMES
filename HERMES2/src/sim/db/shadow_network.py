@@ -169,7 +169,6 @@ def _moveAttrs(dest, rec, attrs = None, prefix = None, skip = None):
 
             cast = a['cast']
             val = castValue(val, cast, name)
-    
             if isinstance(dest, dict):
                 dest[name] = val
             else:
@@ -3421,6 +3420,7 @@ class ShdNetwork(Base):
                     if 'idcode' not in storeRec:
                         raiseRuntimeError("found stores record with no idcode")
                     with logContext("initial parsing of stores record %s"%storeRec['idcode']):
+                        print "Adding " + str(storeRec['NAME'])
                         self.addStore(storeRec)
 
         # parse route recs and integrate them into the store records
@@ -3698,7 +3698,8 @@ class ShdNetwork(Base):
         thisStore = self.stores[idcode]
         #print type(thisStore.NAME)
         levels = self.getLevelList()
-        thisClientList = [x for x in thisStore.clients() if x[1].Type != "attached"]
+        thisLoopList = [x for x in thisStore.clients() if len(x[1].stops) > 2]
+        thisClientList = [x for x in thisStore.clients() if (x[1].Type != "attached" and x not in thisLoopList)]
         if len(thisClientList) > 0:
             clientDict = {'name':thisStore.NAME,'level':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode,'children':[]}
             for client in thisClientList:
@@ -3706,6 +3707,19 @@ class ShdNetwork(Base):
                     clientDict['children'].append(self.getWalkOfClientsDictForJson(client[0].idcode))
         else:
             clientDict = {'name':thisStore.NAME,'level':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode}
+        ### Handle a Transport Loop
+        if len(thisLoopList) > 0:
+            if 'children' not in clientDict.keys():
+                clientDict['children'] = []
+            loopClientDict = {'name':'Transport Loop','level':9999,
+                              'idcode':9999,
+                              'children':[]}
+            for lclient in thisLoopList:
+                print lclient[0].NAME
+                lClientList = [x for x in thisStore.clients() if (x[1].Type != "attached")]
+                loopClientDict['children'].append(self.getWalkOfClientsDictForJson(lclient[0].idcode))
+            clientDict['children'].append(loopClientDict)
+            
         return clientDict
     
     def createRouteListOrderdByWalkOfClients(self, idcode):
@@ -4227,7 +4241,7 @@ def loadShdNetwork(userInput, shdTypes, name=None):
 
     (storeKeys, storeRecList, routeKeys, routeRecList, factoryKeys, factoryRecList) = \
         load_networkrecords.readNetworkRecords(userInput)
-
+        
     net = ShdNetwork(storeRecList, routeRecList, factoryRecList, shdTypes, name=name)
 
     if userInput['demandfile'] is not None:
