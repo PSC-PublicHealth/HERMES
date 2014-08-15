@@ -597,7 +597,7 @@ function createStorageInfoDialog(genInfoData, utilData, deviceData, vehicleData,
 		colModel : [{
 			name : 'name',
 			id : 'name',
-			width : 200
+			width : 300
 		}, {
 			name : 'count',
 			id : 'count',
