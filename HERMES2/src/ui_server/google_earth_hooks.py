@@ -47,7 +47,15 @@ def geojsonTopPage(db,uiSession):
     return bottle.template('geojson_demo.tpl',{"breadcrumbPairs":[("top",_("Welcome"))],
                                                "pageHelpText":_("This is intended to show page-specific help")},
                                                _=_,inlizer=inlizer,modelId=modelId)
-@bottle.route('/json/utilgeojson')
+
+@bottle.route('/d3geodemo')
+def d3geoDemoPage(db,uiSession):
+    modelId= _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
+    return bottle.template('d3democlickzoom.tpl',{"breadcrumbPairs":[("top",_("Welcome"))],
+                                            "pageHelpText":_("This is intended to show page-specific help")},
+                                            _=_,inlizer=inlizer,modelId=modelId)
+    
+@bottle.route('/json/storelocations')
 def generateJSON(db, uiSession):
     from visualizationUtils import circleLonLat
     try:
@@ -58,15 +66,16 @@ def generateJSON(db, uiSession):
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         
         # 
-        f = {'success':True,'features':[]}
-        
-        for storeId,store in m.stores.items():
-            f['features'].append(Feature(geometry=Polygon([circleLonLat(store.Longitude+0.001,store.Latitude+0.001,0.01,20)]),
-                                         properties={'popupContent':store.NAME}))
+        #f = {'success':True,'features':[]}
+        levels = m.getLevelList()
+        f = [Feature(geometry=Point([x.Longitude,x.Latitude]),id=x.idcode,name=x.NAME,level=levels.index(x.CATEGORY)) for y,x in m.stores.items() if ((x.supplierRoute() is None) or (x.supplierRoute().Type != "attached" and x.CATEGORY != "Surrogate")) ]
+        FC = FeatureCollection(f)
+#         for storeId,store in m.stores.items():
+#             f['features'].append(Feature(geometry=Point([store.Longitude,store.Latitude])))
+#                                          #Polygon([circleLonLat(store.Longitude+0.001,store.Latitude+0.001,0.01,20)]),
+#                                          #properties={'popupContent':store.NAME}))
             
-            
-            
-        return f
+        return {'success':True,"geoFC":FC}      
     except Exception,e:
         result = {'success':False, 'msg':str(e)}
         return result
@@ -202,7 +211,8 @@ def generateDeviceListingForStore(db,uiSession):
         result = {'success':False,
                   'msg':str(e)}
         return result
-    
+
+ 
 @bottle.route('/json/google-earth-kmlstring')
 def jsonGoogleEarthKMLString(db,uiSession):
     try:
