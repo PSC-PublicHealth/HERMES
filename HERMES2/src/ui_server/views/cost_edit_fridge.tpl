@@ -59,12 +59,6 @@ function fridgeInfoButtonFormatter(cellvalue, options, rowObject)
 	return "<button type=\"button\" class=\"hermes_info_button\" id="+escape(cellvalue)+">Info</button>";
 };
 
-function currencyFormatter(cellvalue, options, rowObject)
-{
-    // cellvalue will be the name string
-	return "<div class=\"hermes_currency_selector\" id="+escape(cellvalue)+"></div>";
-};
-
 var priceCheckFailure = false;
 
 function priceCheck(value) {
@@ -141,7 +135,18 @@ function buildPage(modelId) {
 		        	  edittype:'custom',
 		        	  editoptions: {
 		        		  custom_element:function(value, options){
-		        			  return $.parseHTML("<div>"+value+"</div>");
+		  					  var $divElem = $($.parseHTML("<div class='hermes_currency_selector'>"+value+"</div>"));
+		  					  var sel = $divElem.text();
+		  					  if (sel=='') sel=null;
+		  					  var args = {
+		  							  widget:'currencySelector',
+		  							  modelId:function() { return $('#model_sel_widget').modelSelector('selId'); },
+		  							  label:'',
+		  							  recreate:true
+		  					  }
+		  					  if (sel) args['selected'] = sel;
+		  					  $divElem.hrmWidget(args);
+		        			  return $divElem;
 		        		  },
 		        		  custom_value:function(elem, op, value){
 		        			  if (op=='get') {
@@ -150,7 +155,6 @@ function buildPage(modelId) {
 		        			  else if (op=='set') {
 		        				  $(elem).currencySelector('selId',value);
 		        			  }
-		        			  
 		        		  }
 		        	  }
 		          },
@@ -178,73 +182,6 @@ function buildPage(modelId) {
 		viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Z” optional
 		sortorder: "asc", //sort order; optional
 		gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
-		beforeSelectRow: function(rowId, evt) {
-			var $this = $(this);
-			var oldRowId = $this.getGridParam('selrow');
-	        if (oldRowId && (oldRowId != rowId)) {
-		        $this.jqGrid("saveRow", oldRowId, {
-		        	extraparam: { 
-						modelId: function() { return $('#model_sel_widget').modelSelector('selId'); }
-		        	}
-		        });
-		        if (priceCheckFailure) {
-		        	// The price check that was performed during saveRow may have prevented the 
-		        	// row from closing.
-		        	priceCheckFailure = false;
-		        	return false; // prevent the new row from being edited
-		        }
-		        else {
-		        	return true; // go ahead and edit the new row      		
-		        }
-			}
-	        else return true;
-		},
-		onSelectRow: function(resultsid, status){
-	   		if (status) {
-	   			if (resultsid) {
-					$(this).jqGrid('editRow',resultsid,{
-						keys:true,
-						extraparam: { 
-							modelId: function() { return $('#model_sel_widget').modelSelector('selId'); }
-						},
-						oneditfunc: function(rowid) {
-	 	 					$field = $('#'+rowid+'_currency');
-	 	 					var sel = $field.text();
-	 	 					$field.text('');
-	 	 					if (sel=='') sel=null;
-	 	 					var args = {
-								widget:'currencySelector',
-								modelId:function() { return $('#model_sel_widget').modelSelector('selId'); },
-								label:''
-	 	 					}
-	 	 					if (sel) args['selected'] = sel;
-							$field.hrmWidget(args);
-						},
-						successfunc: function(response) {
-							if (response.status >=200 && response.status<300) {
-								data = $.parseJSON(response.responseText);
-								if (data.success == undefined) return true;
-								else {
-									if (data.success) return true;
-									else {
-										if (data.msg != undefined) alert(data.msg);
-										else alert('{{_("Sorry, transaction failed.")}}');
-										return false;
-									}
-								}
-							}
-							else {
-								alert('{{_("Sorry, transaction failed.")}}');
-								return false;
-							}
-						},
-					});
-	   			}
-			}
-			else {
-				//alert('outside click '+resultsid);
-			}
-		},
 		gridComplete: function(){
 			$(".hermes_info_button").click(function(event) {
 				$.getJSON('{{rootPath}}json/fridge-info',{name:unescape($(this).attr('id')), modelId:$('#model_sel_widget').modelSelector('selId')})
@@ -280,14 +217,26 @@ function buildPage(modelId) {
 			groupText:['<b>{0} - {1} '+"{{_('Item(s)')}}"+'</b>'],
 			groupColumnShow:[false]
 		},
-		/*
-		rowattr: function(rowdata){
-			if (!rowdata.usedin) return {"class":"not-editable-row"};
-		},
-		*/
 	    caption:"{{_("Cold Storage Costs")}}"
 	})
-	.jqGrid('navGrid','#fridge_cost_pager',{edit:false,add:false,del:false})
+	.jqGrid('navGrid','#fridge_cost_pager',
+			{edit:true,add:false,del:false},
+			{ // edit option
+				closeAfterEdit:true,
+				editData: {
+					modelId: function() { return $('#model_sel_widget').modelSelector('selId'); },
+					
+				}
+			},
+			{ // add params
+			},
+			{ // del params
+			},
+			{ // search params
+			},
+			{ // view params
+			}
+	)
 	.jqGrid('hermify',{
 		debug:true, printable:true, resizable:true
 	});

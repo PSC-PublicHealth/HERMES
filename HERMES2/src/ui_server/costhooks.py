@@ -289,6 +289,7 @@ def jsonGetFuelPriceInfo(db, uiSession):
         return {"success":False, "msg":str(e)} 
 
 @bottle.route('/json/set-fuel-price/<fuelName>')
+@bottle.route('/json/set-fuel-price-currency/<fuelName>')
 def jsonSetFuelPrice(db, uiSession, fuelName):
     try:
         assert fuelName in _fuelNames.keys(), _("{0} is not a valid fuel type").format(fuelName)
@@ -308,25 +309,26 @@ def jsonSetFuelPrice(db, uiSession, fuelName):
         _logStacktrace()
         return {"success":False, "msg":str(e)} 
 
-@bottle.route('/json/set-fuel-price-currency/<fuelName>')
-def jsonSetFuelPriceCurrency(db, uiSession, fuelName):
-    try:
-        assert fuelName in _fuelNames.keys(), _("{0} is not a valid fuel type").format(fuelName)
-        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
-        uiSession.getPrivs().mayReadModelId(db, modelId)
-        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-        currencyId = urllib.unquote(_getOrThrowError(bottle.request.params, 'id'))
-        currencyParamName = _fuelNames[fuelName]
-        price = _safeGetReqParam(bottle.request.params, 'price', isFloat=True)
-        paramPrice = m.getParameterValue(currencyParamName)
-        converter = _getCurrencyConverter(db, uiSession, m)
-        if paramPrice is None: priceInTargetCurrency = None
-        else: priceInTargetCurrency = converter.convertTo(converter.getBaseCurrency(),paramPrice, currencyId)
-        result = {'success':True, 'price':priceInTargetCurrency, 'id':urllib.quote(currencyId)}
-        return result
-    except Exception,e:
-        _logStacktrace()
-        return {"success":False, "msg":str(e)} 
+# def jsonSetFuelPriceCurrency(db, uiSession, fuelName):
+#     try:
+#         assert fuelName in _fuelNames.keys(), _("{0} is not a valid fuel type").format(fuelName)
+#         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+#         uiSession.getPrivs().mayReadModelId(db, modelId)
+#         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+#         currencyId = urllib.unquote(_getOrThrowError(bottle.request.params, 'id'))
+#         currencyParamName = _fuelNames[fuelName]
+#         oldPriceInBaseCurrency = m.getParameterValue(currencyParamName)
+#         price = _safeGetReqParam(bottle.request.params, 'price', isFloat=True)
+#         converter = _getCurrencyConverter(db, uiSession, m)
+#         if oldPriceInBaseCurrency is not None:
+#             pass
+#         if paramPrice is None: priceInTargetCurrency = None
+#         else: priceInTargetCurrency = converter.convertTo(converter.getBaseCurrency(),paramPrice, currencyId)
+#         result = {'success':True, 'id':urllib.quote(currencyId)}
+#         return result
+#     except Exception,e:
+#         _logStacktrace()
+#         return {"success":False, "msg":str(e)} 
 
 @bottle.route('/json/manage-fridge-cost-table')
 def jsonManageFridgeCostTable(db, uiSession):
@@ -404,12 +406,12 @@ def jsonGetCostInfoFridge(db, uiSession):
 @bottle.route('/edit/edit-cost-fridge', method='POST')
 def editCostFridge(db, uiSession):
     try:
-        #print [(k,v) for k,v in bottle.request.params.items()]
+        print [(k,v) for k,v in bottle.request.params.items()]
         if bottle.request.params['oper']=='edit':
             modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
             uiSession.getPrivs().mayModifyModelId(db, modelId)
             m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-            typeName = _getOrThrowError(bottle.request.params, 'name')
+            typeName = _getOrThrowError(bottle.request.params, 'id')
             if typeName in m.types:
                 tp = m.types[typeName]
                 for opt in ['category', 'displayname', 'ongoingunits','ongoingwhat']:

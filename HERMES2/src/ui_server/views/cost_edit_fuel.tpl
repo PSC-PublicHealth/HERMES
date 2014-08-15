@@ -147,6 +147,9 @@ function buildPage(modelId) {
 						});
 					};
 				};
+				function frzFuelName(currentRowName) {
+					return function() { return currentRowName; }
+				};
 				$('#price_'+rowName).hrmWidget({
 					widget:'floatTextBox',
 					onBlur:frzOnBlur(rowName)

@@ -342,12 +342,147 @@ function addToggleExpansionButton($grid) {
  			});
  		}
  		else if (settings['widget']=='currencySelector') {
+			function buildDialog(parent) {
+				$('#hrm_cur_sel_dlg_div_shared').remove();  // in case it exists
+				var $dlgDiv = $(document.createElement('div')).attr('id','hrm_cur_sel_dlg_div_shared');
+				if (!parent) parent = $(this);
+				parent.append($dlgDiv);
+				var $btn;
+				if (parent.is('button')) $btn = parent;
+				else $btn = parent.find('button').first();
+				var modelId;
+				if (settings.modelId instanceof Function) {
+					modelId = settings.modelId.bind($(this))($btn);
+				}
+				else {
+					modelId = settings.modelId;
+				}
+				var selected='';
+				if ($btn && $btn.data('code') && $btn.data('code')!='') {
+					selected = $btn.data('code');
+				}
+				else if (settings.selected) {
+					if (settings.selected instanceof Function)
+						selected = settings.selected.bind($(this))($btn);
+					else 
+						selected = settings.selected;
+				}
+				var recreate;
+				if (settings.recreate) recreate = true;
+				else recreate = false;
+ 				$dlgDiv.dialog({
+					autoOpen:false,
+					draggable:false,
+					dialogClass:'hrm_dialog_no_title',
+					maxHeight:600,
+					minHeight:100,
+					position:{my:'left top', at:'left top', of:$btn},
+					resizable:true,
+					closeOnEscape:true,
+					buttons: {
+						'{{_("Close")}}': function(evt) {
+							$('#hrm_cur_sel_dlg_div_shared').dialog('close');
+							if (recreate) {
+								$('#hrm_cur_sel_dlg_div_shared').remove();
+							}
+						},
+					},
+				});
+    			$dlgDiv.data('currentBtn',$btn);
+				$.getJSON('{{rootPath}}list/select-currency', { 
+					modelId: modelId,
+					idstring: encodeURIComponent(selected)
+				})
+				.done(function(data) {
+					if (data.success) {
+						$dlgDiv.data('defaultSelection',decodeURIComponent(data.defaultid));
+						$dlgDiv.html("");
+	    				var selId = decodeURIComponent(data.selid);
+						var $ul = $(document.createElement('ul'));
+		    			for (var i = 0; i < data.pairs.length; i++) {
+		    				var curCode = decodeURIComponent(data.pairs[i][1]);
+		    				var curStr = decodeURIComponent(data.pairs[i][0]);
+		    				var $li = $(document.createElement('li'))
+		    				.data('code',curCode)
+		    				.data('str',curStr);
+
+					    	if ($li.data('code') == selId) $li.addClass('selected');		    		
+		    				
+		    				var $a = $(document.createElement('a'))
+		    				.attr('href','#')
+			    			.text(curCode + ' : ' + curStr);
+		    				$li.append($a);
+		    				$ul.append($li);
+
+		    			}
+		    			$ul.menu();
+		    			$dlgDiv.append($ul);
+		    			$('.hrm_cur_sel_btn').each(function() {
+		    				if ( ! $(this).button('option','text') 
+		    						|| $(this).button('option','label') == '') {
+		    					$(this).button('option','label', selId)
+		    					.button('option','text', true)
+		    					.data('code',selId)
+		    					.data('prev_value',selId);
+		    				}
+	    				}); 
+		    				
+		    			// Need to use this instance's menu select handler to get
+		    			// options context right.
+		    			$dlgDiv.find('ul').first()
+		    			.off('menuselect')
+		    			.on('menuselect', function(evt,ui) {
+		    				var $li = $(ui.item);
+		    				var newCode = $li.data('code');
+		    				$dlgDiv.find('a').removeClass('selected');
+		    				$li.addClass('selected');
+		    				var $btn = $dlgDiv.data('currentBtn');
+		    				$btn.button('option','label', newCode)
+		    				.data('code',newCode);
+		    				$dlgDiv.dialog('close');
+		    				$btn.data('changeHandler').bind($btn.parent())(evt, newCode);
+		     				if (settings.recreate) $dlgDiv.remove();
+		    			});
+					}
+					else {
+							alert('{{_("Failed: ")}}'+data.msg);
+					}
+				})
+					.fail(function(jqxhr, textStatus, error) {
+						alert("Error: "+jqxhr.responseText);
+				});
+				return $dlgDiv;
+				
+			};
+			function btnClick(evt) {
+				evt.preventDefault();
+				
+				var $b = $(evt.target).parent();
+				var $dlgDiv;
+				if (settings.recreate) { 
+					$dlgDiv = buildDialog.bind($b)($b);
+				}
+				else {
+					$dlgDiv = $('#hrm_cur_sel_dlg_div_shared');
+					$dlgDiv.data('currentBtn',$b)
+				    .find('a').each( function() {
+				    	var $li = $(this).parent();
+				    	$li.removeClass('selected');
+				    	if ($li.data('code') == $b.data('code'))
+				    		$li.addClass('selected');		    		
+				    });
+				}
+				
+				$dlgDiv.dialog('option', 'position',
+						{my:'left top', at:'left top', of:this}
+				);
+				$dlgDiv.dialog('open').dialog('widget').zIndex($b.zIndex()+2); 
+			};
 			$.fn.currencySelector = function( arg, arg2 ) {
  				var myThis = this;
  				var $btn = this.find("button").first();
 				if (arg=='selId') {
 					if (! arg2) {
-						console.log('returning '+$btn.data('code'));
 						return $btn.data('code');
 					}
 					else {
@@ -357,83 +492,9 @@ function addToggleExpansionButton($grid) {
 					}
 				}
 				else if (arg=='rebuild') {
-					var modelId;
-					if (settings.modelId instanceof Function) {
-						modelId = settings.modelId.bind($(myThis))($btn);
-					}
-					else {
-						modelId = settings.modelId;
-					}
-					var selected='';
-					if (settings.selected) {
-						if (settings.selected instanceof Function)
-							selected = settings.selected.bind($(myThis))($btn);
-						else 
-							selected = settings.selected;
-					}
-					var $dlgDiv = $('#hrm_cur_sel_dlg_div_shared');
-					if ($dlgDiv.length == 0) {
-						$dlgDiv = $(document.createElement('div'))
-						.attr('id','hrm_cur_sel_dlg_div_shared');
-		 				this.append($dlgDiv);
-					}
-		 			if (! $dlgDiv.hasClass('ui-dialog-content')) {
-						$dlgDiv.dialog({
-							autoOpen:false,
-							draggable:false,
-							dialogClass:'hrm_dialog_no_title',
-							maxHeight:600,
-							minHeight:100,
-							position:{my:'left top', at:'left top', of:$btn},
-							resizable:true,
-							closeOnEscape:true,
-							buttons: {
-								'{{_("Close")}}': function(evt) {
-									$('#hrm_cur_sel_dlg_div_shared').dialog('close');
-								}
-							},
-						});
-						$.getJSON('{{rootPath}}list/select-currency', { 
-							modelId: modelId,
-							idstring: encodeURIComponent(selected)
-						})
-						.done(function(data) {
-							if (data.success) {
-								$dlgDiv.data('defaultSelection',decodeURIComponent(data.defaultid));
-								$dlgDiv.html("");
-								var $ul = $(document.createElement('ul'));
-				    			for (var i = 0; i < data.pairs.length; i++) {
-				    				var curCode = decodeURIComponent(data.pairs[i][1]);
-				    				var curStr = decodeURIComponent(data.pairs[i][0]);
-				    				var $li = $(document.createElement('li'))
-				    				.data('code',curCode)
-				    				.data('str',curStr);
-				    				var $a = $(document.createElement('a'))
-				    				.attr('href','#')
-					    			.text(curCode + ' : ' + curStr);
-				    				$li.append($a);
-				    				$ul.append($li);
-				    			}
-				    			$ul.menu();
-				    			$dlgDiv.append($ul);
-			    				var selId = decodeURIComponent(data.selid);
-				    			$('.hrm_cur_sel_btn').each(function() {
-				    				if ( ! $(this).button('option','text') 
-				    						|| $(this).button('option','label') == '') {
-				    					$(this).button('option','label', selId)
-				    					.button('option','text', true)
-				    					.data('code',selId)
-				    					.data('prev_value',selId);
-				    				}
-				    			});
-							}
-							else {
-	  							alert('{{_("Failed: ")}}'+data.msg);
-							}
-	    				})
-	  					.fail(function(jqxhr, textStatus, error) {
-	  						alert("Error: "+jqxhr.responseText);
-						});
+					if (! settings.recreate) {
+						var $dlgDiv = $('#hrm_cur_sel_dlg_div_shared');
+						if ($dlgDiv.length == 0) $dlgDiv = buildDialog.bind(myThis)(myThis);						
 					}
     				if ('afterBuild' in settings  && settings.afterBuild != null) {
     					settings.afterBuild.bind($btn.parent())($btn);
@@ -470,7 +531,15 @@ function addToggleExpansionButton($grid) {
  						label:selected
  					})
  					.data('code',selected)
- 					.data('prev_value',selected);
+ 					.data('prev_value',selected)
+ 					.data('changeHandler', function(evt,newCode) {
+	     				if ('onChange' in settings && settings.onChange != null) {
+	     					settings.onChange.bind(this)(evt, newCode);
+	     				}
+	     				else {
+	     					this.currencySelector('save');
+	     				}
+ 					});
  				}
  				else {
 					var $dlgDiv = $('#hrm_cur_sel_dlg_div_shared');
@@ -491,56 +560,9 @@ function addToggleExpansionButton($grid) {
 	 					.data('prev_value',selected);						
 					}
  				}
-				$btn.click( function(evt) { 
-					evt.preventDefault();
-					
-					var $b = $(evt.target).parent();
-					var $dlgDiv = $('#hrm_cur_sel_dlg_div_shared');
-    				
-    				$dlgDiv.data('currentBtn',$b)
-				    .find('a').each( function() {
-				    	var $li = $(this).parent();
-				    	$li.removeClass('selected');
-				    	if ($li.data('code') == $b.data('code'))
-				    		$li.addClass('selected');				    		
-				    });
-    				// Need to use this instance's menu select handler to get
-    				// options context right.
-    				$dlgDiv.find('ul').first()
-    				.off('menuselect')
-    				.on('menuselect', function(evt,ui) {
-    					var $li = $(ui.item);
-    					var newCode = $li.data('code');
-    					$dlgDiv.find('a').removeClass('selected');
-    					$li.addClass('selected');
-    					var $btn = $dlgDiv.data('currentBtn');
-    					$btn.button('option','label', newCode)
-    					.data('code',newCode);
-    					$dlgDiv.dialog('close');
-     					if ('onChange' in settings && settings.onChange != null) {
-     						console.log('calling onChange handler');
-     						settings.onChange.bind($btn.parent())(evt, newCode);
-     					}
-     					else {
-     						$elem.currencySelector('save');
-     					}
-    				}); 
-    				$dlgDiv.dialog('option', 'position',
-    						{my:'left top', at:'left top', of:this}
-    				)
-    				.dialog('open'); 
-    			})
-    			.addClass('hrm_cur_sel_btn');
+				$btn.addClass('hrm_cur_sel_btn').click(btnClick);
 				
-				if ($('#hrm_cur_sel_dlg_div_shared').length == 0
-						|| ! $('#hrm_cur_sel_dlg_div_shared').hasClass('ui-dialog-content')) {
-					$elem.currencySelector('rebuild');					
-				}
-				else {
-    				if ('afterBuild' in settings  && settings.afterBuild != null) {
-    					settings.afterBuild.bind($btn.parent())($btn);
-    				}					
-				}
+				$elem.currencySelector('rebuild');			
  			});
  		}
  		
@@ -912,7 +934,6 @@ function addToggleExpansionButton($grid) {
  	 				});
  	 				$elem.find('.hrm_price').each( function(idx) {
  	 					$field = $(this);
- 	 					console.log($field.val());
  	 					$field.val( parseFloat($field.val()).formatMoney(2) );
  	 				})
  	 				$elem.change( function( eventObj ) {
