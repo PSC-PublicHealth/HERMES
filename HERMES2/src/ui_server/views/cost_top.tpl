@@ -35,6 +35,12 @@
 					<td>{{_("Storage Equipment")}}</td><td><button id="cost_fridge_btn">{{_("Start")}}</button></td>
 				</tr>
 				<tr>
+					<td>{{_("Storage Equipment version 2")}}</td><td><button id="cost_fridge2_btn">{{_("Start")}}</button></td>
+				</tr>
+				<tr>
+					<td>{{_("Storage Equipment version 3")}}</td><td><button id="cost_fridge3_btn">{{_("Start")}}</button></td>
+				</tr>
+				<tr>
 					<td>{{_("Vehicles")}}</td><td><button id="cost_truck_btn">{{_("Start")}}</button></td>
 				</tr>
 				<tr>
@@ -68,7 +74,7 @@
 
 { // local scope
 
-var buttonNames = ['fuel', 'truck', 'fridge', 'vaccine', 'salary', 'building'];
+var buttonNames = ['fuel', 'truck', 'fridge', 'fridge2', 'fridge3', 'vaccine', 'salary', 'building'];
 
 var getCurrentModelId = function(){ return $('#model_sel_widget').modelSelector('selId'); };
 var getCurrentModelName = function(){ return $('#model_sel_widget').modelSelector('selName'); };

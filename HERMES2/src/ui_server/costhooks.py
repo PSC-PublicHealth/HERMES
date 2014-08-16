@@ -57,6 +57,16 @@ def costEditFridge(db, uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Storage")))
     return bottle.template("cost_edit_fridge.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs")})
 
+@bottle.route('/cost-edit-fridge2')
+def costEditFridge2(db, uiSession):
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Storage")))
+    return bottle.template("cost_edit_fridge_version2.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs Version 2")})
+
+@bottle.route('/cost-edit-fridge3')
+def costEditFridge3(db, uiSession):
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Storage")))
+    return bottle.template("cost_edit_fridge_version3.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs Version 3")})
+
 @bottle.route('/list/select-currency')
 def handleListCurrency(db,uiSession):
     try:
