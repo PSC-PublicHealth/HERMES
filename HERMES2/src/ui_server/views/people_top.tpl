@@ -202,6 +202,7 @@ $(function() {
 	      		$( this ).dialog( "close" );
 	    	},
 	    	Cancel: function() {
+	    		var dlg = $('#confirm_dialog');
 	      		$( this ).dialog( "close" );
 	      		dlg.data('cb').checked = true;
 	    	}
