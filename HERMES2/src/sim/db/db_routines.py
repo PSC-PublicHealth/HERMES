@@ -56,7 +56,7 @@ class DbInterface:
                  name = 'hermes', 
                  user = 'hermes', 
                  password = 'hermes_pass', 
-                 host = 'localhost',
+                 host = '127.0.0.1',
                  echo = False,
                  scratchDir = None):
         sI = site_info.SiteInfo()
@@ -69,14 +69,14 @@ class DbInterface:
 
         if dbType == 'mysql':
             uri = 'mysql+mysqldb://'
-            uri += name
+            uri += user
             if password is not None:
                 uri += ':' + password
             uri += '@'
             uri += host
             uri += '/'
             uri += name
-            uri += '?charset=utf8&use_unicode=0'
+            uri += '?charset=utf8&use_unicode=1'
             
             engine = create_engine(uri, echo = echo, pool_recycle=3600)
         elif dbType == 'sqlite':
