@@ -51,12 +51,14 @@ def geojsonTopPage(db,uiSession):
 @bottle.route('/d3geodemo')
 def d3geoDemoPage(db,uiSession):
     modelId= _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
+    resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
     return bottle.template('d3democlickzoom.tpl',{"breadcrumbPairs":[("top",_("Welcome"))],
                                             "pageHelpText":_("This is intended to show page-specific help")},
-                                            _=_,inlizer=inlizer,modelId=modelId)
+                                            _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId)
+
     
 @bottle.route('/json/storelocations')
-def generateJSON(db, uiSession):
+def generateStoreInfoJSON(db, uiSession):
     from visualizationUtils import circleLonLat
     try:
         from geojson import Feature,Point,Polygon,FeatureCollection,dumps
@@ -65,16 +67,37 @@ def generateJSON(db, uiSession):
         uiSession.getPrivs().mayReadModelId(db,modelId)
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         
-        # 
-        #f = {'success':True,'features':[]}
         levels = m.getLevelList()
-        f = [Feature(geometry=Point([x.Longitude,x.Latitude]),id=x.idcode,name=x.NAME,level=levels.index(x.CATEGORY)) for y,x in m.stores.items() if ((x.supplierRoute() is None) or (x.supplierRoute().Type != "attached" and x.CATEGORY != "Surrogate")) ]
+        f = [Feature(geometry=Point([x.Longitude,x.Latitude]),id=x.idcode,name=x.NAME,level=levels.index(x.CATEGORY))\
+             for y,x in m.stores.items()\
+             if ((x.supplierRoute() is None) or (x.supplierRoute().Type != "attached" and x.CATEGORY != "Surrogate")) ]
+        
         FC = FeatureCollection(f)
-#         for storeId,store in m.stores.items():
-#             f['features'].append(Feature(geometry=Point([store.Longitude,store.Latitude])))
-#                                          #Polygon([circleLonLat(store.Longitude+0.001,store.Latitude+0.001,0.01,20)]),
-#                                          #properties={'popupContent':store.NAME}))
-            
+                    
+        return {'success':True,"geoFC":FC}      
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+
+@bottle.route('/json/storeutilizationlocations')
+def generateStoreUtilInfoJSON(db, uiSession):
+    #from visualizationUtils import circleLonLat
+    try:
+        from geojson import Feature,Point,Polygon,FeatureCollection,dumps
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
+        
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        r = m.getResultById(resultsId)
+                
+        levels = m.getLevelList()
+        f = [Feature(geometry=Point([x.Longitude,x.Latitude]),id=x.idcode,name=x.NAME,level=levels.index(x.CATEGORY),util=r.storesRpts[x.idcode].storage['cooler'].fillRatio)\
+             for y,x in m.stores.items()\
+             if ((x.supplierRoute() is None) or (x.supplierRoute().Type != "attached" and x.CATEGORY != "Surrogate")) ]
+        
+        FC = FeatureCollection(f)
+                    
         return {'success':True,"geoFC":FC}      
     except Exception,e:
         result = {'success':False, 'msg':str(e)}
