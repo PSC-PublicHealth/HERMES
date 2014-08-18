@@ -3,7 +3,7 @@
 _hermes_svn_id_="$Id$"
 
 import sys,os,os.path,types
-from cStringIO import StringIO
+from StringIO import StringIO
 import ipath
 import serverconfig
 import session_support_wrapper as session_support

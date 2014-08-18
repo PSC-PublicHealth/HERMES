@@ -6,7 +6,7 @@ fallback to the AllTypesModel.
 _hermes_svn_id_="$Id$"
 
 import sys,os,types
-from cStringIO import StringIO
+from StringIO import StringIO
 import ipath
 import shadow_network_db_api
 from typeholdermodel import allTypesModelName

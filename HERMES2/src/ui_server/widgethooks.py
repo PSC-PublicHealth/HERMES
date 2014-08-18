@@ -8,7 +8,7 @@
 _hermes_svn_id_="$Id$"
 
 import json, types, urllib
-from cStringIO import StringIO
+from StringIO import StringIO
 import bottle
 import ipath
 import site_info
