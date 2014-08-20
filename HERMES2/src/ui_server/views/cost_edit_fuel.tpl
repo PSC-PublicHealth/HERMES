@@ -97,7 +97,7 @@ function buildPage(modelId) {
 						$.getJSON( '{{rootPath}}json/set-fuel-price/'+currentRowName, { 
 							modelId:modelId,
 							price:$('#price_'+currentRowName).val(),
-							id:encodeURIComponent($('#price_'+currentRowName+'_units').currencySelector('selId'))
+							id:$('#price_'+currentRowName+'_units').currencySelector('selId')
 						 })
 						.done( function(data) {
 							if (data.success) {
@@ -120,12 +120,12 @@ function buildPage(modelId) {
 					return function(evt, currencyId) {
 						$.getJSON('{{rootPath}}json/set-fuel-price-currency/'+currentRowName, {
 							modelId:modelId,
-							id:encodeURIComponent(currencyId),
+							id:currencyId,
 							price:$('#price_'+currentRowName).val()
 						})
 						.done(function(data) {
 							if ( data.success ) {
-								if (decodeURIComponent(data.id) == currencyId) {
+								if (data.id == currencyId) {
 									$('#price_'+currentRowName+'_units').currencySelector('save');
 									if (data.price) {
 										$('#price_'+currentRowName).val( data.price.formatMoney(2) );
@@ -168,7 +168,7 @@ function buildPage(modelId) {
 				}
 				$('#price_'+rowName).floatTextBox('saveState');
 				$('#price_'+rowName+'_units').hrmWidget( $.extend({},
-						{selected:decodeURIComponent(data[rowName+'Currency'])},
+						{selected:data[rowName+'Currency']},
 						widgetArgs));
 			}
 		}

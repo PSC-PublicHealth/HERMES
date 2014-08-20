@@ -88,9 +88,9 @@ $(function() {
 	var curCTM = null;
 
 	function drawIntro(svg) { 
-		$(svg.root()).svgPan('graph1',true,true,false,0.1);
+		$(svg.root()).svgPan('graph0',true,true,false,0.1);
 		addClicksRecursively(svg.root());
-		var g = $(svg.root()).find('#graph1')[0];
+		var g = $(svg.root()).find('#graph0')[0];
 		originalCTM = g.getCTM();
 		if (curCTM) setCTM(g,curCTM);
 	}
@@ -114,7 +114,7 @@ $(function() {
 			vaxStr="";
 		}
 		if ($('#results_fireworks_div').svg('get')) {
-			var g = $($('#results_fireworks_div').svg('get').root()).find('#graph1')[0];
+			var g = $($('#results_fireworks_div').svg('get').root()).find('#graph0')[0];
 			curCTM = g.getCTM();
 			$('#results_fireworks_div').svg('get').load(
 				'{{rootPath}}svg/fireworks?resultsId={{resultsId}}'+vaxStr,
@@ -134,7 +134,7 @@ $(function() {
 	var btn = $("#reset_button");
 	btn.button();
 	btn.click( function() {
-		var g = $($('#results_fireworks_div').svg('get').root()).find('#graph1')[0];
+		var g = $($('#results_fireworks_div').svg('get').root()).find('#graph0')[0];
 		setCTM(g,originalCTM);
 	});
 	

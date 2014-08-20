@@ -116,7 +116,7 @@ $(function() {
 				onChange:function(mysel,mydata) {
 					$.getJSON( '{{rootPath}}json/set-base-currency', {
 						modelId:getCurrentModelId,
-						id:function(){ return encodeURIComponent($('#currency_sel_widget').currencySelector('selId')); }
+						id:function(){ return $('#currency_sel_widget').currencySelector('selId'); }
 					})
 					.done(function(data) {
 						if ( data.success ) {

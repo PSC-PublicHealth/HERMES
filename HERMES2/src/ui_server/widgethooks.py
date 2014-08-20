@@ -472,7 +472,7 @@ def handleListType(db,uiSession):
         sio = StringIO()
         for t in typeList:
             
-            if escapeFlag: eName = urllib.quote(t['Name'])
+            if escapeFlag: eName = urllib.quote(t['Name'].encode('utf8'))
             else: eName = t['Name']
             
             if typestring and typestring==t['Name']:

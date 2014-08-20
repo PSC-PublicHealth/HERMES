@@ -4,7 +4,6 @@ _hermes_svn_id_="$Id$"
 
 import sys,os,os.path,time,json,math,types
 import bottle
-import urllib
 import ipath
 import shadow_network_db_api
 import shadow_network
@@ -91,10 +90,7 @@ def handleListCurrency(db,uiSession):
                 selectedCurrencyName = name
             else:
                 s += '<option value="%s">"%s"</option>\n'%(thisId,name)
-        #quotedPairs = [(urllib.quote(a), urllib.quote(b)) for a,b in orderedPairs]
-        quotedPairs = []
-        for a,b in orderedPairs:
-            quotedPairs.append((a,b))
+        quotedPairs = [(a, b) for a,b in orderedPairs]
         return {"menustr":s, "pairs":quotedPairs, 
                 "selid":selectedCurrencyId, 
                 "defaultid":uiSession['defaultCurrencyId'],
@@ -163,8 +159,8 @@ def jsonGetDefaultCurrency(db, uiSession):
         uiSession.getPrivs().mayReadModelId(db, modelId)
         if 'defaultCurrencyId' in uiSession:
             currencyId = uiSession['defaultCurrencyId']
-            result = { 'id':urllib.quote(currencyId), 
-                      'name':urllib.quote(currencyhelper.getCurrencyDict(db,modelId)[currencyId]),
+            result = { 'id':currencyId, 
+                      'name':currencyhelper.getCurrencyDict(db,modelId)[currencyId],
                       'success':True }
         else:
             result = { 'id':None, 'name':None, 'success':True }
@@ -178,11 +174,10 @@ def jsonSetDefaultCurrency(db, uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayWriteModelId(db, modelId)
-        rawCurrencyId = _getOrThrowError(bottle.request.params, 'id') # Note that this is a string!
-        currencyId = urllib.unquote(rawCurrencyId)
+        currencyId = _getOrThrowError(bottle.request.params, 'id') # Note that this is a string!
         uiSession['defaultCurrencyId'] = currencyId
-        result = { 'id':rawCurrencyId, 
-                  'name':urllib.quote(currencyhelper.getCurrencyDict(db,modelId)[currencyId]), 
+        result = { 'id':currencyId, 
+                  'name':currencyhelper.getCurrencyDict(db,modelId)[currencyId], 
                   'success':True }
         return result
     except Exception,e:
@@ -196,8 +191,8 @@ def jsonGetBaseCurrency(db, uiSession):
         uiSession.getPrivs().mayReadModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         baseCurrency = m.getParameterValue('currencybase')
-        result = { 'id':urllib.quote(baseCurrency), 
-                  'name':urllib.quote(currencyhelper.getCurrencyDict(db,modelId)[baseCurrency]), 
+        result = { 'id':baseCurrency, 
+                  'name':currencyhelper.getCurrencyDict(db,modelId)[baseCurrency], 
                   'success':True }
         return result
     except Exception,e:
@@ -210,12 +205,11 @@ def jsonSetBaseCurrency(db, uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayWriteModelId(db, modelId)
-        rawCurrencyId = _getOrThrowError(bottle.request.params, 'id') # Note that this is a string!
-        currencyId = urllib.unquote(rawCurrencyId)
+        currencyId = _getOrThrowError(bottle.request.params, 'id') # Note that this is a string!
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         m.addParm(shadow_network.ShdParameter('currencybase',currencyId))
         uiSession['defaultCurrencyId'] = currencyId
-        result = { 'id':rawCurrencyId, 
+        result = { 'id':currencyId, 
                   'name':currencyhelper.getCurrencyDict(db,modelId)[currencyId], 
                   'success':True }
         return result
@@ -288,7 +282,7 @@ def jsonGetFuelPriceInfo(db, uiSession):
             fuelCurString = '%sCurrency'%fuel
             fuelPriceString = '%sPrice'%fuel
             if fuelCurString not in uiSession: uiSession[fuelCurString] = currencyBase
-            result[fuelCurString] = urllib.quote(uiSession[fuelCurString])
+            result[fuelCurString] = uiSession[fuelCurString]
             fuelPrice = m.getParameterValue(fuelParamName)
             print "%s: %s"%(fuelParamName, fuelPrice)
             if fuelPrice is None:
@@ -310,14 +304,14 @@ def jsonSetFuelPrice(db, uiSession, fuelName):
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayReadModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-        currencyId = urllib.unquote(_getOrThrowError(bottle.request.params, 'id'))
+        currencyId = _getOrThrowError(bottle.request.params, 'id')
         currencyParamName = _fuelNames[fuelName]
         price = _safeGetReqParam(bottle.request.params, 'price', isFloat=True)
         if price is not None and price!='':
             priceInBaseCurrency = _getCurrencyConverter(db, uiSession, m).convertTo(currencyId,price,
                                                                                     m.getParameterValue('currencybase'))
             m.addParm(shadow_network.ShdParameter(currencyParamName, priceInBaseCurrency))
-        result = {'success':True, 'price':price, 'id':urllib.quote(currencyId)}
+        result = {'success':True, 'price':price, 'id':currencyId}
         return result
     except Exception,e:
         _logStacktrace()
