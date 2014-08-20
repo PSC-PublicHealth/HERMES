@@ -232,8 +232,8 @@ function buildPage(modelId) {
         						return $('#model_sel_widget').modelSelector('selId'); 
         					}
                   	  },
-                  	  editCaption:"Edit Cost Information for " + devName
-        
+                  	  editCaption:"Edit Cost Information for " + devName,
+                  	  savekey:[true,13]             
 					});
 				}
 				else alert("Please Slect Row");
