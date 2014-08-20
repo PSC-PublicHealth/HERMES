@@ -134,9 +134,10 @@ function addToggleExpansionButton($grid) {
 							if (data.msg) alert('{{_("Failed: ")}}'+data.msg);
 							else alert('{{_("Failed: No information about the error is available")}}');
 						}
-					}
+					},
+					autoencode:true
 				});
-				if (opts.debug) console.log('loadError and beforeProcessing set');
+				if (opts.debug) console.log('loadError, beforeProcessing, and autoencode set');
 				if (opts.resizable) {
 					function resize_grid() {
 						var offset = $grid.offset() //position of grid on page
@@ -400,8 +401,10 @@ function addToggleExpansionButton($grid) {
 	    				var selId = decodeURIComponent(data.selid);
 						var $ul = $(document.createElement('ul'));
 		    			for (var i = 0; i < data.pairs.length; i++) {
-		    				var curCode = decodeURIComponent(data.pairs[i][1]);
-		    				var curStr = decodeURIComponent(data.pairs[i][0]);
+		    				//var curCode = decodeURIComponent(data.pairs[i][1]);
+		    				var curCode = data.pairs[i][1];
+		    				//var curStr = decodeURIComponent(data.pairs[i][0]);
+		    				var curStr = data.pairs[i][0];
 		    				var $li = $(document.createElement('li'))
 		    				.data('code',curCode)
 		    				.data('str',curStr);
@@ -531,15 +534,7 @@ function addToggleExpansionButton($grid) {
  						label:selected
  					})
  					.data('code',selected)
- 					.data('prev_value',selected)
- 					.data('changeHandler', function(evt,newCode) {
-	     				if ('onChange' in settings && settings.onChange != null) {
-	     					settings.onChange.bind(this)(evt, newCode);
-	     				}
-	     				else {
-	     					this.currencySelector('save');
-	     				}
- 					});
+ 					.data('prev_value',selected);
  				}
  				else {
 					var $dlgDiv = $('#hrm_cur_sel_dlg_div_shared');
@@ -560,6 +555,14 @@ function addToggleExpansionButton($grid) {
 	 					.data('prev_value',selected);						
 					}
  				}
+				$btn.data('changeHandler', function(evt,newCode) {
+	     			if ('onChange' in settings && settings.onChange != null) {
+	     				settings.onChange.bind(this)(evt, newCode);
+	     			}
+	     			else {
+	     				this.currencySelector('save');
+	     			}
+ 				});
 				$btn.addClass('hrm_cur_sel_btn').click(btnClick);
 				
 				$elem.currencySelector('rebuild');			
