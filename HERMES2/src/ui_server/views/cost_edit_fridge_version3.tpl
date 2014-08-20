@@ -220,13 +220,26 @@ function buildPage(modelId) {
 	    caption:"{{_("Cold Storage Costs")}}"
 	})
 	.jqGrid('navGrid','#fridge_cost_pager',
-			{edit:true,add:false,del:false},
+			{edit:true,add:false,del:false,search:false,view:false},
 			{ // edit option
 				closeAfterEdit:true,
 				editData: {
 					modelId: function() { return $('#model_sel_widget').modelSelector('selId'); },
 					
-				}
+				},
+                afterclickPgButtons: function(whichbutton, formid, rowid) {
+                    console.log(rowid);
+                        
+                    var devName = $("#fridge_cost_grid").jqGrid('getCell',rowid,"displayname");
+                    console.log(devName);
+                    $('#edithdfridge_cost_grid span').text(devName);
+                },
+                beforeShowForm : function(formid) {
+                    var rowid =  $("#fridge_cost_grid").jqGrid('getGridParam', 'selrow');
+                    var devName = $("#fridge_cost_grid").jqGrid('getCell',rowid,"displayname");
+                    $('#edithdfridge_cost_grid span').text(devName);
+                }
+
 			},
 			{ // add params
 			},
@@ -239,8 +252,47 @@ function buildPage(modelId) {
 	)
 	.jqGrid('hermify',{
 		debug:true, printable:true, resizable:true
-	});
+	}).jqGrid('modify_cost_version_3',{debug:true});
 }
+
+
+// Add a method to jqGrid that will allow us to customize.
+(function( $ ) {
+	$.jgrid.extend({
+		modify_cost_version_3: function(opts) {
+    		this.each(function() {
+            	if (!this.grid) { return; }
+
+            	if (opts.debug) {
+    				console.log('starting modify_cost_version_3 with opts: '
+                        + JSON.stringify(opts))
+    			}
+                var $grid = $(this);
+                // awkwardly rip out the edit button and stick it on the page above
+                // the grid
+
+                $('table:nth-child(2) > tbody').prepend($('#edit_fridge_cost_grid')
+                    .wrapInner($('<button type="button">')
+                        .css('float','right')
+                        .css('width','200px')
+                        .text('Edit')));
+                $('#edit_fridge_cost_grid')
+                    .attr('width','100px')
+                    .removeClass('ui-pg-button')
+                    .removeClass('ui-corner-all')
+                    .wrap($('<tr align="right">')
+                        .css('padding-left','400px')
+                        .css('float','right')
+                        .attr('width','201px'));
+                $('#edit_fridge_cost_grid .ui-pg-div')
+                    .css('float','right');
+    		});
+    		return this;
+    	}
+	});
+}(jQuery));
+            
+
 
 $(function() {
 	$("#model_sel_widget").hrmWidget({
