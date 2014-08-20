@@ -56,7 +56,9 @@ function updatePage(modelId) {
 function fridgeInfoButtonFormatter(cellvalue, options, rowObject)
 {
     // cellvalue will be the name string
-	return "<button type=\"button\" class=\"hermes_info_button\" id="+escape(cellvalue)+">Info</button>";
+	return "<button type\"button\" class=\"this_edit_button\" id="+escape(cellvalue)+">Edit</button>" +
+			"<button type=\"button\" class=\"hermes_info_button\" id="+escape(cellvalue)+">Info</button>" +
+			"<button type=\"button\" class=\"this_info_button\" id="+escape(cellvalue)+" disabled>Del</button>";
 };
 
 var priceCheckFailure = false;
@@ -93,9 +95,14 @@ function buildPage(modelId) {
 	})
 
 	$("#fridge_cost_grid").jqGrid({
-	   	url:'{{rootPath}}json/manage-fridge-cost-table',
-	    editurl:'{{rootPath}}edit/edit-cost-fridge',	
+	   	url:'{{rootPath}}json/manage-fridge-cost-table-2',
+	    editurl:'{{rootPath}}edit/edit-cost-fridge',
 		datatype: "json",
+		jsonReader: {
+				root:'rows',
+				repeatitems:false,
+				id:'name'
+		},
 		postData: {
 			modelId: function() { return $('#model_sel_widget').modelSelector('selId'); }
 		},
@@ -104,21 +111,20 @@ function buildPage(modelId) {
 		          "{{_('TrueName')}}",
 		          "{{_('Category')}}",
 		          "{{_('Name')}}",
-		          "{{_('Details')}}",
 		          "{{_('Base Cost')}}",
 		          "{{_('Currency')}}",
 		          "{{_('Base Cost Year')}}",
 		          "{{_('Ongoing')}}",
 		          "{{_('Units')}}",
-		          "{{_('Of')}}"
+		          "{{_('Of')}}",
+		          "{{_('Details')}}"
+		          
 		], //define column names
 		colModel:[
-		          {name:'name', index:'name', hidden:true, key:true},
-		          {name:'category', index:'category'},
-		          {name:'displayname', index:'displayname', width:400},
-		          {name:'info', index:'info', width:70, align:'center', sortable:false,
-		        	  formatter:fridgeInfoButtonFormatter},
-		          {name:'basecost', index:'basecost', width:100, align:'center', 
+		          {name:'name', jsonmap:'name', index:'name', hidden:true, key:true},
+		          {name:'category', jsonmap:'category', index:'category'},
+		          {name:'displayname', jsonmap:'displayname', index:'displayname', width:400},
+		          {name:'basecost', jsonmap:'basecost', index:'basecost', jsonmapwidth:100, align:'center', 
 		        		  formatter:'currency', formatoptions:{defaultValue:''},
 		        		  editable:true, editrules:{ 
 			        		  custom:true, 
@@ -130,7 +136,7 @@ function buildPage(modelId) {
 			        		  }
 			        	  }
 		          },
-		          {name:'currency', index:'currency', width:70, align:'center', sortable:true,
+		          {name:'currency', jsonmap:'currency', index:'currency', width:70, align:'center', sortable:true,
 		        	  editable:true,
 		        	  edittype:'custom',
 		        	  editoptions: {
@@ -158,9 +164,9 @@ function buildPage(modelId) {
 		        		  }
 		        	  }
 		          },
-		          {name:'basecostyear', index:'basecostyear', align:'center',
+		          {name:'basecostyear', jsonmap:'basecostyear', index:'basecostyear', align:'center',
 		        		  editable:true, edittype:'text', editrules:{integer:true, minValue:2000, maxValue:2020}},
-		          {name:'ongoing', index:'ongoing', editable:true, edittype:'text', width:100, align:'center', 
+		          {name:'ongoing', jsonmap: 'powerrate', index:'ongoing', editable:true, edittype:'text', width:100, align:'center', 
 			        	  formatter:'currency', formatoptions:{defaultValue:''},
 			        	  editable:true, editrules:{ 
 			        		  custom:true, 
@@ -172,8 +178,11 @@ function buildPage(modelId) {
 			        		  }
 			        	  }
 		          },
-		          {name:'ongoingunits', index:'ongoingunits', width:100, align:'center'},
-		          {name:'ongoingwhat', index:'ongoingwhat', align:'center'}
+		          {name:'ongoingunits', jsonmap: 'powerrateunits', index:'ongoingunits', width:100, align:'center'},
+		          {name:'ongoingwhat', jsonmap: 'energy', index:'ongoingwhat', align:'center'},
+		          {name:'info', jsonmap: 'detail', index:'info', width:140, align:'center', sortable:false, 
+		        	  formatter:fridgeInfoButtonFormatter}
+		          
 		], //define column models
 		pager: 'fridge_cost_pager', //set your pager div id
 		pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
@@ -182,6 +191,9 @@ function buildPage(modelId) {
 		viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Z” optional
 		sortorder: "asc", //sort order; optional
 		gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
+		beforeSelectRow: function(rowid, e) {
+		    return false;
+		},
 		gridComplete: function(){
 			$(".hermes_info_button").click(function(event) {
 				$.getJSON('{{rootPath}}json/fridge-info',{name:unescape($(this).attr('id')), modelId:$('#model_sel_widget').modelSelector('selId')})
@@ -200,6 +212,31 @@ function buildPage(modelId) {
 						alert("Error: "+jqxhr.responseText);
 				});
 				event.stopPropagation();
+			});
+			
+			$(".this_edit_button").click(function(event){
+				//var gr = $("#fridge_cost_grid").jqGrid('getGridParam','selRow');
+				//console.log(gr);
+				if(true) {
+					console.log("ID :"+ $(this).attr("id"));
+					var devName = $("#fridge_cost_grid").jqGrid('getCell',$(this).attr("id"),"displayname");
+					$("#fridge_cost_grid").jqGrid('editGridRow',$(this).attr("id"),{
+                  	  closeAfterEdit:true,
+                  	  closeOnEscape:true,
+                  	  jqModal:true,
+                  	  viewPagerButtons:false,
+                  	  mType:"POST",
+                  	  modal:true,
+                  	  editData: {
+        					modelId: function() { 
+        						return $('#model_sel_widget').modelSelector('selId'); 
+        					}
+                  	  },
+                  	  editCaption:"Edit Cost Information for " + devName
+        
+					});
+				}
+				else alert("Please Slect Row");
 			});
 		},
 		loadError: function(xhr,status,error){
@@ -225,8 +262,9 @@ function buildPage(modelId) {
 				closeAfterEdit:true,
 				editData: {
 					modelId: function() { return $('#model_sel_widget').modelSelector('selId'); },
-					
+				title: '{{_("Edit This fucking item")}}',	
 				}
+				
 			},
 			{ // add params
 			},
@@ -299,7 +337,9 @@ $(function() {
 	$("#fridge_info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
 });
 
-
+$(function(){
+	
+})
 } // end local scope
 </script>
  

@@ -82,19 +82,23 @@ def handleListCurrency(db,uiSession):
         s = ""
         for name, thisId in orderedPairs: 
             if selectedCurrencyId is None:
+                print thisId
                 uiSession['defaultCurrencyId'] = selectedCurrencyId = thisId
-                s += "<option value=%s selected>%s</option>\n"%(urllib.quote(thisId),urllib.quote(name))
+                s += "<option value=%s selected>%s</option>\n"%(thisId,name)
                 selectedCurrencyName = name
             elif thisId == selectedCurrencyId:
-                s += "<option value=%s selected>%s</option>\n"%(urllib.quote(thisId),urllib.quote(name))
+                s += "<option value=%s selected>%s</option>\n"%(thisId,name)
                 selectedCurrencyName = name
             else:
-                s += "<option value=%s>%s</option>\n"%(urllib.quote(thisId),urllib.quote(name))
-        quotedPairs = [(urllib.quote(a), urllib.quote(b)) for a,b in orderedPairs]
+                s += '<option value="%s">"%s"</option>\n'%(thisId,name)
+        #quotedPairs = [(urllib.quote(a), urllib.quote(b)) for a,b in orderedPairs]
+        quotedPairs = []
+        for a,b in orderedPairs:
+            quotedPairs.append((a,b))
         return {"menustr":s, "pairs":quotedPairs, 
-                "selid":urllib.quote(selectedCurrencyId), 
-                "defaultid":urllib.quote(uiSession['defaultCurrencyId']),
-                "selname":urllib.quote(selectedCurrencyName), "success":True}
+                "selid":selectedCurrencyId, 
+                "defaultid":uiSession['defaultCurrencyId'],
+                "selname":selectedCurrencyName, "success":True}
     except Exception,e:
         _logStacktrace()
         return {"success":False, "msg":str(e)}
@@ -212,7 +216,7 @@ def jsonSetBaseCurrency(db, uiSession):
         m.addParm(shadow_network.ShdParameter('currencybase',currencyId))
         uiSession['defaultCurrencyId'] = currencyId
         result = { 'id':rawCurrencyId, 
-                  'name':urllib.quote(currencyhelper.getCurrencyDict(db,modelId)[currencyId]), 
+                  'name':currencyhelper.getCurrencyDict(db,modelId)[currencyId], 
                   'success':True }
         return result
     except Exception,e:
@@ -339,6 +343,62 @@ def jsonSetFuelPrice(db, uiSession, fuelName):
 #     except Exception,e:
 #         _logStacktrace()
 #         return {"success":False, "msg":str(e)} 
+
+@bottle.route('/json/manage-fridge-cost-table-2')
+def jsonManageFridgeCostTable2(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        try:
+            uiSession.getPrivs().mayReadModelId(db, modelId)
+        except privs.PrivilegeException:
+            raise bottle.BottleException('User may not read model %d'%modelId)
+        tList = typehelper.getTypeList(db, modelId, 'fridges', fallback=False)
+        tList = [t for t in tList if t['Category'] != '-chained-'
+                 and t['Name'] not in typehelper.hiddenTypesSet]
+        for rec in tList:
+            if 'DisplayName' not in rec \
+                or rec['DisplayName'] is None or rec['DisplayName']=='':
+                rec['DisplayName'] = rec['Name']
+            if 'Category' not in rec \
+                or rec['Category'] is None or rec['Category']=='':
+                rec['Category'] = _('Uncategorized')
+        nPages,thisPageNum,totRecs,tList = orderAndChopPage(tList,
+                                                            {'category':'Category',
+                                                             'name':'Name',
+                                                             'displayname':'DisplayName',
+                                                             'basecost':'BaseCost',
+                                                             'currency':'BaseCostCurCode',
+                                                             'basecostyear':'BaseCostYear',
+                                                             },
+                                                            bottle.request)
+        for t in tList:
+            for k in ['BaseCost','BaseCostYear','PowerRate']: 
+                if t[k] == 0: t[k] = None
+            if t['PowerRateUnits'] and energyTranslationDict[t['Energy']][2] and t['PowerRateUnits'].lower() != energyTranslationDict[t['Energy']][2].lower():
+                raise RuntimeError("Power units for %s are inconsistent: %s vs. %s"%\
+                                   (t['Name'],t['PowerRateUnits'],energyTranslationDict[t['Energy']][2]))
+                
+        result = {
+                  'success':True,
+                  "total":1,    # total pages
+                  "page":1,     # which page is this
+                  "records":totRecs,  # total records
+                  "rows": [ {"name":t['Name'],
+                            "category":t['Category'],
+                            "displayname":t['DisplayName'],
+                            "detail":t['Name'],
+                            "basecost":t['BaseCost'],
+                            "currency":t['BaseCostCur'],
+                            "basecostyear":t['BaseCostYear'],
+                            "powerrate":t['PowerRate'],
+                            "powerrateunits":t['PowerRateUnits'],
+                            "energy":energyTranslationDict[t['Energy']][1]
+                             }
+                           for t in tList if t['Name'] not in typehelper.hiddenTypesSet]
+                  }
+        return result
+    except Exception,e:
+        return {'success':False, 'msg':str(e)}
 
 @bottle.route('/json/manage-fridge-cost-table')
 def jsonManageFridgeCostTable(db, uiSession):
