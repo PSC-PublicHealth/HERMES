@@ -533,7 +533,7 @@ class Model:
                     for rec in allRecs:
                         if 'TransitTime' in rec:
                             nm = rec['Name']+'.histo'
-                            if isinstance(arcname, types.UnicodeType): arcname = nm.encode('utf-8')
+                            if isinstance(nm, types.UnicodeType): arcname = nm.encode('utf-8')
                             else: arcname = nm
                             arcname = '_'.join(arcname.split()) # remove whitespace
                             myzip.writestr(arcname, rec['TransitTime'].toJSON())
