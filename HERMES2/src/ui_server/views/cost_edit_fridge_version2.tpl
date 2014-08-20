@@ -257,14 +257,8 @@ function buildPage(modelId) {
 	    caption:"{{_("Cold Storage Costs")}}"
 	})
 	.jqGrid('navGrid','#fridge_cost_pager',
-			{edit:true,add:false,del:false},
-			{ // edit option
-				closeAfterEdit:true,
-				editData: {
-					modelId: function() { return $('#model_sel_widget').modelSelector('selId'); },
-				title: '{{_("Edit This fucking item")}}',	
-				}
-				
+			{edit:false,add:false,del:false,search:false},
+			{ 
 			},
 			{ // add params
 			},
