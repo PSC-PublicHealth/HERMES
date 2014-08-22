@@ -222,7 +222,8 @@ function buildPage(modelId) {
 	.jqGrid('navGrid','#fridge_cost_pager',
 			{edit:true,add:false,del:false,search:false,view:false},
 			{ // edit option
-				closeAfterEdit:true,
+				closeAfterEdit:false,
+                checkOnUpdate:true,
 				editData: {
 					modelId: function() { return $('#model_sel_widget').modelSelector('selId'); },
 					
