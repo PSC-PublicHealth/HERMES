@@ -87,7 +87,7 @@ function boxClick(cb,event) {
 		$.getJSON('{{rootPath}}json/add-type-to-model',{name:cb.value, modelId:$('#model_select').modelSelector('selId')})
 		.done(function(data) {
 			if (data.success) {
-				$("#manage_fridge_grid").trigger("reloadGrid"); // to update checkboxes
+				//$("#manage_fridge_grid").trigger("reloadGrid"); // to update checkboxes
 			}
 			else {
 				alert('{{_("Failed: ")}}'+data.msg);
@@ -117,7 +117,9 @@ function boxClick(cb,event) {
 			else defer.reject(data);
 			return defer;
 		})
-		.done ( function(data) { $("#manage_fridge_grid").trigger("reloadGrid"); } ) // to update checkboxes
+		.done ( function(data) {
+            //$("#manage_fridge_grid").trigger("reloadGrid"); 
+            } ) // to update checkboxes
 		.fail( reportError )
 		.fail( function(data) { cb.checked = true; } );
 	};
@@ -132,10 +134,10 @@ function fridgeInfoButtonFormatter(cellvalue, options, rowObject)
 function checkboxFormatter(cellvalue, options, rowObject)
 {
 	if (cellvalue) {
-		return "<input type='checkbox'  checked value='"+rowObject[0]+"' onclick='boxClick(this,event)'>";
+		return "<input type='checkbox'  checked value='"+rowObject[1]+"' onclick='boxClick(this,event)'>";
 	}
 	else {
-		return "<input type='checkbox'  value='"+rowObject[0]+"' onclick='boxClick(this,event)'>";
+		return "<input type='checkbox'  value='"+rowObject[1]+"' onclick='boxClick(this,event)'>";
 	}
 };
 
