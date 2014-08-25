@@ -452,6 +452,13 @@ def _buildEditFieldTable(fieldMap):
                 if 'price' in d and 'year' in d:
                     # We have enough info to make a cost editing triple
                     pass
+            elif d['type'] == 'energy':
+                if oldVal is None:
+                    sio.write('  <td><div class="hrm_energy" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
+
+                else:
+                    print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
+                    sio.write('  <td><div class="hrm_energy" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
             else:
                 raise HermesServiceException(_("Unknown type {0} in fieldmap entry for {1}".format(d['type'],d['key'])))
             

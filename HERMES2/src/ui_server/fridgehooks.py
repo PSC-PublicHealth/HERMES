@@ -35,9 +35,7 @@ fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'stri
             {'row':2, 'label':_('Freezer Volume (L)'), 'key':'freezer', 'id':'freezer', 'type':'float'},
             {'row':2, 'label':_('Room Temperature Volume (L)'), 'key':'roomtemperature', 'id':'roomtemperature', 
              'type':'float'},
-            {'row':3, 'label':_('Energy'), 'key':'Energy', 'id':'energy', 'type':'select',
-             'options':[(k,_(v[0]),[],[]) for k,v in energyTranslationDict.items()
-                        if v[0] != 'Unknown']},
+            {'row':3, 'label':_('Energy'), 'key':'Energy', 'id':'energy', 'type':'energy'},
             {'row':3, 'label':_('Category'), 'key':'Category', 'id':'category', 'type':'string'},  
             {'row':3, 'label':_('Technology'), 'key':'Technology', 'id':'technology', 'type':'string'},  
             {'row':3, 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'type':'string'},  
@@ -144,6 +142,8 @@ def jsonFridgeEditVerifyAndCommit(db, uiSession):
         if badStr and badStr!="":
             result = {'success':True, 'value':False, 'msg':badStr}
         else:
+            # PowerRateUnits is completely determined by energy type
+            attrRec['PowerRateUnits'] = energyTranslationDict[attrRec['Energy'].encode('utf-8')][2]
             newFridge = shadow_network.ShdStorageType(attrRec.copy()) 
             db.add(newFridge)
             m.types[attrRec['Name']] = newFridge
