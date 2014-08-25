@@ -9,6 +9,15 @@ var n = this,
     j = (j = i.length) > 3 ? j % 3 : 0;
    return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
  };
+ 
+ // Thanks to Anentropic http://stackoverflow.com/questions/1219860/html-encoding-in-javascript-jquery
+ String.prototype.htmlEscape = function() {
+	 return this.replace(/&/g, '&amp;')
+     .replace(/"/g, '&quot;')
+     .replace(/'/g, '&#39;')
+     .replace(/</g, '&lt;')
+     .replace(/>/g, '&gt;');
+ };
 
 // setup grid print capability for jqGrid.  Add print button to navigation bar and bind to click.
 // Thanks to nelsonm: http://www.trirand.com/blog/?page_id=393/help/improved-print-grid-function/
@@ -396,9 +405,11 @@ function addToggleExpansionButton($grid) {
 				})
 				.done(function(data) {
 					if (data.success) {
-						$dlgDiv.data('defaultSelection',decodeURIComponent(data.defaultid));
+						//$dlgDiv.data('defaultSelection',decodeURIComponent(data.defaultid));
+						$dlgDiv.data('defaultSelection',data.defaultid.htmlEscape());
 						$dlgDiv.html("");
-	    				var selId = decodeURIComponent(data.selid);
+	    				//var selId = decodeURIComponent(data.selid);
+	    				var selId = data.selid.htmlEscape();
 						var $ul = $(document.createElement('ul'));
 		    			for (var i = 0; i < data.pairs.length; i++) {
 		    				//var curCode = decodeURIComponent(data.pairs[i][1]);
@@ -440,7 +451,7 @@ function addToggleExpansionButton($grid) {
 		    				$dlgDiv.find('a').removeClass('selected');
 		    				$li.addClass('selected');
 		    				var $btn = $dlgDiv.data('currentBtn');
-		    				$btn.button('option','label', newCode)
+		    				$btn.button('option','label', newCode.htmlEscape())
 		    				.data('code',newCode);
 		    				$dlgDiv.dialog('close');
 		    				$btn.data('changeHandler').bind($btn.parent())(evt, newCode);
@@ -448,11 +459,11 @@ function addToggleExpansionButton($grid) {
 		    			});
 					}
 					else {
-							alert('{{_("Failed: ")}}'+data.msg);
+							alert('{{_("Failed: ")}}'+data.msg.htmlEscape());
 					}
 				})
 					.fail(function(jqxhr, textStatus, error) {
-						alert("Error: "+jqxhr.responseText);
+						alert("Error: "+jqxhr.responseText.htmlEscape());
 				});
 				return $dlgDiv;
 				
@@ -490,7 +501,7 @@ function addToggleExpansionButton($grid) {
 					}
 					else {
 						$btn.data('code',arg2);
-						$btn.button('option','label',arg2);						
+						$btn.button('option','label',arg2.htmlEscape());						
 						return $btn.data('code');
 					}
 				}
@@ -518,7 +529,7 @@ function addToggleExpansionButton($grid) {
 
  			return this.each(function(index,elem) {
  				var $elem = $(elem);
- 				$elem.html('<label>'+settings['label']+'</label>');
+ 				$elem.html('<label>'+settings['label'].htmlEscape()+'</label>');
 				var $btn = $(document.createElement('button'));
 				var selected;
 				if (settings.selected) {
@@ -531,7 +542,7 @@ function addToggleExpansionButton($grid) {
  				if (selected) {
  					$btn.button({
  						icons: { secondary:'ui-icon-triangle-1-s' },
- 						label:selected
+ 						label:selected.htmlEscape()
  					})
  					.data('code',selected)
  					.data('prev_value',selected);
@@ -566,6 +577,87 @@ function addToggleExpansionButton($grid) {
 				$btn.addClass('hrm_cur_sel_btn').click(btnClick);
 				
 				$elem.currencySelector('rebuild');			
+ 			});
+ 		}
+
+ 		else if (settings['widget']=='energySelector') {
+			$.fn.energySelector = function( arg, arg2 ) {
+				var sel = this.first().find("select");
+ 				var myThis = this;
+				if (arg=='selId') {
+					if (arg2) {
+						var target = $(arg2).first().text();
+						var phrase = $(arg2).eq(1).text();
+						sel.val(target);
+						sel.data('requested',target); // in case the select contents are still in flight
+						return arg2;
+					}
+					else {
+						return sel.val();
+					}
+				}
+				else if (arg=='selPhrase') {
+					return sel.find(':selected').first().text();
+				}
+				else if (arg=='rebuild') {
+					var selected = '';
+					if (settings.selected) {
+						if (settings.selected instanceof Function) {
+							selected = settings.selected.bind($(myThis))(sel);
+						}
+						else selected = settings.selected;
+						sel.data('prev_value',selected);
+					}
+				
+					$.getJSON('{{rootPath}}list/select-energy', { 
+						encode: true,
+						selected: selected
+					})
+					.done(function(data) {
+						sel.html(data['menustr']);
+    					if (sel.data('requested')) {
+    						sel.val(sel.data('requested'));
+    						sel.data('requested',false);
+    					}
+						sel.data('prev_value',sel.val());
+    					if ('afterBuild' in settings  && settings.afterBuild != null) {
+    						settings.afterBuild.bind(sel.parent())(sel,data);
+    					}
+    				})
+  					.fail(function(jqxhr, textStatus, error) {
+  						alert("Error: "+jqxhr.responseText);
+					});
+				}
+				else if (arg=='revert') {
+					sel.val(sel.data('prev_value'));
+				}
+				else {
+					$.error('Unknown operation '+arg.toString());
+				}
+			}
+
+ 			return this.each(function(index,elem) {
+ 				var $elem = $(elem);
+ 				$elem.html('<label>'+settings['label']+'</label>');
+ 				var sel = $(document.createElement("select"));
+ 				sel.data('requested',false);
+ 				$elem.append(sel);
+ 				var myThis = this;
+				sel.change( function(evt) {
+					if ('onChange' in settings && settings.onChange != null) {
+						var typeName = unescape($(evt.target).val());
+						if ( settings.onChange.bind($(myThis))(evt, typeName) ) {
+							sel.data('prev_value',sel.val());
+						}
+						else {
+							$elem.energySelector('revert');
+						}
+					}
+					else {
+						sel.data('prev_value',sel.val());						
+					}
+				});
+				$elem.energySelector('rebuild');
  			});
  		}
  		
@@ -633,8 +725,11 @@ function addToggleExpansionButton($grid) {
 							sel.data('prev_value',sel.val());
 						}
 						else {
-							$elem.routeTypeSelector('revert');
+							$elem.typeSelector('revert');
 						}
+					}
+					else {
+						sel.data('prev_value',sel.val());						
 					}
 				});
 				$elem.typeSelector('rebuild');
@@ -693,6 +788,9 @@ function addToggleExpansionButton($grid) {
 						else {
 							$elem.routeTypeSelector('revert');
 						}
+					}
+					else {
+						sel.data('prev_value',sel.val());						
 					}
 				});
 				$elem.routeTypeSelector('rebuild');
@@ -913,6 +1011,10 @@ function addToggleExpansionButton($grid) {
  						var tj = $(this);
  						dict[tj.attr('id')] = tj.currencySelector('selId');
  					})
+ 					$(this).find('.hrm_energy').each(function() {
+ 						var tj = $(this);
+ 						dict[tj.attr('id')] = tj.energySelector('selId');
+ 					})
  					return dict;
  				}
 				else {
@@ -935,6 +1037,16 @@ function addToggleExpansionButton($grid) {
  	 						selected:sel
  	 					})
  	 				});
+ 	 				$elem.find('.hrm_energy').each( function(idx) {
+ 	 					$field = $(this);
+ 	 					var sel = $field.text();
+ 	 					$field.text('');
+ 	 					$field.hrmWidget({
+ 	 						widget:'energySelector',
+ 	 						label:'',
+ 	 						selected:sel
+ 	 					})
+ 	 				});
  	 				$elem.find('.hrm_price').each( function(idx) {
  	 					$field = $(this);
  	 					$field.val( parseFloat($field.val()).formatMoney(2) );
@@ -943,21 +1055,25 @@ function addToggleExpansionButton($grid) {
  	 					var elem = $(eventObj.target);
  	 					if (elem.is('select')) {
  	 						var opt = elem.children(":selected");
- 	 						var enableIdList = opt.attr("data-enable").split(",");
- 	 						var disableIdList = opt.attr("data-disable").split(",");
- 	 						for (i in enableIdList) { 
- 	 							var id = enableIdList[i];
- 	 							$("#"+id).show(); 
- 	 						};
- 	 						for (i in disableIdList) { 
- 	 							var id = disableIdList[i];
- 	 							$("#"+id).hide(); 
- 	 						};
+ 	 						if (opt.attr("data-enable")) {
+ 	 	 						var enableIdList = opt.attr("data-enable").split(",");
+ 	 	 						for (i in enableIdList) { 
+ 	 	 							var id = enableIdList[i];
+ 	 	 							$("#"+id).show(); 
+ 	 	 						}; 	 							
+ 	 						}
+ 	 						if (opt.attr("data-disable")) {
+ 	 	 						var disableIdList = opt.attr("data-disable").split(",");
+ 	 	 						for (i in disableIdList) { 
+ 	 	 							var id = disableIdList[i];
+ 	 	 							$("#"+id).hide(); 
+ 	 	 						};
+ 	 						}
  	 					}
  	 				});
 	    			if ('afterBuild' in settings && settings.afterBuild != null) {
-	 	    				settings.afterBuild.bind($elem)($elem);
-	 	    			};
+	 	    			settings.afterBuild.bind($elem)($elem);
+	 	    		};
  				})
 
  			});

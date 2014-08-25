@@ -9,6 +9,7 @@ _hermes_svn_id_="$Id$"
 
 import json, types, urllib
 from StringIO import StringIO
+from xml.sax.saxutils import escape as htmlEscape
 import bottle
 import ipath
 import site_info
@@ -22,6 +23,7 @@ from HermesServiceException import HermesServiceException
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _safeGetReqParam
 from gridtools import orderAndChopPage
 from model_edit_hooks import updateDBRouteType, jsonRecursiveStoreEditCreate
+from fridgetypes import energyTranslationDict
 import session_support_wrapper as session_support
 
 inlizer=session_support.inlizer
@@ -483,6 +485,35 @@ def handleListType(db,uiSession):
         return {"success":True,
                 "menustr":sio.getvalue(),
                 "selected":( typestring if typestring is not None else typeList[0] )
+                }
+    except Exception,e:
+        _logMessage(str(e))
+        _logStacktrace()
+        return {"success":False, "msg":str(e)}
+
+@bottle.route('/list/select-energy')
+def handleListEnergy(db,uiSession):
+    try:
+        sel = _safeGetReqParam(bottle.request.params, 'selected')
+        if sel=='null' or sel=='': sel = None
+        pairList = [(k,"%s %s"%(v[2],v[1])) for k,v in energyTranslationDict.items()
+                    if k is not None and k!='']
+        if sel is None and pairList[0][0] is not None:
+            sel = htmlEscape(pairList[0][0].encode('utf-8'))
+        sio = StringIO()
+        for k,v in pairList:
+            
+            k = htmlEscape(k)
+            v = htmlEscape(v)
+            
+            if sel and sel==k:
+                sio.write("  <option value='%s' selected >%s</option>\n"%(k,v))
+            else:
+                sio.write("  <option value='%s'>%s</option>\n"%(k,v))
+        
+        return {"success":True,
+                "menustr":sio.getvalue(),
+                "selected":sel
                 }
     except Exception,e:
         _logMessage(str(e))
