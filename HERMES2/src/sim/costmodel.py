@@ -466,6 +466,7 @@ class CostManager:
             rec['Currency'] = self.priceTable.getCurrency()
             rec['ReportingIntervalDays'] = self.intervalEndTime - self.intervalStartTime
             rec['DaysPerYear'] = float(self.model.daysPerYear)
+            rec['Type'] = 'legacy'
 #            try:
 #                val= self.priceTable.get("labortotal", "PerYear", level=rec['ReportingBranch'], conditions='normal')
 #                rec['LaborCost'] = val * (self.intervalEndTime - self.intervalStartTime)/float(self.model.daysPerYear)
@@ -473,6 +474,12 @@ class CostManager:
 #                pass
         return keys, recs
     
+    def writeCostRecordsToResultsEntry(self, shdNet, reportingHierarchy, results, timeNow=None):
+        if timeNow is None: timeNow = self.sim.now()
+        #print reportingHierarchy.getAvailableFieldNames()
+        keys, recs= self.generateCostRecordInfo( reportingHierarchy, timeNow )
+        results.addCostSummaryRecs(shdNet, recs)
+        
     def writeCostRecordList(self, fileName, reportingHierarchy, timeNow=None):
         """
         This is a convenience function to generate a record list and write it to the given
@@ -548,6 +555,8 @@ class DummyCostManager:
         return {}
     def getLaborTotal(self, dict, key):
         return {}
+    def writeCostRecordsToResultsEntry(self, shdNet, reportingHierarchy, results, timeNow=None):
+        pass
     def writeCostRecordList(self, fileName, reportingHierarchy, timeNow=None):
         pass
     def realityCheck(self):

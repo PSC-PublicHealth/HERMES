@@ -485,14 +485,17 @@ class Model:
         if fileNameRoot[-4:]=='.csv':
             fileNameRoot= fileNameRoot[:-4]
 
-        self.sim.costManager.writeCostRecordList(fileNameRoot+'_costs.csv',
-                                                 self.sim.allReportingHierarchies[0])
         self.sim.statsManager.writeStatsRecordList(fileNameRoot+'_stats.csv',
                                                    self.sim.allReportingHierarchies[0])
-
+        
         if self.sim.userInput.fromDb:
+            self.sim.costManager.writeCostRecordsToResultsEntry(self.sim.shdNet,
+                                                                self.sim.allReportingHierarchies[0],
+                                                                self.sim.results)
             self.sim.notes.writeNotesToResultsEntry(self.sim.shdNet, self.sim.results)
         else:
+            self.sim.costManager.writeCostRecordList(fileNameRoot+'_costs.csv',
+                                                     self.sim.allReportingHierarchies[0])
             self.sim.notes.writeNotesAsCSV(fileNameRoot+'.csv')
             keys,recs = self.sim.statsManager.generateStatsRecordInfo(self.sim.allReportingHierarchies[0])
             with openOutputFile(fileNameRoot+"_retention_histograms.zip") as f:

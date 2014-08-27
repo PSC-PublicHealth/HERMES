@@ -2026,6 +2026,10 @@ class HermesResults(Base):
                                cascade = "all, delete, delete-orphan",
                                collection_class=attribute_mapped_collection('Name'))
     
+    costSummaryRecs = relationship('ShdCostSummary',
+                                   backref = 'results',
+                                   cascade = "all, delete, delete-orphan")
+    
     kmlVizString = relationship('BlobHolder', uselist=False)
     vaAvailJson = relationship('VAHistBlobHolder',uselist=False)
     transCapJson = relationship('TransCapHistBlobHolder',uselist=False)
@@ -2137,10 +2141,16 @@ class HermesResults(Base):
             
             
     def addSummaryRecs(self, net, summaryRecDicts):
-        "summaryRecs is a list of dicts"
+        "summaryRecDicts is a list of dicts"
         for recDict in summaryRecDicts:
             rec = ShdTypeSummary.initSummaryFromRec(recDict)
             self.summaryRecs[rec.Name] = rec
+            
+    def addCostSummaryRecs(self, net, summaryRecDicts):
+        "summaryRecDicts is a list of dicts"
+        for recDict in summaryRecDicts:
+            rec = ShdCostSummary.initSummaryFromRec(recDict)
+            self.costSummaryRecs.append(rec)
             
     def addHistograms(self,net):          
         self.addVAHist(net)
@@ -2427,7 +2437,115 @@ class ShdCosts(Base):
         
 _makeColumns(ShdCosts)
 
+class ShdCostSummary(Base, ShdCopyable):
+    __tablename__ = 'costSummary'
 
+    summaryId = Column(Integer, primary_key=True)
+    costClass = Column(String(30))
+    summaryType = 'undefinedType'
+    __mapper_args__ = {'polymorphic_identity': summaryType}
+    attrs = [('resultsId',    DataType(INTEGER, foreignKey='results.resultsId'),
+              'noInputRec', True),
+             ]
+
+    __mapper_args__ = {
+        'polymorphic_identity':'costSummary',
+        'polymorphic_on':costClass
+        }
+
+
+
+    def __init__(self, name, type_):
+        raiseRuntimeError("Can't create base class of cost summary")
+        
+
+    @staticmethod
+    def initSummaryFromRec(rec):
+#         if 'Name' not in rec:
+#             raiseRuntimeError('No "Name" (type name) in summary record to be converted')
+        if 'Type' not in rec:
+            raise RuntimeError('No "Type" (class type) in cost summary record to be converted')
+        t = rec['Type']
+        if t not in ShdCostSummary.typesMap:
+            raise RuntimeError('Unknown cost summary type %s in summary record to be converted'%t)
+
+        return ShdCostSummary.typesMap[t](rec)
+
+    def __iadd__(self,summary_):
+        
+        if summary_.typeClass != self.typeClass:
+            raiseRuntimeError("no, no, no")
+        
+        for attr in self.__dict__.keys():
+            if attr[-2:] != "Id":
+                if isinstance(getattr(self,attr),float) or isinstance(getattr(self,attr),int):
+                    value = getattr(self,attr) + getattr(summary_,attr)
+                    setattr(self,attr,value)               
+        
+        return self
+
+    def __idiv__(self,factor_):
+        facFloat = None
+        try:
+            facFloat = float(factor_)
+        except:
+            raiseRuntimeError("Factor must be able to be cast as a float when idiv RouteRpt")
+        
+        for attr in self.__dict__.keys():
+            if attr[-2:] != "Id":
+                if isinstance(getattr(self,attr),float) or isinstance(getattr(self,attr),int):
+                    value = getattr(self,attr)/facFloat
+                    setattr(self,attr,value)
+        
+        return self
+        
+    def resetToZero(self):
+        for attr in self.__dict__.keys():
+            if attr[-2:] != "Id":
+                if isinstance(getattr(self,attr),float) or isinstance(getattr(self,attr),int):
+                    #value = getattr(self,attr) + getattr(summary_,attr)
+                    setattr(self,attr,0.0) 
+        return self
+    
+    def createRecord(self):
+        return self.createRec()
+
+_makeColumns(ShdCostSummary)
+
+class ShdLegacyCostSummary(ShdCostSummary):
+    __tablename__ = "legacyCostSummary"
+    summaryType = 'legacy'
+    __mapper_args__ = {'polymorphic_identity': summaryType}
+
+    legacySummaryId = Column(Integer, ForeignKey('costSummary.summaryId'), primary_key=True)
+
+    # apparently there's nothing in this summary dict!
+    attrs = [
+             ('ReportingLevel', STRING),
+             ('ReportingBranch', STRING),
+             ('ReportingIntervalDays', FLOAT_NONE),
+             ('DaysPerYear', FLOAT_NONE),
+             ('Currency', STRING_NONE),
+             ('RouteTrips', INTEGER_NONE),
+             ('PerDiemDays', INTEGER_NONE),
+             ('CostingTreatmentDays', INTEGER_NONE),
+             ('PerDiemCost', FLOAT_NONE),
+             ('PerKmCost', FLOAT_NONE),
+             ('PerTripCost', FLOAT_NONE),
+             ('TransportCost', FLOAT_NONE),
+             ('LaborCost', FLOAT_NONE),
+             ('StorageCost', FLOAT_NONE),
+             ('BuildingCost', FLOAT_NONE)
+             ]
+    
+    def __init__(self, *args, **kwargs):
+        _initShdType(self, args, kwargs)
+
+_makeColumns(ShdLegacyCostSummary)
+
+ShdCostSummary.typesMap = {'legacy':ShdLegacyCostSummary,
+                           }
+    
 
 ###
 ###
