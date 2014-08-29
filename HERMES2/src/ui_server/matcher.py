@@ -216,6 +216,22 @@ def jsonChangeLanguage(db, uiSession):
     _logMessage("Returning %s"%result)
     return result
 
+@bottle.route('/json/translate',method='post')
+def jsonTranslatePhrase(db, uiSession):
+    try:
+        phrasesDict = bottle.request.params
+        phrases = [phrasesDict[str(x)] for x in range(0,len(phrasesDict))]
+        transDict = []
+        for phrase in phrases:
+            transDict.append(_(phrase))
+        print transDict
+        return { 'success':True,
+                 'translated_phrases':transDict
+                 }
+    except Exception,e:
+        result = { 'success':False, 'msg':str(e)}        
+        return result
+    
 @bottle.route('/json/generic-pop')
 def jsonGenericPop(db, uiSession):
     try:
