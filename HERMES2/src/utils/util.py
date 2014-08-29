@@ -573,7 +573,18 @@ class AccumMultiVal:
     def getEntryDict(self, index):
         "returns a single entry as a dict indexed by name"
         return dict(zip(self.names, self.v[index]))
-
+    
+    def getDictFormat(self):
+        returnDict = {}
+        for name in self.names:
+            returnDict[name] = []
+        
+        for v in self.v:
+            for name in self.names:
+                returnDict[name].append(v[self.names.index(name)])
+        
+        return returnDict
+    
     def max(self, *args, **kwargs):
         return max(self.positionList(*args, **kwargs))
     def min(self, *args, **kwargs):
