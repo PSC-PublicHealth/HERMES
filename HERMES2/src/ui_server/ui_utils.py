@@ -122,8 +122,12 @@ def _mergeFormResults(bottleRequest, db, uiSession, fieldMap):
 
     return m,attrRec,badParms,badStr
 
-def _safeGetReqParam(reqParam,paramStr,isInt=False,isFloat=False,isTimeUnit=False,default=None):
-    if default is None: myDefault = None
+def _safeGetReqParam(reqParam,paramStr,isInt=False,isFloat=False,isTimeUnit=False,isBool=False,default=None):
+    if default is None: 
+        if isBool:
+            myDefault = False
+        else:
+            myDefault = None
     else: myDefault = default # paranoia about Python default handling
     if paramStr in reqParam:
         if isInt:
@@ -140,6 +144,12 @@ def _safeGetReqParam(reqParam,paramStr,isInt=False,isFloat=False,isTimeUnit=Fals
             v = reqParam[paramStr]
             if v in ['hour','day','week','month','year']: return v
             else: return myDefault;
+        elif isBool:
+            v = int(reqParam[paramStr])
+            if v == 0:
+                return False
+            else:
+                return True
         else:
             return reqParam.getunicode(paramStr)
     else:
