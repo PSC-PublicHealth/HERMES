@@ -35,6 +35,7 @@ import google_earth_hooks
 import widgethooks
 import demandhooks
 import costhooks
+import information_dialog_box_hooks
 
 ## If executing under mod_wsgi, we need to add the path to the source
 ## directory of this script.

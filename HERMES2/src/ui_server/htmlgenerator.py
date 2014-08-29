@@ -267,6 +267,21 @@ def getRunInfoHTML(db, uiSession, runId, minionFactory):
     
     return sio.getvalue(), titleStr
 
+def getGeneralStorageInfoHTML(db,uiSession,modelId,locId):
+    
+    ### Check permissions
+    uiSession.getPrivs().mayReadModelId(db,modelId)
+    
+    ### get the Storage location
+    result = db.query(shadow_network.ShdStore).filter(shadow_network.ShdStore.modelId==modelId).one()
+    store = result.ShdStore
+    model = store.model
+    
+    print str(result)
+    print str(store)
+    print str(model)
+    
+    
 def getResultsInfoHTML(db, uiSession, resultsId):
     
     hR = db.query(shadow_network.HermesResults).filter(shadow_network.HermesResults.resultsId==resultsId).one()
@@ -473,3 +488,130 @@ def getTypeEditHTML(db,uiSession,wireType,modelId,protoname,fieldMap):
     titleStr = _("This will go in model {0}").format(model.name)
     
     return _buildEditFieldTable(fieldMap), titleStr
+
+def getStoreDialogHTML(db,uiSession,name="model_dialog",buttonName=None,genInfo=True,util=True,
+                       popInfo=True,storeDev=True,
+                       transDev=True,invent=True,fillRatio=True,vaccAvail=True,
+                       availPlot=True):
+    tabCount = 1
+    sio=StringIO()
+    
+    sio.write("<div id='%s_dialog' class = '%s_dialog' title='This should get replaced'>"%(name,name))
+    sio.write("<div id = '%s_content'>"%(name))
+    sio.write("<ul>")
+    if genInfo:
+        print "HERE"
+        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('General Info')))
+        tabCount += 1
+    if popInfo:
+        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Population Information')))
+        tabCount += 1
+    if util:
+        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Utilization')))
+        tabCount += 1
+    if storeDev:
+        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Storage Devices')))
+        tabCount += 1
+    if transDev:
+        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Transport Devices')))
+        tabCount += 1
+    if invent:
+        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Inventory')))
+        tabCount += 1
+    if fillRatio:
+        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Fill Ratio')))
+        tabCount += 1
+    if vaccAvail:
+        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Vaccine Administration')))
+        tabCount += 1
+    if availPlot:
+        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Availability Plot')))
+        tabCount += 1
+    
+    sio.write("</ul>")
+    tabCount = 1
+    if genInfo:
+        sio.write("<div id='tab-%d'><table id='%s_GenInfo'></table></div>"%(tabCount,name))
+        tabCount += 1
+    if popInfo:
+        sio.write("<div id='tab-%d'><table id='%s_PopInfo'></table></div>"%(tabCount,name))
+        tabCount += 1
+    if util:
+        sio.write("<div id='tab-%d'><table id='%s_Utilization'></table></div>"%(tabCount,name))
+        tabCount += 1
+    if storeDev:
+        sio.write("<div id='tab-%d'><table id='%s_StoreDevInfo'></table></div>"%(tabCount,name))
+        tabCount += 1
+    if transDev:
+        sio.write("<div id='tab-%d'><table id='%s_TransDevInfo'></table></div>"%(tabCount,name))
+        tabCount += 1
+    if invent:
+        sio.write("<div id='tab-%d'><table id='%s_VialsPlot'></table><p align='right'>%s</p></div>"%(tabCount,name,_('Click on Name of Vaccine to Hide/Show it on the Chart.')))
+        tabCount += 1  
+    if fillRatio:
+        sio.write("<div id='tab-%d'><table id='%s_FillPlot'></table></div>"%(tabCount,name))
+        tabCount += 1
+    if vaccAvail:
+        sio.write("<div id='tab-%d'><table id='%s_Availability'></table></div>"%(tabCount,name))
+        tabCount += 1
+    if availPlot:
+        sio.write("<div id='tab-%d'><table id='%s_AvailPlot'></table></div>"%(tabCount,name))
+        tabCount += 1
+    sio.write("</div>")
+    sio.write("</div>")
+    ### Now add the javascript to load the dialog box
+    sio.write("<script>")
+    sio.write("$('#%s_dialog').dialog({"%name)
+    sio.write("autoOpen:false,") 
+    sio.write("height:'auto',")
+    sio.write("width:'auto',")
+    sio.write("close: function() {")
+    sio.write("$('#%s_content').tabs();"%name)
+    sio.write("    $('#%s_content').tabs('destroy');"%name)
+    sio.write("    $('#%s_content').innerHtml = '';"%name)
+    if genInfo:
+        sio.write("    $('#%s_GenInfo').jqGrid('GridUnload');"%name)
+    if popInfo:
+        sio.write("    $('#%s_PopInfo').jqGrid('GridUnload');"%name)
+    if util:
+        sio.write("   $('#%s_Utilization').jqGrid('GridUnload');"%name)
+    if storeDev:
+        sio.write("   $('#%s_StoreDevInfo').jqGrid('GridUnload');"%name)
+    if transDev:
+        sio.write("   $('#%s_TransDevInfo').jqGrid('GridUnload');"%name)
+    if vaccAvail:
+        sio.write("   $('#%s_Availability').jqGrid('GridUnload');"%name)
+    sio.write("}")
+    sio.write("});")
+    
+    sio.write("var %s_meta = new Object();"%name)
+    sio.write("%s_meta['getResult'] = false;"%name)
+    if genInfo: sio.write("%s_meta['genInfo'] = true;"%name)
+    if util: sio.write("%s_meta['utilInfo'] = true; %s_meta['getResults'] = true;"%(name,name))
+    if popInfo: sio.write("%s_meta['popInfo'] = true;"%name)
+    if storeDev: sio.write("%s_meta['storeDev'] = true;"%name)
+    if transDev: sio.write("%s_meta['transDev'] = true;"%name)
+    if vaccAvail: sio.write("%s_meta['vaccAvail'] = true;%s_meta['getResults'] = true;"%(name,name))
+    if fillRatio: sio.write("%s_meta['fillRatio'] = true;%s_meta['getResults'] = true;"%(name,name))
+    if invent: sio.write("%s_meta['invent'] = true;"%name)
+    if availPlot: sio.write("%s_meta['availPlot'] = true;%s_meta['getResults'] = true;"%(name,name))
+    sio.write("</script>")
+    
+    ### Create the button javascript 
+    ### You will need to have this defined in the tpl, otherwise, it will not work.
+#     if buttonName is not None:
+#         sio.write("<script>")
+#         sio.write("$('#%s').click( function() {"%buttonName)
+#         sio.write("if($('#%s_dialog').length > 0){"%name)
+#             sio.write("if ($("#model_store_info_dialog").is(':ui-dialog')) {
+#              sio.write("$("#model_store_info_dialog").dialog('close');
+#             sio.write("}
+#             sio.write("populateStoreInfoDialogWithResults("{{rootPath}}","model_store_info_content","{{modelId}}",'{{storeId}}','{{resultsId}}');
+#             sio.write("$("#model_store_info_dialog").dialog("option","title","Information for Location " + {{storeId}});
+#             sio.write("$("#model_store_info_dialog").dialog("open");
+#         }
+#     });
+        
+    
+    return sio.getvalue()
+

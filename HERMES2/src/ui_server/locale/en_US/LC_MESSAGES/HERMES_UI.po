@@ -22,6 +22,9 @@ msgstr ""
 "X-Poedit-SearchPath-0: ui_server\\views\n"
 "X-Poedit-SearchPath-1: ui_server\n"
 
+msgid "General Info"
+msgstr ""
+
 #: ui_server/i18n.py:89 ui_server/matcher.py:99
 msgid "Tree Page"
 msgstr ""
