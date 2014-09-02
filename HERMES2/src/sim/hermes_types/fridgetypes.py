@@ -357,11 +357,12 @@ class Fridge(abstractbaseclasses.CanStore, abstractbaseclasses.Costable):
             assert self.fridge.place is not None, "Attempt to store in unattached fridge"
             withDiluent = self.fridge.place.getStorageModel().getStoreVaccinesWithDiluent(vaccineGroup.getType())
             vol = vaccineGroup.getStorageVolume(self.storageType,withDiluent) # includes packaging
-            if vol+self.volUsed<=self.volAvail:
+            if vol+self.volUsed<=self.volAvail+C.epsilon:
                 self.volUsed += vol
                 self.contents.append(vaccineGroup)
                 vaccineGroup.setStorage(self.storageType, withDiluent)
             else:
+                print "%f: %f: %f"%(vol,vol+self.volUsed,self.volAvail)
                 raise RuntimeError('Overfilled StorageBlock of %s for %s %s'%\
                                    (self.fridge.place.name,self.fridge.fridgeType.name,self.storageType.name))
         def freeVol(self):

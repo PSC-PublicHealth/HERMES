@@ -42,6 +42,7 @@ daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 secondsInDay = 86400.0
 secondsInHour = 3600.0
 minutesInHour =  60.0
+epsilon = 1.0E-8
 
 
 
