@@ -93,7 +93,7 @@ def allocateSomeGroups(groupList, desiredVC, sim, excludeRecycling=False):
                 nDesired -= g.getCount()
         if nDesired>0: failedTupleList.append((v,nDesired))
     logDebug(sim,"allocateSomeGroups: result %s, remainder %s, failed %s"%\
-             ([g.getUniqueName() for g in result],[g.getUniqueName() for g in groupList],[(v.name,n) for v,n in failedTupleList]))
+             ([g.getUniqueName() for g in result],[g.getUniqueName() for g in groupList],[(v.bName,n) for v,n in failedTupleList]))
     return (result,groupList,failedTupleList) # since groupList is altered
 
 def smallOldGroupComp(t1,t2):
@@ -107,7 +107,7 @@ def smallOldGroupComp(t1,t2):
 
 def getNVialsAndTweakBuffer(vaccineType,n,buf):
     #print "applying getNVialsAndTweakBuffer to %s, %d vials of %s"%\
-    #    (buf,n,vaccineType.name)
+    #    (buf,n,vaccineType.bName)
     if n==0: return []
     workBuf= [(g.getAge(),g) for g in buf 
               if isinstance(g,abstractbaseclasses.Shippable) and g.getType()==vaccineType]
@@ -117,7 +117,7 @@ def getNVialsAndTweakBuffer(vaccineType,n,buf):
         workBuf.sort()
         outGroups= []
         #print "workBuf: %s"%\
-        #      [ (-a,g.getType().name,nVials) for a,nVials,g in workBuf ]
+        #      [ (-a,g.getType().bName,nVials) for a,nVials,g in workBuf ]
         nGot= 0
         for negAge,nVials,history,g in workBuf:
             if nGot==n:
@@ -131,7 +131,7 @@ def getNVialsAndTweakBuffer(vaccineType,n,buf):
                 nGot += nVials
                 outGroups.append(g)
         #print "outGroups: %s"%\
-        #      [(g.getType().name,g.getCount()) for g in outGroups]
+        #      [(g.getType().bName,g.getCount()) for g in outGroups]
         
         return outGroups
 
@@ -197,7 +197,7 @@ def recyclingGroupFilter(buf):
 
 def getStoreByName(storeDict,storeName):
     for store in storeDict.items():
-        ##print store[1].name
+        ##print store[1].bName
         if storeName == store[1].name:
             return store[1]
     raise RuntimeError('Could not find store by Name %s'%storeName)
@@ -286,7 +286,7 @@ def calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
         if warmTotalVol>warmVol:
             print 'warmTotalVol = %s, warmVol = %s, assumeEmpty = %s'%(warmTotalVol,warmVol,assumeEmpty)
             canOwn.printInventory()
-            raise RuntimeError("%s ran out of room temperature storage"%canOwn.name)
+            raise RuntimeError("%s ran out of room temperature storage"%canOwn.bName)
         warmVC= canOwn.sim.shippables.getCollection([(v,1.0) for v,n in warmTuples])
     
         # ratio1 is available freezer volume / desired freezer volume
@@ -327,7 +327,7 @@ def calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
                 coolVC= canOwn.sim.shippables.getCollection([(v,0.0) for v,n in coolTuples])
             #print 'ratio2 = %f, coolTotalVol = %f, coolVol = %f'%(ratio2,coolTotalVol,coolVol)
 
-    #print 'calculateOwnerStorageFillRatios for %s: thisVC is %s, assumeEmpty=%s'%(canOwn.name,thisVC,assumeEmpty)
+    #print 'calculateOwnerStorageFillRatios for %s: thisVC is %s, assumeEmpty=%s'%(canOwn.bName,thisVC,assumeEmpty)
 
     return (freezeVC,coolVC,warmVC)
 
@@ -359,7 +359,7 @@ def allocateOwnerStorageSpace(canOwn,stockBuf):
     useTheseList= []
     for group in stockBuf:
     #for group in [g for g in stockBuf if isinstance(g, abstractbaseclasses.Shippable)]:
-        group.maybeTrack("sort at %s"%canOwn.name)
+        group.maybeTrack("sort at %s"%canOwn.bName)
         if not isinstance(group,abstractbaseclasses.Shippable):
             useTheseList.append(group)
             vax= group.getType()
@@ -378,10 +378,10 @@ def allocateOwnerStorageSpace(canOwn,stockBuf):
     # First, a special rule: everything marked DoNotUse or expired gets stored warm.
     for g in doNotUseList:
         leftovers,newSplits= warmCollection.store(g)
-        #print '%s : stored %s %d %s at room temp'%(canOwn.name,g.getType().name,g.getCount(),g.getUniqueName())
+        #print '%s : stored %s %d %s at room temp'%(canOwn.bName,g.getType().bName,g.getCount(),g.getUniqueName())
         newlySplitGroups += newSplits
         if leftovers is not None:
-            raise RuntimeError("%s ran out of discard space"%canOwn.name)
+            raise RuntimeError("%s ran out of discard space"%canOwn.bName)
     
     # What do we have?
     allVC= canOwn.sim.shippables.getCollectionFromGroupList(useTheseList)
@@ -390,10 +390,10 @@ def allocateOwnerStorageSpace(canOwn,stockBuf):
 
     # We attempt to implement the 'fair' allocation system from ARENA
     freezeVC,coolVC,warmVC= canOwn.calculateStorageFillRatios(allVC, assumeEmpty=True)
-    #print '%s %s freezeVC: %s'%(canOwn.name,canOwn.sim.now(),[(v.name,n) for v,n in freezeVC.items()])
-    #print '%s %f coolVC: %s'%(canOwn.name,canOwn.sim.now(),[(v.name,n) for v,n in coolVC.items()])
-    #print '%s %f warmVC: %s'%(canOwn.name,canOwn.sim.now(),[(v.name,n) for v,n in warmVC.items()])
-    #print '%s %f on allVC %s'%(canOwn.name,canOwn.sim.now(),[(v.name,n) for v,n in allVC.items()])
+    #print '%s %s freezeVC: %s'%(canOwn.bName,canOwn.sim.now(),[(v.bName,n) for v,n in freezeVC.items()])
+    #print '%s %f coolVC: %s'%(canOwn.bName,canOwn.sim.now(),[(v.bName,n) for v,n in coolVC.items()])
+    #print '%s %f warmVC: %s'%(canOwn.bName,canOwn.sim.now(),[(v.bName,n) for v,n in warmVC.items()])
+    #print '%s %f on allVC %s'%(canOwn.bName,canOwn.sim.now(),[(v.bName,n) for v,n in allVC.items()])
 
     # Fill storage, one vaccine at a time.  Note that expired
     # vials will end up in badVialStorage.  This comes from
@@ -470,12 +470,12 @@ def allocateOwnerStorageSpace(canOwn,stockBuf):
             # We should never run out.
             while True:
                 leftovers,newSplits= warmCollection.store(g)
-                #print "%s : bumped %s %d %s to room temp"%(canOwn.name,g.getType().name,g.getCount(),g.getUniqueName())
+                #print "%s : bumped %s %d %s to room temp"%(canOwn.bName,g.getType().bName,g.getCount(),g.getUniqueName())
                 newlySplitGroups += newSplits
                 if leftovers is not None: 
                     warmCollection.printSummary('Warm collection summary')
                     canOwn.printInventory()
-                    raise RuntimeError("%s ran out of warm space"%canOwn.name)
+                    raise RuntimeError("%s ran out of warm space"%canOwn.bName)
                 g= groupIter.next()
 
         except StopIteration:
@@ -483,7 +483,7 @@ def allocateOwnerStorageSpace(canOwn,stockBuf):
     
     return newlySplitGroups
 
-class Warehouse(Store,abstractbaseclasses.Place):
+class Warehouse(Store, abstractbaseclasses.Place):
             
     class StorageBlockCollection:
         def __init__(self,owner,blockList):
@@ -498,7 +498,7 @@ class Warehouse(Store,abstractbaseclasses.Place):
         def printSummary(self,comment):
             print "\n------\n%s:"%comment
             for block in self.blockList:
-                print "    %s (%s) %f/%f"%(block.fridge.name,block.storageType.name,block.volUsed,block.volAvail)
+                print "    %s (%s) %f/%f"%(block.fridge.bName,block.storageType.bName,block.volUsed,block.volAvail)
             print "------"
         def store(self,vaccineGroup):
             if self.current is None:
@@ -652,7 +652,7 @@ class Warehouse(Store,abstractbaseclasses.Place):
             self._suppliers.append(wh)
     def addClient(self,wh):
         if wh is self:
-            eStr = "Warehouse %s attempted to add itself as its own client.  "%self.name
+            eStr = "Warehouse %s attempted to add itself as its own client.  "%self.bName
             eStr += "Check the demand and routes for this warehouse."
             raise RuntimeError(eStr)
 
@@ -841,9 +841,9 @@ class Warehouse(Store,abstractbaseclasses.Place):
                 
     def _put(self,arg):
         #print "put with %s getQ %s supply %s"%\
-        #    (self.name,self.getQ,self.getSupplySummary())
+        #    (self.bName,self.getQ,self.getSupplySummary())
         #print "put with %s getQ length %d supply %s"%\
-        #    (self.name,len(self.getQ),self.getSupplySummary())
+        #    (self.bName,len(self.getQ),self.getSupplySummary())
         self.maybeRecordVialCount()
         super(Warehouse,self)._put(arg)
         newVC= self.getSupplySummary()
@@ -886,14 +886,14 @@ class Warehouse(Store,abstractbaseclasses.Place):
             w.attemptRestock()
         if flag: self.attemptDestock()
         #print "end put with %s putQ %s supply %s"%\
-        #    (self.name,self.putQ,self.getSupplySummary())
+        #    (self.bName,self.putQ,self.getSupplySummary())
         #print "end put with %s putQ length %d supply %s"%\
-        #    (self.name,len(self.putQ),self.getSupplySummary())
+        #    (self.bName,len(self.putQ),self.getSupplySummary())
     def _get(self,arg):
         #print "get with %s putQ %s supply %s"%\
-        #    (self.name,self.putQ,self.getSupplySummary())
+        #    (self.bName,self.putQ,self.getSupplySummary())
         #print "get with %s putQ length %d supply %s"%\
-        #    (self.name,len(self.putQ),self.getSupplySummary())
+        #    (self.bName,len(self.putQ),self.getSupplySummary())
         self.maybeRecordVialCount()
         super(Warehouse,self)._get(arg)
         newVC= self.getSupplySummary()
@@ -936,9 +936,9 @@ class Warehouse(Store,abstractbaseclasses.Place):
 
 
         #print "end get with %s getQ %s supply %s"%\
-        #    (self.name,self.getQ,self.getSupplySummary())
+        #    (self.bName,self.getQ,self.getSupplySummary())
         #print "end get with %s getQ length %d supply %s"%\
-        #    (self.name,len(self.getQ),self.getSupplySummary())
+        #    (self.bName,len(self.getQ),self.getSupplySummary())
     def checkStock(self):
         currentVC= self.getSupplySummary()
         highFlag= False
@@ -970,7 +970,7 @@ class Warehouse(Store,abstractbaseclasses.Place):
         for w in self.getSuppliers():
             if w.gotAnyOfThese(self.lowStockSet):
                 self.lowEvent.signal()
-                logDebug(self.sim,"%s fired low Event at %g on %s"%(self.name, self.sim.now(),self.lowStockSet))
+                logDebug(self.sim,"%s fired low Event at %g on %s"%(self.bName, self.sim.now(),self.lowStockSet))
                 break
     def attemptRestockOfSpecifiedShippable(self,shippableType):
         """
@@ -980,13 +980,13 @@ class Warehouse(Store,abstractbaseclasses.Place):
         """
         #self.noteHolder.addNote({'TriggerCount':1})
         if self.lowEvent is None:
-            logDebug(self.sim,"%s events are not being followed; ignoring attemptRestockofSpecifiedShippable on %s at %g"%(self.name,shippableType.name,self.sim.now()))
+            logDebug(self.sim,"%s events are not being followed; ignoring attemptRestockofSpecifiedShippable on %s at %g"%(self.bName,shippableType.bName,self.sim.now()))
         else:
             testSet= set([shippableType])
             for w in self.getSuppliers():
                 if w.gotAnyOfThese(testSet):
                     self.lowEvent.signal()  
-                    logDebug(self.sim,"%s fired lowEvent at %g on specific shippable %s"%(self.name,self.sim.now(),shippableType.name))
+                    logDebug(self.sim,"%s fired lowEvent at %g on specific shippable %s"%(self.bName,self.sim.now(),shippableType.bName))
                     return True
         return False
     def attemptDestock(self):
@@ -1000,7 +1000,7 @@ class Warehouse(Store,abstractbaseclasses.Place):
         for w in self.getClients():
             if w.gotAnyOfThese(self.highStockSet):
                 self.highEvent.signal()
-                logDebug(self.sim,"%s fired highEvent at %g"%(self.name,self.sim.now()))
+                logDebug(self.sim,"%s fired highEvent at %g"%(self.bName,self.sim.now()))
                 break
     def setLowThresholdAndGetEvent(self,typeInfo,thresh):
         self.fromAboveThresholdDict[typeInfo]= thresh
@@ -1071,7 +1071,7 @@ class Warehouse(Store,abstractbaseclasses.Place):
         interval should be a tuple, (timeStart, timeEnd).
         """
         tStart,tEnd= interval
-        #print "%s%s %s %s:"%("    "*recurLevel,self.name,tStart,tEnd)
+        #print "%s%s %s %s:"%("    "*recurLevel,self.bName,tStart,tEnd)
         resultVC = self.sim.shippables.getCollection()
         clientDict= dict([(w.code,(w,[])) for w in self.getClients()])                
         for rDict in self.getClientRoutes():
@@ -1098,11 +1098,11 @@ class Warehouse(Store,abstractbaseclasses.Place):
                 else: bestPrev= max(bestPrev,prevTime)
                 if bestNext is None: bestNext= nextTime
                 else: bestNext= min(bestNext,nextTime)
-            #print "    %s%s: %s %s"%("   "*recurLevel,w.name,bestPrev,bestNext)
+            #print "    %s%s: %s %s"%("   "*recurLevel,w.bName,bestPrev,bestNext)
             delta= w.getProjectedDemandVC((bestPrev,bestNext),recurLevel=recurLevel+1)
             #print "    %s--> %s"%("    "*recurLevel,delta)
             resultVC += delta
-        #print "%s%s --> %s:"%("    "*recurLevel,self.name,resultVC)
+        #print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
         return resultVC
     
     def getInstantaneousDemandVC(self,interval,recurLevel=0):
@@ -1118,7 +1118,7 @@ class Warehouse(Store,abstractbaseclasses.Place):
         if type(interval)==types.TupleType:
             # New protocol
             tStart,tEnd= interval
-            # print "%s%s %s %s %s:"%("    "*recurLevel,self.name,tStart,tEnd,self._instantaneousDemandInterval)
+            # print "%s%s %s %s %s:"%("    "*recurLevel,self.bName,tStart,tEnd,self._instantaneousDemandInterval)
             doseTupleList= []
             for v,n in self._instantaneousDemandVC.items():
                 if isinstance(v,vaccinetypes.VaccineType):
@@ -1153,11 +1153,11 @@ class Warehouse(Store,abstractbaseclasses.Place):
                     else: bestPrev= max(bestPrev,prevTime)
                     if bestNext is None: bestNext= nextTime
                     else: bestNext= min(bestNext,nextTime)
-                # print "    %s%s: %s %s"%("   "*recurLevel,w.name,bestPrev,bestNext)
+                # print "    %s%s: %s %s"%("   "*recurLevel,w.bName,bestPrev,bestNext)
                 delta= w.getInstantaneousDemandVC((bestPrev,bestNext),recurLevel=recurLevel+1)
                 # print "    %s--> %s"%("    "*recurLevel,delta)
                 resultVC += delta
-            # print "%s%s --> %s:"%("    "*recurLevel,self.name,resultVC)
+            # print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
                         
         else:
             # Old protocol
@@ -1181,11 +1181,11 @@ class Warehouse(Store,abstractbaseclasses.Place):
             if self._popServedPC is not None:
                 totPopPC+=self._popServedPC
             for c in self.getClients():
-                #print "%s found child %s"%(self.name,c.name)
+                #print "%s found child %s"%(self.bName,c.bName)
                 c._calcTotalDownstreamPopServedPC(recalculate=recalculate)
                 totPopPC += c._cumPopServedPC
             self._cumPopServedPC= totPopPC
-            #print "%s: calculated %s"%(self.name,self._cumPopServedPC)
+            #print "%s: calculated %s"%(self.bName,self._cumPopServedPC)
 
     def getTotalDownstreamPopServedPC(self,recalculate=False):
         """
@@ -1266,7 +1266,7 @@ class Warehouse(Store,abstractbaseclasses.Place):
             self.gridPowerCut = 0
         self.gridPowerCut += 1
         if self.gridPowerCut == 1:
-            print "%s: power cut at %f."%(self.name,self.sim.now())
+            print "%s: power cut at %f."%(self.bName,self.sim.now())
             count= 0
             for f in self.fridges:
                 if hasattr(f,"powerFail"): 
@@ -1275,13 +1275,13 @@ class Warehouse(Store,abstractbaseclasses.Place):
             if count>0:
                 self.allocateStorageSpace() 
         else:
-            print "%s: power is still cut at %f."%(self.name,self.sim.now())
+            print "%s: power is still cut at %f."%(self.bName,self.sim.now())
 
 
     def restoreGridPower(self):
         self.gridPowerCut -= 1
         if self.gridPowerCut == 0:
-            print "%s: power restored at %f."%(self.name,self.sim.now())
+            print "%s: power restored at %f."%(self.bName,self.sim.now())
             count= 0
             for f in self.fridges:
                 if hasattr(f,"powerUnFail"): 
@@ -1290,7 +1290,7 @@ class Warehouse(Store,abstractbaseclasses.Place):
             if count>0:
                 self.allocateStorageSpace() 
         else:
-            print "%s: power is not yet restored."%self.name
+            print "%s: power is not yet restored."%self.bName
 
     def attachStorage(self,thisFridge,callingProc):
         """
@@ -1313,7 +1313,7 @@ class Warehouse(Store,abstractbaseclasses.Place):
         if thisFridge in self.fridges:
             self.fridges.remove(thisFridge)
         else:
-            raise RuntimeError("Internal error: %s not in storage of this %s"%(thisFridge,self.truckType.name))
+            raise RuntimeError("Internal error: %s not in storage of this %s"%(thisFridge,self.truckType.bName))
         if isinstance(thisFridge,abstractbaseclasses.Shippable):
             thisFridge.clearTag(abstractbaseclasses.Shippable.DO_NOT_USE_TAG)
         thisFridge.recharge(callingProc)
@@ -1376,26 +1376,26 @@ class Warehouse(Store,abstractbaseclasses.Place):
         When this method is called the CanOwn instance will print (to sys.stdout) an inventory
         of all its currently attached Shippables.  This is intended as a debugging tool.
         """
-        print "Inventory for %s %s:"%(self.__class__.__name__,self.name)
+        print "Inventory for %s %s:"%(self.__class__.__name__,self.bName)
         for f in [item for item in self.theBuffer if isinstance(item,abstractbaseclasses.CanStore)]:
             if isinstance(f,abstractbaseclasses.Shippable):
                 tagList = f.getTagList()
             else:
                 tagList = None
             if hasattr(f,'getType'):
-                print "    %s: %s: tags %s"%(f.name,f.getType().name,tagList)
+                print "    %s: %s: tags %s"%(f.bName,f.getType().bName,tagList)
             else:
-                print "    %s: %s: tags %s"%(f.name,f.__class__.__name__,tagList)
+                print "    %s: %s: tags %s"%(f.bName,f.__class__.__name__,tagList)
             for b in f.getStorageBlocks():
-                print "        type %s: %d / %d CC; contents %s"%(b.storageType.name,
+                print "        type %s: %d / %d CC; contents %s"%(b.storageType.bName,
                                                                   int(round(b.volUsed)),int(round(b.volAvail)),
                                                                   [g.getUniqueName() for g in b.contents])
         for s in self.theBuffer:
             if isinstance(s,abstractbaseclasses.Shippable):
                 print "    %s: %s count %d age %s tags %s"%\
-                    (s.getType().name,s.getUniqueName(),s.getCount(),s.getAge(), s.getTagList())
+                    (s.getType().bName,s.getUniqueName(),s.getCount(),s.getAge(), s.getTagList())
             else:
-                print "    %s: %s"%(s.__class__.__name__,s.name)
+                print "    %s: %s"%(s.__class__.__name__,s.bName)
 
 class Clinic(Warehouse):
     def __init__(self,sim, placeholder1, placeholder2, capacityInfo,
@@ -1445,7 +1445,7 @@ class Clinic(Warehouse):
     def __str__(self): return self.__repr__()
     def addClient(self,wh):
         if wh is self:
-            eStr = "Clinic %s attempted to add itself as its own client.  "%self.name
+            eStr = "Clinic %s attempted to add itself as its own client.  "%self.bName
             eStr += "Check the demand and routes for this clinic."
             raise RuntimeError(eStr)
         if isinstance(wh,AttachedClinic):
@@ -1500,16 +1500,16 @@ class Clinic(Warehouse):
         interval should be a tuple, (timeStart, timeEnd).
         """
         tStart,tEnd= interval
-        #print "%s%s %s %s:"%("    "*recurLevel,self.name,tStart,tEnd)
+        #print "%s%s %s %s:"%("    "*recurLevel,self.bName,tStart,tEnd)
         resultVC= self.shippingDemandModel.getDemandExpectationVials(self.getPopServedPC(),
                                                                      self.getUseVialsTickInterval(),
                                                                      tEnd-tStart,tStart)
         resultVC= self.sim.shippables.addPrepSupplies(resultVC)
-        #print "%s%s --> %s:"%("    "*recurLevel,self.name,resultVC)
+        #print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
         # Cover the case where someone hangs an attached clinic on a clinic
         for w in self.getClients():
             if isinstance(w,AttachedClinic):
-                #print "    %s%s: %s %s"%("   "*recurLevel,w.name,tStart,tEnd)
+                #print "    %s%s: %s %s"%("   "*recurLevel,w.bName,tStart,tEnd)
                 delta= w.getProjectedDemandVC((tStart, tEnd), recurLevel=recurLevel+1)
                 #print "    %s--> %s"%("    "*recurLevel,delta)
                 resultVC += delta
@@ -1549,9 +1549,9 @@ class Clinic(Warehouse):
                 l.sort()
                 oldestSimilarFridge= l[0][1]
                 oldestSimilarFridge.setTag(abstractbaseclasses.Shippable.RECYCLE_TAG)
-                logDebug(self.sim,'%s matched %s at %s'%(oldestSimilarFridge,thisFridge,self.name))
+                logDebug(self.sim,'%s matched %s at %s'%(oldestSimilarFridge,thisFridge,self.bName))
             else:
-                logDebug(self.sim,'Nothing matching %s at %s'%(thisFridge,self.name))
+                logDebug(self.sim,'Nothing matching %s at %s'%(thisFridge,self.bName))
         self.fridges.append(thisFridge)
         
     def detachStorage(self,thisFridge,callingProc):
@@ -1597,7 +1597,7 @@ class Clinic(Warehouse):
                     target.setTag(abstractbaseclasses.Shippable.RECYCLE_TAG)
                     nToFlag -= target.getCount()
             except IndexError:
-                print '%s ran out of old iceType %s to recycle'%(self.name,thisIceType.name)      
+                print '%s ran out of old iceType %s to recycle'%(self.bName,thisIceType.bName)      
                 
     def detachIce(self,shippable):
         """
@@ -1652,7 +1652,7 @@ class AttachedClinic(Clinic):
         else: return None
     def addSupplier(self,wh):
         if len(self._suppliers)==0:
-            logDebug(self.sim,"Adding supplier %s to AttachedClinic %s"%(wh.name,self.name))
+            logDebug(self.sim,"Adding supplier %s to AttachedClinic %s"%(wh.bName,self.bName))
             self.conditions = wh.conditions
             self.reportingLevel = wh.reportingLevel
             self.packagingModel = wh.packagingModel
@@ -1767,7 +1767,7 @@ class AttachedClinic(Clinic):
 
 abstractbaseclasses.Place.register(AttachedClinic) # @UndefinedVariable
 
-class Factory(Process):
+class Factory(Process, abstractbaseclasses.UnicodeSupport):
     """
     A factory produces products and injects them into the supply chain.
     It's not really a kind of Warehouse, but it can appear in the supplier
@@ -1788,7 +1788,7 @@ class Factory(Process):
 
         targetStores is a list of tuples of the form (proportion,storeId)
         """
-        print str(targetStores)
+        #print str(targetStores)
         if name is None:
             name = targetStores[0][1].sim.getUniqueString("Factory")
         Process.__init__(self, name=name, sim=targetStores[0][1].sim)
@@ -1842,10 +1842,10 @@ class Factory(Process):
                             product.append(newInst)
                 if len(product) > 0:
                     for p in product: p.attach(targetST.getStore(), self)
-                    logVerbose(self.sim, "%s: put at %g: %s" % (self.name, self.sim.now(), product))
+                    logVerbose(self.sim, "%s: put at %g: %s" % (self.bName, self.sim.now(), product))
                     yield put, self, targetST.getStore(), product
                 else:
-                    logVerbose(self.sim, "%s: nothing to put at %g" % (self.name, self.sim.now()))
+                    logVerbose(self.sim, "%s: nothing to put at %g" % (self.bName, self.sim.now()))
                 self.trackCountdown -= 1
                 self.lastProductionTime = self.sim.now()
                 if targetST.noteHolder is not None:
@@ -2010,6 +2010,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
         ("finish",legStartTime,legEndTime,legConditions,endingW)
         
     """
+    bName = name.encode('utf8')
     RECYCLE_TAG= abstractbaseclasses.Shippable.RECYCLE_TAG # for brevity
     deliveryStepNamesSet= set(['deliver','alldeliver','askanddeliver','markanddeliver','allmarkanddeliver'])
     if tripJournal is None: 
@@ -2036,7 +2037,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 truckSupplierW,  = paramTuple
                 assert legStartTime is None, "Internal error: gettruck is not the first step in a loop"
                 legStartTime = proc.sim.now()
-                logDebug(proc.sim,"%s: ----- acquiring truck at %s at %g"%(name,truckSupplierW.name,proc.sim.now()))
+                logDebug(proc.sim,"%s: ----- acquiring truck at %s at %g"%(bName,truckSupplierW.bName,proc.sim.now()))
                 yield get,proc,truckSupplierW.getStore(), \
                    curry.curry(fillTruckOrderByTypeFilter,truckType), \
                    proc.shipPriority
@@ -2046,7 +2047,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 truck.noteHolder= proc.noteHolder
                 legEndTime= proc.sim.now()
                 tripJournal.append(('gettruck',legStartTime,legEndTime,'normal',truckSupplierW))
-                logDebug(proc.sim,"%s: ----- truck acquired at %s at %g"%(name,truckSupplierW.name,proc.sim.now()))                    
+                logDebug(proc.sim,"%s: ----- truck acquired at %s at %g"%(bName,truckSupplierW.bName,proc.sim.now()))                    
 
             #
             #  Loadexistingtruck operation: used when a truck is loaded on other than the first stop
@@ -2068,18 +2069,18 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 truck.setPackagingModel(truckPackagingModel)
                 truck.setStorageModel(truckStorageModel)
                 # Check against space in truck
-                logDebug(proc.sim,"%s: ----- ready to load %s at %s at %g"%(name,truck.name,supplierW.name,proc.sim.now()))
+                logDebug(proc.sim,"%s: ----- ready to load %s at %s at %g"%(bName,truck.bName,supplierW.bName,proc.sim.now()))
                 loadFac,scaleVC,totVolCC= truckType.checkStorageCapacity(totalVC, truckPackagingModel, truckStorageModel)
-                logDebug(proc.sim,"%s: %s has %s"%(name,supplierW.name,supplierW.getSupplySummary()))
-                logDebug(proc.sim,"%s: requesting %s"%(name,totalVC))
-                logDebug(proc.sim,"%s: yields scaleVC %s"%(name,scaleVC))
-                proc.sim.evL.log(proc.sim.now(),evl.EVT_REQUEST,totalVC,supplier=supplierW.name,tripID=tripID,
-                                 route=proc.name)
+                logDebug(proc.sim,"%s: %s has %s"%(bName,supplierW.bName,supplierW.getSupplySummary()))
+                logDebug(proc.sim,"%s: requesting %s"%(bName,totalVC))
+                logDebug(proc.sim,"%s: yields scaleVC %s"%(bName,scaleVC))
+                proc.sim.evL.log(proc.sim.now(),evl.EVT_REQUEST,totalVC,supplier=supplierW.bName,tripID=tripID,
+                                 route=proc.bName)
                 totalVC *= scaleVC
                 totalVC.roundDown()
-                logVerbose(proc.sim,"%s: requesting %s after truck volume scaling"%(name,totalVC))
-                proc.sim.evL.log(proc.sim.now(),evl.EVT_SCALEDREQUEST,totalVC,supplier=supplierW.name,
-                                 tripID=tripID,route=proc.name)
+                logVerbose(proc.sim,"%s: requesting %s after truck volume scaling"%(bName,totalVC))
+                proc.sim.evL.log(proc.sim.now(),evl.EVT_SCALEDREQUEST,totalVC,supplier=supplierW.bName,
+                                 tripID=tripID,route=proc.bName)
                 yield (get,proc,supplierW.getStore(),
                        curry.curry(fillThisOrderGroupFilter,totalVC), 
                        proc.shipPriority),(hold,proc,proc.orderPendingLifetime)
@@ -2107,21 +2108,21 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                             proc.noteHolder.addNote({"RouteFill":StatVal(0.0),
                                                      "Route_L_vol_used_time":AccumVal(0.0)})
                             #segmentFill.append(0.0)
-                    logDebug(proc.sim,"%s: ----- loaded at %s at %g"%(name,supplierW.name,proc.sim.now()))
-                    logDebug(proc.sim,"%s: got %s total at %s"%(name,gotTheseVC,proc.sim.now()))                                                        
-                    proc.sim.evL.log(proc.sim.now(),evl.EVT_PICKUP,gotTheseVC,supplier=supplierW.name,
-                                     tripID=tripID,route=proc.name)
+                    logDebug(proc.sim,"%s: ----- loaded at %s at %g"%(bName,supplierW.bName,proc.sim.now()))
+                    logDebug(proc.sim,"%s: got %s total at %s"%(bName,gotTheseVC,proc.sim.now()))                                                        
+                    proc.sim.evL.log(proc.sim.now(),evl.EVT_PICKUP,gotTheseVC,supplier=supplierW.bName,
+                                     tripID=tripID,route=proc.bName)
                     if supplierW.breakageModel is not None:
                         gotThese,bL= supplierW.breakageModel.applyBreakageInStorage(supplierW,gotThese)
                         gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
                         fractionGotVC= gotTheseVC/totalVC
-                        logDebug(proc.sim,"broken in storage at %s: %s"%(supplierW.name,proc.sim.shippables.getCollectionFromGroupList(bL)))
+                        logDebug(proc.sim,"broken in storage at %s: %s"%(supplierW.bName,proc.sim.shippables.getCollectionFromGroupList(bL)))
                         if supplierW.getNoteHolder() is not None:
                             supplierW.getNoteHolder().addNote(dict([(g.getType().name+'_broken',g.getCount())
                                                                     for g in bL]))
                         # No need to detach broken vials, because they are currently not attached
                                                                             
-                    logVerbose(proc.sim,"%s: got %s after breakage in storage (fraction %s) at %g"%(name,gotTheseVC,fractionGotVC,proc.sim.now()))
+                    logVerbose(proc.sim,"%s: got %s after breakage in storage (fraction %s) at %g"%(bName,gotTheseVC,fractionGotVC,proc.sim.now()))
                     if supplierW.getNoteHolder() is not None:
                         supplierW.getNoteHolder().addNote(dict([(v.name+'_outshipped',n)
                                                                 for v,n in gotTheseVC.items()]))
@@ -2131,7 +2132,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                     truck.allocateStorageSpace()
                     gotThese= truck.getCargo()
                 else:
-                    logVerbose(proc.sim,"%s: no supply available at %f"%(name,proc.sim.now()))
+                    logVerbose(proc.sim,"%s: no supply available at %f"%(bName,proc.sim.now()))
                     # Bail- drive home and unload any recycling.
                     # How can we implement this?  By creating a generator inside this generator, naturally!
                     innerOp, innerParamTuple= stepList[-1]
@@ -2146,7 +2147,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                                    ('unload',(innerEndingW,)),
                                    ('finish',(innerEndingW,innerCostOwnerW))
                                    ]
-                    bailGenerator= createTravelGenerator(name, bailStepList, truckType, delayInfo, proc,
+                    bailGenerator= createTravelGenerator(bName, bailStepList, truckType, delayInfo, proc,
                                                          totalVC=totalVC, fractionGotVC=fractionGotVC,
                                                          scaleVC=scaleVC, truck=truck, legStartTime=legStartTime,
                                                          tripJournal=tripJournal, legConditions=legConditions,
@@ -2181,24 +2182,24 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 totalVC = totalVC.copy() # preserve the parameter tuple
                 # Check against space in truck
                 loadFac,scaleVC,totVolCC= truckType.checkStorageCapacity(totalVC, truckPackagingModel, truckStorageModel)
-                logDebug(proc.sim,"%s: ----- ready to load at %s at %g"%(name,supplierW.name,proc.sim.now()))
-                logDebug(proc.sim,"%s: %s has %s"%(name,supplierW.name,supplierW.getSupplySummary()))
-                logDebug(proc.sim,"%s: requesting %s"%(name,totalVC))                                                            
-                logDebug(proc.sim,"%s: yields scaleVC %s"%(name,scaleVC))
-                proc.sim.evL.log(proc.sim.now(),evl.EVT_REQUEST,totalVC,supplier=supplierW.name,
-                                 tripID=tripID,route=proc.name)
+                logDebug(proc.sim,"%s: ----- ready to load at %s at %g"%(bName,supplierW.bName,proc.sim.now()))
+                logDebug(proc.sim,"%s: %s has %s"%(bName,supplierW.bName,supplierW.getSupplySummary()))
+                logDebug(proc.sim,"%s: requesting %s"%(bName,totalVC))                                                            
+                logDebug(proc.sim,"%s: yields scaleVC %s"%(bName,scaleVC))
+                proc.sim.evL.log(proc.sim.now(),evl.EVT_REQUEST,totalVC,supplier=supplierW.bName,
+                                 tripID=tripID,route=proc.bName)
                 totalVC *= scaleVC
                 totalVC.roundDown()
-                logVerbose(proc.sim,"%s: requesting %s after truck volume scaling"%(name,totalVC))
-                proc.sim.evL.log(proc.sim.now(),evl.EVT_SCALEDREQUEST,totalVC,supplier=supplierW.name,
-                                 tripID=tripID,route=proc.name)
+                logVerbose(proc.sim,"%s: requesting %s after truck volume scaling"%(bName,totalVC))
+                proc.sim.evL.log(proc.sim.now(),evl.EVT_SCALEDREQUEST,totalVC,supplier=supplierW.bName,
+                                 tripID=tripID,route=proc.bName)
                 yield (get,proc,supplierW.getStore(),
                        curry.curry(fillThisOrderGroupFilter,totalVC), 
                        proc.shipPriority),(hold,proc,proc.orderPendingLifetime)
                 if proc.acquired(supplierW.getStore()):
                     gotThese= proc.got[:] # shallow copy
                     
-                    logDebug(proc.sim,"%s: ----- acquiring truck at %s at %g"%(name,supplierW.name,proc.sim.now()))
+                    logDebug(proc.sim,"%s: ----- acquiring truck at %s at %g"%(bName,supplierW.bName,proc.sim.now()))
                     yield get,proc,supplierW.getStore(), \
                        curry.curry(fillTruckOrderByTypeFilter,truckType), \
                        proc.shipPriority
@@ -2209,7 +2210,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                     truck.setStorageModel(truckStorageModel)
                     truck.noteHolder= proc.noteHolder
                     legStartTime= proc.sim.now()
-                    logDebug(proc.sim,"%s: ----- truck acquired at %s at %g"%(name,supplierW.name,proc.sim.now()))
+                    logDebug(proc.sim,"%s: ----- truck acquired at %s at %g"%(bName,supplierW.bName,proc.sim.now()))
                     
                     for g in gotThese:
                         g.getAge() # to force a time statistics update for the group
@@ -2227,22 +2228,22 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                             proc.noteHolder.addNote({"RouteFill":StatVal(0.0),
                                                      "Route_L_vol_used_time":AccumVal(0.0)})
                             #segmentFill.append(0.0)
-                    logDebug(proc.sim,"%s: ----- loaded at %s at %g"%(name,supplierW.name,proc.sim.now()))
-                    logDebug(proc.sim,"%s: got %s total at %s"%(name,gotTheseVC,proc.sim.now()))
+                    logDebug(proc.sim,"%s: ----- loaded at %s at %g"%(bName,supplierW.bName,proc.sim.now()))
+                    logDebug(proc.sim,"%s: got %s total at %s"%(bName,gotTheseVC,proc.sim.now()))
                                                                             
-                    proc.sim.evL.log(proc.sim.now(),evl.EVT_PICKUP,gotTheseVC,supplier=supplierW.name,
-                                     tripID=tripID,route=proc.name)
+                    proc.sim.evL.log(proc.sim.now(),evl.EVT_PICKUP,gotTheseVC,supplier=supplierW.bName,
+                                     tripID=tripID,route=proc.bName)
                     if supplierW.breakageModel is not None:
                         gotThese,bL= supplierW.breakageModel.applyBreakageInStorage(supplierW,gotThese)
                         gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
                         fractionGotVC= gotTheseVC/totalVC
-                        logDebug(proc.sim,"broken in storage at %s: %s"%(supplierW.name,proc.sim.shippables.getCollectionFromGroupList(bL)))
+                        logDebug(proc.sim,"broken in storage at %s: %s"%(supplierW.bName,proc.sim.shippables.getCollectionFromGroupList(bL)))
                                                                             
                         # No need to detach broken vials, because they are currently not attached
                         if supplierW.getNoteHolder() is not None:
                             supplierW.getNoteHolder().addNote(dict([(g.getType().name+'_broken',g.getCount())
                                                                     for g in bL]))
-                    logVerbose(proc.sim,"%s: got %s after breakage in storage (fraction %s) at %g"%(name,gotTheseVC,fractionGotVC,proc.sim.now()))
+                    logVerbose(proc.sim,"%s: got %s after breakage in storage (fraction %s) at %g"%(bName,gotTheseVC,fractionGotVC,proc.sim.now()))
                     for g in gotThese: 
                         g.attach(truck, proc)
                         g.maybeTrack("shipment")
@@ -2253,7 +2254,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                                                                 for v,n in gotTheseVC.items()]))
                     
                 else:
-                    logVerbose(proc.sim,"%s: no supply available at %f"%(name,proc.sim.now()))
+                    logVerbose(proc.sim,"%s: no supply available at %f"%(bName,proc.sim.now()))
                     break
                 legEndTime= proc.sim.now()
                 ## Compute Volume loaded
@@ -2275,10 +2276,10 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 if delayInfo is not None:
                     delay= delayInfo.getDeliveryDelay()
                     if delay>0.0:
-                        logDebug(proc.sim,"%s: shipment is delayed en route by %f days"%(name,delay))
+                        logDebug(proc.sim,"%s: shipment is delayed en route by %f days"%(bName,delay))
                         thisTransitTime += delay
 
-                logDebug(proc.sim,"%s moving from %s to %s at %s; transit time will be %s"%(name,fromW.name,toW.name,proc.sim.now(),thisTransitTime))
+                logDebug(proc.sim,"%s moving from %s to %s at %s; transit time will be %s"%(bName,fromW.bName,toW.bName,proc.sim.now(),thisTransitTime))
 
                 # beware: vaccine can expire during this hold!
                 yield hold,proc,thisTransitTime
@@ -2289,11 +2290,11 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                         
                 if fromW.breakageModel is not None:
                     gotThese,bL= fromW.breakageModel.applyBreakageInTransit(fromW, toW, gotThese)
-                    logDebug(proc.sim,"%s: broken in transit from %s: %s"%(name,fromW.name,proc.sim.shippables.getCollectionFromGroupList(bL)))
+                    logDebug(proc.sim,"%s: broken in transit from %s: %s"%(bName,fromW.bName,proc.sim.shippables.getCollectionFromGroupList(bL)))
                     for g in bL: g.detach(proc)
                 gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
                 volCarriedOnRouteL = sum([n*v.getSingletonStorageVolume(True) for v,n in gotTheseVC.getTupleList() if isinstance(v,vaccinetypes.VaccineType)])/C.ccPerLiter
-                #print "Carried " + str(proc.name) + " " + str(volCarriedOnRouteL)
+                #print "Carried " + str(proc.bName) + " " + str(volCarriedOnRouteL)
                 for v,n in gotTheseVC.getTupleList():
                     if isinstance(v,abstractbaseclasses.ShippableType):
                         v.recordTransport(n,fromW,toW,thisTransitTime, toW.category, conditions)
@@ -2348,10 +2349,10 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 else:
                     groupsAllocVC= vc*fractionGotVC
                     groupsAllocVC.roundDown()
-                logDebug(proc.sim,"%s: ----- at %s"%(name,w.name))
-                logDebug(proc.sim,"%s: gotTheseVC is now %s"%(name,gotTheseVC))
-                logDebug(proc.sim,"%s: totalVC now %s"%(name,totalVC))
-                logDebug(proc.sim,"%s: client %s: wants %s; getting %s (frac %s)"%(name,w.name,vc,groupsAllocVC,fractionGotVC))     
+                logDebug(proc.sim,"%s: ----- at %s"%(bName,w.bName))
+                logDebug(proc.sim,"%s: gotTheseVC is now %s"%(bName,gotTheseVC))
+                logDebug(proc.sim,"%s: totalVC now %s"%(bName,totalVC))
+                logDebug(proc.sim,"%s: client %s: wants %s; getting %s (frac %s)"%(bName,w.bName,vc,groupsAllocVC,fractionGotVC))     
                 if groupsAllocVC.totalCount()>0:
                     groupsToPut,gotThese,failTuples= allocateSomeGroups(gotThese,
                                                                         groupsAllocVC,
@@ -2360,13 +2361,13 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
 
                     groupsToPutVC= proc.sim.shippables.getCollectionFromGroupList(groupsToPut)
                     gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
-                    logDebug(proc.sim,"%s: about to put %s=%s to %s at %g"%(name,groupsToPutVC,
+                    logDebug(proc.sim,"%s: about to put %s=%s to %s at %g"%(bName,groupsToPutVC,
                                                                             [g.getUniqueName() for g in groupsToPut],
-                                                                            w.name,proc.sim.now()))
-                    logDebug(proc.sim,"%s: gotTheseVC is now %s"%(name,gotTheseVC))                                                                            
+                                                                            w.bName,proc.sim.now()))
+                    logDebug(proc.sim,"%s: gotTheseVC is now %s"%(bName,gotTheseVC))                                                                            
                     proc.sim.evL.log(proc.sim.now(),evl.EVT_DELIVERY,groupsToPutVC,
-                                     supplier=supplierW.name,client=w.name, tripID=tripID,
-                                     route=proc.name)
+                                     supplier=supplierW.bName,client=w.bName, tripID=tripID,
+                                     route=proc.bName)
 
                     if w.noteHolder is None:
                         raise RuntimeError("%s unexpectedly has no NoteHolder!"%w.name)
@@ -2374,7 +2375,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                     if isinstance(w, Clinic) and w.breakageModel is not None:
                         # We need to pick up in-storage breakage at the clinic
                         groupsToPut,bL= w.breakageModel.applyBreakageInStorage(w, groupsToPut)
-                        logDebug(proc.sim,"%s: broken in clinic storage at %s: %s"%(name,w.name,proc.sim.shippables.getCollectionFromGroupList(bL)))
+                        logDebug(proc.sim,"%s: broken in clinic storage at %s: %s"%(bName,w.bName,proc.sim.shippables.getCollectionFromGroupList(bL)))
                         w.getNoteHolder().addNote(dict([(g.getType().name+'_broken',g.getCount())
                                                         for g in bL]))
                         for g in bL: g.detach(proc)
@@ -2382,7 +2383,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                     if len(groupsToPut) > 0:
                         markFlag = ( op in ['markanddeliver', 'allmarkanddeliver'])
                         for g in groupsToPut:
-                            g.maybeTrack("delivery %s"%w.name)
+                            g.maybeTrack("delivery %s"%w.bName)
                             g.detach(proc)
                             g.attach(w, proc)
                             if markFlag: g.setTag(RECYCLE_TAG)
@@ -2390,10 +2391,10 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                     truck.allocateStorageSpace()
                     gotThese= truck.getCargo()
                     if len(groupsToPut) > 0:
-                        logVerbose(proc.sim,"%s finished put %s to %s at %g"%(name,groupsToPutVC,w.name,proc.sim.now()))
+                        logVerbose(proc.sim,"%s finished put %s to %s at %g"%(bName,groupsToPutVC,w.bName,proc.sim.now()))
                     else:
-                        logVerbose(proc.sim,"%s aborted empty put to %s at %g"%(name,w.name,proc.sim.now()))
-                    logVerbose(proc.sim,"%s: %s has %s"%(name,w.name,w.getSupplySummary()))
+                        logVerbose(proc.sim,"%s aborted empty put to %s at %g"%(bName,w.bName,proc.sim.now()))
+                    logVerbose(proc.sim,"%s: %s has %s"%(bName,w.bName,w.getSupplySummary()))
                                                 
                     totVolCC= 0.0
                     for v,n in groupsToPutVC.getTupleList():
@@ -2438,7 +2439,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
 
                     if w.breakageModel is not None:
                         newRecycle,bL= w.breakageModel.applyBreakageInStorage(w, newRecycle)
-                        logDebug(proc.sim,"%s: recycling broken in storage at %s: %s"%(name,w.name,proc.sim.shippables.getCollectionFromGroupList(bL)))
+                        logDebug(proc.sim,"%s: recycling broken in storage at %s: %s"%(bName,w.bName,proc.sim.shippables.getCollectionFromGroupList(bL)))
                         w.getNoteHolder().addNote(dict([(g.getType().name+'_broken',g.getCount())
                                                         for g in bL]))
                         for g in bL:
@@ -2449,18 +2450,18 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                             g.detach(proc)
                             g.attach(truck, proc)
                         newRecycleVC = proc.sim.shippables.getCollectionFromGroupList(newRecycle)
-                        logVerbose(proc.sim,"%s: got recycling %s at %g"%(name,newRecycleVC,proc.sim.now()))
+                        logVerbose(proc.sim,"%s: got recycling %s at %g"%(bName,newRecycleVC,proc.sim.now()))
                         w.getNoteHolder().addNote(dict([(v.name+'_recycled',n)
                                                         for v,n in newRecycleVC.items()]))
-                        proc.sim.evL.log(proc.sim.now(),evl.EVT_RECYCLE,newRecycleVC,supplier=w.name,
-                                         tripID=tripID,route=proc.name)
+                        proc.sim.evL.log(proc.sim.now(),evl.EVT_RECYCLE,newRecycleVC,supplier=w.bName,
+                                         tripID=tripID,route=proc.bName)
                         truck.allocateStorageSpace()
                         gotThese= truck.getCargo()
                         gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
                     else:
-                        logDebug(proc.sim,"%s: nothing unbroken to recycle at %f"%(name,proc.sim.now()))
+                        logDebug(proc.sim,"%s: nothing unbroken to recycle at %f"%(bName,proc.sim.now()))
                 else:
-                    logDebug(proc.sim,"%s: nothing to recycle at %f"%(name,proc.sim.now()))
+                    logDebug(proc.sim,"%s: nothing to recycle at %f"%(bName,proc.sim.now()))
                     # We must reconstruct gotThese, since autonomous events happening while
                     # we were waiting for the recycling pickup may have split vials
                     gotThese= truck.getCargo()
@@ -2488,11 +2489,11 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
 
                 if len(leftovers) > 0:
                     for g in leftovers:
-                        g.maybeTrack("recycling delivery %s"%w.name)
+                        g.maybeTrack("recycling delivery %s"%w.bName)
                     leftoversVC= proc.sim.shippables.getCollectionFromGroupList(leftovers)
-                    logVerbose(proc.sim,"%s about to put %s to %s for recycling at %g"%(name,leftoversVC,w.name,proc.sim.now()))
-                    proc.sim.evL.log(proc.sim.now(),evl.EVT_RECYCLEDELIVERY,leftoversVC,client=w.name,
-                                     tripID=tripID,route=proc.name)
+                    logVerbose(proc.sim,"%s about to put %s to %s for recycling at %g"%(bName,leftoversVC,w.bName,proc.sim.now()))
+                    proc.sim.evL.log(proc.sim.now(),evl.EVT_RECYCLEDELIVERY,leftoversVC,client=w.bName,
+                                     tripID=tripID,route=proc.bName)
                     for g in leftovers:
                         g.detach(proc)
                         g.attach(w.getStore(), proc)
@@ -2509,7 +2510,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                                                    for v,n in leftoversVC.items()]))
                     truck.allocateStorageSpace()
                 else:
-                    logVerbose(proc.sim,"%s put nothing to %s for recycling at %g"%(name,w.name,proc.sim.now()))
+                    logVerbose(proc.sim,"%s put nothing to %s for recycling at %g"%(bName,w.bName,proc.sim.now()))
                     if w.noteHolder is None:
                         raise RuntimeError("Noteholder for %s is unexpectedly None!"%w.name)
                     else:
@@ -2572,7 +2573,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
             # any yields.  
             pass
 
-class ShipperProcess(Process):
+class ShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
     def __init__(self,fromWarehouse,transitChain,interval,
                  orderPendingLifetime,shipPriority,startupLatency=0.0,
                  truckType=None,name=None, delayInfo=None):
@@ -2644,7 +2645,7 @@ class ShipperProcess(Process):
     def run(self):
         if self.startupLatency>0.0:
             yield hold,self,self.startupLatency
-        logVerbose(self.sim,"%s: latency %f, interval %f; my transit chain is %s"%(self.name,self.startupLatency,self.interval,self.transitChain))
+        logVerbose(self.sim,"%s: latency %f, interval %f; my transit chain is %s"%(self.bName,self.startupLatency,self.interval,self.transitChain))
         while True:
             self.nextWakeTime += self.interval
 
@@ -2652,10 +2653,10 @@ class ShipperProcess(Process):
             if self.delayInfo is not None:
                 delay= self.delayInfo.getPickupDelay()
                 if delay > 0.0:
-                    logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.name, delay))
+                    logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
                     yield hold, self, delay
 
-            logDebug(self.sim,"%s: my transit chain is %s"%(self.name,self.transitChain))   
+            logDebug(self.sim,"%s: my transit chain is %s"%(self.bName,self.transitChain))   
                       
             totalVC= self.sim.shippables.getCollection()
             upstreamW = self.fromW
@@ -2674,7 +2675,7 @@ class ShipperProcess(Process):
                 else:
                     stepList.append(('move',(t,upstreamW,w,conditions)))
                     vc= self.fromW.getAndForgetPendingShipment(w)
-                    #print "%s: %s requests %s"%(self.name,w.name,[(v.name,n) for v,n in vc.items() if n>0.0])
+                    #print "%s: %s requests %s"%(self.bName,w.bName,[(v.bName,n) for v,n in vc.items() if n>0.0])
                     totalVC += vc
                     if num == len(self.transitChain) - 2:
                         stepList.append(('alldeliver',(w,vc,self.interval)))
@@ -2690,7 +2691,7 @@ class ShipperProcess(Process):
                 # http://www.python.org/dev/peps/pep-0380/#id13
                 for val in travelGen: yield val
             else:
-                logVerbose(self.sim,"%s: no order to ship at %f"%(self.name,self.sim.now()))
+                logVerbose(self.sim,"%s: no order to ship at %f"%(self.bName,self.sim.now()))
             while self.nextWakeTime <= self.sim.now(): self.nextWakeTime += self.interval
             yield hold,self,self.nextWakeTime-self.sim.now()
                 
@@ -2717,7 +2718,9 @@ class AskOnDeliveryShipperProcess(ShipperProcess):
     def run(self):
         if self.startupLatency>0.0:
             yield hold,self,self.startupLatency
-        logVerbose(self.sim,"%s: latency %f, interval %f; my transit chain is %s"%(self.name,self.startupLatency,self.interval,self.transitChain))
+        for t in self.transitChain:
+            print t
+        logVerbose(self.sim,"%s: latency %f, interval %f; my transit chain is %s"%(self.bName,self.startupLatency,self.interval,self.transitChain))
         while True:
             self.nextWakeTime += self.interval
 
@@ -2725,10 +2728,10 @@ class AskOnDeliveryShipperProcess(ShipperProcess):
             if self.delayInfo is not None:
                 delay= self.delayInfo.getPickupDelay()
                 if delay > 0.0:
-                    logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.name, delay))
+                    logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
                     yield hold, self, delay
 
-            logDebug(self.sim,"%s: my transit chain is %s"%(self.name,self.transitChain))   
+            logDebug(self.sim,"%s: my transit chain is %s"%(self.bName,self.transitChain))   
                       
             totalVC= self.sim.shippables.getCollection()
             upstreamW = self.fromW
@@ -2747,7 +2750,7 @@ class AskOnDeliveryShipperProcess(ShipperProcess):
                 else:
                     stepList.append(('move',(t,upstreamW,w,conditions)))
                     vc= self.fromW.getAndForgetPendingShipment(w)
-                    #print "%s: %s requests %s"%(self.name,w.name,[(v.name,n) for v,n in vc.items() if n>0.0])
+                    #print "%s: %s requests %s"%(self.bName,w.bName,[(v.bName,n) for v,n in vc.items() if n>0.0])
                     totalVC += vc
                     stepList.append(('askanddeliver',(w,vc,self.interval)))
                     stepList.append( ('recycle', (w,self.packagingModel,self.storageModel)) )
@@ -2760,7 +2763,7 @@ class AskOnDeliveryShipperProcess(ShipperProcess):
                 # http://www.python.org/dev/peps/pep-0380/#id13
                 for val in travelGen: yield val
             else:
-                logVerbose(self.sim,"%s: no order to ship at %f"%(self.name,self.sim.now()))
+                logVerbose(self.sim,"%s: no order to ship at %f"%(self.bName,self.sim.now()))
             while self.nextWakeTime <= self.sim.now(): self.nextWakeTime += self.interval
             yield hold,self,self.nextWakeTime-self.sim.now()
                 
@@ -2771,7 +2774,7 @@ class AskOnDeliveryShipperProcess(ShipperProcess):
         return "<AskOnDeliveryShipperProcess(%s,%s,%s,%g)>"%\
             (self.fromW.name,str(self.transitChain),self.interval)
 
-class DropAndCollectShipperProcess(ShipperProcess):
+class DropAndCollectShipperProcess(ShipperProcess, abstractbaseclasses.UnicodeSupport):
     def __init__(self,fromWarehouse,transitChain,interval,
                  orderPendingLifetime,shipPriority,startupLatency=0.0,
                  truckType=None,name=None, delayInfo=None):
@@ -2800,16 +2803,16 @@ class DropAndCollectShipperProcess(ShipperProcess):
         tripTime,cl,conditions = transitChain[-1]
         if cl != fromWarehouse: 
             raise RuntimeError("drop-and-collect route %s should end at its supplier warehouse %s"%\
-                               (name,fromWarehouse.name))
+                               (bName,fromWarehouse.name))
         if cl in visitCounts:
-            raise RuntimeError("drop-and-collect route %s visits its supplier %s"%(name,cl.name))
+            raise RuntimeError("drop-and-collect route %s visits its supplier %s"%(bName,cl.name))
         ShipperProcess.__init__(self,fromWarehouse,transitChain,interval,
                                 orderPendingLifetime,shipPriority,startupLatency=startupLatency,
                                 truckType=truckType, name=name, delayInfo=delayInfo)
     def run(self):
         if self.startupLatency>0.0:
             yield hold,self,self.startupLatency
-        logVerbose(self.sim,"%s: latency %f, interval %f; my transit chain is %s"%(self.name,self.startupLatency,self.interval,self.transitChain))
+        logVerbose(self.sim,"%s: latency %f, interval %f; my transit chain is %s"%(self.bName,self.startupLatency,self.interval,self.transitChain))
         while True:
             self.nextWakeTime += self.interval
 
@@ -2817,10 +2820,10 @@ class DropAndCollectShipperProcess(ShipperProcess):
             if self.delayInfo is not None:
                 delay= self.delayInfo.getPickupDelay()
                 if delay > 0.0:
-                    logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.name, delay))
+                    logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
                     yield hold, self, delay
 
-            logDebug(self.sim,"%s: my transit chain is %s"%(self.name,self.transitChain))   
+            logDebug(self.sim,"%s: my transit chain is %s"%(self.bName,self.transitChain))   
                       
             totalVC= self.sim.shippables.getCollection()
             upstreamW = self.fromW
@@ -2847,7 +2850,7 @@ class DropAndCollectShipperProcess(ShipperProcess):
                     visited.add(w)
                     stepList.append(('move',(t,upstreamW,w,conditions)))
                     vc= self.fromW.getAndForgetPendingShipment(w)
-                    #print "%s: %s requests %s"%(self.name,w.name,[(v.name,n) for v,n in vc.items() if n>0.0])
+                    #print "%s: %s requests %s"%(self.bName,w.bName,[(v.bName,n) for v,n in vc.items() if n>0.0])
                     totalVC += vc
                     if len(visited) == nClients:
                         # Last client
@@ -2862,7 +2865,7 @@ class DropAndCollectShipperProcess(ShipperProcess):
                 # http://www.python.org/dev/peps/pep-0380/#id13
                 for val in travelGen: yield val
             else:
-                logVerbose(self.sim,"%s: no order to ship at %f"%(self.name,self.sim.now()))
+                logVerbose(self.sim,"%s: no order to ship at %f"%(self.bName,self.sim.now()))
             while self.nextWakeTime <= self.sim.now(): self.nextWakeTime += self.interval
             yield hold,self,self.nextWakeTime-self.sim.now()
                 
@@ -2907,7 +2910,7 @@ class FetchShipperProcess(ShipperProcess):
     def run(self):
         if self.startupLatency>0.0:
             yield hold,self,self.startupLatency
-        logVerbose(self.sim,"%s: latency %f, interval %f; my transit chain is %s"%(self.name,self.startupLatency,self.interval,self.transitChain))
+        logVerbose(self.sim,"%s: latency %f, interval %f; my transit chain is %s"%(self.bName,self.startupLatency,self.interval,self.transitChain))
         while True:
             self.nextWakeTime += self.interval
 
@@ -2915,10 +2918,10 @@ class FetchShipperProcess(ShipperProcess):
             if self.delayInfo is not None:
                 delay= self.delayInfo.getPickupDelay()
                 if delay > 0.0:
-                    logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.name, delay))
+                    logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
                     yield hold, self, delay
 
-            logDebug(self.sim,"%s: my transit chain is %s"%(self.name,self.transitChain))
+            logDebug(self.sim,"%s: my transit chain is %s"%(self.bName,self.transitChain))
 
             supplierW= self.transitChain[0][1]
             totalVC= self.sim.shippables.getCollection()
@@ -2966,7 +2969,7 @@ class FetchShipperProcess(ShipperProcess):
                 # http://www.python.org/dev/peps/pep-0380/#id13
                 for val in travelGen: yield val
             else:
-                logVerbose(self.sim,"%s: no order to ship at %f"%(self.name,self.sim.now()))
+                logVerbose(self.sim,"%s: no order to ship at %f"%(self.bName,self.sim.now()))
             while self.nextWakeTime <= self.sim.now(): self.nextWakeTime += self.interval
             yield hold,self,self.nextWakeTime-self.sim.now()
                 
@@ -2977,7 +2980,7 @@ class FetchShipperProcess(ShipperProcess):
         return "<FetchShipperProcess(%s,%s,%s,%g)>"%\
             (self.fromW.name,str(self.transitChain),self.interval)
 
-class OnDemandShipment(Process):
+class OnDemandShipment(Process, abstractbaseclasses.UnicodeSupport):
     def __init__(self,fromWarehouse,toWarehouse,thresholdFunction,
                  quantityFunction,transitTime,orderPendingLifetime,
                  pullMeanFrequencyDays,shipPriority,startupLatency=0.0,
@@ -3046,7 +3049,7 @@ class OnDemandShipment(Process):
             if n>0.0:
                 event= self.toW.setLowThresholdAndGetEvent(v,n)
         if event is None:
-            raise RuntimeError("%s shipping threshold calculation yielded nothing"%self.name)
+            raise RuntimeError("%s shipping threshold calculation yielded nothing"%self.bName)
         self.warningEvent= event
         pMMM = packagingmodel.PackagingModelMergerModel(self.sim)
         pMMM.addUpstreamPackagingModel(self.fromW.getPackagingModel())
@@ -3072,7 +3075,7 @@ class OnDemandShipment(Process):
                 if self.delayInfo is not None:
                     delay= self.delayInfo.getPickupDelay()
                     if delay > 0.0:
-                        logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.name, delay))
+                        logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
                         yield hold, self, delay
                         
                         if self.delayInfo.d['PickupDelayReorder']:
@@ -3116,26 +3119,26 @@ class OnDemandShipment(Process):
                     # http://www.python.org/dev/peps/pep-0380/#id13
                     for val in travelGen: yield val
                 else:
-                    logVerbose(self.sim,"%s: supplier has no needed stock at %g"%(self.name,self.sim.now()))
+                    logVerbose(self.sim,"%s: supplier has no needed stock at %g"%(self.bName,self.sim.now()))
                     
             else:
-                logVerbose(self.sim,"%s:quantity to order is zero at %g"%(self.name,self.sim.now()))
+                logVerbose(self.sim,"%s:quantity to order is zero at %g"%(self.bName,self.sim.now()))
 
             extraDelay = 0.0
             if self.toW.lowStockSet:
                 # Some shippables are below the trigger threshold- run another trip as soon as allowed.
                 # By triggering the event and then waiting on it (which returns immediately), we 
                 # clear any pending event and continue.
-                logDebug(self.sim,"%s still triggered at %g"%(self.name,self.sim.now()))
+                logDebug(self.sim,"%s still triggered at %g"%(self.bName,self.sim.now()))
                 if self.minimumDaysBetweenShipments < 1.0:
                     extraDelay = 1.0 # to keep from cycling forever if the supplier has no stock
                 self.warningEvent.signal()
                 yield waitevent,self,self.warningEvent
             else:
                 # The trigger threshold mechanism will initiate a new trip when needed                
-                logVerbose(self.sim,"%s: enters waitEvent at %g"%(self.name,self.sim.now()))
+                logVerbose(self.sim,"%s: enters waitEvent at %g"%(self.bName,self.sim.now()))
                 yield waitevent,self,self.warningEvent
-                logVerbose(self.sim,"%s: received trigger event at %g"%(self.name,self.sim.now()))
+                logVerbose(self.sim,"%s: received trigger event at %g"%(self.bName,self.sim.now()))
                 
             # Short pause to keep shipping events triggered by upstream
             # deliveries acting through attemptRestock() from piling up 
@@ -3144,9 +3147,9 @@ class OnDemandShipment(Process):
             delay= max(self.sim.rndm.gauss(0.1,0.025)+extraDelay, Warehouse.shortDelayTime)
             if self.nextAllowedDeparture - self.sim.now() > 0.0:
                 delay += self.nextAllowedDeparture-self.sim.now()
-            logDebug(self.sim,"%s pausing %g at %g"%(self.name,delay,self.sim.now()))
+            logDebug(self.sim,"%s pausing %g at %g"%(self.bName,delay,self.sim.now()))
             yield hold,self,delay
-            logVerbose(self.sim,"%s finished waiting; shipping at %g"%(self.name,self.sim.now()))
+            logVerbose(self.sim,"%s finished waiting; shipping at %g"%(self.bName,self.sim.now()))
 
     def __repr__(self):
         return "<OnDemandShipment(%s,%s,%s,%s,%g,%g,%g)>"%\
@@ -3209,7 +3212,7 @@ class PersistentOnDemandShipment(OnDemandShipment):
                 if self.delayInfo is not None:
                     delay= self.delayInfo.getPickupDelay()
                     if delay > 0.0:
-                        logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.name, delay))
+                        logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
                         yield hold, self, delay
                         
                         if self.delayInfo.d['PickupDelayReorder']:
@@ -3259,9 +3262,9 @@ class PersistentOnDemandShipment(OnDemandShipment):
                         break
 
             else:
-                logVerbose(self.sim,"%s:quantity to order is zero at %g"%(self.name,self.sim.now()))
+                logVerbose(self.sim,"%s:quantity to order is zero at %g"%(self.bName,self.sim.now()))
                 
-            logVerbose(self.sim,"%s: enters waitEvent at %f"%(self.name,self.sim.now()))
+            logVerbose(self.sim,"%s: enters waitEvent at %f"%(self.bName,self.sim.now()))
             yield waitevent,self,self.warningEvent
             # Short pause to keep shipping events triggered by upstream
             # deliveries acting through attemptRestock() from piling up 
@@ -3270,9 +3273,9 @@ class PersistentOnDemandShipment(OnDemandShipment):
             delay= max(self.sim.rndm.gauss(0.1,0.025), Warehouse.shortDelayTime)
             if self.nextAllowedDeparture - self.sim.now() > 0.0:
                 delay += self.nextAllowedDeparture-self.sim.now()
-            logDebug(self.sim,"%s received event at %g, pausing %g"%(self.name,self.sim.now(),delay))
+            logDebug(self.sim,"%s received event at %g, pausing %g"%(self.bName,self.sim.now(),delay))
             yield hold,self,delay
-            logVerbose(self.sim,"%s received event and waited; shipping at %g"%(self.name,self.sim.now()))
+            logVerbose(self.sim,"%s received event and waited; shipping at %g"%(self.bName,self.sim.now()))
 
     def __repr__(self):
         return "<PersistentOnDemandShipment(%s,%s,%s,%s,%g,%g,%g)>"%\
@@ -3334,7 +3337,7 @@ class FetchOnDemandShipment(OnDemandShipment):
                 if self.delayInfo is not None:
                     delay= self.delayInfo.getPickupDelay()
                     if delay > 0.0:
-                        logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.name, delay))
+                        logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
 
                         yield hold, self, delay
                         if self.delayInfo.d['PickupDelayReorder']:
@@ -3380,26 +3383,26 @@ class FetchOnDemandShipment(OnDemandShipment):
                     # http://www.python.org/dev/peps/pep-0380/#id13
                     for val in travelGen: yield val
                 else:
-                    logVerbose(self.sim,"%s: supplier has no needed stock at %g"%(self.name,self.sim.now()))
+                    logVerbose(self.sim,"%s: supplier has no needed stock at %g"%(self.bName,self.sim.now()))
                 
             else:
-                logVerbose(self.sim,"%s:quantity to order is zero at %g"%(self.name,self.sim.now()))
+                logVerbose(self.sim,"%s:quantity to order is zero at %g"%(self.bName,self.sim.now()))
 
             extraDelay = 0.0
             if self.toW.lowStockSet:
                 # Some shippables are below the trigger threshold- run another trip as soon as allowed
                 # By triggering the event and then waiting on it (which returns immediately), we 
                 # clear any pending event and continue.
-                logDebug(self.sim,"%s still triggered at %g"%(self.name,self.sim.now()))
+                logDebug(self.sim,"%s still triggered at %g"%(self.bName,self.sim.now()))
                 if self.minimumDaysBetweenShipments < 1.0:
                     extraDelay = 1.0 # to prevent rapid looping if the supplier is stocked out
                 self.warningEvent.signal()
                 yield waitevent,self,self.warningEvent                
             else:
                 # The trigger threshold mechanism will initiate a new trip when needed                
-                logVerbose(self.sim,"%s: enters waitEvent at %g"%(self.name,self.sim.now()))
+                logVerbose(self.sim,"%s: enters waitEvent at %g"%(self.bName,self.sim.now()))
                 yield waitevent,self,self.warningEvent
-                logVerbose(self.sim,"%s: received trigger event at %g"%(self.name,self.sim.now()))
+                logVerbose(self.sim,"%s: received trigger event at %g"%(self.bName,self.sim.now()))
                 
             # Short pause to keep shipping events triggered by upstream
             # deliveries acting through attemptRestock() from piling up 
@@ -3408,9 +3411,9 @@ class FetchOnDemandShipment(OnDemandShipment):
             delay= max(self.sim.rndm.gauss(0.1,0.025)+extraDelay, Warehouse.shortDelayTime)
             if self.nextAllowedDeparture - self.sim.now() > 0.0:
                 delay += self.nextAllowedDeparture-self.sim.now()
-            logDebug(self.sim,"%s pausing %g at %g"%(self.name,delay,self.sim.now()))
+            logDebug(self.sim,"%s pausing %g at %g"%(self.bName,delay,self.sim.now()))
             yield hold,self,delay
-            logVerbose(self.sim,"%s finished waiting; shipping at %g"%(self.name,self.sim.now()))
+            logVerbose(self.sim,"%s finished waiting; shipping at %g"%(self.bName,self.sim.now()))
 
     def __repr__(self):
         return "<FetchOnDemandShipment(%s,%s,%s,%s,%g,%g,%g)>"%\
@@ -3470,7 +3473,7 @@ class PersistentFetchOnDemandShipment(OnDemandShipment):
                 if self.delayInfo is not None:
                     delay= self.delayInfo.getPickupDelay()
                     if delay > 0.0:
-                        logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.name, delay))
+                        logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
 
                         yield hold, self, delay
                         if self.delayInfo.d['PickupDelayReorder']:
@@ -3522,8 +3525,8 @@ class PersistentFetchOnDemandShipment(OnDemandShipment):
                         break
                 
             else:
-                logVerbose(self.sim,"%s:quantity to order is zero at %g"%(self.name,self.sim.now()))
-            logVerbose(self.sim,"%s: enters waitEvent at %f"%(self.name,self.sim.now()))
+                logVerbose(self.sim,"%s:quantity to order is zero at %g"%(self.bName,self.sim.now()))
+            logVerbose(self.sim,"%s: enters waitEvent at %f"%(self.bName,self.sim.now()))
             yield waitevent,self,self.warningEvent
             # Short pause to keep shipping events triggered by upstream
             # deliveries acting through attemptRestock() from piling up 
@@ -3532,9 +3535,9 @@ class PersistentFetchOnDemandShipment(OnDemandShipment):
             delay= max(self.sim.rndm.gauss(0.1,0.025), Warehouse.shortDelayTime)
             if self.nextAllowedDeparture - self.sim.now() > 0.0:
                 delay += self.nextAllowedDeparture-self.sim.now()
-            logDebug(self.sim,"%s received event at %g, pausing %g"%(self.name,self.sim.now(),delay))
+            logDebug(self.sim,"%s received event at %g, pausing %g"%(self.bName,self.sim.now(),delay))
             yield hold,self,delay
-            logVerbose(self.sim,"%s received event and waited; shipping at %g"%(self.name,self.sim.now()))
+            logVerbose(self.sim,"%s received event and waited; shipping at %g"%(self.bName,self.sim.now()))
 
     def __repr__(self):
         return "<PersistentFetchOnDemandShipment(%s,%s,%s,%s,%g,%g,%g)>"%\
@@ -3544,7 +3547,7 @@ class PersistentFetchOnDemandShipment(OnDemandShipment):
     def __str__(self): 
         return "<PersistentFetchOnDemandShipment(%s,%s)>"%(self.fromW.name,self.toW.name)
 
-class PeriodicProcess(Process):
+class PeriodicProcess(Process, abstractbaseclasses.UnicodeSupport):
     def __init__(self,sim,name,interval,startupLatency=0.0):
         """
         This is a process that does something every so often.
@@ -3562,7 +3565,7 @@ class PeriodicProcess(Process):
         if self.startupLatency>0.0:
             yield hold,self,self.startupLatency
         while True:
-            logDebug(self.sim,"%s awake at %g"%(self.name,self.sim.now()))
+            logDebug(self.sim,"%s awake at %g"%(self.bName,self.sim.now()))
             self.nextCycleTime += self.interval
             result= self.cycle(self.sim.now())
             if type(result)==types.GeneratorType:
@@ -3596,7 +3599,7 @@ class PeriodicProcess(Process):
     def __str__(self): 
         return "<PeriodicProcess(%s)>"%self.name
 
-class TimerProcess(Process):
+class TimerProcess(Process, abstractbaseclasses.UnicodeSupport):
     counter= 0
     def __init__(self,sim,name,delayDays,alarmclockFunc,funArgs):
         """
@@ -3622,7 +3625,7 @@ class TimerProcess(Process):
     def run(self):
         yield hold,self,self.delayDays
         if self.alarmclockFunc is not None: self.alarmclockFunc(self, self.funArgs)
-        #else: print '%s at %f was canceled'%(self.name,self.sim.now())
+        #else: print '%s at %f was canceled'%(self.bName,self.sim.now())
     def __repr__(self):
         if self.alarmclockFunc is None:
             return "<TimerProcess(%s) (canceled)>"%self.name
@@ -3634,7 +3637,7 @@ class TimerProcess(Process):
         else:
             return "<TimerProcess(%s)>"%self.name
 
-class SnoozeTimerProcess(Process):
+class SnoozeTimerProcess(Process, abstractbaseclasses.UnicodeSupport):
     counter= 0
     def __init__(self,sim,name,delayDays,snoozeDays,snoozealarmclockFunc,funArgs):
         """
@@ -3678,7 +3681,7 @@ class SnoozeTimerProcess(Process):
         else:
             return "<SnoozeTimerProcess(%s)>"%self.name
 
-class ScheduledShipment(Process):
+class ScheduledShipment(Process, abstractbaseclasses.UnicodeSupport):
     def __init__(self,fromWarehouse,toWarehouse,interval,shipVC,
                  startupLatency=0.0,name=None):
         """
@@ -3734,7 +3737,7 @@ class ScheduledShipment(Process):
                                    (self.fromW.name,self.toW.name))
             else:
                 self.fromW.addPendingShipment(self.toW, self.shipVC)
-                logVerbose(self.sim,"%s requesting %s at %g"%(self.name,self.shipVC,self.sim.now()))
+                logVerbose(self.sim,"%s requesting %s at %g"%(self.bName,self.shipVC,self.sim.now()))
             yield hold,self,self.interval
     def setShipVC(self,shipVC):
         self.shipVC= shipVC
@@ -3744,7 +3747,7 @@ class ScheduledShipment(Process):
     def __str__(self): 
         return "<ScheduledShipment(%s,%s)>"%(self.fromW.name,self.toW.name)
 
-class ScheduledVariableSizeShipment(Process):
+class ScheduledVariableSizeShipment(Process,abstractbaseclasses.UnicodeSupport):
     def __init__(self,fromWarehouse,toWarehouse,interval,quantityFunction,
                  startupLatency=0.0,name=None):
         """
@@ -3798,14 +3801,14 @@ class ScheduledVariableSizeShipment(Process):
             shipVC.roundDown()
             fullVC = shipVC
             self.fromW.addPendingShipment(self.toW,fullVC)
-            logVerbose(self.sim,"%s requesting %s at %g"%(self.name,fullVC,self.sim.now()))
+            logVerbose(self.sim,"%s requesting %s at %g"%(self.bName,fullVC,self.sim.now()))
             yield hold,self,self.interval
     def __repr__(self):
         return "<ScheduledVariableSizeShipment(%s,%s,%f)>"%(self.fromW.name,self.toW.name,self.interval)
     def __str__(self): 
         return "<ScheduledVariableSizeShipment(%s,%s)>"%(self.fromW.name,self.toW.name)
 
-class UseVials(Process):
+class UseVials(Process, abstractbaseclasses.UnicodeSupport):
     def __init__(self,clinic,
                  tickInterval,patientWaitInterval,useVialPriority,
                  startupLatency=0.0):
@@ -4036,15 +4039,15 @@ class UseVials(Process):
 
             treatmentTupleList, elaboratedTypeRateList, vcList, notUsedForTreatmentList = \
                 self.sortDoseRequirments(doseVC)
-            #print "%s: notUsedForTreatment: %s"%(self.name,[(v.name,n) for v,n in notUsedForTreatmentList])
+            #print "%s: notUsedForTreatment: %s"%(self.bName,[(v.bName,n) for v,n in notUsedForTreatmentList])
                 
             # Now we try to get something from the clinic stock.  
             # neededDeliverablesVC is a collection of *deliverable* vials, and does not
             # include the supplies necessary to prep them
             neededDeliverablesVC = self.sim.shippables.getCollection(vcList)
-            #print "%s: neededDeliverablesVC is %s"%(self.name, [(v.name,n) for v,n in neededDeliverablesVC.items()])
+            #print "%s: neededDeliverablesVC is %s"%(self.bName, [(v.bName,n) for v,n in neededDeliverablesVC.items()])
             elaboratedVC = self.sim.shippables.addPrepSupplies(neededDeliverablesVC)
-            #print "%s: elaboratedVC is %s"%(self.name, [(v.name,n) for v,n in elaboratedVC.items()])
+            #print "%s: elaboratedVC is %s"%(self.bName, [(v.bName,n) for v,n in elaboratedVC.items()])
             
             self.clinic._instantUsageVC += elaboratedVC
             self.clinic._accumulatedUsageVC += elaboratedVC
@@ -4056,7 +4059,7 @@ class UseVials(Process):
                    self.useVialPriority),(hold,self,self.patientWaitInterval)
 
             if self.acquired(self.clinic.getStore()):
-                #print "%s: got %s"%(self.name,[(g.getType().name,g.getCount()) for g in self.got])
+                #print "%s: got %s"%(self.bName,[(g.getType().bName,g.getCount()) for g in self.got])
                 unexpiredList = []
                 expiredList = []
                 for g in self.got:
@@ -4064,9 +4067,9 @@ class UseVials(Process):
                     else: unexpiredList.append(g)
                 for g in expiredList: g.detach(self)
                 deliverList, consumeList = self.selectDeliverablesToPrep(unexpiredList, elaboratedTypeRateList)
-                #print "%s: deliverList= %s consumeList=%s"%(self.name, 
-                #                                            [(g.getType().name,g.getCount()) for g in deliverList],
-                #                                            [(g.getType().name,g.getCount()) for g in consumeList])
+                #print "%s: deliverList= %s consumeList=%s"%(self.bName, 
+                #                                            [(g.getType().bName,g.getCount()) for g in deliverList],
+                #                                            [(g.getType().bName,g.getCount()) for g in consumeList])
                 
                 usedUpList = []
                 preppedList = []
@@ -4095,9 +4098,9 @@ class UseVials(Process):
                         g.getType().totalTransitHisto += (self.sim.now()-g.creationTime, g.getCount())
                     
                 vcReady = self.sim.shippables.getCollectionFromGroupList(preppedList)
-                #print "%s: prepFailedList is %s"%(self.name,[(g.getType().name,g.getCount()) for g in prepFailedList])
-                #print "%s: preppedList is %s"%(self.name,[(g.getType().name,g.getCount()) for g in preppedList])
-                #print "%s: elaboratedTypeRateList is %s"%(self.name,[(v.name,nPatients,nVials) for v,nPatients,nVials in elaboratedTypeRateList])
+                #print "%s: prepFailedList is %s"%(self.bName,[(g.getType().bName,g.getCount()) for g in prepFailedList])
+                #print "%s: preppedList is %s"%(self.bName,[(g.getType().bName,g.getCount()) for g in preppedList])
+                #print "%s: elaboratedTypeRateList is %s"%(self.bName,[(v.bName,nPatients,nVials) for v,nPatients,nVials in elaboratedTypeRateList])
                         
                 leftoversList = [] # format [(v,n), ...]
                 for v,nPatients,nVials in elaboratedTypeRateList:
@@ -4118,8 +4121,8 @@ class UseVials(Process):
                 # Shortages can lead to prep failures, which can lead to some of the
                 # fetched supplies not being used.  Figure out what to do with them.
                 goBackList, discardList = self.keepOrDiscardAfterTreatmentSession(consumeList + prepFailedList)
-                #print "%s: goBackList is %s"%(self.name,[(g.getType().name,g.getCount()) for g in goBackList])
-                #print "%s: discardList is %s"%(self.name,[(g.getType().name,g.getCount()) for g in discardList])
+                #print "%s: goBackList is %s"%(self.bName,[(g.getType().bName,g.getCount()) for g in goBackList])
+                #print "%s: discardList is %s"%(self.bName,[(g.getType().bName,g.getCount()) for g in discardList])
 
                 for g in discardList:
                     g.detach(self)

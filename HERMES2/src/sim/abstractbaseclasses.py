@@ -23,14 +23,62 @@ This module provides abstract base classes for the type system
 
 _hermes_svn_id_="$Id$"
 
-import abc, math
+import abc, math, types
+import chardet
 
-class CanOwn:
+class UnicodeSupportMetaClass(abc.ABCMeta):
+    defaultEncoding = 'utf-8'
+    @staticmethod
+    def fake_name():
+        """Return a wrapped property to always return .name as unicode"""
+        def u_getName(self):
+            return self._u_name
+        def u_setName(self,value):
+            if isinstance(value,types.UnicodeType):
+                self._u_name = value
+            else:
+                self._u_name = value.decode(chardet.detect(value)['encoding'])
+        def u_delName(self):
+            del self._u_name
+        return property(u_getName, u_setName, u_delName, 'name provided by UnicodeSupportMetaClass')
+    @staticmethod
+    def fake_bname():
+        """Return a wrapped propertyto always return .bName as a byte string"""
+        def u_getBName(self):
+            if hasattr(self,'_u_name'):
+                return self._u_name.encode(UnicodeSupportMetaClass.defaultEncoding)
+            else:
+                raise RuntimeError("Class instance has no .name and hence no .bName")
+        return property(u_getBName, None, None, 'name provided by UnicodeSupportMetaClass')
+    @staticmethod
+    def wrap_str(innerStr):
+        def outerStr(self):
+            v = innerStr(self)
+            if isinstance(v, types.UnicodeType):
+                return v.encode(UnicodeSupportMetaClass.defaultEncoding)
+            else:
+                return v
+        return outerStr
+    def __new__(cls, name, bases, attrs):
+        attrs['name'] = cls.fake_name()
+        attrs['bName'] = cls.fake_bname()
+        if '__str__' in attrs:
+            print 'patching str for %s'%name
+            attrs['__str__'] = cls.wrap_str(attrs['__str__'])
+        if '__repr__' in attrs:
+            print 'patching repr for %s'%name
+            attrs['__repr__'] = cls.wrap_str(attrs['__repr__'])
+        return super(UnicodeSupportMetaClass, cls).__new__(cls, name, bases, attrs)
+
+class UnicodeSupport(object):
+    __metaclass__ = UnicodeSupportMetaClass
+
+
+class CanOwn(UnicodeSupport):
     """
     Classes derived from this abstract base class are instances of places where
     Shippable things can be, for example a specific warehouse or a specific truck.
     """
-    __metaclass__= abc.ABCMeta
     
     @abc.abstractmethod
     def getSupplySummary(self):
@@ -174,7 +222,6 @@ class Place(CanOwn):
     Classes derived from this abstract base class represent fixed locations, for example
     warehouses and clinics.
     """
-    __metaclass__= abc.ABCMeta
     
     @abc.abstractmethod
     def getPopServedPC(self):
@@ -217,12 +264,11 @@ class Place(CanOwn):
     def restoreGridPower(self):
         pass
 
-class ManagedType:
+class ManagedType(UnicodeSupport):
     """
     Classes derived from this abstract base class are types managed by the typeManager.
     Examples: FridgeType, VaccineType, PeopleType, TruckType, StorageType
     """
-    __metaclass__= abc.ABCMeta
     
     # I really wish this was a 'classproperty' or 'abc.abstractclassproperty', but those are not
     # yet cleanly implemented.
@@ -285,13 +331,12 @@ class HasOVW(ManagedType):
     This class is used as a tag to exempt things which don't come in vials (like cold boxes) from
     open vial waste calculations.
     """
-    __metaclass__= abc.ABCMeta
     
     def __init__(self):
         # This is to satisfy Eclipse syntax checking
         pass
     
-class Trackable:
+class Trackable(UnicodeSupport):
     """
     Classes which can be owned by a CanOwn instance should be derived from Trackable- for example 
     vaccines, fridges and trucks.  Each of these items has an associated Type class- Fridge has 
@@ -304,7 +349,6 @@ class Trackable:
     coexist with Shippable+Trackable instances in the inventory lists of CanOwn objects, but are
     ignored by the mechanisms which transport and store Shippable instances.
     """
-    __metaclass__= abc.ABCMeta
     
     def __init__(self):
         # This is to satisfy Eclipse syntax checking
@@ -357,14 +401,12 @@ class TrackableType(ManagedType):
     """
     Classes derived from this abstract base class produce instances which include the Trackable ABC
     """
-    __metaclass__= abc.ABCMeta
 
 class CanStore(Trackable):
     """
     Classes derived from this abstract base class provide space in which Shippable objects can be stored.
     Examples: specific refrigerator instances
     """
-    __metaclass__= abc.ABCMeta
     
     def __init__(self):
         # This is to satisfy Eclipse syntax checking
@@ -395,19 +437,17 @@ class CanStoreType(TrackableType):
     Classes derived from this abstract base class produce instances which include the CanStore ABC.
     Examples: specific fridgeTypes
     """
-    __metaclass__= abc.ABCMeta
     
     @abc.abstractmethod
     def getStorageCapacityInfo(self): return None
 
 
 
-class StatProvider:
+class StatProvider(UnicodeSupport):
     """
     This is a sample interface providing a method to request a value by name.  It is intended
     as a generic way to return summary statistics for aggregation.
     """
-    __metaclass__= abc.ABCMeta
     @abc.abstractmethod
     def getStat(self, statNameString):
         """
@@ -424,24 +464,22 @@ class StatProvider:
         """
         return []
     
-class Costable:
+class Costable(UnicodeSupport):
     """
     Classes which contribute to capital or ongoing costs.  Currently all the functionality is implemented 
     in CostManager, so there are no methods here.
     """
-    __metaclass__= abc.ABCMeta
     
     def __init__(self):
         # This is to satisfy Eclipse syntax checking
         pass
     
 
-class Shippable:
+class Shippable(UnicodeSupport):
     """
     Classes derived from this abstract base class can be transported through the shipping network.
     Examples: refrigerators, vaccines
     """
-    __metaclass__= abc.ABCMeta
     
     RECYCLE_TAG= "recycle"
     DO_NOT_USE_TAG= "donotuse"
@@ -544,12 +582,11 @@ class Shippable:
         """
         return None
 
-class Deliverable:
+class Deliverable(UnicodeSupport):
     """
     Classes derived from this abstract base class are actually provided to the consumer.  Vaccines are
     deliverables; diluent is shippable but is only used to prepare the vaccine for delivery to the consumer.
     """
-    __metaclass__= abc.ABCMeta
 
     def __init__(self):
         # This is to satisfy Eclipse syntax checking
@@ -577,13 +614,11 @@ class GroupedShippable(Shippable):
     Classes derived from this abstract base class are Shippable instances that come in 
     groups, such that item.getCount() may return values greater than 1.
     """
-    __metaclass__= abc.ABCMeta
         
 class ShippableType(TrackableType):
     """
     These are the types of which Shippable things are the instances.
     """
-    __metaclass__= abc.ABCMeta
     
     # I really wish this was a 'classproperty' or 'abc.abstractclassproperty', but those are not
     # yet cleanly implemented.
@@ -686,11 +721,10 @@ class ShippableType(TrackableType):
         """
         return 0.0
         
-class DeliverableType:
+class DeliverableType(UnicodeSupport):
     """
     These are the types of which Deliverable things are the instances.
     """
-    __metaclass__= abc.ABCMeta
 
     def __init__(self):
         self.requiredToPrepSC = None        
@@ -743,9 +777,8 @@ class GroupedShippableType(ShippableType):
     """
     Classes derived from this abstract base class have GroupedShippable things as their instances.
     """
-    __metaclass__= abc.ABCMeta
 
-class NonScalingType:
+class NonScalingType(UnicodeSupport):
     """
     Classes the shipment size of which does not change with the shipping interval.  For example, if a shipment 
     is to deliver PVSDs or ice charges for cold boxes, presumably those things should be delivered on every
@@ -754,25 +787,22 @@ class NonScalingType:
     on some days of a shipping interval, the application of that calendar does not change the number of PVSDs or
     ice charges shipped.
     """
-    __metaclass__= abc.ABCMeta
     
     def __init__(self):
         # This is to satisfy Eclipse syntax checking
         pass
 
-class ConsumesSupplies:
+class ConsumesSupplies(UnicodeSupport):
     """
     Classes derived from this abstract base class consume things like vaccines or ice.
     Examples: some refrigerators; people.
     """
-    __metaclass__= abc.ABCMeta
     
-class Shopper:
+class Shopper(UnicodeSupport):
     """
     Classes derived from this abstract base class contain methods to select ordered subsets of Shippable things.
     Examples: warehouse.getVaccineCollectionAndTweakBuffer
     """
-    __metaclass__= abc.ABCMeta
     
     @abc.abstractmethod
     def selectItems(self, someCollection, someCanSend): pass
@@ -786,7 +816,6 @@ class CanProvide(Place):
     Classes derived from this abstract base class can serve as the upstream end of a shipping link.
     Examples: Warehouse
     """
-    __metaclass__= abc.ABCMeta
 
     @abc.abstractmethod
     def gotAnyOfThese(self, listOfShippableTypes): pass
@@ -806,7 +835,6 @@ class CanReceive(CanStore):
     Classes derived from this abstract base class can serve as the downstream end of a shipping link.
     Examples: Warehouse, Clinic
     """
-    __metaclass__= abc.ABCMeta
 
     @abc.abstractmethod
     def wantAnyOfThese(self, listOfShippableTypes): pass
