@@ -346,7 +346,7 @@ $(function() {
 					.done(function(data) {
 						if (data.success) {
 							if (data.value) {
-								$.getJSON('json/get-clipboard-name')
+								$.getJSON('{{rootPath}}json/get-clipboard-name')
 								.done(function(data) {
 									var proposedName = data.value;
 									$.getJSON('{{rootPath}}check-unique-hint',
