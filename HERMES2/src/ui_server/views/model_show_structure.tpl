@@ -33,7 +33,23 @@ path.link {
 </div>
 
 <div id="log"></div>
-<div id="model_store_info_dialog" title="This should get replaced">
+<script>
+var dialogBoxName = "model_store_info";
+
+$(function(){
+		$.ajax({
+		url: '{{rootPath}}json/dialoghtmlforstore',
+		dataType:'json',
+		data:{name:dialogBoxName,geninfo:1,utilinfo:0,popinfo:1,storedev:1,transdev:1,vacavail:0,fillratio:0,invent:0,availplot:0},
+		success:function(data){
+			console.log(data.htmlString);
+			$(document.body).append(data.htmlString);
+		}
+	})
+});
+
+</script>
+<!--<div id="model_store_info_dialog" title="This should get replaced">
 	<div id = "model_store_info_content">
 		<ul>
 			<li style="font-size:small">
@@ -50,12 +66,12 @@ path.link {
 		<div id='tab-2'><table id='PopInfo'></table></div>
 		<div id='tab-3'><table id='StoreDevInfo'></table></div>
 	</div>
-</div>
+</div>-->
 
 <script>
 
 $(function() {
-	initStoreInfoDialogNoResults("model_store_info_dialog");
+	//initStoreInfoDialogNoResults("model_store_info_dialog");
 	$('#ajax_busy_image').show();
 });
 
@@ -433,12 +449,24 @@ treeJSON = d3.json("{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}
     	if (d.level == 9999){
     		return;
     	}
-    	if ($("#model_store_info_dialog").is(':ui-dialog')) {
-    		$("#model_store_info_dialog").dialog('close');
-    	}
-    	populateStoreInfoDialogNoResults("{{rootPath}}","model_store_info_content","{{modelId}}",d.idcode);
-    	$("#model_store_info_dialog").dialog("option","title","Information for Location " + d.name);
-    	$("#model_store_info_dialog").dialog("open");
+    	
+		if($("#"+dialogBoxName+"_dialog").length > 0){
+			if ($("#"+dialogBoxName+"_dialog").is(':ui-dialog')) {
+				$("#"+dialogBoxName+"_dialog").dialog('close');
+			}
+			var meta_data = eval(dialogBoxName+"_meta");
+			var resId = -1;
+				
+			populateStoreInfoDialog("{{rootPath}}",dialogBoxName,meta_data,"{{modelId}}",d.idcode,-1);
+			$("#"+dialogBoxName+"_dialog").dialog("option","title","Information for Location " + d.idcode);
+			$("#"+dialogBoxName+"_dialog").dialog("open");
+		}
+//    	if ($("#model_store_info_dialog").is(':ui-dialog')) {
+//    		$("#model_store_info_dialog").dialog('close');
+//    	}
+//    	populateStoreInfoDialogNoResults("{{rootPath}}","model_store_info_content","{{modelId}}",d.idcode);
+//    	$("#model_store_info_dialog").dialog("option","title","Information for Location " + d.name);
+//    	$("#model_store_info_dialog").dialog("open");
     }
     
     function update(source) {
