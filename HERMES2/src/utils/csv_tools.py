@@ -17,7 +17,7 @@
 
 _hermes_svn_id_="$Id$"
 
-import sys,os,os.path,math,re,types
+import sys,os,os.path,math,re,types,chardet
 import ipath
 from util import openFileOrHandle, logError, raiseRuntimeError
 
@@ -147,6 +147,9 @@ def parseCSV( ifile ):
     possibleDelimiters= [";",",","\t",None] # empty string means whitespace-delimited
     with openFileOrHandle(ifile) as f:
         lines= f.readlines()
+    encodingInfo = chardet.detect("".join(lines))
+    if encodingInfo['confidence'] >= 0.9: predictedEncoding = encodingInfo['encoding']
+    else: predictedEncoding = None
     delimFound= 0
     delimForThisFile= None
     for delim in possibleDelimiters:
@@ -191,6 +194,7 @@ def parseCSV( ifile ):
         words= [x.strip() for x in words]
         if len(words)>0:
             dict= CSVDict()
+            dict.predictedEncoding = predictedEncoding
             if len(words)!=len(keys):
                 eS = "Line length error: %d vs %d"%(len(words),len(keys))
                 for i in xrange(len(keys)):
@@ -281,7 +285,7 @@ class castTypes:
     "An enumeration of casting types along with methods to attempt to perform them"
 
     @staticmethod
-    def CastInt(val):
+    def CastInt(val, **kwargs):
         try:
             ret = int(val)
         except:
@@ -289,10 +293,12 @@ class castTypes:
         return True, ret
     
     @staticmethod
-    def CastString(val):
+    def CastString(val, **kwargs):
         ### This is not an exhaustive list, so if this bombs on your system, we may need to add
         codecs = ['iso-8859-1','cp1252','latin-1','utf-8']
-        ### This will not cast all strings as UNICODE
+        if 'predictedEncoding' in kwargs:
+            codecs = [kwargs['predictedEncoding']]
+        ### This will now cast all strings as UNICODE
         if None == val:
             return False, val
         try:
@@ -303,6 +309,7 @@ class castTypes:
                 for i in codecs:
                     try:
                         dVal = val.decode(i)
+                        
                         break
                     except Exception as e:
                         print str(e)
@@ -323,13 +330,13 @@ class castTypes:
         return True, ret
     
     @staticmethod
-    def CastEmpty(val):
+    def CastEmpty(val, **kwargs):
         if None == val:
             return True, val
         return False, val
     
     @staticmethod
-    def CastLong(val):
+    def CastLong(val, **kwargs):
         try:
             ret = long(val)
         except:
@@ -337,13 +344,13 @@ class castTypes:
         return True, ret
     
     @staticmethod
-    def CastNA(val):
+    def CastNA(val, **kwargs):
         if "NA" == val:
             return True, val
         return False, val
 
     @staticmethod
-    def CastFloat(val):
+    def CastFloat(val, **kwargs):
         try:
             ret = float(val)
         except:
@@ -351,7 +358,7 @@ class castTypes:
         return True, ret
     
     @staticmethod
-    def CastNonnegativeInt(val):
+    def CastNonnegativeInt(val, **kwargs):
         try:
             ret = int(val)
             if ret < 0:
@@ -361,7 +368,7 @@ class castTypes:
         return True, ret
 
     @staticmethod
-    def CastPositiveInt(val):
+    def CastPositiveInt(val, **kwargs):
         try:
             ret = int(val)
             if ret < 1:
@@ -371,7 +378,7 @@ class castTypes:
         return True, ret
 
     @staticmethod
-    def CastEmptyIsNullString(val):
+    def CastEmptyIsNullString(val, **kwargs):
         if val is None:
             return True, u""
         if val == "":
@@ -379,7 +386,7 @@ class castTypes:
         return False, val
 
     @staticmethod
-    def CastEmptyIsZero(val):
+    def CastEmptyIsZero(val, **kwargs):
         if val is None:
             return True, 0
         if val == "":
@@ -387,7 +394,7 @@ class castTypes:
         return False, val
 
     @staticmethod
-    def CastEmptyIsNone(val):
+    def CastEmptyIsNone(val, **kwargs):
         if val is None:
             return True, None
         if val == "":
@@ -466,8 +473,11 @@ def castColumn(recs, key, castList, fileName=None):
         else:
             val = None
 
+        hints = {}
+        if hasattr(rec,'predictedEncoding') and rec.predictedEncoding is not None:
+            hints['predictedEncoding'] = rec.predictedEncoding
         for cast in castList:
-            status, out = cast(val)
+            status, out = cast(val, **hints)
             if status:
                 rec[key] = out
                 break
