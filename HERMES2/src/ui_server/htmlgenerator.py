@@ -489,7 +489,68 @@ def getTypeEditHTML(db,uiSession,wireType,modelId,protoname,fieldMap):
     
     return _buildEditFieldTable(fieldMap), titleStr
 
-def getStoreDialogHTML(db,uiSession,name="model_dialog",buttonName=None,genInfo=True,util=True,
+def getRouteDialogHTML(db,uiSession,name="model_route_dialog",genInfo=True,util=True,tripMan=True):
+    tabCount =1
+    sio=StringIO()
+    
+    sio.write("<div id='%s_dialog' class = '%s_dialog' title='This should get replaced'>"%(name,name))
+    sio.write("<div id = '%s_content'>"%(name))
+    sio.write("<ul>")
+    if genInfo:
+        print "HERE"
+        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Route Information')))
+        tabCount += 1
+    if util:
+        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Vehicle Utilization')))
+        tabCount += 1
+    if tripMan:
+        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Trips')))
+        tabCount += 1
+        
+    sio.write("</ul>")
+    tabCount = 1
+    if genInfo:
+        sio.write("<div id='tab-%d'><table id='%s_RGenInfo'></table></div>"%(tabCount,name))
+        tabCount += 1
+    if util:
+        sio.write("<div id='tab-%d'><table id='%s_RUtilInfo'></table></div>"%(tabCount,name))
+        tabCount += 1
+    if tripMan:
+        sio.write("<div id='tab-%d'><table id='%s_RTripMan'></table></div>"%(tabCount,name))
+        tabCount += 1  
+        
+    sio.write("</div>")
+    sio.write("</div>")
+    ### Now add the javascript to load the dialog box
+    sio.write("<script>")
+    sio.write("$('#%s_dialog').dialog({"%name)
+    sio.write("autoOpen:false,") 
+    sio.write("height:'auto',")
+    sio.write("width:'auto',")
+    sio.write("close: function() {")
+    sio.write("$('#%s_content').tabs();"%name)
+    sio.write("    $('#%s_content').tabs('destroy');"%name)
+    sio.write("    $('#%s_content').innerHtml = '';"%name)
+    if genInfo:
+        sio.write("    $('#%s_RGenInfo').jqGrid('GridUnload');"%name)
+    if util:
+        sio.write("    $('#%s_RUtilInfo').jqGrid('GridUnload');"%name)
+    if tripMan:
+        sio.write("   $('#%s_RTripMan').jqGrid('GridUnload');"%name)
+    sio.write("}")
+    sio.write("});")
+    
+    sio.write("var %s_meta = new Object();"%name)
+    sio.write("%s_meta['getResult'] = false;"%name)
+    if genInfo: sio.write("%s_meta['genInfo'] = true;"%name)
+    if util: sio.write("%s_meta['utilInfo'] = true; %s_meta['getResults'] = true;"%(name,name))
+    if tripMan: sio.write("%s_meta['tripman'] = true;%s_meta['getResults'] = true;"%(name,name))
+    sio.write("</script>")
+  
+    return sio.getvalue()
+    
+        
+def getStoreDialogHTML(db,uiSession,name="model_store_dialog",buttonName=None,genInfo=True,util=True,
                        popInfo=True,storeDev=True,
                        transDev=True,invent=True,fillRatio=True,vaccAvail=True,
                        availPlot=True):
@@ -596,22 +657,6 @@ def getStoreDialogHTML(db,uiSession,name="model_dialog",buttonName=None,genInfo=
     if invent: sio.write("%s_meta['invent'] = true;"%name)
     if availPlot: sio.write("%s_meta['availPlot'] = true;%s_meta['getResults'] = true;"%(name,name))
     sio.write("</script>")
-    
-    ### Create the button javascript 
-    ### You will need to have this defined in the tpl, otherwise, it will not work.
-#     if buttonName is not None:
-#         sio.write("<script>")
-#         sio.write("$('#%s').click( function() {"%buttonName)
-#         sio.write("if($('#%s_dialog').length > 0){"%name)
-#             sio.write("if ($("#model_store_info_dialog").is(':ui-dialog')) {
-#              sio.write("$("#model_store_info_dialog").dialog('close');
-#             sio.write("}
-#             sio.write("populateStoreInfoDialogWithResults("{{rootPath}}","model_store_info_content","{{modelId}}",'{{storeId}}','{{resultsId}}');
-#             sio.write("$("#model_store_info_dialog").dialog("option","title","Information for Location " + {{storeId}});
-#             sio.write("$("#model_store_info_dialog").dialog("open");
-#         }
-#     });
-        
-    
+
     return sio.getvalue()
 
