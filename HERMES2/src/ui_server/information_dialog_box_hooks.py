@@ -17,7 +17,7 @@ import privs
 import session_support_wrapper as session_support
 import shadow_network
 import util
-from htmlgenerator import getStoreDialogHTML
+from htmlgenerator import getStoreDialogHTML,getRouteDialogHTML
 import model as M
 
 from HermesServiceException import HermesServiceException
@@ -54,15 +54,28 @@ def generateStoreDialogHTML(db,uiSession):
         result = {'success':False, 'msg':str(e)}
         return result
     
+@bottle.route('/json/dialoghtmlforroute')
+def generateRouteDialogHTML(db,uiSession):
+    try:
+        boxName = _getOrThrowError(bottle.request.params,'name',isInt=False)
+        genInfo = _safeGetReqParam(bottle.request.params,'geninfo',isBool=True,default=False)
+        utilInfo = _safeGetReqParam(bottle.request.params,'utilinfo',isBool=True,default=False)
+        tripMan = _safeGetReqParam(bottle.request.params,'tripman',isBool=True,default=False)
+        htmlString = getRouteDialogHTML(db, uiSession, boxName,genInfo=genInfo,util=utilInfo,tripMan=tripMan)
+        return {'success':True,'htmlString':htmlString}
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
 ### Route to demo page for testing and examples 
 @bottle.route('/dialogdemo')
 def dialogDemoPage(db,uiSession):
     modelId= _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
     resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
-    storeId = _getOrThrowError(bottle.request.params,'storeId',isInt=True)
+    storeId = _getOrThrowError(bottle.request.params,'storeId',isInt=False)
+    routeId = _getOrThrowError(bottle.request.params,'routeId',isInt=False)
     return bottle.template('dialogboxdemo.tpl',{"breadcrumbPairs":[("top",_("Welcome"))],
                                             "pageHelpText":_("This is intended to show page-specific help")},
-                                            _=_,inlizer=inlizer,modelId=modelId,storeId=storeId,resultsId=resultsId)
+                                            _=_,inlizer=inlizer,modelId=modelId,storeId=storeId,routeId=routeId,resultsId=resultsId)
     
 
 
@@ -507,3 +520,214 @@ def generateVaccineAvailabilityPlotForStore(db,uiSession):
         result = {'success':False,
                   'msg':str(e)}
         return result 
+    
+@bottle.route('/json/get-general-info-for-route',method="post")
+def generateGeneralInformationForRoute(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        routeId = _getOrThrowError(bottle.request.params,'routeId',isInt=False)
+        
+        ### Check permissions
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+    
+        model = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        route = model.getRoute(routeId)
+        
+        features = [_("Name"),_("Levels"),"ID",_("Type")]
+        parsedName = ""
+        parsedLevelName = ""
+        fixedFrequency = -1
+        variableFrequency = -1
+        daysOfStock = -1
+        orderThresh = -1
+        for stop in route.stops:
+            stopStore = stop.store
+            parsedName += "%s -> "%(stopStore.NAME)
+            parsedLevelName += "%s -> "%(stopStore.CATEGORY)
+        
+        if route.Type in ["varpush","schedvarfetch"]:
+            parsedType = "Fixed Schedule / Variable Amount Based on Frequency "
+            fixedFrequency = route.ShipIntervalDays
+        elif route.Type in ["push", "schedfetch"]:
+            parsedType = "Fixed Schedule / Fixed Amount "
+            fixedFrequency = route.ShipIntervalDays
+        elif route.Type in ["pull","demandfetch"]:
+            parsedType = "Variable Schedule (As Needed with Minimum Wait Time Between Shipments, When Stock Falls Below Threshold) / Variable Amount "
+            variableFrequency = route.ShipIntervalDays
+            daysOfStock= route.stops[0].PullOrderAmountDays
+            orderThresh = "25%"
+        elif route.Type in ["persistentpull","persistentdemandfetch"]:
+            parsedType = "Variable Schedule (As Needed When Stock Falls Below Threshold) / Variable Amount "
+            daysOfStock = route.stops[0].PullOrderAmountDays
+            orderThresh = "25%"
+        elif route.Type in ["askingpush"]:
+            parsedType = "Fixed Schedule / Toping Off Strategy "
+            fixedFrequency = route.ShipIntervalDays
+        elif route.Type in ["dropandcollect"]:
+            parsedType = "Drop off vaccines and return to collect"
+            fixedFrequency = route.ShipIntervalDays
+        elif route.Type in ["attached"]:
+            parsedType = "Attached Clinic"
+        else:
+            parsedType = "UKNOWN"
+            
+        values = [parsedName[:-4],
+                  parsedLevelName[:-4],
+                  route.RouteName,
+                  parsedType]
+        
+        if fixedFrequency != -1:
+            features.append(_("Frequency (Fixed)"))
+            values.append(fixedFrequency)
+        if variableFrequency != -1:
+            features.append(_("Mimimum Wait Between Shipments"))
+            values.append(variableFrequency)
+        if daysOfStock != -1:
+            features.append(_("Amount of Days For Which To Order"))
+            values.append(daysOfStock)
+        if orderThresh != -1:
+            features.append(_("Stock Threshold for Reordering"))
+            values.append(orderThresh)
+        
+        ### put 
+        rows = []
+        for feature in features:
+            rows.append({"feature":feature,"value":values[features.index(feature)]})
+        
+        result = {'success':True, 
+                  'rows':rows,
+                  'total':1,
+                  'page':1}
+        return result
+    except Exception,e:
+        result = {'success':False,
+                  'msg':str(e)}
+        return result
+    
+    
+@bottle.route('/json/get-utilization-for-route') 
+def generateUtilizationForRoute(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        routeId = _getOrThrowError(bottle.request.params,'routeId',isInt=False)
+        resId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)  
+             
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        r = m.getResultById(resId)
+
+        route = m.getRoute(routeId)  
+        routeRpt = r.routesRpts[routeId]
+        
+        rows = []
+        features = [_('Vehicle'),_('Amount of Storage(L)'),_('Average Utilization'),_('Maximum Utilization')]
+        values = []
+        vol = 0.0
+        device = m.types[route.TruckType]
+    
+        values.append(device.getDisplayName())
+        vol += device.CoolVolumeCC/1000.00
+        for (count,name) in M.parseInventoryString(device.Storage):
+            storageDevice = m.types[name]
+            vol += count*storageDevice.cooler
+        values.append(vol)
+        
+        tripTimesDict = routeRpt.tripTimesMV().getDictFormat()
+        
+        iStart = 0
+        iEnd = 1
+        
+        volsAve = []
+        for i in range(0,len(tripTimesDict['startTime'])):
+            if iEnd == 0:
+                iStart = 0
+                iEnd = 1
+                volsAve.append(tripTimesDict['volumeCarried'][i])
+            if iStart == len(route.stops)-1:
+                iEnd = 0
+            
+            print type(iStart)
+            iStart += 1 
+        
+        aSum = sum(volsAve)
+        print aSum
+        print volsAve
+        voldiv = [x/9500.0 for x in volsAve]
+        print voldiv
+        values.append(aSum/float(len(volsAve))) # Need to do this
+        maxFill = routeRpt.RouteFill
+        print type(routeRpt.RouteFill)
+        overFill = 0.0
+        if maxFill > 1.0:
+            maxFill = 1.0
+            overFill = maxFill - 1.0
+        
+        values.append(maxFill)
+        if overFill > 0.0:
+            features.append(_('Additional Capacity Needed (L)'))
+            values.append(overFill*vol)
+        
+        features.append(_('Trips Taken on Route'))
+        values.append(routeRpt.RouteTrips)
+        
+        rows = []
+        for feature in features:
+            rows.append({"feature":feature,"value":values[features.index(feature)]})
+        
+        result = {'success':True, 
+                  'rows':rows,
+                  'total':1,
+                  'page':1}
+        return result
+    except Exception,e:
+        result = {'success':False,
+                  'msg':str(e)}
+        return result
+        
+                
+@bottle.route('/json/get-tripman-for-route') 
+def generateTripManifestForRoute(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        routeId = _getOrThrowError(bottle.request.params,'routeId',isInt=False)
+        resId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)  
+             
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        r = m.getResultById(resId)
+
+        route = m.getRoute(routeId)  
+        routeRpt = r.routesRpts[routeId]
+        
+        rows = []
+            
+        iStart = 0
+        iEnd = 1
+        
+        tripTimesDict = routeRpt.tripTimesMV().getDictFormat()   
+        for i in range(0,len(tripTimesDict['startTime'])):
+            if iEnd == 0:
+                iStart = 0
+                iEnd= 1
+            if iStart == len(route.stops)-1:
+                iEnd = 0
+            
+            rows.append({'start':route.stops[iStart].store.NAME,
+                        'end':route.stops[iEnd].store.NAME,
+                        'tStart':tripTimesDict['startTime'][i],
+                        'tEnd':tripTimesDict['endTime'][i],
+                        'LitersCarried':tripTimesDict['volumeCarried'][i]})
+            iStart += 1
+        result = {'success':True, 
+                'rows':rows,
+                'total':1,
+                'page':1}
+        return result
+    except Exception,e:
+        result = {'success':False,
+                  'msg':str(e)}
+        return result        
+                
+            
+        
+          
