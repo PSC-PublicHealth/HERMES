@@ -2293,7 +2293,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                     logDebug(proc.sim,"%s: broken in transit from %s: %s"%(bName,fromW.bName,proc.sim.shippables.getCollectionFromGroupList(bL)))
                     for g in bL: g.detach(proc)
                 gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
-                volCarriedOnRouteL = sum([n*v.getSingletonStorageVolume(True) for v,n in gotTheseVC.getTupleList() if isinstance(v,vaccinetypes.VaccineType)])/C.ccPerLiter
+                volCarriedOnRouteL = sum([n*v.getSingletonStorageVolume(False) for v,n in gotTheseVC.getTupleList() if isinstance(v,vaccinetypes.VaccineType)])/C.ccPerLiter
                 #print "Carried " + str(proc.bName) + " " + str(volCarriedOnRouteL)
                 for v,n in gotTheseVC.getTupleList():
                     if isinstance(v,abstractbaseclasses.ShippableType):
