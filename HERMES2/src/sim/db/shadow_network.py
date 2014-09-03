@@ -3538,7 +3538,7 @@ class ShdNetwork(Base):
                     if 'idcode' not in storeRec:
                         raiseRuntimeError("found stores record with no idcode")
                     with logContext("initial parsing of stores record %s"%storeRec['idcode']):
-                        print "Adding " + str(storeRec['NAME'])
+                        print "Adding " + storeRec['NAME']
                         self.addStore(storeRec)
 
         # parse route recs and integrate them into the store records

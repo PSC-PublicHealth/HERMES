@@ -23,7 +23,7 @@ This module provides abstract base classes for the type system
 
 _hermes_svn_id_="$Id$"
 
-import abc, math, types
+import abc, math, types, sys
 import chardet
 
 class UnicodeSupportMetaClass(abc.ABCMeta):
@@ -43,7 +43,7 @@ class UnicodeSupportMetaClass(abc.ABCMeta):
         return property(u_getName, u_setName, u_delName, 'name provided by UnicodeSupportMetaClass')
     @staticmethod
     def fake_bname():
-        """Return a wrapped propertyto always return .bName as a byte string"""
+        """Return a wrapped property to always return .bName as a byte string"""
         def u_getBName(self):
             if hasattr(self,'_u_name'):
                 return self._u_name.encode(UnicodeSupportMetaClass.defaultEncoding)
@@ -63,10 +63,10 @@ class UnicodeSupportMetaClass(abc.ABCMeta):
         attrs['name'] = cls.fake_name()
         attrs['bName'] = cls.fake_bname()
         if '__str__' in attrs:
-            print 'patching str for %s'%name
+            #print 'patching str for %s'%name
             attrs['__str__'] = cls.wrap_str(attrs['__str__'])
         if '__repr__' in attrs:
-            print 'patching repr for %s'%name
+            #print 'patching repr for %s'%name
             attrs['__repr__'] = cls.wrap_str(attrs['__repr__'])
         return super(UnicodeSupportMetaClass, cls).__new__(cls, name, bases, attrs)
 

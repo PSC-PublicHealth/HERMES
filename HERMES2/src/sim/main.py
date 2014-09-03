@@ -24,7 +24,7 @@ _hermes_svn_id_="$Id$"
 
 import ipath
 
-import sys,os,optparse,traceback,time,string
+import sys,os,optparse,traceback,time,string,codecs,locale
 #multiprocessing import Process, JoinableQueue, current_process
 import multiprocessing
 import multiprocessing.forking
@@ -286,8 +286,10 @@ class OutputRedirector():
         self.redir = True
         self.old_stdout = sys.stdout
         self.old_stderr = sys.stderr
-        sys.stdout = util.openOutputFile('stdout.%s'%runNumber, useTempFile=True)
-        sys.stderr = util.openOutputFile('stderr.%s'%runNumber)
+        so = util.openOutputFile('stdout.%s'%runNumber, useTempFile=True)
+        se = util.openOutputFile('stderr.%s'%runNumber)
+        sys.stdout = codecs.getwriter(util.getPreferredOutputEncoding(so.encoding))(so, 'replace')
+        sys.stderr = codecs.getwriter(util.getPreferredOutputEncoding(se.encoding))(se, 'replace')
         
     def __enter__(self):
         return self

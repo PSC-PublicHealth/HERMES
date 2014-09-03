@@ -39,6 +39,8 @@ def readNetworkRecords(userInput):
                                              ('RouteName','RouteOrder'),
                                              userInput['routesoverlayfiles'])
                 # I don't know of anything to use for secondary keys
+        for col in ['RouteName','LocName']:
+            csv_tools.castColumn(routeRecList,col, [csv_tools.castTypes.STRING])
 
 
     with util.logContext("reading stores CSV"):
@@ -51,6 +53,7 @@ def readNetworkRecords(userInput):
                                              'idcode', 
                                              userInput['storesoverlayfiles'],
                                              'CATEGORY')
+        csv_tools.castColumn(storeRecList,'NAME',[csv_tools.castTypes.STRING])
     if userInput['factoryfile'] is None:
         factoryKeys = None
         factoryRecList = None

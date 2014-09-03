@@ -13,8 +13,9 @@ import serverconfig
 import matcher
 import ui_utils
 import site_info
+import util
 
-import sys, os, os.path
+import sys, os, os.path, codecs
 
 ui_utils._logFileName = os.path.join(site_info.SiteInfo().scratchDir(), 'standalone.log')
 #ui_utils._logFileHandle = sys.stdout
@@ -68,8 +69,9 @@ if args.promiscuous:
     kwargs['host'] = '0.0.0.0'
 
 with ui_utils.loggingFileHandle() as f:
-    sys.stdout = f
-    sys.stderr = f
+    encoding = util.getPreferredOutputEncoding()
+    sys.stdout = codecs.getwriter(encoding)(f, 'replace')
+    sys.stderr = codecs.getwriter(encoding)(f, 'replace')
 
     matcher._logMessage('starting up under standalone server')
     (major, minor, rev) = bottle.__version__.replace('-','.').split('.')

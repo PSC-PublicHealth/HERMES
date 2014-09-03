@@ -2718,8 +2718,6 @@ class AskOnDeliveryShipperProcess(ShipperProcess):
     def run(self):
         if self.startupLatency>0.0:
             yield hold,self,self.startupLatency
-        for t in self.transitChain:
-            print t
         logVerbose(self.sim,"%s: latency %f, interval %f; my transit chain is %s"%(self.bName,self.startupLatency,self.interval,self.transitChain))
         while True:
             self.nextWakeTime += self.interval

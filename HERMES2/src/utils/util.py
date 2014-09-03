@@ -25,6 +25,7 @@ a natural home elsewhere.
 _hermes_svn_id_="$Id$"
 
 import sys,os,os.path,math,types,random,StringIO,re,weakref,unittest,cStringIO,cPickle,json
+import codecs,locale
 import ipath
 from collections import MutableMapping
 import globals
@@ -1048,6 +1049,7 @@ class openOutputFile():
         if not os.environ.has_key('HERMES_DATA_OUTPUT'):
             self.fh = open(name, mode)
             self.type = 'filehandle'
+            self.encoding = self.fh.encoding
             return
         hdo = os.environ['HERMES_DATA_OUTPUT']
         if hdo.startswith('zipfile:'):
@@ -1057,9 +1059,11 @@ class openOutputFile():
                 self.type = 'zipfileTemp'
                 (self.fd,self.tempfileName) = tempfile.mkstemp('hermes_tmp')
                 self.fh = os.fdopen(self.fd, mode)
+                self.encoding = self.fh.encoding
             else:
                 self.type = 'zipfile'
                 self.fh = StringIO.StringIO()
+                self.encoding = 'ascii' # a weakness of StringIO
             return
         raise RuntimeError('invalid HERMES_DATA_OUTPUT string %s'%hdo)
 
@@ -1278,6 +1282,25 @@ def logVerbose(sim, msgOrCallable, *argv):
             print msgOrCallable(sim, argv)
         else:
             print msgOrCallable
+
+def getPreferredOutputEncoding(baseEncoding=None):
+    if baseEncoding is None: 
+        outEncoding = locale.getpreferredencoding()
+    else:
+        outEncoding = baseEncoding
+    outEncoding = outEncoding.lower().replace('-','')
+    encodingMap = {
+                   'cp65001':'cp1252', # Windows PowerShell
+                   'windows1252':'cp1252',
+                   }
+    if outEncoding in encodingMap: outEncoding = encodingMap[outEncoding]
+    print '########## Got outEncoding %s'%outEncoding
+    try:
+        codecs.lookup(outEncoding)
+    except:
+        outEncoding = 'utf8'
+    return outEncoding
+
 
 def parseInventoryString(invStr,enableFloat=False):
     """

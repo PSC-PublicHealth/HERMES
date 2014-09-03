@@ -498,6 +498,8 @@ class Model:
                                                      self.sim.allReportingHierarchies[0])
             self.sim.notes.writeNotesAsCSV(fileNameRoot+'.csv')
             keys,recs = self.sim.statsManager.generateStatsRecordInfo(self.sim.allReportingHierarchies[0])
+            csv_tools.castColumn(recs,'ReportingLevel',csv_tools.castTypes.STRING)
+            csv_tools.castColumn(recs,'ReportingBranch',csv_tools.castTypes.STRING)
             with openOutputFile(fileNameRoot+"_retention_histograms.zip") as f:
                 with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as myzip:
                     vaxKeys = ["%s_daysretention"%n for n in self.sim.vaccines.getActiveTypeNames()]
@@ -506,7 +508,7 @@ class Model:
                             if vK in rec:
                                 histo = rec[vK]
                                 nm = vK[:-14]+'.histo' # trim off '_daysretention'
-                                arcname = "%s/%s/%s"%(rec['ReportingLevel'],rec['ReportingBranch'],nm)
+                                arcname = u"%s/%s/%s"%(rec['ReportingLevel'],rec['ReportingBranch'],nm)
                                 if isinstance(arcname,types.UnicodeType): arcname = arcname.encode('utf-8')
                                 arcname = '_'.join(arcname.split()) # remove whitespace
                                 myzip.writestr(arcname, histo.toJSON())

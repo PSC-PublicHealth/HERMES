@@ -70,8 +70,12 @@ def _genericRouteChecks(locList,storeDict):
                 print "reasons could include lack of population and/or lack of storage."
                 raise RuntimeError("route references dead location %d"%rec['idcode'])
             if rec['LocName'] != storeDict[rec['idcode']].name:
+#                 print "***Warning*** Name mismatch on route %s id %ld: <%s> vs. <%s>"%\
+#                       (rec['RouteName'].encode('utf8'),rec['idcode'],
+#                        rec['LocName'].encode('utf8'),storeDict[rec['idcode']].bName)
                 print "***Warning*** Name mismatch on route %s id %ld: <%s> vs. <%s>"%\
-                      (rec['RouteName'],rec['idcode'],rec['LocName'],storeDict[rec['idcode']].name)
+                      (rec['RouteName'],rec['idcode'],
+                       rec['LocName'],storeDict[rec['idcode']].name)
 
 def _innerBuildScheduledRoute(routeName, sim, locList, storeDict, getShipInterval, getStartupLatency, getTruckInterval,
                               getOrderPendingLifetime, shipperProcType):
@@ -894,7 +898,7 @@ def buildNetwork(storeKeys, storeRecList,
 """
 This model includes an implied %s link between %s(%ld) and %s(%ld).
 The use of implied links is DEPRECATED and unreliable, and will not be supported in the future.
-"""%(routeRec0['Type'],supplierRec['NAME'],supplierID,wh.name,idcode)
+"""%(routeRec0['Type'],supplierRec['NAME'],supplierID,wh.bName,idcode)
             except Exception,e:
                 print "Unable to check for implied suppliers for %s(%ld) : %s"%(storeRec['NAME'],idcode,e)
         
@@ -1093,8 +1097,8 @@ def realityCheck(sim):
                     if sb.storageType != sim.storage.discardStorage():
                         totStorageVol += sb.volAvail
                 if totStorageVol==0.0:
-                    warningMessages.append("%s %d is active but has no storage"%(wh.name,code))
-                    sim.outputfile.write("%s %ld: %s\n"%(wh.name,code,wh.getStorageBlocks()))
+                    warningMessages.append("%s %d is active but has no storage"%(wh.bName,code))
+                    sim.outputfile.write("%s %ld: %s\n"%(wh.bName,code,wh.getStorageBlocks()))
 
                     
     if len(inputList)>1 and len(inputList)>0.2*len(sim.storeDict):
@@ -1105,7 +1109,7 @@ def realityCheck(sim):
         nTotWh,whTierDict,popTierDict= \
              topTierWH.getTotalDownstreamClientsByTier()
         sim.outputfile.write("Top tier warehouse %s %ld serves %d clients including itself:\n"%\
-                             (topTierWH.name,topCode,nTotWh))
+                             (topTierWH.bName,topCode,nTotWh))
         offset= 0
         topPop= popTierDict[0]
         while whTierDict.has_key(offset):
@@ -1115,7 +1119,7 @@ def realityCheck(sim):
             # the following test makes no sense.
             #if popTierDict[offset]!=topPop:
             #    warningMessages.append("Tier %d below %s %ld has the wrong "\
-            #                           %(offset,topTierWH.name,topCode)
+            #                           %(offset,topTierWH.bName,topCode)
             #                           +"total client count")
 
             offset += 1
