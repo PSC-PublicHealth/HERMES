@@ -605,7 +605,7 @@ def generateGeneralInformationForRoute(db,uiSession):
         return result
     
     
-@bottle.route('/json/get-utilization-for-route') 
+@bottle.route('/json/get-utilization-for-route',method='post') 
 def generateUtilizationForRoute(db,uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
@@ -620,7 +620,7 @@ def generateUtilizationForRoute(db,uiSession):
         routeRpt = r.routesRpts[routeId]
         
         rows = []
-        features = [_('Vehicle'),_('Amount of Storage(L)'),_('Average Utilization'),_('Maximum Utilization')]
+        features = [_('Vehicle'),_('Amount of Storage'),_('Average Volume Carried'),_('Maximum Volume Carried(L)')]
         values = []
         vol = 0.0
         device = m.types[route.TruckType]
@@ -630,7 +630,7 @@ def generateUtilizationForRoute(db,uiSession):
         for (count,name) in M.parseInventoryString(device.Storage):
             storageDevice = m.types[name]
             vol += count*storageDevice.cooler
-        values.append(vol)
+        values.append("%10.2f L"%vol)
         
         tripTimesDict = routeRpt.tripTimesMV().getDictFormat()
         
@@ -650,22 +650,21 @@ def generateUtilizationForRoute(db,uiSession):
             iStart += 1 
         
         aSum = sum(volsAve)
-        print aSum
-        print volsAve
-        voldiv = [x/9500.0 for x in volsAve]
-        print voldiv
-        values.append(aSum/float(len(volsAve))) # Need to do this
+        aAve = aSum/float(len(volsAve))
+        valueString = "%10.2f L (%3.2f%%)"%(aAve,(aAve/vol)*100.00)
+        values.append(valueString) # Need to do this
         maxFill = routeRpt.RouteFill
-        print type(routeRpt.RouteFill)
         overFill = 0.0
         if maxFill > 1.0:
             maxFill = 1.0
             overFill = maxFill - 1.0
         
-        values.append(maxFill)
+        fillString = "%10.2f L (%3.2f%%)"%(maxFill*vol,maxFill*100.00)
+        values.append(fillString)
         if overFill > 0.0:
-            features.append(_('Additional Capacity Needed (L)'))
-            values.append(overFill*vol)
+            features.append(_('Additional Capacity Needed'))
+            overString = "%10.2 L"%(overFill*vol)
+            values.append(fillString)
         
         features.append(_('Trips Taken on Route'))
         values.append(routeRpt.RouteTrips)
@@ -685,7 +684,7 @@ def generateUtilizationForRoute(db,uiSession):
         return result
         
                 
-@bottle.route('/json/get-tripman-for-route') 
+@bottle.route('/json/get-tripman-for-route',method='post') 
 def generateTripManifestForRoute(db,uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
@@ -703,6 +702,7 @@ def generateTripManifestForRoute(db,uiSession):
             
         iStart = 0
         iEnd = 1
+        burnDays = m.getParameterValue('burnindays')
         
         tripTimesDict = routeRpt.tripTimesMV().getDictFormat()   
         for i in range(0,len(tripTimesDict['startTime'])):
@@ -714,8 +714,8 @@ def generateTripManifestForRoute(db,uiSession):
             
             rows.append({'start':route.stops[iStart].store.NAME,
                         'end':route.stops[iEnd].store.NAME,
-                        'tStart':tripTimesDict['startTime'][i],
-                        'tEnd':tripTimesDict['endTime'][i],
+                        'tStart':tripTimesDict['startTime'][i]-burnDays,
+                        'tEnd':tripTimesDict['endTime'][i]-burnDays,
                         'LitersCarried':tripTimesDict['volumeCarried'][i]})
             iStart += 1
         result = {'success':True, 

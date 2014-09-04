@@ -9,10 +9,12 @@
 <script> 
 var dialogBoxName = "model_store_info";
 var dialogNoResName = "model_store_noRes";
+var dialogRouteResName = "model_route_info";
 </script>
 
 <button type="button" id="demo_button">Dialog</button>
 <button type="button" id="no_results_demo">No Results</button>
+<button type="button" id="route_res_demo">Route Dialog</button>
 
 <script>
 $(function() {
@@ -39,6 +41,18 @@ $(function() {
 	})
 });
 
+$(function() {
+	$.ajax({
+		url: '{{rootPath}}json/dialoghtmlforroute',
+		dataType:'json',
+		data:{name:dialogRouteResName,geninfo:1,utilinfo:1,tripman:1},
+		success:function(data){
+			console.log(data.htmlString);
+			$(document.body).append(data.htmlString);
+		}
+	})
+});
+
 
 $(function() {
 	
@@ -58,7 +72,7 @@ $(function(){
 			var resId = -1;
 			if (meta_data['getResults'] == true){ resId = {{resultsId}};}
 			populateStoreInfoDialog("{{rootPath}}","model_store_info",meta_data,"{{modelId}}",'{{storeId}}',resId);
-			$("#model_store_info_dialog").dialog("option","title","Information for Location " + {{storeId}});
+			$("#model_store_info_dialog").dialog("option","title","Information for Location " + '{{storeId}}');
 			$("#model_store_info_dialog").dialog("open");
 		}
 	});
@@ -76,13 +90,31 @@ $(function(){
 				var resId = -1;
 				if (meta_data['getResults'] == true){ resId = {{resultsId}};}
 				populateStoreInfoDialog("{{rootPath}}",dialogNoResName,meta_data,"{{modelId}}",'{{storeId}}',resId);
-				$("#"+dialogNoResName+"_dialog").dialog("option","title","Information for Location " + {{storeId}});
+				$("#"+dialogNoResName+"_dialog").dialog("option","title","Information for Location " + '{{storeId}}');
 				$("#"+dialogNoResName+"_dialog").dialog("open");
 			}
 		});
 	});
 
 //});
+
+$(function(){
+	var btn = $("#route_res_demo");
+	btn.button();
+	btn.click(function() {
+		if($("#"+dialogRouteResName+"_dialog").length > 0){
+			if ($("#"+dialogRouteResName+"_dialog").is(':ui-dialog')) {
+				$("#"+dialogRouteResName+"_dialog").dialog('close');
+			}
+			var meta_data = eval(dialogRouteResName+"_meta");
+			var resId = -1;
+			if (meta_data['getResults'] == true){ resId = {{resultsId}};}
+			populateRouteInfoDialog("{{rootPath}}",dialogRouteResName,meta_data,"{{modelId}}",'{{routeId}}',resId);
+			$("#"+dialogRouteResName+"_dialog").dialog("option","title","Information for Route " + '{{routeId}}');
+			$("#"+dialogRouteResName+"_dialog").dialog("open");
+		}
+	});
+});
 
 function doneLoading(){
 	//$('#ajax_busy_image').hide();

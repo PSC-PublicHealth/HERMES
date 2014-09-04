@@ -544,7 +544,7 @@ def getRouteDialogHTML(db,uiSession,name="model_route_dialog",genInfo=True,util=
     sio.write("%s_meta['getResult'] = false;"%name)
     if genInfo: sio.write("%s_meta['genInfo'] = true;"%name)
     if util: sio.write("%s_meta['utilInfo'] = true; %s_meta['getResults'] = true;"%(name,name))
-    if tripMan: sio.write("%s_meta['tripman'] = true;%s_meta['getResults'] = true;"%(name,name))
+    if tripMan: sio.write("%s_meta['tripMan'] = true;%s_meta['getResults'] = true;"%(name,name))
     sio.write("</script>")
   
     return sio.getvalue()

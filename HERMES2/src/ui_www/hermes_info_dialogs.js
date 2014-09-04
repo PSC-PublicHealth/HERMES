@@ -1,22 +1,5 @@
 // Dialog box functions
 
-//function _(phrase){
-//	var translated = "Null";
-//	$.ajax({
-//		url:'json/translate',
-//		dataType:'json',
-//		data:{phrase:phrases},
-//		async:false,
-//		success:function(data){
-//			translated = data.translated_phrase;
-//		}
-//	})
-//	//while (translated == "Null"){
-//		//console.log(translated);
-//	//}
-//	return translated;
-//}
-
 function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 	//console.log("creating for div "+divName+ " modelID = " + modId + " storeID = " + storId);
 	$("#" + divName+"_content").tabs();
@@ -33,7 +16,7 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 				root:"rows"
 			},
 			sortable:false,
-			captions:'Results',
+			captions:'General Info',
 			width: 300,
 			height:'auto',
 			colNames: ['Feature','Value'],
@@ -107,10 +90,11 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 						},
 						caption : data.translated_phrases[4]
 					});
+					$("#"+divName+"_Utilization").parents("div.ui-jqgrid-view").children("div.ui-jqgrid-hdiv").hide();
 			}
 		});
 		
-		$("#"+divName+"_Utilization").parents("div.ui-jqgrid-view").children("div.ui-jqgrid-hdiv").hide();
+		
 	}
 	
 	if (meta['popInfo']){
@@ -380,11 +364,179 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 		});
 	}
 }
-//		url:"http://127.0.0.1:8080/bottle_hermes/json/translate",
-//		async:false,
-//		dataType:'json',
-//		data: {'phrase':phrase}
+
+function populateRouteInfoDialog(rootPath,divName,meta,modId,rouId,resId){
+	$("#" + divName+"_content").tabs();
+	if (meta['genInfo']){
+		var phrases = {0:'Feature',1:'Value',2:'Route Information'}
+		$.ajax({
+			url:'json/translate',
+			dataType:'json',
+			data:phrases,
+			type:"post",
+			async:false,
+			success:function(data){
+					$("#"+divName+"_RGenInfo").jqGrid({
+						url:rootPath+'json/get-general-info-for-route',
+						postData:{modelId:modId,routeId:rouId},
+						datatype :'json',
+						jsonReader: {
+							repeatitems: false,
+							root: 'rows',
+							page: 1
+						},
+						ajaxGridOptions: {
+						      type    : 'post',
+						      error   : function() { alert('Something bad happened. Stopping');},
+						},
+						height : 'auto',
+						width : 550,
+						scroll : false,
+						scollOffset : 0,
+						colNames : data.translated_phrases.slice(0,2),
+						colModel : [{
+							name : 'feature',
+							id : 'feature',
+							width : '30%',
+							sortable : false
+						}, {
+							name : 'value',
+							id : 'value',
+							width : '70%',
+							sortable : false
+						}],
+						//caption : data.translated_phrases[2]
+					}); 
+					$("#"+divName+"_RGenInfo").parents("div.ui-jqgrid-view").children("div.ui-jqgrid-hdiv").hide();
+				}
+			});
+		
+	}
 	
+	if (meta['utilInfo']){
+		var phrases = {0:'Feature',1:'Value',2:'Route Information'}
+		$.ajax({
+			url:'json/translate',
+			dataType:'json',
+			data:phrases,
+			type:"post",
+			async:false,
+			success:function(data){
+					$("#"+divName+"_RUtilInfo").jqGrid({
+						url:rootPath+'json/get-utilization-for-route',
+						postData:{modelId:modId,routeId:rouId,resultsId:resId},
+						datatype :'json',
+						jsonReader: {
+							repeatitems: false,
+							root: 'rows',
+							page: 1
+						},
+						ajaxGridOptions: {
+						      type    : 'post',
+						      error   : function() { alert('Something bad happened. Stopping');},
+						},
+						height : 'auto',
+						width : 550,
+						scroll : false,
+						scollOffset : 0,
+						colNames : data.translated_phrases.slice(0,2),
+						colModel : [{
+							name : 'feature',
+							id : 'feature',
+							width : '30%',
+							sortable : false
+						}, {
+							name : 'value',
+							id : 'value',
+							width : '70%',
+							sortable : false
+						}],
+						//caption : data.translated_phrases[2]
+					}); 
+					$("#"+divName+"_RUtilInfo").parents("div.ui-jqgrid-view").children("div.ui-jqgrid-hdiv").hide();
+				}
+			});
+	}
+	
+	if (meta['tripMan']){
+		var phrases = {0:'Origin',1:'Destination',2:'Start',3:'End',4:'Volume Carried (L)',5:'Trips'};
+		$.ajax({
+			url:'json/translate',
+			dataType:'json',
+			data:phrases,
+			type:"post",
+			async:false,
+			success:function(data){
+				$("#"+divName+"_RTripMan").jqGrid({
+					url:rootPath+'json/get-tripman-for-route',
+					postData:{modelId:modId,routeId:rouId,resultsId:resId},
+					datatype :'json',
+					jsonReader: {
+						repeatitems: false,
+						root: 'rows',
+						page: 1
+					},
+					ajaxGridOptions: {
+					      type    : 'post',
+					      error   : function() { alert('Something bad happened. Stopping');},
+					},
+					height : 'auto',
+					width : 600,
+					scroll : false,
+					scollOffset : 0,
+					colNames : data.translated_phrases.slice(0,5),
+					colModel : [{
+						name : 'origin',
+						id : 'origin',
+						jsonmap:'start',
+						width : 200,
+						sortable : false
+					}, 
+					{
+						name : 'dest',
+						id : 'dest',
+						jsonmap:'end',
+						width : 200,
+						sortable : false
+					}, {
+						name : 'start',
+						id : 'start',
+						jsonmap:'tStart',
+						width : 100,
+						sortable : false,
+						formatter : "number",
+						formatoptions : {
+							decimalPlaces : 2
+						}
+					}, {
+						name : 'end',
+						id : 'end',
+						jsonmap:'tEnd',
+						width : 100,
+						sortable : false,
+						formatter : "number",
+						formatoptions : {
+							decimalPlaces : 2
+						}
+					}, {
+						name : 'vol',
+						id : 'vol',
+						jsonmap:'LitersCarried',
+						sortable : false,
+						formatter : "number",
+						formatoptions : {
+							decimalPlaces : 0
+						}
+					}],
+					caption : data.translated_phrases[5]
+				});
+			}
+		});
+	}
+}
+
+
+
 function createVialsPlot(divName, plotData) {
 	var phrases = {0:'Days',1:'Vials'}
 	$.ajax({
