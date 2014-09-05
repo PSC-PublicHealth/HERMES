@@ -1048,6 +1048,7 @@ class openOutputFile():
         self.type = 'closed'
         if not os.environ.has_key('HERMES_DATA_OUTPUT'):
             self.fh = open(name, mode)
+            self.name = self.fh.name
             self.type = 'filehandle'
             self.encoding = self.fh.encoding
             return
@@ -1294,7 +1295,6 @@ def getPreferredOutputEncoding(baseEncoding=None):
                    'windows1252':'cp1252',
                    }
     if outEncoding in encodingMap: outEncoding = encodingMap[outEncoding]
-    print '########## Got outEncoding %s'%outEncoding
     try:
         codecs.lookup(outEncoding)
     except:

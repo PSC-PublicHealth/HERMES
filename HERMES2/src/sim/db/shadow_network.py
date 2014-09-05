@@ -2352,9 +2352,9 @@ class ShdCurrencyConversion(Base):
     @staticmethod
     def CurrencyConversionFromRec(rec):
         ret = []
-        country = str(rec['Country Name'])
-        currency = str(rec['Currency Name'])
-        code = str(rec['Currency Code'])
+        country = unicode(rec['Country Name'])
+        currency = unicode(rec['Currency Name'])
+        code = unicode(rec['Currency Code'])
         Notes = ''
         if 'Notes' in rec:
             Notes = str(rec['Notes'])

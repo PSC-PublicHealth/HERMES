@@ -17,9 +17,9 @@
 
 _hermes_svn_id_="$Id$"
 
-import sys,os,os.path,math,re,types,chardet
+import sys,os,os.path,math,re,types,chardet,codecs
 import ipath
-from util import openFileOrHandle, logError, raiseRuntimeError
+from util import openFileOrHandle, logError, raiseRuntimeError, getPreferredOutputEncoding
 
 verbose= 0
 debug= 0
@@ -148,8 +148,9 @@ def parseCSV( ifile ):
     with openFileOrHandle(ifile) as f:
         lines= f.readlines()
     encodingInfo = chardet.detect("".join(lines))
-    if encodingInfo['confidence'] >= 0.9: predictedEncoding = encodingInfo['encoding']
-    else: predictedEncoding = None
+    if encodingInfo['confidence'] >= 0.9: 
+        predictedEncoding = encodingInfo['encoding']
+        lines = [l.decode(predictedEncoding) for l in lines]
     delimFound= 0
     delimForThisFile= None
     for delim in possibleDelimiters:
@@ -194,12 +195,11 @@ def parseCSV( ifile ):
         words= [x.strip() for x in words]
         if len(words)>0:
             dict= CSVDict()
-            dict.predictedEncoding = predictedEncoding
             if len(words)!=len(keys):
                 eS = "Line length error: %d vs %d"%(len(words),len(keys))
                 for i in xrange(len(keys)):
                     eS += "\n%d: <%s> <%s>"%(i,keys[i],words[i])
-                logError(eS                                                                                  )
+                logError(eS)
                 raiseRuntimeError("Line length error parsing CSV at line %d:"%(lineNum))
                 #sys.exit("Line length error parsing CSV at line %d"%(lineNum))
             for i in xrange(len(keys)):
@@ -237,7 +237,8 @@ def writeCSV( ofile, keyList, recDictList, delim=",", quoteStrings=False, sortCo
     Each element of the input recDictList is a dictionary containing
     keys from keyList.
     """
-    with openFileOrHandle(ofile, 'w') as o:
+    with openFileOrHandle(ofile, 'w') as rawO:
+        o = codecs.getwriter(getPreferredOutputEncoding(rawO.encoding))(rawO,'replace')
         if quoteStrings:
             o.write('"%s"'%keyList[0])
             for key in keyList[1:]:

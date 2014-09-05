@@ -24,22 +24,33 @@ module 'unittest'.
 
 _hermes_svn_id_="$Id: run_unittests.py 826 2012-02-16 23:14:57Z welling $"
 
+import sys
 import ipath
 import unittest
-import util
-import costmodel
-import noteholder
-import sampler
-import reportinghierarchy
-import kvp_tools
-import demandmodel
-import eventlog
-import packagingmodel
+# import util
+# import costmodel
+# import noteholder
+# import sampler
+# import reportinghierarchy
+# import kvp_tools
+# import demandmodel
+# import eventlog
+# import packagingmodel
 
-modulesToTest = [util, costmodel, noteholder, sampler, reportinghierarchy,
-                 kvp_tools, demandmodel, eventlog, packagingmodel]
+moduleNames = ['util', 'costmodel', 'noteholder', 'sampler', 'reportinghierarchy',
+               'kvp_tools', 'demandmodel', 'eventlog', 'packagingmodel']
 
 def main():
+    modulesToTest = []
+    if len(sys.argv)>1:
+        for a in sys.argv[1:]:
+            if a in moduleNames: 
+                modulesToTest.append(__import__(a))
+            else:
+                print 'Unknown module %s'%a
+    else:
+        modulesToTest = [__import__(a) for a in moduleNames]
+            
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
     for m in modulesToTest:
@@ -53,5 +64,4 @@ def main():
 
 if __name__=="__main__":
     main()
-
 
