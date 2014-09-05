@@ -799,13 +799,13 @@ def buildNetwork(storeKeys, storeRecList,
         ### this is where we would put some logic to check if the inputs are consistent - STB
         for k in ['ShipIntervalDays','ShipLatencyDays','PullMeanOrderAmount']:
             if k in rec:
-                if type(rec[k])==types.StringType and len(rec[k])==0:
+                if isinstance(rec[k], types.StringTypes) and len(rec[k])==0:
                     del rec[k]
                 elif not(type(rec[k]) in [types.IntType, types.LongType, types.FloatType]):
                     raise RuntimeError("In routes file, column %s must be a number"%k)
         for k in ['idcode','RouteOrder','TransitHours']:
             if k in rec:
-                if type(rec[k])==types.StringType and len(rec[k])==0:
+                if isinstance(rec[k], types.StringTypes) and len(rec[k])==0:
                     rec[k]= 0L
                 elif not(type(rec[k]) in [types.IntType, types.LongType, types.FloatType]):
                     raise RuntimeError("In routes file, column %s must be a number"%k)
