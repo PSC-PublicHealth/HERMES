@@ -77,7 +77,7 @@ class CurrencyConverter:
             curCode = r['Currency Code']
             if self.yearKey in r:
                 v = r[self.yearKey]
-                if v is not None and v is not '' and v > 0.0:
+                if v is not None and v != '' and v > 0.0:
                     self.table[curCode] = baseFac/v
                     
     def _toJSON(self):
