@@ -534,7 +534,61 @@ class CostManager:
         for specialKey in ['driver', 'healthworker', 'building', 'labortotal']:
             if specialKey in recDict:
                 for rec in recDict[specialKey]: self._checkOneRec(specialKey, rec)
-        
+
+class CostModelVerifier(object):
+    def __init__(self, priceTable):
+        self.priceTable = priceTable
+
+    def checkReady(self, net):
+        """
+        This scans the given ShdNetwork, making sure that all data needed to compute costs for the model
+        are defined.
+        """
+        # Hm- in ShdNetwork, only routes have conditions, but for instantiated model stores do too.
+        neededEntries = set()
+        for storeId,store in net.stores.items():
+            if hasattr(store,'conditions') and store.conditions is not None: 
+                conditions = store.conditions
+            else: conditions = u'normal'
+            neededEntries.add((u'building',u'PerYear',store.CATEGORY,conditions))
+            if store.CATEGORY.lower() == u'administration':
+                neededEntries.add((u'healthworker',u'PerTreatmentDay',store.CATEGORY,conditions))
+            for shdInv in store.inventory:
+                invTp = shdInv.invType.shdType
+                if invTp == 'fridges':
+                    neededEntries.add((shdInv.invType.Name,u'PerYear',store.CATEGORY,conditions))
+                elif invTp == 'trucks':
+                    truckStorageNames = [b for a,b in util.parseInventoryString(shdInv.invType.Storage)]
+                    for fridge in [net.fridges[nm] for nm in truckStorageNames]:
+                        neededEntries.add((fridge.Name,u'PerYear',store.CATEGORY,conditions))
+            
+        for routeId,route in net.routes.items():
+            truckType = route.TruckType
+            if truckType != u'': # attached routes have no truck
+                print route.RouteName
+                print route.Type
+                category = route.supplier().CATEGORY
+                conditions = route.Conditions
+                if conditions is None or conditions==u'': conditions = u'normal'
+                print '%s %s %s'%(truckType,category,conditions)
+                neededEntries.add((truckType,u'PerKm',category,conditions))
+                neededEntries.add((truckType,u'PerDiem',category,conditions))
+                neededEntries.add((truckType,u'PerTrip',category,conditions))
+                neededEntries.add((u'driver',u'PerYear',category,conditions))
+                neededEntries.add((u'driver',u'PerDiem',category,conditions))
+                neededEntries.add((u'driver',u'PerTrip',category,conditions))
+            
+        #print neededEntries
+        missingList = []
+        for tpl in neededEntries:
+            thing, costTp, lvl, cnd = tpl
+            try:
+                self.priceTable.get(thing, costTp, level=lvl, conditions=cnd)
+            except Exception,e:
+                print 'failed %s: %s'%(tpl,e)
+                missingList.append(tpl)
+        return (len(missingList)==0)
+
 class DummyCostManager:
     """
     This class presents the same API as CostManager, but does nothing.
@@ -561,7 +615,48 @@ class DummyCostManager:
         pass
     def realityCheck(self):
         pass
+    def checkReady(self, net):
+        return True
+
+class DummyCostModelVerifier:
+    def __init__(self):
+        pass
+    def checkReady(self,net):
+        return True
+
+def getCostManager(hermesSim, userInput):
+    if userInput['pricetable'] is None:
+        return DummyCostManager()
+    else:
+        if hermesSim.shdNet:
+            ccFile = hermesSim.shdNet.getCurrencyTableRecs()
+            ptFile = hermesSim.shdNet.getPriceTableRecs()
+        else:
+            ccFile = userInput['currencyconversionfile']
+            ptFile = userInput['pricetable']
+
+        #print ccFile
+        currencyConverter= CurrencyConverter(ccFile,
+                                             userInput['currencybase'],
+                                             userInput['currencybaseyear'])
+
+        costManager= CostManager( hermesSim, hermesSim.model,
+                                  PriceTable(ptFile, currencyConverter, required=True) )
+        return costManager
     
+def getCostModelVerifier(shdNet):
+    if shdNet.getParameterValue('pricetable') is None:
+        return DummyCostModelVerifier()
+    else:
+        currencyConverter= CurrencyConverter(shdNet.getCurrencyTableRecs(),
+                                             shdNet.getParameterValue('currencybase'),
+                                             shdNet.getParameterValue('currencybaseyear'))
+        return CostModelVerifier(PriceTable( shdNet.getPriceTableRecs(),
+                                             currencyConverter,required=True))
+
+def getCostModelVerifierFromDB(userInput, shdNet):
+    pass
+
 def describeSelf():
     print \
 """

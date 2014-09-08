@@ -23,6 +23,7 @@ from gridtools import orderAndChopPage
 import htmlgenerator
 import time
 import crumbtracks
+import costmodel
 
 from ui_utils import _logMessage, _logStacktrace, _safeGetReqParam, _getOrThrowError, _getAttrDict
 
@@ -389,6 +390,18 @@ def jsonRunStart(db, uiSession):
         print "Opt List = " + str(optList)
         
         model = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        
+        currencyConverter= costmodel.CurrencyConverter(model.getCurrencyTableRecs(),
+                                                       model.getParameterValue('currencybase'),
+                                                       model.getParameterValue('currencybaseyear'))
+        priceTable = costmodel.PriceTable(model.getPriceTableRecs(),
+                                          currencyConverter,required=True)
+        
+        costModelVerifier = costmodel.getCostModelVerifier(model)
+        if not costModelVerifier.checkReady(model):
+            raise RuntimeError('cost model is incomplete')
+        
+        
         resultsGroupId = shadow_db_routines.addResultsGroup(modelId, runName, db)
         resultsGroup = model.getResultsGroupById(resultsGroupId)
         #shadow_network.HermesResultsGroup(modelId,runName)

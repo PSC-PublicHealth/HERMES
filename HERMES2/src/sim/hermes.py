@@ -207,27 +207,13 @@ class HermesSim(SimulationStep):
 
         self.statsManager = statsmodel.StatsManager(self, self.model)
 
-        if userInput['pricetable'] is None:
+        self.costManager = costmodel.getCostManager(self, userInput)
+        
+        if isinstance(self.costManager, costmodel.DummyCostManager):
             self.geo = geomanager.GeoManager(required=False)
-            self.costManager= costmodel.DummyCostManager()
         else:
             self.geo = geomanager.GeoManager(required=True)
-            if self.shdNet:
-                ccFile = self.shdNet.getCurrencyTableRecs()
-                ptFile = self.shdNet.getPriceTableRecs()
-            else:
-                ccFile = userInput['currencyconversionfile']
-                ptFile = userInput['pricetable']
 
-            #print ccFile
-            currencyConverter= costmodel.CurrencyConverter(ccFile,
-                                                           userInput['currencybase'],
-                                                           userInput['currencybaseyear'])
-
-            self.costManager= costmodel.CostManager( self, self.model,
-                                                     costmodel.PriceTable(ptFile,
-                                                                          currencyConverter,
-                                                                          required=True) )
         if userInput['eventlog'] is None:
             self.evL = eventlog.DummyEventLog()
         else:
