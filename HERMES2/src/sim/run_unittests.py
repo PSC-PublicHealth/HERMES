@@ -27,17 +27,8 @@ _hermes_svn_id_="$Id: run_unittests.py 826 2012-02-16 23:14:57Z welling $"
 import sys
 import ipath
 import unittest
-# import util
-# import costmodel
-# import noteholder
-# import sampler
-# import reportinghierarchy
-# import kvp_tools
-# import demandmodel
-# import eventlog
-# import packagingmodel
 
-moduleNames = ['util', 'costmodel', 'noteholder', 'sampler', 'reportinghierarchy',
+moduleNames = ['util', 'legacycostmodel', 'noteholder', 'sampler', 'reportinghierarchy',
                'kvp_tools', 'demandmodel', 'eventlog', 'packagingmodel']
 
 def main():

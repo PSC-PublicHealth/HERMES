@@ -43,8 +43,7 @@ class StatsManager:
 
     def __init__(self, sim, model):
         """
-        This class knows how to calculate and output stats information, based on the current Model and
-        a PriceTable.
+        This class knows how to calculate and output stats information, based on the current Model.
         """
         self.sim = sim
         self.model = model
