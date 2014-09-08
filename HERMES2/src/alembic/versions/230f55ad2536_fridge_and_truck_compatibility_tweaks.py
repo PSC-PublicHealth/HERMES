@@ -43,7 +43,7 @@ def upgrade():
     storagetypes = sa.Table('storagetypes', meta, autoload=True, autoload_with=conn.engine)
 
     updateTuples = []
-    for row in conn.execute(sa.select([typeTable]).where(typeTable.c.modelId==allTypesModelId).where(typeTable.c.typeClass==op.inline_literal('fridges'))):
+    for row in conn.execute(sa.select([typeTable]).where(typeTable.c.modelId==allTypesModelId).where(typeTable.c.typeClass=='fridges')):
         for fRow in conn.execute(sa.select([storagetypes]).where(storagetypes.c.storagetypeId==row[typeTable.c.typeId])):
             if row[typeTable.c.Name] in ['Std_ColdRoomFreezer_U','Std_ColdRoomFridge_U']:
                 newRow = recDict[row[typeTable.c.Name]]
