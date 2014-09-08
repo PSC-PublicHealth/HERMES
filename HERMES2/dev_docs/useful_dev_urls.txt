@@ -1,0 +1,17 @@
+redmine
+https://redmine.hindsight.psc.edu/
+
+svn repo
+https://redmine.hindsight.psc.edu/svn/hermes/trunk/HERMES2
+
+hermes api
+http://hermes.psc.edu/hermes/api/
+
+hermes dev docs
+http://hermes.psc.edu/dev_docs/
+
+hermes docs
+http://hermes.psc.edu/documentation/
+
+current dev hangout url
+https://plus.google.com/hangouts/_/calendar/c2hhd250YnJvd25AZ21haWwuY29t.18polcu8ug7jqu7t2vi6emsbng?authuser=0
