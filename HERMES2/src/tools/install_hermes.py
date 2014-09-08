@@ -27,20 +27,21 @@ import platform
 import sys, os, os.path, subprocess
 import ipath
 import site_info
-from db_routines import DbInterface
-import db_routines
+#from db_routines import DbInterface
+#import db_routines
 import util
-import shadow_network
-import privs
-from typeholdermodel import allTypesModelName
+#import shadow_network
+#import privs
+#from typeholdermodel import allTypesModelName
 
-import sqlalchemy as sa
+#import sqlalchemy as sa
 
 sI = site_info.SiteInfo()
 
 _uri = None
 
 def getURI():
+    from db_routines import DbInterface
     global _uri
     if _uri is None:
         _uri = DbInterface().getURI()
@@ -71,6 +72,7 @@ def createAlembicIni():
                     ofile.write(rec)
 
 def createDBFromCode():
+    from db_routines import DbInterface
     dbI = DbInterface()
     dbI.createTables()
 
@@ -86,6 +88,8 @@ def createDBFromHistory():
     Create Date: 2013-10-14 16:41:01.235910
     
     """
+    
+    import sqlalchemy as sa
     
     # revision identifiers, used by Alembic.
     revision = '3ce5a00e170b'
@@ -518,11 +522,13 @@ def createDBFromHistory():
     conn.execute(alembic_version_table.insert(),version_num='2512bc078649')
     
 def getTableByName(tblName, metadata, engine):
+    import sqlalchemy as sa
     return sa.Table(tblName, metadata, autoload=True, autoload_with=engine)
 
 def buildPrivTables():
     # Initialize the privilege tables
-    
+    import sqlalchemy as sa
+
     engine = sa.create_engine(getURI(), echo=True)    
     md = sa.MetaData()
     
@@ -580,6 +586,12 @@ def callAlembicUpgrade():
     subprocess.check_call(['alembic','upgrade','head'],cwd = pathBase)
 
 def addTypeHolderModel():
+    import shadow_network
+    import privs
+    from typeholdermodel import allTypesModelName
+    from db_routines import DbInterface
+    import db_routines
+
     stdTypePath = os.path.join(sI.srcDir(),os.pardir,os.pardir,'master_data','standardtypes')
     shdTypes = shadow_network.ShdTypes()
     for fN in os.listdir(stdTypePath):
