@@ -53,7 +53,7 @@ def geojsonTopPage(db,uiSession):
 def d3geoDemoPage(db,uiSession):
     modelId= _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
     resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
-    return bottle.template('d3democlickzoom.tpl',{"breadcrumbPairs":[("top",_("Welcome"))],
+    return bottle.template('results_geo_visualization.tpl',{"breadcrumbPairs":[("top",_("Welcome"))],
                                             "pageHelpText":_("This is intended to show page-specific help")},
                                             _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId)
 
@@ -78,7 +78,38 @@ def generateStoreInfoJSON(db, uiSession):
     except Exception,e:
         result = {'success':False, 'msg':str(e)}
         return result
-   
+
+@bottle.route('/json/routelines')
+def generateRouteLinesJSON(db,uiSession):
+    try:
+        print "Shoot"
+        from geojson import Feature,FeatureCollection,dumps,LineString
+        modelId= _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        print "YES"
+        f = []
+        print "THERE"
+        for routeId,route in m.routes.items():
+            if route.Type != 'attached':
+                if len(route.stops) == 2:
+                    start = route.stops[0].store
+                    end = route.stops[1].store
+                    if (start.Latitude != 0.0 and start.Longitude != 0.0) and \
+                       (end.Latitude != 0.0 and end.Longitude != 0.0):
+                        print "HERE"
+                        f.append(Feature(geometry=LineString([(start.Longitude,start.Latitude),(end.Longitude,end.Latitude)]),id=routeId))
+        
+        FC = FeatureCollection(f)
+        
+        return {'success':True,'geoFC':FC}  
+        
+    except Exception,e:
+        result = {'success':False, 'msg':"%s: %s"%(sys.exc_traceback.tb_lineno,str(e))}
+        return result
+        
+                
 @bottle.route('/json/storeutilizationlocations')
 def generateStoreUtilInfoJSON(db, uiSession):
     #from visualizationUtils import circleLonLat
