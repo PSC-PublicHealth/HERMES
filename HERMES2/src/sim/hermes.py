@@ -50,6 +50,8 @@ from reporter import Reporter
 #from report_stb import ReportDailyStock, ReportDailyTotalVaccinated
 import networkbuilder as nbldr
 import HermesOutput
+import legacycostmodel
+import dummycostmodel
 import costmodel
 import statsmodel
 import csv_tools
@@ -209,7 +211,7 @@ class HermesSim(SimulationStep):
 
         self.costManager = costmodel.getCostManager(self, userInput)
         
-        if isinstance(self.costManager, costmodel.DummyCostManager):
+        if isinstance(self.costManager, dummycostmodel.DummyCostManager):
             self.geo = geomanager.GeoManager(required=False)
         else:
             self.geo = geomanager.GeoManager(required=True)
@@ -407,6 +409,7 @@ class HermesSim(SimulationStep):
                                                              overstockScale=overStockScale))
 
         for factory in self.factories:
+            print repr(factory)
             self.activate(factory, factory.run())
 
                 #else: print "Skipping %s!"%wh.name

@@ -24,6 +24,7 @@ import htmlgenerator
 import time
 import crumbtracks
 import costmodel
+import legacycostmodel
 
 from ui_utils import _logMessage, _logStacktrace, _safeGetReqParam, _getOrThrowError, _getAttrDict
 
@@ -391,10 +392,10 @@ def jsonRunStart(db, uiSession):
         
         model = shadow_network_db_api.ShdNetworkDB(db, modelId)
         
-        currencyConverter= costmodel.CurrencyConverter(model.getCurrencyTableRecs(),
+        currencyConverter= legacycostmodel.CurrencyConverter(model.getCurrencyTableRecs(),
                                                        model.getParameterValue('currencybase'),
                                                        model.getParameterValue('currencybaseyear'))
-        priceTable = costmodel.PriceTable(model.getPriceTableRecs(),
+        priceTable = legacycostmodel.PriceTable(model.getPriceTableRecs(),
                                           currencyConverter,required=True)
         
         costModelVerifier = costmodel.getCostModelVerifier(model)
