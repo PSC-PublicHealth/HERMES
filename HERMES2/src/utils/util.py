@@ -945,7 +945,7 @@ class openFileOrHandle():
     def __init__(self, file, mode='rU'):
         self.handle = None
         self.odfHandle = None
-        if not isinstance(file, types.StringType):
+        if not isinstance(file, types.StringTypes):
             self.handle = file
             return
         if 'w' in mode:
