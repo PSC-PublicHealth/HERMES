@@ -1859,7 +1859,7 @@ class Factory(Process, abstractbaseclasses.UnicodeSupport):
                                                       for v, n in productionVC.items()]))
             yield hold, self, self.batchInterval       
     def __repr__(self):
-        return "<Factory(%s)>"%self.targetStore.name
+        return "<Factory(%s)>"%self.targetStores[0][1].name
     def __str__(self): return self.__repr__()
     def addSupplier(self,wh):
         raise RuntimeError("Factory cannot add supplier")
@@ -2010,7 +2010,8 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
         ("finish",legStartTime,legEndTime,legConditions,endingW)
         
     """
-    bName = name.encode('utf8')
+    #bName = name.encode('utf8')
+    bName = name
     RECYCLE_TAG= abstractbaseclasses.Shippable.RECYCLE_TAG # for brevity
     deliveryStepNamesSet= set(['deliver','alldeliver','askanddeliver','markanddeliver','allmarkanddeliver'])
     if tripJournal is None: 
@@ -2685,7 +2686,7 @@ class ShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
                 upstreamW = w
                       
             if totalVC.totalCount()>0:
-                travelGen= createTravelGenerator(self.name, stepList, self.truckType, 
+                travelGen= createTravelGenerator(self.bName, stepList, self.truckType, 
                                                  self.delayInfo, self)
                 # This should maybe be more like the code block from PEP380: 
                 # http://www.python.org/dev/peps/pep-0380/#id13
@@ -2755,7 +2756,7 @@ class AskOnDeliveryShipperProcess(ShipperProcess):
                 upstreamW = w
                       
             if totalVC.totalCount()>0:
-                travelGen= createTravelGenerator(self.name, stepList, self.truckType, 
+                travelGen= createTravelGenerator(self.bName, stepList, self.truckType, 
                                                  self.delayInfo, self)
                 # This should maybe be more like the code block from PEP380: 
                 # http://www.python.org/dev/peps/pep-0380/#id13
@@ -2857,7 +2858,7 @@ class DropAndCollectShipperProcess(ShipperProcess, abstractbaseclasses.UnicodeSu
                         stepList.append(('markanddeliver',(w,vc,self.interval)))
                 upstreamW = w
             if totalVC.totalCount()>0:
-                travelGen= createTravelGenerator(self.name, stepList, self.truckType, 
+                travelGen= createTravelGenerator(self.bName, stepList, self.truckType, 
                                                  self.delayInfo, self)
                 # This should maybe be more like the code block from PEP380: 
                 # http://www.python.org/dev/peps/pep-0380/#id13
@@ -2962,7 +2963,7 @@ class FetchShipperProcess(ShipperProcess):
                          ]
                       
             if totalVC.totalCount()>0:
-                travelGen= createTravelGenerator(self.name, stepList, self.truckType, self.delayInfo, self)
+                travelGen= createTravelGenerator(self.bName, stepList, self.truckType, self.delayInfo, self)
                 # This should maybe be more like the code block from PEP380: 
                 # http://www.python.org/dev/peps/pep-0380/#id13
                 for val in travelGen: yield val
@@ -3112,7 +3113,7 @@ class OnDemandShipment(Process, abstractbaseclasses.UnicodeSupport):
                                 ('finish',(self.fromW,self.fromW))
                                 ]
         
-                    travelGen= createTravelGenerator(self.name, stepList, self.truckType, self.delayInfo, self)
+                    travelGen= createTravelGenerator(self.bName, stepList, self.truckType, self.delayInfo, self)
                     # This should maybe be more like the code block from PEP380: 
                     # http://www.python.org/dev/peps/pep-0380/#id13
                     for val in travelGen: yield val
@@ -3247,7 +3248,7 @@ class PersistentOnDemandShipment(OnDemandShipment):
                                 ('finish',(self.fromW,self.fromW))
                                 ]
         
-                    travelGen= createTravelGenerator(self.name, stepList, self.truckType, self.delayInfo, self)
+                    travelGen= createTravelGenerator(self.bName, stepList, self.truckType, self.delayInfo, self)
                     # This should maybe be more like the code block from PEP380: 
                     # http://www.python.org/dev/peps/pep-0380/#id13
                     for val in travelGen: yield val
@@ -3376,7 +3377,7 @@ class FetchOnDemandShipment(OnDemandShipment):
                                 ('finish',(clientW,clientW))
                                 ]
         
-                    travelGen= createTravelGenerator(self.name, stepList, self.truckType, self.delayInfo, self)
+                    travelGen= createTravelGenerator(self.bName, stepList, self.truckType, self.delayInfo, self)
                     # This should maybe be more like the code block from PEP380: 
                     # http://www.python.org/dev/peps/pep-0380/#id13
                     for val in travelGen: yield val
@@ -3510,7 +3511,7 @@ class PersistentFetchOnDemandShipment(OnDemandShipment):
                                 ('finish',(clientW,clientW))
                                 ]
         
-                    travelGen= createTravelGenerator(self.name, stepList, self.truckType, self.delayInfo, self)
+                    travelGen= createTravelGenerator(self.bName, stepList, self.truckType, self.delayInfo, self)
                     # This should maybe be more like the code block from PEP380: 
                     # http://www.python.org/dev/peps/pep-0380/#id13
                     for val in travelGen: yield val
