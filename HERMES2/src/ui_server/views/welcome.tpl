@@ -1,6 +1,74 @@
-%rebase outer_wrapper _=_,title_slogan=_('Welcome to HERMES'),inlizer=inlizer
+%rebase outer_wrapper _=_,title_slogan=_('HERMES Graphical User Inferface Start'),inlizer=inlizer
 
-<div class="art-postcontent art-postcontent-0 clearfix">
+<style>
+#sp_top_div{
+	position: relative;
+	width:"100%";
+	top: 0px;
+	left: 0px;
+	border-style: none;
+	border-width: 2px;
+	text-align: center;
+}
+#sp_content_div{
+	position: relative;
+	width:80%;
+	float:none;
+	margin: 0 auto;
+}
+
+</style>
+
+<div id="sp_top_div" class="sp_top_div">
+	<div id="sp_content_div" class="content_div">
+		<div class = "options_div">
+			<p><h1 style="text-align:left">{{_("Choose Your Desired Action")}}</h1></p>
+			<table width = "100%" border = 0>
+				<tr>
+					<td rowspan=2 width=90><img src='{{rootPath}}static/icons/pencil.png' width=80></td>
+					<td><h2 style="margin-bottom:0px;"><a href="{{rootPath}}model-create" >{{_("Create a New Model")}}</a></h2></td>
+				</tr>
+				<tr>
+					<td><h3 style="margin-top:0px;">{{_("Walk through and enter data through designated steps to create a set of inputs that can create a simulated supply chain.")}}</h3></td>
+				</tr>
+				<tr height=20><td></td></tr>
+				<tr>
+					<td rowspan=2 width=90><img src='{{rootPath}}static/icons/network.png' width=80></td>
+					<td><h2 style="margin-bottom:0px;"><a href="{{rootPath}}models-top">{{_("Work with a Previously Created Model")}}</a></h2></td>
+				</tr>
+				<tr>
+					<td><h3 style="margin-top:0px;">{{_("Edit, Create Scenarios, and/or Run a previously saved model.")}}</h3></td>
+				</tr>
+				<tr height=20><td></td></tr>
+				<tr>
+					<td rowspan=2 width=90><img src='{{rootPath}}static/icons/users.png' width=80></td>
+					<td><h2 style="margin-bottom:0px;">{{_("HERMES Tutorials")}}</h2></td>
+					</tr>
+				<tr>
+					<td><h3 style="margin-top:0px;">{{_("Learn how to use HERMES")}}</h3></td>
+				</tr>
+				<tr height=20><td></td></tr>
+				<tr>
+					<td rowspan=2 width=90><img src='{{rootPath}}static/icons/stats.png' width=80></td>
+					<td><h2 style="margin-bottom:0px;"><a href="{{rootPath}}results-top">{{_("Compare Results from Previous Models")}}</a></h2></td>
+				</tr>
+				<tr>
+					<td><h3 style="margin-top:0px;">{{_("View and compare results. <Need better wording>")}}</h3></td>
+				</tr>
+				<tr height=20><td></td></tr>
+				<tr>
+					<td rowspan=2 width=90><img src='{{rootPath}}static/icons/folders.png' width=80></td>
+					<td><h2 style="margin-bottom:0px;">{{_("Explore Information Databases")}}</h2></td>
+				</tr>
+				<tr>
+					<td><h3 style="margin-top:0px;">{{_("Browse through HERMES database of vaccines, refrigerators, freezers, cold boxes and transport vehicles.")}}</h3></td>
+				</tr>
+				<tr height=20><td></td></tr>
+			</table>
+		</div>
+	</div>
+</div>
+<!--<div class="art-postcontent art-postcontent-0 clearfix">
   <div class="art-content-layout">
 	<div class="art-content-layout-row">
 	  <div class="art-layout-cell layout-item-0" style="width: 33%" >
@@ -31,4 +99,4 @@
 	  </div>
     </div>
   </div>
-</div>
+</div>-->
