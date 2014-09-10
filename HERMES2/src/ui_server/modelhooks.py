@@ -573,7 +573,7 @@ def modelCreatePage(db,uiSession,step="unknown"):
         screen = None
         if "subCrumbTrack" in uiSession:
             subCrumbTrack = uiSession['subCrumbTrack']
-            if crumbTrack.current() != subCrumbTrack:
+            if crumbTrack.trail[-1] != subCrumbTrack:
                 crumbTrack.push(subCrumbTrack)
         else:
             subCrumbTrack = None
