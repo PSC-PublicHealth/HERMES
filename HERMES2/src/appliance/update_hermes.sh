@@ -3,7 +3,7 @@
 if [ "x`ping -c 1 redmine.hindsight.psc.edu`" !=  "x" ]; then
    cd ~/HERMES2
    svn update
-   apt-get install pip
+   apt-get install python-pip
    pip install -r ~/HERMES2/requirements.txt 
    python alembic_upgrade.py 
 else
