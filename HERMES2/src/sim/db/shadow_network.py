@@ -186,7 +186,6 @@ def _copyAttrsToRec(rec, src, attrs = None):
     attrs = listify(_attrsFromDest(src, attrs))
     for attr in attrs:
         a = _parseAttr(attr)
-        
         recName = name = a['name']
         if 'recordName' in a:
             recName = a['recordName']
@@ -881,10 +880,8 @@ class ShdStore(Base, ShdCopyable):
     def clients(self):
         clients = []
         for rStop in self.relatedStops:
-            #print rStop
             if rStop.isSupplier is False:
                 continue
-            #print rStop.route
             route = rStop.route
             supplierStopNum = ShdRoute.routeTypes[route.Type]
             supplierStop = route.stops[supplierStopNum]
@@ -1610,7 +1607,6 @@ class StoresRpt(Base):
                 setattr(self,attr,value)
          
         from storagetypes import storageTypeNames
-        #print "len store: " + str(len(self.storage))
         if hasattr(storerpt_, 'storage'):
             for storageType in storageTypeNames:
                 # ## Is it in self?
@@ -1712,7 +1708,7 @@ class RoutesRpt(Base):
             return None
         packedMV = packedMV.blob
         
-        nameList = ('distance', 'startTime', 'endTime')
+        nameList = ('volumeCarried', 'startTime', 'endTime')
         return util.AccumMultiVal.fromPackedString(nameList, packedMV)
     
     def createRecord(self):
@@ -3814,7 +3810,6 @@ class ShdNetwork(Base):
             the store
         '''
         thisStore = self.stores[idcode]
-        #print type(thisStore.NAME)
         levels = self.getLevelList()
         thisLoopList = [x for x in thisStore.clients() if len(x[1].stops) > 2]
         thisClientList = [x for x in thisStore.clients() if (x[1].Type != "attached" and x not in thisLoopList)]
@@ -3833,7 +3828,6 @@ class ShdNetwork(Base):
                               'idcode':9999,
                               'children':[]}
             for lclient in thisLoopList:
-                print lclient[0].NAME
                 lClientList = [x for x in thisStore.clients() if (x[1].Type != "attached")]
                 loopClientDict['children'].append(self.getWalkOfClientsDictForJson(lclient[0].idcode))
             clientDict['children'].append(loopClientDict)
@@ -3854,13 +3848,35 @@ class ShdNetwork(Base):
             routeIds.append(clientRoute.RouteName)
             for stop in clientRoute.stops:
                 if stop.store.idcode != thisStore.idcode:
-                    routeIds += self.createRouteListOrderdByWalkOfClients(stop.store.idcode)
-        #for client in thisStore.clients():
-        #    routeIds += self.createRouteListOrderdByWalkOfClients(client[0].idcode)
-        
+                    routeIds += self.createRouteListOrderdByWalkOfClients(stop.store.idcode) 
         return routeIds
             
+    
+    def getMaxPopulationByWalkOfClients(self,idcode):
+        clientsToCalc = self.getWalkOfClientIds(idcode)
+        maxPop = -99999.9999
+        for client in clientsToCalc:
+            totalPop = 0.0
+            store = self.getStore(client)
+            if store.FUNCTION == "Administration":
+                for demand in store.demand:
+                    totalPop += demand.count
                 
+            if totalPop > maxPop:
+                maxPop = totalPop
+        return maxPop
+                    
+    def getTotalPopulationByWalkOfClients(self,idcode):
+        clientsToCalc = self.getWalkOfClientIds(idcode)
+        totalPop = 0.0
+        for client in clientsToCalc:
+            store = self.getStore(client)
+            if store.FUNCTION == "Administration":
+                for demand in store.demand:
+                    totalPop += demand.count
+        
+        return totalPop
+                    
     def trunkStore(self):
         """
         Start with the lowest value root store.  Recursively move to this stores child store if 
@@ -4096,7 +4112,7 @@ class ShdNetwork(Base):
                     return result
                 
         return None
-            
+           
     def writeCSVRepresentation(self):
         """
         This routine recreates the files which presumably were read by loadShdNetwork to create
