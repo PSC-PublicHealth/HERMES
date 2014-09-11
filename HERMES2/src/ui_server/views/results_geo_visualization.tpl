@@ -76,6 +76,18 @@ $(function() {
 			</tr>
 		</table>
 	</div>
+	<div id="poplegend" style="float:right;position:relative;bottom:35%;width:0px;right:50px;background:white;">
+		<img height="200px" src="{{rootPath}}static/images/PopLegend.png">
+	</div>
+	<div id="storelegend" style="float:right;position:relative;bottom:35%;width:0px;right:50px;background:white;">
+		<img height="200px" src="{{rootPath}}static/images/StoreLegend.png">
+	</div>
+	<div id="valegend" style="float:right;position:relative;bottom:35%;width:0px;right:50px;background:white;">
+		<img height="200px" src="{{rootPath}}static/images/VALegend.png">
+	</div>
+	<div id="translegend" style="float:right;position:relative;bottom:35%;width:0px;right:50px;background:white;">
+		<img height="200px" src="{{rootPath}}static/images/TransLegend.png">
+	</div>
 </div>
 
 
@@ -218,11 +230,6 @@ $(function() {
 	cursor:pointer;
 }
 
-.route-line {
-	visibility:hidden;
-	cursor: pointer;
-}
-
 </style>
 
 <script>
@@ -236,6 +243,10 @@ var curr_scale = 1.0;
 console.log("Results");
 
 $(function() {
+	$("#valegend").hide();
+	$("#poplegend").hide();
+	$("#storelegend").hide();
+	$("#translegend").hide();
 	$('#ajax_busy_image').show();
 });
 
@@ -537,33 +548,49 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 $("#show_population").click(function(){
 	if ($("#show_population").is(':checked')){
 		features.selectAll(".pop-circle").style('visibility','visible');
+		$("#poplegend").width("100px");
+		$("#poplegend").show();
 	}
 	else {
 		features.selectAll(".pop-circle").style('visibility','hidden');
+		$("#poplegend").width("0px");
+		$("#poplegend").hide();
 	}
 });
 $("#show_routes").click(function(){
 	if ($("#show_routes").is(':checked')){
 		features.selectAll(".route-line").style('visibility','visible');
+		$("#translegend").width("100px");
+		$("#translegend").show();
 	}
 	else {
 		features.selectAll(".route-line").style('visibility','hidden');
+		$("#translegend").width("0px");
+		$("#translegend").hide();
 	}
 });
 $("#show_vaccine").click(function(){
 	if ($("#show_vaccine").is(':checked')){
 		features.selectAll(".va-circle").style('visibility','visible');
+		$("#valegend").width("100px");
+		$("#valegend").show();
 	}
 	else {
 		features.selectAll(".va-circle").style('visibility','hidden');
+		$("#valegend").width("0px");
+		$("#valegend").hide();
 	}
 });
 $("#show_utilization").click(function(){
 	if ($("#show_utilization").is(':checked')){
 		features.selectAll(".store-circle").style('visibility','visible');
+		$("#storelegend").width("100px");
+		$("#storelegend").show();
 	}
 	else {
 		features.selectAll(".store-circle").style('visibility','hidden');
+		$("#storelegend").width("0px");
+		$("#storelegend").hide();
 	}
 });
 
