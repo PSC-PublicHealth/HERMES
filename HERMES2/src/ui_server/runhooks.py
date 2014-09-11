@@ -158,7 +158,7 @@ def modelRunPage(db,uiSession,step="unknown"):
         screen = None
         if "runCrumbTrack" in uiSession:
             runCrumbTrack = uiSession['runCrumbTrack']
-            if crumbTrack.current() != runCrumbTrack:
+            if crumbTrack.trail[-1] != runCrumbTrack:
                 crumbTrack.push(runCrumbTrack)
         else:
             runCrumbTrack = None
