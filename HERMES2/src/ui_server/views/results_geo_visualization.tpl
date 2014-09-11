@@ -524,7 +524,7 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 		})
 		.style("fill",function(d){
 			console.log(d.va);
-			return "#"+rainbow.colourAt(d.va);
+			return "#"+rainbow.colourAt(100.0-d.va);
 		})
 		.style("fill-opacity",1.0)
 		.style("stroke","black")
