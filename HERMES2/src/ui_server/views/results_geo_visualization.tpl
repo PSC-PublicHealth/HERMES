@@ -8,6 +8,8 @@
 <script type="text/javascript" src='{{rootPath}}static/Highcharts-3.0.5/js/highcharts.js'></script>
 
 <script>
+var dialogRouteResName = "routeDialog";
+
 $(function() {
 	$.ajax({
 		url: '{{rootPath}}json/dialoghtmlforstore',
@@ -19,6 +21,19 @@ $(function() {
 		}
 	})
 });
+
+$(function() {
+	$.ajax({
+		url: '{{rootPath}}json/dialoghtmlforroute',
+		dataType:'json',
+		data:{name:dialogRouteResName,geninfo:1,utilinfo:1,tripman:1},
+		success:function(data){
+			console.log(data.htmlString);
+			$(document.body).append(data.htmlString);
+		}
+	})
+});
+
 </script>
 <div id="geo_map3d">
 	<div class="map-container"></div>
@@ -34,33 +49,33 @@ $(function() {
 				<td width="50px"></td>
 				<td>Population:</td>
 				<td width:"100px"> 
-					<input type="checkbox" id="ge_show_population" checked />
+					<input type="checkbox" id="show_population"/>
 				</td>
 			</tr>
 			<tr>
 				<td width="50px"></td>
 				<td>Utilization:</td>
 				<td width:"100px"> 
-					<input type="checkbox" id="ge_show_utilization" value="On"/>
+					<input type="checkbox" id="show_utilization" value="On"/>
 				</td>
 			</tr>
 			<tr>
 				<td width="50px"></td>
 				<td>Vaccines:</td>
 				<td width:"100px"> 
-					<input type="checkbox" id="ge_show_vaccine" value="On"/>
+					<input type="checkbox" id="show_vaccine" value="On"/>
 				</td>
 			</tr>
 			<tr>
 				<td width="50px"></td>
 				<td>Routes:</td>
 				<td width:"100px"> 
-					<input type="checkbox" id="ge_show_routes" value="On"/>
+					<input type="checkbox" id="show_routes" value="On"/>
 				</td>
 				</p>
 			</tr>
 		</table>
-</div>
+	</div>
 </div>
 
 
@@ -70,6 +85,7 @@ $(function() {
   top: 10px;
   left: 10px;
   height: 650px;
+  width: 100%;
   z-index: 2;
   float: left;
   visibility:visible;
@@ -89,7 +105,7 @@ $(function() {
 }
 
 #map-container {
-	width:650px;
+	width:100%;
 	height:650px;
 }
 
@@ -105,8 +121,8 @@ $(function() {
   position:absolute;
   top:10px;
   left:10px;
-  width:280px;
-  height:200px;
+  width:200px;
+  height:150px;
   border-style:solid;
   border-width:1px;
   border-radius:3px;
@@ -122,24 +138,11 @@ $(function() {
   width:125px;
   height:75px;
 }
-.graticule {
-	  fill: none;
-	  stroke: #777;
-	  stroke-opacity: .5;
-	  stroke-width: .5px;
-	  pointer-events: none;
-	}
 
 .land {
 	fill: grey;
 	stroke: none;
 	pointer-events: none;
-	//cursor:pointer;
-}
-
-.land.active {
-	fill: orange;
-	//cursor: pointer;
 }
 
 .country-border {
@@ -149,17 +152,16 @@ $(function() {
 }
 
 .road {
-	fill: none;	
-	stroke: red;
+	fill: none;
+	stroke: #707070;
 	stroke-width: 0.1px;
+	shape-rendering: 
 }
 
 .state-border {
 	fill: none;
 	stroke:white;
 	stroke-width: .25px;
-	color-rendering: optimizeSpeed;
-	shape-rendering: optimizeSpeed;
 }
 
 .border {
@@ -173,25 +175,23 @@ $(function() {
 	  pointer-events: all;
 	}
 .country-label {
-	  fill: black;
+	  fill: white;
 	  fill-opacity: 0.30;
 	  font-size: 1px;
 	  font-weight: bold;
 	  text-anchor: middle;
-	  visibility: hidden;
+	  visibility: visible;
 	  pointer-events:none;
-	  text-rendering: optimizeSpeed;
 	}
 
 .state-label {
-	  fill: black;
+	  fill: white;
 	  fill-opacity: .50;
 	  font-size: .2px;
 	  font-weight: 300;
 	  text-anchor: middle;
-	  visibility: hidden;
+	  visibility: visible;
 	  pointer-events:none;
-	  text-rendering: optimizeSpeed;
 	}
 
 .pp-label {
@@ -200,24 +200,29 @@ $(function() {
 	  font-size: 0.15px;
 	  font-weight: 300;
 	  text-anchor: right;
-	  visibility: hidden;
+	  visibility: visible;
 	  pointer-events:none;
-	  text-rendering: optimizeSpeed;
 	}
 .store-circle {
-	fill: red;
-	fill-opacity:.50;
+	visibility: hidden;
+	cursor:pointer;
 }
+
+.pop-circle {
+	visibility: hidden;
+	cursor:pointer;
+}
+
+.va-circle {
+	visibility: hidden;
+	cursor:pointer;
+}
+
 .route-line {
-	shape-rendering: optimizeSpeed;
+	visibility:hidden;
+	cursor: pointer;
 }
-//
-//
-//.place-label {
-//	  fill: "black";
-//	  fill-opacity: 1.0;
-//	  font-size: 10px;
-//	}
+
 </style>
 
 <script>
@@ -225,6 +230,7 @@ var dialogBoxName = "model_store_info";
 var rainbow = new Rainbow();
 rainbow.setSpectrum('blue','red');
 
+console.log(rainbow.colorAt(.52));
 var curr_scale = 1.0;
 
 console.log("Results");
@@ -237,7 +243,7 @@ function doneLoading(){
 	$('#ajax_busy_image').hide();
 }
 
-var width = 900;
+var width = 1000;
 var height = 600;
 var area;
 
@@ -248,9 +254,11 @@ var then = Date.now();
 var path;
 
 var projection = d3.geo.mercator()
+	.clipAngle(90)
 	.scale(width / 2 / Math.PI)
 	.translate([width / 2, height / 2]);
-	//.clipExtent([[482.10850666666664-10,450.9618130643807-10],[490.158856+10,463.3110997461783+10]])
+	//.clipExtent([[451.976725,269.0266997478569],[459.5239275,284.35415601204215]]);
+	//.clipExtent([[482.10850666666664-10,450.9618130643807-10],[490.158856+10,463.3110997461783+10]]);
 	
 var path = d3.geo.path()
 	.projection(projection)
@@ -263,7 +271,9 @@ var zoom = d3.behavior.zoom()
 	
 var svg = d3.select(".map-container").append("svg")
 	.attr("width", width)
-	.attr("height", height);
+	.attr("height", height)
+	.attr("overflow","hidden");
+	//.attr("viewbox","0 0 "+ width + " " + height);
 
 svg.append("rect")
 	.attr("class","overlay")
@@ -277,93 +287,171 @@ queue()
 	.defer(d3.json,"{{rootPath}}static/world.10m.states.json")
 	.defer(d3.json,"{{rootPath}}static/world.50m.countries.json")
 	.defer(d3.json,"{{rootPath}}static/world.10m.pp.json")
-	//.defer(d3.json,"{{rootPath}}static/world.roads.json")
-	.defer(d3.json,"{{rootPath}}json/storeutilizationlocations?modelId={{modelId}}&resultsId={{resultsId}}")
-	.defer(d3.json,"{{rootPath}}json/routelines?modelId={{modelId}}")
+	.defer(d3.json,"{{rootPath}}static/world.roads.json")
+	.defer(d3.json,"{{rootPath}}json/storeresultslocations?modelId={{modelId}}&resultsId={{resultsId}}")
+	.defer(d3.json,"{{rootPath}}json/routeresultslines?modelId={{modelId}}&resultsId={{resultsId}}")
 	.await(ready);
 
 
-function ready(error, stateJSON, countryJSON, ppJSON,storeJSON,routesJSON){
+function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,routesJSON){
 	var states = stateJSON.objects.state;
 	var countries = countryJSON.objects.countries;
-	var cTJSON = topojson.feature(countryJSON,countryJSON.objects.countries);
-	var smCTJSON = cTJSON.features.filter(function(d) { return d.properties.name == "Benin";});
+	
+	//var smCTJSON = cTJSON.features.filter(function(d) { return d.properties.name == "Benin";});
+	
+	var bounds = path.bounds(storeJSON.geoFC);
+	
+	// Create a new bounding Box that is some percent larger than the stores
+	var newBounds = [[0.0,0.0],[0.0,0.0]];
+	var yDiff = bounds[1][0]-bounds[0][0]
+	var xDiff = bounds[1][1]-bounds[0][1];
+	var perDiff = 3.0;
+	newBounds[0][0] = bounds[0][0] - perDiff*yDiff;
+	newBounds[1][0] = bounds[1][0] + perDiff*yDiff;
+	newBounds[0][1] = bounds[0][1] - perDiff*xDiff;
+	newBounds[1][1] = bounds[1][1] + perDiff*xDiff;
+	//console.log(bounds);
+	//console.log(newBounds);
+	var centroid = path.centroid(storeJSON.geoFC);
+	//console.log(centroid);
+	
+	// Create reduced jsons based on proximity to the actual visualization.
+	var ctIds = [];
+	var ctjson = countryJSON.objects.countries.geometries.filter(function(d){
+		thisCentroid = path.centroid(topojson.feature(countryJSON,d));
+		//console.log("this Cent" + thisCentroid);
+		var flag = ((thisCentroid[0] >= newBounds[0][0] && thisCentroid[0] <= newBounds[1][0]) && 
+				(thisCentroid[1] >= newBounds[0][1] && thisCentroid[1] <= newBounds[1][1]));
+		if (flag) {
+			ctIds.push(d.properties.name);
+		}
+		return flag;
+	});
+	
+	var ctgjson = topojson.feature(countryJSON,countryJSON.objects.countries).features.filter(
+			function(d) { 
+				console.log(d.properties.name);
+				return ctIds.indexOf(d.properties.name) > -1;
+			});
+	console.log(ctgjson);
+	var stIds = [];
+	var stjson = stateJSON.objects.state.geometries.filter(function(d){
+		thisCentroid = path.centroid(topojson.feature(stateJSON,d));
+		var flag = ((thisCentroid[0] >= newBounds[0][0] && thisCentroid[0] <= newBounds[1][0]) && 
+				(thisCentroid[1] >= newBounds[0][1] && thisCentroid[1] <= newBounds[1][1]));
+		if (flag) {
+			stIds.push(d.properties.name);
+		}
+		return flag;
+	});
+	
+	var stgjson = topojson.feature(stateJSON,stateJSON.objects.state).features.filter(
+			function(d) { 
+				console.log(d.properties.name);
+				return stIds.indexOf(d.properties.name) > -1;
+			});
+	
+	var ppgjson = topojson.feature(ppJSON,ppJSON.objects.populated_places).features.filter(
+			function(d){
+				var coordinates = projection(d.geometry.coordinates);
+				return ((coordinates[0] >= newBounds[0][0] && coordinates[0] <= newBounds[1][0]) && 
+						(coordinates[1] >= newBounds[0][1] && coordinates[1] <= newBounds[1][1]));
+				
+			});
+	
+	
+	var roadgjson = topojson.feature(roadsJSON,roadsJSON.objects.roads).features.filter(
+			function(d){
+				thisCentroid = path.centroid(d.geometry);
+				return ((thisCentroid[0] >= newBounds[0][0] && thisCentroid[0] <= newBounds[1][0]) && 
+						(thisCentroid[1] >= newBounds[0][1] && thisCentroid[1] <= newBounds[1][1]));
+			});
 	
 	features
 		.append("path")
-		.datum(topojson.merge(countryJSON,countryJSON.objects.countries.geometries))
+		.datum(topojson.merge(countryJSON,ctjson))
 		.attr("class","land")
-		.attr("d",path)
-		//.call(zoom);
+		.attr("d",path);
 
-//	features
-//		.selectAll("path")
-//		.data(topojson.feature(roadsJSON,roadsJSON.objects.roads).features)
-//		.enter()
-//			.append("path")
-//			.attr("class","road")
-//			.attr("d",path);
-//	
 	features
-		.selectAll(".country-label")
-		.data(topojson.feature(countryJSON,countries).features)
-			.enter().append("text")
-				.attr("class", "country-label")
-				.attr("transform",function(d) { return "translate(" + path.centroid(d) + ")"; })
-				//.attr("dy",".35em")
-				.text(function(d) {return d.properties.name;});
+		.selectAll("path")
+		.data(roadgjson)
+		.enter()
+			.append("path")
+			.attr("class","road")
+			.attr("d",path);
 	
-	features
-		.selectAll(".state-label")
-			.data(topojson.feature(stateJSON,states).features)
-		.enter().append("text")
-			.attr("class", "state-label")
-			.attr("transform",function(d) { return "translate(" + path.centroid(d) + ")"; })
-			//.attr("dy",".35em")
-			.text(function(d) {
-				return d.properties.name;
-				}
-			);
-
-	features
-		.selectAll(".pp-label")
-			.data(topojson.feature(ppJSON,ppJSON.objects.populated_places).features)
-		.enter().append("text")
-			.attr("class", "pp-label")
-			.attr("transform",function(d) { 
-				var coordinates = [d.properties.lon,d.properties.lat]
-				return "translate(" + path.centroid(d) + ")"; })
-			.attr("dy",".35em")
-			.attr("dx",".55em")
-			.text(function(d) {return d.properties.name;});
-			
 	features.append("path")
-		.datum(topojson.mesh(stateJSON,states, function(a,b){return a!==b;}))
+		.datum(topojson.mesh(stateJSON,states, function(a,b){
+			return ((a!==b) && (stIds.indexOf(a.properties.name)>-1) && (stIds.indexOf(b.properties.name)> -1));}))
 		.attr("class","state-border")
 		.attr("d",path);
 	
 	features.append("path")
-		.datum(topojson.mesh(countryJSON,countries,function(a,b){return a!==b;}))
+		.datum(topojson.mesh(countryJSON,countries,function(a,b){
+			return ((a!==b) && (ctIds.indexOf(a.properties.name)>-1) && (ctIds.indexOf(b.properties.name)> -1));}))
 		.attr("class","country-border")
 		.attr("d",path);
 	
-//	features.append("path")
-//		.datum(topojson.mesh(roadsJSON,roadsJSON.objects.roads,function(a,b){return a!==b;}))
-//		.attr("class","road")
-//		.attr("d",path);
+	features
+		.selectAll(".country-label")
+		.data(ctgjson)
+			.enter().append("text")
+				.attr("class", "country-label")
+				.attr("transform",function(d) { return "translate(" + path.centroid(d) + ")"; })
+				.text(function(d) { return d.properties.name;});
 	
 	features
+		.selectAll(".state-label")
+			.data(stgjson)
+		.enter().append("text")
+			.attr("class", "state-label")
+			.attr("transform",function(d) { return "translate(" + path.centroid(d) + ")"; })
+			.text(function(d) {return d.properties.name;});
+	
+	features
+		.selectAll(".pp-label")
+			.data(ppgjson)
+		.enter().append("text")
+			.attr("class", "pp-label")
+			.attr("transform",function(d) { 
+				return "translate(" + path.centroid(d) + ")"; })
+			.attr("dy",".35em")
+			.attr("dx",".55em")
+			.text(function(d) {
+				coordinates = path.centroid(d);
+				if ((coordinates[0] >= newBounds[0][0] && coordinates[0] <= newBounds[1][0]) &&
+					(coordinates[1] >= newBounds[0][1] && coordinates[1] <= newBounds[1][1])){
+				return d.properties.name;
+				}
+			});
+
+	features
 		.selectAll("path")
-			.data(topojson.feature(ppJSON,ppJSON.objects.populated_places).features)
+			.data(ppgjson)
 		.enter()
 			.append("path")
 			.datum( function(d) {
-						//console.log(d.properties.lon); 
-						return {
-							type:"Point",
-							coordinates:[d.properties.lon,d.properties.lat]};
+				return {
+						type:"Point",
+						coordinates:[d.properties.lon,d.properties.lat]
+					};
 				})
 			.attr("d",path);
+
+	features
+	.selectAll('.route-line')
+		.data(routesJSON.geoFC.features)
+	.enter()
+		.append("path")
+		.attr("d",path)
+		.attr("class","route-line")
+		.style("stroke",function(d){
+			return "#"+rainbow.colorAt(100*d.util);
+		})
+		.style("stroke-width",0.025+"px")
+		.style("fill-opacity",1.0)
+		.on("click",clickRouteDialog);
 	
 	features
 		.selectAll(".store-circle")
@@ -378,32 +466,108 @@ function ready(error, stateJSON, countryJSON, ppJSON,storeJSON,routesJSON){
 				return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[1];
 			})
 			.attr("r",function(d) {
-				return 0.2/(d.level+1);
+				return 0.5/(d.level+1);
 			})
 			.style("fill",function(d){
-				return rainbow.colourAt(100*d.util);
+				return "#"+rainbow.colourAt(100*d.util);
+			})
+			.style("fill-opacity",1.0)
+			.style("stroke","black")
+			.style("visibility","hidden")
+			.style("stroke-width",0.010+"px")
+			.on("click",clickStoreDialog);
+	
+	features
+		.selectAll(".pop-circle")
+			.data(storeJSON.geoFC.features)
+		.enter()
+			.append("circle")
+			.attr("class","pop-circle")
+			.attr("cx",function(d){
+				return projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[0];
+			})
+			.attr("cy",function(d) {
+				return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[1];
+			})
+			.attr("r",function(d) {
+				//console.log(d);
+				return 0.005*((100*d.pop));
+			})
+			.style("fill",function(d){
+				return "#"+rainbow.colourAt(100*d.pop);
 			})
 			.style("fill-opacity",1.0)
 			.style("stroke","black")
 			.style("stroke-width",0.010+"px")
-			.on("click",clickDialog);
-			
-	/*
+			.on("click",clickStoreDialog);
+	
 	features
-		.selectAll('.route-line')
-			.data(routesJSON.geoFC.features)
-		.enter()
-			.append("path")
-		.attr("d",path)
-			.style("stroke","red")
-			.style("stroke-width",0.000+"px")
-			.style("fill-opacity",0.0);
-	*/
-
+	.selectAll(".va-circle")
+		.data(storeJSON.geoFC.features)
+	.enter()
+		.append("circle")
+		.attr("class","va-circle")
+		.attr("cx",function(d){
+			return projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[0];
+		})
+		.attr("cy",function(d) {
+			return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[1];
+		})
+		.attr("r",function(d) {
+			if (d.va == 0.0){
+				return 0.0;
+			}
+			else {
+			//console.log(d);
+				return 0.1;
+			}
+		})
+		.style("fill",function(d){
+			console.log(d.va);
+			return "#"+rainbow.colourAt(d.va);
+		})
+		.style("fill-opacity",1.0)
+		.style("stroke","black")
+		.style("stroke-width",0.010+"px")
+		.on("click",clickStoreDialog);
 	zoomToCollection(storeJSON.geoFC);
 }
 
-function clickDialog(d) {
+// Turn on and off the elements
+$("#show_population").click(function(){
+	if ($("#show_population").is(':checked')){
+		features.selectAll(".pop-circle").style('visibility','visible');
+	}
+	else {
+		features.selectAll(".pop-circle").style('visibility','hidden');
+	}
+});
+$("#show_routes").click(function(){
+	if ($("#show_routes").is(':checked')){
+		features.selectAll(".route-line").style('visibility','visible');
+	}
+	else {
+		features.selectAll(".route-line").style('visibility','hidden');
+	}
+});
+$("#show_vaccine").click(function(){
+	if ($("#show_vaccine").is(':checked')){
+		features.selectAll(".va-circle").style('visibility','visible');
+	}
+	else {
+		features.selectAll(".va-circle").style('visibility','hidden');
+	}
+});
+$("#show_utilization").click(function(){
+	if ($("#show_utilization").is(':checked')){
+		features.selectAll(".store-circle").style('visibility','visible');
+	}
+	else {
+		features.selectAll(".store-circle").style('visibility','hidden');
+	}
+});
+
+function clickStoreDialog(d) {
 	d3.event.preventDefault();
 	if($("#model_store_info_dialog").length > 0){
 		if ($("#model_store_info_dialog").is(':ui-dialog')) {
@@ -418,12 +582,27 @@ function clickDialog(d) {
 	}
 }
 
+function clickRouteDialog(d) { 
+	d3.event.preventDefault();
+	if($("#"+dialogRouteResName+"_dialog").length > 0){
+		if ($("#"+dialogRouteResName+"_dialog").is(':ui-dialog')) {
+			$("#"+dialogRouteResName+"_dialog").dialog('close');
+		}
+		var meta_data = eval(dialogRouteResName+"_meta");
+		var resId = -1;
+		if (meta_data['getResults'] == true){ resId = {{resultsId}};}
+		populateRouteInfoDialog("{{rootPath}}",dialogRouteResName,meta_data,"{{modelId}}",d.id,resId);
+		$("#"+dialogRouteResName+"_dialog").dialog("option","title","Information for Route " + d.id);
+		$("#"+dialogRouteResName+"_dialog").dialog("open");
+	}
+}
 function zoomToCollection(d) {
 	
 	var b = path.bounds(d),
 	s =  s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
     t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
-	
+	console.log(b);
+
 	svg.transition()
 		.duration(750)
 		.call(zoom.translate(t).scale(s).event);
@@ -437,33 +616,9 @@ function zoomed() {
 	  
 	  features.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	  features.selectAll(".land").style("stroke-width", 1.5 / d3.event.scale + "px");
-	  features.selectAll(".state-border").style("stroke-width", .25 / d3.event.scale + "px");
+	  features.selectAll(".state-border").style("stroke-width", 0.5 / d3.event.scale + "px");
 	  features.selectAll(".country-border").style("stroke-width", 1.0 / d3.event.scale + "px");
-	  features.selectAll(".road").style("stroke-width", .25 / d3.event.scale + "px");
-	  if (d3.event.scale > 1.5){
-		  //console.log("SHOULD");
-		  features.selectAll(".country-label").style("visibility","visible");
-	  }
-	  else{
-		  //console.log("HIDE");
-		  features.selectAll(".country-label").style("visibility","hidden");
-	  }
-	  if (d3.event.scale > 1.5){
-		  //console.log("SHOULD");
-		  features.selectAll(".state-label").style("visibility","visible");
-	  }
-	  else{
-		  //console.log("HIDE");
-		  features.selectAll(".state-label").style("visibility","hidden");
-	  }
-	  if (d3.event.scale > 1.5){
-		  //console.log("SHOULD");
-		  features.selectAll(".pp-label").style("visibility","visible");
-	  }
-	  else{
-		  //console.log("HIDE");
-		  features.selectAll(".pp-label").style("visibility","hidden");
-	  }
+	  features.selectAll(".road").style("stroke-width", function(d){ var sc = (.25 / d3.event.scale); if(sc < 0.010){return 0.025+"px"}else{ return sc + "px"}});
 	  curr_scale = d3.event.scale;
 }
 

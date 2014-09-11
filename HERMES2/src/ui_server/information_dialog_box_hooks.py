@@ -66,6 +66,7 @@ def generateRouteDialogHTML(db,uiSession):
     except Exception,e:
         result = {'success':False, 'msg':str(e)}
         return result
+    
 ### Route to demo page for testing and examples 
 @bottle.route('/dialogdemo')
 def dialogDemoPage(db,uiSession):
@@ -77,8 +78,6 @@ def dialogDemoPage(db,uiSession):
                                             "pageHelpText":_("This is intended to show page-specific help")},
                                             _=_,inlizer=inlizer,modelId=modelId,storeId=storeId,routeId=routeId,resultsId=resultsId)
     
-
-
 ### The rest of these are a series of json helpers to get data to populate the dialog boxes.
 @bottle.route('/json/get-general-info-for-store')   
 def generateGeneralStoreInfoJson(db, uiSession):
@@ -95,7 +94,7 @@ def generateGeneralStoreInfoJson(db, uiSession):
         features = [_("Name"),"ID",_("Level")]
         values = [store.NAME,str(store.idcode),store.CATEGORY]
         
-        if store.Latitude > 0.0:
+        if math.fabs(store.Latitude) > 0.0:
             features.append(_("Latitude"))
             values.append(str(store.Latitude))
             features.append(_("Longitude"))
@@ -130,9 +129,7 @@ def  generateUtilizationForStore(db,uiSession):
         storeIdClean = storeId.replace("store_","")
         print "getting store" + storeIdClean
         thisStore = m.getStore(int(storeIdClean))
-        #print "getting result"
         thisStoreRes = r.storesRpts[thisStore.idcode]
-        #print "not getting"
         rows = []
         rows.append({'info':_('Refrigerator (2-8 C) Storage'),'category':_('Total Volume (L)'),'value':thisStoreRes.storage['cooler'].vol})
         rows.append({'info':_('Refrigerator (2-8 C) Storage'),'category':_('Max Volume Used (L)'),'value':thisStoreRes.storage['cooler'].vol_used})
@@ -154,7 +151,7 @@ def  generateUtilizationForStore(db,uiSession):
         
 
 @bottle.route('/json/get-population-listing-for-store')
-def generatePopulationListingForStore(db,uiSession):
+def generatePopulationListingForStoreJSON(db,uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
         storeId = _getOrThrowError(bottle.request.params,'storeId',isInt=False)
@@ -165,29 +162,8 @@ def generatePopulationListingForStore(db,uiSession):
         model = shadow_network_db_api.ShdNetworkDB(db,modelId)
         thisStore = model.getStore(storeIdClean)
         
-        ### Convert to Rest somehow
-        excludeList = ['Service1']
-        storeIdsToAdd = [thisStore.idcode]
         
-        for client in thisStore.clients():
-            if client[1].Type == "attached" and client[0].FUNCTION != "Surrogate":
-                storeIdsToAdd.append(client[0].idcode)
-        
-        ### Get all attached clinics for this location
-        #print str(storeIdsToAdd)
-        peopleServedDict = {'all':{'displayName':_('Total Served'),'count':0}}
-        for storeId in storeIdsToAdd:
-            store = model.getStore(storeId)
-            for demand in store.demand:
-                if demand.invName not in excludeList:
-                    if not peopleServedDict.has_key(demand.invName):
-                        peopleServedDict[demand.invName] = {'count':0,
-                                                            'displayName':demand.invType.getDisplayName()}
-                    
-                    peopleServedDict[demand.invName]['count']+= demand.count
-                    peopleServedDict['all']['count'] += demand.count
-        
-        #print str(peopleServedDict)
+        peopleServedDict = generatePopulationListingForStore(model,thisStore)
         rows = []
         if peopleServedDict['all']['count'] == 0:
             rows.append({'class':_('Total Served'),'count':_('No Population Vaccinated at Location')})
@@ -208,6 +184,28 @@ def generatePopulationListingForStore(db,uiSession):
                   'msg':str(e)}
         return result
     
+def generatePopulationListingForStore(model,store):
+    excludeList = ['Service1']
+    storeIdsToAdd = [store.idcode]
+    for client in store.clients():
+        if (client[1].Type == "attached" and client[0].FUNCTION != "Surrogate") or client[0].CATEGORY == "OutreachClinic":
+            storeIdsToAdd.append(client[0].idcode)
+        
+    ### Get all attached clinics for this location
+    peopleServedDict = {'all':{'displayName':_('Total Served'),'count':0}}
+    for storeId in storeIdsToAdd:
+        store = model.getStore(storeId)
+        for demand in store.demand:
+            if demand.invName not in excludeList:
+                if not peopleServedDict.has_key(demand.invName):
+                    peopleServedDict[demand.invName] = {'count':0,
+                                                        'displayName':demand.invType.getDisplayName()}
+                
+                peopleServedDict[demand.invName]['count']+= demand.count
+                peopleServedDict['all']['count'] += demand.count
+
+    return peopleServedDict
+
 @bottle.route('/json/get-device-listing-for-store')
 def generateDeviceListingForStore(db,uiSession):
     try:
@@ -360,7 +358,6 @@ def generateFillRatioTimeForStore(db,uiSession):
         
             storageRatioMV = thisStoreRes.storageRatioMV()      
             countDict = storageRatioMV.getDictFormat()
-            print countDict
             returnDict = []
 
             burnDays = m.getParameterValue('burnindays')
@@ -391,8 +388,9 @@ def generateFillRatioTimeForStore(db,uiSession):
             result = {'success':False,
                      'msg':str(e)}
             return result 
+        
 @bottle.route('/json/get-vaccine-stats-for-store') 
-def generateVaccineStatsForStore(db,uiSession):
+def generateVaccineStatsForStoreJSON(db,uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
         storeId = _getOrThrowError(bottle.request.params,'storeId',isInt=False)
@@ -402,43 +400,10 @@ def generateVaccineStatsForStore(db,uiSession):
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         r = m.getResultById(resId)
 
-        storeIdClean = storeId.replace("store_","")
-        thisStore = m.getStore(int(storeIdClean))
+        storeIdClean = storeId.replace("store_","")      
 
-        #thisStoreRes = r.storesRpts[thisStore.idcode]
-        
-        excludeList = ['Service1']
-        storeIdsToAdd = [thisStore.idcode]
-        
-        for client in thisStore.clients():
-            if client[1].Type == "attached" and client[0].FUNCTION != "Surrogate":
-                storeIdsToAdd.append(client[0].idcode)
-        
-        vacDict = {'allvax':{'name':'All Vaccines','patients':0,'treated':0,'expired':0,'outages':0,'vials':0}}
-        for storeID in storeIdsToAdd:
-            sRep = r.storesRpts[storeID]
-            for v,n in sRep.vax.items():
-                vName = m.types[v].DisplayName
-                if vName not in vacDict.keys():
-                    vacDict[v] = {'name':vName,'patients':0,'treated':0,'expired':0,'outages':0,'vials':0}
-                vacDict[v]['patients'] += n.patients
-                vacDict[v]['treated']  += n.treated
-                vacDict[v]['expired']  += n.expired
-                vacDict[v]['outages']  += n.outages
-                vacDict[v]['vials']    += n.vials
-                vacDict['allvax']['patients'] += n.patients
-                vacDict['allvax']['treated']  += n.treated
-                vacDict['allvax']['expired']  += n.expired
-                vacDict['allvax']['outages']  += n.outages
-                vacDict['allvax']['vials']    += n.vials
-        
-        for v,d in vacDict.items():
-            if d['patients'] > 0.0:
-                d['avail'] = (float(d['treated'])/float(d['patients']))*100.0
-            else:
-                d['avail'] = 0.0
         ### make a sorted set of rows for the json
-        
+        vacDict = generateVaccineStatsForStore(m,r,storeIdClean)
         keys = sorted([x for x in vacDict.keys() if x != "allvax"])
         
         rows = []
@@ -458,6 +423,44 @@ def generateVaccineStatsForStore(db,uiSession):
         result = {'success':False,
                   'msg':str(e)}
         return result 
+
+def generateVaccineStatsForStore(m,r,storeId):
+    thisStore = m.getStore(int(storeId))
+
+    #thisStoreRes = r.storesRpts[thisStore.idcode]
+        
+    excludeList = ['Service1']
+    storeIdsToAdd = [thisStore.idcode]
+    
+    for client in thisStore.clients():
+        if client[1].Type == "attached" and client[0].FUNCTION != "Surrogate":
+            storeIdsToAdd.append(client[0].idcode)
+    
+    vacDict = {'allvax':{'name':'All Vaccines','patients':0,'treated':0,'expired':0,'outages':0,'vials':0}}
+    for storeID in storeIdsToAdd:
+        sRep = r.storesRpts[storeID]
+        for v,n in sRep.vax.items():
+            vName = m.types[v].DisplayName
+            if vName not in vacDict.keys():
+                vacDict[v] = {'name':vName,'patients':0,'treated':0,'expired':0,'outages':0,'vials':0}
+            vacDict[v]['patients'] += n.patients
+            vacDict[v]['treated']  += n.treated
+            vacDict[v]['expired']  += n.expired
+            vacDict[v]['outages']  += n.outages
+            vacDict[v]['vials']    += n.vials
+            vacDict['allvax']['patients'] += n.patients
+            vacDict['allvax']['treated']  += n.treated
+            vacDict['allvax']['expired']  += n.expired
+            vacDict['allvax']['outages']  += n.outages
+            vacDict['allvax']['vials']    += n.vials
+    
+    for v,d in vacDict.items():
+        if d['patients'] > 0.0:
+            d['avail'] = (float(d['treated'])/float(d['patients']))*100.0
+        else:
+            d['avail'] = 0.0
+    
+    return vacDict 
 
 @bottle.route('/json/get-vaccine-availability-plot-for-store') 
 def generateVaccineAvailabilityPlotForStore(db,uiSession):
@@ -520,7 +523,7 @@ def generateVaccineAvailabilityPlotForStore(db,uiSession):
         result = {'success':False,
                   'msg':str(e)}
         return result 
-    
+  
 @bottle.route('/json/get-general-info-for-route',method="post")
 def generateGeneralInformationForRoute(db,uiSession):
     try:

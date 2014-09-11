@@ -313,13 +313,13 @@ class castTypes:
                         
                         break
                     except Exception as e:
-                        print str(e)
+                        print "%s"%str(e)
                         pass
                 try:
-                    ret = unicode(dVal)
+                    ret = dVal
                 except Exception as e:
-                    print "UNICODE FAILED: " + str(e)
-                
+                    print "UNICODE FAILED: %s"%str(e)
+                    
                 if ret is None:
                     ret = unicode(val,'utf-8',errors='replace')   
             else:
@@ -381,9 +381,9 @@ class castTypes:
     @staticmethod
     def CastEmptyIsNullString(val, **kwargs):
         if val is None:
-            return True, u""
+            return True, unicode("")
         if val == "":
-            return True, u""
+            return True, unicode("")
         return False, val
 
     @staticmethod

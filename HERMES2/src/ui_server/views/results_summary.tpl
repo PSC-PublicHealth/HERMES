@@ -27,7 +27,7 @@ th.ui-th-column div {
 <div id="summary_div" width="100%">
 <table id="vaccine_summary_results_grid"></table>
 <div style="width:500;" id="results_summary_buttons_div">
-<button id="results_summary_show_ge_button" style="width:100px;">{{_('Show Google Earth Viz')}}</button>
+<button id="results_summary_show_ge_button" style="width:100px;">{{_('Show Geographic Viz')}}</button>
 % if gvAvailable:
 <button id="results_summary_show_gv_button" style="width:100px;">{{_('Show Fireworks Viz')}}</button>
 % end
@@ -43,7 +43,7 @@ function perElem(value,options){
 	
 $(document).ready(function(){	
 $("#results_summary_show_ge_button").click( function(){
-	window.location="{{rootPath}}google_earth_demo?modelId="+{{modelId}}+"&runId="+{{resultsId}};
+	window.location="{{rootPath}}geographic_visualization?modelId="+{{modelId}}+"&resultsId="+{{resultsId}};
 });
 
 % if gvAvailable:

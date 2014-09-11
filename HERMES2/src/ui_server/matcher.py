@@ -31,7 +31,7 @@ import runhooks
 import resultshooks
 import pagehelp
 import model_edit_hooks
-import google_earth_hooks
+import geographic_visualization
 import widgethooks
 import demandhooks
 import costhooks

@@ -48,28 +48,6 @@ $(function(){
 	})
 });
 
-</script>
-<!--<div id="model_store_info_dialog" title="This should get replaced">
-	<div id = "model_store_info_content">
-		<ul>
-			<li style="font-size:small">
-				<a href='#tab-1'>General Info</a>
-			</li>
-			<li style="font-size:small">
-				<a href='#tab-2'>Population Info</a>
-			</li>
-			<li style="font-size:small">
-				<a href="#tab-3">Storage Devices</a>
-			</li>
-		</ul>
-		<div id='tab-1'><table id='GenInfo'></table></div>
-		<div id='tab-2'><table id='PopInfo'></table></div>
-		<div id='tab-3'><table id='StoreDevInfo'></table></div>
-	</div>
-</div>-->
-
-<script>
-
 $(function() {
 	//initStoreInfoDialogNoResults("model_store_info_dialog");
 	$('#ajax_busy_image').show();
@@ -461,12 +439,6 @@ treeJSON = d3.json("{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}
 			$("#"+dialogBoxName+"_dialog").dialog("option","title","Information for Location " + d.idcode);
 			$("#"+dialogBoxName+"_dialog").dialog("open");
 		}
-//    	if ($("#model_store_info_dialog").is(':ui-dialog')) {
-//    		$("#model_store_info_dialog").dialog('close');
-//    	}
-//    	populateStoreInfoDialogNoResults("{{rootPath}}","model_store_info_content","{{modelId}}",d.idcode);
-//    	$("#model_store_info_dialog").dialog("option","title","Information for Location " + d.name);
-//    	$("#model_store_info_dialog").dialog("open");
     }
     
     function update(source) {
