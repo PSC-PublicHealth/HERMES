@@ -1,0 +1,33 @@
+#
+#  This is a tiny niger model input
+#
+
+rundays = 364
+model = 'model_tinytest'
+monitor = 1000000,1030000,1030300,1030301,1030305,1030306
+monvax = 'all'
+burnindays = 0
+storesfile = 'TinyStoreInfo_refrigerators.csv'
+routesfile = 'TinyRoutes_new.csv'
+demandfile = 'Tiny_Demand.csv'
+outputfile = 'tiny_out'
+vaccinefile = 'TinytestVaccineTypeInfo.csv'
+icefile = 'TinytestIceTypeInfo.csv'
+#calendarfile = 'Tiny_Calendar_Baseline.csv'
+levellist = 'Cëntral','Region','District','Integrated Health Center'
+cliniclevellist = 'Integrated Health Center'
+calendarcycle = 672
+initialovw = 'N_OVW_test.csv'
+seed = "1234"
+levellist = 'Cëntral','Region','District','Integrated Health Center'
+centrallevellist = 'Cëntral'
+cliniclevellist = 'Integrated Health Center'
+pricetable = 'TinyCosts.csv'
+eventlog = 'EventLog'
+#eventloglist = 'pickup','delivery'
+#eventlogregex = 'Agadez'
+autoupdatethresholds = TRUE
+storagebreakage = 0.01,0.01,0.01,0.01
+transitbreakage = 0.01,0.01,0.01,0.01
+
+

@@ -1,0 +1,12 @@
+"VaccineType","0-11monthsBCG","0-11mönths","12-24months","TestImpliedAttachedPeople","Service1","Service2","Notes"
+"N_Tuberculösis",1,0,0,0,0,0,
+"N_DTP-HepB-Hib liquid",0,2,1,0,0,0,
+"N_Measles",0,1,0,0,0,0,
+"N_Oral Polio",1,2,1,0,0,0,
+"N_Tetanus_Toxoid",0,2,1,0,0,0,
+"N_Yellow Fever",0,1,0,0,0,0,
+"N_RotavirusV5",0,0,0,0,0,0,
+"N_Pneumococcal13",0,0,0,0,0,0,
+"N_LargeCarrier_U_I",0,0,0,0,1,0,
+"N_STDCARRIER_CHARGE",0,0,0,0,0,1,
+"N_RotavirusV7",0,0,0,2,0,0,
