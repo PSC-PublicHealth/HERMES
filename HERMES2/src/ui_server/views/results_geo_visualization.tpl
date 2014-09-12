@@ -77,16 +77,16 @@ $(function() {
 		</table>
 	</div>
 	<div id="poplegend" style="float:right;position:relative;bottom:35%;width:0px;right:50px;background:white;">
-		<img height="200px" src="{{rootPath}}static/images/PopLegend.png">
+		<img height="200px" src="{{rootPath}}static/images/PopLegend.PNG">
 	</div>
 	<div id="storelegend" style="float:right;position:relative;bottom:35%;width:0px;right:50px;background:white;">
-		<img height="200px" src="{{rootPath}}static/images/StoreLegend.png">
+		<img height="200px" src="{{rootPath}}static/images/StoreLegend.PNG">
 	</div>
 	<div id="valegend" style="float:right;position:relative;bottom:35%;width:0px;right:50px;background:white;">
-		<img height="200px" src="{{rootPath}}static/images/VALegend.png">
+		<img height="200px" src="{{rootPath}}static/images/VALegend.PNG">
 	</div>
 	<div id="translegend" style="float:right;position:relative;bottom:35%;width:0px;right:50px;background:white;">
-		<img height="200px" src="{{rootPath}}static/images/TransLegend.png">
+		<img height="200px" src="{{rootPath}}static/images/TransLegend.PNG">
 	</div>
 </div>
 
