@@ -230,6 +230,11 @@ $(function() {
 	cursor:pointer;
 }
 
+.route-line{
+	visibility:hidden;
+	cursor:pointer;
+}
+
 </style>
 
 <script>
