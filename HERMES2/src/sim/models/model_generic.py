@@ -342,7 +342,11 @@ class Model(model.Model):
         fillVC= fVC+cVC+wVC
         scaledVaccineVialsVC= vaccineVialsVC*fillVC
         scaledVaccineVialsVC.roundDown()
-        lowVC= (scaledVaccineVialsVC+otherVialsVC) \
+#         lowVC= (scaledVaccineVialsVC+otherVialsVC) \
+#                - self.sim.shippables.getCollectionFromGroupList([s for s in toW.theBuffer
+#                                                                if isinstance(s,abstractbaseclasses.Shippable)])
+        # Never order non-vaccines
+        lowVC= (scaledVaccineVialsVC) \
                - self.sim.shippables.getCollectionFromGroupList([s for s in toW.theBuffer
                                                                if isinstance(s,abstractbaseclasses.Shippable)])
         lowVC.floorZero()
@@ -356,30 +360,21 @@ class Model(model.Model):
         # installed an instantaneous demand for the downstream clinics.
         vC= self.demandModelTuple[0].getDemandExpectation(toW.getTotalDownstreamPopServedPC(),
                                                           pullMeanFrequencyDays)
-        if toW.idcode == 1307034:
-            print "Expectation " + str(toW.idcode)+" = " + str(vC)
         vaccineDosesVC, otherDosesVC= self._separateVaccines(vC)
         vaccineVialsVC= self._scaleDemandByType(vaccineDosesVC) # includes OVW and rounding up
         otherVialsVC= otherDosesVC # Assumes all non-vaccines are "1 dose per vial"
-        totalVialsVC = vaccineVialsVC+otherVialsVC
+        #totalVialsVC = vaccineVialsVC+otherVialsVC
+        totalVialsVC = vaccineVialsVC # non-vaccines never go in the threshold
         totalVialsVC = self.sim.shippables.addPrepSupplies(totalVialsVC)
-        if toW.idcode == 1307034:
-            print "totalVialsVC: " + str(totalVialsVC)
         fVC,cVC,wVC= toW.calculateStorageFillRatios(totalVialsVC)
         fillVC= fVC+cVC+wVC
         scaledVaccineVialsVC= vaccineVialsVC*fillVC
-        if toW.idcode == 1307034:
-            print "ScaledVialsVC: " + str(scaledVaccineVialsVC)
         threshVC= scaledVaccineVialsVC*0.25
         # This is to prevent there being no threshold at all
         for v,n in threshVC.items():
             if n > 0.0 and n < 1.0:
                 threshVC[v] = 1.0
-        if toW.idcode == 1307034:
-            print "thesh1sVC: " + str(threshVC)
         threshVC.roundDown()
-        if toW.idcode == 1307034:
-            print "threshVC: " + str(threshVC)
         threshVC= scaledVaccineVialsVC*0.25
         # print "warehouseShipThresholdFunc %s: %s"%(toW.name,threshVC)
         return threshVC
