@@ -279,15 +279,19 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None):
 class OutputRedirector():
     def __init__(self, runNumber):
         import util
-        if not os.environ.has_key('HERMES_DATA_OUTPUT'):
-            self.redir = False
-            return
 
-        self.redir = True
         self.old_stdout = sys.stdout
         self.old_stderr = sys.stderr
-        so = util.openOutputFile('stdout.%s'%runNumber, useTempFile=True)
-        se = util.openOutputFile('stderr.%s'%runNumber)
+        
+        if os.environ.has_key('HERMES_DATA_OUTPUT'):
+            self.redir = True
+            so = util.openOutputFile('stdout.%s'%runNumber, useTempFile=True)
+            se = util.openOutputFile('stderr.%s'%runNumber)
+        else:
+            self.redir = False
+            so = sys.stdout
+            se = sys.stderr
+            
         sys.stdout = codecs.getwriter(util.getPreferredOutputEncoding(so.encoding))(so, 'replace')
         sys.stderr = codecs.getwriter(util.getPreferredOutputEncoding(se.encoding))(se, 'replace')
         
