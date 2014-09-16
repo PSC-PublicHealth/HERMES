@@ -151,6 +151,9 @@ def parseCSV( ifile ):
     if encodingInfo['confidence'] >= 0.9: 
         predictedEncoding = encodingInfo['encoding']
         lines = [l.decode(predictedEncoding) for l in lines]
+    else:
+        predictedEncoding = encodingInfo['encoding']
+        lines = [l.decode(predictedEncoding,'replace') for l in lines]
     delimFound= 0
     delimForThisFile= None
     for delim in possibleDelimiters:

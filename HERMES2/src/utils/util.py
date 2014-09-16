@@ -761,12 +761,12 @@ class TagAwareDict(MutableMapping):
     @staticmethod
     def _mthdToTuple(mthd):
         result = (mthd.im_class,mthd.__func__.__name__)
-        print 'encoding: %s -> %s'%(mthd,result)
+        #print 'encoding: %s -> %s'%(mthd,result)
         return result
     @staticmethod
     def _tupleToMthd(tpl):
         result = getattr(tpl[0],tpl[1])
-        print 'decoding: %s -> %s'%(tpl,result)
+        #print 'decoding: %s -> %s'%(tpl,result)
         return result
     def __getstate__(self):
         state = self.__dict__.copy()
