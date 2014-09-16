@@ -9,7 +9,7 @@ import sys,os,types
 from StringIO import StringIO
 import ipath
 import shadow_network_db_api
-from typeholdermodel import allTypesModelName
+from typeholdermodel import allTypesModelName,userTypesModelName
 
 from HermesServiceException import HermesServiceException
 
@@ -31,6 +31,9 @@ hiddenTypesSet = set(['OUTDOORS'])
 def _getAllTypesModel(db):
     return db.query(shadow_network.ShdNetwork).filter(shadow_network.ShdNetwork.name==allTypesModelName).one()
 
+def _getUserTypesModel(db):
+    return db.query(shadow_network.ShdNetwork).filter(shadow_network.ShdNetwork.name==userTypesModelName).one()
+
 def getTypeList(db,modelId,typeClass,fallback=True):
     """
     typeClass must be a valid entry in the types.typeClass polymorphic database table.
@@ -49,6 +52,13 @@ def getTypeList(db,modelId,typeClass,fallback=True):
             if not k in names:
                 names.add(k)
                 attrRec = {'_inmodel':False, 'modelId':aM.modelId}
+                shadow_network._copyAttrsToRec(attrRec,v)
+                tList.append(attrRec)
+        uM = _getUserTypesModel(db)
+        for k,v in getattr(uM,typeClass).items():
+            if not k in names:
+                names.add(k)
+                attrRec = {'_inmodel':False, 'modelId':uM.modelId}
                 shadow_network._copyAttrsToRec(attrRec,v)
                 tList.append(attrRec)
     return tList
@@ -94,7 +104,8 @@ def checkDependentTypes(db, modelOrModelId, typeName):
 def addTypeToModel(db, modelOrModelId, typeName, srcModel=None, force=False):
     """
     Copy the given type from srcModel to the given model, if it does not already
-    exist.  If srcModel is None (the usual case), AllTypesModel is used as the source.
+    exist.  If srcModel is None (the usual case), UserTypesModel and then AllTypesModel 
+    is used as the source.
     """
     if isinstance(modelOrModelId, types.IntType):
         targetModel = shadow_network_db_api.ShdNetworkDB(db,modelOrModelId)
@@ -103,7 +114,9 @@ def addTypeToModel(db, modelOrModelId, typeName, srcModel=None, force=False):
     if typeName in targetModel.types:
         raise RuntimeError(_("Type {0} is already present in model {1}").format(typeName,targetModel.name))
     if srcModel is None:
-        fromModel = _getAllTypesModel(db)
+        fromModel = _getUserTypesModel(db)
+        if typeName not in fromModel.types:
+            fromModel = _getAllTypesModel(db)
     else:
         fromModel = srcModel
     if typeName not in fromModel.types:
@@ -169,9 +182,12 @@ def getTypeWithFallback(db,modelId,typeName):
     if typeName in targetModel.types:
         return True,targetModel.types[typeName]
     aM = _getAllTypesModel(db)
-    if typeName not in aM.types:
-        raise RuntimeError(_("No such type {0}").format(typeName))
-    return False,aM.types[typeName]
+    if typeName in aM.types:
+        return False, aM.types[typeName]
+    uM = _getUserTypesModel(db)
+    if typeName in uM.types:
+        return False, uM.types[typeName]
+    raise RuntimeError(_("No such type {0}").format(typeName))
 
 def getSuggestedName(db, modelId, target, proposedName, excludeATM=False):
     if target == 'runName':
@@ -182,7 +198,8 @@ def getSuggestedName(db, modelId, target, proposedName, excludeATM=False):
         if excludeATM:
             # exclude the AllTypesModel too
             aM = _getAllTypesModel(db)
-            matchfun = lambda nm : ((nm in m.types) or (nm in aM.types))
+            uM = _getUserTypesModel(db)
+            matchfun = lambda nm : ((nm in m.types) or (nm in aM.types) or (nm in uM.types))
         else:
             matchfun = lambda nm : (nm in m.types)
     else:

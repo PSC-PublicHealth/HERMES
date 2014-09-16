@@ -16,6 +16,7 @@ import privs
 from main import parseCommandLine
 
 allTypesModelName = 'AllTypesModel'
+userTypesModelName = 'UserTypesModel'
 
 def installTypeHolderModel():
     
@@ -36,8 +37,19 @@ def installTypeHolderModel():
     privs.Privileges(1).registerModelId(session, net.modelId,1,1)
 
 
+def installUserTypeHolderModel():
+    # this will need to be updated 
+    shdTypes = shadow_network.ShdTypes()
+    net = shadow_network.ShdNetwork([], [], [], shdTypes, name=userTypesModelName)
+    session = getDBSession()
+    session.add(net)
+    session.commit()
+    privs.Privileges(2).registerModelId(session, net.modelId,2,2)
+    
+
 def main():
     installTypeHolderModel()
+    installUserTypeHolderModel()
 
 ############
 # Main hook

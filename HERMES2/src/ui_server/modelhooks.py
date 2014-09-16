@@ -17,6 +17,7 @@ from preordertree import PreOrderTree
 from upload import uploadAndStore, makeClientFileInfo
 import htmlgenerator
 import typehelper
+from typeholdermodel import userTypesModelName
 import shadow_network_db_api
 import privs
 import session_support_wrapper as session_support
@@ -733,6 +734,8 @@ def handleListModel(db,uiSession):
     allowedPairs = []
     for thisId,name in pairs: 
         try:
+            if name == userTypesModelName:
+                continue
             prv.mayReadModelId(db, thisId) # Exclude models for which we don't have read access
             allowedPairs.append((thisId,name))
             if selectedModelId is None:
@@ -938,6 +941,8 @@ def jsonManageModelsTable(db, uiSession):
     mList = []
     prv = uiSession.getPrivs()
     for m in db.query(shadow_network.ShdNetwork):
+        if m.name == userTypesModelName:
+            continue
         try:
             prv.mayReadModelId(db, m.modelId)
             mList.append(m)
@@ -1278,6 +1283,8 @@ def jsonGetExistingModelNames(db,uiSession):
         #prv = uiSession.getPrivs()
         for m in db.query(shadow_network.ShdNetwork):
             try:
+                if m.name == userTypesModelName:
+                    continue
                 #prv.mayReadModelId(db, m.name)
                 mList.append(m.name)
             except privs.PrivilegeException:

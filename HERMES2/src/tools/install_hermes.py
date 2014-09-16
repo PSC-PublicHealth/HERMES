@@ -588,9 +588,11 @@ def callAlembicUpgrade():
 def addTypeHolderModel():
     import shadow_network
     import privs
-    from typeholdermodel import allTypesModelName
+    from typeholdermodel import allTypesModelName, installUserTypeHolderModel
     from db_routines import DbInterface
     import db_routines
+
+    # this needs to be harmonized with installTypeHolderModel()
 
     stdTypePath = os.path.join(sI.srcDir(),os.pardir,os.pardir,'master_data','standardtypes')
     shdTypes = shadow_network.ShdTypes()
@@ -612,6 +614,8 @@ def addTypeHolderModel():
     session.add(net)
     session.commit()
     privs.Privileges(1).registerModelId(session, net.modelId,1,1)
+
+    installUserTypeHolderModel()
 
 
 def main():
