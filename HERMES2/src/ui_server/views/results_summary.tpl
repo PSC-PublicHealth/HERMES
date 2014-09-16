@@ -237,3 +237,10 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
 
 </script>
 
+<div id="costcharts" name="costcharts"/>
+<div id="hierarchicalBarchart" name "hierarchicalBarchart"/>
+<script src="{{rootPath}}static/d3/d3.min.js"></script>
+<script src="{{rootPath}}static/hierarchical-charts/hierarchical-barcharts.js"></script>
+<script>
+//    $("#hierarchicalBarchart").barchart();
+</script>
