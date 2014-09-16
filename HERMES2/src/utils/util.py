@@ -758,6 +758,39 @@ class TagAwareDict(MutableMapping):
                 pass
             else:
                 raise e
+    @staticmethod
+    def _mthdToTuple(mthd):
+        result = (mthd.im_class,mthd.__func__.__name__)
+        print 'encoding: %s -> %s'%(mthd,result)
+        return result
+    @staticmethod
+    def _tupleToMthd(tpl):
+        result = getattr(tpl[0],tpl[1])
+        print 'decoding: %s -> %s'%(tpl,result)
+        return result
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        newPairs = []
+        for a,b in state['tagMethodPairs']:
+            if isinstance(b,types.MethodType):
+                newPairs.append((a,self._mthdToTuple(b)))
+            else:
+                newPairs.append((a,b))
+        state['tagMethodPairs'] = newPairs
+        return state
+    
+    def __setstate__(self,state):
+        for k,v in state.items(): 
+            if k=='tagMethodPairs':
+                newPairs = []
+                for a,b in v:
+                    if isinstance(b,types.TupleType):
+                        newPairs.append((a,self._tupleToMthd(b)))
+                    else:
+                        newPairs.append((a,b))
+                setattr(self,'tagMethodPairs',newPairs)
+            else:
+                setattr(self,k,v)
 
 def poisson(lamd,rNG=None):
     """
