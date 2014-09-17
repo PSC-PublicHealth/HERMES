@@ -146,6 +146,8 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None):
     parser.add_option("--save_hdata", help="save the internal output structure in a pickle file")
     parser.add_option("--minion", action="store_true", 
                       help="changes format of info written to stderr to make machine parsing easier")
+    parser.add_option("--perfect", action="store_true", default=False,
+                      help="makes all storage and transport infinite")
 
     # the next option "--merge_outputs" is really intended for server use after each sim has been
     # run individually using --run_number and --zip_outputs.  The usage requirements are:
@@ -199,6 +201,7 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None):
     gblDict['save_hdata'] = opts.save_hdata
     gblDict['merge_outputs'] = None
     gblDict['gap'] = opts.gap
+    gblDict['perfect'] = opts.perfect
     gblDict['use_shadow'] = opts.use_shadow
     gblDict['use_dbmodel'] = opts.use_dbmodel
     if opts.use_dbmodel:
@@ -413,6 +416,11 @@ def main():
         doGraphics = False
         gapFinalize = True
 
+    if gblInputs['perfect']:
+        perfect = True
+        doGraphics = True
+        gapFinalize = False
+        
     if gblInputs['run_number'] is not None:
         nWorkers = 1
         onlyRun = int(gblInputs['run_number'])
