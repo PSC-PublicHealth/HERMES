@@ -74,8 +74,7 @@ def _genericRouteChecks(locList,storeDict):
 #                       (rec['RouteName'].encode('utf8'),rec['idcode'],
 #                        rec['LocName'].encode('utf8'),storeDict[rec['idcode']].bName)
                 print "***Warning*** Name mismatch on route %s id %ld: <%s> vs. <%s>"%\
-                      (rec['RouteName'],rec['idcode'],
-                       rec['LocName'],storeDict[rec['idcode']].name)
+                      (rec['RouteName'],rec['idcode'],rec['LocName'],storeDict[rec['idcode']].bName)
 
 def _innerBuildScheduledRoute(routeName, sim, locList, storeDict, getShipInterval, getStartupLatency, getTruckInterval,
                               getOrderPendingLifetime, shipperProcType):
@@ -100,6 +99,7 @@ def _innerBuildScheduledRoute(routeName, sim, locList, storeDict, getShipInterva
     if 'ShipLatencyDays' in supplierRec:
         shipStartupLatency = float(supplierRec['ShipLatencyDays'])
     else:
+        print str(supplierRec)
         shipStartupLatency = getStartupLatency(storeDict,supplierKey)
     conditions = _conditionsFromRec(supplierRec)
     transitTimeHours= float(supplierRec['TransitHours']) 
@@ -184,7 +184,7 @@ def _innerBuildScheduledRoute(routeName, sim, locList, storeDict, getShipInterva
     
     shipperProc.setNoteHolder( sim.notes.createNoteHolder() )
     shipperProc.noteHolder.addNote({"RouteName":routeName,
-                                    "RouteTruckType":truckType.name})
+                                    "RouteTruckType":truckType.bName})
     
     allShippingProcs= [shipperProc]
     
@@ -396,7 +396,7 @@ def _innerBuildScheduledFetchRoute(routeName, sim, locList, storeDict, getShipIn
     
     shipperProc.setNoteHolder( sim.notes.createNoteHolder() )
     shipperProc.noteHolder.addNote({"RouteName":routeName,
-                                    "RouteTruckType":truckType.name})
+                                    "RouteTruckType":truckType.bName})
     
     allShippingProcs= [shipperProc]
     
@@ -551,7 +551,7 @@ def _innerBuildPullRoute(routeName, sim, locList, storeDict,
         
         ship.setNoteHolder(sim.notes.createNoteHolder())
         ship.noteHolder.addNote({"RouteName":routeName,
-                                 "RouteTruckType":truckType.name})
+                                 "RouteTruckType":truckType.bName})
         
         allShippingProcs= [ship]
         supplierWH.addClientRoute(name = routeName, 
@@ -627,7 +627,7 @@ def _buildAttachedRoute(routeName,sim,locList,storeDict,
         # just get used directly from the supplier's stores
         supplierWH.addClient(clientWH)
         clientWH.addSupplier(supplierWH)
-        supplierWH.addClientRoute(name = 'Attached_%s'%clientWH.name, 
+        supplierWH.addClientRoute(name = 'Attached_%s'%clientWH.bName, 
                                   proc = None,
                                   clientIds = [clientWH.code],
                                   routeType = 'attached_clinic',
@@ -865,7 +865,7 @@ def buildNetwork(storeKeys, storeRecList,
             try:
                 wh= warehouseFromRec(sim, storeRecDict[idcode], expectedType=warehouse.Clinic)
                 if wh is not None and not isinstance(wh, warehouse.Clinic):
-                    raise RuntimeError("%s(%ld) was expected to be some kind of Clinic"%(wh.name,idcode))
+                    raise RuntimeError("%s(%ld) was expected to be some kind of Clinic"%(wh.bName,idcode))
             except Exception,e:
                 import traceback
                 traceback.print_exc()
@@ -1017,7 +1017,7 @@ The use of implied links is DEPRECATED and unreliable, and will not be supported
         if wh is None: continue
         elif idcode <= 0: continue # an implicit attached clinic or other invisible special case
         category = storeRecDict[idcode]['CATEGORY']
-        elaboratedName = "%s(%ld)"%(wh.name,idcode)
+        elaboratedName = "%s(%ld)"%(wh.bName,idcode)
         if category not in byCategoryReportingHierarchyDict:
             byCategoryReportingHierarchyDict[category] = ReportingHierarchyNode('all', category,
                                         overrides={'LaborCost':sim.costManager.getLaborTotal})
