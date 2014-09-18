@@ -31,6 +31,9 @@ import util
 import dummycostmodel
 import legacycostmodel
 from currencysupport import CurrencyConverter
+from costmodelsummary import (
+        LegacyCostModelHierarchicalSummary,
+        DummyCostModelHierarchicalSummary)
 
 def getCostManager(hermesSim, userInput):
     if userInput['pricetable'] is None:
@@ -63,4 +66,12 @@ def getCostModelVerifier(shdNet):
         priceTable = legacycostmodel.PriceTable( shdNet.getPriceTableRecs(),
                                                  currencyConverter,required=True )
         return legacycostmodel.LegacyCostModelVerifier(priceTable)
+
+def getCostModelSummary(shdNet, result):
+    if shdNet.getParameterValue('pricetable') is None:
+        # dummycostmodel
+        return DummyCostModelHierarchicalSummary(result)
+    else:
+        # legacycostmodel
+        return LegacyCostModelHierarchicalSummary(result)
 

@@ -233,14 +233,22 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
 	});
 }); 
 });
-
-
 </script>
 
+<!-- Hierarchical Charts for Cost Summaries -->
 <div id="costcharts" name="costcharts"/>
 <div id="hierarchicalBarchart" name "hierarchicalBarchart"/>
 <script src="{{rootPath}}static/d3/d3.min.js"></script>
 <script src="{{rootPath}}static/hierarchical-charts/hierarchical-barcharts.js"></script>
 <script>
-//    $("#hierarchicalBarchart").barchart();
+//    $("#hierarchicalBarchart").barchart({
+//        hasChildrenColor: "steelblue",
+//        noChildrenColor: "#ccc",
+//        jsonDataURLBase: "json/results-cost-hierarchical",
+//        jsonDataURLParams: [
+//            "modelId={{modelId}}",
+//            "resultsId={{resultsId}}"],
+//        minWidth: 800,
+//        minHeight: 300,
+//    });
 </script>

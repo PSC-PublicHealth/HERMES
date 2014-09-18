@@ -2322,6 +2322,10 @@ class HermesResults(Base):
                 count += offInt
         
         return histDict
+
+    def getCostSummaryRecs(self):
+        "summaryRecDicts is a list of dicts"
+        return self.costSummaryRecs
          
 _makeColumns(HermesResults)
 

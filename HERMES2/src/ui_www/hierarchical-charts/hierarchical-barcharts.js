@@ -2,14 +2,20 @@
     $.widget("hierarchical.barchart", {
         options: {
             file: "static/hierarchical-charts/readme.json",
-            jsonDataURL: "json/results-cost-hierarchical?modelId=3&resultsId=6",
+            jsonDataURLBase: "json/results-cost-hierarchical",
+            jsonDataURLParameters: ["modelId=3", "resultsId=6"],
             minWidth: 800,
             minHeight: 300,
+            hasChildrenColor: "steelblue",
+            noChildrenColor: "#adf"
         },
 
     _create: function() {
   
         svgContainerID = $(this.element).attr('id');
+
+        var jsonDataURL = this.options.jsonDataURLBase + "?"
+                        + this.options.jsonDataURLParameters.join("&");
 
         $("<link/>", {
            rel: "stylesheet",
@@ -27,7 +33,8 @@
         var barHeight = 20;
     
         var color = d3.scale.ordinal()
-            .range(["steelblue", "#ccc"]);
+            .range([this.options.hasChildrenColor,
+                    this.options.noChildrenColor]);
     
         var duration = 750,
             delay = 25;
@@ -60,9 +67,9 @@
             .append("line")
             .attr("y1", "100%");
     
-        d3.json(this.options.jsonDataURL, function(error, ret) {
-            console.log(ret.datas);
-            var root = ret.datas;
+        d3.json(jsonDataURL, function(error, ret) {
+            console.log(ret.error);
+            var root = ret.data;
             partition.nodes(root);
             x.domain([0, root.value]).nice();
             down(root, 0);

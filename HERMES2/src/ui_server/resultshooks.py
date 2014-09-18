@@ -18,6 +18,8 @@ from gridtools import orderPage, orderAndChopPage
 import privs
 import htmlgenerator
 import typehelper
+from costmodel import getCostModelSummary
+
 _gvAvailable = True
 try:
     import graph_network_utils
@@ -458,19 +460,45 @@ def jsonResultsSummaryTransportUtiliztionByRouteByLevel(db, uiSession):
 @bottle.route('/json/results-cost-hierarchical')
 def jsonResultSummaryCostHierarchical(db, uiSession):
     try:
-        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
-        resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
+        modelId = _getOrThrowError(bottle.request.params,
+                'modelId',isInt=True)
+        resultsId = _getOrThrowError(bottle.request.params,
+                'resultsId',isInt=True)
         uiSession.getPrivs().mayReadModelId(db,modelId)
 
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         r = m.getResultById(resultsId)
 
-        result = {'success': True,
-                  'datas': json.loads(CostHierarchyTestJSON)}
+        #import ipdb
+        #ipdb.set_trace()
+
+        try:
+            cost_summary = getCostModelSummary(m, r)
+            result = {'success': True,
+                  'data': cost_summary.dict()}
+                  #'data': json.loads(CostHierarchyTestJSON)}
+        except:
+            result = {'success': False,
+                  'data': '{}'}
+
+        print result
+
         return result
-    except Exception,e:
+
+    except Exception, e:
         result = {'success':False, 'msg':str(e)}
         return result
+
+
+
+
+
+
+
+
+
+
+###############################################################################
 
 CostHierarchyTestJSON = '''
 {
