@@ -19,7 +19,7 @@
 
 _hermes_svn_id_="$Id: output_average.py 826 2012-02-16 23:14:57Z welling $"
 
-import sys, os, optparse
+import sys, os, optparse, codecs
 import ipath
 from csv_tools import parseCSV
 import globals
@@ -73,7 +73,8 @@ def main(substituteArgList=None):
         sys.exit("Only one argument please")
 
     inputDefault = InputDefault()
-    with open(opts.out,'wb') as f:
+    with open(opts.out,'wb') as rawF:
+        f = codecs.getwriter('ascii')(rawF, 'replace')
         f.write(preamble)
     
         kList= inputDefault.keys()
