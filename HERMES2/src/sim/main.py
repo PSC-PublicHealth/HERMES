@@ -24,7 +24,8 @@ _hermes_svn_id_="$Id$"
 
 import ipath
 
-import sys,os,optparse,traceback,time,string,codecs,locale
+import sys,os,optparse,traceback,time,string,locale
+from kitchen.text.converters import getwriter
 #multiprocessing import Process, JoinableQueue, current_process
 import multiprocessing
 import multiprocessing.forking
@@ -282,7 +283,7 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None):
 class OutputRedirector():
     def __init__(self, runNumber):
         import util
-
+        
         self.old_stdout = sys.stdout
         self.old_stderr = sys.stderr
         
@@ -294,9 +295,10 @@ class OutputRedirector():
             self.redir = False
             so = sys.stdout
             se = sys.stderr
-            
-        sys.stdout = codecs.getwriter(util.getPreferredOutputEncoding(so.encoding))(so, 'replace')
-        sys.stderr = codecs.getwriter(util.getPreferredOutputEncoding(se.encoding))(se, 'replace')
+
+        enc = util.getPreferredOutputEncoding(so.encoding)
+        sys.stdout = getwriter(enc)(so,'replace')
+        sys.stderr = getwriter(util.getPreferredOutputEncoding(se.encoding))(se, 'replace')
         
     def __enter__(self):
         return self

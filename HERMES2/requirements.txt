@@ -2,3 +2,4 @@ SQLAlchemy>=0.7,<=0.9.3
 alembic
 chardet
 geojson
+kitchen
