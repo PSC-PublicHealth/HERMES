@@ -647,9 +647,9 @@ class Warehouse(Store, abstractbaseclasses.Place):
         Returns the StorageModel for this CanOwn
         """
         return self.storageModel
-    def addSupplier(self,wh):
+    def addSupplier(self,wh,routeInfoDict=None):
         if not wh in self._suppliers:
-            self._suppliers.append(wh)
+            self._suppliers.append((wh,routeInfoDict))
     def addClient(self,wh):
         if wh is self:
             eStr = "Warehouse %s attempted to add itself as its own client.  "%self.bName
@@ -909,7 +909,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
                 if n<self.fromBelowThresholdDict[v]:
                     self.lowStockSet.discard(v)
         for w in self.getSuppliers():
-            w.attemptDestock()
+            w[0].attemptDestock()
         if flag: self.attemptRestock()
         self.allocateStorageSpace()
         self.maybeRecordVialCount()
@@ -968,7 +968,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
         if len(self.lowStockSet)==0:
             return
         for w in self.getSuppliers():
-            if w.gotAnyOfThese(self.lowStockSet):
+            if w[0].gotAnyOfThese(self.lowStockSet):
                 self.lowEvent.signal()
                 logDebug(self.sim,"%s fired low Event at %g on %s"%(self.bName, self.sim.now(),self.lowStockSet))
                 break
@@ -984,7 +984,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
         else:
             testSet= set([shippableType])
             for w in self.getSuppliers():
-                if w.gotAnyOfThese(testSet):
+                if w[0].gotAnyOfThese(testSet):
                     self.lowEvent.signal()  
                     logDebug(self.sim,"%s fired lowEvent at %g on specific shippable %s"%(self.bName,self.sim.now(),shippableType.bName))
                     return True
@@ -1643,20 +1643,20 @@ class AttachedClinic(Clinic):
                         latitude=0.0,useVialsLatency=useVialsLatency,
                         useVialsTickInterval=useVialsTickInterval)
         if owningWH is not None:
-            self.addSupplier(owningWH)
+            self.addSupplier(owningWH,{'Type':'attached'})
             owningWH.addClient(self)
         self.reportingLevl = reportingLevel
         self.leftoverDoses = HDict()
     def getOwningWH(self):
-        if len(self._suppliers)>0: return self._suppliers[0]
+        if len(self._suppliers)>0: return self._suppliers[0][0]
         else: return None
-    def addSupplier(self,wh):
+    def addSupplier(self,wh,routeInfoDict=None):
         if len(self._suppliers)==0:
             logDebug(self.sim,"Adding supplier %s to AttachedClinic %s"%(wh.bName,self.bName))
             self.conditions = wh.conditions
             self.reportingLevel = wh.reportingLevel
             self.packagingModel = wh.packagingModel
-            self._suppliers.append(wh)
+            self._suppliers.append((wh,routeInfoDict))
         else:
             raise RuntimeError("AttachedClinic %s can have no supplier but its partner"%self.name)
     def addClient(self,wh):
@@ -1810,7 +1810,7 @@ class Factory(Process, abstractbaseclasses.UnicodeSupport):
         self.vaccinesProd = vaccineProd
         self.demandType = demandType
         for targetStore in self.targetStores:
-            targetStore[1].addSupplier(self)
+            targetStore[1].addSupplier(self,None)
             targetStore[1].sim.processWeakRefs.append(weakref.ref(self))
     def run(self):
         if self.startupLatency > 0.0:
@@ -1861,7 +1861,7 @@ class Factory(Process, abstractbaseclasses.UnicodeSupport):
     def __repr__(self):
         return "<Factory(%s)>"%self.targetStores[0][1].name
     def __str__(self): return self.__repr__()
-    def addSupplier(self,wh):
+    def addSupplier(self,wh,routeInfoDict=None):
         raise RuntimeError("Factory cannot add supplier")
     def addClient(self,wh):
         raise RuntimeError("Factory clients are defined at creation time")
@@ -3020,8 +3020,10 @@ class OnDemandShipment(Process, abstractbaseclasses.UnicodeSupport):
         else:
             self.truckType= truckType
         self.conditions= conditions
-        toWarehouse.addSupplier(fromWarehouse)
-        fromWarehouse.addClient(toWarehouse)
+        #toWarehouse.addSupplier(fromWarehouse,{'Type':'pull',
+        #                                       'TruckType':truckType,
+        #                                       'Conditions':conditions})
+        #fromWarehouse.addClient(toWarehouse)
         self.warningEvent= None
         self.nextAllowedDeparture= startupLatency
         self.minimumDaysBetweenShipments= minimumDaysBetweenShipments
@@ -3702,8 +3704,8 @@ class ScheduledShipment(Process, abstractbaseclasses.UnicodeSupport):
         self.interval= interval
         self.shipVC= shipVC
         self.startupLatency= startupLatency
-        toWarehouse.addSupplier(fromWarehouse)
-        fromWarehouse.addClient(toWarehouse)
+        #toWarehouse.addSupplier(fromWarehouse,{"Type":"push"})
+        #fromWarehouse.addClient(toWarehouse)
         fromWarehouse.sim.processWeakRefs.append( weakref.ref(self) )
 
     def finishBuild(self,szFunc):
@@ -3776,8 +3778,8 @@ class ScheduledVariableSizeShipment(Process,abstractbaseclasses.UnicodeSupport):
         self.interval= interval
         self.quantityFunction= quantityFunction
         self.startupLatency= startupLatency
-        toWarehouse.addSupplier(fromWarehouse)
-        fromWarehouse.addClient(toWarehouse)
+        #toWarehouse.addSupplier(fromWarehouse)
+        #fromWarehouse.addClient(toWarehouse)
         fromWarehouse.sim.processWeakRefs.append( weakref.ref(self) )
     def finishBuild(self, szFunc):
         """

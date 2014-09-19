@@ -51,7 +51,7 @@ class Model(model_generic.Model):
             print RuntimeError("The input variable daypermonth must be set to 20 in order to run the Benin Model")
     
     
-    def getScheduledShipmentSize(self, fromW, toW, shipInterval, timeNow):
+    def getScheduledShipmentSize(self, fromW, toW, shipInterval, timeNow, asking=False):
         # The function is called repeatedly, every time a shipment is being set up.
         # The InstantaneousDemand has been set by the MonthlyOrderProcesses of the
         # downstream clinics; it includes any attached clinics but does not include
@@ -67,7 +67,9 @@ class Model(model_generic.Model):
         # (e.g. if the number of vials is 3, and then the buffer makes it 3.75, the next set of commands
         # cause it to be 3 rather than 4, which is the right answer.
         vaccineVialsVC.roundUp()
-        if isinstance(toW,warehouse.Clinic):
+        suppliers = toW.getSuppliers()
+        supplierRoute = suppliers[0][1]
+        if supplierRoute['Type']=='askingpush':
 	#if False:
             lowVC = vaccineVialsVC
         else:
@@ -81,6 +83,7 @@ class Model(model_generic.Model):
 		 if isinstance(s,abstractbaseclasses.Shippable)])
             lowVC= scaledVaccineVialsVC - onhandVC
             lowVC.floorZero()
+            
             lowVC.roundUp()
                 
 
@@ -131,7 +134,7 @@ class Model(model_generic.Model):
     def getModelMonthlyOrderProcess(self):
         return MonthlyOrderProcess
 
-    def calcPerDiemDays(self, tripJournal, homeWH):
+    def calcPerDiemDays(self, tripJournal, homeWH, truckType = None):
         """
         This function is called once at the end of each full round trip for any
         shipping process to calculate the number of days of per diem pay the

@@ -69,12 +69,20 @@ def _genericRouteChecks(locList,storeDict):
                     (rec['RouteName'],rec['idcode'])
                 print "reasons could include lack of population and/or lack of storage."
                 raise RuntimeError("route references dead location %d"%rec['idcode'])
-            if rec['LocName'] != storeDict[rec['idcode']].name:
+#             if rec['LocName'] != storeDict[rec['idcode']].name:
+# #                 print "***Warning*** Name mismatch on route %s id %ld: <%s> vs. <%s>"%\
+# #                       (rec['RouteName'].encode('utf8'),rec['idcode'],
+# #                        rec['LocName'].encode('utf8'),storeDict[rec['idcode']].bName)
+#                 print type(rec['RouteName'])
+#                 print repr(rec['RouteName'])
+#                 print type(rec['LocName'])
+#                 print repr(rec['LocName'])
+#                 print type(storeDict[rec['idcode']].name)
+#                 print type(storeDict[rec['idcode']].bName)
+#                 print repr(storeDict[rec['idcode']].name)
+#                 print repr(storeDict[rec['idcode']].bName)
 #                 print "***Warning*** Name mismatch on route %s id %ld: <%s> vs. <%s>"%\
-#                       (rec['RouteName'].encode('utf8'),rec['idcode'],
-#                        rec['LocName'].encode('utf8'),storeDict[rec['idcode']].bName)
-                print "***Warning*** Name mismatch on route %s id %ld: <%s> vs. <%s>"%\
-                      (rec['RouteName'],rec['idcode'],rec['LocName'],storeDict[rec['idcode']].bName)
+#                       (rec['RouteName'],rec['idcode'],rec['LocName'],storeDict[rec['idcode']].bName)
 
 def _innerBuildScheduledRoute(routeName, sim, locList, storeDict, getShipInterval, getStartupLatency, getTruckInterval,
                               getOrderPendingLifetime, shipperProcType):
@@ -120,7 +128,7 @@ def _innerBuildScheduledRoute(routeName, sim, locList, storeDict, getShipInterva
                 if keyCode not in routeClients: # dropandcollect visits each client twice
                     routeClients.append(keyCode)
                     supplierWH.addClient(clientWH)
-                    clientWH.addSupplier(supplierWH)
+                    clientWH.addSupplier(supplierWH,rec)
                 transitChain.append((((transitTimeHours+leftoverTimeHours)/float(C.hoursPerDay)),
                                      clientWH,
                                      conditions))
@@ -150,7 +158,7 @@ def _innerBuildScheduledRoute(routeName, sim, locList, storeDict, getShipInterva
                 if keyCode not in routeClients: # dropandcollect visits each client twice
                     routeClients.append(keyCode)
                     supplierWH.addClient(clientWH)
-                    clientWH.addSupplier(supplierWH)
+                    clientWH.addSupplier(supplierWH,rec)
                 transitChain.append((((transitTimeHours+leftoverTimeHours)/float(C.hoursPerDay)),
                                      clientWH,
                                      conditions))
@@ -307,7 +315,7 @@ def _innerBuildScheduledFetchRoute(routeName, sim, locList, storeDict, getShipIn
     
     routeClients = [startingKey]
     supplierWH.addClient(startingWH)
-    startingWH.addSupplier(supplierWH)
+    startingWH.addSupplier(supplierWH,startingRec)
     transitChain = None 
     conditions = _conditionsFromRec(startingRec)
     transitTimeHours= float(startingRec['TransitHours'])
@@ -329,7 +337,7 @@ def _innerBuildScheduledFetchRoute(routeName, sim, locList, storeDict, getShipIn
                     raise RuntimeError("Startup latency values are inconsistent for route %s"%routeName)
                 routeClients.append(keyCode)
                 supplierWH.addClient(clientWH)
-                clientWH.addSupplier(supplierWH)
+                clientWH.addSupplier(supplierWH,rec)
                 transitChain.append((((transitTimeHours+leftoverTimeHours)/float(C.hoursPerDay)),
                                      clientWH,
                                      conditions))
@@ -361,7 +369,7 @@ def _innerBuildScheduledFetchRoute(routeName, sim, locList, storeDict, getShipIn
                 transitTimeHours= float(rec['TransitHours'])
                 routeClients.append(keyCode)
                 supplierWH.addClient(clientWH)
-                clientWH.addSupplier(supplierWH)
+                clientWH.addSupplier(supplierWH,rec)
                 transitChain.append((((transitTimeHours+leftoverTimeHours)/float(C.hoursPerDay)),
                                      clientWH,
                                      conditions))
@@ -528,7 +536,7 @@ def _innerBuildPullRoute(routeName, sim, locList, storeDict,
             conditions = "normal"
             
         supplierWH.addClient(clientWH)
-        clientWH.addSupplier(supplierWH)
+        clientWH.addSupplier(supplierWH,supplierRec)
         tFunc,qFunc= getPullControlFuncs(storeDict,clientKey)
         truckType= sim.trucks.getTypeByName(truckTypeStr, sim=sim)
 
@@ -626,7 +634,7 @@ def _buildAttachedRoute(routeName,sim,locList,storeDict,
         # Things don't 'ship' to an attached clinic; they
         # just get used directly from the supplier's stores
         supplierWH.addClient(clientWH)
-        clientWH.addSupplier(supplierWH)
+        clientWH.addSupplier(supplierWH,{'Type':'attached_clinic'})
         supplierWH.addClientRoute(name = 'Attached_%s'%clientWH.bName, 
                                   proc = None,
                                   clientIds = [clientWH.code],
@@ -1088,7 +1096,7 @@ def realityCheck(sim):
                                      (wh,code,wh.getPopServedPC()))
         else:
             for s in wh.getSuppliers():
-                if isinstance(s,warehouse.Factory):
+                if isinstance(s[0],warehouse.Factory):
                     inputList.append((wh,code))
                     break
             if wh.getPopServedPC().totalCount()>0:
