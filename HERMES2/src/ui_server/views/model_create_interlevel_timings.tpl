@@ -30,6 +30,7 @@
       <tr>
         <td width 10%><input type="button" id="back_button" value={{_("Back")}}></td>
         <td></td>
+        <td width=10%><input type="button" id="expert_button" value={{_("Expert")}}></td>
         <td width=10%><input type="button" id="next_button" value={{_("Next")}}></td>
       </tr>
     </table>
@@ -70,6 +71,35 @@ $(function() {
 				$( this ).dialog( "close" );
         	}
         }
+	});
+
+	var btn = $("#expert_button");
+	btn.button();
+	btn.click( function() {
+		var dict = {};
+		$("#model_create_timing_form input,select").each( function( index ) {
+			var tj = $(this);
+			dict[tj.attr('id')] = tj.val();
+		});
+		$.getJSON("{{rootPath}}json/model-create-timing-verify-commit",dict)
+		.done(function(data) {
+			if (data.success) {
+				if (data.value) {
+					window.location = "next?expert=true";
+				}
+				else {
+					$("#dialog-modal").text(data['msg']);
+					$("#dialog-modal").dialog("open");
+				}
+			}
+			else {
+				alert('{{_("Failed: ")}}'+data.msg);
+			}
+    	})
+  		.fail(function(jqxhr, textStatus, error) {
+  			alert("Error: "+jqxhr.responseText);
+		});
+		
 	});
 
 	var btn = $("#next_button");

@@ -36,6 +36,7 @@
       <tr>
         <td width 10%><input type="button" id="back_button" value={{_("Back")}}></td>
         <td></td>
+        <td width=10%><input type="button" id="expert_button" value="Expert"></td>
         <td width=10%><input type="button" id="next_button" value={{_("Next")}}></td>
       </tr>
     </table>
@@ -65,11 +66,8 @@ $(function() {
         }
 	});
 
-	var btn = $("#next_button");
-	btn.button();
-	btn.click( function() {
+  function validate_inputs() {
 		var parms = "";
-		var valsOK = true;
 		var first = true;
 		for (var i=0; i<{{nlevels}}; i++) {
 		   var s = "model_create_lcounts_"+(i+1);
@@ -84,10 +82,29 @@ $(function() {
 		       }
 		   }
 		   else {
-		       valsOK = false;
+		       parms = null;
 		   }
 		}
-		if (valsOK) {
+		return parms;
+	}
+
+  var btn = $("#expert_button");
+  btn.button();
+	btn.click( function() {
+		var parms = validate_inputs();
+		if (parms != null) {
+			window.location = "{{rootPath}}model-create/next?"+parms+"&expert=true";
+		}
+		else {
+			$("#dialog-modal").dialog("open");
+		}
+	});
+
+	var btn = $("#next_button");
+	btn.button();
+	btn.click( function() {
+		var parms = validate_inputs();
+		if (parms != null) {
 			window.location = "{{rootPath}}model-create/next?"+parms;
 		}
 		else {
