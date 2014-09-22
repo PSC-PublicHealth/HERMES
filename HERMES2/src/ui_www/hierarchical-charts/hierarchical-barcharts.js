@@ -9,14 +9,21 @@
             scrollable: true,
             resizable: true,
             hasChildrenColor: "steelblue",
-            noChildrenColor: "#adf"
+            noChildrenColor: "#adf",
+            title: "Hierarchical Barchart"
         },
 
 
         _create: function() {
-      
-            this.svgContainerID = $(this.element).attr('id');
-    
+     
+            this.containerID = $(this.element).attr('id');
+            $(this.element).css({
+                float: "left"
+            });
+            this.svgContainerID = this.containerID+"svgContainer";
+            d3.select("#"+this.containerID).append("svgContainer")
+                .attr("id", this.svgContainerID);
+   
             var jsonDataURL = this.options.jsonDataURLBase + "?"
                             + this.options.jsonDataURLParameters.join("&");
     
@@ -48,7 +55,12 @@
             var xAxis = d3.svg.axis()
                 .scale(x)
                 .orient("top");
-       
+        
+            var svgTitle = d3.select("#"+this.svgContainerID).append("div")
+                .attr("id", "title")
+                .attr("text-align", "center")
+                .text(this.options.title);
+
             var svg = d3.select("#"+this.svgContainerID).append("svg")
                 .attr("class", "hierarchicalBarchart")
                 .attr("width", width + margin.left + margin.right)
@@ -70,15 +82,17 @@
                 .append("line")
                 .attr("y1", "100%");
 
-            svgContainer = $("#"+this.svgContainerID);
-
             if (this.options.resizable) {
-                svgContainer.resizable();
+                // jquery
+                $("#"+this.svgContainerID).css("padding","10px");
+                $("#"+this.svgContainerID).css("margin","5px");
+                $("#"+this.svgContainerID).resizable();
             }
     
             if (this.options.scrollable) {
-                svgContainer.css({
-                    overflow: 'scroll'
+                // jquery
+                $("#"+this.svgContainerID).css({
+                    overflow: "scroll"
                 });
             }
 
@@ -255,6 +269,9 @@
                     return tx;
                 };
             };
+
+
+
         }
     });
 })(jQuery);
