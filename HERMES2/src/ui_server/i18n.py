@@ -48,6 +48,13 @@ class i18n:
             ## Supported Languages
             print 'locale = <%s>, localeDir = <%s>'%(localeDir_, self.localeDir)
             langDirList = [s for s in os.listdir(self.localeDir) if s[0] != '.' and s != 'hermes_locale_dir']
+            try:
+                import zest.pocompile.compile
+                for lang in langDirList:
+                    zest.pocompile.compile.compile_po(self.localeDir+"/"+lang+"/LC_MESSAGES")
+            except Exception as e:
+                print "POCOMPILE didn't work"
+                print str(e)
             self.supportedLocales = [lang for lang in langDirList \
                                      if "HERMES_UI.mo" in os.listdir(self.localeDir + "/" + lang + "/LC_MESSAGES")]
             if len(self.supportedLocales) == 0:
