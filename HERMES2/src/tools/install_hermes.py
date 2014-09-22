@@ -23,6 +23,11 @@ steps necessary to create a runnable HERMES UI environment.
 """
 _hermes_svn_id_="$Id$"
 
+########################################################################
+# ONLY PYTHON-SHIPPED LIBRARIES SHOULD BE IMPORTED AT THE TOP-LEVEL ####
+# OF THIS FILE!                                                     ####
+########################################################################
+
 import platform
 import sys, os, os.path, subprocess
 import ipath
