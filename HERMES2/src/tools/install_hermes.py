@@ -30,18 +30,24 @@ _hermes_svn_id_="$Id$"
 
 import platform
 import sys, os, os.path, subprocess
+
+# only import core python modules in the top level unless we can be certain that
+# they will not import any 3rd party modules
+
 import ipath
-import site_info
+
+
+#import site_info
 #from db_routines import DbInterface
 #import db_routines
-import util
+#import util
 #import shadow_network
 #import privs
 #from typeholdermodel import allTypesModelName
 
 #import sqlalchemy as sa
 
-sI = site_info.SiteInfo()
+#sI = site_info.SiteInfo()
 
 _uri = None
 
@@ -53,6 +59,9 @@ def getURI():
     return _uri
 
 def createAlembicIni():
+    import site_info
+    sI = site_info.SiteInfo()
+
     url = getURI()
     print 'url is '+url
     path = os.path.join(sI.srcDir(),'../..')
@@ -554,10 +563,15 @@ def buildPrivTables():
                   ])
 
 def installEZInstall():
-    pathBase = os.path.join(sI.srcDir(),'..','ui_server','thirdparty','setuptools')
+    srcDir = os.path.split(os.path.abspath(__file__))[0]
+
+    pathBase = os.path.join(srcDir,'..','ui_server','thirdparty','setuptools')
     subprocess.check_call(['python','ez_setup.py'],cwd = pathBase)
 
 def maybeInstallSqlalchemy():
+    import site_info
+    sI = site_info.SiteInfo()
+
     pathBase = sI.srcDir()
     subprocess.check_call(['easy_install','sqlalchemy'],cwd = pathBase)
 
@@ -566,15 +580,20 @@ def maybeInstallAlembic():
 
 def installPip():
     """ Bootstrap pip, which will read requirements.txt to install dependencies """
-    pathBase = sI.srcDir()
+    pathBase = os.path.split(os.path.abspath(__file__))[0]
+#    pathBase = sI.srcDir()
     subprocess.check_call(['easy_install','pip'],cwd = pathBase)
 
 def installRequirements():
-    pathBase = sI.srcDir()
+    pathBase = os.path.split(os.path.abspath(__file__))[0]
+#    pathBase = sI.srcDir()
     requirementsFile = '%s/../../requirements.txt' % pathBase
     subprocess.check_call(['pip','install','-r',requirementsFile],cwd = pathBase)
 
 def callAlembicUpgrade():
+    import site_info
+    sI = site_info.SiteInfo()
+
     pathBase = os.path.join(sI.srcDir(),'..','..',)
     if platform.system() == 'Windows': sep = ';'
     else: sep = ':'
@@ -596,6 +615,10 @@ def addTypeHolderModel():
     from typeholdermodel import allTypesModelName, installUserTypeHolderModel
     from db_routines import DbInterface
     import db_routines
+    import util
+    import site_info
+    sI = site_info.SiteInfo()
+
 
     # this needs to be harmonized with installTypeHolderModel()
 
@@ -631,6 +654,9 @@ def main():
     installPip()
     installRequirements()
     
+    import site_info
+    sI = site_info.SiteInfo()
+
     scratchDir = sI.scratchDir()
     if not os.path.isdir(scratchDir): os.makedirs(scratchDir)
     
