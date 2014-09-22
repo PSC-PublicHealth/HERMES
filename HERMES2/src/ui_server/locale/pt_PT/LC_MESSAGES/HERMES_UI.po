@@ -1,0 +1,2767 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: HERMES_UI\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-09-22 09:08-0500\n"
+"PO-Revision-Date: 2014-09-22 10:53-0500\n"
+"Last-Translator: Shawn Brown <stbrown@psc.edu>\n"
+"Language-Team: HERMES Team <hermes-devel@psc.edu>\n"
+"Language: pt_MZ\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.9\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-Basepath: C:\\Users\\Shawn\\Workspaces\\Eclipse 3.6 Classic"
+"\\HERMES2\\src\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SearchPath-0: ui_server\n"
+"X-Poedit-SearchPath-1: ui_server\\views\n"
+"X-Poedit-SearchPath-2: ui_www\n"
+
+#: ui_server/clipboard.py:46
+#, python-brace-format
+msgid "Cannot put an instance of the old-style class {0} on the clipboard"
+msgstr ""
+
+#: ui_server/clipboard.py:53
+#, python-brace-format
+msgid "Cannot encode a {0} to the clipboard"
+msgstr ""
+
+#: ui_server/clipboard.py:61
+msgid "Clipboard is empty"
+msgstr ""
+
+#: ui_server/clipboard.py:67
+#, python-brace-format
+msgid "Cannot decode a {0} from the clipboard"
+msgstr ""
+
+#: ui_server/clipboard.py:69
+#, python-brace-format
+msgid "Clipboard has a {0}; {1} expected"
+msgstr " Modelo {0} não tem nenhuma loja com IDCODE {1}"
+
+#: ui_server/clipboard.py:100
+#, python-brace-format
+msgid "cannot map wire type {0} to clipboard"
+msgstr ""
+
+#: ui_server/clipboard.py:112 ui_server/clipboard.py:131
+#: ui_server/fridgehooks.py:184 ui_server/matcher.py:184
+#: ui_server/peoplehooks.py:149 ui_server/runhooks.py:330
+#: ui_server/runhooks.py:356 ui_server/truckhooks.py:139
+#: ui_server/vaccinehooks.py:249
+msgid "User cannot read this model"
+msgstr "usuário não pode ler este modelo"
+
+#: ui_server/clipboard.py:124 ui_server/clipboard.py:143
+#: ui_server/widgethooks.py:88 ui_server/widgethooks.py:138
+#: ui_server/widgethooks.py:181 ui_server/widgethooks.py:389
+#: ui_server/widgethooks.py:550 ui_server/widgethooks.py:634
+#: ui_server/widgethooks.py:712
+#, python-brace-format
+msgid "No such model {0}"
+msgstr "modelo não existe {0}"
+
+#: ui_server/clipboard.py:158
+#, python-brace-format
+msgid "Clipboard does not hold a {0}"
+msgstr "prancheta não detenha uma {0}"
+
+#: ui_server/clipboard.py:160
+#, python-brace-format
+msgid "cannot map wire type {0} from clipboard"
+msgstr ""
+
+#: ui_server/clipboard.py:162 ui_server/modelhooks.py:1074
+#: ui_server/modelhooks.py:1125
+msgid "User cannot modify this model"
+msgstr "Usuário não pode modificar este modelo"
+
+#: ui_server/costhooks.py:29 ui_server/costhooks.py:37
+#: ui_server/costhooks.py:52 ui_server/costhooks.py:57
+#: ui_server/views/outer_wrapper.tpl:269 ui_server\views/outer_wrapper.tpl:269
+msgid "Costs"
+msgstr "custos"
+
+#: ui_server/costhooks.py:51
+msgid "Fuel"
+msgstr "combustível"
+
+#: ui_server/costhooks.py:56 ui_server/costhooks.py:61
+#: ui_server/costhooks.py:66 ui_server/htmlgenerator.py:49
+#: ui_server/modelhooks.py:567 ui_server/truckhooks.py:30
+#: ui_server/views/store_edit_wgt.tpl:5 ui_server\views/store_edit_wgt.tpl:5
+msgid "Storage"
+msgstr "Armazém"
+
+#: ui_server/costhooks.py:62
+msgid "Costs Version 2"
+msgstr "custos versão 2"
+
+#: ui_server/costhooks.py:67
+msgid "Costs Version 3"
+msgstr "custos versão 3"
+
+#: ui_server/costhooks.py:228 ui_server/costhooks.py:241
+msgid "Begin"
+msgstr "início"
+
+#: ui_server/costhooks.py:229 ui_server/costhooks.py:242
+msgid "Revisit"
+msgstr "revisitar"
+
+#: ui_server/costhooks.py:230 ui_server/costhooks.py:243
+#: ui_server/views/outer_wrapper.tpl:123 ui_server\views/outer_wrapper.tpl:123
+msgid "Continue"
+msgstr "Continuar"
+
+#: ui_server/costhooks.py:246 ui_server/costhooks.py:249
+#: ui_server/costhooks.py:252 ui_server/costhooks.py:255
+msgid "Unimplemented"
+msgstr "não implementado"
+
+#: ui_server/costhooks.py:303
+#, python-brace-format
+msgid "{0} is not a valid fuel type"
+msgstr "{0} não é um tipo de combustível válido"
+
+#: ui_server/costhooks.py:358 ui_server/costhooks.py:414
+#: ui_server/fridgehooks.py:117
+msgid "Uncategorized"
+msgstr "Sem categoria"
+
+#: ui_server/costhooks.py:483
+#, python-brace-format
+msgid "Editing of {0} is not supported"
+msgstr ""
+
+#: ui_server/costhooks.py:494
+#, python-brace-format
+msgid "Model {0} does not contain type {1}"
+msgstr "modelo {0} não contêm de tipo {1}"
+
+#: ui_server/costhooks.py:495
+#, python-brace-format
+msgid "Unsupported operation {0}"
+msgstr "operação não suportada {0}"
+
+#: ui_server/crumbtracks.py:379 ui_server/information_dialog_box_hooks.py:539
+msgid "Levels"
+msgstr "Níveis"
+
+#: ui_server/crumbtracks.py:380
+msgid "Level Names"
+msgstr "Nomes dos Níveis"
+
+#: ui_server/crumbtracks.py:381
+msgid "How Many"
+msgstr "Quantos?"
+
+#: ui_server/crumbtracks.py:382
+msgid "Shipment Types"
+msgstr "Tipos de remessa"
+
+#: ui_server/crumbtracks.py:383
+msgid "Shipment Times"
+msgstr "Tempo de remessa"
+
+#: ui_server/crumbtracks.py:384
+msgid "Adjustments"
+msgstr "Afinação"
+
+#: ui_server/crumbtracks.py:385 ui_server/views/people_top.tpl:1
+#: ui_server\views/people_top.tpl:1
+msgid "Population Types"
+msgstr "Tipo de população"
+
+#: ui_server/crumbtracks.py:386 ui_server/views/vaccine_top.tpl:1
+#: ui_server\views/vaccine_top.tpl:1
+msgid "Vaccine Types"
+msgstr "Tipos de vacinas"
+
+#: ui_server/crumbtracks.py:387
+msgid "Storage Types"
+msgstr "Tipo de armazen"
+
+#: ui_server/crumbtracks.py:388 ui_server/views/truck_top.tpl:1
+#: ui_server\views/truck_top.tpl:1
+msgid "Transport Types"
+msgstr "Tipos de transporte"
+
+#: ui_server/crumbtracks.py:389 ui_server/views/outer_wrapper.tpl:268
+#: ui_server\views/outer_wrapper.tpl:268
+msgid "Demand"
+msgstr "Demanda"
+
+#: ui_server/crumbtracks.py:390
+msgid "Provision Locations"
+msgstr "Locais de serviço"
+
+#: ui_server/crumbtracks.py:391
+msgid "Provision Routes"
+msgstr "Rotas de distribuição"
+
+#: ui_server/crumbtracks.py:395 ui_server/geographic_visualization.py:40
+#: ui_server/geographic_visualization.py:246
+#: ui_server/information_dialog_box_hooks.py:77 ui_server/modelhooks.py:71
+#: ui_server/modelhooks.py:78 ui_server/modelhooks.py:91
+#: ui_server/modelhooks.py:114 ui_server/modelhooks.py:123
+#: ui_server/modelhooks.py:137 ui_server/resultshooks.py:50
+#: ui_server/resultshooks.py:189 ui_server/views/outer_wrapper.tpl:262
+#: ui_server\views/outer_wrapper.tpl:262
+msgid "Welcome"
+msgstr "Bem vindo"
+
+#: ui_server/crumbtracks.py:396 ui_server/crumbtracks.py:420
+#: ui_server/modelhooks.py:55 ui_server/modelhooks.py:71
+#: ui_server/modelhooks.py:78 ui_server/modelhooks.py:92
+#: ui_server/modelhooks.py:115 ui_server/modelhooks.py:124
+#: ui_server/modelhooks.py:138 ui_server/views/outer_wrapper.tpl:263
+#: ui_server\views/outer_wrapper.tpl:263
+msgid "Models"
+msgstr "Modelos"
+
+#: ui_server/crumbtracks.py:409
+msgid "Finish"
+msgstr "Fim"
+
+#: ui_server/demandhooks.py:25
+msgid "Demand For Vaccines"
+msgstr "A Demanda por Vacinas"
+
+#: ui_server/demandhooks.py:39 ui_server/demandhooks.py:47
+msgid "model parameter conflict between dayspermonth and twentyeightdaymonths"
+msgstr ""
+
+#: ui_server/demandhooks.py:204
+#, python-brace-format
+msgid "User may not modify model {0}"
+msgstr "usuário não pode alterar modelo {0}"
+
+#: ui_server/demandhooks.py:213
+msgid "You must first add a population type to this model"
+msgstr "Você deve adicionar um tipo de população a este modelo primeiro"
+
+#: ui_server/demandhooks.py:225
+msgid "Change the demand for this vaccine to zero first."
+msgstr "Mude a demanda por esta vacina a zero primeiro"
+
+#: ui_server/demandhooks.py:236
+msgid "You must first add a vaccine type to this model"
+msgstr "Você deve adicionar um tipo de vacina para este modelo primeiro"
+
+#: ui_server/demandhooks.py:248
+msgid "Change the demand for this population type to zero first."
+msgstr "Mude a demanda por esta população a zero primeiro"
+
+#: ui_server/demandhooks.py:252
+msgid "Invalid value for parameter 'show'"
+msgstr "Valor inválido para o parâmetro 'show'"
+
+#: ui_server/demandhooks.py:406 ui_server/demandhooks.py:408
+#: ui_server/demandhooks.py:541 ui_server/demandhooks.py:543
+#: ui_server/fridgehooks.py:96 ui_server/fridgehooks.py:98
+#: ui_server/peoplehooks.py:75 ui_server/peoplehooks.py:77
+#: ui_server/resultshooks.py:95 ui_server/resultshooks.py:97
+#: ui_server/truckhooks.py:72 ui_server/truckhooks.py:74
+#: ui_server/vaccinehooks.py:95 ui_server/vaccinehooks.py:97
+msgid "unsupported operation"
+msgstr "operação não suportada"
+
+#: ui_server/demandhooks.py:427
+msgid "actual demand scaled to zero?"
+msgstr "demanda real em escala de zero?"
+
+#: ui_server/developerhooks.py:37
+msgid "Menu Page"
+msgstr "Página de Menu"
+
+#: ui_server/developerhooks.py:38 ui_server/i18n.py:122
+msgid "Tree Page"
+msgstr "Página ávore"
+
+#: ui_server/developerhooks.py:39
+msgid "Table Page"
+msgstr "Página tabela"
+
+#: ui_server/developerhooks.py:40
+msgid "Upload Page"
+msgstr "página de upload"
+
+#: ui_server/developerhooks.py:41
+msgid "Test Button"
+msgstr ""
+
+#: ui_server/developerhooks.py:42
+msgid "Store Editor"
+msgstr "Editor guarda"
+
+#: ui_server/developerhooks.py:43
+msgid "Type Selector"
+msgstr "seletor de tipo"
+
+#: ui_server/developerhooks.py:44
+msgid "Route Editor"
+msgstr "editor rota"
+
+#: ui_server/developerhooks.py:45
+msgid "Pop-Up Menu"
+msgstr ""
+
+#: ui_server/developerhooks.py:46
+#, fuzzy
+msgid "Data Entry"
+msgstr "entrada inválida"
+
+#: ui_server/developerhooks.py:47
+msgid "Debug"
+msgstr "debug"
+
+#: ui_server/developerhooks.py:266 ui_server/views/page_3.tpl:35
+#: ui_server\views/page_3.tpl:35
+msgid "A node"
+msgstr "um nó"
+
+#: ui_server/developerhooks.py:277
+#, fuzzy
+msgid "First Child"
+msgstr "Criança 1"
+
+#: ui_server/developerhooks.py:279 ui_server/developerhooks.py:295
+#: ui_server/views/page_3.tpl:37 ui_server\views/page_3.tpl:37
+msgid "Child 1"
+msgstr "Child 1"
+
+#: ui_server/developerhooks.py:280 ui_server/developerhooks.py:296
+msgid "Closed child"
+msgstr "Criança fechada"
+
+#: ui_server/developerhooks.py:289
+#, fuzzy
+msgid "Leafy Second Child"
+msgstr "Criança 1"
+
+#: ui_server/developerhooks.py:293
+#, fuzzy
+msgid "Third Child"
+msgstr "Criança 1"
+
+#: ui_server/fridgehooks.py:29 ui_server/information_dialog_box_hooks.py:94
+#: ui_server/information_dialog_box_hooks.py:539 ui_server/peoplehooks.py:27
+#: ui_server/truckhooks.py:27 ui_server/vaccinehooks.py:28
+#: ui_server/views/models_top.tpl:81 ui_server/views/store_edit_wgt.tpl:15
+#: ui_server\views/models_top.tpl:81 ui_server\views/store_edit_wgt.tpl:15
+msgid "Name"
+msgstr "Nome"
+
+#: ui_server/fridgehooks.py:30 ui_server/peoplehooks.py:28
+#: ui_server/truckhooks.py:28 ui_server/vaccinehooks.py:29
+msgid "DisplayName"
+msgstr "Mostrar nome"
+
+#: ui_server/fridgehooks.py:31
+msgid "Make"
+msgstr "Fazer"
+
+#: ui_server/fridgehooks.py:32
+msgid "Model"
+msgstr "Modelo"
+
+#: ui_server/fridgehooks.py:33 ui_server/views/model_create_interlevel.tpl:37
+#: ui_server/views/model_create_interlevel.tpl:39
+#: ui_server/views/model_create_interlevel.tpl:41
+#: ui_server/views/model_create_interlevel.tpl:59
+#: ui_server\views/model_create_interlevel.tpl:37
+#: ui_server\views/model_create_interlevel.tpl:39
+#: ui_server\views/model_create_interlevel.tpl:41
+#: ui_server\views/model_create_interlevel.tpl:59
+msgid "Year"
+msgstr "Ano"
+
+#: ui_server/fridgehooks.py:34
+msgid "Cooler Volume (L)"
+msgstr "Volume do arrefecedor"
+
+#: ui_server/fridgehooks.py:35
+msgid "Freezer Volume (L)"
+msgstr "Volume de congelador"
+
+#: ui_server/fridgehooks.py:36
+msgid "Room Temperature Volume (L)"
+msgstr "Volume de temperature de quarto"
+
+#: ui_server/fridgehooks.py:38
+msgid "Energy"
+msgstr "Energia"
+
+#: ui_server/fridgehooks.py:39 ui_server/views/store_edit_wgt.tpl:21
+#: ui_server\views/store_edit_wgt.tpl:21
+msgid "Category"
+msgstr "categoria"
+
+#: ui_server/fridgehooks.py:40
+msgid "Technology"
+msgstr "tecnologia"
+
+#: ui_server/fridgehooks.py:41 ui_server/truckhooks.py:32
+#: ui_server/vaccinehooks.py:55
+msgid "Requires"
+msgstr "requer"
+
+#: ui_server/fridgehooks.py:42
+msgid "Base Cost"
+msgstr "custo de base"
+
+#: ui_server/fridgehooks.py:43
+msgid "Base Cost Year"
+msgstr "Ano-base para o custo"
+
+#: ui_server/fridgehooks.py:44
+msgid "Currency"
+msgstr "moeda"
+
+#: ui_server/fridgehooks.py:46
+msgid "Power Rate"
+msgstr "taxa de energia"
+
+#: ui_server/fridgehooks.py:47
+msgid "Power Rate Units"
+msgstr "unidades de taxa de energia"
+
+#: ui_server/fridgehooks.py:48
+#, fuzzy
+msgid "Holdover Days"
+msgstr "Dias"
+
+#: ui_server/fridgehooks.py:49 ui_server/peoplehooks.py:29
+#: ui_server/truckhooks.py:29 ui_server/vaccinehooks.py:56
+#: ui_server/views/store_edit_wgt.tpl:57 ui_server\views/store_edit_wgt.tpl:57
+msgid "Notes"
+msgstr " Limpar notas da sessão"
+
+#: ui_server/fridgehooks.py:50
+msgid "Behavior"
+msgstr "comportamento"
+
+#: ui_server/fridgehooks.py:51
+msgid "standard non-portable"
+msgstr "norma não-portáteis"
+
+#: ui_server/fridgehooks.py:52
+msgid "electric non-portable"
+msgstr "elétrico não-portáteis"
+
+#: ui_server/fridgehooks.py:53
+msgid "portable"
+msgstr "portátil"
+
+#: ui_server/fridgehooks.py:54
+msgid "ice-cooled portable"
+msgstr "portátil com gelo"
+
+#: ui_server/fridgehooks.py:55
+msgid "ice-cooled with pull support"
+msgstr "com apoio tração com gelo"
+
+#: ui_server/fridgehooks.py:57
+msgid "ColdLifetime"
+msgstr "tempo de vida de frio"
+
+#: ui_server/fridgehooks.py:59
+#, fuzzy
+msgid "AlarmDays"
+msgstr "dias de alarme"
+
+#: ui_server/fridgehooks.py:60
+msgid "SnoozeDays"
+msgstr "dias soneca"
+
+#: ui_server/fridgehooks.py:65
+msgid "Cold Storage"
+msgstr "Tipo de cadeia de frio {0} em {1}"
+
+#: ui_server/fridgehooks.py:75 ui_server/peoplehooks.py:45
+#: ui_server/truckhooks.py:49 ui_server/vaccinehooks.py:74
+msgid "Create Modified Version"
+msgstr "Criar uma versão modificada"
+
+#: ui_server/geographic_visualization.py:41
+#: ui_server/geographic_visualization.py:247
+#: ui_server/information_dialog_box_hooks.py:78 ui_server/resultshooks.py:190
+msgid "This is intended to show page-specific help"
+msgstr ""
+
+#: ui_server/htmlgenerator.py:33
+#, python-brace-format
+msgid "Model {0}"
+msgstr "Modelo {0}"
+
+#: ui_server/htmlgenerator.py:41
+msgid "Stores"
+msgstr "armazen"
+
+#: ui_server/htmlgenerator.py:44
+msgid "Routes"
+msgstr "rotas"
+
+#: ui_server/htmlgenerator.py:47
+msgid "People Types"
+msgstr "Tipos de População"
+
+#: ui_server/htmlgenerator.py:48 ui_server/modelhooks.py:566
+#: ui_server/vaccinehooks.py:64 ui_server/views/cost_top.tpl:47
+#: ui_server/views/demand_top.tpl:9 ui_server/views/outer_wrapper.tpl:265
+#: ui_server/views/store_edit_wgt.tpl:7 ui_server\views/cost_top.tpl:47
+#: ui_server\views/demand_top.tpl:9 ui_server\views/outer_wrapper.tpl:265
+#: ui_server\views/store_edit_wgt.tpl:7
+msgid "Vaccines"
+msgstr "Vacinas"
+
+#: ui_server/htmlgenerator.py:50 ui_server/modelhooks.py:568
+#: ui_server/truckhooks.py:37 ui_server/views/outer_wrapper.tpl:267
+#: ui_server/views/store_edit_wgt.tpl:9 ui_server\views/outer_wrapper.tpl:267
+#: ui_server\views/store_edit_wgt.tpl:9
+msgid "Transport"
+msgstr "Transportes"
+
+#: ui_server/htmlgenerator.py:51
+msgid "Packaging"
+msgstr "embalagem"
+
+#: ui_server/htmlgenerator.py:52 ui_server/views/cost_edit_fuel.tpl:63
+#: ui_server\views/cost_edit_fuel.tpl:63
+msgid "Ice"
+msgstr "gelo"
+
+#: ui_server/htmlgenerator.py:72 ui_server/htmlgenerator.py:101
+#, python-brace-format
+msgid "Status of {0} in model {1}"
+msgstr "estado de {0} no modelo {1}"
+
+#: ui_server/htmlgenerator.py:83
+msgid "Inventory\n"
+msgstr "inventario\n"
+
+#: ui_server/htmlgenerator.py:88
+msgid "Population\n"
+msgstr "População\n"
+
+#: ui_server/htmlgenerator.py:104
+msgid "Route "
+msgstr "rota"
+
+#: ui_server/htmlgenerator.py:122
+#, python-brace-format
+msgid "Population Type {0} in {1}"
+msgstr "Tipo de população {0} em {1}"
+
+#: ui_server/htmlgenerator.py:124
+#, python-brace-format
+msgid "Population Type {0}"
+msgstr "Tipo de população {0}"
+
+#: ui_server/htmlgenerator.py:143
+#, python-brace-format
+msgid "Vaccine Type {0} in {1}"
+msgstr "Tipo de vacina {0} em {1}"
+
+#: ui_server/htmlgenerator.py:145
+#, python-brace-format
+msgid "Vaccine Type {0}"
+msgstr "Tipo de vacina {0}"
+
+#: ui_server/htmlgenerator.py:164
+#, python-brace-format
+msgid "Cold Storage Type {0} in {1}"
+msgstr "Tipo de cadeia de frio {0} em {1}"
+
+#: ui_server/htmlgenerator.py:166
+#, python-brace-format
+msgid "Cold Storage Type {0}"
+msgstr ""
+
+#: ui_server/htmlgenerator.py:185
+#, python-brace-format
+msgid "Ice Type {0} in {1}"
+msgstr "Tipo de gelo {0} em {1}"
+
+#: ui_server/htmlgenerator.py:187
+#, python-brace-format
+msgid "Ice Type {0}"
+msgstr "tipo de gelo {0}"
+
+#: ui_server/htmlgenerator.py:206
+#, python-brace-format
+msgid "Packaging Type {0} in {1}"
+msgstr "tipo de embalagem {0} em {1}"
+
+#: ui_server/htmlgenerator.py:208
+#, python-brace-format
+msgid "Packaging Type {0}"
+msgstr "Tipo de embalagem {0}"
+
+#: ui_server/htmlgenerator.py:227
+#, python-brace-format
+msgid "Transport Type {0} in {1}"
+msgstr "Tipo de transporte {0} em {1}"
+
+#: ui_server/htmlgenerator.py:229
+#, python-brace-format
+msgid "Transport Type {0}"
+msgstr "Tipo de transporte {0}"
+
+#: ui_server/htmlgenerator.py:257
+#, python-brace-format
+msgid "Run {0}"
+msgstr "Executar {0}"
+
+#: ui_server/htmlgenerator.py:292
+msgid "Results Set Info"
+msgstr ""
+
+#: ui_server/htmlgenerator.py:299
+msgid "Model Name"
+msgstr "Nome do Modelo"
+
+#: ui_server/htmlgenerator.py:300
+msgid "Model ID"
+msgstr "ID de modelo"
+
+#: ui_server/htmlgenerator.py:301
+msgid "Run Name"
+msgstr "Nome de Executar"
+
+#: ui_server/htmlgenerator.py:302
+msgid "Sub-Run"
+msgstr "Sub-Executar"
+
+#: ui_server/htmlgenerator.py:303
+msgid "Result Type"
+msgstr "Tipo de Resultado"
+
+#: ui_server/htmlgenerator.py:304
+msgid "Results ID"
+msgstr "Resultados ID"
+
+#: ui_server/htmlgenerator.py:310
+msgid "HERMES Input Parameters"
+msgstr "HERMES Parâmetros de Entrada"
+
+#: ui_server/htmlgenerator.py:446 ui_server/htmlgenerator.py:449
+#: ui_server/htmlgenerator.py:452 ui_server/htmlgenerator.py:459
+#: ui_server/views/model_create_interlevel_timings.tpl:21
+#: ui_server\views/model_create_interlevel_timings.tpl:21
+msgid "Days"
+msgstr "Dias"
+
+#: ui_server/htmlgenerator.py:446 ui_server/htmlgenerator.py:449
+#: ui_server/htmlgenerator.py:452 ui_server/htmlgenerator.py:459
+#: ui_server/views/model_create_interlevel_timings.tpl:20
+#: ui_server\views/model_create_interlevel_timings.tpl:20
+msgid "Weeks"
+msgstr "Semanas"
+
+#: ui_server/htmlgenerator.py:446 ui_server/htmlgenerator.py:449
+#: ui_server/htmlgenerator.py:452 ui_server/htmlgenerator.py:459
+#: ui_server/views/model_create_interlevel_timings.tpl:19
+#: ui_server\views/model_create_interlevel_timings.tpl:19
+msgid "Months"
+msgstr "Meses"
+
+#: ui_server/htmlgenerator.py:478
+#, python-brace-format
+msgid "Unknown type {0} in fieldmap entry for {1}"
+msgstr ""
+
+#: ui_server/htmlgenerator.py:488
+#, python-brace-format
+msgid "This will go in model {0}"
+msgstr "Esta vai para o modelo {0}"
+
+#: ui_server/htmlgenerator.py:501
+msgid "Route Information"
+msgstr "Informação de rota"
+
+#: ui_server/htmlgenerator.py:504
+msgid "Vehicle Utilization"
+msgstr "Utilização de veiculo"
+
+#: ui_server/htmlgenerator.py:507
+msgid "Trips"
+msgstr "Viagems"
+
+#: ui_server/htmlgenerator.py:565
+msgid "General Info"
+msgstr "Informação geral"
+
+#: ui_server/htmlgenerator.py:568
+msgid "Population Information"
+msgstr "Informação de população"
+
+#: ui_server/htmlgenerator.py:571
+msgid "Utilization"
+msgstr "Utilização"
+
+#: ui_server/htmlgenerator.py:574
+msgid "Storage Devices"
+msgstr "Dispositivo de armazen"
+
+#: ui_server/htmlgenerator.py:577
+msgid "Transport Devices"
+msgstr "Dispositivos de Transporte"
+
+#: ui_server/htmlgenerator.py:580
+msgid "Inventory"
+msgstr "Inventario"
+
+#: ui_server/htmlgenerator.py:583
+msgid "Fill Ratio"
+msgstr "Encha rácio"
+
+#: ui_server/htmlgenerator.py:586
+msgid "Vaccine Administration"
+msgstr " método de administração "
+
+#: ui_server/htmlgenerator.py:589
+msgid "Availability Plot"
+msgstr "Gráfico Disponibilidade"
+
+#: ui_server/htmlgenerator.py:610
+msgid "Click on Name of Vaccine to Hide/Show it on the Chart."
+msgstr "Clique no nome de Vacina para ocultar / mostrar na Chart"
+
+#: ui_server/information_dialog_box_hooks.py:94
+#: ui_server/views/model_create_interlevel.tpl:9
+#: ui_server\views/model_create_interlevel.tpl:9
+msgid "Level"
+msgstr "Nivel"
+
+#: ui_server/information_dialog_box_hooks.py:98
+#: ui_server/views/store_edit_wgt.tpl:43 ui_server\views/store_edit_wgt.tpl:43
+msgid "Latitude"
+msgstr "Latitude"
+
+#: ui_server/information_dialog_box_hooks.py:100
+#: ui_server/views/store_edit_wgt.tpl:45 ui_server\views/store_edit_wgt.tpl:45
+msgid "Longitude"
+msgstr "Longitude"
+
+#: ui_server/information_dialog_box_hooks.py:134
+#: ui_server/information_dialog_box_hooks.py:135
+#: ui_server/information_dialog_box_hooks.py:136
+msgid "Refrigerator (2-8 C) Storage"
+msgstr "Geleira (2-8 C)"
+
+#: ui_server/information_dialog_box_hooks.py:134
+#: ui_server/information_dialog_box_hooks.py:137
+msgid "Total Volume (L)"
+msgstr "Volume total (L)"
+
+#: ui_server/information_dialog_box_hooks.py:135
+#: ui_server/information_dialog_box_hooks.py:138
+msgid "Max Volume Used (L)"
+msgstr "Maxima de volume utilizado (L)"
+
+#: ui_server/information_dialog_box_hooks.py:136
+#: ui_server/information_dialog_box_hooks.py:139
+msgid "Max Utilization %"
+msgstr "Max utlização %"
+
+#: ui_server/information_dialog_box_hooks.py:137
+#: ui_server/information_dialog_box_hooks.py:138
+#: ui_server/information_dialog_box_hooks.py:139
+msgid "Freezer (below 0 C) Storage"
+msgstr "Congelador (em baixo de 0 C)"
+
+#: ui_server/information_dialog_box_hooks.py:169
+#: ui_server/information_dialog_box_hooks.py:195
+msgid "Total Served"
+msgstr "Total atendida"
+
+#: ui_server/information_dialog_box_hooks.py:169
+msgid "No Population Vaccinated at Location"
+msgstr "número de população vacinada no local"
+
+#: ui_server/information_dialog_box_hooks.py:539
+msgid "Type"
+msgstr "tipo"
+
+#: ui_server/information_dialog_box_hooks.py:583
+msgid "Frequency (Fixed)"
+msgstr "Frequência (Fixa)"
+
+#: ui_server/information_dialog_box_hooks.py:586
+msgid "Mimimum Wait Between Shipments"
+msgstr "espera mínima entre remessas"
+
+#: ui_server/information_dialog_box_hooks.py:589
+msgid "Amount of Days For Which To Order"
+msgstr "Quantidade de dias em que para encomendar"
+
+#: ui_server/information_dialog_box_hooks.py:592
+msgid "Stock Threshold for Reordering"
+msgstr "Quantidade minimo para requisitar"
+
+#: ui_server/information_dialog_box_hooks.py:626
+msgid "Vehicle"
+msgstr "veículo"
+
+#: ui_server/information_dialog_box_hooks.py:626
+msgid "Amount of Storage"
+msgstr "quantidade de armazem"
+
+#: ui_server/information_dialog_box_hooks.py:626
+msgid "Average Volume Carried"
+msgstr "volume médio realizada"
+
+#: ui_server/information_dialog_box_hooks.py:626
+msgid "Maximum Volume Carried(L)"
+msgstr "volume maximo realizada"
+
+#: ui_server/information_dialog_box_hooks.py:668
+msgid "Additional Capacity Needed"
+msgstr "Capacidade adicional necessária"
+
+#: ui_server/information_dialog_box_hooks.py:672
+msgid "Trips Taken on Route"
+msgstr "Viagens realizadas na rota"
+
+#: ui_server/matcher.py:121
+msgid "This title is set in matcher"
+msgstr "Este título é definido em matcher."
+
+#: ui_server/matcher.py:135
+#, python-brace-format
+msgid "Attempt to build template from {0} failed"
+msgstr "Tentativa de construir modelo de {0} falhou"
+
+#: ui_server/matcher.py:204 ui_server/views/outer_wrapper.tpl:273
+#: ui_server\views/outer_wrapper.tpl:273
+msgid "Help"
+msgstr "Ajuda"
+
+#: ui_server/minionrunner.py:28
+msgid "starting"
+msgstr "Começando"
+
+#: ui_server/minionrunner.py:55
+msgid "failed with retcode"
+msgstr "Falhou"
+
+#: ui_server/minionrunner.py:55
+msgid "at"
+msgstr "em"
+
+#: ui_server/minionrunner.py:71
+msgid "finished at"
+msgstr "Acabou em"
+
+#: ui_server/minionrunner.py:82 ui_server/minionrunner.py:84
+msgid "running"
+msgstr ""
+
+#: ui_server/minionrunner.py:82 ui_server/minionrunner.py:84
+msgid "complete"
+msgstr "completo"
+
+#: ui_server/modelhooks.py:70
+msgid "We have somehow forgotten which model to show."
+msgstr " Temos de algum modo esquecido qual o modelo para mostrar."
+
+#: ui_server/modelhooks.py:72 ui_server/modelhooks.py:79
+msgid "Show Structure"
+msgstr "Mostrar estrutura"
+
+#: ui_server/modelhooks.py:93 ui_server/modelhooks.py:132
+#: ui_server/resultshooks.py:52
+msgid "Edit"
+msgstr "Modificar"
+
+#: ui_server/modelhooks.py:111
+msgid ""
+"This is an invalid model.  Either it doesn't exist or you do not have "
+"permission to view it"
+msgstr ""
+" Este é um modelo inválido. Ele não existe ou você não tem permissão para vê-"
+"lo"
+
+#: ui_server/modelhooks.py:120
+msgid ""
+"This model is read-only.  You may edit a copy of the model by copying the "
+"model and editing that one instead."
+msgstr ""
+" Este modelo é somente para ler. Você pode editar uma cópia do modelo, "
+"copiando o modelo e modificar."
+
+#: ui_server/modelhooks.py:129
+msgid "Edit Supply Chain"
+msgstr "Editar a cadeia de abastecimento"
+
+#: ui_server/modelhooks.py:134
+msgid "Editing"
+msgstr "Modificando"
+
+#: ui_server/modelhooks.py:155
+msgid "Model creation data table is missing or corrupted"
+msgstr " Modelo criação da tabela de dados está ausente ou corrompido "
+
+#: ui_server/modelhooks.py:409
+#, python-brace-format
+msgid "Client returned invalid boolean string {0}"
+msgstr " Cliente retornou seqüência boolean inválido {0}"
+
+#: ui_server/modelhooks.py:428
+#, python-brace-format
+msgid "Route {0} has the wrong number of stops for provisioning"
+msgstr " Rota {0} tem o número errado de paradas para provisionamento"
+
+#: ui_server/modelhooks.py:473
+#, python-brace-format
+msgid "There is no canonical route matching {0}"
+msgstr " Não há rota correspondente {0}"
+
+#: ui_server/modelhooks.py:477
+#, python-brace-format
+msgid "There is no canonical route matching {0} backwards"
+msgstr "Não há rota correspondente {0} para trás"
+
+#: ui_server/modelhooks.py:480 ui_server/modelhooks.py:539
+#, python-brace-format
+msgid "Route {0} unexpectedly spans categories {1} and {2}"
+msgstr " Rota {0} gera de supres categorias {1} e {2}"
+
+#: ui_server/modelhooks.py:510
+#, python-brace-format
+msgid "Found no stores of level(s) {0}"
+msgstr "Não encontrou armazéns de nível (s) {0}"
+
+#: ui_server/modelhooks.py:531
+#, python-brace-format
+msgid "Route {0} unexpectedly has more than two stops"
+msgstr " Rota {0} de supresa tem mais de duas paradas "
+
+#: ui_server/modelhooks.py:559 ui_server/runhooks.py:152
+#: ui_server/views/cost_top.tpl:32 ui_server/views/cost_top.tpl:35
+#: ui_server/views/cost_top.tpl:38 ui_server/views/cost_top.tpl:41
+#: ui_server/views/cost_top.tpl:44 ui_server/views/cost_top.tpl:47
+#: ui_server/views/cost_top.tpl:50 ui_server/views/cost_top.tpl:53
+#: ui_server\views/cost_top.tpl:32 ui_server\views/cost_top.tpl:35
+#: ui_server\views/cost_top.tpl:38 ui_server\views/cost_top.tpl:41
+#: ui_server\views/cost_top.tpl:44 ui_server\views/cost_top.tpl:47
+#: ui_server\views/cost_top.tpl:50 ui_server\views/cost_top.tpl:53
+msgid "Start"
+msgstr "Começar"
+
+#: ui_server/modelhooks.py:560
+msgid "Names"
+msgstr "Nomes"
+
+#: ui_server/modelhooks.py:561
+msgid "Counts"
+msgstr "Quantidade"
+
+#: ui_server/modelhooks.py:562
+msgid "Shipping"
+msgstr "remessa"
+
+#: ui_server/modelhooks.py:563
+msgid "Times"
+msgstr "Hora"
+
+#: ui_server/modelhooks.py:564
+msgid "Adjust"
+msgstr "Ajustar"
+
+#: ui_server/modelhooks.py:565 ui_server/peoplehooks.py:35
+#: ui_server/views/demand_top.tpl:10 ui_server/views/store_edit_wgt.tpl:10
+#: ui_server\views/demand_top.tpl:10 ui_server\views/store_edit_wgt.tpl:10
+msgid "Population"
+msgstr "População"
+
+#: ui_server/modelhooks.py:569
+msgid "Consumption"
+msgstr "Consumo"
+
+#: ui_server/modelhooks.py:570
+#, fuzzy
+msgid "Equipment"
+msgstr "Equipamento de armazen"
+
+#: ui_server/modelhooks.py:571
+msgid "Logistics"
+msgstr "Logistico"
+
+#: ui_server/modelhooks.py:656
+msgid "The model is not ready for provisioning"
+msgstr " O modelo não está pronto para o provisionamento"
+
+#: ui_server/modelhooks.py:661
+msgid "The routes are not ready for provisioning"
+msgstr " O modelo não está pronto para o provisionamento"
+
+#: ui_server/modelhooks.py:695
+#, python-brace-format
+msgid "Expected to know the value of {0} by now"
+msgstr " Espera-se que sabe o valor de {0} por agora "
+
+#: ui_server/modelhooks.py:704 ui_server/views/model_create_begin.tpl:1
+#: ui_server/views/model_create_done.tpl:1
+#: ui_server\views/model_create_begin.tpl:1
+#: ui_server\views/model_create_done.tpl:1
+msgid "Create A Model"
+msgstr "Criar um Modelo"
+
+#: ui_server/modelhooks.py:705
+msgid "Select population types to be used in your model."
+msgstr " Selecione os tipos de população para ser usado em seu modelo "
+
+#: ui_server/modelhooks.py:706
+msgid "Select vaccine types to be used in your model."
+msgstr " Selecione os tipos de vacinas para ser usado em seu modelo "
+
+#: ui_server/modelhooks.py:707
+msgid "Select cold storage equipment types to be used in your model."
+msgstr " Selecione o tipo de cadeia de frio para ser usado em seu modelo "
+
+#: ui_server/modelhooks.py:708
+msgid ""
+"Select trucks and other transport equipment types to be used in your model."
+msgstr " Selecione os tipos de transporte para ser usado em seu modelo "
+
+#: ui_server/modelhooks.py:709
+msgid "What are the vaccine requirements of each population type?"
+msgstr " Quais são os requisitos de vacina de cada tipo de população?"
+
+#: ui_server/modelhooks.py:734
+msgid "Lost track of which step we are on"
+msgstr " Perdi a noção de qual etapa onde estamos"
+
+#: ui_server/modelhooks.py:740
+#, python-brace-format
+msgid "An error occurred while provisioning your model: {0}"
+msgstr " Ocorreu um erro durante a criação do modelo: {0}"
+
+#: ui_server/modelhooks.py:889 ui_server/modelhooks.py:914
+msgid "We are not creating a new model right now."
+msgstr " Não estamos criando um novo modelo agora "
+
+#: ui_server/modelhooks.py:892 ui_server/modelhooks.py:917
+msgid "We have lost track of the number of levels"
+msgstr " Perdi a noção de numero de niveis "
+
+#: ui_server/modelhooks.py:926
+msgid "Transit times must be greater than zero"
+msgstr " O tempo de trânsito deve ser maior que zero "
+
+#: ui_server/pagehelp.py:44
+msgid "There is no language-specific help available for this page."
+msgstr ""
+" Não há nenhuma ajuda específica de idioma disponível para esta página."
+
+#: ui_server/peoplehooks.py:30 ui_server/vaccinehooks.py:58
+msgid "SortOrder"
+msgstr ""
+
+#: ui_server/privs.py:76
+msgid "The current user does not have permission to read this model"
+msgstr " O usuário atual não tem permissão para ler este modelo"
+
+#: ui_server/privs.py:99
+msgid "The current user does not have permission to write this model"
+msgstr " O usuário atual não tem permissão para escrever este modelo "
+
+#: ui_server/privs.py:122
+msgid ""
+"This model has results which will become invalid if the model is changed.  "
+"Either delete the results or work on a new copy of the model."
+msgstr ""
+"Este modelo tem resultados que se tornará inválido se o modelo for "
+"alteradoEither delete the results or work on a new copy of the model"
+
+#: ui_server/resultshooks.py:38 ui_server/resultshooks.py:51
+#: ui_server/views/outer_wrapper.tpl:271 ui_server\views/outer_wrapper.tpl:271
+msgid "Results"
+msgstr "Resultados "
+
+#: ui_server/resultshooks.py:53
+msgid "Fireworks"
+msgstr ""
+
+#: ui_server/resultshooks.py:87
+msgid "GraphView required but not available: "
+msgstr ""
+
+#: ui_server/resultshooks.py:110
+#, python-brace-format
+msgid "Bad parameters to {0}"
+msgstr " Parâmetros faltantes ou inválidos para {0}"
+
+#: ui_server/resultshooks.py:151 ui_server/resultshooks.py:164
+msgid "Individual"
+msgstr "Individuo"
+
+#: ui_server/resultshooks.py:152 ui_server/resultshooks.py:164
+msgid "Group Average"
+msgstr " média do grupo"
+
+#: ui_server/runhooks.py:39 ui_server/runhooks.py:131
+msgid "Run"
+msgstr "Executar"
+
+#: ui_server/runhooks.py:131
+msgid "Seed"
+msgstr "Semente"
+
+#: ui_server/runhooks.py:137
+msgid "A seed field has an inappropriate type"
+msgstr " Um campo de semente tem um tipo inadequado "
+
+#: ui_server/runhooks.py:153
+msgid "Verify"
+msgstr "Verificar"
+
+#: ui_server/runhooks.py:154
+msgid "Details"
+msgstr " Fornecer alguns detalhes "
+
+#: ui_server/runhooks.py:155
+msgid "Go!"
+msgstr "Ir!"
+
+#: ui_server/runhooks.py:169
+msgid "Run Model"
+msgstr "Executar o modelo"
+
+#: ui_server/runhooks.py:189
+msgid "Edit Run Parameters"
+msgstr ""
+
+#: ui_server/runhooks.py:231
+msgid "We have somehow forgotten which step we are on in running your model."
+msgstr ""
+" Temos de algum modo esquecido que passo estamos na gestão do seu modelo."
+
+#: ui_server/runhooks.py:238
+#, python-brace-format
+msgid "An error occurred while initiating the run: {0}"
+msgstr "Ocorreu um erro ao iniciar a corrida: {0}"
+
+#: ui_server/runhooks.py:321
+#, python-brace-format
+msgid "Run Parameters for model {0}"
+msgstr " Parâmetros para executar o modelo {0}"
+
+#: ui_server/runhooks.py:587
+#, python-brace-format
+msgid "Unrecognized parm type {0}"
+msgstr "O tipo {0} parm sem conhecimento"
+
+#: ui_server/runhooks.py:624 ui_server/ui_utils.py:120
+msgid "The following parameters are invalid: "
+msgstr "Os seguintes parâmetros são inválidos:"
+
+#: ui_server/truckhooks.py:31
+msgid "CoolVolume (cc)"
+msgstr "Volume de cadeia de frio"
+
+#: ui_server/typehelper.py:78 ui_server/typehelper.py:94
+#: ui_server/typehelper.py:146
+#, python-brace-format
+msgid "Type {0} is not present in model {1}"
+msgstr " Tipo {0} não está presente no modelo de {1}"
+
+#: ui_server/typehelper.py:115
+#, python-brace-format
+msgid "Type {0} is already present in model {1}"
+msgstr " Tipo {0} já está presente no modelo de {1}"
+
+#: ui_server/typehelper.py:123 ui_server/typehelper.py:190
+#, python-brace-format
+msgid "No such type {0}"
+msgstr " Sem esse tipo {0}"
+
+#: ui_server/typehelper.py:130
+#, python-brace-format
+msgid "This type depends on the type {0}, which is not in the model."
+msgstr " Este tipo depende do tipo {0}, que não esta no modelo."
+
+#: ui_server/typehelper.py:132
+#, python-brace-format
+msgid ""
+"To include this type in the model, you must also include the following "
+"types: {0}"
+msgstr ""
+" Para incluir este tipo de modelo, você também deve incluir o seguinte tipo "
+"{0}"
+
+#: ui_server/typehelper.py:153
+#, python-brace-format
+msgid "This type is used by the type {0}.  You must delete that type first."
+msgstr ""
+"Este tipo é utilizado pelo tipo {0}. Você deve excluir esse tipo primeira "
+
+#: ui_server/typehelper.py:155
+#, python-brace-format
+msgid "The following types use {0}: {1}.  You must delete those types first."
+msgstr ""
+" Os seguintes tipos de uso {0}: {1}. Você deve excluir esses tipos de "
+"primeira."
+
+#: ui_server/typehelper.py:206
+#, python-brace-format
+msgid "getSuggestedName: unknown target {0}"
+msgstr "Buscar Nome sugerido: alvo desconhecido {0}"
+
+#: ui_server/ui_utils.py:77
+#, python-brace-format
+msgid "Missing or invalid parameters for {0}"
+msgstr " Parâmetros faltantes ou inválidos para {0}"
+
+#: ui_server/ui_utils.py:90
+#, python-brace-format
+msgid "The name {0} is already in use. "
+msgstr " O nome {0} já está em uso "
+
+#: ui_server/ui_utils.py:93
+msgid "Model information is missing."
+msgstr " Informações sobre o modelo está em falta "
+
+#: ui_server/ui_utils.py:171
+#, python-brace-format
+msgid "{0} is not a valid unit of time"
+msgstr "{0} não é uma unidade válida de tempo "
+
+#: ui_server/ui_utils.py:175
+#, python-brace-format
+msgid "Ill-formed request: missing the required parameter {0}"
+msgstr " Pedido mal-formado: faltando o parâmetro necessário {0}"
+
+#: ui_server/vaccinehooks.py:30
+msgid "Abbreviation"
+msgstr "sigla"
+
+#: ui_server/vaccinehooks.py:31
+msgid "Doses per vial"
+msgstr "Doses por garafa"
+
+#: ui_server/vaccinehooks.py:32
+msgid "Method of administration"
+msgstr " método de administração "
+
+#: ui_server/vaccinehooks.py:34
+msgid "intramuscular (IM)"
+msgstr ""
+
+#: ui_server/vaccinehooks.py:35
+msgid "intradermal (ID)"
+msgstr ""
+
+#: ui_server/vaccinehooks.py:36
+msgid "subcutaneous (SC)"
+msgstr ""
+
+#: ui_server/vaccinehooks.py:37
+msgid "oral"
+msgstr ""
+
+#: ui_server/vaccinehooks.py:39
+msgid "Vaccine presentation"
+msgstr ""
+
+#: ui_server/vaccinehooks.py:41
+msgid "Liquid"
+msgstr ""
+
+#: ui_server/vaccinehooks.py:42
+msgid "Freeze Dried"
+msgstr " Congelar um litro de gelo "
+
+#: ui_server/vaccinehooks.py:43
+msgid "Lyophilized"
+msgstr ""
+
+#: ui_server/vaccinehooks.py:44
+msgid "Liquid + Lyophilized"
+msgstr ""
+
+#: ui_server/vaccinehooks.py:46
+msgid "Lifetime After Opening"
+msgstr ""
+
+#: ui_server/vaccinehooks.py:47
+msgid "Lifetime Warm"
+msgstr ""
+
+#: ui_server/vaccinehooks.py:48
+msgid "Lifetime In Cooler"
+msgstr "Tempo de vida de Vacina em Frigorífico"
+
+#: ui_server/vaccinehooks.py:49
+msgid "Lifetime In Freezer"
+msgstr "Tempo de vida de Vacina em Freezer"
+
+#: ui_server/vaccinehooks.py:50
+msgid "Packed vol/dose(cc) of vaccine"
+msgstr ""
+
+#: ui_server/vaccinehooks.py:51
+msgid "Packed vol/dose(cc) of diluent"
+msgstr ""
+
+#: ui_server/vaccinehooks.py:52
+msgid "Vaccine price/dose"
+msgstr "Preço de Vacina / Dose"
+
+#: ui_server/vaccinehooks.py:53
+msgid "Vaccine price/vial"
+msgstr "Preço de Vacina / Garrafa"
+
+#: ui_server/vaccinehooks.py:54
+msgid "Price Units"
+msgstr "Preço unidade"
+
+#: ui_server/vaccinehooks.py:57
+msgid "RandomKey"
+msgstr ""
+
+#: ui_server/vaccinehooks.py:59
+msgid "Doses/person"
+msgstr "Doses/pessoa"
+
+#: ui_server/widgethooks.py:32
+msgid "population types"
+msgstr "Tipo de população"
+
+#: ui_server/widgethooks.py:33
+msgid "trucks"
+msgstr " caminhões "
+
+#: ui_server/widgethooks.py:34
+msgid "ice types"
+msgstr "tipo de gelo"
+
+#: ui_server/widgethooks.py:35
+msgid "vaccines"
+msgstr "vacinas"
+
+#: ui_server/widgethooks.py:36
+msgid "cold storage"
+msgstr ""
+
+#: ui_server/widgethooks.py:37
+msgid "packaging"
+msgstr "Embalagem"
+
+#: ui_server/widgethooks.py:68
+#, fuzzy, python-brace-format
+msgid "Unknown widget type {0}"
+msgstr "Tipo desconhecido de Widget {0}"
+
+#: ui_server/widgethooks.py:92 ui_server/widgethooks.py:393
+#: ui_server/widgethooks.py:716
+#, python-brace-format
+msgid "Model {0} has no route with name {1}"
+msgstr " Modelo {0} tem nenhuma rota com o nome {1}"
+
+#: ui_server/widgethooks.py:143 ui_server/widgethooks.py:185
+#: ui_server/widgethooks.py:555 ui_server/widgethooks.py:638
+#, python-brace-format
+msgid "Model {0} has no store with idcode {1}"
+msgstr " Modelo {0} não tem nenhuma loja com IDCODE {1}"
+
+#: ui_server/widgethooks.py:414
+msgid "Supplier; route starts and ends here"
+msgstr "fornecedor; rota começa e termina aqui"
+
+#: ui_server/widgethooks.py:415
+msgid "Supplier"
+msgstr "Fornecedor"
+
+#: ui_server/widgethooks.py:417
+msgid "Route starts and ends here"
+msgstr " rota começa e termina aqui "
+
+#: ui_server/widgethooks.py:586
+#, python-brace-format
+msgid "Unknown editing operation {0}"
+msgstr ""
+
+#: ui_server/widgethooks.py:659 ui_server/widgethooks.py:731
+#, python-brace-format
+msgid "{0} has an invalid value"
+msgstr "{0} tem um valor inválido"
+
+#: ui_server/widgethooks.py:661 ui_server/widgethooks.py:733
+#, python-brace-format
+msgid "{0} must be in the range {1} to {2}"
+msgstr "{0} deve estar no intervalo de {1} a {2}"
+
+#: ui_server/widgethooks.py:743
+msgid "This route type requires a valid value for On-Demand Order Days"
+msgstr ""
+" Este tipo de rota requer um valor válido para dias de requisição na demanda"
+
+#: ui_server/widgethooks.py:758
+#, python-brace-format
+msgid "Transit time for the stop at {0} ({1}) is missing or invalid"
+msgstr ""
+" O tempo de trânsito para a parada no {0} ({1}) está ausente ou inválido"
+
+#: ui_server/views/cost_edit_fridge.tpl:11
+#: ui_server/views/cost_edit_fridge_version2.tpl:11
+#: ui_server/views/cost_edit_fridge_version3.tpl:11
+#: ui_server\views/cost_edit_fridge.tpl:11
+#: ui_server\views/cost_edit_fridge_version2.tpl:11
+#: ui_server\views/cost_edit_fridge_version3.tpl:11
+msgid "Years to amortize these devices"
+msgstr " Anos para amortizar esses dispositivos"
+
+#: ui_server/views/cost_edit_fridge.tpl:25
+#: ui_server/views/cost_edit_fridge_version2.tpl:25
+#: ui_server/views/cost_edit_fridge_version3.tpl:25
+#: ui_server/views/cost_edit_fuel.tpl:79 ui_server/views/fridge_edit.tpl:12
+#: ui_server/views/outer_wrapper.tpl:351 ui_server/views/people_edit.tpl:13
+#: ui_server/views/truck_edit.tpl:13 ui_server/views/vaccine_edit.tpl:13
+#: ui_server\views/cost_edit_fridge.tpl:25
+#: ui_server\views/cost_edit_fridge_version2.tpl:25
+#: ui_server\views/cost_edit_fridge_version3.tpl:25
+#: ui_server\views/cost_edit_fuel.tpl:79 ui_server\views/fridge_edit.tpl:12
+#: ui_server\views/outer_wrapper.tpl:351 ui_server\views/people_edit.tpl:13
+#: ui_server\views/truck_edit.tpl:13 ui_server\views/vaccine_edit.tpl:13
+msgid "Done"
+msgstr "Completo"
+
+#: ui_server/views/cost_edit_fuel.tpl:14 ui_server\views/cost_edit_fuel.tpl:14
+msgid "Commodity"
+msgstr " mercadoria "
+
+#: ui_server/views/cost_edit_fuel.tpl:15 ui_server\views/cost_edit_fuel.tpl:15
+msgid "Price"
+msgstr "Preço"
+
+#: ui_server/views/cost_edit_fuel.tpl:17 ui_server\views/cost_edit_fuel.tpl:17
+msgid "Per"
+msgstr "Por"
+
+#: ui_server/views/cost_edit_fuel.tpl:21 ui_server\views/cost_edit_fuel.tpl:21
+msgid "LP gas"
+msgstr ""
+
+#: ui_server/views/cost_edit_fuel.tpl:24 ui_server\views/cost_edit_fuel.tpl:24
+msgid "Kg"
+msgstr ""
+
+#: ui_server/views/cost_edit_fuel.tpl:28 ui_server\views/cost_edit_fuel.tpl:28
+msgid "Kerosene"
+msgstr ""
+
+#: ui_server/views/cost_edit_fuel.tpl:31 ui_server/views/cost_edit_fuel.tpl:38
+#: ui_server/views/cost_edit_fuel.tpl:45 ui_server\views/cost_edit_fuel.tpl:31
+#: ui_server\views/cost_edit_fuel.tpl:38 ui_server\views/cost_edit_fuel.tpl:45
+msgid "Liter"
+msgstr " Congelar um litro de gelo "
+
+#: ui_server/views/cost_edit_fuel.tpl:35 ui_server\views/cost_edit_fuel.tpl:35
+msgid "Gasoline"
+msgstr ""
+
+#: ui_server/views/cost_edit_fuel.tpl:42 ui_server\views/cost_edit_fuel.tpl:42
+msgid "Diesel"
+msgstr ""
+
+#: ui_server/views/cost_edit_fuel.tpl:49 ui_server\views/cost_edit_fuel.tpl:49
+msgid "Electric Mains"
+msgstr "Rede elétrica"
+
+#: ui_server/views/cost_edit_fuel.tpl:52 ui_server\views/cost_edit_fuel.tpl:52
+msgid "Kilowatt Hour"
+msgstr "quilowatt-hora"
+
+#: ui_server/views/cost_edit_fuel.tpl:56 ui_server\views/cost_edit_fuel.tpl:56
+msgid "Solar Power"
+msgstr "Energia solar"
+
+#: ui_server/views/cost_edit_fuel.tpl:59 ui_server\views/cost_edit_fuel.tpl:59
+msgid "Installed Kilowatt"
+msgstr ""
+
+#: ui_server/views/cost_edit_fuel.tpl:66 ui_server\views/cost_edit_fuel.tpl:66
+msgid "Freeze One Liter of Ice"
+msgstr " Congelar um litro de gelo "
+
+#: ui_server/views/cost_top.tpl:11 ui_server\views/cost_top.tpl:11
+msgid "Base Year"
+msgstr "Base Ano"
+
+#: ui_server/views/cost_top.tpl:16 ui_server\views/cost_top.tpl:16
+msgid "Inflation Rate"
+msgstr " Taxa de Inflação "
+
+#: ui_server/views/cost_top.tpl:18 ui_server\views/cost_top.tpl:18
+msgid "Percent"
+msgstr "Percentagem"
+
+#: ui_server/views/cost_top.tpl:31 ui_server\views/cost_top.tpl:31
+msgid "Fuel and Power"
+msgstr "Combustível e energia"
+
+#: ui_server/views/cost_top.tpl:35 ui_server\views/cost_top.tpl:35
+msgid "Storage Equipment"
+msgstr "Equipamento de armazen"
+
+#: ui_server/views/cost_top.tpl:38 ui_server\views/cost_top.tpl:38
+msgid "Storage Equipment version 2"
+msgstr "Equipamento de armazen versão 2"
+
+#: ui_server/views/cost_top.tpl:41 ui_server\views/cost_top.tpl:41
+msgid "Storage Equipment version 3"
+msgstr " Equipamento de armazen versão 3"
+
+#: ui_server/views/cost_top.tpl:44 ui_server\views/cost_top.tpl:44
+msgid "Vehicles"
+msgstr "Veículos"
+
+#: ui_server/views/cost_top.tpl:50 ui_server\views/cost_top.tpl:50
+msgid "Salaries and Per Diem"
+msgstr "Salarios e per diem"
+
+#: ui_server/views/cost_top.tpl:53 ui_server\views/cost_top.tpl:53
+msgid "Buildings"
+msgstr "Edificios"
+
+#: ui_server/views/cost_top.tpl:65 ui_server\views/cost_top.tpl:65
+msgid "Check Completeness"
+msgstr "Verifique Integralidade"
+
+#: ui_server/views/d3democlickzoom.tpl:1 ui_server/views/dialogboxdemo.tpl:1
+#: ui_server/views/geojson_demo.tpl:1
+#: ui_server/views/results_geo_visualization.tpl:1
+#: ui_server\views/d3democlickzoom.tpl:1 ui_server\views/dialogboxdemo.tpl:1
+#: ui_server\views/geojson_demo.tpl:1
+#: ui_server\views/results_geo_visualization.tpl:1
+msgid "GeoJson Test"
+msgstr ""
+
+#: ui_server/views/debugUI.tpl:8 ui_server\views/debugUI.tpl:8
+msgid "Become System"
+msgstr "Tornar-se sistema"
+
+#: ui_server/views/debugUI.tpl:9 ui_server\views/debugUI.tpl:9
+msgid "Become Anyuser"
+msgstr ""
+
+#: ui_server/views/debugUI.tpl:10 ui_server\views/debugUI.tpl:10
+msgid "Clear Server-side Session"
+msgstr " Limpar sessão do lado do servidor "
+
+#: ui_server/views/debugUI.tpl:11 ui_server\views/debugUI.tpl:11
+msgid "Clear Session Notes"
+msgstr " Limpar notas da sessão"
+
+#: ui_server/views/debugUI.tpl:12 ui_server\views/debugUI.tpl:12
+msgid "Clear FS Metadata"
+msgstr " Limpar FS Metadados "
+
+#: ui_server/views/debugUI.tpl:13 ui_server\views/debugUI.tpl:13
+msgid "Clean resultsGroup table"
+msgstr ""
+
+#: ui_server/views/debugUI.tpl:14 ui_server\views/debugUI.tpl:14
+msgid "Toggle Developer Mode"
+msgstr ""
+
+#: ui_server/views/demand_top.tpl:1 ui_server\views/demand_top.tpl:1
+msgid "Specify Vaccine Demand"
+msgstr "Especifique Vaccine Demanda"
+
+#: ui_server/views/demand_top.tpl:4 ui_server\views/demand_top.tpl:4
+msgid "Vaccine Demand By Population Type"
+msgstr "Vacina demanda por tipo da População"
+
+#: ui_server/views/demand_top.tpl:32 ui_server\views/demand_top.tpl:32
+msgid "Show scaling factors to demand?"
+msgstr " Mostrar fatores de escala para demanda?"
+
+#: ui_server/views/demand_top.tpl:36 ui_server\views/demand_top.tpl:36
+msgid "Scale vaccines separately?"
+msgstr "Ajuste as vacinas em separado?"
+
+#: ui_server/views/demand_top.tpl:39 ui_server\views/demand_top.tpl:39
+msgid "Vaccines are scaled separately"
+msgstr "As vacinas são escalados separadamente"
+
+#: ui_server/views/demand_top.tpl:42 ui_server\views/demand_top.tpl:42
+msgid "Overall scaling factor:"
+msgstr " Fator de escala geral:"
+
+#: ui_server/views/demand_top.tpl:44 ui_server\views/demand_top.tpl:44
+msgid "Scale projected demand relative to actual demand:"
+msgstr " Escala de projeção de demanda em relação à demanda real:"
+
+#: ui_server/views/demand_top.tpl:57 ui_server\views/demand_top.tpl:57
+msgid "Show treatment calendar pattern?"
+msgstr " Mostrar padrão de calendário de tratamento?"
+
+#: ui_server/views/demand_top.tpl:61 ui_server\views/demand_top.tpl:61
+msgid "Schedule population types separately?"
+msgstr "Programar tipos de população separadamente"
+
+#: ui_server/views/demand_top.tpl:64 ui_server\views/demand_top.tpl:64
+msgid "Populations are scheduled separately"
+msgstr " As populações estão programados separadamente "
+
+#: ui_server/views/demand_top.tpl:78 ui_server\views/demand_top.tpl:78
+msgid "This editor does not support the treatment schedule for this model."
+msgstr "Este editor não suporta o esquema de tratamento para este modelo"
+
+#: ui_server/views/error.tpl:1 ui_server\views/error.tpl:1
+msgid "Bug!"
+msgstr "Bicho!"
+
+#: ui_server/views/error.tpl:3 ui_server\views/error.tpl:3
+msgid "You Have Found A Bug"
+msgstr " Você encontrou um bicho!"
+
+#: ui_server/views/error.tpl:4 ui_server\views/error.tpl:4
+msgid ""
+"We're sorry - you have found a bug.  The details are below.  Please use your "
+"browser's 'back' button."
+msgstr ""
+" Lamentamos - você encontrou um bicho. Os detalhes estão abaixo. Por favor, "
+"use seu botão do navegador voltar."
+
+#: ui_server/views/fridge_edit.tpl:1 ui_server\views/fridge_edit.tpl:1
+msgid "Modify Cold Storage Type"
+msgstr ""
+
+#: ui_server/views/fridge_edit.tpl:3 ui_server\views/fridge_edit.tpl:3
+msgid "Creating Your Cold Storage Type"
+msgstr ""
+
+#: ui_server/views/fridge_edit.tpl:4 ui_server\views/fridge_edit.tpl:4
+msgid ""
+"The fields have been filled out with values from the cold storage type you "
+"selected.  When you are finished, select the 'Done' button at the bottom "
+"right."
+msgstr ""
+
+#: ui_server/views/fridge_edit.tpl:6 ui_server/views/people_edit.tpl:6
+#: ui_server/views/truck_edit.tpl:6 ui_server/views/vaccine_edit.tpl:6
+#: ui_server\views/fridge_edit.tpl:6 ui_server\views/people_edit.tpl:6
+#: ui_server\views/truck_edit.tpl:6 ui_server\views/vaccine_edit.tpl:6
+#, python-brace-format
+msgid "Your prototype was named {0}"
+msgstr " Seu protótipo foi chamado {0}"
+
+#: ui_server/views/fridge_edit.tpl:11 ui_server/views/outer_wrapper.tpl:127
+#: ui_server/views/people_edit.tpl:12 ui_server/views/run_edit_parms.tpl:15
+#: ui_server/views/run_run.tpl:17 ui_server/views/truck_edit.tpl:12
+#: ui_server/views/vaccine_edit.tpl:12 ui_server\views/fridge_edit.tpl:11
+#: ui_server\views/outer_wrapper.tpl:127 ui_server\views/people_edit.tpl:12
+#: ui_server\views/run_edit_parms.tpl:15 ui_server\views/run_run.tpl:17
+#: ui_server\views/truck_edit.tpl:12 ui_server\views/vaccine_edit.tpl:12
+msgid "Cancel"
+msgstr "Cancelar "
+
+#: ui_server/views/fridge_edit.tpl:16
+#: ui_server/views/model_create_begin.tpl:48
+#: ui_server/views/model_create_countsbylevel.tpl:45
+#: ui_server/views/model_create_done.tpl:21
+#: ui_server/views/model_create_interlevel.tpl:77
+#: ui_server/views/people_edit.tpl:18 ui_server/views/run_edit_parms.tpl:24
+#: ui_server/views/run_specify.tpl:30 ui_server/views/truck_edit.tpl:18
+#: ui_server/views/vaccine_edit.tpl:18 ui_server\views/fridge_edit.tpl:16
+#: ui_server\views/model_create_begin.tpl:48
+#: ui_server\views/model_create_countsbylevel.tpl:45
+#: ui_server\views/model_create_done.tpl:21
+#: ui_server\views/model_create_interlevel.tpl:77
+#: ui_server\views/people_edit.tpl:18 ui_server\views/run_edit_parms.tpl:24
+#: ui_server\views/run_specify.tpl:30 ui_server\views/truck_edit.tpl:18
+#: ui_server\views/vaccine_edit.tpl:18
+msgid "Invalid Entry"
+msgstr "entrada inválida"
+
+#: ui_server/views/fridge_edit.tpl:17
+#: ui_server/views/model_create_begin.tpl:49
+#: ui_server/views/model_create_done.tpl:22 ui_server/views/truck_edit.tpl:19
+#: ui_server/views/vaccine_edit.tpl:19 ui_server\views/fridge_edit.tpl:17
+#: ui_server\views/model_create_begin.tpl:49
+#: ui_server\views/model_create_done.tpl:22 ui_server\views/truck_edit.tpl:19
+#: ui_server\views/vaccine_edit.tpl:19
+msgid "The name of the model must not be blank."
+msgstr " O nome do modelo não pode estar vazio."
+
+#: ui_server/views/fridge_top.tpl:1 ui_server\views/fridge_top.tpl:1
+msgid "Cold Storage Types"
+msgstr "Tipos de armazenamento a frio"
+
+#: ui_server/views/fridge_top.tpl:8 ui_server/views/models_top.tpl:6
+#: ui_server/views/people_top.tpl:8 ui_server/views/truck_top.tpl:8
+#: ui_server/views/vaccine_top.tpl:10 ui_server\views/fridge_top.tpl:8
+#: ui_server\views/models_top.tpl:6 ui_server\views/people_top.tpl:8
+#: ui_server\views/truck_top.tpl:8 ui_server\views/vaccine_top.tpl:10
+msgid "Create"
+msgstr "Criar"
+
+#: ui_server/views/fridge_top.tpl:9 ui_server/views/models_top.tpl:10
+#: ui_server/views/people_top.tpl:9 ui_server/views/truck_top.tpl:9
+#: ui_server/views/vaccine_top.tpl:13 ui_server\views/fridge_top.tpl:9
+#: ui_server\views/models_top.tpl:10 ui_server\views/people_top.tpl:9
+#: ui_server\views/truck_top.tpl:9 ui_server\views/vaccine_top.tpl:13
+msgid "Copy"
+msgstr "Cópia"
+
+#: ui_server/views/fridge_top.tpl:10 ui_server/views/people_top.tpl:10
+#: ui_server/views/truck_top.tpl:10 ui_server/views/vaccine_top.tpl:16
+#: ui_server\views/fridge_top.tpl:10 ui_server\views/people_top.tpl:10
+#: ui_server\views/truck_top.tpl:10 ui_server\views/vaccine_top.tpl:16
+msgid "Paste"
+msgstr "Paste"
+
+#: ui_server/views/fridge_top.tpl:15 ui_server\views/fridge_top.tpl:15
+msgid "Known Cold Storage Types"
+msgstr ""
+
+#: ui_server/views/fridge_top.tpl:28 ui_server/views/people_top.tpl:31
+#: ui_server/views/truck_top.tpl:31 ui_server/views/vaccine_top.tpl:44
+#: ui_server\views/fridge_top.tpl:28 ui_server\views/people_top.tpl:31
+#: ui_server\views/truck_top.tpl:31 ui_server\views/vaccine_top.tpl:44
+msgid ""
+"The name on the clipboard is already in use in this model.  What name should "
+"be used for the new item?"
+msgstr ""
+
+#: ui_server/views/fridge_top.tpl:32 ui_server/views/models_top.tpl:65
+#: ui_server/views/people_top.tpl:35 ui_server/views/truck_top.tpl:35
+#: ui_server/views/vaccine_top.tpl:48 ui_server\views/fridge_top.tpl:32
+#: ui_server\views/models_top.tpl:65 ui_server\views/people_top.tpl:35
+#: ui_server\views/truck_top.tpl:35 ui_server\views/vaccine_top.tpl:48
+msgid "Name Of The Copy"
+msgstr "Nom de la copie"
+
+#: ui_server/views/google_earth_demo.tpl:1
+#: ui_server\views/google_earth_demo.tpl:1
+msgid "Results Heirarchy Demo"
+msgstr ""
+
+#: ui_server/views/model_create_begin.tpl:3
+#: ui_server\views/model_create_begin.tpl:3
+msgid "Creating Your Model"
+msgstr "criar o seu modelo"
+
+#: ui_server/views/model_create_begin.tpl:4
+#: ui_server\views/model_create_begin.tpl:4
+msgid ""
+"We will want a lot of comforting notes here.  As you finish each page, "
+"select the 'Next' button at the bottom right.  Once you have finished this "
+"short set of pages, your model will appear in the Models table and you can "
+"edit it to add details.  If you leave this sequence of screens too early, "
+"your model may not appear in the table but you will be able to return to the "
+"sequence where you left off by selecting 'Create A Model From Scratch' again."
+msgstr ""
+" Nós queremos um monte de notas de consolação aqui. Ao concluir cada página "
+"selecione o botão 'Proximo' no canto inferior direito. Depois de ter "
+"terminado este pequeno conjunto de páginas, o modelo aparecerá na tabela de "
+"Modelos e você pode editá-lo para adicionar mais detalhes. Se você deixar "
+"essa seqüência de telas muito cedo, o modelo pode não aparecer na tabela, "
+"mas você vai ser capaz de voltar ao seqüência de onde você parou, "
+"selecionando 'criar um modelo a partir do zero 'novamente.'"
+
+#: ui_server/views/model_create_begin.tpl:9
+#: ui_server\views/model_create_begin.tpl:9
+msgid "Name Your Model"
+msgstr " nomear o seu modelo"
+
+#: ui_server/views/model_create_begin.tpl:17
+#: ui_server\views/model_create_begin.tpl:17
+msgid "How Many Levels In Your Model?"
+msgstr " Quantos níveis no seu modelo?"
+
+#: ui_server/views/model_create_begin.tpl:41
+#: ui_server/views/model_create_countsbylevel.tpl:37
+#: ui_server/views/model_create_done.tpl:14
+#: ui_server/views/model_create_interlevel.tpl:69
+#: ui_server/views/model_create_interlevel_timings.tpl:31
+#: ui_server/views/model_create_provision.tpl:32
+#: ui_server/views/model_create_provision_routes.tpl:26
+#: ui_server/views/outer_wrapper.tpl:340
+#: ui_server/views/run_realitycheck.tpl:13 ui_server/views/run_run.tpl:10
+#: ui_server/views/run_specifics.tpl:49 ui_server/views/run_specify.tpl:23
+#: ui_server\views/model_create_begin.tpl:41
+#: ui_server\views/model_create_countsbylevel.tpl:37
+#: ui_server\views/model_create_done.tpl:14
+#: ui_server\views/model_create_interlevel.tpl:69
+#: ui_server\views/model_create_interlevel_timings.tpl:31
+#: ui_server\views/model_create_provision.tpl:32
+#: ui_server\views/model_create_provision_routes.tpl:26
+#: ui_server\views/outer_wrapper.tpl:340
+#: ui_server\views/run_realitycheck.tpl:13 ui_server\views/run_run.tpl:10
+#: ui_server\views/run_specifics.tpl:49 ui_server\views/run_specify.tpl:23
+msgid "Back"
+msgstr "Voltar"
+
+#: ui_server/views/model_create_begin.tpl:43
+#: ui_server/views/model_create_countsbylevel.tpl:40
+#: ui_server/views/model_create_interlevel.tpl:72
+#: ui_server/views/model_create_interlevel_timings.tpl:34
+#: ui_server/views/model_create_provision.tpl:34
+#: ui_server/views/model_create_provision_routes.tpl:28
+#: ui_server/views/outer_wrapper.tpl:342
+#: ui_server/views/run_realitycheck.tpl:15
+#: ui_server/views/run_specifics.tpl:51 ui_server/views/run_specify.tpl:25
+#: ui_server\views/model_create_begin.tpl:43
+#: ui_server\views/model_create_countsbylevel.tpl:40
+#: ui_server\views/model_create_interlevel.tpl:72
+#: ui_server\views/model_create_interlevel_timings.tpl:34
+#: ui_server\views/model_create_provision.tpl:34
+#: ui_server\views/model_create_provision_routes.tpl:28
+#: ui_server\views/outer_wrapper.tpl:342
+#: ui_server\views/run_realitycheck.tpl:15
+#: ui_server\views/run_specifics.tpl:51 ui_server\views/run_specify.tpl:25
+msgid "Next"
+msgstr "Proximo"
+
+#: ui_server/views/model_create_countsbylevel.tpl:1
+#: ui_server/views/model_create_interlevel.tpl:1
+#: ui_server/views/model_create_interlevel_timings.tpl:1
+#: ui_server/views/model_create_levelnames.tpl:1
+#: ui_server/views/model_create_provision.tpl:1
+#: ui_server/views/model_create_provision_routes.tpl:1
+#: ui_server\views/model_create_countsbylevel.tpl:1
+#: ui_server\views/model_create_interlevel.tpl:1
+#: ui_server\views/model_create_interlevel_timings.tpl:1
+#: ui_server\views/model_create_levelnames.tpl:1
+#: ui_server\views/model_create_provision.tpl:1
+#: ui_server\views/model_create_provision_routes.tpl:1
+#, python-brace-format
+msgid "Create {0}"
+msgstr "Criar {0}"
+
+#: ui_server/views/model_create_countsbylevel.tpl:3
+#: ui_server\views/model_create_countsbylevel.tpl:3
+msgid "How Many Locations At Each Level?"
+msgstr " Quantos locais em cada nível?"
+
+#: ui_server/views/model_create_countsbylevel.tpl:4
+#: ui_server\views/model_create_countsbylevel.tpl:4
+msgid ""
+"How many locations exist at each of the following levels?  We will "
+"distribute them evenly between suppliers at the level above, and then give "
+"you a chance to make adjustments."
+msgstr ""
+" Quanto locais existem em cada um dos seguintes níveis de? vamos distribuí-"
+"las uniformemente entre os fornecedores no nível acima, e em seguida, dar  "
+"lhe a oportunidade de fazer ajustes "
+
+#: ui_server/views/model_create_countsbylevel.tpl:46
+#: ui_server\views/model_create_countsbylevel.tpl:46
+msgid "One or more level values is blank; please fix this."
+msgstr " Um ou mais valores do nível está em branco; por favor corrija esta."
+
+#: ui_server/views/model_create_done.tpl:3
+#: ui_server\views/model_create_done.tpl:3
+msgid "Optionally Make Adjustments"
+msgstr " Opcionalmente Fazer Ajustes"
+
+#: ui_server/views/model_create_interlevel.tpl:3
+#: ui_server\views/model_create_interlevel.tpl:3
+msgid "How are goods shipped from level to level?"
+msgstr " Como produtos são enviados de um nível para outro?"
+
+#: ui_server/views/model_create_interlevel.tpl:10
+#: ui_server\views/model_create_interlevel.tpl:10
+msgid "How are vaccines obtained?"
+msgstr " Como as vacinas são recebedos?"
+
+#: ui_server/views/model_create_interlevel.tpl:11
+#: ui_server\views/model_create_interlevel.tpl:11
+msgid "How often?"
+msgstr " Com que frequência?"
+
+#: ui_server/views/model_create_interlevel.tpl:22
+#: ui_server/views/model_create_interlevel.tpl:24
+#: ui_server/views/model_create_interlevel.tpl:52
+#: ui_server\views/model_create_interlevel.tpl:22
+#: ui_server\views/model_create_interlevel.tpl:24
+#: ui_server\views/model_create_interlevel.tpl:52
+msgid "Receives Deliveries"
+msgstr "recebe as entregas"
+
+#: ui_server/views/model_create_interlevel.tpl:22
+#: ui_server/views/model_create_interlevel.tpl:24
+#: ui_server/views/model_create_interlevel.tpl:52
+#: ui_server\views/model_create_interlevel.tpl:22
+#: ui_server\views/model_create_interlevel.tpl:24
+#: ui_server\views/model_create_interlevel.tpl:52
+msgid "Picks Up Vaccines"
+msgstr "Buscar as vacinas"
+
+#: ui_server/views/model_create_interlevel.tpl:29
+#: ui_server/views/model_create_interlevel.tpl:31
+#: ui_server/views/model_create_interlevel.tpl:55
+#: ui_server\views/model_create_interlevel.tpl:29
+#: ui_server\views/model_create_interlevel.tpl:31
+#: ui_server\views/model_create_interlevel.tpl:55
+msgid "On A Fixed Schedule"
+msgstr "Em um horário fixo"
+
+#: ui_server/views/model_create_interlevel.tpl:29
+#: ui_server/views/model_create_interlevel.tpl:31
+#: ui_server/views/model_create_interlevel.tpl:55
+#: ui_server\views/model_create_interlevel.tpl:29
+#: ui_server\views/model_create_interlevel.tpl:31
+#: ui_server\views/model_create_interlevel.tpl:55
+msgid "As Needed"
+msgstr "conforme necessário"
+
+#: ui_server/views/model_create_interlevel.tpl:37
+#: ui_server/views/model_create_interlevel.tpl:39
+#: ui_server/views/model_create_interlevel.tpl:41
+#: ui_server/views/model_create_interlevel.tpl:59
+#: ui_server\views/model_create_interlevel.tpl:37
+#: ui_server\views/model_create_interlevel.tpl:39
+#: ui_server\views/model_create_interlevel.tpl:41
+#: ui_server\views/model_create_interlevel.tpl:59
+msgid "Month"
+msgstr "Mes"
+
+#: ui_server/views/model_create_interlevel.tpl:37
+#: ui_server/views/model_create_interlevel.tpl:39
+#: ui_server/views/model_create_interlevel.tpl:41
+#: ui_server/views/model_create_interlevel.tpl:59
+#: ui_server\views/model_create_interlevel.tpl:37
+#: ui_server\views/model_create_interlevel.tpl:39
+#: ui_server\views/model_create_interlevel.tpl:41
+#: ui_server\views/model_create_interlevel.tpl:59
+msgid "Week"
+msgstr "Semana"
+
+#: ui_server/views/model_create_interlevel.tpl:71
+#: ui_server/views/model_create_interlevel_timings.tpl:33
+#: ui_server\views/model_create_interlevel.tpl:71
+#: ui_server\views/model_create_interlevel_timings.tpl:33
+msgid "Expert"
+msgstr ""
+
+#: ui_server/views/model_create_interlevel.tpl:78
+#: ui_server\views/model_create_interlevel.tpl:78
+msgid "One or more of the values are blank; please fix this."
+msgstr " Um ou mais dos valores estão vazio; por favor corrija esta."
+
+#: ui_server/views/model_create_interlevel_timings.tpl:3
+#: ui_server\views/model_create_interlevel_timings.tpl:3
+msgid "What are the typical travel times between levels?"
+msgstr " Quais são os tempos de viagem típicos entre os níveis?"
+
+#: ui_server/views/model_create_interlevel_timings.tpl:11
+#: ui_server\views/model_create_interlevel_timings.tpl:11
+msgid "A typical one-way trip from"
+msgstr ""
+
+#: ui_server/views/model_create_interlevel_timings.tpl:13
+#: ui_server\views/model_create_interlevel_timings.tpl:13
+msgid "to"
+msgstr "a"
+
+#: ui_server/views/model_create_interlevel_timings.tpl:15
+#: ui_server\views/model_create_interlevel_timings.tpl:15
+msgid "takes"
+msgstr "toma"
+
+#: ui_server/views/model_create_interlevel_timings.tpl:18
+#: ui_server\views/model_create_interlevel_timings.tpl:18
+msgid "Years"
+msgstr "Anos"
+
+#: ui_server/views/model_create_interlevel_timings.tpl:22
+#: ui_server\views/model_create_interlevel_timings.tpl:22
+msgid "Hours"
+msgstr "horas"
+
+#: ui_server/views/model_create_levelnames.tpl:3
+#: ui_server\views/model_create_levelnames.tpl:3
+msgid "What are the names of the levels in your model?"
+msgstr " Quais são os nomes dos níveis do seu modelo?"
+
+#: ui_server/views/model_create_levelnames.tpl:4
+#: ui_server\views/model_create_levelnames.tpl:4
+msgid ""
+"For example, a four level model might have levels named \"Central\", \"Region"
+"\", \"District\", and \"Health Post\"."
+msgstr ""
+
+#: ui_server/views/model_create_provision.tpl:3
+#: ui_server\views/model_create_provision.tpl:3
+msgid "What Equipment And Population Exist At Each Level?"
+msgstr "Qual é o equipamento e população existe em cada nível?"
+
+#: ui_server/views/model_create_provision.tpl:4
+#: ui_server\views/model_create_provision.tpl:4
+#, python-brace-format
+msgid ""
+"The shipping network for {0} has been created, but equipment and population "
+"must be specified at each level."
+msgstr ""
+" A rede de transporte para {0} foi criado, mas o equipamento e população "
+"deve ser especificado em cada nível."
+
+#: ui_server/views/model_create_provision.tpl:5
+#: ui_server\views/model_create_provision.tpl:5
+msgid ""
+"All locations at a given level will be equipped as you describe below.  You "
+"can modify individual locations by editing the model."
+msgstr ""
+" Todos os locais de um determinado nível será equipado como você descreve a "
+"seguir. você pode modificar locais individuais editando o modelo."
+
+#: ui_server/views/model_create_provision.tpl:14
+#: ui_server\views/model_create_provision.tpl:14
+msgid "For the location at level:"
+msgstr "Para a localização no Nível:"
+
+#: ui_server/views/model_create_provision.tpl:16
+#: ui_server\views/model_create_provision.tpl:16
+msgid "For the locations at level:"
+msgstr " Para os locais ao nível:"
+
+#: ui_server/views/model_create_provision_routes.tpl:3
+#: ui_server\views/model_create_provision_routes.tpl:3
+msgid "What Are The Details Of Each Transport Route?"
+msgstr " Quais são os detalhes de cada rota de transporte?"
+
+#: ui_server/views/model_create_provision_routes.tpl:4
+#: ui_server\views/model_create_provision_routes.tpl:4
+#, python-brace-format
+msgid ""
+"The shipping network for {0} has been created, but details must be specified "
+"for shipping between levels."
+msgstr ""
+" A rede de transporte para {0} foi criado, mas os detalhes devem ser "
+"especificados para o transporte entre os níveis"
+
+#: ui_server/views/model_create_provision_routes.tpl:5
+#: ui_server\views/model_create_provision_routes.tpl:5
+msgid ""
+"All routes at a given level will be equipped as you describe below.  You can "
+"modify individual routes by editing the model."
+msgstr ""
+" Todas as rotas de um determinado nível será equipado como você descreve a "
+"seguir. você pode modificar rotas individuais editando o modelo"
+
+#: ui_server/views/model_create_provision_routes.tpl:12
+#: ui_server\views/model_create_provision_routes.tpl:12
+msgid "For routes between levels"
+msgstr ""
+
+#: ui_server/views/model_create_provision_routes.tpl:14
+#: ui_server\views/model_create_provision_routes.tpl:14
+#, python-brace-format
+msgid "{0} and {1}"
+msgstr "{0} e {1}"
+
+#: ui_server/views/model_show_structure.tpl:3
+#: ui_server\views/model_show_structure.tpl:3
+msgid ""
+"Click on a name to expand that part of the network.  Right-click on a name "
+"for more detailed information."
+msgstr ""
+" Clique em um nome para expandir a parte da rede. Clique com o botão direito "
+"do mouse em um nome para informações mais detalhadas"
+
+#: ui_server/views/models_top.tpl:1 ui_server\views/models_top.tpl:1
+msgid "Available Models"
+msgstr " Modelos Disponíveis "
+
+#: ui_server/views/models_top.tpl:4 ui_server/views/results_top.tpl:5
+#: ui_server/views/run_top.tpl:5 ui_server\views/models_top.tpl:4
+#: ui_server\views/results_top.tpl:5 ui_server\views/run_top.tpl:5
+msgid "Task:"
+msgstr " tarefa "
+
+#: ui_server/views/models_top.tpl:7 ui_server\views/models_top.tpl:7
+msgid "Modify An Existing Model"
+msgstr "Modificar um modelo existente"
+
+#: ui_server/views/models_top.tpl:8 ui_server\views/models_top.tpl:8
+msgid "Modify"
+msgstr "Modificar"
+
+#: ui_server/views/models_top.tpl:9 ui_server\views/models_top.tpl:9
+msgid "Show"
+msgstr "Mostrar"
+
+#: ui_server/views/models_top.tpl:11 ui_server\views/models_top.tpl:11
+msgid "Upload"
+msgstr "Carregar"
+
+#: ui_server/views/models_top.tpl:12 ui_server/views/results_top.tpl:8
+#: ui_server\views/models_top.tpl:12 ui_server\views/results_top.tpl:8
+msgid "Delete"
+msgstr "Delete"
+
+#: ui_server/views/models_top.tpl:17 ui_server\views/models_top.tpl:17
+msgid "Select A Row To Edit"
+msgstr " Selecione uma linha para editar "
+
+#: ui_server/views/models_top.tpl:30 ui_server\views/models_top.tpl:30
+msgid "Show Supply Chain For A Model"
+msgstr " Mostrar a cadeia de abastecimento para um modelo "
+
+#: ui_server/views/models_top.tpl:35 ui_server\views/models_top.tpl:35
+msgid "Model To Show"
+msgstr "Modelo para Mostrar"
+
+#: ui_server/views/models_top.tpl:43 ui_server\views/models_top.tpl:43
+msgid "Edit Supply Chain For A Model"
+msgstr " Editar a cadeia de abastecimento para um modelo "
+
+#: ui_server/views/models_top.tpl:48 ui_server\views/models_top.tpl:48
+msgid "Model To Edit"
+msgstr "Modelo Para Edição"
+
+#: ui_server/views/models_top.tpl:56 ui_server\views/models_top.tpl:56
+msgid "Copy A Model"
+msgstr "Copiar um modelo"
+
+#: ui_server/views/models_top.tpl:61 ui_server\views/models_top.tpl:61
+msgid "Model To Copy"
+msgstr "Modelo para copiar"
+
+#: ui_server/views/models_top.tpl:74 ui_server\views/models_top.tpl:74
+msgid "Upload a Model in Zip Form"
+msgstr ""
+
+#: ui_server/views/models_top.tpl:75 ui_server\views/models_top.tpl:75
+msgid "What name should the new model have?"
+msgstr "Qual é nome que o novo modelo deve ter?"
+
+#: ui_server/views/models_top.tpl:89 ui_server\views/models_top.tpl:89
+msgid "File"
+msgstr ""
+
+#: ui_server/views/notimplemented.tpl:3 ui_server\views/notimplemented.tpl:3
+msgid "This feature has not been implemented yet"
+msgstr " Este recurso ainda não foi implementado ainda."
+
+#: ui_server/views/outer_wrapper.tpl:5 ui_server\views/outer_wrapper.tpl:5
+msgid "HERMES - Supply Chain Modeling for Public Health"
+msgstr ""
+
+#: ui_server/views/outer_wrapper.tpl:264 ui_server\views/outer_wrapper.tpl:264
+msgid "People"
+msgstr "pessoas"
+
+#: ui_server/views/outer_wrapper.tpl:266 ui_server\views/outer_wrapper.tpl:266
+msgid "ColdStorage"
+msgstr "Cadeia de frio"
+
+#: ui_server/views/outer_wrapper.tpl:270 ui_server\views/outer_wrapper.tpl:270
+msgid "Run Hermes"
+msgstr "Executar HERMES"
+
+#: ui_server/views/outer_wrapper.tpl:272 ui_server\views/outer_wrapper.tpl:272
+msgid "Developer"
+msgstr ""
+
+#: ui_server/views/outer_wrapper.tpl:293 ui_server\views/outer_wrapper.tpl:293
+msgid "This text will be replaced."
+msgstr " Este texto será substituído "
+
+#: ui_server/views/outer_wrapper.tpl:359 ui_server\views/outer_wrapper.tpl:359
+msgid "Language Change Warning"
+msgstr "Aviso de mudança de lingua"
+
+#: ui_server/views/outer_wrapper.tpl:374 ui_server\views/outer_wrapper.tpl:374
+msgid "HERMES Project"
+msgstr "HERMES projecto"
+
+#: ui_server/views/outer_wrapper.tpl:374 ui_server\views/outer_wrapper.tpl:374
+msgid "All Rights Reserved."
+msgstr ""
+
+#: ui_server/views/page_10.tpl:10 ui_server\views/page_10.tpl:10
+msgid "Pop-up Menu Tests"
+msgstr ""
+
+#: ui_server/views/page_10.tpl:33 ui_server/views/page_10.tpl:40
+#: ui_server/views/page_10.tpl:41 ui_server/views/page_6.tpl:5
+#: ui_server/views/page_7.tpl:16 ui_server/views/page_9.tpl:16
+#: ui_server\views/page_10.tpl:33 ui_server\views/page_10.tpl:40
+#: ui_server\views/page_10.tpl:41 ui_server\views/page_6.tpl:5
+#: ui_server\views/page_7.tpl:16 ui_server\views/page_9.tpl:16
+#, fuzzy
+msgid "Do it!"
+msgstr "Fazer algo"
+
+#: ui_server/views/page_11.tpl:9 ui_server\views/page_11.tpl:9
+#, fuzzy
+msgid "Data Entry Tool"
+msgstr "entrada inválida"
+
+#: ui_server/views/page_2.tpl:2 ui_server\views/page_2.tpl:2
+msgid "Show A Menu"
+msgstr " Apresentar um menu "
+
+#: ui_server/views/page_2.tpl:4 ui_server\views/page_2.tpl:4
+msgid "This should show a menu."
+msgstr " Apresentar um menu "
+
+#: ui_server/views/page_2.tpl:13 ui_server\views/page_2.tpl:13
+msgid "My Button"
+msgstr "Meu botão"
+
+#: ui_server/views/page_3.tpl:2 ui_server\views/page_3.tpl:2
+msgid "This is a jsTree example"
+msgstr " Este é um exemplo de jsTree."
+
+#: ui_server/views/page_3.tpl:37 ui_server\views/page_3.tpl:37
+msgid "A Child 2"
+msgstr "Criança"
+
+#: ui_server/views/page_3.tpl:42 ui_server\views/page_3.tpl:42
+msgid "Long format demo"
+msgstr ""
+
+#: ui_server/views/page_4.tpl:2 ui_server\views/page_4.tpl:2
+msgid "This will be my table"
+msgstr ""
+
+#: ui_server/views/page_4.tpl:11 ui_server\views/page_4.tpl:11
+msgid "one"
+msgstr "um"
+
+#: ui_server/views/page_4.tpl:11 ui_server/views/page_4.tpl:12
+#: ui_server/views/page_4.tpl:13 ui_server\views/page_4.tpl:11
+#: ui_server\views/page_4.tpl:12 ui_server\views/page_4.tpl:13
+msgid "name"
+msgstr "nome"
+
+#: ui_server/views/page_4.tpl:11 ui_server\views/page_4.tpl:11
+msgid "row one"
+msgstr "a linha uma"
+
+#: ui_server/views/page_4.tpl:12 ui_server\views/page_4.tpl:12
+msgid "two"
+msgstr "duas"
+
+#: ui_server/views/page_4.tpl:12 ui_server\views/page_4.tpl:12
+msgid "row two"
+msgstr "a linha duas"
+
+#: ui_server/views/page_4.tpl:13 ui_server\views/page_4.tpl:13
+msgid "three"
+msgstr "tres"
+
+#: ui_server/views/page_4.tpl:13 ui_server\views/page_4.tpl:13
+msgid "row three"
+msgstr "a linha tres"
+
+#: ui_server/views/page_4.tpl:34 ui_server\views/page_4.tpl:34
+msgid "JSON Example"
+msgstr "Exemplo de JSON"
+
+#: ui_server/views/page_5.tpl:4 ui_server\views/page_5.tpl:4
+msgid "This is a file uploader"
+msgstr ""
+
+#: ui_server/views/page_6.tpl:4 ui_server\views/page_6.tpl:4
+msgid "This is for little tests"
+msgstr ""
+
+#: ui_server/views/page_7.tpl:4 ui_server\views/page_7.tpl:4
+#, fuzzy
+msgid "Store Editor Tests"
+msgstr "Editor guarda"
+
+#: ui_server/views/page_7.tpl:7 ui_server\views/page_7.tpl:7
+msgid "Model Id"
+msgstr "ID de modelo"
+
+#: ui_server/views/page_7.tpl:11 ui_server\views/page_7.tpl:11
+msgid "Store idcode"
+msgstr "ID de armazen"
+
+#: ui_server/views/page_8.tpl:4 ui_server\views/page_8.tpl:4
+msgid "Type Selector Tests"
+msgstr ""
+
+#: ui_server/views/page_9.tpl:4 ui_server\views/page_9.tpl:4
+#, fuzzy
+msgid "Route Editor Tests"
+msgstr "editor rota"
+
+#: ui_server/views/page_9.tpl:11 ui_server\views/page_9.tpl:11
+msgid "Route Name"
+msgstr " Modelo {0} tem nenhuma rota com o nome {1}"
+
+#: ui_server/views/people_edit.tpl:1 ui_server\views/people_edit.tpl:1
+msgid "Modify Population Type"
+msgstr "Tipo de população {0}"
+
+#: ui_server/views/people_edit.tpl:3 ui_server\views/people_edit.tpl:3
+msgid "Creating Your Population Type"
+msgstr "Criar um tipo de população"
+
+#: ui_server/views/people_edit.tpl:4 ui_server\views/people_edit.tpl:4
+msgid ""
+"The fields have been filled out with values from the population type you "
+"selected.  When you are finished, select the 'Done' button at the bottom "
+"right."
+msgstr ""
+
+#: ui_server/views/people_edit.tpl:19 ui_server\views/people_edit.tpl:19
+msgid "This will be replaced."
+msgstr ""
+
+#: ui_server/views/people_top.tpl:15 ui_server\views/people_top.tpl:15
+msgid "Known Population Types"
+msgstr "Conhecidos tipos de população"
+
+#: ui_server/views/people_top.tpl:16 ui_server\views/people_top.tpl:16
+msgid "Showing population types for"
+msgstr " Mostrando tipos de população para "
+
+#: ui_server/views/problem.tpl:1 ui_server\views/problem.tpl:1
+msgid "Problem!"
+msgstr "Problema"
+
+#: ui_server/views/problem.tpl:3 ui_server\views/problem.tpl:3
+msgid "The User Interface Is Confused"
+msgstr " A interface de usuário é confuso "
+
+#: ui_server/views/problem.tpl:8 ui_server\views/problem.tpl:8
+msgid "We apologize.  Please select one of the main tabs above to continue."
+msgstr ""
+" Pedimos desculpas. Por favor seleccione um dos principais guias acima para "
+"continuar -"
+
+#: ui_server/views/results_edit.tpl:1 ui_server/views/results_fireworks.tpl:1
+#: ui_server\views/results_edit.tpl:1 ui_server\views/results_fireworks.tpl:1
+msgid "Examine Results"
+msgstr "Ver Resultados "
+
+#: ui_server/views/results_edit.tpl:14 ui_server\views/results_edit.tpl:14
+msgid "Things Might Go Here"
+msgstr " As coisas podem ficar aqui "
+
+#: ui_server/views/results_edit.tpl:16 ui_server\views/results_edit.tpl:16
+msgid "Do Something"
+msgstr "Fazer algo"
+
+#: ui_server/views/results_edit.tpl:17 ui_server\views/results_edit.tpl:17
+msgid "Do Something Else"
+msgstr "Fazer outra coisa"
+
+#: ui_server/views/results_fireworks.tpl:6
+#: ui_server\views/results_fireworks.tpl:6
+#, fuzzy
+msgid "run"
+msgstr "Executar"
+
+#: ui_server/views/results_fireworks.tpl:11
+#: ui_server\views/results_fireworks.tpl:11
+msgid "Drag to pan; use mouse wheel to zoom."
+msgstr ""
+
+#: ui_server/views/results_fireworks.tpl:13
+#: ui_server\views/results_fireworks.tpl:13
+msgid "Click to Reset"
+msgstr " Clique para Redefinir "
+
+#: ui_server/views/results_fireworks.tpl:18
+#: ui_server\views/results_fireworks.tpl:18
+msgid "Color by which value?"
+msgstr " Cor em que o valor "
+
+#: ui_server/views/results_fireworks.tpl:19
+#: ui_server\views/results_fireworks.tpl:19
+#, fuzzy
+msgid "Storage Fill Levels"
+msgstr "Encha rácio"
+
+#: ui_server/views/results_fireworks.tpl:21
+#: ui_server\views/results_fireworks.tpl:21
+#, fuzzy, python-brace-format
+msgid "{0} Supply Ratio"
+msgstr "Encha rácio"
+
+#: ui_server/views/results_summary.tpl:1 ui_server/views/results_top.tpl:1
+#: ui_server\views/results_summary.tpl:1 ui_server\views/results_top.tpl:1
+msgid "Simulation Results"
+msgstr "Resultados de Simulação"
+
+#: ui_server/views/results_summary.tpl:30
+#: ui_server\views/results_summary.tpl:30
+msgid "Show Geographic Viz"
+msgstr "Mostrar Visualização Geográfica"
+
+#: ui_server/views/results_summary.tpl:32
+#: ui_server\views/results_summary.tpl:32
+msgid "Show Fireworks Viz"
+msgstr "Mostrar Visualização Fogos de Artifício"
+
+#: ui_server/views/results_top.tpl:7 ui_server\views/results_top.tpl:7
+msgid "Open"
+msgstr "Abre"
+
+#: ui_server/views/results_top.tpl:13 ui_server\views/results_top.tpl:13
+msgid "Available Results"
+msgstr "Resultados Disponíveis"
+
+#: ui_server/views/route_edit_wgt.tpl:4 ui_server/views/store_edit_wgt.tpl:4
+#: ui_server\views/route_edit_wgt.tpl:4 ui_server\views/store_edit_wgt.tpl:4
+msgid "Main"
+msgstr "Principal"
+
+#: ui_server/views/route_edit_wgt.tpl:5 ui_server\views/route_edit_wgt.tpl:5
+msgid "Stops"
+msgstr "Paragens"
+
+#: ui_server/views/route_edit_wgt.tpl:10 ui_server\views/route_edit_wgt.tpl:10
+msgid "Route Type"
+msgstr "Tipo de rotas"
+
+#: ui_server/views/route_edit_wgt.tpl:12 ui_server\views/route_edit_wgt.tpl:12
+msgid "Truck Type"
+msgstr "Tipo de veiculo"
+
+#: ui_server/views/route_edit_wgt.tpl:16 ui_server\views/route_edit_wgt.tpl:16
+msgid "Shipping Interval"
+msgstr "Intervalo de envio"
+
+#: ui_server/views/route_edit_wgt.tpl:18 ui_server\views/route_edit_wgt.tpl:18
+msgid "Shipping Latency"
+msgstr " Frete Latência "
+
+#: ui_server/views/route_edit_wgt.tpl:22 ui_server\views/route_edit_wgt.tpl:22
+msgid "Route Conditions"
+msgstr " Condições de Rota"
+
+#: ui_server/views/route_edit_wgt.tpl:24 ui_server\views/route_edit_wgt.tpl:24
+msgid "On-Demand Order Days"
+msgstr ""
+" Este tipo de rota requer um valor válido para dias de requisição na demanda"
+
+#: ui_server/views/run_edit_parms.tpl:1 ui_server/views/run_realitycheck.tpl:1
+#: ui_server/views/run_run.tpl:1 ui_server/views/run_specifics.tpl:1
+#: ui_server/views/run_specify.tpl:1 ui_server\views/run_edit_parms.tpl:1
+#: ui_server\views/run_realitycheck.tpl:1 ui_server\views/run_run.tpl:1
+#: ui_server\views/run_specifics.tpl:1 ui_server\views/run_specify.tpl:1
+msgid "Run A Model Simulation"
+msgstr "Executar um modelo de simulação "
+
+#: ui_server/views/run_edit_parms.tpl:18 ui_server\views/run_edit_parms.tpl:18
+msgid "Save"
+msgstr "Guarda"
+
+#: ui_server/views/run_edit_parms.tpl:26 ui_server\views/run_edit_parms.tpl:26
+msgid "This will be replaced"
+msgstr ""
+
+#: ui_server/views/run_realitycheck.tpl:2
+#: ui_server\views/run_realitycheck.tpl:2
+msgid "Model Validation Stage"
+msgstr "Etapa de Validação do Modelo"
+
+#: ui_server/views/run_realitycheck.tpl:6
+#: ui_server\views/run_realitycheck.tpl:6
+msgid "Validate Model"
+msgstr "Validar o Modelo"
+
+#: ui_server/views/run_run.tpl:2 ui_server\views/run_run.tpl:2
+msgid "Verify and Start the Run"
+msgstr ""
+
+#: ui_server/views/run_run.tpl:5 ui_server\views/run_run.tpl:5
+msgid "Do you want to start the run?"
+msgstr "Você quer começar a execução?"
+
+#: ui_server/views/run_run.tpl:13 ui_server\views/run_run.tpl:13
+msgid "Download"
+msgstr ""
+
+#: ui_server/views/run_run.tpl:18 ui_server\views/run_run.tpl:18
+msgid "Start Execution"
+msgstr "Começar a execução"
+
+#: ui_server/views/run_specifics.tpl:2 ui_server\views/run_specifics.tpl:2
+msgid "Provide Some Details"
+msgstr " Fornecer alguns detalhes "
+
+#: ui_server/views/run_specifics.tpl:9 ui_server\views/run_specifics.tpl:9
+msgid "Run how many instances?"
+msgstr " Quantos níveis no seu modelo?"
+
+#: ui_server/views/run_specifics.tpl:19 ui_server\views/run_specifics.tpl:19
+#, fuzzy
+msgid "Set random seeds?"
+msgstr "Este título é definido em matcher."
+
+#: ui_server/views/run_specifics.tpl:34 ui_server\views/run_specifics.tpl:34
+msgid "Try to be deterministic?"
+msgstr ""
+
+#: ui_server/views/run_specify.tpl:2 ui_server\views/run_specify.tpl:2
+msgid "Beginning a Hermes Run"
+msgstr "Começando uma Executar de HERMES"
+
+#: ui_server/views/run_specify.tpl:4 ui_server\views/run_specify.tpl:4
+msgid ""
+"As you finish each page, select the 'Next' button at the bottom right.  Once "
+"you have finished this short set of pages, the execution of your model will "
+"begin.  You can continue to modify or other models while this model is "
+"running.  If you leave this sequence of screens too early, your model will "
+"not begin running but you will be able to return to the sequence where you "
+"left off by selecting 'Run HERMES' again."
+msgstr ""
+
+#: ui_server/views/run_specify.tpl:9 ui_server\views/run_specify.tpl:9
+msgid "Which model do you wish to run?"
+msgstr " Qual o modelo que deseja executar "
+
+#: ui_server/views/run_specify.tpl:13 ui_server\views/run_specify.tpl:13
+msgid "What name should be given to this set of results?"
+msgstr " Qual o nome deve ser dado a este conjunto de resultados?"
+
+#: ui_server/views/run_specify.tpl:31 ui_server\views/run_specify.tpl:31
+msgid "The name of the run results must not be blank."
+msgstr " O nome do modelo não pode estar vazio."
+
+#: ui_server/views/run_top.tpl:1 ui_server\views/run_top.tpl:1
+msgid "Run A Model"
+msgstr "Executar o modelo"
+
+#: ui_server/views/run_top.tpl:7 ui_server\views/run_top.tpl:7
+msgid "Run HERMES"
+msgstr "Executar HERMES"
+
+#: ui_server/views/run_top.tpl:12 ui_server\views/run_top.tpl:12
+msgid "Run Status"
+msgstr " o estado de funcionamento "
+
+#: ui_server/views/store_edit_wgt.tpl:18 ui_server\views/store_edit_wgt.tpl:18
+msgid "in "
+msgstr ""
+
+#: ui_server/views/store_edit_wgt.tpl:31 ui_server\views/store_edit_wgt.tpl:31
+msgid "Function"
+msgstr "Função"
+
+#: ui_server/views/store_edit_wgt.tpl:49 ui_server\views/store_edit_wgt.tpl:49
+msgid "Treatment Session Interval"
+msgstr "Intervalo de Tratamento Sessões"
+
+#: ui_server/views/store_edit_wgt.tpl:51 ui_server\views/store_edit_wgt.tpl:51
+msgid "Treatment Session Latency"
+msgstr " Frete Latência "
+
+#: ui_server/views/store_edit_wgt.tpl:55 ui_server\views/store_edit_wgt.tpl:55
+msgid "Fraction Storage Available"
+msgstr "Fação de Amazenamento Dsponível"
+
+#: ui_server/views/tabs.tpl:1 ui_server\views/tabs.tpl:1
+msgid "Look! This page has tabs!"
+msgstr "!"
+
+#: ui_server/views/tabs.tpl:1 ui_server\views/tabs.tpl:1
+msgid "UI Experiments"
+msgstr ""
+
+#: ui_server/views/truck_edit.tpl:1 ui_server\views/truck_edit.tpl:1
+msgid "Modify Transport Type"
+msgstr "Modificar Tipos de Transporte"
+
+#: ui_server/views/truck_edit.tpl:3 ui_server\views/truck_edit.tpl:3
+msgid "Creating Your Transport Type"
+msgstr "Criar um tipo de transporte"
+
+#: ui_server/views/truck_edit.tpl:4 ui_server\views/truck_edit.tpl:4
+msgid ""
+"The fields have been filled out with values from the transport type you "
+"selected.  When you are finished, select the 'Done' button at the bottom "
+"right."
+msgstr ""
+
+#: ui_server/views/truck_top.tpl:15 ui_server\views/truck_top.tpl:15
+msgid "Known Transport Types"
+msgstr "Conhecidos tipos de transporte"
+
+#: ui_server/views/truck_top.tpl:16 ui_server\views/truck_top.tpl:16
+msgid "Showing transport types for"
+msgstr " Mostrando tipos de transporte para "
+
+#: ui_server/views/vaccine_edit.tpl:1 ui_server\views/vaccine_edit.tpl:1
+msgid "Modify Vaccine Type"
+msgstr "Modificar Tipos de Vacinas"
+
+#: ui_server/views/vaccine_edit.tpl:3 ui_server\views/vaccine_edit.tpl:3
+msgid "Creating Your Vaccine Type"
+msgstr "Criar um tipo de vacina"
+
+#: ui_server/views/vaccine_edit.tpl:4 ui_server\views/vaccine_edit.tpl:4
+msgid ""
+"The fields have been filled out with values from the vaccine type you "
+"selected.  When you are finished, select the 'Done' button at the bottom "
+"right."
+msgstr ""
+
+#: ui_server/views/vaccine_top.tpl:23 ui_server\views/vaccine_top.tpl:23
+msgid "Known Vaccine Types"
+msgstr "Conhecidos tipos de vacinas"
+
+#: ui_server/views/vaccine_top.tpl:25 ui_server\views/vaccine_top.tpl:25
+msgid "Showing vaccine types for"
+msgstr " Mostrando tipos de vacinas para "
+
+#: ui_server/views/vaccine_top.tpl:28 ui_server\views/vaccine_top.tpl:28
+msgid "Grouping subgrids by"
+msgstr ""
+
+#: ui_server/views/welcome.tpl:1 ui_server\views/welcome.tpl:1
+msgid "HERMES Graphical User Inferface Start"
+msgstr ""
+
+#: ui_server/views/welcome.tpl:25 ui_server\views/welcome.tpl:25
+msgid "Choose Your Desired Action"
+msgstr "Escolha a Ação Desejada"
+
+#: ui_server/views/welcome.tpl:29 ui_server\views/welcome.tpl:29
+msgid "Create a New Model"
+msgstr "Criar um Novo Modelo"
+
+#: ui_server/views/welcome.tpl:32 ui_server\views/welcome.tpl:32
+msgid ""
+"Walk through and enter data through designated steps to create a set of "
+"inputs that can create a simulated supply chain."
+msgstr ""
+"Caminhe por e inserir dados através de medidas designadas para criar um "
+"conjunto de entradas que pode criar uma cadeia de fornecimento simulado."
+
+#: ui_server/views/welcome.tpl:37 ui_server\views/welcome.tpl:37
+msgid "Work with a Previously Created Model"
+msgstr " Trabalhar com um modelo criado anteriormente "
+
+#: ui_server/views/welcome.tpl:40 ui_server\views/welcome.tpl:40
+msgid "Edit, Create Scenarios, and/or Run a previously saved model."
+msgstr " Editar, criar cenários e / ou executar um modelo salvo anteriormente"
+
+#: ui_server/views/welcome.tpl:45 ui_server\views/welcome.tpl:45
+msgid "HERMES Tutorials"
+msgstr "HERMES Tutoriais"
+
+#: ui_server/views/welcome.tpl:48 ui_server\views/welcome.tpl:48
+msgid "Learn how to use HERMES"
+msgstr "Aprenda a usar HERMES"
+
+#: ui_server/views/welcome.tpl:53 ui_server\views/welcome.tpl:53
+msgid "Compare Results from Previous Models"
+msgstr " Comparar os resultados de Modelos anteriores "
+
+#: ui_server/views/welcome.tpl:56 ui_server\views/welcome.tpl:56
+msgid "View and compare results. <Need better wording>"
+msgstr " Ver e comparar os resultados."
+
+#: ui_server/views/welcome.tpl:61 ui_server\views/welcome.tpl:61
+msgid "Explore Information Databases"
+msgstr "Explorar base de dados "
+
+#: ui_server/views/welcome.tpl:64 ui_server\views/welcome.tpl:64
+msgid ""
+"Browse through HERMES database of vaccines, refrigerators, freezers, cold "
+"boxes and transport vehicles."
+msgstr ""
+"Navegue através do banco de dados HERMES de vacinas, geladeiras,congeladors, "
+"caixas térmicas e veículos de transporte."
+
+#: ui_server/views/welcome.tpl:75 ui_server\views/welcome.tpl:75
+msgid "Vision"
+msgstr "Vision"
+
+#: ui_server/views/welcome.tpl:77 ui_server/views/welcome.tpl:82
+#: ui_server/views/welcome.tpl:87 ui_server\views/welcome.tpl:77
+#: ui_server\views/welcome.tpl:82 ui_server\views/welcome.tpl:87
+msgid "Read more"
+msgstr "Leia mais"
+
+#: ui_server/views/welcome.tpl:80 ui_server\views/welcome.tpl:80
+msgid "Team"
+msgstr "Equipa"
+
+#: ui_server/views/welcome.tpl:85 ui_server\views/welcome.tpl:85
+msgid "Publications"
+msgstr "Publicações"
+
+#: ui_server/views/welcome.tpl:94 ui_server\views/welcome.tpl:94
+msgid "A Computational Tool to Design, Plan and Improve Supply Chains"
+msgstr ""
+
+#: ui_server/views/welcome.tpl:95 ui_server\views/welcome.tpl:95
+msgid ""
+"Supply chains are the series of steps involved in transporting vaccines from "
+"manufacturers all the way to patients.&nbsp; Distributing vaccines (and "
+"other health care products) can be a complex process, integrating many "
+"steps, locations, personnel, and equipment.&nbsp; HERMES (Highly Extensible "
+"Resource for Modeling Supply-chains) is a computational framework for "
+"modeling and optimizing supply chains."
+msgstr ""
+
+#: ui_server/views/welcome.tpl:96 ui_server\views/welcome.tpl:96
+#, fuzzy
+msgid "The HERMES Project is a collaboration involving..."
+msgstr "HERMES projecto"
+
+#: ui_server/views/welcome.tpl:98 ui_server\views/welcome.tpl:98
+msgid ""
+"Funded through grants from the Bill and Melinda Gates Foundation and the "
+"National Institutes of Health."
+msgstr ""
+
+#~ msgid "Vials"
+#~ msgstr "Frascos"
+
+#~ msgid "It comes directly from the server as HTML."
+#~ msgstr "."
+
+#~ msgid "Create A Model From Scratch"
+#~ msgstr " Criar um modelo a partir do zero "
+
+#~ msgid "Show Supply Chain Structure"
+#~ msgstr " Mostrar estrutura de cadeia de abastecimento"
+
+#~ msgid "Copy An Existing Model"
+#~ msgstr " Copie um modelo existente "
+
+#~ msgid "Delete Selected model"
+#~ msgstr " Excluir modelo selecionado"
+
+#~ msgid "Create {0} From Scratch"
+#~ msgstr "Criar {0} a partir do zero"
+
+#~ msgid "Error: "
+#~ msgstr "Error:"
+
+#~ msgid "Cancel A Run"
+#~ msgstr "Cancelar uma execução"
+
+#~ msgid "Create A Vaccine From Scratch"
+#~ msgstr "Criar uma vacina a partir do zero"
+
+#~ msgid "Delete Selected vaccine"
+#~ msgstr " Excluir vacina escolida "
+
+#~ msgid "Available Vaccines"
+#~ msgstr "Vacinas disponiveis"
+
+#~ msgid "Model Status"
+#~ msgstr "Estado de modelo"
+
+#~ msgid "Really delete the model "
+#~ msgstr " Realmente excluir o modelo "
