@@ -633,7 +633,7 @@ def modelCreatePage(db,uiSession,step="unknown"):
                     # the user is messing around with the back/next buttons
                     pass
                 else:
-                    #fake the remaining unfilled pages so the PreOrderTree can get created
+                    # fake the remaining unfilled pages so the PreOrderTree can get created
                     if 'levelcounts' not in newModelInfo: newModelInfo['levelcounts'] = [1 for x in xrange(newModelInfo['nlevels'])]
                     if 'shippatterns_transitunits' not in newModelInfo: newModelInfo['shippatterns_transitunits'] = ['hour' for x in xrange(newModelInfo['nlevels']-1)]
                     if 'shippatterns_transittimes' not in newModelInfo: newModelInfo['shippatterns_transittimes'] = [1.0 for x in xrange(newModelInfo['nlevels']-1)]
@@ -644,11 +644,17 @@ def modelCreatePage(db,uiSession,step="unknown"):
                         newModelInfo['potrecdict'] = recDict
                         newModelInfo['maxidcode'] = NumberedNameGenerator.totCount
                     newModelInfo['name'],newModelInfo['modelId'] = _createModel(db,uiSession)
+                    # clean up current model creation session
+                    createdModelId = newModelInfo['modelId']
+                    del uiSession['subCrumbTrack']
+                    crumbTrack.pop()
+                    del uiSession['newModelInfo']
+                    # open the model editor
                     p = bottle.request.path
                     fp = bottle.request.fullpath
                     offset = fp.find(p)
-                    rootPath = fp[:offset+1] # to include slash
-                    bottle.redirect('{}model-edit-structure?id={}'.format(rootPath,newModelInfo['modelId']))
+                    rootPath = fp[:offset+1] # to include slash                    
+                    bottle.redirect('{}model-edit-structure?id={}'.format(rootPath,createdModelId))
         if 'provision' in bottle.request.params and bottle.request.params['provision'] == 'true':
             if 'modelId' in newModelInfo:
                 _provisionModel(db, newModelInfo['modelId'])

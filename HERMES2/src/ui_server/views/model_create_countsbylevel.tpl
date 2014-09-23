@@ -36,7 +36,7 @@
       <tr>
         <td width 10%><input type="button" id="back_button" value={{_("Back")}}></td>
         <td></td>
-        <td width=10%><input type="button" id="expert_button" value="Expert"></td>
+        <td width=10%><input type="button" id="expert_button" value={{_("Expert")}}></td>
         <td width=10%><input type="button" id="next_button" value={{_("Next")}}></td>
       </tr>
     </table>

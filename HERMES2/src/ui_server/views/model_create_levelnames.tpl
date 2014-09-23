@@ -9,14 +9,14 @@
 %    if defined('levelnames') and len(levelnames)==nlevels:
 %        for i,lname in enumerate(levelnames):
 	  	<tr>
-  			<td><label for="model_create_levelname_{{i+1}}">Name for level {{i+1}}</label></td>
+  			<td><label for="model_create_levelname_{{i+1}}">{{_("Name for level")}} {{i+1}}</label></td>
   			<td><input type="text" name="model_create_levelname_{{i+1}}" id="model_create_levelname_{{i+1}}" value="{{lname}}"></td>
   		</tr>
 %        end
 %    else:
 %        for i in xrange(nlevels):
 	  	<tr>
-  			<td><label for="model_create_levelname_{{i+1}}">Name for level {{i+1}}</label></td>
+  			<td><label for="model_create_levelname_{{i+1}}">{{_("Name for level")}} {{i+1}}</label></td>
   			<td><input type="text" name="model_create_levelname_{{i+1}}" id="model_create_levelname_{{i+1}}"></td>
   		</tr>
 %        end
@@ -25,10 +25,10 @@
     </table>
     <table width=100%>
       <tr>
-        <td width 10%><input type="button" id="back_button" value="Back"></td>
+        <td width 10%><input type="button" id="back_button" value={{_("Back")}}></td>
         <td></td>
-        <td width=10%><input type="button" id="expert_button" value="Expert"></td>
-        <td width=10%><input type="button" id="next_button" value="Next"></td>
+        <td width=10%><input type="button" id="expert_button" value={{_("Expert")}}></td>
+        <td width=10%><input type="button" id="next_button" value={{_("Next")}}></td>
       </tr>
     </table>
 </form>
