@@ -642,8 +642,9 @@ def addTypeHolderModel():
     session.add(net)
     session.commit()
     privs.Privileges(1).registerModelId(session, net.modelId,1,1)
-
-    installUserTypeHolderModel()
+    
+    # let the alembic scripts do this instead.
+    # installUserTypeHolderModel()
 
 
 def main():
