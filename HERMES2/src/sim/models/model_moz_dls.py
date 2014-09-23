@@ -153,6 +153,7 @@ class Model(model_generic.Model):
 
         """
 
+        ### NEW RULE if less than one day, give one, else floor of the number of days of travel.
         assert homeWH==tripJournal[-1][4],"Trip journal does not return to home warehouse"
         totDays = 0.0
         totDistKm = 0.0
@@ -166,8 +167,12 @@ class Model(model_generic.Model):
             else:
                 legStart,legEnd,conditions = tpl[1:4]
             totDays += (legEnd - legStart)
-     
-        totalPerDiems += math.floor(totDays)
-
-        return totalPerDiems
+        #print "DAys: " + str(totDays)
+        if totDays < 1.0:
+            return 1.0
+        else:
+            return math.floor(totDays)
+            #totalPerDiems += math.ceil(totDays)
+        #print "PerDiems" + str(totalPerDiems)
+        #return totalPerDiems
 
