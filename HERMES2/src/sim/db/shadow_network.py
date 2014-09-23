@@ -1131,14 +1131,18 @@ class ShdRoute(Base):
     __tablename__ = 'routes'
     routeId = Column(Integer, primary_key=True)
 
-    attrs = [('modelId',            DataType(INTEGER, foreignKey = 'models.modelId'),
+    attrs = [('modelId',              DataType(INTEGER, foreignKey = 'models.modelId'),
               'noInputRec', True),
-             ('RouteName',          STRING, 'delete', False),
-             ('Type',               STRING),
-             ('TruckType',          STRING_NULL),
-             ('ShipIntervalDays',   FLOAT_ZERO),
-             ('ShipLatencyDays',    FLOAT_ZERO),
-             ('Conditions',         STRING_NULL)]
+             ('RouteName',            STRING, 'delete', False),
+             ('Type',                 STRING),
+             ('TruckType',            STRING_NULL),
+             ('ShipIntervalDays',     FLOAT_ZERO),
+             ('ShipLatencyDays',      FLOAT_ZERO),
+             ('Conditions',           STRING_NULL),
+             ('PickupDelayFrequency', FLOAT_ZERO),
+             ('PickupDelayMagnitude', FLOAT_ZERO),
+             ('PickupDelaySigma',     FLOAT_ZERO)
+             ]
     
     stops = relationship('ShdStop', 
                          #backref='route', # don't use backref so I can do things with noop'd sqlalchemy
