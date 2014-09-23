@@ -25,7 +25,7 @@
 			<p><h1 style="text-align:left">{{_("Choose Your Desired Action")}}</h1></p>
 			<table width = "100%" border = 0>
 				<tr>
-					<td rowspan=2 width=90><img src='{{rootPath}}static/icons/pencil.png' width=80></td>
+					<td rowspan=2 width=90><a href="{{rootPath}}model-create" ><img src='{{rootPath}}static/icons/pencil.png' width=80></a></td>
 					<td><h2 style="margin-bottom:0px;"><a href="{{rootPath}}model-create" >{{_("Create a New Model")}}</a></h2></td>
 				</tr>
 				<tr>
@@ -33,7 +33,7 @@
 				</tr>
 				<tr height=20><td></td></tr>
 				<tr>
-					<td rowspan=2 width=90><img src='{{rootPath}}static/icons/network.png' width=80></td>
+					<td rowspan=2 width=90><a href="{{rootPath}}models-top"><img src='{{rootPath}}static/icons/network.png' width=80></a></td>
 					<td><h2 style="margin-bottom:0px;"><a href="{{rootPath}}models-top">{{_("Work with a Previously Created Model")}}</a></h2></td>
 				</tr>
 				<tr>
@@ -49,7 +49,7 @@
 				</tr>
 				<tr height=20><td></td></tr>
 				<tr>
-					<td rowspan=2 width=90><img src='{{rootPath}}static/icons/stats.png' width=80></td>
+					<td rowspan=2 width=90><a href="{{rootPath}}results-top"><img src='{{rootPath}}static/icons/stats.png' width=80></a></td>
 					<td><h2 style="margin-bottom:0px;"><a href="{{rootPath}}results-top">{{_("Compare Results from Previous Models")}}</a></h2></td>
 				</tr>
 				<tr>
