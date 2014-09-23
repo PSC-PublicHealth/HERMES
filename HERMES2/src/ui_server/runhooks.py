@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 
-####################################
-# Notes:
-# -A session could be hijacked just by grabbing the SessionID;
-#  should use an encrypted cookie to prevent this.
-####################################
 _hermes_svn_id_="$Id$"
 
 import sys,os,os.path,time,json,math,types
@@ -24,7 +19,6 @@ import htmlgenerator
 import time
 import crumbtracks
 import costmodel
-import legacycostmodel
 
 from ui_utils import _logMessage, _logStacktrace, _safeGetReqParam, _getOrThrowError, _getAttrDict
 
@@ -398,16 +392,9 @@ def jsonRunStart(db, uiSession):
         
         model = shadow_network_db_api.ShdNetworkDB(db, modelId)
         
-        currencyConverter= legacycostmodel.CurrencyConverter(model.getCurrencyTableRecs(),
-                                                       model.getParameterValue('currencybase'),
-                                                       model.getParameterValue('currencybaseyear'))
-        priceTable = legacycostmodel.PriceTable(model.getPriceTableRecs(),
-                                          currencyConverter,required=True)
-        
         costModelVerifier = costmodel.getCostModelVerifier(model)
         if not costModelVerifier.checkReady(model):
             raise RuntimeError('cost model is incomplete')
-        
         
         resultsGroupId = shadow_db_routines.addResultsGroup(modelId, runName, db)
         resultsGroup = model.getResultsGroupById(resultsGroupId)
@@ -499,6 +486,7 @@ def _parseRunParms(db, uiSession, model):
             else:
                 oldV = inputDefault[k]
             tp = inputDefault.getTokenType(k)
+            #print '%s: %s <%s> <%s>'%(k,tp,v,oldV)
             try:
                 if tp in ['filename', 'filename_list', 'filenameOrNone']:
                     pass
@@ -596,7 +584,7 @@ def _parseRunParms(db, uiSession, model):
                 badParms.append(k)
         
     #print 'badParms: %s'%badParms
-    #print 'deltas: %s'%deltas
+    print 'deltas: %s'%deltas
     return badParms,deltas
 
 @bottle.route('/model-run/json/run-parms-levels-to-show')

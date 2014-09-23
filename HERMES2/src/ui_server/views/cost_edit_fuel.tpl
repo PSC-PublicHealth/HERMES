@@ -102,7 +102,9 @@ function buildPage(modelId) {
 						.done( function(data) {
 							if (data.success) {
 								var $priceEl = $('#price_'+currentRowName);
-								$priceEl.val(data.price.formatMoney(2));
+								var priceVal = data.price;
+								if (data.price == null) $priceEl.val('');
+								else $priceEl.val(data.price.formatMoney(2));
 				    			$priceEl.floatTextBox('saveState');
 							}
 							else {

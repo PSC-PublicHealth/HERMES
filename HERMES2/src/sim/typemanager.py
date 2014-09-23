@@ -104,6 +104,8 @@ class TypeManager:
         name = recDict['Name']
         if name in self.typeDict:
             return
+        for k,v in targetClass.getColumnTypeDict().items():
+            csv_tools.castEntry(recDict, k, v)
         self.typeDict[name]= targetClass.fromRec(recDict, self)
         assert isinstance(self.typeDict[name],abstractbaseclasses.ManagedType), "Cannot manage an instance of %s"%name
 
@@ -143,6 +145,8 @@ class TypeManager:
             if rec['Name'] in s:
                 raise RuntimeError("type %s is defined twice in one file"%rec['Name'])
             s.add(rec['Name'])
+        for k,v in targetClass.getColumnTypeDict().items():
+            csv_tools.castColumn(recs, k, v)
         for rec in recs: self.addType(rec, targetClass, verbose, debug)
 
     def resetAllCounters(self):

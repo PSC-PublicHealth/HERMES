@@ -30,42 +30,80 @@ import fridgetypes, trucktypes, vaccinetypes
 import util
 import dummycostmodel
 import legacycostmodel
+import microcostmodel
 from currencysupport import CurrencyConverter
 from costmodelsummary import (
         LegacyCostModelHierarchicalSummary,
         DummyCostModelHierarchicalSummary)
 
 def getCostManager(hermesSim, userInput):
-    if userInput['pricetable'] is None:
-        return dummycostmodel.DummyCostManager()
-    else:
+    costModelName = userInput['costmodel']
+    if costModelName == 'dummy':
+        return dummycostmodel.DummyCostManager(hermesSim, hermesSim.model)
+    elif costModelName == 'legacy':
+        if userInput['pricetable'] is None:
+            return dummycostmodel.DummyCostManager(hermesSim, hermesSim.model) # fall back to none
+        else:
+            if hermesSim.shdNet:
+                ccFile = hermesSim.shdNet.getCurrencyTableRecs()
+                ptFile = hermesSim.shdNet.getPriceTableRecs()
+            else:
+                ccFile = userInput['currencyconversionfile']
+                ptFile = userInput['pricetable']
+    
+            #print ccFile
+            currencyConverter= CurrencyConverter(ccFile,
+                                                 userInput['currencybase'],
+                                                 userInput['currencybaseyear'],
+                                                 userInput['priceinflation'])
+    
+            priceTable = legacycostmodel.PriceTable(ptFile, currencyConverter, required=True)
+            return legacycostmodel.LegacyCostManager( hermesSim, hermesSim.model,
+                                                      priceTable )
+    elif costModelName == 'micro1':
         if hermesSim.shdNet:
             ccFile = hermesSim.shdNet.getCurrencyTableRecs()
-            ptFile = hermesSim.shdNet.getPriceTableRecs()
         else:
             ccFile = userInput['currencyconversionfile']
-            ptFile = userInput['pricetable']
 
         #print ccFile
         currencyConverter= CurrencyConverter(ccFile,
                                              userInput['currencybase'],
-                                             userInput['currencybaseyear'])
+                                             userInput['currencybaseyear'],
+                                             userInput['priceinflation'])
 
-        priceTable = legacycostmodel.PriceTable(ptFile, currencyConverter, required=True)
-        costManager= legacycostmodel.LegacyCostManager( hermesSim, hermesSim.model,
-                                                        priceTable )
-        return costManager
+        return microcostmodel.MicroCostManager( hermesSim, hermesSim.model, currencyConverter )
+    
+    else:
+        raise RuntimeError("Unrecognized cost model name %s"%costModelName)
     
 def getCostModelVerifier(shdNet):
-    if shdNet.getParameterValue('pricetable') is None:
+    costModelName = shdNet.getParameterValue('costmodel')
+    if costModelName == 'dummy':
         return dummycostmodel.DummyCostModelVerifier()
-    else:
+    elif costModelName == 'legacy':
+        if shdNet.getParameterValue('pricetable') is None:
+            return dummycostmodel.DummyCostModelVerifier() # fall back to dummy
+        else:
+            currencyConverter= CurrencyConverter(shdNet.getCurrencyTableRecs(),
+                                                 shdNet.getParameterValue('currencybase'),
+                                                 shdNet.getParameterValue('currencybaseyear'),
+                                                 shdNet.getParameterValue('priceinflation'))
+            priceTable = legacycostmodel.PriceTable( shdNet.getPriceTableRecs(),
+                                                     currencyConverter,required=True )
+            return legacycostmodel.LegacyCostModelVerifier(priceTable)
+    elif costModelName == 'micro1':
         currencyConverter= CurrencyConverter(shdNet.getCurrencyTableRecs(),
                                              shdNet.getParameterValue('currencybase'),
-                                             shdNet.getParameterValue('currencybaseyear'))
-        priceTable = legacycostmodel.PriceTable( shdNet.getPriceTableRecs(),
-                                                 currencyConverter,required=True )
-        return legacycostmodel.LegacyCostModelVerifier(priceTable)
+                                             shdNet.getParameterValue('currencybaseyear'),
+                                             shdNet.getParameterValue('priceinflation'))
+
+        return microcostmodel.MicroCostModelVerifier( currencyConverter )
+    else:
+        print costModelName
+        print type(costModelName)
+        print costModelName=='micro1'
+        raise RuntimeError("Unrecognized cost model name <%s>"%costModelName)
 
 def getCostModelSummary(shdNet, result):
     if shdNet.getParameterValue('pricetable') is None:

@@ -50,7 +50,6 @@ from reporter import Reporter
 #from report_stb import ReportDailyStock, ReportDailyTotalVaccinated
 import networkbuilder as nbldr
 import HermesOutput
-import legacycostmodel
 import dummycostmodel
 import costmodel
 import statsmodel
@@ -211,10 +210,10 @@ class HermesSim(SimulationStep):
 
         self.costManager = costmodel.getCostManager(self, userInput)
         
-        if isinstance(self.costManager, dummycostmodel.DummyCostManager):
-            self.geo = geomanager.GeoManager(required=False)
-        else:
+        if not isinstance(self.costManager, dummycostmodel.DummyCostManager):
             self.geo = geomanager.GeoManager(required=True)
+        else:
+            self.geo = geomanager.GeoManager(required=False)
 
         if userInput['eventlog'] is None:
             self.evL = eventlog.DummyEventLog()
@@ -420,6 +419,9 @@ class HermesSim(SimulationStep):
         #Scan for some types of internal inconsistencies
         nbldr.realityCheck(self)
         self.costManager.realityCheck()
+        if shdNet is not None:
+            if not costmodel.getCostModelVerifier(shdNet).checkReady(shdNet):
+                raise RuntimeError('cost model verification failed!')
 
         #------------------
         # The model is now fully initialized.

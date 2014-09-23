@@ -23,7 +23,7 @@ This module holds classes used in calculating costs associated with simulations.
 
 _hermes_svn_id_="$Id$"
 
-import sys, os, StringIO, types, unittest
+import sys, os, StringIO, types, unittest, itertools
 import ipath
 import abstractbaseclasses, warehouse, reportinghierarchy
 import csv_tools
@@ -201,28 +201,15 @@ class PriceTable:
     def getCurrency(self):
         return self.currency
 
-class LegacyCostManager:
+class LegacyCostManager(dummycostmodel.DummyCostManager):
     def __init__(self, sim, model, priceTable):
         """
         This class knows how to calculate and output cost information, based on the current Model and
         a PriceTable.
         """
-        self.sim = sim
-        self.model = model
         self.priceTable = priceTable
-        self.intervalStartTime = self.sim.now()
-        self.intervalEndTime = None
-        
-    def startCostingInterval(self, timeNow=None):
-        """
-        Set the start time for time-interval-based cost calculations to the given time.  Note that
-        this does not clear statistics from the NoteHolders or ReportingHierarchies used to generate 
-        actual reports.
-        """
-        if timeNow is None: timeNow= self.sim.now()
-        self.intervalStartTime = timeNow
-        self.intervalEndTime = None
-        
+        dummycostmodel.DummyCostManager.__init__(self, sim, model)
+                
     def endCostingInterval(self, timeNow=None):
         """
         End the costing interval and trigger the addition of cost-related notes for this interval to
@@ -242,23 +229,23 @@ class LegacyCostManager:
             wh= r()
             if wh is not None and not isinstance(wh, warehouse.AttachedClinic):
                 nh= wh.getNoteHolder()
-                nh.addNote(self.generateBuildingCostNotes(wh.reportingLevel, wh.conditions,
-                                                          self.intervalStartTime, self.intervalEndTime))
+                nh.addNote(self._generateBuildingCostNotes(wh.reportingLevel, wh.conditions,
+                                                           self.intervalStartTime, self.intervalEndTime))
                 for costable in wh.ownedCostables:
                     if isinstance(costable,abstractbaseclasses.CanStore):
                         try: 
-                            nh.addNote(self.generateSimpleFridgeCostNotes(wh.reportingLevel, wh.conditions, 
-                                                                          self.intervalStartTime, self.intervalEndTime, 
-                                                                          costable.getType().name))
+                            nh.addNote(self._generateSimpleFridgeCostNotes(wh.reportingLevel, wh.conditions, 
+                                                                           self.intervalStartTime, self.intervalEndTime, 
+                                                                           costable.getType().name))
                         except Exception,e:
                             errList.append(str(e))
                     elif isinstance(costable,trucktypes.Truck):
                         for innerItem in costable.getCargo():
                             if isinstance(innerItem,abstractbaseclasses.CanStore):
                                 try: 
-                                    nh.addNote(self.generateSimpleFridgeCostNotes(wh.reportingLevel, wh.conditions, 
-                                                                                  self.intervalStartTime, self.intervalEndTime, 
-                                                                                  innerItem.getType().name))
+                                    nh.addNote(self._generateSimpleFridgeCostNotes(wh.reportingLevel, wh.conditions, 
+                                                                                   self.intervalStartTime, self.intervalEndTime, 
+                                                                                   innerItem.getType().name))
                                 except Exception,e:
                                     errList.append(str(e))
 
@@ -352,7 +339,7 @@ class LegacyCostManager:
                 "LaborCost":self.priceTable.get("healthworker","PerTreatmentDay",
                                                 level=level,conditions=conditions)}
         
-    def generateSimpleFridgeCostNotes(self, level, conditions, startTime, endTime, typeName ):
+    def _generateSimpleFridgeCostNotes(self, level, conditions, startTime, endTime, typeName ):
         """
         This routine is called once per Fridge instance per reporting interval, and returns a Dict 
         suitable for NoteHoder.addNote() containing cost information for that instance over the interval.
@@ -361,7 +348,7 @@ class LegacyCostManager:
         costPerYear= self.priceTable.get(typeName,"PerYear",level=level,conditions=conditions)
         return {"StorageCost":((endTime-startTime)/float(self.model.daysPerYear))*costPerYear}
 
-    def generateBuildingCostNotes(self, level, conditions, startTime, endTime ):
+    def _generateBuildingCostNotes(self, level, conditions, startTime, endTime ):
         """
         This routine is called once per Warehouse or Clinic instance per reporting interval, and returns a Dict 
         suitable for NoteHoder.addNote() containing cost information associated with the building or location
@@ -381,7 +368,7 @@ class LegacyCostManager:
         if timeNow is None: timeNow = self.sim.now()
         wanted= ['Currency','RouteTrips','PerDiemDays','CostingTreatmentDays','PerDiemCost','PerKmCost',
                  'PerTripCost','TransportCost','LaborCost','StorageCost','BuildingCost']
-        keys = ['ReportingLevel','ReportingBranch','ReportingIntervalDays','DaysPerYear']+wanted
+        keys = ['ReportingLevel','ReportingBranch','ReportingIntervalDays','DaysPerYear','Type']+wanted
         recs = reportingHierarchy.report(wanted)
         keys += ['Currency']
         for rec in recs:
@@ -395,23 +382,7 @@ class LegacyCostManager:
 #            except RuntimeError:
 #                pass
         return keys, recs
-    
-    def writeCostRecordsToResultsEntry(self, shdNet, reportingHierarchy, results, timeNow=None):
-        if timeNow is None: timeNow = self.sim.now()
-        #print reportingHierarchy.getAvailableFieldNames()
-        keys, recs= self.generateCostRecordInfo( reportingHierarchy, timeNow )
-        results.addCostSummaryRecs(shdNet, recs)
-        
-    def writeCostRecordList(self, fileName, reportingHierarchy, timeNow=None):
-        """
-        This is a convenience function to generate a record list and write it to the given
-        open file in .csv format.
-        """
-        if timeNow is None: timeNow = self.sim.now()
-        #print reportingHierarchy.getAvailableFieldNames()
-        keys, recs= self.generateCostRecordInfo( reportingHierarchy, timeNow )
-        with util.openOutputFile(fileName,"w") as f: csv_tools.writeCSV(f, keys, recs, sortColumn="ReportingLevel" )
-        
+            
     def _checkOneRec(self, keyStr, rec):
         disallowedKeyDict = {'driver':['PerKm', 'PerTreatmentDay', 'PerVial'],
                              'healthworker':['PerKm','PerTrip','PerDiem','PerVial'],
@@ -457,9 +428,10 @@ class LegacyCostManager:
             if specialKey in recDict:
                 for rec in recDict[specialKey]: self._checkOneRec(specialKey, rec)
 
-class LegacyCostModelVerifier(object):
+class LegacyCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
     def __init__(self, priceTable):
         self.priceTable = priceTable
+        dummycostmodel.DummyCostModelVerifier.__init__(self)
 
     def checkReady(self, net):
         """
@@ -467,39 +439,60 @@ class LegacyCostModelVerifier(object):
         are defined.
         """
         # Hm- in ShdNetwork, only routes have conditions, but for instantiated model stores do too.
+        
         neededEntries = set()
-        for storeId,store in net.stores.items():
+        allButAttached = set()
+        allRoutes = set()
+        allAttached = set()
+        if len(net.factories):
+            seedStores = []
+            for factory in net.factories.values():
+                targetIds = [int(idStr.strip()) for idStr in factory.Targets.split('+')]
+                seedStores += [net.getStore(id) for id in targetIds]
+        else:
+            seedStores = net.rootStores()
+        for factoryClient in seedStores:
+            allButAttached,allRoutes,allAttached = net.storesAndRoutesBelow(factoryClient, 
+                                                                            storeSet=allButAttached, 
+                                                                            routeSet=allRoutes,
+                                                                            rejectSet=allAttached,
+                                                                            storeFilter=lambda s,r : r.Type != 'attached')
+
+        for store in itertools.chain(allButAttached, allAttached):
             if hasattr(store,'conditions') and store.conditions is not None: 
                 conditions = store.conditions
             else: conditions = u'normal'
-            neededEntries.add((u'building',u'PerYear',store.CATEGORY,conditions))
             if store.CATEGORY.lower() == u'administration':
                 neededEntries.add((u'healthworker',u'PerTreatmentDay',store.CATEGORY,conditions))
+
             for shdInv in store.inventory:
                 invTp = shdInv.invType.shdType
                 if invTp == 'fridges':
                     neededEntries.add((shdInv.invType.Name,u'PerYear',store.CATEGORY,conditions))
                 elif invTp == 'trucks':
-                    truckStorageNames = [b for a,b in util.parseInventoryString(shdInv.invType.Storage)]
+                    truckStorageNames = [b for a,b in util.parseInventoryString(shdInv.invType.Storage)]  # @UnusedVariable
                     for fridge in [net.fridges[nm] for nm in truckStorageNames]:
                         neededEntries.add((fridge.Name,u'PerYear',store.CATEGORY,conditions))
-            
-        for routeId,route in net.routes.items():
+                        
+        for store in allButAttached:
+            if hasattr(store,'conditions') and store.conditions is not None: 
+                conditions = store.conditions
+            else: conditions = u'normal'
+            neededEntries.add((u'building',u'PerYear',store.CATEGORY,conditions))
+                        
+        for route in allRoutes:
             truckType = route.TruckType
             if truckType != u'': # attached routes have no truck
-                print route.RouteName
-                print route.Type
                 category = route.supplier().CATEGORY
                 conditions = route.Conditions
                 if conditions is None or conditions==u'': conditions = u'normal'
-                print '%s %s %s'%(truckType,category,conditions)
                 neededEntries.add((truckType,u'PerKm',category,conditions))
                 neededEntries.add((truckType,u'PerDiem',category,conditions))
                 neededEntries.add((truckType,u'PerTrip',category,conditions))
                 neededEntries.add((u'driver',u'PerYear',category,conditions))
                 neededEntries.add((u'driver',u'PerDiem',category,conditions))
                 neededEntries.add((u'driver',u'PerTrip',category,conditions))
-            
+
         #print neededEntries
         missingList = []
         for tpl in neededEntries:
@@ -509,6 +502,7 @@ class LegacyCostModelVerifier(object):
             except Exception,e:
                 print 'failed %s: %s'%(tpl,e)
                 missingList.append(tpl)
+
         return (len(missingList)==0)
 
 def describeSelf():
@@ -552,7 +546,7 @@ def main(myargv = None):
 """
                                      )
     currencyFile.name = 'notReallyACurrencyFile'
-    currencyConverter = CurrencyConverter(currencyFile, 'USD', 2011)
+    currencyConverter = CurrencyConverter(currencyFile, 'USD', 2011,0.0)
     if len(myargv)<2:
         describeSelf()
     elif myargv[1]=="test1":

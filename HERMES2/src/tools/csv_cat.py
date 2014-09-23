@@ -78,7 +78,7 @@ def main():
     for k in keys:
         w= len(str(k))
         for r in recs:
-            lenVStr = len(str(r[k]))
+            lenVStr = len(unicode(r[k]))
             if lenVStr > w: w = lenVStr
         fieldWidthDict[k] = w
         

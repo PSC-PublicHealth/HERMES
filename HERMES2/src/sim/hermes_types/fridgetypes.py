@@ -26,30 +26,30 @@ instances provide the storage capacity used by warehouses and trucks.
 _hermes_svn_id_="$Id$"
 
 import weakref
+import collections
 import abstractbaseclasses
 import trackabletypes
 import storagetypes
 import constants as C
 import warehouse
 import copy
+from csv_tools import castTypes
 
-# energyTranslationDict maps the 'Energy' field of the type record to a tuple containing a short name, a longer name, a string 
-# for rate units for that energy type, and a string for scalar (non-rate) units.
-energyTranslationDict = {'E':('Electric','Electric Mains','KwH/day','Kilowatt Hour'),
-                         'K':('Kerosene','Kerosene','liters/day','Liter'),
-                         'G':('Propane','LP Gas','Kg/day','Kg'),
-                         'P':('Petrol','Petrol','liters/day','Liter'),
-                         'S':('Solar','Solar Power','Kw','Installed Kilowatt'),
-                         'I':('Ice','Ice','liters/charge','Liter'),
-                         'B':('BlueIce','Blue Ice','liters/charge','Liters'),
-                         'EK':('Electric/Kerosene','Electric with option for Kerosene','KwH/day','Kilowatt Hour'),
-                         'KE':('Kerosene/Electric','Kerosene with option for Electric','liters/day','Liter'),
-                         'EG':('Electric/Propane','Electric with option for Propane','KwH/day','Kilowatt Hour'),
-                         'GE':('Propane/Electric','LP Gas with option for Electric','Kg/day','Kg'),
-                         'U':('Unknown',None,None,None),
-                         '':('Unknown',None,None,None),
-                         None:('Unknown',None,None,None),
-                         }
+#: energyTranslationDict maps the 'Energy' field of the type record to a tuple containing a short name, a longer name, a string 
+#: for rate units for that energy type, a string for scalar (non-rate) units, the fuel type string for costing purposes
+energyTranslationDict = collections.defaultdict(lambda : ('Unknown',None,None,None,None),
+                                                {'E':('Electric','Electric Mains','KwH/day','Kilowatt Hour','electric'),
+                                                 'K':('Kerosene','Kerosene','liters/day','Liter','kerosene'),
+                                                 'G':('Propane','LP Gas','Kg/day','Kg','propane'),
+                                                 'P':('Petrol','Petrol','liters/day','Liter','gasoline'),
+                                                 'S':('Solar','Solar Power','Kw','Installed Kilowatt','solar'),
+                                                 'I':('Ice','Ice','liters/charge','Liter','ice'),
+                                                 'B':('BlueIce','Blue Ice','liters/charge','Liters','ice'),
+                                                 'EK':('Electric/Kerosene','Electric with option for Kerosene','KwH/day','Kilowatt Hour','electric'),
+                                                 'KE':('Kerosene/Electric','Kerosene with option for Electric','liters/day','Liter','kerosene'),
+                                                 'EG':('Electric/Propane','Electric with option for Propane','KwH/day','Kilowatt Hour','electric'),
+                                                 'GE':('Propane/Electric','LP Gas with option for Electric','Kg/day','Kg','propane'),
+                                                 })
 
 def fridgeDisplayNameFromRec(rec):
     """
@@ -165,6 +165,14 @@ class FridgeType(abstractbaseclasses.CanStoreType, abstractbaseclasses.NonScalin
             if str(storageCapacity[0]) == storeTypeName:
                 vol += storageCapacity[1]
         return vol
+    
+    @classmethod
+    def getColumnTypeDict(cls):
+        return {
+                u'BaseCostYear':[castTypes.POSITIVE_INT, castTypes.EMPTY_IS_NONE],
+                u'PowerRate':[castTypes.FLOAT, castTypes.EMPTY_IS_NONE],
+                u'BaseCost':[castTypes.FLOAT, castTypes.EMPTY_IS_NONE]
+                }
 
 class ShippableFridgeType(FridgeType, abstractbaseclasses.ShippableType, abstractbaseclasses.DeliverableType):
     typeName= 'shippableRefrigerators'

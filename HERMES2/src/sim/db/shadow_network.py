@@ -2369,8 +2369,10 @@ class ShdCurrencyConversion(Base):
             # don't save holes in the table
             if val is None:
                 continue
-            if val == "":
-                continue
+            if isinstance(val, types.StringTypes):
+                val = val.strip()
+                if val == "":
+                    continue
             year = castValue(key, INTEGER.cast(), "currency year")
             value = castValue(val, FLOAT.cast(), "currency value")
             ret.append(ShdCurrencyConversion(country,
@@ -2465,15 +2467,15 @@ class ShdCostSummary(Base, ShdCopyable):
 
     @staticmethod
     def initSummaryFromRec(rec):
-#         if 'Name' not in rec:
-#             raiseRuntimeError('No "Name" (type name) in summary record to be converted')
         if 'Type' not in rec:
             raise RuntimeError('No "Type" (class type) in cost summary record to be converted')
         t = rec['Type']
         if t not in ShdCostSummary.typesMap:
             raise RuntimeError('Unknown cost summary type %s in summary record to be converted'%t)
 
-        return ShdCostSummary.typesMap[t](rec)
+        result = ShdCostSummary.typesMap[t](rec)
+        
+        return result
 
     def __iadd__(self,summary_):
         
@@ -2502,15 +2504,7 @@ class ShdCostSummary(Base, ShdCopyable):
                     setattr(self,attr,value)
         
         return self
-        
-    def resetToZero(self):
-        for attr in self.__dict__.keys():
-            if attr[-2:] != "Id":
-                if isinstance(getattr(self,attr),float) or isinstance(getattr(self,attr),int):
-                    #value = getattr(self,attr) + getattr(summary_,attr)
-                    setattr(self,attr,0.0) 
-        return self
-    
+            
     def createRecord(self):
         return self.createRec()
 
@@ -2547,7 +2541,54 @@ class ShdLegacyCostSummary(ShdCostSummary):
 
 _makeColumns(ShdLegacyCostSummary)
 
+class ShdMicro1CostSummaryGrp(ShdCostSummary):
+    __tablename__ = "microCostSummary"
+    summaryType = 'micro1'
+    __mapper_args__ = {'polymorphic_identity': summaryType}
+
+    micro1CostSummaryId = Column(Integer, ForeignKey('costSummary.summaryId'), primary_key=True)
+
+    attrs = [
+             ('ReportingLevel', STRING),
+             ('ReportingBranch', STRING),
+             ('ReportingIntervalDays', FLOAT_NONE),
+             ('DaysPerYear', FLOAT_NONE),
+             ('Currency', STRING_NONE),
+             ('BaseYear', INTEGER),
+             ]
+    
+    attrKeySet = set([t[0] for t in attrs] + ['Type'])
+    
+    costEntries = relationship('ShdMicro1CostSummaryEntry',backref='costSummaryGroup')
+    
+    def __init__(self, *args, **kwargs):
+        _initShdType(self, args, kwargs)
+        self.costEntries = [ShdMicro1CostSummaryEntry(costCategory=k, cost=v) for k,v in args[0].items()
+                            if k not in self.attrKeySet]
+
+_makeColumns(ShdMicro1CostSummaryGrp)
+
+class ShdMicro1CostSummaryEntry(Base, ShdCopyable):
+    __tablename__ = "microCostSummaryEntry"
+
+    micro1SummaryEntryId = Column(Integer, primary_key=True)
+
+    # apparently there's nothing in this summary dict!
+    attrs = [
+             ('costSummaryGrpId', DataType(INTEGER, foreignKey = 'microCostSummary.micro1CostSummaryId'),
+              'noInputRec', True,
+              'relationship', 'manytoone'),
+             ('costCategory', STRING),
+             ('cost', FLOAT)
+             ]
+    
+    def __init__(self, *args, **kwargs):
+        _initShdType(self, args, kwargs)
+
+_makeColumns(ShdMicro1CostSummaryEntry)
+
 ShdCostSummary.typesMap = {'legacy':ShdLegacyCostSummary,
+                           'micro1':ShdMicro1CostSummaryGrp,
                            }
     
 
@@ -3769,8 +3810,53 @@ class ShdNetwork(Base):
 
         return rootStores
 
+    def storesBelow(self, topStore, seedSet=None):
+        """
+        Return a Set containing all stores below the given store, including the given store.  If
+        seedSet is given, stores are added to that set.
+        """
+        queue = [topStore]
+        if seedSet is None:
+            result = set()
+        else:
+            result = seedSet
+        while queue:
+            s = queue.pop()
+            if s not in result:
+                for store,route in s.clients():  # @UnusedVariable
+                    queue.append(store)
+                result.add(s)
+        return result
     
+    def storesAndRoutesBelow(self, topStore, storeSet=None, routeSet=None, rejectSet=None, storeFilter=None):
+        """
+        Returns 3 sets as a tuple: storeSet, routeSet, rejectSet; if the input values for any of these sets is 
+        not None the input set will be extended to form the corresponding output set.
+        
+        Traverse downward from topStore, calling storeFilter(store,route) on all client stores.  If storeFilter
+        returns true, the store and route are added to their output sets and traversal continues.  If storeFilter
+        returns false the route is still added to its output set, but the store goes into rejectSet instead
+        and any clients below the rejected store are not traversed.
+        """
+        if storeSet is None: storeSet = set()
+        if routeSet is None: routeSet = set()
+        if rejectSet is None: rejectSet = set()
+        if storeFilter is None: storeFilter = lambda s,r: True
+        storeSet.add(topStore)
+        queue = topStore.clientRoutes()[:]
+        while queue:
+            r = queue.pop()
+            routeSet.add(r)
+            for s in r.clients():
+                if storeFilter(s,r):
+                    if s not in storeSet:
+                        for subR in s.clientRoutes(): queue.append(subR)
+                        storeSet.add(s)
+                else:
+                    rejectSet.add(s)
+        return storeSet, routeSet, rejectSet
     
+
     def addSortedClients(self,store):
         clientList = [store.idcode]
         tmpClientList = []

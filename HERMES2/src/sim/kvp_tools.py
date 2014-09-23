@@ -252,8 +252,8 @@ class KVPParser:
             if encoding is None:
                 if hasattr(ofileOrFilename,'encoding'):
                     encoding = ofileOrFilename.encoding
-                else:
-                    encoding = 'utf8'
+            if encoding is None:
+                encoding = 'utf8'
             f = codecs.getwriter(encoding)(ofileOrFilename, 'replace')
             self._innerWriteKVP(f,dict)
     

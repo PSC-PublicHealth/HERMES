@@ -325,6 +325,14 @@ class ManagedType(UnicodeSupport):
         the TypeManager fields a request which implies a different set of construction parameters.
         """
         return True
+    
+    @classmethod
+    def getColumnTypeDict(cls):
+        """
+        This method returns a dict of the form {columnKey:[datatypes.DataType]}, with the expectation
+        that csv_tools.castColumn will be used with the given type to convert incoming record fields.
+        """
+        return {}
 
 class HasOVW(ManagedType):
     """

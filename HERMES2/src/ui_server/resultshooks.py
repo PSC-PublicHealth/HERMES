@@ -49,7 +49,7 @@ def resultsFireworksPage(db, uiSession):
     vaccinesInUse = [k for k,v in hR.summaryRecs.items() if isinstance(v, s_n.ShdVaccineSummary)]
     return bottle.template("results_fireworks.tpl",{"breadcrumbPairs":[("top",_("Welcome")),
                                                                   ("results-top",_("Results")),
-                                                                  ("results-edit",_("Edit")),
+                                                                  ("results-summary?modelId=%d&resultsId=%d"%(hRG.modelId,resultsId),_("Summary")),
                                                                   ("results-fireworks",_("Fireworks"))],
                                                     "vaccineList":vaccinesInUse,
                                                     "resultsId":resultsId,

@@ -23,21 +23,29 @@ This module provides currency conversion support.
 
 _hermes_svn_id_="$Id$"
 
-import sys, os, types
+import sys, os, types, math
 import csv_tools
 
 class CurrencyConverter:
     """
     This class reads a currency conversion table and provides currency conversions.
     """
-    def __init__(self, csvFile, currencyBase, currencyBaseYear):
+    def __init__(self, csvFile, currencyBase, currencyBaseYear, inflationRate):
+        """
+        inflationRate is a scale factory- for example, inflationRate=0.03 implies 3% inflation
+        """
         self.cb= currencyBase
         self.year= int(currencyBaseYear)
+        self.inflation= float(inflationRate)
         keys,recs= csv_tools.parseCSV(csvFile)
-        if currencyBaseYear in keys:
-            self.yearKey = currencyBaseYear
-        elif str(currencyBaseYear) in keys:
-            self.yearKey = str(currencyBaseYear)
+        yearKeys = {}
+        for k in keys:
+            try:
+                yearKeys[int(k)] = k
+            except:
+                pass
+        if int(currencyBaseYear) in yearKeys:
+            self.yearKey = yearKeys[self.year]
         else:
             raise RuntimeError("Requested currency base year %d is not in the currency conversion table"%self.year)
         if 'Currency Code' not in keys:
@@ -48,34 +56,24 @@ class CurrencyConverter:
             
         found = False
         for r in recs:
-            if r['Currency Code'] == 'USD' and r[self.yearKey] != '':
+            if r['Currency Code'] == 'USD' and r[yearKeys[self.year]] != '':
                 found = True
-                if r[self.yearKey] != 1.0:
+                if r[yearKeys[self.year]] != 1.0:
                     raise RuntimeError("The currency conversion table does not seem to be written in terms of USD")
                 break
         if not found:
             raise RuntimeError("Cannot find an entry for USD in the currency conversion table")
         
-        baseRecList = [r for r in recs if r['Currency Code']=='USD']
-        if len(baseRecList) == 0:
-            raise RuntimeError("The currency table record for %s is missing"%self.cb)
-        baseFac = None
-        for r in baseRecList:
-            if type(r[self.yearKey]) == types.FloatType:
-                baseFac = r[self.yearKey]
-                break
-        if baseFac is None:
-            raise RuntimeError("Failed to find a valid base currency value for the base year")
-        if baseFac <= 0.0:
-            raise RuntimeError("Currency table contains a nonsense value for the base currency at base year")
-        
-        self.table= {}
+        self.fullTable= { yr:{} for yr in yearKeys.keys() }
         for r in recs:
             curCode = r['Currency Code']
-            if self.yearKey in r:
-                v = r[self.yearKey]
-                if v is not None and v != '' and v > 0.0:
-                    self.table[curCode] = baseFac/v
+            for yr,yrKey in yearKeys.items():
+                try:
+                    self.fullTable[yr][curCode] = float(r[yrKey])
+                except:
+                    pass
+        #print self.fullTable
+                
                     
     def _toJSON(self):
         """
@@ -89,20 +87,61 @@ class CurrencyConverter:
 
         
     def convert(self, curCode, val):
-        if curCode in self.table:
-            return self.table[curCode] * val
-        raise RuntimeError("No conversion factor to take %s to %s"%(curCode,self.cb))
+        """
+        This converts the given value in the given currency to the base currency, 
+        assuming the conversion happens in the base year.
+        """
+        return self.convertTo(val, curCode, self.cb, inflation=0.0)
     
-    def convertTo(self, curCode, val, newCurCode):
-        if curCode in self.table and newCurCode in self.table:
-            return (self.table[curCode] * val)/self.table[newCurCode]
-        raise RuntimeError("No conversion factor to take %s to %s"%(curCode,newCurCode))
+    def convertTo(self, val, curCode, newCurCode, startYear=None, endYear=None, inflation=None):
+        """
+        val is a value in currency type curCode; it is converted to currency type newCurCode and
+        inflated according to the given time interval and inflation rate.  Years may be non-integer.
+        For example, if the simulation start time is the beginning of 2011, simulation years have
+        336 days, and it is desired to calculate inflation over the interval between day 56 and 
+        day 308 of the simulation, startYear = 2011 + 56/336 = 2011.166667 and similarly
+        endYear = 2011.916667 .
+        """
+        if startYear is None: 
+            startYear = float(self.getBaseYear())
+            tblYear = self.getBaseYear()
+        else: 
+            if isinstance(startYear, types.FloatType):
+                tblYear = int(math.floor(startYear))
+            else:
+                tblYear = int(startYear)
+                startYear = float(startYear)
+        if endYear is None: endYear = float(self.getBaseYear())
+        else: endYear = float(endYear)
+        if inflation is None: inflation = self.getInflationRate()
+        
+        if curCode == newCurCode: valNewCurStartYear = val
+        else:
+            if tblYear in self.fullTable:
+                t = self.fullTable[tblYear]
+                if curCode in t: v1 = t[curCode]
+                else: raise RuntimeError("No conversion table value for %s in %d"%(curCode, tblYear))
+                if newCurCode in t: v2 = t[newCurCode]
+                else: raise RuntimeError("No conversion table value for %s in %d"%(newCurCode, tblYear))
+            else: raise RuntimeError("No conversion table values for the year %d"%tblYear)
+            valNewCurStartYear = val*(v2/v1)
+            
+        if startYear==endYear or inflation==0.0: 
+            return valNewCurStartYear
+        else:
+            delta = endYear-startYear
+            return valNewCurStartYear * math.exp(delta*self.inflation)
+            
+        return valNewCurStartYear
     
     def getBaseCurrency(self):
         return self.cb
     
     def getBaseYear(self):
         return int(self.year)
+    
+    def getInflationRate(self):
+        return self.inflation
     
     def __str__(self): 
         return "<CurrencyConverter(%s, %d)>"%(self.cb, self.year)
