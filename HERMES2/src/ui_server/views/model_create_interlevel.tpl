@@ -31,7 +31,7 @@
   	        <option value="true">{{_('On A Fixed Schedule')}}</option><option value="false" selected>{{_('As Needed')}}</option></select></td>
 %            end
   	    <td><input type="number" id="model_create_interl_howoften_{{i}}" value={{howoften}}></td>
-  	    <td>times per</td>
+  	    <td>{{_("times per")}}</td>
   	    <td><select id="model_create_interl_ymw_{{i}}">
 %            if ymw == 'year':
   	        <option value="year" selected>{{_('Year')}}</option><option value="month">{{_('Month')}}</option><option value="week">{{_('Week')}}</option>
@@ -54,7 +54,7 @@
   	    <td><select id="model_create_interl_issched_{{i+2}}">
   	        <option value="true">{{_('On A Fixed Schedule')}}</option><option value="false">{{_('As Needed')}}</option></select></td>
   	    <td><input type="number" id="model_create_interl_howoften_{{i+2}}" value=1></td>
-  	    <td>times per</td>
+  	    <td>{{_("times per")}}</td>
   	    <td><select id="model_create_interl_ymw_{{i+2}}">
   	        <option value="year">{{_('Year')}}</option><option value="month">{{_('Month')}}</option><option value="week">{{_('Week')}}</option>
   	    </select></td>
