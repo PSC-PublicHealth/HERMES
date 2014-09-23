@@ -469,14 +469,19 @@ def jsonResultSummaryCostHierarchical(db, uiSession):
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         r = m.getResultById(resultsId)
 
-        #import ipdb
-        #ipdb.set_trace()
+        base = u'USD'
+        year = 2010
 
         try:
             cost_summary = getCostModelSummary(m, r)
-            result = {'success': True,
-                  'data': cost_summary.dict()}
-                  #'data': json.loads(CostHierarchyTestJSON)}
+            result = {
+                    'success': True,
+                    'data': {
+                      'cost_summary': cost_summary.dict(),
+                      'currency_base': base,
+                      'currency_year': year
+                    }
+                }
         except:
             result = {'success': False,
                   'data': '{}'}

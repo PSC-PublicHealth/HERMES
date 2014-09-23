@@ -35,12 +35,6 @@ class CostModelHierarchicalSummary(object):
     def __init__(self, result):
         self.result = result
 
-    #def _exchange(self, xchg = {'from': {'currency': None, 'year': None},
-    #                            'to': {'currency': 'USD', 'year': 2014}},
-    #                            amount):
-    #    # dummy conversion for now
-    #    return (amount, ret['to'])
-
     def _do(self, groups, costs):
         recs = self.result.getCostSummaryRecs()
         d = {}
@@ -86,7 +80,10 @@ class LegacyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
 
     def dict(self):
         groups = ('ReportingLevel',)
-        costs = ('BuildingCost','StorageCost','TransportCost')
+        costs = (
+                #'PerDiemCost','PerKmCost','PerTripCost',
+                'LaborCost','BuildingCost','StorageCost','TransportCost'
+                )
         return self._do(groups, costs)
 
 class DummyCostModelHierarchicalSummary(CostModelHierarchicalSummary):

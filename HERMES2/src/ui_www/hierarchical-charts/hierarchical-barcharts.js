@@ -98,7 +98,8 @@
 
             d3.json(jsonDataURL, function(error, ret) {
                 console.log(ret.error);
-                var root = ret.data;
+                //console.log(ret.data);
+                var root = ret.data.cost_summary;
                 partition.nodes(root);
                 x.domain([0, root.value]).nice();
                 down(root, 0);
@@ -269,9 +270,6 @@
                     return tx;
                 };
             };
-
-
-
         }
     });
 })(jQuery);

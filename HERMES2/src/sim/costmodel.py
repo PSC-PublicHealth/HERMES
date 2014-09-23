@@ -75,3 +75,4 @@ def getCostModelSummary(shdNet, result):
         # legacycostmodel
         return LegacyCostModelHierarchicalSummary(result)
 
+
