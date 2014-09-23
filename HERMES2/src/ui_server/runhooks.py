@@ -150,7 +150,7 @@ def modelRunPage(db,uiSession,step="unknown"):
     try:
         crumbTrack = uiSession.getCrumbs()
         stepPairs = [('specify',_('Start')),
-                     ('realitycheck',_('Verify')),
+                     #('realitycheck',_('Verify')),
                      ('specifics',_('Details')),
                      ('run',_('Go!')),
                      ]
@@ -203,6 +203,7 @@ def modelRunPage(db,uiSession,step="unknown"):
         _intCheckAscendingListAndInvalidate(reqParams, runInfo, 'seed_%d', 'seeds',
                                             invalidateName=None, baseCount=0)
         _boolCheckDefAndInvalidate(reqParams, runInfo, 'deterministic', 'deterministic', None)
+        _boolCheckDefAndInvalidate(reqParams, runInfo, 'perfect','perfect',None)
         _boolCheckDefAndInvalidate(reqParams, runInfo, 'setseeds', 'setseeds', None)
         if 'modelId' in reqParams: uiSession['selectedModelId'] = int(runInfo['modelId'])
         uiSession.changed() # maybe the _checkDefs changed it; be safe.
@@ -213,14 +214,17 @@ def modelRunPage(db,uiSession,step="unknown"):
             runInfo['modelName'] = m.name
         formVals = {"breadcrumbPairs":crumbTrack,
                     'generateInitialSeedTable':generateInitialSeedTable}
-        for k in ['runName','modelId','modelName','nInstances','seeds','deterministic','setseeds']:
+        for k in ['runName','modelId','modelName','nInstances','seeds','deterministic','perfect','setseeds']:
             if k in runInfo: formVals[k] = runInfo[k]
         if screen=="specify":
             return bottle.template("run_specify.tpl",formVals)
         elif screen=="realitycheck":
             return bottle.template("run_realitycheck.tpl",formVals)
         elif screen=="specifics":
-            return bottle.template("run_specifics.tpl",formVals)
+            developer = False
+            if 'developerMode' in uiSession and uiSession['developerMode']:
+                developer = True
+            return bottle.template("run_specifics.tpl",formVals,developer=developer)
         elif screen=="run":
             return bottle.template("run_run.tpl",formVals)
         elif screen=="run-top":
@@ -373,6 +377,8 @@ def jsonRunStart(db, uiSession):
         optList = []
         if 'deterministic' in runInfo and runInfo['deterministic']:
             optList.append('--deterministic')
+        if 'perfect' in runInfo and runInfo['perfect']:
+            optList.append('--perfect')
         if 'seeds' in runInfo and runInfo['seeds']:
             foundAny = False
             seedStr = ''

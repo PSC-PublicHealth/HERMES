@@ -1,4 +1,4 @@
-%rebase outer_wrapper title_slogan=_("Run A Model Simulation"), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
+%rebase outer_wrapper title_slogan=_("Run A Model Simulation"), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,developer=developer
 <h3>{{_('Provide Some Details')}}</h3>
 <table>
 <col align='right'>
@@ -15,6 +15,8 @@
 %end
 	id="n_instances"></td>
 </tr>
+
+%if developer:
 <tr>
 <td><label for="set_seeds_checkbox">{{_("Set random seeds?")}}</label></td>
 <td><input type="checkbox" id="set_seeds_checkbox"
@@ -30,6 +32,8 @@
 	></div>
 </td>
 </tr>
+%end
+%if developer:
 <tr>
 <td><label for="deterministic_checkbox">{{_("Try to be deterministic?")}}</label></td>
 <td><input type="checkbox" id="deterministic_checkbox"
@@ -38,6 +42,17 @@
 %end
     ></td>
 </tr>
+%end
+%if developer:
+<tr>
+<td><label for="perfect_checkbox">{{_("Run with Perfect Storage and Transport?")}}</label></td>
+<td><input type="checkbox" id="perfect_checkbox"
+	%if defined('perfect') and perfect:
+		checked
+	%end
+	></td>
+</tr>
+%end
 <tr>
 <td colspan=2><input type="button" id="edit_parms_button" value="{{_('Edit Parameters?')}}"></td>
 </tr>
@@ -91,6 +106,8 @@ function getParmString() {
 	var s = '?nInstances='+nSeeds.toString();
 	var deterministicChecked = $("#deterministic_checkbox").is(":checked")
 	s += '&deterministic='+deterministicChecked.toString();
+	var perfectChecked = $('#perfect_checkbox').is(':checked')
+	s += '&perfect='+perfectChecked.toString();
 	var seedsChecked = $("#set_seeds_checkbox").is(":checked")
 	s += '&setseeds='+seedsChecked.toString();
 	for (var i = 0; i<nSeeds; i++) {
