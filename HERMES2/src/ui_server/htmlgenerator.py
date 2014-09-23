@@ -497,14 +497,13 @@ def getRouteDialogHTML(db,uiSession,name="model_route_dialog",genInfo=True,util=
     sio.write("<div id = '%s_content'>"%(name))
     sio.write("<ul>")
     if genInfo:
-        print "HERE"
-        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Route Information')))
+        sio.write(u"<li style='font-size:small'><a href='#tab-{0}'>{1}</a></li>".format(tabCount,_('Route Information')))
         tabCount += 1
     if util:
-        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Vehicle Utilization')))
+        sio.write(u"<li style='font-size:small'><a href='#tab-{0}'>{1}</a></li>".format(tabCount,_('Vehicle Utilization')))
         tabCount += 1
     if tripMan:
-        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Trips')))
+        sio.write(u"<li style='font-size:small'><a href='#tab-{0}'>{1}</a></li>".format(tabCount,_('Trips')))
         tabCount += 1
         
     sio.write("</ul>")
@@ -547,6 +546,7 @@ def getRouteDialogHTML(db,uiSession,name="model_route_dialog",genInfo=True,util=
     if tripMan: sio.write("%s_meta['tripMan'] = true;%s_meta['getResults'] = true;"%(name,name))
     sio.write("</script>")
   
+    print type(sio.getvalue())
     return sio.getvalue()
     
         
@@ -555,108 +555,103 @@ def getStoreDialogHTML(db,uiSession,name="model_store_dialog",buttonName=None,ge
                        transDev=True,invent=True,fillRatio=True,vaccAvail=True,
                        availPlot=True):
     tabCount = 1
-    sio=StringIO()
-    
-    sio.write("<div id='%s_dialog' class = '%s_dialog' title='This should get replaced'>"%(name,name))
-    sio.write("<div id = '%s_content'>"%(name))
-    sio.write("<ul>")
+    stringList = []
+    stringList.append("<div id='%s_dialog' class = '%s_dialog' title='This should get replaced'>"%(name,name))
+    stringList.append("<div id = '%s_content'>"%(name))
+    stringList.append("<ul>")
     if genInfo:
-        print "HERE"
-        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('General Info')))
+        stringList.append(u"<li style='font-size:small'><a href='#tab-{0}'>{1}</a></li>".format(tabCount,_('General Info')))
         tabCount += 1
     if popInfo:
-        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Population Information')))
+        stringList.append(u"<li style='font-size:small'><a href='#tab-{0}'>{1}</a></li>".format(tabCount,_('Population Information')))
         tabCount += 1
     if util:
-        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Utilization')))
+        stringList.append(u"<li style='font-size:small'><a href='#tab-{0}'>{1}</a></li>".format(tabCount,_('Utilization')))
         tabCount += 1
     if storeDev:
-        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Storage Devices')))
+        stringList.append(u"<li style='font-size:small'><a href='#tab-{0}'>{1}</a></li>".format(tabCount,_('Storage Devices')))
         tabCount += 1
     if transDev:
-        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Transport Devices')))
+        stringList.append(u"<li style='font-size:small'><a href='#tab-{0}'>{1}</a></li>".format(tabCount,_('Transport Devices')))
         tabCount += 1
     if invent:
-        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Inventory')))
+        stringList.append(u"<li style='font-size:small'><a href='#tab-{0}'>{1}</a></li>".format(tabCount,_('Inventory')))
         tabCount += 1
     if fillRatio:
-        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Fill Ratio')))
+        stringList.append(u"<li style='font-size:small'><a href='#tab-{0}'>{1}</a></li>".format(tabCount,_('Fill Ratio')))
         tabCount += 1
     if vaccAvail:
-        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Vaccine Administration')))
+        stringList.append(u"<li style='font-size:small'><a href='#tab-{0}'>{1}</a></li>".format(tabCount,_('Vaccine Administration')))
         tabCount += 1
     if availPlot:
-        sio.write("<li style='font-size:small'><a href='#tab-%d'>%s</a></li>"%(tabCount,_('Availability Plot')))
+        stringList.append(u"<li style='font-size:small'><a href='#tab-{0}'>{1}</a></li>".format(tabCount,_('Availability Plot')))
         tabCount += 1
-    
-    sio.write("</ul>")
+    stringList.append("</ul>")
     tabCount = 1
     if genInfo:
-        sio.write("<div id='tab-%d'><table id='%s_GenInfo'></table></div>"%(tabCount,name))
+        stringList.append("<div id='tab-%d'><table id='%s_GenInfo'></table></div>"%(tabCount,name))
         tabCount += 1
     if popInfo:
-        sio.write("<div id='tab-%d'><table id='%s_PopInfo'></table></div>"%(tabCount,name))
+        stringList.append("<div id='tab-%d'><table id='%s_PopInfo'></table></div>"%(tabCount,name))
         tabCount += 1
     if util:
-        sio.write("<div id='tab-%d'><table id='%s_Utilization'></table></div>"%(tabCount,name))
+        stringList.append("<div id='tab-%d'><table id='%s_Utilization'></table></div>"%(tabCount,name))
         tabCount += 1
     if storeDev:
-        sio.write("<div id='tab-%d'><table id='%s_StoreDevInfo'></table></div>"%(tabCount,name))
+        stringList.append("<div id='tab-%d'><table id='%s_StoreDevInfo'></table></div>"%(tabCount,name))
         tabCount += 1
     if transDev:
-        sio.write("<div id='tab-%d'><table id='%s_TransDevInfo'></table></div>"%(tabCount,name))
+        stringList.append("<div id='tab-%d'><table id='%s_TransDevInfo'></table></div>"%(tabCount,name))
         tabCount += 1
     if invent:
-        sio.write("<div id='tab-%d'><table id='%s_VialsPlot'></table><p align='right'>%s</p></div>"%(tabCount,name,_('Click on Name of Vaccine to Hide/Show it on the Chart.')))
+        stringList.append("<div id='tab-%d'><table id='%s_VialsPlot'></table><p align='right'>%s</p></div>"%(tabCount,name,_('Click on Name of Vaccine to Hide/Show it on the Chart.')))
         tabCount += 1  
     if fillRatio:
-        sio.write("<div id='tab-%d'><table id='%s_FillPlot'></table></div>"%(tabCount,name))
+        stringList.append("<div id='tab-%d'><table id='%s_FillPlot'></table></div>"%(tabCount,name))
         tabCount += 1
     if vaccAvail:
-        sio.write("<div id='tab-%d'><table id='%s_Availability'></table></div>"%(tabCount,name))
+        stringList.append("<div id='tab-%d'><table id='%s_Availability'></table></div>"%(tabCount,name))
         tabCount += 1
     if availPlot:
-        sio.write("<div id='tab-%d'><table id='%s_AvailPlot'></table></div>"%(tabCount,name))
+        stringList.append("<div id='tab-%d'><table id='%s_AvailPlot'></table></div>"%(tabCount,name))
         tabCount += 1
-    sio.write("</div>")
-    sio.write("</div>")
+    stringList.append("</div>")
+    stringList.append("</div>")
     ### Now add the javascript to load the dialog box
-    sio.write("<script>")
-    sio.write("$('#%s_dialog').dialog({"%name)
-    sio.write("autoOpen:false,") 
-    sio.write("height:'auto',")
-    sio.write("width:'auto',")
-    sio.write("close: function() {")
-    sio.write("$('#%s_content').tabs();"%name)
-    sio.write("    $('#%s_content').tabs('destroy');"%name)
-    sio.write("    $('#%s_content').innerHtml = '';"%name)
+    stringList.append("<script>")
+    stringList.append("$('#%s_dialog').dialog({"%name)
+    stringList.append("autoOpen:false,") 
+    stringList.append("height:'auto',")
+    stringList.append("width:'auto',")
+    stringList.append("close: function() {")
+    stringList.append("$('#%s_content').tabs();"%name)
+    stringList.append("    $('#%s_content').tabs('destroy');"%name)
+    stringList.append("    $('#%s_content').innerHtml = '';"%name)
     if genInfo:
-        sio.write("    $('#%s_GenInfo').jqGrid('GridUnload');"%name)
+        stringList.append("    $('#%s_GenInfo').jqGrid('GridUnload');"%name)
     if popInfo:
-        sio.write("    $('#%s_PopInfo').jqGrid('GridUnload');"%name)
+        stringList.append("    $('#%s_PopInfo').jqGrid('GridUnload');"%name)
     if util:
-        sio.write("   $('#%s_Utilization').jqGrid('GridUnload');"%name)
+        stringList.append("   $('#%s_Utilization').jqGrid('GridUnload');"%name)
     if storeDev:
-        sio.write("   $('#%s_StoreDevInfo').jqGrid('GridUnload');"%name)
+        stringList.append("   $('#%s_StoreDevInfo').jqGrid('GridUnload');"%name)
     if transDev:
-        sio.write("   $('#%s_TransDevInfo').jqGrid('GridUnload');"%name)
+        stringList.append("   $('#%s_TransDevInfo').jqGrid('GridUnload');"%name)
     if vaccAvail:
-        sio.write("   $('#%s_Availability').jqGrid('GridUnload');"%name)
-    sio.write("}")
-    sio.write("});")
+        stringList.append("   $('#%s_Availability').jqGrid('GridUnload');"%name)
+    stringList.append("}")
+    stringList.append("});")
     
-    sio.write("var %s_meta = new Object();"%name)
-    sio.write("%s_meta['getResult'] = false;"%name)
-    if genInfo: sio.write("%s_meta['genInfo'] = true;"%name)
-    if util: sio.write("%s_meta['utilInfo'] = true; %s_meta['getResults'] = true;"%(name,name))
-    if popInfo: sio.write("%s_meta['popInfo'] = true;"%name)
-    if storeDev: sio.write("%s_meta['storeDev'] = true;"%name)
-    if transDev: sio.write("%s_meta['transDev'] = true;"%name)
-    if vaccAvail: sio.write("%s_meta['vaccAvail'] = true;%s_meta['getResults'] = true;"%(name,name))
-    if fillRatio: sio.write("%s_meta['fillRatio'] = true;%s_meta['getResults'] = true;"%(name,name))
-    if invent: sio.write("%s_meta['invent'] = true;"%name)
-    if availPlot: sio.write("%s_meta['availPlot'] = true;%s_meta['getResults'] = true;"%(name,name))
-    sio.write("</script>")
-
-    return sio.getvalue()
-
+    stringList.append("var %s_meta = new Object();"%name)
+    stringList.append("%s_meta['getResult'] = false;"%name)
+    if genInfo: stringList.append("%s_meta['genInfo'] = true;"%name)
+    if util: stringList.append("%s_meta['utilInfo'] = true; %s_meta['getResults'] = true;"%(name,name))
+    if popInfo: stringList.append("%s_meta['popInfo'] = true;"%name)
+    if storeDev: stringList.append("%s_meta['storeDev'] = true;"%name)
+    if transDev: stringList.append("%s_meta['transDev'] = true;"%name)
+    if vaccAvail: stringList.append("%s_meta['vaccAvail'] = true;%s_meta['getResults'] = true;"%(name,name))
+    if fillRatio: stringList.append("%s_meta['fillRatio'] = true;%s_meta['getResults'] = true;"%(name,name))
+    if invent: stringList.append("%s_meta['invent'] = true;"%name)
+    if availPlot: stringList.append("%s_meta['availPlot'] = true;%s_meta['getResults'] = true;"%(name,name))
+    stringList.append("</script>")
+    return "".join(stringList)

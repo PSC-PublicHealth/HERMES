@@ -111,14 +111,13 @@ class i18n:
         self.currentLocaleName = locale_
         self.currentLocale = lang
         self.currentTemplateDir = templateDir
-
         return
 
     def translateString(self,text):
         if not self.implemented:
             return text
         else:
-            return self.currentLocale.gettext(text)
+            return self.currentLocale.ugettext(text)
 
     
 def main():
