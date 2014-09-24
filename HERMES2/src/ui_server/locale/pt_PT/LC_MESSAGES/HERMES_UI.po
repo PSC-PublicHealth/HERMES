@@ -426,6 +426,9 @@ msgstr "Ano-base para o custo"
 
 #: ui_server/fridgehooks.py:44
 msgid "Currency"
+msgstr "Moeda"
+
+msgid "currency"
 msgstr "moeda"
 
 #: ui_server/fridgehooks.py:46

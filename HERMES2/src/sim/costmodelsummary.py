@@ -42,37 +42,28 @@ class CostModelHierarchicalSummary(object):
             if r.ReportingLevel == '-top-' or r.ReportingLevel == u'-top-':
                 continue
             for g in groups:
-                #print g
                 if g not in d:
                     d[g] = {}
                 g_attr = getattr(r, g)
-                #print g_attr
                 if g_attr not in d[g]:
                     d[g][g_attr] = {}
                 for c in costs:
-                    #print c
                     if c not in d[g][g_attr]:
                         d[g][g_attr][c] = 0.0
                     c_attr = getattr(r, c)
                     c_attr = float(c_attr) if c_attr is not None else 0.0
-                    #print c_attr
                     d[g][g_attr][c] += c_attr
-        #print d
         h = {} 
         for g in groups:
-            #print g
             h['name'] = g
             children = []
             for g_attr in d[g]:
-                #print g_attr
                 children.append(
                         {'name':g_attr,
                          'children': [{
                              'name':n, 'size':s
                              } for n, s in d[g][g_attr].items()]})
-                #print children
             h['children'] = children
-        #print h
         return h
 
 

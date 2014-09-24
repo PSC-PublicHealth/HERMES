@@ -469,8 +469,8 @@ def jsonResultSummaryCostHierarchical(db, uiSession):
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         r = m.getResultById(resultsId)
 
-        base = u'USD'
-        year = 2010
+        base = m.getParameterValue('currencybase')
+        year = m.getParameterValue('currencybaseyear')
 
         try:
             cost_summary = getCostModelSummary(m, r)
@@ -485,8 +485,6 @@ def jsonResultSummaryCostHierarchical(db, uiSession):
         except:
             result = {'success': False,
                   'data': '{}'}
-
-        print result
 
         return result
 
