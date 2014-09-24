@@ -2,20 +2,24 @@
     $.widget("hierarchical.barchart", {
         options: {
             file: "static/hierarchical-charts/readme.json",
-            jsonDataURLBase: "json/results-cost-hierarchical",
-            jsonDataURLParameters: ["modelId=3", "resultsId=6"],
+            //jsonDataURLBase: "json/results-cost-hierarchical",
+            //jsonDataURLParameters: ["modelId=3", "resultsId=6"],
             minWidth: 800,
             minHeight: 300,
             scrollable: true,
             resizable: true,
             hasChildrenColor: "steelblue",
             noChildrenColor: "#adf",
-            title: "Hierarchical Barchart"
+            trant: {
+                title: 'Hierarchical Barchart'
+            }
         },
 
 
         _create: function() {
-     
+    
+            trant = this.options.trant;
+
             this.containerID = $(this.element).attr('id');
             $(this.element).css({
                 float: "left"
@@ -59,7 +63,7 @@
             var svgTitle = d3.select("#"+this.svgContainerID).append("div")
                 .attr("id", "title")
                 .attr("text-align", "center")
-                .text(this.options.title);
+                .text(trant['title']);
 
             var svg = d3.select("#"+this.svgContainerID).append("svg")
                 .attr("class", "hierarchicalBarchart")
@@ -96,15 +100,27 @@
                 });
             }
 
+            var currency = "USD";
+            var currency_year = 2010;
+
             d3.json(jsonDataURL, function(error, ret) {
                 console.log(ret.error);
                 //console.log(ret.data);
                 var root = ret.data.cost_summary;
+                currency = ret.data.currency_base;
+                currency_year = ret.data.currency_year; 
                 partition.nodes(root);
                 x.domain([0, root.value]).nice();
                 down(root, 0);
             });
-    
+
+            svg.append("text")
+                .attr("class", "x label")
+                .attr("text-anchor", "end")
+                .attr("x", width)
+                .attr("y", height - 6)
+                .text(trant['currency_label'] + ': ' + currency + ", " + trant['year_label'] + ': ' + currency_year);
+
             function down(d, i) {
                 if (!d.children || this.__transition__) return;
                 var end = duration + d.children.length * delay;

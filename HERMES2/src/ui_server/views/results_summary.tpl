@@ -245,13 +245,18 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
         hasChildrenColor: "steelblue",
         noChildrenColor: "#ccc",
         jsonDataURLBase: "json/results-cost-hierarchical",
-        jsonDataURLParams: [
+        jsonDataURLParameters: [
             "modelId={{modelId}}",
             "resultsId={{resultsId}}"],
         minWidth: 768,
         minHeight: 300,
-        resizable: true,
+        resizable: false,
         scrollable: true,
-        title: "Costs by Report Level"
+        trant: {
+             "title": "{{_('Costs by Report Level')}}", 
+             "currency_label": "{{_('Currency')}}",
+             "year_label": "{{_('Year')}}",
+        }
+
     });
 </script>

@@ -2777,3 +2777,8 @@ msgstr ""
 
 #~ msgid "Really delete the model "
 #~ msgstr " Realmente excluir o modelo "
+
+msgid "Costs by Report Level"
+msgstr "Custos por nível de relatório"
+
+
