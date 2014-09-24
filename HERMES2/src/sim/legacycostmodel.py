@@ -103,6 +103,7 @@ class PriceTable:
                 raise RuntimeError("A record in the price table %s lacks a valid Name field"%fName)
         self.required= required
         self.currency= "%s%d"%(currencyConverter.getBaseCurrency(),currencyConverter.getBaseYear())
+        self.baseYear = currencyConverter.getBaseYear()
         
     def items(self):
         """
@@ -200,6 +201,9 @@ class PriceTable:
     
     def getCurrency(self):
         return self.currency
+    
+    def getBaseYear(self):
+        return self.baseYear
 
 class LegacyCostManager(dummycostmodel.DummyCostManager):
     def __init__(self, sim, model, priceTable):
@@ -373,6 +377,7 @@ class LegacyCostManager(dummycostmodel.DummyCostManager):
         keys += ['Currency']
         for rec in recs:
             rec['Currency'] = self.priceTable.getCurrency()
+            rec['BaseYear'] = self.priceTable.getBaseYear()
             rec['ReportingIntervalDays'] = self.intervalEndTime - self.intervalStartTime
             rec['DaysPerYear'] = float(self.model.daysPerYear)
             rec['Type'] = 'legacy'

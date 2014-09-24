@@ -2524,6 +2524,7 @@ class ShdLegacyCostSummary(ShdCostSummary):
              ('ReportingIntervalDays', FLOAT_NONE),
              ('DaysPerYear', FLOAT_NONE),
              ('Currency', STRING_NONE),
+             ('BaseYear', INTEGER_NONE),
              ('RouteTrips', INTEGER_NONE),
              ('PerDiemDays', INTEGER_NONE),
              ('CostingTreatmentDays', INTEGER_NONE),
