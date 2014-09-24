@@ -21,6 +21,8 @@ import currencyhelper
 
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _safeGetReqParam, _mergeFormResults
 
+from microcostmodel import priceKeyTable as _fuelNames
+
 inlizer=session_support.inlizer
 _=session_support.translateString
 
@@ -217,11 +219,6 @@ def jsonSetBaseCurrency(db, uiSession):
         _logStacktrace()
         return {"success":False, "msg":str(e)} 
 
-_fuelNames = {'propane':'pricepropaneperkg', 'kerosene':'pricekeroseneperl', 
-              'gasoline':'pricegasolineperl', 'diesel':'pricedieselperl', 
-              'electric':'priceelectricperkwh','solar':'pricesolarperkw',
-              'ice':'priceiceperliter'}
-
 def getFuelButtonLabel(db, uiSession, m):
     vList = _fuelNames.values();
     nSet = sum([v is not None and v!='' and v!=0.0 for v in [m.getParameterValue(vv) for vv in vList]])
@@ -258,12 +255,15 @@ def getBuildingButtonLabel(db, uiSession, m):
 def _getCurrencyConverter(db, uiSession, m):
     currencyBase = m.getParameterValue('currencybase')
     currencyBaseYear = m.getParameterValue('currencybaseyear')
+    inflationRate = m.getParameterValue('priceinflation')
     if 'currencyConverter' not in uiSession or 'currencyConverterModelId' not in uiSession \
         or uiSession['currencyConverterModelId'] != m.modelId \
         or uiSession['currencyConverter'].getBaseCurrency() != currencyBase \
-        or uiSession['currencyConverter'].getBaseYear() != currencyBaseYear:
+        or uiSession['currencyConverter'].getBaseYear() != currencyBaseYear \
+        or uiSession['currencyConverter'].getInflationRate() != inflationRate:
             uiSession['currencyConverter'] = costmodel.CurrencyConverter( m.getCurrencyTableRecs(),
-                                                                          currencyBase, currencyBaseYear )
+                                                                          currencyBase, currencyBaseYear,
+                                                                          inflationRate )
             uiSession['currencyConverterModelId'] = m.modelId
             uiSession.changed()
 
@@ -288,7 +288,7 @@ def jsonGetFuelPriceInfo(db, uiSession):
             if fuelPrice is None:
                 result[fuelPriceString] = None
             else:
-                result[fuelPriceString] = currencyConverter.convertTo(currencyBase, fuelPrice, uiSession[fuelCurString])
+                result[fuelPriceString] = currencyConverter.convertTo(fuelPrice, currencyBase, uiSession[fuelCurString])
         result['success'] = True
         print 'returning %s'%result
         return result
@@ -308,7 +308,7 @@ def jsonSetFuelPrice(db, uiSession, fuelName):
         currencyParamName = _fuelNames[fuelName]
         price = _safeGetReqParam(bottle.request.params, 'price', isFloat=True)
         if price is not None and price!='':
-            priceInBaseCurrency = _getCurrencyConverter(db, uiSession, m).convertTo(currencyId,price,
+            priceInBaseCurrency = _getCurrencyConverter(db, uiSession, m).convertTo(price, currencyId,
                                                                                     m.getParameterValue('currencybase'))
             m.addParm(shadow_network.ShdParameter(currencyParamName, priceInBaseCurrency))
         result = {'success':True, 'price':price, 'id':currencyId}
@@ -331,7 +331,7 @@ def jsonSetFuelPrice(db, uiSession, fuelName):
 #         if oldPriceInBaseCurrency is not None:
 #             pass
 #         if paramPrice is None: priceInTargetCurrency = None
-#         else: priceInTargetCurrency = converter.convertTo(converter.getBaseCurrency(),paramPrice, currencyId)
+#         else: priceInTargetCurrency = converter.convertTo(paramPrice, converter.getBaseCurrency(),currencyId)
 #         result = {'success':True, 'id':urllib.quote(currencyId)}
 #         return result
 #     except Exception,e:

@@ -584,7 +584,7 @@ def _parseRunParms(db, uiSession, model):
                 badParms.append(k)
         
     #print 'badParms: %s'%badParms
-    print 'deltas: %s'%deltas
+    #print 'deltas: %s'%deltas
     return badParms,deltas
 
 @bottle.route('/model-run/json/run-parms-levels-to-show')
