@@ -2567,6 +2567,13 @@ class ShdMicro1CostSummaryGrp(ShdCostSummary):
         self.costEntries = [ShdMicro1CostSummaryEntry(costCategory=k, cost=v) for k,v in args[0].items()
                             if k not in self.attrKeySet]
 
+    def createRecord(self):
+        rec = self.createRec()
+        for cE in self.costEntries:
+            rec[cE.costCategory] = cE.cost
+        return rec
+        
+
 _makeColumns(ShdMicro1CostSummaryGrp)
 
 class ShdMicro1CostSummaryEntry(Base, ShdCopyable):

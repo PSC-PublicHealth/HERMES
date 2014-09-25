@@ -483,12 +483,14 @@ def jsonResultSummaryCostHierarchical(db, uiSession):
                     }
                 }
         except:
+            _logStacktrace()
             result = {'success': False,
-                  'data': '{}'}
+                      'data': '{}'}
 
         return result
 
     except Exception, e:
+        _logStacktrace()
         result = {'success':False, 'msg':str(e)}
         return result
 

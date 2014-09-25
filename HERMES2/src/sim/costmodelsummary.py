@@ -25,7 +25,7 @@ output from supported cost models.
 _hermes_svn_id_="$Id: costmodelsummary.py 879 2014-09-17 12:47:47Z depasse $"
 
 
-import json
+import json, types
 from itertools import product
 from abc import ABCMeta, abstractproperty
 from collections import defaultdict
@@ -36,23 +36,28 @@ class CostModelHierarchicalSummary(object):
         self.result = result
 
     def _do(self, groups, costs):
-        recs = self.result.getCostSummaryRecs()
+        recs = [r.createRecord() for r in self.result.getCostSummaryRecs()]
         d = {}
         for r in recs:
-            if r.ReportingLevel == '-top-' or r.ReportingLevel == u'-top-':
+            #print 'rec %s'%r
+            if r['ReportingLevel'] == '-top-' or r['ReportingLevel'] == u'-top-':
                 continue
             for g in groups:
                 if g not in d:
                     d[g] = {}
-                g_attr = getattr(r, g)
+                g_attr = r[g]
+                #print 'g_attr: %s'%g_attr
                 if g_attr not in d[g]:
                     d[g][g_attr] = {}
                 for c in costs:
                     if c not in d[g][g_attr]:
                         d[g][g_attr][c] = 0.0
-                    c_attr = getattr(r, c)
-                    c_attr = float(c_attr) if c_attr is not None else 0.0
-                    d[g][g_attr][c] += c_attr
+                    if c in r:
+                        c_attr = r[c]
+                        if c_attr=='': c_attr = None
+                        c_attr = float(c_attr) if c_attr is not None else 0.0
+                        d[g][g_attr][c] += c_attr
+        #print d
         h = {} 
         for g in groups:
             h['name'] = g
@@ -66,6 +71,53 @@ class CostModelHierarchicalSummary(object):
             h['children'] = children
         return h
 
+    def _mkSubTree(self, key, localD, treeD, prefixLen):
+        children = []
+        if key in treeD:
+            for k,v in treeD[key].items():
+                children.append(self._mkSubTree(k,v,treeD, prefixLen))
+        leaves = localD.items()
+        for lKey,lVal in leaves:
+            if lKey not in treeD:
+                children.append({
+                                 'name':lKey[prefixLen:],
+                                 'size':lVal
+                                 })
+        return {
+                'name':key,
+                'children':children
+                }
+
+    def _printSubTree(self, tree, depth=0):
+        if 'children' in tree:
+            print '%s%s:'%('    '*depth,tree['name'])
+            for child in tree['children']:
+                self._printSubTree(child, depth+1)
+        else:
+            print '%s%s: %s'%('    '*depth,tree['name'],tree['size'])
+
+    def _doByContainer(self, groups, inSet, prefixLen = 0):
+        """
+        groups is a sequence type or iterator
+        inSet must implement at least '__contains__'
+        prefixLen is an integer giving the length of the substring to clip from the front of each name
+        """
+        recs = [r.createRecord() for r in self.result.getCostSummaryRecs()]
+        #d = {}
+        costSet = set()
+        for r in recs: costSet.update([k for k in r.keys() if k in inSet])
+        treeD = {}
+        for r in recs:
+            lvl = r['ReportingLevel']
+            brch = r['ReportingBranch']
+            if lvl not in treeD: treeD[lvl] = {}
+            assert brch not in treeD[lvl], "Hierarchical cost summary has redundant entry for level %s branch %s"%(lvl,brch)
+            treeD[lvl][brch] = {k:v for k,v in r.items() if k in costSet}
+        #print treeD
+        h = self._mkSubTree('all', treeD['all'], treeD, prefixLen)
+        self._printSubTree(h)
+        return h
+
 
 class LegacyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
 
@@ -75,11 +127,21 @@ class LegacyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
                 #'PerDiemCost','PerKmCost','PerTripCost',
                 'LaborCost','BuildingCost','StorageCost','TransportCost'
                 )
-        return self._do(groups, costs)
+        return self._doByContainer(groups, set(costs))
 
 class DummyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
 
     def dict(self):
         return {}
 
+class Micro1CostModelHierarchicalSummary(CostModelHierarchicalSummary):
+    class PrefixFakeSet(object):
+        def __init__(self, prefix):
+            self.prefix = prefix
+        def __contains__(self, arg):
+            return isinstance(arg, types.StringTypes) and arg.startswith(self.prefix)
+    def dict(self):
+        groups = ('ReportingLevel',)
+        tag = u'm1C_'
+        return self._doByContainer(groups, self.PrefixFakeSet(tag), len(tag))
 

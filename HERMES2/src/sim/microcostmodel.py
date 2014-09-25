@@ -347,11 +347,11 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
         # For each fridge type, check that we can do currency conversion from costing currency to run
         # currency in the purchase year of the fridge
 
-        print '####### checked the following types'
-        print alreadyChecked
-        print '####### problemList follows'
-        for s in problemList: print s
-        print '####### end of problemList'
+#         print '####### checked the following types'
+#         print alreadyChecked
+#         print '####### problemList follows'
+#         for s in problemList: print s
+#         print '####### end of problemList'
         return (len(problemList) == 0)
 #             
 #         for routeId,route in net.routes.items():
