@@ -70,7 +70,8 @@ def makeSplitRegex(delim):
         if debug: print "regex for <%s>: <%s>"%(delim,rstr)
         return re.compile(rstr)        
     else:
-        # note that both double and single quoted string patterns employ a
+        # See bug #381 in redmine for more information
+        # Note that both double and single quoted string patterns employ a
         # negative lookbehind assertion to allow for escaped quote characters
         dbl_quoted = r'''"[^"]*"(?<!\\)'''
         sgl_quoted = r''''[^']*'(?<!\\)'''
