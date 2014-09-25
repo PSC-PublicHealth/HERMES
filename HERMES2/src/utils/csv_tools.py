@@ -77,7 +77,7 @@ def makeSplitRegex(delim):
         # this is the capturing group pattern
         group1 = r'''%s|%s|%s''' % (dbl_quoted, sgl_quoted, unquoted)
         # build the regex string
-        rstr = r'''\s*(%s)\s*%s|$''' % (group1, delim)
+        rstr = r'''\s*(%s)\s*(?:%s|$)''' % (group1, delim)
         # debug logging
         if debug: print "regex for <%s>: <%s>"%(delim,rstr)
         return re.compile(rstr)
