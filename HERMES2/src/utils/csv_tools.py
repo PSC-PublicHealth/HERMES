@@ -60,7 +60,7 @@ def makeSplitRegex(delim):
     * backslash-escaped internal quotes inside quoted strings
     * delimiters within quoted strings
     * leading and trailing whitespace
-    * multiple internal single quotes (apostraphe) inside non-quoted strings
+    * multiple internal single quotes (apostrophe) inside non-quoted strings
     """
     if delim is None:
         return re.compile(r'\s*(\S+)(?:\s*|$)')
