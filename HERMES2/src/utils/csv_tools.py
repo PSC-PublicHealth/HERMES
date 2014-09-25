@@ -60,6 +60,7 @@ def makeSplitRegex(delim):
     * backslash-escaped internal quotes inside quoted strings
     * delimiters within quoted strings
     * leading and trailing whitespace
+    * multiple internal single quotes (apostraphe) inside non-quoted strings
     """
     if delim is None:
         return re.compile(r'\s*(\S+)(?:\s*|$)')
@@ -70,7 +71,7 @@ def makeSplitRegex(delim):
         return re.compile(rstr)        
     else:
         # note that both double and single quoted string patterns employ a
-        # negative look-behind assertion to allow for escaped quote characters
+        # negative lookbehind assertion to allow for escaped quote characters
         dbl_quoted = r'''"[^"]*"(?<!\\)'''
         sgl_quoted = r''''[^']*'(?<!\\)'''
         unquoted = r'''[^%s]*''' % delim
