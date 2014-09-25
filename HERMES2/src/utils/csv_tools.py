@@ -49,20 +49,36 @@ class CSVDict(dict):
                 if k in self and self[k]!=ignore:
                     return float(self[k])
                 return default
-        
+
 
 def makeSplitRegex(delim):
+    """
+    This regex should properly handle the following cases:
+    * empty strings (adjacent delimiters)
+    * quoted strings, single or double
+    * internal single or double quotes
+    * backslash-escaped internal quotes inside quoted strings
+    * delimiters within quoted strings
+    * leading and trailing whitespace
+    """
     if delim is None:
         return re.compile(r'\s*(\S+)(?:\s*|$)')
     elif delim=='\t':
+        # why is \t delimiter treated separately????
         rstr= r'''[ \n\r\f\v]*([^"'%s]*|"[^"]*"|'[^']*')[ \n\r\f\v]*(?:%s|$)'''%(delim,delim)
         if debug: print "regex for <%s>: <%s>"%(delim,rstr)
         return re.compile(rstr)        
     else:
-        # Thank god for the internet; it would have taken me a year to
-        # figure out this regex.  For ',' it ends up looking like:
-        # r'''\s*([^"',]*|"[^"]*"|'[^']*')\s*(?:,|$)'''
-        rstr= r'''\s*([^"'%s]*|"[^"]*"|'[^']*')\s*(?:%s|$)'''%(delim,delim)
+        # note that both double and single quoted string patterns employ a
+        # negative look-behind assertion to allow for escaped quote characters
+        dbl_quoted = r'''"[^"]*"(?<!\\)'''
+        sgl_quoted = r''''[^']*'(?<!\\)'''
+        unquoted = r'''[^%s]*''' % delim
+        # this is the capturing group pattern
+        group1 = r'''%s|%s|%s''' % (dbl_quoted, sgl_quoted, unquoted)
+        # build the regex string
+        rstr = r'''\s*(%s)\s*%s|$''' % (group1, delim)
+        # debug logging
         if debug: print "regex for <%s>: <%s>"%(delim,rstr)
         return re.compile(rstr)
 
