@@ -1875,8 +1875,8 @@ msgstr ""
 
 #: ui_server/views/model_create_countsbylevel.tpl:46
 #: ui_server\views/model_create_countsbylevel.tpl:46
-msgid "One or more level values is blank; please fix this."
-msgstr " Um ou mais valores do nível está em branco; por favor corrija esta."
+msgid "One or more level values is blank or lower than 1; please fix this."
+msgstr "Um ou mais valores de nível de branco ou é menor do que 1; por favor corrigir isso."
 
 #: ui_server/views/model_create_done.tpl:3
 #: ui_server\views/model_create_done.tpl:3

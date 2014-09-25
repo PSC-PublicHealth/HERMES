@@ -43,10 +43,28 @@
 </form>
 
 <div id="dialog-modal" title={{_("Invalid Entry")}}>
-  <p>{{_('One or more level values is blank; please fix this.')}}</p>
+  <p>{{_('One or more level values is blank or lower than 1; please fix this.')}}</p>
 </div>
 
 <script>
+$(':input[type=number]').bind('mousewheel DOMMouseScroll', function(event){
+  var val = parseInt(this.value);
+  var maxattr = $(this).attr("max");
+  var minattr = $(this).attr("min");
+  if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+    if (typeof maxattr == typeof undefined || maxattr == false || val < maxattr) {
+      this.value = val + 1;
+    }
+  }
+  else {
+    if (typeof minattr == typeof undefined || minattr == false || val > minattr) {
+      this.value = val - 1;
+    }
+  }
+  event.preventDefault(); //to prevent the window from scrolling
+});
+
+
 $(function() {
 	var btn = $("#back_button");
 	btn.button();
@@ -72,7 +90,7 @@ $(function() {
 		for (var i=0; i<{{nlevels}}; i++) {
 		   var s = "model_create_lcounts_"+(i+1);
 		   var sval = $("#"+s).val();
-		   if (sval) {
+		   if (sval && parseInt(sval) > 0) {
 		       if (first) {
 		           parms = parms + s + "=" + sval;
 		           first = false;
