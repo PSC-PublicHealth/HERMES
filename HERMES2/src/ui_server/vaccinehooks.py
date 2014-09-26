@@ -122,12 +122,16 @@ def jsonManageVaccineTable(db, uiSession):
 
 @bottle.route('/json/manage-vaccine-table-groupings')
 def jsonManageVaccineTableGroupings(db, uiSession):
-    modelId = int(bottle.request.params['modelId'])
-    subkey = str(bottle.request.params['subkey'])
     try:
+        modelId = int(bottle.request.params['modelId'])
+        subkey = str(bottle.request.params['subkey'])
         uiSession.getPrivs().mayReadModelId(db, modelId)
     except privs.PrivilegeException:
         raise bottle.BottleException('User may not read model %d'%modelId)
+    except ValueError, e:
+        print 'Empty parameters supplied to manage-vaccine-table-groupings'
+        print str(e)
+        return {'success': 'false'}
     tList = typehelper.getTypeList(db,modelId,'vaccines')
 
     from collections import defaultdict
@@ -257,11 +261,15 @@ def listSubkey(db, uiSession):
     ''' Returns a json string that can be used to initialize a select box with
     subgrid grouping fields.
     '''
-    modelId = int(bottle.request.params['modelId'])
     try:
+        modelId = int(bottle.request.params['modelId'])
         uiSession.getPrivs().mayReadModelId(db, modelId)
     except privs.PrivilegeException:
         raise bottle.BottleException('User may not read model %d'%modelId)
+    except ValueError, e:
+        print 'Empty parameters supplied to select-subkey'
+        print str(e)
+        return {'success': 'false'}
     tList = typehelper.getTypeList(db,modelId,'vaccines')
     assert(len(tList) > 0)
 
