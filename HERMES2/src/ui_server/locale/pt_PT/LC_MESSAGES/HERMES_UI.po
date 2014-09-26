@@ -2008,6 +2008,26 @@ msgid ""
 msgstr "Por exemplo, um modelo de quatro níveis pode ter níveis chamado "
 "\"Nacional\", \"Província\", \"Distrito\" e \"Unidade Sanitária\"."
 
+#: ui_server/views/model_create_levelnames.tpl:21
+msgid "Central"
+msgstr "Nacional"
+
+#: ui_server/views/model_create_levelnames.tpl:31
+msgid "Province"
+msgstr "Província"
+
+#: ui_server/views/model_create_levelnames.tpl:27
+msgid "Region"
+msgstr "Região"
+
+#: ui_server/views/model_create_levelnames.tpl:28
+msgid "District"
+msgstr "Distrito"
+
+#: ui_server/views/model_create_levelnames.tpl:35
+msgid "Health Post"
+msgstr "Unidade Sanitária"
+
 #: ui_server/views/model_create_levelnames.tpl:12
 #: ui_server/views/model_create_levelnames.tpl:19
 msgid "Name for level"
