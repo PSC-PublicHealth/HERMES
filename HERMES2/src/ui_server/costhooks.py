@@ -83,7 +83,7 @@ def handleListCurrency(db,uiSession):
         s = ""
         for name, thisId in orderedPairs: 
             if selectedCurrencyId is None:
-                print thisId
+                #print thisId
                 uiSession['defaultCurrencyId'] = selectedCurrencyId = thisId
                 s += "<option value=%s selected>%s</option>\n"%(thisId,name)
                 selectedCurrencyName = name
@@ -234,7 +234,7 @@ def getFridgeButtonLabel(db, uiSession, m):
         for fld in ['BaseCost','BaseCostCur','BaseCostYear','PowerRate']:
             v = t[fld]
             possible += 1
-            if v is None or v=='' or v==0: count += 1
+            if not(v is None or v=='' or v<0): count += 1
     if count == 0: return _("Begin")
     elif count == possible: return _("Revisit")
     else: return _("Continue")
@@ -284,13 +284,13 @@ def jsonGetFuelPriceInfo(db, uiSession):
             if fuelCurString not in uiSession: uiSession[fuelCurString] = currencyBase
             result[fuelCurString] = uiSession[fuelCurString]
             fuelPrice = m.getParameterValue(fuelParamName)
-            print "%s: %s"%(fuelParamName, fuelPrice)
+            #print "%s: %s"%(fuelParamName, fuelPrice)
             if fuelPrice is None:
                 result[fuelPriceString] = None
             else:
                 result[fuelPriceString] = currencyConverter.convertTo(fuelPrice, currencyBase, uiSession[fuelCurString])
         result['success'] = True
-        print 'returning %s'%result
+        #print 'returning %s'%result
         return result
     except Exception,e:
         _logStacktrace()
@@ -470,7 +470,7 @@ def jsonGetCostInfoFridge(db, uiSession):
 @bottle.route('/edit/edit-cost-fridge', method='POST')
 def editCostFridge(db, uiSession):
     try:
-        print [(k,v) for k,v in bottle.request.params.items()]
+        #print [(k,v) for k,v in bottle.request.params.items()]
         if bottle.request.params['oper']=='edit':
             modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
             uiSession.getPrivs().mayModifyModelId(db, modelId)
