@@ -34,7 +34,7 @@ class CurrencyConverter:
         """
         inflationRate is a scale factory- for example, inflationRate=0.03 implies 3% inflation
         """
-        self.cb= currencyBase
+        self.cb= unicode(currencyBase)
         self.year= int(currencyBaseYear)
         self.inflation= float(inflationRate)
         keys,recs= csv_tools.parseCSV(csvFile)
@@ -52,11 +52,11 @@ class CurrencyConverter:
             raise RuntimeError('The currency table is missing a "Currency Code" column')
         
         for r in recs:
-            r['Currency Code'] = r['Currency Code'].strip() # avoids problems with trailing blanks
+            r['Currency Code'] = unicode(r['Currency Code'].strip()) # avoids problems with trailing blanks
             
         found = False
         for r in recs:
-            if r['Currency Code'] == 'USD' and r[yearKeys[self.year]] != '':
+            if r['Currency Code'] == u'USD' and r[yearKeys[self.year]] != '':
                 found = True
                 if r[yearKeys[self.year]] != 1.0:
                     raise RuntimeError("The currency conversion table does not seem to be written in terms of USD")
@@ -82,7 +82,8 @@ class CurrencyConverter:
         return { 
                 'currencyBase':self.cb,
                 'currencyBaseYear':self.year,
-                'table':self.table
+                'inflation':self.inflation,
+                'fullTable':self.fullTable
                 }
 
         
@@ -102,6 +103,8 @@ class CurrencyConverter:
         day 308 of the simulation, startYear = 2011 + 56/336 = 2011.166667 and similarly
         endYear = 2011.916667 .
         """
+        curCode = unicode(curCode.strip('"').strip("'"))
+        newCurCode = unicode(newCurCode.strip('"').strip("'"))
         if startYear is None: 
             startYear = float(self.getBaseYear())
             tblYear = self.getBaseYear()
