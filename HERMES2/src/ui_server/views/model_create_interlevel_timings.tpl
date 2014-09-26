@@ -13,7 +13,7 @@
 		<td>{{_('to')}}</td>
 		<td><b>{{client}}</b></td>
 		<td>{{_('takes')}}</td>
-		<td><input type="number" id="model_create_timing_{{count}}" name="model_create_timing_{{count}}"></td>
+		<td><input type="number" id="model_create_timing_{{count}}" name="model_create_timing_{{count}}" min=1></td>
 		<td><select id="model_create_timing_units_{{count}}" name="model_create_timing_units_{{count}}">
   	        <option value="year">{{_('Years')}}</option>
   	        <option value="month">{{_('Months')}}</option>
@@ -38,6 +38,23 @@
 <div id="dialog-model"></div>
 
 <script>
+$(':input[type=number]').bind('mousewheel DOMMouseScroll', function(event){
+  var val = parseInt(this.value);
+  var maxattr = $(this).attr("max");
+  var minattr = $(this).attr("min");
+  if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+    if (typeof maxattr == typeof undefined || maxattr == false || val < maxattr) {
+      this.value = val + 1;
+    }
+  }
+  else {
+    if (typeof minattr == typeof undefined || minattr == false || val > minattr) {
+      this.value = val - 1;
+    }
+  }
+  event.preventDefault(); //to prevent the window from scrolling
+});
+
 $(function() {
 	var btn = $("#back_button");
 	btn.button();

@@ -86,6 +86,7 @@ $(function() {
 
   function validate_inputs() {
 		var parms = "";
+		var valsOK = true;
 		var first = true;
 		for (var i=0; i<{{nlevels}}; i++) {
 		   var s = "model_create_lcounts_"+(i+1);
@@ -100,9 +101,10 @@ $(function() {
 		       }
 		   }
 		   else {
-		       parms = null;
+		       valsOK = false;
 		   }
 		}
+		if (!valsOK) { parms = null; }
 		return parms;
 	}
 

@@ -30,7 +30,7 @@
 %            else:
   	        <option value="true">{{_('On A Fixed Schedule')}}</option><option value="false" selected>{{_('As Needed')}}</option></select></td>
 %            end
-  	    <td><input type="number" id="model_create_interl_howoften_{{i}}" value={{howoften}}></td>
+  	    <td><input type="number" id="model_create_interl_howoften_{{i}}" value={{howoften}} min=1></td>
   	    <td>{{_("times per")}}</td>
   	    <td><select id="model_create_interl_ymw_{{i}}">
 %            if ymw == 'year':
@@ -53,7 +53,14 @@
   	    </select></td>
   	    <td><select id="model_create_interl_issched_{{i+2}}">
   	        <option value="true">{{_('On A Fixed Schedule')}}</option><option value="false">{{_('As Needed')}}</option></select></td>
-  	    <td><input type="number" id="model_create_interl_howoften_{{i+2}}" value=1></td>
+%           prepopval = {3: [4], 4: [2,4], 5: [2,4,6]}
+%           try:
+%               val = prepopval[nlevels][i]
+%           except:
+%               val = 1
+%           end
+%           if i==(nlevels-2): val = 12
+  	    <td><input type="number" id="model_create_interl_howoften_{{i+2}}" value="{{val}}" min=1></td>
   	    <td>{{_("times per")}}</td>
   	    <td><select id="model_create_interl_ymw_{{i+2}}">
   	        <option value="year">{{_('Year')}}</option><option value="month">{{_('Month')}}</option><option value="week">{{_('Week')}}</option>
@@ -79,6 +86,23 @@
 </div>
 
 <script>
+$(':input[type=number]').bind('mousewheel DOMMouseScroll', function(event){
+  var val = parseInt(this.value);
+  var maxattr = $(this).attr("max");
+  var minattr = $(this).attr("min");
+  if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+    if (typeof maxattr == typeof undefined || maxattr == false || val < maxattr) {
+      this.value = val + 1;
+    }
+  }
+  else {
+    if (typeof minattr == typeof undefined || minattr == false || val > minattr) {
+      this.value = val - 1;
+    }
+  }
+  event.preventDefault(); //to prevent the window from scrolling
+});
+
 $(function() {
 	var btn = $("#back_button");
 	btn.button();
@@ -100,6 +124,7 @@ $(function() {
 
   function validate_inputs() {
 		var parms = "";
+		var valsOK = true;
 		var first = true;
 		for (var i=0; i<{{nlevels-1}}; i++) {
 		    var s = "model_create_interl_isfetch_"+(i+2);
@@ -114,7 +139,7 @@ $(function() {
 		        }
 		    }
 		    else {
-		        parms = null;
+		        valsOK = false;
 		    }
 		    s = "model_create_interl_issched_"+(i+2);
 		    sval = $("#"+s).val();
@@ -122,15 +147,15 @@ $(function() {
 		        parms = parms + "&" + s + "=" + sval;
 		    }
 		    else {
-		        parms = null;
+		        valsOK = false;
 		    }
 		    s = "model_create_interl_howoften_"+(i+2);
 		    sval = $("#"+s).val();
- 		    if (sval) {
+ 		    if (sval && parseInt(sval) > 0) {
 		        parms = parms + "&" + s + "=" + sval;
 		    }
 		    else {
-		        parms = null;
+		        valsOK = false;
 		    }
 		    s = "model_create_interl_ymw_"+(i+2);
 		    sval = $("#"+s).val();
@@ -138,9 +163,10 @@ $(function() {
 		        parms = parms + "&" + s + "=" + sval;
 		    }
 		    else {
-		        parms = null;
+		        valsOK = false;
 		    }
 		}
+		if (!valsOK) { parms = null; }
 		return parms;
 	}
 

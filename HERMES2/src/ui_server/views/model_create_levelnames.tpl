@@ -17,22 +17,14 @@
 %        for i in xrange(nlevels):
 	  	<tr>
   			<td><label for="model_create_levelname_{{i+1}}">{{_("Name for level")}} {{i+1}}</label></td>
-%           val = _("Level") + " " + str(i+1)
-%           if i==0: val = _("Central")
-%           if nlevels==3:
-%               if i==1: val = _("District")
-%           end
-%           #elif didn't work here for some reason
-%           if nlevels==4:
-%               if i==1: val = _("Region")
-%               if i==2: val = _("District")
-%           end
-%           if nlevels==5:
-%               if i==1: val = _("Province")
-%               if i==2: val = _("Region")
-%               if i==3: val = _("District")
+%           prepopval = {3: {1:_("District")}, 4: {1:_("Region"),2:_("District")}, 5: {1:_("Province"),2:_("Region"),3:_("District")}}
+%           try:
+%               val = prepopval[nlevels][i]
+%           except:
+%               val = _("Level") + " " + str(i+1)
 %           end
 %           if i==(nlevels-1): val = _("Health Post")
+%           if i==0: val = _("Central")
   			<td><input type="text" name="model_create_levelname_{{i+1}}" id="model_create_levelname_{{i+1}}" value="{{val}}"></td>
   		</tr>
 %        end
@@ -75,6 +67,7 @@ $(function() {
 
 function validate_inputs() {
 		var parms = "";
+		var valsOK = true;
 		var first = true;
 		for (var i=0; i<{{nlevels}}; i++) {
 		   var s = "model_create_levelname_"+(i+1);
@@ -89,9 +82,10 @@ function validate_inputs() {
 		       }
 		   }
 		   else {
-		       parms = null;
+		       valsOK = false;
 		   }
 		}
+		if (!valsOK) { parms = null; }
 		return parms;
   }
 
