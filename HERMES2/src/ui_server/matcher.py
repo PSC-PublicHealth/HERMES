@@ -64,6 +64,7 @@ def initializeToolTips():
     try:
         with open(csvFname,'rU') as f:
             keys,recs = csv_tools.parseCSV(f)
+            print recs
             localeList = [ k for k in keys if k not in ['Location','Path','Button ID','Notes']]
             for l in localeList:
                 if l not in result: result[l] = {}
@@ -90,7 +91,11 @@ def _getToolTips():
     else: pD = {}
     if '*' in _toolTipDict[inlizer.currentLocaleName]:
         pD.update(_toolTipDict[inlizer.currentLocaleName]['*'])
-    for k,v in pD.items(): sio.write("'%s':'%s',\n"%(k,v))
+    for k,v in pD.items(): 
+        vStr = v
+        if v[0] == '"' and v[len(v)-1] == '"':
+            vStr = v[1:-1]        
+        sio.write(u'"{0}":"{1}",\n'.format(k,vStr))
     uiSession = session_support.UISession.getFromRequest(bottle.request)
     if 'developerMode' in uiSession and uiSession['developerMode']:
         sio.write("""
@@ -222,6 +227,7 @@ def jsonTranslatePhrase(db, uiSession):
     try:
         phrasesDict = bottle.request.params
         phrases = [phrasesDict[str(x)] for x in range(0,len(phrasesDict))]
+        print phrases
         transDict = []
         for phrase in phrases:
             transDict.append(_(phrase))
