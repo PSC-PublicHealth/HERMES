@@ -62,9 +62,10 @@ class CrumbTrail(object):
         if tailPath[0] == '/': basePath = tailPath
         else: basePath = "%s/%s"%(self.rootPath, tailPath)
         if self.owner is None:
-            return serverconfig.rootPath+basePath.strip('/')
+            result = serverconfig.rootPath+basePath.strip('/')
         else: 
-            return self.owner._buildPath(basePath)
+            result = self.owner._buildPath(basePath)
+        return result
     
     def __getstate__(self):
         """
@@ -137,15 +138,21 @@ class StackCrumbTrail(CrumbTrail):
         return self # for chaining
     
     def _innerRender(self, sio, folded=False):
-        if not self.trail: return
-        for thing in self.trail[:-1]:
+        if not self.trail: 
+            return
+        for idx,thing in enumerate(self.trail[:-1]):
             if isinstance(thing,types.TupleType):
-                sio.write('<a href="%s">%s</a><span class="divider"></span>></li>\n<li>'%(self._buildPath(thing[0]),thing[1]))
+                urlTail, label = thing
+                if idx==0 and self.owner is None and urlTail != '/': urlTail = '/'+urlTail
+                sio.write('<a href="%s">%s</a><span class="divider"></span>></li>\n<li>'%(self._buildPath(urlTail,idx),label))
             else:
                 thing._innerRender(sio, folded=True)
         thing =self.trail[-1]
+        idx = len(self.trail)-1
         if isinstance(thing,types.TupleType):
-            sio.write('<a href="%s">%s</a>\n'%(self._buildPath(thing[0]),thing[1]))
+            urlTail, label = thing
+            if idx==0 and self.owner is None and urlTail != '/': urlTail = '/'+urlTail
+            sio.write('<a href="%s">%s</a>\n'%(self._buildPath(urlTail,idx),label))
         else:
             thing._innerRender(sio, folded=False)
 
@@ -166,11 +173,11 @@ class StackCrumbTrail(CrumbTrail):
             return True
         return False
 
-    def _buildPath(self, tailPath):
+    def _buildPath(self, tailPath, offset=0):
         if len(self.trail) == 0 or tailPath[0] == '/':
             pass
         else:
-            subT = self.trail[:]
+            subT = self.trail[:offset+1]
             subT.reverse()
             for thing in subT:
                 if isinstance(thing, CrumbTrail): 
@@ -178,12 +185,15 @@ class StackCrumbTrail(CrumbTrail):
                     if tailPath[0] != '/': tailPath = "%s/%s"%(thing.rootPath,tailPath)
                 else: tailPath = "%s/%s"%(thing[0],tailPath)
                 if tailPath[0] == '/': break
-        if tailPath[0] == '/': basePath = tailPath
-        else: basePath = "%s/%s"%(self.rootPath, tailPath)
-        if self.owner is None:
-            return serverconfig.rootPath+basePath.strip('/')
+        if tailPath[0] == '/': 
+            basePath = tailPath
         else: 
-            return self.owner._buildPath(basePath)
+            basePath = "%s/%s"%(self.rootPath, tailPath)
+        if self.owner is None:
+            result = serverconfig.rootPath+basePath.strip('/')
+        else: 
+            result = self.owner._buildPath(basePath)
+        return result
 
     def current(self):
         """
@@ -220,7 +230,8 @@ class TrackCrumbTrail(CrumbTrail):
         return self # for chaining
 
     def _innerRender(self, sio, folded):
-        if not self.trail: return
+        if not self.trail: 
+            return
         if folded:
             tag = self.trail[self.currentOffset][0]
             sio.write('<a href="%s">%s</a><span class="divider"></span>></li>\n<li>'%(self._buildPath(tag),self.foldedName))
