@@ -155,7 +155,7 @@ class TrackableTypeManager:
                     else:
                         thisBlockDict[r['Name']] = (r, shippableClass, deliverableClass, [], [])                       
                 else:
-                    assert isinstance(fnameOrRec,types.StringType), "Record source is neither a string nor a list"
+                    assert isinstance(fnameOrRec,types.StringTypes), "Record source is neither a string nor a list"
                     if fnameOrRec not in ['', 'None']:
                         with util.openDataFullPath(fnameOrRec) as f:
                             keys,recs = csv_tools.parseCSV(f)
