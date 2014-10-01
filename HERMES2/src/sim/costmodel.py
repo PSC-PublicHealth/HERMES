@@ -34,7 +34,8 @@ import microcostmodel
 from currencysupport import CurrencyConverter
 from costmodelsummary import (
         LegacyCostModelHierarchicalSummary,
-        DummyCostModelHierarchicalSummary)
+        DummyCostModelHierarchicalSummary,
+        Micro1CostModelHierarchicalSummary)
 
 def getCostManager(hermesSim, userInput):
     costModelName = userInput['costmodel']
@@ -100,17 +101,22 @@ def getCostModelVerifier(shdNet):
 
         return microcostmodel.MicroCostModelVerifier( currencyConverter )
     else:
-        print costModelName
-        print type(costModelName)
-        print costModelName=='micro1'
         raise RuntimeError("Unrecognized cost model name <%s>"%costModelName)
 
 def getCostModelSummary(shdNet, result):
-    if shdNet.getParameterValue('pricetable') is None:
-        # dummycostmodel
+    costModelName = shdNet.getParameterValue('costmodel')
+    if costModelName == 'dummy':
         return DummyCostModelHierarchicalSummary(result)
+    elif costModelName == 'legacy':
+        if shdNet.getParameterValue('pricetable') is None:
+            # dummycostmodel
+            return DummyCostModelHierarchicalSummary(result)
+        else:
+            # legacycostmodel
+            return LegacyCostModelHierarchicalSummary(result)
+    elif costModelName == 'micro1':
+        return Micro1CostModelHierarchicalSummary(result)
     else:
-        # legacycostmodel
-        return LegacyCostModelHierarchicalSummary(result)
+        raise RuntimeError("Unrecognized cost model name <%s>"%costModelName)
 
 
