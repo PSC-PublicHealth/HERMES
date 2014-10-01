@@ -283,7 +283,8 @@ def writeCSV( ofile, keyList, recDictList, delim=",", quoteStrings=False, sortCo
             if isinstance(val,(types.IntType, types.LongType)): o.write("%d"%val)
             elif isinstance(val,float): o.write("%r"%val)
             elif quoteStrings:
-                o.write('"%s"'%val)
+                if val.startswith('"') and val.endswith('"'): o.write('%s'%val)
+                else: o.write('"%s"'%val)
             else:
                 o.write("%s"%val)
             for key in keyList[1:]:
@@ -294,7 +295,8 @@ def writeCSV( ofile, keyList, recDictList, delim=",", quoteStrings=False, sortCo
                 if isinstance(val,(types.IntType, types.LongType)): o.write("%s%d"%(delim,val))
                 elif isinstance(val,float): o.write("%s%r"%(delim,val))
                 elif quoteStrings:
-                    o.write('%s"%s"'%(delim,val))
+                    if val.startswith('"') and val.endswith('"'): o.write('%s%s'%(delim,val))
+                    else: o.write('%s"%s"'%(delim,val))
                 else:
                     o.write("%s%s"%(delim,val))
             o.write("\n")

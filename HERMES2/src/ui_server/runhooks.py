@@ -530,7 +530,7 @@ def _parseRunParms(db, uiSession, model):
                     if v!=oldV:
                         deltas.append((k,tp,v))                    
                 elif tp == 'floatOrNone':
-                    print "Old V for %s is %s and new is %s cond = %s"%(k,str(oldV),str(v),str(v == ''))
+                    #print "Old V for %s is %s and new is %s cond = %s"%(k,str(oldV),str(v),str(v == ''))
                     if oldV is None:
                         if v is not None and v != '':
                             v = float(v)
@@ -606,6 +606,7 @@ def jsonRunParmsLevelsToShow(db, uiSession):
         return result
     
 @bottle.route('/json/run-parms-edit')
+@bottle.route('/json/run-parms-edit', method='POST')
 def jsonRunParmsEdit(db, uiSession):
     modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
     uiSession.getPrivs().mayReadModelId(db, modelId)
@@ -629,7 +630,7 @@ def jsonRunParmsEdit(db, uiSession):
         #if 'runInfo' in uiSession and 'deltas' in uiSession['runInfo']:
         #    for k,tp,val in uiSession['runInfo']['deltas']: # @UnusedVariable
         #        #"Print updating param %s in deltas with value %s"%(k,str(val))
-        #        m.parms[k].value = val
+        #        m.parms[k].setValue(val)
         result = {'success':True, 'value':True}
     return result
     

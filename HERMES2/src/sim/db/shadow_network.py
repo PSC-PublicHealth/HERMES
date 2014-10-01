@@ -42,6 +42,8 @@ from enums import TimeUnitsEnums
 import math
 import struct
 import operator
+from kvp_tools import KVPParser
+import json, StringIO
 
 #import sys
 #sys.setrecursionlimit(1500)
@@ -3294,7 +3296,9 @@ _makeColumns(ShdCalendarEntry)
 
 class ShdParameter(Base):
     """
-    This holds a single element of the input KVP file
+    This holds a single element of the input KVP file or input_defaults.  
+    
+    self.value is encoded as json; accessor functions are used to recover the encoded value.
     """
 
     __tablename__ = 'parms'
@@ -3307,26 +3311,36 @@ class ShdParameter(Base):
 
     def __init__(self, key, value):
         self.key = key
-        self.value = value
+        self.value = json.dumps(value, separators=(',',':'))
 
+    def setValue(self, val):
+        """
+        Handles the encoding to JSON
+        """
+        self.value = json.dumps(val, separators=(',',':'))
+        
+    def getValue(self):
+        return json.loads(self.value)
+    
     @classmethod
     def fromStr(cls, s):
-        s = s.strip()
-        if s.startswith('#'):
-            return None
-        (key,sep,val) = s.partition('=')
-        if key.strip() is '' and sep is '':
-            return None
-        if sep != '=':
-            raiseRuntimeError("invalid line in kvp parameter file (no '=')")
-        return ShdParameter(key.strip(), val.strip())
+        d = KVPParser().parseKVP([s])
+        if d:
+            assert len(d) == 1, "Parameter string <%s> contains more than one key value pair"%s
+            k,v = d.items()[0]
+            return ShdParameter(k, v)
+        else:
+            return None # empty dict means no content or comment
 
     def toStr(self):
-        return "%s = %s"%(self.key, self.value)
+        sio = StringIO.StringIO()
+        KVPParser().writeKVP(sio, {self.key:self.getValue()})
+        print 'toStr: <%s>'%sio.getvalue()
+        return sio.getvalue()
 
     def parse(self):
         defTokenizer = input.InputDefault()
-        return defTokenizer.processKeywordValue(self.key, self.value)
+        return defTokenizer.processKeywordValue(self.key, self.getValue())
     
 _makeColumns(ShdParameter)
 
@@ -4006,14 +4020,12 @@ class ShdNetwork(Base):
         """
         Convert a kvp file/string to ShdParameter entries and add them to the network.
         """
-        with util.openFileOrHandle(kvpFile) as f:
-            lines = f.readlines()
-        for i,line in enumerate(lines,start=1):
-            with logContext('parsing reading line %d of input kvp file'%i):
-                parm = ShdParameter.fromStr(line)
-                if parm is None:
-                    continue
-                self.addParm(parm)
+        with logContext('parsing input KVP file'):
+            with util.openFileOrHandle(kvpFile) as f:
+                kvpDict = KVPParser().parse(f)
+                for k,v in kvpDict.items():
+                    parm = ShdParameter(k, v)            
+                    self.addParm(parm)
 
     def getParameterValue(self,token):
         """
@@ -4021,12 +4033,12 @@ class ShdNetwork(Base):
         specified for the model.  The returned value is of the parameter's specific type,
         as specified in the parameters definition file.
         """
+        if not hasattr(self,'_cached_inputDefault'):
+            self._cached_inputDefault = input.InputDefault()
         if token in self.parms.keys():
-            return self.parms[token].parse()
+            return self._cached_inputDefault.processKeywordValue(token, self.parms[token].getValue())
         else:
-            defTokenizer = input.InputDefault()
-            return defTokenizer.processKeywordValue(token,None)
-        
+            return self._cached_inputDefault.processKeywordValue(token,None)
 
     def addInitialOVWEntry(self, ovw):
         "Add a single ShdFactoryOVW entry"
@@ -4302,7 +4314,7 @@ class ShdNetwork(Base):
                 continue
             # set up the filename in parms
             if pName in self.parms:
-                fname = self.parms[pName].value
+                fname = self.parms[pName].getValue()
                 fname = fname.strip("'")
             else:
                 fname = "%s_%s.csv"%(self.name,pName)
@@ -4358,11 +4370,11 @@ class ShdNetwork(Base):
 
         kvpFileName = '%s.kvp'%self.name
         with util.openOutputFile(kvpFileName) as f:
-            for k,v in self.parms.items():
+            for k,parm in self.parms.items():
                 if k in filesToZip and filesToZip[k] is None:
                     logWarning('%s export blocked pending database support for that functionality'%k)
                 else:
-                    f.write("%s = %s\n"%(k,v.value))
+                    f.write("%s"%(parm.toStr()))
             for k,v in fakeParms.items():
                 f.write("%s = '%s'\n"%(k,v))
 
@@ -4393,7 +4405,7 @@ class ShdNetwork(Base):
 
         # parms are simple, just copy them simply
         for parm in self.parms.values():
-            newNet.addParm(ShdParameter(parm.key, parm.value))
+            newNet.addParm(ShdParameter(parm.key, parm.getValue()))
 
         #factory ovw is almost as simple
         for ovw in self.initialOVW:

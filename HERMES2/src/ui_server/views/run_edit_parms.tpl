@@ -121,20 +121,27 @@ $(function() {
 		dict[tj.attr('id')] = tj.val();
 	    }
 	});
-	$.getJSON("{{rootPath}}json/run-parms-edit", dict).done(function(data) {
+	$.ajax({
+		type:"POST",
+		dataType:"json",
+		url:"{{rootPath}}json/run-parms-edit", 
+		data:dict
+	})
+	.done(function(data) {
 	    if (data.success) {
-		if (data.value) {
-			window.location = "{{rootPath}}model-run/next";
-		} else {
-		    $("#dialog-modal").text(data['msg']);
-		    $("#dialog-modal").dialog("open");
-		}
-	    } else {
-		alert('{{_("Failed: ")}}' + data.msg);
-	    }
-	}).fail(function(jqxhr, textStatus, error) {
+	    	if (data.value) {
+	    		window.location = "{{rootPath}}model-run/next";
+	    	} else {
+	    		$("#dialog-modal").text(data['msg']);
+	    		$("#dialog-modal").dialog("open");
+	    	}
+	    	} else {
+	    		alert('{{_("Failed: ")}}' + data.msg);
+	    	}
+		})
+	.fail(function(jqxhr, textStatus, error) {
 	    alert("Error: " + jqxhr.responseText);
-	});
-    });    
+		});
+    });
 });
 </script>

@@ -68,13 +68,13 @@ class Visualization:
                 else:
                     currentShape = "c"
                     
-        self.clinicLevelList = self.shdNtwk.parms['cliniclevellist'].parse()
+        self.clinicLevelList = self.shdNtwk.getParameterValue('cliniclevellist')
         self.levelRadDict = {}
         for level in self.levels:
             self.levelRadDict[level] = (vizwidths[self.levels.index(level)],
                                         vizshapes[self.levels.index(level)])
-        self.burninDays = self.shdNtwk.parms['burnindays'].parse()
-        self.runDays = self.shdNtwk.parms['rundays'].parse()
+        self.burninDays = self.shdNtwk.getParameterValue('burnindays')
+        self.runDays = self.shdNtwk.getParameterValue('rundays')
         
         
         self.majorColor = "black"

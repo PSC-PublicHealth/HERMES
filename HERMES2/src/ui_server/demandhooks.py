@@ -31,9 +31,9 @@ def _interpretDemandModelStructure(model):
     summary = {}
     
     if 'dayspermonth' in m.parms:
-        if m.parms['dayspermonth'].value == 28:
+        if m.parms['dayspermonth'].getValue() == 28:
             if 'twentyeightdaymonths' in m.parms:
-                if m.parms['twentyeightdaymonths'].value:
+                if m.parms['twentyeightdaymonths'].getValue():
                     summary['twentyeightDayMonths'] = True;
                 else:
                     raise bottle.BottleException(_('model parameter conflict between dayspermonth and twentyeightdaymonths'))
@@ -41,16 +41,16 @@ def _interpretDemandModelStructure(model):
                 summary['twentyeightDayMonths'] = True;
         else:
             if 'twentyeightdaymonths' in m.parms:
-                if not m.parms['twentyeightdaymonths'].value:
+                if not m.parms['twentyeightdaymonths'].getValue():
                     summary['twentyeightDayMonths'] = False;
                 else:
                     raise bottle.BottleException(_('model parameter conflict between dayspermonth and twentyeightdaymonths'))
             else:
                 summary['twentyeightDayMonths'] = False
     elif 'twentyeightdaymonths' in m.parms:
-        summary['twentyeightDayMonths'] = m.parms['twentyeightdaymonths'].value;
+        summary['twentyeightDayMonths'] = m.parms['twentyeightdaymonths'].getValue();
     else:
-        summary['twentyeightDayMonths'] = m.getParameterValue('twentyeightdaymonths')
+        summary['twentyeightDayMonths'] = (m.getParameterValue('dayspermonth') == 28)
 
     summary['allDemandsUnified'] = bool( not (m.consumptionDemands or m.shippingDemands) )
     
@@ -140,7 +140,7 @@ def _calVecDictFromParms(model):
     """
     m = model
     if 'demanddaysbytypepattern' in m.parms:
-        vacCalStr = m.parms['demanddaysbytypepattern'].value
+        vacCalStr = m.parms['demanddaysbytypepattern'].getValue()
         words = vacCalStr.split(',')
         words = [_smartStrip(w) for w in words]
         calDict = {a:b for a,b in [w.split(':',1) for w in words]}
@@ -149,7 +149,7 @@ def _calVecDictFromParms(model):
             if pt not in calDict: calDict[pt] = '1111111:1111:111111111111'
             
     elif 'demanddayspattern' in m.parms:
-        calStr = m.parms['demanddayspattern'].value
+        calStr = m.parms['demanddayspattern'].getValue()
         calStr = _smartStrip(calStr)
         calDict = {dmnd.peopleStr:calStr for dmnd in m.unifiedDemands}
     else:
@@ -285,9 +285,9 @@ def jsonGetDemandTable(db, uiSession):
                 initialScale = aa
                 initialRelScale = bb/aa
         elif summary['hasScalarScale']:
-            if 'scaledemandactual' in m.parms: a = float(m.parms['scaledemandactual'].value)
+            if 'scaledemandactual' in m.parms: a = float(m.parms['scaledemandactual'].getValue())
             else: a = 1.0
-            if 'scaledemandexpected' in m.parms: b = float(m.parms['scaledemandexpected'].value)
+            if 'scaledemandexpected' in m.parms: b = float(m.parms['scaledemandexpected'].getValue())
             else: b = 1.0
             initialScale = a
             initialRelScale = b/a
@@ -305,7 +305,7 @@ def jsonGetDemandTable(db, uiSession):
             if ss is not None: initialCal = ss
         elif summary['hasScalarCal']:
             if 'demanddayspattern' in m.parms:
-                initialCal = _smartStrip(m.parms['demanddayspattern'].value)
+                initialCal = _smartStrip(m.parms['demanddayspattern'].getValue())
                 
         pSet = set()
         for dmnd in m.unifiedDemands:
@@ -460,9 +460,9 @@ def jsonSetDemandScalarScale(db, uiSession):
                 scaleDict[k] = (val,val*b/a)
             _scaleVecDictToParms(m, scaleDict)
         else:
-            if 'scaledemandactual' in m.parms: aVal = float(m.parms['scaledemandactual'].value)
+            if 'scaledemandactual' in m.parms: aVal = float(m.parms['scaledemandactual'].getValue())
             else: aVal = 1.0
-            if 'scaledemandexpected' in m.parms: eVal = float(m.parms['scaledemandexpected'].value)
+            if 'scaledemandexpected' in m.parms: eVal = float(m.parms['scaledemandexpected'].getValue())
             else: eVal = 1.0
             newAVal = val
             newEVal = (eVal/aVal)*val
@@ -490,9 +490,9 @@ def jsonSetDemandScalarRelScale(db, uiSession):
                 scaleDict[k] = (a,val*a)
             _scaleVecDictToParms(m, scaleDict)
         else:
-            if 'scaledemandactual' in m.parms: aVal = float(m.parms['scaledemandactual'].value)
+            if 'scaledemandactual' in m.parms: aVal = float(m.parms['scaledemandactual'].getValue())
             else: aVal = 1.0
-            if 'scaledemandexpected' in m.parms: eVal = float(m.parms['scaledemandexpected'].value)
+            if 'scaledemandexpected' in m.parms: eVal = float(m.parms['scaledemandexpected'].getValue())
             else: eVal = 1.0
             newAVal = aVal
             newEVal = val*aVal
