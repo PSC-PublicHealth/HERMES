@@ -56,9 +56,12 @@ function updatePage(modelId) {
 function fridgeInfoButtonFormatter(cellvalue, options, rowObject)
 {
     // cellvalue will be the name string
-	return "<button type\"button\" class=\"this_edit_button\" id="+escape(cellvalue)+">Edit</button>" +
+	return "<div class=\"hermes_button_triple\" id=\""+escape(cellvalue)+"\"></div>";
+	/*
+	return "<button type=\"button\" class=\"this_edit_button\" id="+escape(cellvalue)+">Edit</button>" +
 			"<button type=\"button\" class=\"hermes_info_button\" id="+escape(cellvalue)+">Info</button>" +
 			"<button type=\"button\" class=\"this_info_button\" id="+escape(cellvalue)+" disabled>Del</button>";
+	*/
 };
 
 var priceCheckFailure = false;
@@ -195,6 +198,54 @@ function buildPage(modelId) {
 		    return false;
 		},
 		gridComplete: function(){
+			$('.hermes_button_triple').hrmWidget({
+				widget:'buttontriple',
+				onInfo:function(event) {
+					var id = unescape($(this).parent().attr("id"));
+					$.getJSON('{{rootPath}}json/fridge-info',{name:id, modelId:$('#model_sel_widget').modelSelector('selId')})
+					.done(function(data) {
+						if (data.success) {									
+							$("#fridge_info_dialog").html(data['htmlstring']);
+							$("#fridge_info_dialog").dialog('option','title',data['title']);
+							$("#fridge_info_dialog").dialog("open");
+						}
+						else {
+		    				alert('{{_("Failed: ")}}'+data.msg);
+						}
+						
+					})
+					.fail(function(jqxhr, textStatus, error) {
+						alert("Error: "+jqxhr.responseText);
+					});
+					event.stopPropagation();
+				},
+				onEdit:function(event){
+					//var gr = $("#fridge_cost_grid").jqGrid('getGridParam','selRow');
+					//console.log(gr);
+					if(true) {
+						var id = unescape($(this).parent().attr("id"));
+						console.log("ID :"+id);
+						var devName = $("#fridge_cost_grid").jqGrid('getCell',id,"displayname");
+						$("#fridge_cost_grid").jqGrid('editGridRow',id,{
+	                  	  closeAfterEdit:true,
+	                  	  closeOnEscape:true,
+	                  	  jqModal:true,
+	                  	  viewPagerButtons:false,
+	                  	  mType:"POST",
+	                  	  modal:true,
+	                  	  editData: {
+	        					modelId: function() { 
+	        						return $('#model_sel_widget').modelSelector('selId'); 
+	        					}
+	                  	  },
+	                  	  editCaption:"Edit Cost Information for " + devName,
+	                  	  savekey:[true,13]             
+						});
+					}
+					else alert("Please Slect Row");
+				}
+			});
+			/*
 			$(".hermes_info_button").click(function(event) {
 				$.getJSON('{{rootPath}}json/fridge-info',{name:unescape($(this).attr('id')), modelId:$('#model_sel_widget').modelSelector('selId')})
 				.done(function(data) {
@@ -213,7 +264,8 @@ function buildPage(modelId) {
 				});
 				event.stopPropagation();
 			});
-			
+			*/
+			/*
 			$(".this_edit_button").click(function(event){
 				//var gr = $("#fridge_cost_grid").jqGrid('getGridParam','selRow');
 				//console.log(gr);
@@ -238,6 +290,7 @@ function buildPage(modelId) {
 				}
 				else alert("Please Slect Row");
 			});
+			*/
 		},
 		loadError: function(xhr,status,error){
 	    	alert('{{_("Error: ")}}'+status);

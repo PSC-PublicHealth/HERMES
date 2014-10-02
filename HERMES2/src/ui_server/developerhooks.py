@@ -44,6 +44,7 @@ def tabPage(uiSession):
                                                        ('ajax/page_9',_('Route Editor')),
                                                        ('ajax/page_10',_('Pop-Up Menu')),
                                                        ('ajax/page_11',_('Data Entry')),
+                                                       ('ajax/page_12',_('Button Triple')),
                                                        ('debug-ui',_('Debug'))
                                                        ])
 
