@@ -292,6 +292,10 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
             return False
 
     def checkReady(self, net):
+        problemList = self.getProblemList(net)
+        return (len(problemList)==0)
+
+    def getProblemList(self, net):
         """
         This scans the given ShdNetwork, making sure that all data needed to compute costs for the model
         are defined.
@@ -352,7 +356,6 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
 #         print '####### problemList follows'
 #         for s in problemList: print s
 #         print '####### end of problemList'
-        return (len(problemList) == 0)
 #             
 #         for routeId,route in net.routes.items():
 #             truckType = route.TruckType
@@ -369,6 +372,8 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
 #                 neededEntries.add((u'driver',u'PerYear',category,conditions))
 #                 neededEntries.add((u'driver',u'PerDiem',category,conditions))
 #                 neededEntries.add((u'driver',u'PerTrip',category,conditions))
+        return problemList
+
 
 def describeSelf():
     print \

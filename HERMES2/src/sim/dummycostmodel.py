@@ -78,5 +78,7 @@ class DummyCostModelVerifier:
         pass
     def checkReady(self,net):
         return True
+    def getProblemList(self,net):
+        return []
 
 

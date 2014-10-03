@@ -58,7 +58,8 @@
 			<table>
 				<tr>
 					<td>
-						Some kind of status<br>info goes here?
+						<input type='checkbox' id='microcosting_enable_cbx'>
+						<label for='microcosting_enable_cb'>{{_("Enable microcosting for this model?")}}</label>
 					</td>
  				</tr>
  				<tr>
@@ -68,6 +69,7 @@
 		</td>
 	</tr>
 </table>
+
 
 
 <script>
@@ -86,6 +88,7 @@ function buildPage() {
 			$("#currency_sel_widget").currencySelector('selId',data.baseCurrencyId);
 			$("#cost_base_year").val(data.currencyBaseYear);
 			$('#cost_inflation').val(data.priceInflation);
+			$('#microcosting_enable_cbx').prop('checked', data.microCostingEnabled);
 			for ( var i = 0; i<buttonNames.length; i++ ) {
 				var lbl = data[buttonNames[i]+'Label'];
 				if (lbl) $('#cost_'+buttonNames[i]+'_btn').button('option','label',lbl);
@@ -159,8 +162,8 @@ $(function() {
 
 	$('#cost_inflation').blur( function(evt) {
 		$.getJSON('{{rootPath}}json/set-cost-inflation-percent',
-			{modelId:$('#model_sel_widget').modelSelector('selId'),
-			inflation:$('#cost_inflation').val()
+				{modelId:$('#model_sel_widget').modelSelector('selId'),
+				inflation:$('#cost_inflation').val()
 		})
 		.done(function(data) {
 			if (data.success) {
@@ -182,11 +185,75 @@ $(function() {
 			evt.preventDefault();
 		});
 	}
+	
 	$('#cost_check_completeness_btn').button().click( function(evt) {
-			window.location = "{{rootPath}}cost-check-complete";
-			evt.preventDefault();
-		});
-		
+		$.getJSON('{{rootPath}}json/cost-check-completeness',
+				{ modelId:$('#model_sel_widget').modelSelector('selId')
+		})
+		.done(function(data){
+			if (data.success) {
+				if (data.value) {
+					var dlgDiv = $('<div></div>');
+					dlgDiv.append(data.msg);
+					dlgDiv.dialog({
+						autoOpen: true,
+						modal: false,
+						title: '{{_("The Costing Component is Ready")}}',
+						close: function() { $(this).dialog('destroy'); },
+						buttons: {
+							'{{_("Ok")}}': function() {
+								$(this).dialog("destroy");
+							},
+						}
+					});
+				}
+				else {
+					var dlgDiv = $('<div></div>');
+					dlgDiv.append('{{!_("<b>The following problems remain:</b>")}}');
+					dlgDiv.append('<ul>');
+					for ( var i = 0; i<data.msgList.length; i++ ) {
+						dlgDiv.append('<li>'+data.msgList[i]+'</li>');
+					}
+					dlgDiv.append('</ul>');
+					dlgDiv.dialog({
+						autoOpen: true,
+						modal: false,
+						title: '{{_("Cost Information is Incomplete")}}',
+						close: function() { $(this).dialog('destroy'); },
+						buttons: {
+							'{{_("Ok")}}': function() {
+								$(this).dialog("destroy");
+							},
+						}
+					});
+				}
+			}
+			else {
+    			alert('{{_("Failed: ")}}'+data.msg);				
+			}
+		})
+		.fail(function(jqxhr, textStatus, error) {
+    		alert('{{_("Error: ")}}'+jqxhr.responseText);
+		});		
+	})
+	
+	$('#microcosting_enable_cbx').change( function(evt){
+		$.getJSON('{{rootPath}}json/set-microcosting-enabled',
+				{modelId:$('#model_sel_widget').modelSelector('selId'),
+				 enabled:$(this).prop('checked')
+		})
+		.done(function(data){
+			if (data.success) {
+				$('#microcosting_enable_cbx').prop('checked', data.microCostingEnabled);			
+			}
+			else {
+    			alert('{{_("Failed: ")}}'+data.msg);				
+			}
+		})
+		.fail(function(jqxhr, textStatus, error) {
+    		alert('{{_("Error: ")}}'+jqxhr.responseText);
+		});		
+	})
 		
 });
 

@@ -439,6 +439,10 @@ class LegacyCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
         dummycostmodel.DummyCostModelVerifier.__init__(self)
 
     def checkReady(self, net):
+        missingList = self.getProblemList(net)
+        return (len(missingList)==0)
+
+    def getProblemList(self,net):
         """
         This scans the given ShdNetwork, making sure that all data needed to compute costs for the model
         are defined.
@@ -508,7 +512,7 @@ class LegacyCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
                 print 'failed %s: %s'%(tpl,e)
                 missingList.append(tpl)
 
-        return (len(missingList)==0)
+        return missingList
 
 def describeSelf():
     print \
