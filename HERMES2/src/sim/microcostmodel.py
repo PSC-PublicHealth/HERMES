@@ -38,7 +38,7 @@ priceKeyTable = {'propane':'pricepropaneperkg',
                  'gasoline':'pricegasolineperl', 
                  'diesel':'pricedieselperl', 
                  'electric':'priceelectricperkwh',
-                 'solar':'pricesolarperkw',
+                 'solar':('pricesolarperkw','solarpanellifetimeyears'),
                  'ice':'priceiceperliter'
                  }
 
@@ -212,10 +212,18 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
             fCur = fridge.recDict['BaseCostCur']
             fYear = fridge.recDict['BaseCostYear']
             fuel = fridgetypes.energyTranslationDict[fridge.recDict['Energy']][4]
-            if fuel in ['ice','solar']:
+            if fuel in ['ice']:
                 print 'I should be handling %s differently'%fridge.name
-            fuelPrice = self.sim.userInput[priceKeyTable[fuel]] # in run currency at run base year
-            assert fuelPrice is not None, u"Cost information for power type %s is missing"%fuel
+            priceKeyInfo = priceKeyTable[fuel]
+            if isinstance(priceKeyInfo, types.TupleType):
+                basePrice = self.sim.userInput[priceKeyInfo[0]]
+                amortPeriod = self.sim.userInput[priceKeyInfo[1]]
+                assert basePrice is not None, u"Cost information for power type %s is missing"%fuel
+                assert amortPeriod is not None and amortPeriod != 0.0, u"Component lifetime for power type %s is missing"%fuel
+                fuelPrice = basePrice/amortPeriod
+            else:
+                fuelPrice = self.sim.userInput[priceKeyInfo] # in run currency at run base year
+                assert fuelPrice is not None, u"Cost information for power type %s is missing"%fuel
             baseCost = fridge.recDict['BaseCost']
             powerRate = fridge.recDict['PowerRate']
             assert baseCost is not None and powerRate is not None, u"Cost information for %s is incomplete"%fridge.name
@@ -285,9 +293,9 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
             return (invTp.Energy is not None \
                     and (isinstance(invTp.BaseCost,types.FloatType) and invTp.BaseCost>=0.0) \
                     and invTp.BaseCostCurCode is not None \
-                    and (isinstance(invTp.BaseCostYear,types.IntType) and invTp.BaseCostYear>=2000) \
-                    and (isinstance(invTp.PowerRate,types.FloatType) and invTp.PowerRate>=0.0)) \
-                    and (0.0<=self.currencyConverter.convertTo(1.0,invTp.BaseCostCurCode,'USD',invTp.BaseCostYear))
+                    and (isinstance(invTp.BaseCostYear,(types.IntType, types.LongType)) and invTp.BaseCostYear>=2000) \
+                    and (isinstance(invTp.PowerRate,types.FloatType) and invTp.PowerRate>=0.0) \
+                    and (0.0<=self.currencyConverter.convertTo(1.0,invTp.BaseCostCurCode,'USD',invTp.BaseCostYear)))
         except:
             return False
 
@@ -305,11 +313,19 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
         print '####### beginning checks'
         # Check all the fuel price entries from parms
         for v in priceKeyTable.values()+['priceinflation', 'amortizationstorageyears'] :
-            try:
-                if not isinstance(net.getParameterValue(v), types.FloatType):
-                    problemList.append("%s is not defined or is invalid"%v)
-            except:
-                problemList.append("%s is not a valid parameter"%v)
+            if isinstance(v, types.TupleType):
+                for vv in v:
+                    try:
+                        if not isinstance(net.getParameterValue(vv), types.FloatType):
+                            problemList.append("%s is not defined or is invalid"%vv)
+                    except:
+                        problemList.append("%s is not a valid parameter"%vv)
+            else:
+                try:
+                    if not isinstance(net.getParameterValue(v), types.FloatType):
+                        problemList.append("%s is not defined or is invalid"%v)
+                except:
+                    problemList.append("%s is not a valid parameter"%v)
 
         for v in ['currencybaseyear'] :
             try:
@@ -337,10 +353,10 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
                 invTp = shdInv.invType
                 if invTp.Name in alreadyChecked: continue
                 else: alreadyChecked.add(invTp.Name)
-                if invTp == 'fridges':
+                if invTp.typeClass == 'fridges':
                     if not self._verifyFridge(invTp):
                         problemList.append("Storage type %s has missing costing entries"%invTp.Name)
-                elif invTp == 'trucks':
+                elif invTp.typeClass == 'trucks':
                     truckStorageNames = [b for a,b in util.parseInventoryString(shdInv.invType.Storage)]  # @UnusedVariable
                     for fridge in [net.fridges[nm] for nm in truckStorageNames]:
                         if fridge.Name in alreadyChecked: continue

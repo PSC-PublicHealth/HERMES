@@ -66,6 +66,12 @@
 				<td>{{_("Freeze One Liter of Ice")}}</td>
 			    </tr>
 			    
+				<tr>
+				<td>{{!_("Solar Panel<br>Amortization")}}</td>
+				<td><input type='text' id='price_solaramort'></input></td>
+				<td>{{_("Years")}}</td>
+			    </tr>
+
 			</table>
 			</div>
 		</td>
@@ -89,15 +95,18 @@ function buildPage(modelId) {
 	$.getJSON('{{rootPath}}json/get-fuel-price-info',{ modelId:modelId })
 	.done(function(data) {
 		if (data.success) {
-			var rowNames = ['propane', 'kerosene', 'gasoline', 'diesel', 'electric', 'solar', 'ice'];
+			var rowNames = ['propane', 'kerosene', 'gasoline', 'diesel', 'electric', 'solar', 'solaramort','ice'];
 			for ( var i = 0; i<rowNames.length; i++ ) {
 				var rowName = rowNames[i];
 				function frzOnBlur(currentRowName) {
 					return function(evt) {
+						var units = null;
+						if ($('#price_'+currentRowName+'_units').length)
+							units = $('#price_'+currentRowName+'_units').currencySelector('selId');
 						$.getJSON( '{{rootPath}}json/set-fuel-price/'+currentRowName, { 
 							modelId:modelId,
 							price:$('#price_'+currentRowName).val(),
-							id:$('#price_'+currentRowName+'_units').currencySelector('selId')
+							id: units
 						 })
 						.done( function(data) {
 							if (data.success) {
@@ -156,22 +165,35 @@ function buildPage(modelId) {
 					widget:'floatTextBox',
 					onBlur:frzOnBlur(rowName)
 				});
-				var widgetArgs = {
-						widget:'currencySelector',
-						modelId:modelId,
-						label:'',
-						onChange:frzCurSelChange(rowName)
-				};
-				if (data[rowName+'Price'] != 'undefined' && data[rowName+'Price'] != null) {
-					$('#price_'+rowName).val( data[rowName+'Price'].formatMoney(2) );
+				if ($('#price_'+rowName+'_units').length) {
+					var widgetArgs = {
+							widget:'currencySelector',
+							modelId:modelId,
+							label:'',
+							onChange:frzCurSelChange(rowName)
+					};
+					$('#price_'+rowName+'_units').hrmWidget( $.extend({},
+							{selected:data[rowName+'Currency']},
+							widgetArgs));					
+					if (data[rowName+'Value'] != 'undefined' && data[rowName+'Value'] != null) {
+						$('#price_'+rowName).val( data[rowName+'Value'].formatMoney(2) );
+					}
+					else {
+						$('#price_'+rowName).val('');
+					}
+					$('#price_'+rowName).floatTextBox('saveState');
 				}
 				else {
-					$('#price_'+rowName).val('');
+					// There is no _units, so this is a simple scalar, not a real price
+					if (data[rowName+'Value'] != 'undefined' && data[rowName+'Value'] != null) {
+						$('#price_'+rowName).val( data[rowName+'Value'] );
+					}
+					else {
+						$('#price_'+rowName).val('');
+					}
+					$('#price_'+rowName).floatTextBox('saveState');
+					
 				}
-				$('#price_'+rowName).floatTextBox('saveState');
-				$('#price_'+rowName+'_units').hrmWidget( $.extend({},
-						{selected:data[rowName+'Currency']},
-						widgetArgs));
 			}
 		}
 	    else {

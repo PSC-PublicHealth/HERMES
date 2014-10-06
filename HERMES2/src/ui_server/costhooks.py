@@ -266,7 +266,12 @@ def jsonSetBaseCurrency(db, uiSession):
         return {"success":False, "msg":str(e)} 
 
 def getFuelButtonLabel(db, uiSession, m):
-    vList = _fuelNames.values();
+    vList = []
+    for val in _fuelNames.values():
+        if isinstance(val, types.TupleType):
+            vList += list(val)
+        else:
+            vList.append(val)
     nSet = sum([v is not None and v!='' and v!=0.0 for v in [m.getParameterValue(vv) for vv in vList]])
     if nSet==0: return _("Begin")
     elif nSet==len(vList): return _("Revisit")
@@ -326,15 +331,29 @@ def jsonGetFuelPriceInfo(db, uiSession):
         result = {}
         for fuel,fuelParamName in _fuelNames.items():
             fuelCurString = '%sCurrency'%fuel
-            fuelPriceString = '%sPrice'%fuel
+            fuelValueString = '%sValue'%fuel
             if fuelCurString not in uiSession: uiSession[fuelCurString] = currencyBase
             result[fuelCurString] = uiSession[fuelCurString]
-            fuelPrice = m.getParameterValue(fuelParamName)
-            #print "%s: %s"%(fuelParamName, fuelPrice)
-            if fuelPrice is None:
-                result[fuelPriceString] = None
+            if isinstance(fuelParamName, types.TupleType):
+                fuelAmortName = fuelParamName[1]
+                fuelParamName = fuelParamName[0]
+                fuelAmortString = '%samortValue'%fuel
+                fuelPrice = m.getParameterValue(fuelParamName)
+                #print "%s: %s"%(fuelParamName, fuelPrice)
+                if fuelPrice is None:
+                    result[fuelValueString] = None
+                else:
+                    result[fuelValueString] = currencyConverter.convertTo(fuelPrice, currencyBase, uiSession[fuelCurString])
+                fuelAmort = m.getParameterValue(fuelAmortName)
+                result[fuelAmortString] = fuelAmort
             else:
-                result[fuelPriceString] = currencyConverter.convertTo(fuelPrice, currencyBase, uiSession[fuelCurString])
+                fuelPrice = m.getParameterValue(fuelParamName)
+                #print "%s: %s"%(fuelParamName, fuelPrice)
+                if fuelPrice is None:
+                    result[fuelValueString] = None
+                else:
+                    result[fuelValueString] = currencyConverter.convertTo(fuelPrice, currencyBase, uiSession[fuelCurString])
+        print result
         result['success'] = True
         #print 'returning %s'%result
         return result
@@ -345,19 +364,37 @@ def jsonGetFuelPriceInfo(db, uiSession):
 @bottle.route('/json/set-fuel-price/<fuelName>')
 @bottle.route('/json/set-fuel-price-currency/<fuelName>')
 def jsonSetFuelPrice(db, uiSession, fuelName):
+    """
+    This also handles setting of amortization lifetime, based on the presence of suffix 'amort'
+    """
     try:
-        assert fuelName in _fuelNames.keys(), _("{0} is not a valid fuel type").format(fuelName)
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayReadModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         currencyId = _getOrThrowError(bottle.request.params, 'id')
-        currencyParamName = _fuelNames[fuelName]
-        price = _safeGetReqParam(bottle.request.params, 'price', isFloat=True)
-        if price is not None and price!='':
-            priceInBaseCurrency = _getCurrencyConverter(db, uiSession, m).convertTo(price, currencyId,
-                                                                                    m.getParameterValue('currencybase'))
-            m.addParm(shadow_network.ShdParameter(currencyParamName, priceInBaseCurrency))
-        result = {'success':True, 'price':price, 'id':currencyId}
+        if fuelName.endswith('amort'):
+            fuelName = fuelName[:-len('amort')]
+            assert fuelName in _fuelNames.keys(), _("{0} is not a valid fuel type").format(fuelName)
+            tpl = _fuelNames[fuelName]
+            assert isinstance(tpl, types.TupleType), _("The fuel {0} has no amortization period".format(fuelName))
+            fuelAmortName = tpl[1]
+            amort = _safeGetReqParam(bottle.request.params, 'price', isFloat=True)
+            if amort is not None and amort!='':
+                m.addParm(shadow_network.ShdParameter(fuelAmortName, amort))
+            result = {'success':True, 'price':amort, 'id':None}
+
+        else:
+            assert fuelName in _fuelNames.keys(), _("{0} is not a valid fuel type").format(fuelName)
+            currencyParamName = _fuelNames[fuelName]
+            if isinstance(currencyParamName, types.TupleType):
+                currencyParamName = currencyParamName[0]
+            price = _safeGetReqParam(bottle.request.params, 'price', isFloat=True)
+            if price is not None and price!='':
+                priceInBaseCurrency = _getCurrencyConverter(db, uiSession, m).convertTo(price, currencyId,
+                                                                                        m.getParameterValue('currencybase'))
+                m.addParm(shadow_network.ShdParameter(currencyParamName, priceInBaseCurrency))
+            result = {'success':True, 'price':price, 'id':currencyId}
+        print result
         return result
     except Exception,e:
         _logStacktrace()
