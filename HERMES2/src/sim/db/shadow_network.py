@@ -1858,6 +1858,19 @@ class HermesResultsGroup(Base):
     def addParm(self,parm):
         # Add a single ShdParameter entry"
         self.parms[parm.key] = parm
+
+    def getParameterValue(self,token):
+        """
+        Get the value of the specified parameter, using the default if no such parameter is 
+        specified for the model.  The returned value is of the parameter's specific type,
+        as specified in the parameters definition file.
+        """
+        if not hasattr(self,'_cached_inputDefault'):
+            self._cached_inputDefault = input.InputDefault()
+        if token in self.parms.keys():
+            return self._cached_inputDefault.processKeywordValue(token, self.parms[token].getValue())
+        else:
+            return self._cached_inputDefault.processKeywordValue(token,None)
         
     def _mergeResults(self,net):
         
