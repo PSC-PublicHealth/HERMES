@@ -56,7 +56,7 @@ def costEditFuel(db, uiSession):
 @bottle.route('/cost-edit-fridge')
 def costEditFridge(db, uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Storage")))
-    return bottle.template("cost_edit_fridge.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs")})
+    return bottle.template("cost_edit_fridge_version0.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs")})
 
 @bottle.route('/cost-edit-fridge2')
 def costEditFridge2(db, uiSession):

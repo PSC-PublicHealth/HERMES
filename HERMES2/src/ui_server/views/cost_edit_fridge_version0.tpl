@@ -59,6 +59,14 @@ function fridgeInfoButtonFormatter(cellvalue, options, rowObject)
 	return "<button type=\"button\" class=\"hermes_info_button\" id="+escape(cellvalue)+">Info</button>";
 };
 
+function energyFormatter(cellvalue, options, rowObject)
+{
+	console.log('call to energyFormatter with param:');
+	console.log(cellvalue);
+	var parts = cellvalue.split(':',2);
+	return "<div style='display:none'>"+parts[0]+"</div><div>"+parts[1]+"</div>";
+};
+
 var priceCheckFailure = false;
 
 function priceCheck(value) {
@@ -93,8 +101,8 @@ function buildPage(modelId) {
 	})
 
 	$("#fridge_cost_grid").jqGrid({
-	   	url:'{{rootPath}}json/manage-fridge-cost-table',
-	    editurl:'{{rootPath}}edit/edit-cost-fridge',	
+	   	url:'{{rootPath}}json/manage-fridge-cost-table-new',
+	    editurl:'{{rootPath}}edit/edit-cost-fridge-new',	
 		datatype: "json",
 		postData: {
 			modelId: function() { return $('#model_sel_widget').modelSelector('selId'); }
@@ -109,8 +117,7 @@ function buildPage(modelId) {
 		          "{{_('Currency')}}",
 		          "{{_('Base Cost Year')}}",
 		          "{{_('Ongoing')}}",
-		          "{{_('Units')}}",
-		          "{{_('Of')}}"
+		          "{{_('Units Of')}}"
 		], //define column names
 		colModel:[
 		          {name:'name', index:'name', hidden:true, key:true},
@@ -172,8 +179,40 @@ function buildPage(modelId) {
 			        		  }
 			        	  }
 		          },
-		          {name:'ongoingunits', index:'ongoingunits', width:100, align:'center'},
-		          {name:'ongoingwhat', index:'ongoingwhat', align:'center'}
+		          {name:'energy', index:'energy', width:100, align:'center', formatter:energyFormatter,
+		        	  editable:true,
+		        	  edittype:'custom',
+		        	  editoptions: {
+		        		  custom_element:function(value, options){
+		        			  var parentElem = $.parseHTML(value);
+		        			  var d1 = $(parentElem).first();
+		        			  var d2 = $(parentElem).eq(1);
+		  					  var $divElem = $($.parseHTML("<div class='hermes_energy_selector'></div>"));
+		  					  var sel = $(d1).text();
+		  					  if (sel=='') sel=null;
+		  					  var args = {
+		  							  widget:'energySelector',
+		  							  label:''
+		  					  }
+		  					  if (sel) args['selected'] = sel;
+		  					  $divElem.hrmWidget(args);
+		        			  return $divElem;
+		        		  },
+		        		  custom_value:function(elem, op, value){
+		        			  if ($(elem).length == 0) {
+		        				  return;
+		        			  }
+		        			  if (op=='get') {
+		        				  var id = $(elem).energySelector('selId');
+		        				  var phrase = $(elem).energySelector('selPhrase');
+		        				  return id+':'+phrase;
+		        			  }
+		        			  else if (op=='set') {
+		        				  $(elem).energySelector('selId',value);
+		        			  }
+		        		  }
+		        	  }
+		          },
 		], //define column models
 		pager: 'fridge_cost_pager', //set your pager div id
 		pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
@@ -223,6 +262,12 @@ function buildPage(modelId) {
 			{edit:true,add:false,del:false},
 			{ // edit option
 				closeAfterEdit:true,
+//				bSubmit: "bSubmitTxt",
+//				bCancel: "bCancelTxt",
+//				bClose: "bCloseTxt",
+//				bYes : "bYesTxt",
+//				bNo : "bNoTxt",
+//				bExit : "bExitTxt",
 				editData: {
 					modelId: function() { return $('#model_sel_widget').modelSelector('selId'); },
 					
