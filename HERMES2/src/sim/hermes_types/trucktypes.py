@@ -322,6 +322,9 @@ class TruckType(abstractbaseclasses.TrackableType):
         myStorageDict['cooler'] = self.sim.storage.getTotalCoolVol(myStorageSC)
         myStorageDict['feezer'] = self.sim.storage.getTotalRefrigeratedVol(myStorageSC) - myStorageDict['cooler']
         return myStorageDict
+
+    def getFridgeCollection(self):
+        return self.sim.fridges.getCollection([(tp,1) for tp in self.storageCapacityInfo])
     
     def checkStorageCapacity(self, proposedVC, packagingModel, storageModel):
         myStorageSC= self.sim.fridges.getTotalVolumeSCFromFridgeTypeList(self.storageCapacityInfo)
