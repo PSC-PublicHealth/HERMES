@@ -1,0 +1,9 @@
+"VaccineType","Notes","12-24months","0-11monthsBCG","0-11months","Service1","Service2"
+"N_Oral Polio","",1,1,2,0,0
+"N_LargeCarrier_U_I","",0,0,0,1,0
+"N_Tuberculosis","",0,1,0,0,0
+"N_Tetanus_Toxoid","",1,0,2,0,0
+"N_Measles","",0,0,1,0,0
+"N_STDCARRIER_CHARGE","",0,0,0,0,1
+"N_Yellow Fever","",0,0,1,0,0
+"N_DTP-HepB-Hib liquid","",1,0,2,0,0

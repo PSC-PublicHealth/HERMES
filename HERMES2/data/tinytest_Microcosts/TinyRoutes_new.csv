@@ -1,0 +1,83 @@
+"RouteName","idcode","LocName","Type","RouteOrder","TransitHours","TruckType","ShipIntervalDays","ShipLatencyDays","PullOrderAmountDays","DistanceKM","Conditions","Notes","PickupDelayMagnitude","PickupDelaySigma","PickupDelayFrequency"
+"A",1000000,"D?p?t Central*","askingpush",0,0.0,"N_cold_truck",84.0,0.0,0.0,"","","",0.0,0.0,0.0
+"A",1020000,"DIFFA","askingpush",1,24.0,"N_cold_truck",84.0,0.0,"","","","",0.0,0.0,0.0
+"r1020100",1020000,"DIFFA","pull",0,0.0,"N_4x4_truck",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1020100",1020100,"Diffa","pull",1,24.0,"N_4x4_truck",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1020101",1020100,"Diffa","pull",0,0.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1020101",1020101,"Baroua","pull",1,4.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1020102",1020100,"Diffa","pull",0,0.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1020102",1020102,"Bosso","pull",1,4.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1020200",1020000,"DIFFA","pull",0,0.0,"N_4x4_truck",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1020200",1020200,"Main? Soroa","pull",1,24.0,"N_4x4_truck",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1020201",1020200,"Main? Soroa","pull",0,0.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1020201",1020201,"Kilakam","pull",1,4.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1020202",1020200,"Main? Soroa","pull",0,0.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1020202",1020202,"Foulatari","pull",1,4.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"B",1000000,"D?p?t Central*","varpush",0,0.0,"N_cold_truck",28.0,0.0,0.0,"","","",0.0,0.0,0.0
+"B",1010000,"AGADEZ","varpush",1,24.0,"N_cold_truck",28.0,0.0,"","","","",0.0,0.0,0.0
+"B",1040000,"Philadelphia","varpush",2,24.0,"N_cold_truck",28.0,0.0,"","","","",0.0,0.0,0.0
+"B",1030000,"DOSSO","varpush",3,24.0,"N_cold_truck",28.0,0.0,"","","","",0.0,0.0,0.0
+"r1010100",1010000,"AGADEZ","pull",0,0.0,"N_4x4_truck",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1010100",1010100,"Agadez","pull",1,24.0,"N_4x4_truck",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1010101",1010100,"Agadez","pull",0,4.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,956.0,"","",0.0,0.0,0.0
+"r1010101",1010101,"Caisse","pull",1,0.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,956.0,"","",0.0,0.0,0.0
+"r1010102",1010100,"Agadez","pull",0,6.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1010102",1010102,"Centre","pull",1,4.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1010200",1010000,"AGADEZ","pull",0,0.0,"N_4x4_truck",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1010200",1010200,"Arlit","pull",1,24.0,"N_4x4_truck",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1010201",1010200,"Arlit","pull",0,0.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1010201",1010201,"Arlit","pull",1,4.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1010202",1010200,"Arlit","pull",0,0.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1010202",1010202,"Akokan","pull",1,4.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1040100",1040000,"Philadelphia","varpush",0,0.0,"N_4x4_truck",28.0,4.0,0.0,"","","",0.0,0.0,0.0
+"r1040100",1040100,"Reading","varpush",1,1.0,"N_4x4_truck",28.0,4.0,0.0,"","","",0.0,0.0,0.0
+"r_Reading_or",1040100,"Reading","dropandcollect",0,1.0,"TT_motorcycle",3.0,7.0,28.0,"","","",0.0,0.0,0.0
+"r_Reading_or",1040101,"Reading_or1","dropandcollect",1,1.0,"TT_motorcycle",3.0,7.0,28.0,"","","",0.0,0.0,0.0
+"r_Reading_or",1040102,"Reading_or2","dropandcollect",2,1.0,"TT_motorcycle",3.0,7.0,28.0,"","","",0.0,0.0,0.0
+"r_Reading_or",1040103,"Reading_or3","dropandcollect",3,8.0,"TT_motorcycle",3.0,7.0,28.0,"","","",0.0,0.0,0.0
+"r_Reading_or",1040103,"Reading_or3","dropandcollect",4,1.0,"TT_motorcycle",3.0,7.0,28.0,"","","",0.0,0.0,0.0
+"r_Reading_or",1040102,"Reading_or2","dropandcollect",5,1.0,"TT_motorcycle",3.0,7.0,28.0,"","","",0.0,0.0,0.0
+"r_Reading_or",1040101,"Reading_or1","dropandcollect",6,1.0,"TT_motorcycle",3.0,7.0,28.0,"","","",0.0,0.0,0.0
+"r1040200",1040000,"Philadelphia","pull",0,0.0,"N_4x4_truck",28.0,4.0,28.0,"","","",0.0,0.0,0.0
+"r1040200",1040200,"Harrisburg","pull",1,1.0,"N_4x4_truck",28.0,4.0,28.0,"","","",0.0,0.0,0.0
+"r_Harrisburg_or",1040200,"Harrisburg","dropandcollect",0,1.0,"TT_motorcycle",3.0,7.0,28.0,"","","",0.0,0.0,0.0
+"r_Harrisburg_or",1040201,"Harrisburg_or1","dropandcollect",1,1.0,"TT_motorcycle",3.0,7.0,28.0,"","","",0.0,0.0,0.0
+"r_Harrisburg_or",1040202,"Harrisburg_or2","dropandcollect",2,1.0,"TT_motorcycle",3.0,7.0,28.0,"","","",0.0,0.0,0.0
+"r_Harrisburg_or",1040203,"Harrisburg_or3","dropandcollect",3,8.0,"TT_motorcycle",3.0,7.0,28.0,"","","",0.0,0.0,0.0
+"r_Harrisburg_or",1040203,"Harrisburg_or3","dropandcollect",4,1.0,"TT_motorcycle",3.0,7.0,28.0,"","","",0.0,0.0,0.0
+"r_Harrisburg_or",1040202,"Harrisburg_or2","dropandcollect",5,1.0,"TT_motorcycle",3.0,7.0,28.0,"","","",0.0,0.0,0.0
+"r_Harrisburg_or",1040201,"Harrisburg_or1","dropandcollect",6,1.0,"TT_motorcycle",3.0,7.0,28.0,"","","",0.0,0.0,0.0
+"r1030100",1030000,"DOSSO","pull",0,0.0,"N_4x4_truck",28.0,1.0,28.0,66.7,"","",0.0,0.0,0.0
+"r1030100",1030100,"Boboye","pull",1,24.0,"N_4x4_truck",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"C",1030100,"Boboye","varpush",0,4.0,"N_4x4_truck",28.0,3.0,0.0,34.5,"","",0.0,0.0,0.0
+"C",1030101,"Birni N'gaour?","varpush",1,4.0,"N_4x4_truck",28.0,3.0,0.0,"","","",0.0,0.0,0.0
+"C",1030102,"Tinoma","varpush",2,4.0,"N_4x4_truck",28.0,3.0,0.0,"","","",0.0,0.0,0.0
+"C",1030103,"Saboula","varpush",3,6.0,"N_4x4_truck",28.0,3.0,0.0,40.7,"","",0.0,0.0,0.0
+"r1030200",1030000,"DOSSO","pull",0,0.0,"N_4x4_truck",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1030200",1030200,"Doutchi","pull",1,24.0,"N_4x4_truck",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1030201",1030200,"Doutchi","pull",0,0.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1030201",1030201,"DoutchiSud","pull",1,4.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1030202",1030200,"Doutchi","pull",0,0.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1030202",1030202,"Birni Lokoyo","pull",1,4.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1030300",1030000,"DOSSO","persistentpull",0,24.0,"N_4x4_truck",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1030300",1030300,"Pittsburgh","persistentpull",1,24.0,"N_4x4_truck",28.0,1.0,28.0,400.0,"","",0.0,0.0,0.0
+"D",1030300,"Pittsburgh","varpush",0,0.0,"N_4x4_truck_ice",28.0,3.0,0.0,2.0,"","",0.0,0.0,0.0
+"D",1030302,"Wilkinsburgh","varpush",1,1.0,"N_4x4_truck_ice",28.0,3.0,0.0,5.2,"","",0.0,0.0,0.0
+"D",1030303,"PointBreeze","varpush",2,1.3,"N_4x4_truck_ice",28.0,3.0,0.0,2.2,"","",0.0,0.0,0.0
+"r1030301",1030300,"Pittsburgh","pull",0,0.0,"N_vaccine_carrier_WHO_PQS_plus_ice",28.0,1.0,28.0,"","soggy","",0.0,0.0,0.0
+"r1030301",1030301,"RegentSquare","pull",1,1.0,"N_vaccine_carrier_WHO_PQS_plus_ice",28.0,1.0,28.0,"","soggy","",0.0,0.0,0.0
+"r1030304",1030300,"Pittsburgh","attached",0,0.0,"",0.0,0.0,"","","","",0.0,0.0,0.0
+"r1030304",1030304,"DahnTahn","attached",1,0.0,"",0.0,0.0,"","","","",0.0,0.0,0.0
+"r1030305",1030300,"Pittsburgh","persistentpull",0,0.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","soggy","",0.0,0.0,0.0
+"r1030305",1030305,"StrangledTown","persistentpull",1,1.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","soggy","",0.0,0.0,0.0
+"r1030306",1030306,"StrangledVille","persistentdemandfetch",0,1.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","soggy","",0.0,0.0,0.0
+"r1030306",1030300,"Pittsburgh","persistentdemandfetch",1,0.0,"N_vaccine_carrier_WHO_PQS",28.0,1.0,28.0,"","soggy","",0.0,0.0,0.0
+"r1030400",1030000,"DOSSO","pull",0,24.0,"N_4x4_truck",28.0,1.0,28.0,"","","",0.0,0.0,0.0
+"r1030400",1030400,"SanFrancisco","pull",1,24.0,"N_4x4_truck",28.0,1.0,28.0,200.0,"","",0.0,0.0,0.0
+"E",1030401,"Sunset","schedvarfetch",0,0.0,"N_vaccine_carrier_WHO_PQS",28.0,3.0,0.0,"","","",0.0,0.0,0.0
+"E",1030400,"SanFrancisco","schedvarfetch",1,1.0,"N_vaccine_carrier_WHO_PQS",28.0,3.0,0.0,"","","",0.0,0.0,0.0
+"E",1030402,"Embarcadero","schedvarfetch",2,1.3,"N_vaccine_carrier_WHO_PQS",28.0,3.0,0.0,"","","",0.0,0.0,0.0
+"r1030403",1030403,"Fillmore","demandfetch",0,0.0,"N_vaccine_carrier_WHO_PQS",28.0,3.0,28.0,"","","",0.0,0.0,0.0
+"r1030403",1030400,"SanFrancisco","demandfetch",1,1.3,"N_vaccine_carrier_WHO_PQS",28.0,3.0,28.0,"","","",0.0,0.0,0.0
+"r1030404",1030404,"Fisherman's_Warf","demandfetch",0,1.0,"N_vaccine_carrier_WHO_PQS",28.0,3.0,28.0,"","","",0.0,0.0,0.0
+"r1030404",1030400,"SanFrancisco","demandfetch",1,2.0,"N_vaccine_carrier_WHO_PQS",28.0,3.0,28.0,"","","",0.0,0.0,0.0
