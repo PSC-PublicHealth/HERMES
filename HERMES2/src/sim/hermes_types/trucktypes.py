@@ -228,6 +228,12 @@ class Truck(abstractbaseclasses.CanOwn, abstractbaseclasses.Trackable, abstractb
         not unique.
         """ 
         return self.name
+    
+    def getPendingCostEvents(self):
+        return []
+    
+    def applyToAll(self, filterClass, func, argList=[]):
+        return [func(g, *argList) for g in [gg for gg in self.stock if isinstance(gg, filterClass)]]
 
 class TruckTypeSkeleton(abstractbaseclasses.ManagedType):
     typeName= 'uninitializedTruck'

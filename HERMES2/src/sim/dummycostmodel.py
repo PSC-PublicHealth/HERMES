@@ -23,7 +23,13 @@ This module holds classes used in calculating costs associated with simulations.
 
 _hermes_svn_id_="$Id$"
 
-import util,csv_tools
+import util, csv_tools, warehouse, abstractbaseclasses
+
+def _clearPendingCosts(costable):
+    costable.getPendingCostEvents()
+    if isinstance(costable, abstractbaseclasses.CanOwn):
+        costable.applyToAll(abstractbaseclasses.Costable, _clearPendingCosts)
+    return None
 
 class DummyCostManager:
     """
@@ -39,6 +45,12 @@ class DummyCostManager:
         if timeNow is None: timeNow= self.sim.now()
         self.intervalStartTime = timeNow
         self.intervalEndTime = None
+        
+        # Clear any pending cost events
+        for r in self.sim.warehouseWeakRefs:
+            wh= r()
+            if wh is not None and not isinstance(wh, warehouse.AttachedClinic):
+                wh.applyToAll(abstractbaseclasses.Costable, _clearPendingCosts)
 
     def endCostingInterval(self, timeNow=None):
         pass

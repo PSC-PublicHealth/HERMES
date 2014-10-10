@@ -43,6 +43,13 @@ priceKeyTable = {'propane':'pricepropaneperkg',
                  }
 
 class MicroCostManager(dummycostmodel.DummyCostManager):
+    @staticmethod
+    def _getPendingCostEvents(costable):
+        l = costable.getPendingCostEvents()
+        if isinstance(costable, abstractbaseclasses.CanOwn):
+            l.extend( costable.applyToAll(abstractbaseclasses.Costable, MicroCostManager._getPendingCostEvents) )
+        return l
+    
     def __init__(self, sim, model, currencyConverter):
         """
         This class knows how to calculate and output cost information, based on the current Model and
@@ -75,7 +82,8 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         # long annoying process of finding missing price info.
         errList= []
         fridgeAmortPeriod = self.sim.userInput['amortizationstorageyears']*self.model.daysPerYear
-        inflation = self.sim.userInput['priceinflation']/self.model.daysPerYear  # ignore compounding to save 
+        inflation = self.sim.userInput['priceinflation']/self.model.daysPerYear  # ignore compounding to save math
+        allPendingCostEvents = []
         for r in self.sim.warehouseWeakRefs:
             wh= r()
             if wh is not None and not isinstance(wh, warehouse.AttachedClinic):
@@ -98,17 +106,16 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                                                              self.intervalStartTime, self.intervalEndTime, 
                                                                              innerItem.getType(), fridgeAmortPeriod, inflation))
                                 except Exception,e:
-                                    print e
                                     errList.append(str(e))
-                                    raise
-
                     else:
                         print 'Unexpectedly found %s on %s'%(type(costable),wh.name)
                         raise RuntimeError("Expected only Fridges and Trucks on this list")
+                allPendingCostEvents.extend( wh.applyToAll(abstractbaseclasses.Costable, MicroCostManager._getPendingCostEvents))
+        print 'allPendingCostEvents from scan: %s'%allPendingCostEvents
         if len(errList)>0:
-            print "The following errors were encountered generating costs:"
+            util.logError("The following errors were encountered generating costs:")
             for line in errList:
-                print "   %s"%line
+                util.logError("   %s"%line)
             raise RuntimeError("Cost calculation failed")
         
     def getLaborTotal(self, dict, key):
@@ -143,39 +150,84 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         PerKm costs are calculated based on the legConditions for each leg traversed; PerDiem and PerTrip costs are 
         based on home conditions.
         """
-#         startWh= originatingWH
-#         totKm = 0.0
-#         perKmCost= 0.0
-#         laborCost= 0.0
-#         ### This is to ensure that the condition on the first leg of the trip is used for 
-#         ### The per trip costs
-#         condFlag = False
-#         leg0Conditions = None
-#         for tuple in tripJournal:
-#             op = tuple[0]
-#             if op == "move":
-#                 opString,startTime,endTime,legConditions,fromWH,toWH,litersCarried = tuple
-#                 if condFlag is False:
-#                     leg0Conditions = legConditions
-#                     condFlag = True
-#                 conditionMultiplier = 1.0
-#                 totKm += conditionMultiplier*fromWH.getKmTo(toWH,level,legConditions)
+        startWh= originatingWH
+        totKm = 0.0
+        perKmCost= 0.0
+        laborCost= 0.0
+        ### This is to ensure that the condition on the first leg of the trip is used for 
+        ### The per trip costs
+        condFlag = False
+        leg0Conditions = None
+        allPendingCostEvents = []
+        for tuple in tripJournal:
+            op = tuple[0]
+            if op == "move":
+                legConditions = tuple[3]
+                fromWH = tuple[4]
+                toWH = tuple[5]
+                if condFlag is False:
+                    leg0Conditions = legConditions
+                    condFlag = True
+                conditionMultiplier = 1.0
+                totKm += conditionMultiplier*fromWH.getKmTo(toWH,level,legConditions)
 #                 perKmCost += fromWH.getKmTo(toWH,level,legConditions) * self.priceTable.get(truckType.name,"PerKm",
 #                                                                                        level=level, conditions=legConditions)
-#                 startWh= fromWH
-#             else:
-#                 startTime = tuple[1]
-#                 endTime = tuple[2]
-#                 legConditions = tuple[3]
+            else:
+                startTime = tuple[1]
+                endTime = tuple[2]
+                legConditions = tuple[3]
+            miscCosts = tuple[-1]
+            allPendingCostEvents.extend(miscCosts)
+        #print 'allPendingCostEvents from trip: %s'%allPendingCostEvents
+
+        errList = []
+        result = {}
+        for innerFridge,n in truckType.getFridgeCollection().items():
+            assert isinstance(innerFridge, fridgetypes.FridgeType), "Expected only Fridges in this category"
+            if innerFridge.name.startswith(u'onthefly_'):
+                continue
+            energyInfo = fridgetypes.energyTranslationDict[innerFridge.recDict['Energy']] # a long tuple
+            costPattern = energyInfo[5]
+            if costPattern == 'charge':
+                # We will assume all ice fridges associated with the truck are charged once per trip
+                #try:
+                    fuel = energyInfo[4]
+                    priceKeyInfo = priceKeyTable[fuel]
+                    powerRate = innerFridge.recDict['PowerRate']
+                    assert powerRate is not None, u"Cost information for %s is incomplete"%innerFridge.name
+                    runCur = self.sim.userInput['currencybase']
+                    runCurYear = self.sim.userInput['currencybaseyear']
+                    fuelPrice = self.sim.userInput[priceKeyInfo] # in run currency at run base year
+                    assert not isinstance(fuelPrice,types.TupleType), "Ice should not have an amortization rate"
+                    rawFuelCost = powerRate*fuelPrice # one charge for this trip
+                    fCur = innerFridge.recDict['BaseCostCur']
+                    fYear = innerFridge.recDict['BaseCostYear']
+                    inflation = self.sim.userInput['priceinflation']/self.model.daysPerYear  # ignore compounding to save math
+                    fuelCost = self.currencyConverter.convertTo(rawFuelCost, fCur, runCur, fYear, runCurYear, inflation)
+                    valKey = "m1C_%s"%fuel
+                    if valKey in result: result[valKey] += fuelCost
+                    else: result[valKey] = fuelCost
+#                 except Exception,e:
+#                     errList.append(unicode(e))
+
+            else:
+                pass
+
+        if len(errList)>0:
+            util.logError("The following errors were encountered generating trip costs:")
+            for line in errList:
+                util.logError( "   %s"%line)
+            raise RuntimeError("Trip Cost calculation failed")
+            
 #             laborCost += (endTime-startTime) * self.priceTable.get("driver", "PerYear", level=level, conditions=legConditions)
 #         perDiemDays= self.model.calcPerDiemDays(tripJournal,originatingWH)
 #         perDiemCost= perDiemDays * (self.priceTable.get("driver", "PerDiem",level=level, conditions=leg0Conditions) +
 #                                     self.priceTable.get(truckType.name,"PerDiem",level=level, conditions=leg0Conditions))
-#         
+         
 #         laborCost /= float(self.model.daysPerYear)
 #         perTripCost= self.priceTable.get("driver", "PerTrip", level=level, conditions=leg0Conditions) + \
 #                      self.priceTable.get(truckType.name,"PerTrip",level=level, conditions=leg0Conditions)
-#                      
+                      
 #         transportCost= perTripCost + perKmCost + perDiemCost
 #         return {"PerDiemDays":perDiemDays,
 #                 "PerDiemCost":perDiemCost,
@@ -184,7 +236,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
 #                 "LaborCost":laborCost,
 #                 "TransportCost":transportCost
 #                 }
-        return {}
+        return result
         
     def generateUseVialsSessionCostNotes(self, level, conditions):
         """
@@ -212,10 +264,12 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
             fCur = fridge.recDict['BaseCostCur']
             fYear = fridge.recDict['BaseCostYear']
             fuel = fridgetypes.energyTranslationDict[fridge.recDict['Energy']][4]
-            if fuel in ['ice']:
-                print 'I should be handling %s differently'%fridge.name
+            costPattern = fridgetypes.energyTranslationDict[fridge.recDict['Energy']][5]
             priceKeyInfo = priceKeyTable[fuel]
-            if isinstance(priceKeyInfo, types.TupleType):
+            if costPattern == 'charge':
+                fuelPrice = 0.0 # handled elsewhere
+            elif isinstance(priceKeyInfo, types.TupleType):
+                assert costPattern == 'instance', u"Fuel type %s has amortization but is not by-instance"%fridge.name
                 basePrice = self.sim.userInput[priceKeyInfo[0]]
                 amortPeriod = self.sim.userInput[priceKeyInfo[1]]
                 assert basePrice is not None, u"Cost information for power type %s is missing"%fuel
@@ -230,11 +284,13 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
             runCur = self.sim.userInput['currencybase']
             runCurYear = self.sim.userInput['currencybaseyear']
             rawAmortCost = baseCost*(self.intervalEndTime - self.intervalStartTime)/amortPeriod
-            print 'handling %s'%fridge.recDict['Name']
+            #print 'handling %s'%fridge.recDict['Name']
             amortCost = self.currencyConverter.convertTo(rawAmortCost, fCur, runCur, fYear, runCurYear, inflation)
-            # This is wrong- fuelPrice and PowerRate are in different units.
-            rawFuelCost = powerRate*fuelPrice*(self.intervalEndTime - self.intervalStartTime)
-            fuelCost = self.currencyConverter.convertTo(rawFuelCost, fCur, runCur, fYear, runCurYear, inflation)
+            if fuelPrice == 0.0: 
+                fuelCost = 0.0  # fuel handled elsewhere; save some math
+            else:
+                rawFuelCost = powerRate*fuelPrice*(self.intervalEndTime - self.intervalStartTime)
+                fuelCost = self.currencyConverter.convertTo(rawFuelCost, fCur, runCur, fYear, runCurYear, inflation)
             return {"m1C_%s"%fuel:fuelCost, "m1C_FridgeAmort":amortCost}
 
     def _generateBuildingCostNotes(self, level, conditions, startTime, endTime ):
@@ -294,8 +350,13 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
                     and (isinstance(invTp.BaseCost,types.FloatType) and invTp.BaseCost>=0.0) \
                     and invTp.BaseCostCurCode is not None \
                     and (isinstance(invTp.BaseCostYear,(types.IntType, types.LongType)) and invTp.BaseCostYear>=2000) \
-                    and (isinstance(invTp.PowerRate,types.FloatType) and invTp.PowerRate>=0.0) \
-                    and (0.0<=self.currencyConverter.convertTo(1.0,invTp.BaseCostCurCode,'USD',invTp.BaseCostYear)))
+                    and (isinstance(invTp.PowerRate,types.FloatType) and invTp.PowerRate>=0.0))
+        except:
+            return False
+
+    def _verifyCostConversion(self, invTp):
+        try:
+            return (0.0<=self.currencyConverter.convertTo(1.0,invTp.BaseCostCurCode,'USD',invTp.BaseCostYear))
         except:
             return False
 
@@ -308,7 +369,7 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
         This scans the given ShdNetwork, making sure that all data needed to compute costs for the model
         are defined.
         """
-        problemList = []
+        problemSet = set()
         
         print '####### beginning checks'
         # Check all the fuel price entries from parms
@@ -317,29 +378,29 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
                 for vv in v:
                     try:
                         if not isinstance(net.getParameterValue(vv), types.FloatType):
-                            problemList.append("%s is not defined or is invalid"%vv)
+                            problemSet.add("%s is not defined or is invalid"%vv)
                     except:
-                        problemList.append("%s is not a valid parameter"%vv)
+                        problemSet.add("%s is not a valid parameter"%vv)
             else:
                 try:
                     if not isinstance(net.getParameterValue(v), types.FloatType):
-                        problemList.append("%s is not defined or is invalid"%v)
+                        problemSet.add("%s is not defined or is invalid"%v)
                 except:
-                    problemList.append("%s is not a valid parameter"%v)
+                    problemSet.add("%s is not a valid parameter"%v)
 
         for v in ['currencybaseyear'] :
             try:
                 if not isinstance(net.getParameterValue(v), types.IntType):
-                    problemList.append("%s is not defined or is invalid"%v)
+                    problemSet.add("%s is not defined or is invalid"%v)
             except:
-                problemList.append("%s is not a valid parameter"%v)
+                problemSet.add("%s is not a valid parameter"%v)
                     
         for v in ['currencybase'] :
             try:
                 if not isinstance(net.getParameterValue(v), types.StringTypes):
-                    problemList.append("%s is not defined or is invalid"%v)
+                    problemSet.add("%s is not defined or is invalid"%v)
             except:
-                problemList.append("%s is not a valid parameter"%v)
+                problemSet.add("%s is not a valid parameter"%v)
                     
         
         # Check the fridge cost entries
@@ -355,23 +416,29 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
                 else: alreadyChecked.add(invTp.Name)
                 if invTp.typeClass == 'fridges':
                     if not self._verifyFridge(invTp):
-                        problemList.append("Storage type %s has missing costing entries"%invTp.Name)
+                        problemSet.add("Storage type %s has missing costing entries"%invTp.Name)
+                    if not self._verifyCostConversion(invTp):
+                        problemSet.add("No currency conversion value is available for the currency %s in %s"%\
+                                           (invTp.BaseCostCurCode, invTp.BaseCostYear))
                 elif invTp.typeClass == 'trucks':
                     truckStorageNames = [b for a,b in util.parseInventoryString(shdInv.invType.Storage)]  # @UnusedVariable
                     for fridge in [net.fridges[nm] for nm in truckStorageNames]:
                         if fridge.Name in alreadyChecked: continue
                         else: alreadyChecked.add(fridge.Name)
                         if not self._verifyFridge(fridge):
-                            problemList.append("Storage type %s has missing costing entries"%fridge.Name)
+                            problemSet.add("Storage type %s has missing costing entries"%fridge.Name)
+                        if not self._verifyCostConversion(fridge):
+                            problemSet.add("No currency conversion value is available for the currency %s in %s"%\
+                                               (fridge.BaseCostCurCode, fridge.BaseCostYear))
 
         # For each fridge type, check that we can do currency conversion from costing currency to run
         # currency in the purchase year of the fridge
 
 #         print '####### checked the following types'
 #         print alreadyChecked
-#         print '####### problemList follows'
-#         for s in problemList: print s
-#         print '####### end of problemList'
+#         print '####### problemSet follows'
+#         for s in problemSet: print s
+#         print '####### end of problemSet'
 #             
 #         for routeId,route in net.routes.items():
 #             truckType = route.TruckType
@@ -388,7 +455,7 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
 #                 neededEntries.add((u'driver',u'PerYear',category,conditions))
 #                 neededEntries.add((u'driver',u'PerDiem',category,conditions))
 #                 neededEntries.add((u'driver',u'PerTrip',category,conditions))
-        return problemList
+        return list(problemSet)
 
 
 def describeSelf():

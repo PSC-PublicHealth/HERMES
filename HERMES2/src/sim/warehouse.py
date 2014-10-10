@@ -1397,6 +1397,9 @@ class Warehouse(Store, abstractbaseclasses.Place):
             else:
                 print "    %s: %s"%(s.__class__.__name__,s.bName)
 
+    def applyToAll(self, filterClass, func, argList=[]):
+        return [func(g, *argList) for g in [gg for gg in self.theBuffer if isinstance(gg, filterClass)]]
+
 class Clinic(Warehouse):
     def __init__(self,sim, placeholder1, placeholder2, capacityInfo,
                  popServedPC,func=None,category=None,conditions=None,
@@ -1964,7 +1967,7 @@ abstractbaseclasses.Place.register(Factory) # @UndefinedVariable
 
 def createTravelGenerator(name, stepList, truckType, delayInfo, proc, 
                           totalVC=None, truck=None, scaleVC=None, legStartTime=None, fractionGotVC=None,
-                          tripJournal=None, legConditions=None, tripID=None):
+                          tripJournal=None, legConditions=None, tripID=None, pendingCostEvents=None):
     """
     This function returns a generator, successive steps of which carry a shipment 
     along a programmed route.  name is a name for the generator, stepList is the
@@ -1999,15 +2002,15 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
     stepname corresponds to one of the strings above.  legConditions==None is equivalent to legConditions=='normal'.
     Depending on the stepname additional tuple entries may be present, as follows:
         
-        ('gettruck',legStartTime,legEndTime,legConditions,truckSupplierW)
-        ('loadexistingtruck',legStartTime,legEndTime,legConditions,supplierW,litersLoaded)
-        ('load',legStartTime,legEndTime,legConditions,supplierW,litersLoaded)
-        ("move",legStartTime,legEndTime,legConditions,fromW,toW,volCarriedOnRouteL)
-        (op,legStartTime,legEndTime,legConditions,supplierW,leftVolumeLiter)
+        ('gettruck',legStartTime,legEndTime,legConditions,truckSupplierW,miscCosts)
+        ('loadexistingtruck',legStartTime,legEndTime,legConditions,supplierW,litersLoaded,miscCosts)
+        ('load',legStartTime,legEndTime,legConditions,supplierW,litersLoaded,miscCosts)
+        ("move",legStartTime,legEndTime,legConditions,fromW,toW,volCarriedOnRouteL,miscCosts)
+        (op,legStartTime,legEndTime,legConditions,supplierW,leftVolumeLiter,miscCosts)
           where op is ['deliver','alldeliver','askanddeliver','markanddeliver','allmarkanddeliver']
-        ('recycle',legStartTime,legEndTime,legConditions)
-        ('unload',legStartTime,legEndTime,legConditions,thisW,totVolLiters)
-        ("finish",legStartTime,legEndTime,legConditions,endingW)
+        ('recycle',legStartTime,legEndTime,legConditions,miscCosts)
+        ('unload',legStartTime,legEndTime,legConditions,thisW,totVolLiters,miscCosts)
+        ("finish",legStartTime,legEndTime,legConditions,endingW,miscCosts)
         
     """
     #bName = name.encode('utf8')
@@ -2022,7 +2025,9 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
     if tripID is None:
         tripID = proc.sim.getUniqueNum()
     finished = False
-    segmentFill = []
+    #segmentFill = []
+    if pendingCostEvents is None:
+        pendingCostEvents = []
     try:
         for op,paramTuple in stepList:
             #
@@ -2047,7 +2052,8 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 truck.maybeTrack('acquired by %s'%name)
                 truck.noteHolder= proc.noteHolder
                 legEndTime= proc.sim.now()
-                tripJournal.append(('gettruck',legStartTime,legEndTime,'normal',truckSupplierW))
+                tripJournal.append(('gettruck',legStartTime,legEndTime,'normal',truckSupplierW,pendingCostEvents))
+                pendingCostEvents = []
                 logDebug(proc.sim,"%s: ----- truck acquired at %s at %g"%(bName,truckSupplierW.bName,proc.sim.now()))                    
 
             #
@@ -2088,7 +2094,8 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 if proc.acquired(supplierW.getStore()):
                     gotThese= proc.got[:] # shallow copy
                     
-                    for g in gotThese: 
+                    for g in gotThese:
+                        if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
                         g.getAge() # to force an age update for the group
                         g.detach(proc)
                     gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
@@ -2152,14 +2159,15 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                                                          totalVC=totalVC, fractionGotVC=fractionGotVC,
                                                          scaleVC=scaleVC, truck=truck, legStartTime=legStartTime,
                                                          tripJournal=tripJournal, legConditions=legConditions,
-                                                         tripID=tripID)
+                                                         tripID=tripID,pendingCostEvents=pendingCostEvents)
                     for val in bailGenerator: yield val
                     break 
                                             
                 # Final bookkeeping for this stop
                 legEndTime= proc.sim.now()
                 litersLoaded = sum([(n*v.getSingletonStorageVolume(True)) for v,n in gotTheseVC.items()])/C.ccPerLiter
-                tripJournal.append(('loadexistingtruck',legStartTime,legEndTime,legConditions,supplierW,litersLoaded))
+                tripJournal.append(('loadexistingtruck',legStartTime,legEndTime,legConditions,supplierW,litersLoaded,pendingCostEvents))
+                pendingCostEvents = []
                 legConditions = None
                 #legStartTime= legEndTime
                     
@@ -2214,6 +2222,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                     logDebug(proc.sim,"%s: ----- truck acquired at %s at %g"%(bName,supplierW.bName,proc.sim.now()))
                     
                     for g in gotThese:
+                        if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
                         g.getAge() # to force a time statistics update for the group
                         g.detach(proc)
                     gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
@@ -2260,7 +2269,8 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 legEndTime= proc.sim.now()
                 ## Compute Volume loaded
                 litersLoaded = sum([n*v.getSingletonStorageVolume(True) for v,n in gotTheseVC.items()])/C.ccPerLiter
-                tripJournal.append(('load',legStartTime,legEndTime,legConditions,supplierW,litersLoaded))
+                tripJournal.append(('load',legStartTime,legEndTime,legConditions,supplierW,litersLoaded,pendingCostEvents))
+                pendingCostEvents = []
                 legConditions = None
                     
             #
@@ -2292,7 +2302,9 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 if fromW.breakageModel is not None:
                     gotThese,bL= fromW.breakageModel.applyBreakageInTransit(fromW, toW, gotThese)
                     logDebug(proc.sim,"%s: broken in transit from %s: %s"%(bName,fromW.bName,proc.sim.shippables.getCollectionFromGroupList(bL)))
-                    for g in bL: g.detach(proc)
+                    for g in bL: 
+                        if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
+                        g.detach(proc)
                 gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
                 volCarriedOnRouteL = sum([n*v.getSingletonStorageVolume(False) for v,n in gotTheseVC.getTupleList() if isinstance(v,vaccinetypes.VaccineType)])/C.ccPerLiter
                 #print "Carried " + str(proc.bName) + " " + str(volCarriedOnRouteL)
@@ -2308,7 +2320,8 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                         proc.noteHolder.addNote({"RouteTrips":1})
                 
                 legEndTime = proc.sim.now()
-                tripJournal.append(("move",legStartTime,legEndTime,legConditions,fromW,toW,volCarriedOnRouteL))
+                tripJournal.append(("move",legStartTime,legEndTime,legConditions,fromW,toW,volCarriedOnRouteL,pendingCostEvents))
+                pendingCostEvents = []
             
                 
             #
@@ -2379,12 +2392,15 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                         logDebug(proc.sim,"%s: broken in clinic storage at %s: %s"%(bName,w.bName,proc.sim.shippables.getCollectionFromGroupList(bL)))
                         w.getNoteHolder().addNote(dict([(g.getType().name+'_broken',g.getCount())
                                                         for g in bL]))
-                        for g in bL: g.detach(proc)
+                        for g in bL: 
+                            if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
+                            g.detach(proc)
                     
                     if len(groupsToPut) > 0:
                         markFlag = ( op in ['markanddeliver', 'allmarkanddeliver'])
                         for g in groupsToPut:
                             g.maybeTrack("delivery %s"%w.bName)
+                            if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
                             g.detach(proc)
                             g.attach(w, proc)
                             if markFlag: g.setTag(RECYCLE_TAG)
@@ -2412,7 +2428,8 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 leftVolumeLiter = sum([n*v.getSingletonStorageVolume(True) for v,n in totalVC.getTupleList() if isinstance(v,vaccinetypes.VaccineType)])/C.ccPerLiter
                 
                 legEndTime= proc.sim.now()
-                tripJournal.append((op,legStartTime,legEndTime,legConditions,supplierW,leftVolumeLiter))
+                tripJournal.append((op,legStartTime,legEndTime,legConditions,supplierW,leftVolumeLiter,pendingCostEvents))
+                pendingCostEvents = []
                 legConditions = None
                 #legStartTime= legEndTime
 
@@ -2444,10 +2461,12 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                         w.getNoteHolder().addNote(dict([(g.getType().name+'_broken',g.getCount())
                                                         for g in bL]))
                         for g in bL:
+                            if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
                             g.detach(proc)
                     
                     if len(newRecycle)>0:
                         for g in newRecycle:
+                            if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
                             g.detach(proc)
                             g.attach(truck, proc)
                         newRecycleVC = proc.sim.shippables.getCollectionFromGroupList(newRecycle)
@@ -2468,7 +2487,8 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                     gotThese= truck.getCargo()
                 
                 legEndTime = proc.sim.now()
-                tripJournal.append(('recycle',legStartTime,legEndTime,legConditions))
+                tripJournal.append(('recycle',legStartTime,legEndTime,legConditions,pendingCostEvents))
+                pendingCostEvents = []
 
             #
             # Unload operation:
@@ -2496,6 +2516,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                     proc.sim.evL.log(proc.sim.now(),evl.EVT_RECYCLEDELIVERY,leftoversVC,client=w.bName,
                                      tripID=tripID,route=proc.bName)
                     for g in leftovers:
+                        if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
                         g.detach(proc)
                         g.attach(w.getStore(), proc)
                     yield put,proc,w.getStore(),leftovers
@@ -2518,7 +2539,8 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                         w.noteHolder.addNote({"tot_delivery_vol":0.0})
                     
                 legEndTime= proc.sim.now()
-                tripJournal.append(('unload',legStartTime,legEndTime,legConditions,w,totVolCC/C.ccPerLiter))
+                tripJournal.append(('unload',legStartTime,legEndTime,legConditions,w,totVolCC/C.ccPerLiter,pendingCostEvents))
+                pendingCostEvents = []
                 legConditions = None
                 
             #
@@ -2530,7 +2552,8 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
             #
             elif op == 'finish':
                 endingW, costOwnerW = paramTuple
-                tripJournal.append(("finish",legStartTime,proc.sim.now(),legConditions,endingW))
+                tripJournal.append(("finish",legStartTime,proc.sim.now(),legConditions,endingW,pendingCostEvents))
+                pendingCostEvents = []
                 legConditions = None
                 truck.dropTrash()
                 truck.maybeTrack('released by %s'%name)

@@ -37,18 +37,18 @@ from csv_tools import castTypes
 
 #: energyTranslationDict maps the 'Energy' field of the type record to a tuple containing a short name, a longer name, a string 
 #: for rate units for that energy type, a string for scalar (non-rate) units, the fuel type string for costing purposes
-energyTranslationDict = collections.defaultdict(lambda : ('Unknown',None,None,None,None),
-                                                {'E':('Electric','Electric Mains','KwH/day','Kilowatt Hour','electric'),
-                                                 'K':('Kerosene','Kerosene','liters/day','Liter','kerosene'),
-                                                 'G':('Propane','LP Gas','Kg/day','Kg','propane'),
-                                                 'P':('Petrol','Petrol','liters/day','Liter','gasoline'),
-                                                 'S':('Solar','Solar Power','Kw','Installed Kilowatt','solar'),
-                                                 'I':('Ice','Ice','liters/charge','Liter','ice'),
-                                                 'B':('BlueIce','Blue Ice','liters/charge','Liters','ice'),
-                                                 'EK':('Electric/Kerosene','Electric with option for Kerosene','KwH/day','Kilowatt Hour','electric'),
-                                                 'KE':('Kerosene/Electric','Kerosene with option for Electric','liters/day','Liter','kerosene'),
-                                                 'EG':('Electric/Propane','Electric with option for Propane','KwH/day','Kilowatt Hour','electric'),
-                                                 'GE':('Propane/Electric','LP Gas with option for Electric','Kg/day','Kg','propane'),
+energyTranslationDict = collections.defaultdict(lambda : ('Unknown',None,None,None,None,None),
+                                                {'E':('Electric','Electric Mains','KwH/day','Kilowatt Hour','electric','time'),
+                                                 'K':('Kerosene','Kerosene','liters/day','Liter','kerosene','time'),
+                                                 'G':('Propane','LP Gas','Kg/day','Kg','propane','time'),
+                                                 'P':('Petrol','Petrol','liters/day','Liter','gasoline','time'),
+                                                 'S':('Solar','Solar Power','Kw','Installed Kilowatt','solar','instance'),
+                                                 'I':('Ice','Ice','liters/charge','Liter','ice','charge'),
+                                                 'B':('BlueIce','Blue Ice','liters/charge','Liters','ice','charge'),
+                                                 'EK':('Electric/Kerosene','Electric with option for Kerosene','KwH/day','Kilowatt Hour','electric','time'),
+                                                 'KE':('Kerosene/Electric','Kerosene with option for Electric','liters/day','Liter','kerosene','time'),
+                                                 'EG':('Electric/Propane','Electric with option for Propane','KwH/day','Kilowatt Hour','electric','time'),
+                                                 'GE':('Propane/Electric','LP Gas with option for Electric','Kg/day','Kg','propane','time'),
                                                  })
 
 def fridgeDisplayNameFromRec(rec):
@@ -497,6 +497,8 @@ class Fridge(abstractbaseclasses.CanStore, abstractbaseclasses.Costable):
             s += "%s: %f CC available, %f used; "%(bl.storageType.name,bl.volAvail,bl.volUsed)
         if s!="": s= s[:-2] # drop tailing ;
         return "<%s(%s)>"%(self.fridgeType.name,s)
+    def getPendingCostEvents(self):
+        return []
 
 class ChainedFridge(Fridge):
     pass
@@ -644,6 +646,7 @@ class IceFridge(ShippableFridge):
         assert 'ColdLifetime' in fridgeType.recDict, \
             "IceFridge type %s requires a ColdLifetime entry"%fridgeType.name
         self.coldLifetimeDays= float(fridgeType.recDict['ColdLifetime'])
+        self.pendingRechargeCostEvents = 0
         if fridgeType.sim.perfect:
             # Disable all special functionality
             self.meltTimer= None
@@ -705,6 +708,7 @@ class IceFridge(ShippableFridge):
         can be canceled. 
         """
         Fridge.recharge(self,callingProc)
+        self.pendingRechargeCostEvents += 1
         self.maybeTrack('fresh ice')
         self.meltTimer.cancel()
         for sb in self.allStorageBlocks:
@@ -724,6 +728,15 @@ class IceFridge(ShippableFridge):
         This version is for when 'perfect' simulation mode is enabled.
         """
         Fridge.recharge(self,callingProc)
+        self.pendingRechargeCostEvents += 1
+
+    def getPendingCostEvents(self):
+        if self.pendingRechargeCostEvents>0:
+            tpl = (self.getType().name, 'recharge', self.pendingRechargeCostEvents)
+            self.pendingRechargeCostEvents = 0
+            return [tpl]
+        else:
+            return []
 
 abstractbaseclasses.Shippable.register(IceFridge) # @UndefinedVariable because PyDev can't see abc.register()
 abstractbaseclasses.CanStore.register(IceFridge) # @UndefinedVariable because PyDev can't see abc.register()

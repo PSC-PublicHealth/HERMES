@@ -216,6 +216,15 @@ class CanOwn(UnicodeSupport):
         Returns the StorageModel for this CanOwn
         """
         return None
+    
+    @abc.abstractmethod
+    def applyToAll(self, filterClass, func, argList = []):
+        """
+        Causes the CanOwn to apply all those owned instances for which isinstance(thisInstance,filterClass) is true
+        to execute func(thisInstance,*argList) and return a list containing the return values of all those
+        function invocations.
+        """
+        return []
         
 class Place(CanOwn):
     """
@@ -479,9 +488,18 @@ class Costable(UnicodeSupport):
     """
     
     def __init__(self):
-        # This is to satisfy Eclipse syntax checking
+        """
+        This is to satisfy Eclipse syntax checking
+        """
         pass
     
+    @abc.abstractmethod
+    def getPendingCostEvents(self):
+        """
+        This method returns a list of tuples of the form (typeName, eventName, count, ...) representing
+        cost events which have happened since the last call to the method.
+        """
+    pass
 
 class Shippable(UnicodeSupport):
     """

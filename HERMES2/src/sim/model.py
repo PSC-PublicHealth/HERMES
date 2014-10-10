@@ -573,7 +573,7 @@ class Model:
         for tpl in tripJournal:
             op = tpl[0]
             if op == 'move':
-                opString,legStart,legEnd,conditions,fromWH,toWH,litersCarried = tpl # @UnusedVariable
+                opString,legStart,legEnd,conditions,fromWH,toWH,litersCarried,miscCosts = tpl # @UnusedVariable
                 currentWH = toWH
             else:                                
                 legStart = tpl[1]

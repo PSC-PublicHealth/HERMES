@@ -303,7 +303,7 @@ class LegacyCostManager(dummycostmodel.DummyCostManager):
         for tuple in tripJournal:
             op = tuple[0]
             if op == "move":
-                opString,startTime,endTime,legConditions,fromWH,toWH,litersCarried = tuple
+                opString,startTime,endTime,legConditions,fromWH,toWH,litersCarried = tuple[:7]
                 if condFlag is False:
                     leg0Conditions = legConditions
                     condFlag = True
