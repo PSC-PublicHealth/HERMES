@@ -150,20 +150,27 @@ def modelRunPage(db,uiSession,step="unknown"):
                      ]
         namedStepList = [a for a,b in stepPairs] # @UnusedVariable
         screen = None
+        if 'runInfo' in uiSession and 'modelId' in uiSession['runInfo']:
+            # beware of the case where runInfo survives but the model is gone
+            try:
+                uiSession.getPrivs().mayReadModelId(db, uiSession['runInfo']['modelId'])
+            except Exception,e:
+                uiSession['runInfo'] = {}
+                if 'runCrumbTrack' in uiSession:
+                    del uiSession['runCrumbTrack']
+        else:
+            uiSession['runInfo'] = {}
         if "runCrumbTrack" in uiSession:
             runCrumbTrack = uiSession['runCrumbTrack']
             if crumbTrack.trail[-1] != runCrumbTrack:
                 crumbTrack.push(runCrumbTrack)
         else:
             runCrumbTrack = None
-        if 'runInfo' not in uiSession:
-            uiSession['runInfo'] = {}
-        if step=="unknown":
-            if runCrumbTrack is None:
-                runCrumbTrack = crumbtracks.TrackCrumbTrail(bottle.request.path, _("Run Model"))
-                for a,b in stepPairs: runCrumbTrack.append((a,b))
-                uiSession['runCrumbTrack'] = runCrumbTrack
-                crumbTrack.push(runCrumbTrack)
+        if step=="unknown" or runCrumbTrack is None:
+            runCrumbTrack = crumbtracks.TrackCrumbTrail(bottle.request.path, _("Run Model"))
+            for a,b in stepPairs: runCrumbTrack.append((a,b))
+            uiSession['runCrumbTrack'] = runCrumbTrack
+            crumbTrack.push(runCrumbTrack)
             step = screen = runCrumbTrack.current()
         elif step=='next':
             screen = runCrumbTrack.next()
@@ -388,7 +395,6 @@ def jsonRunStart(db, uiSession):
         if 'deltas' in runInfo:
             for k,tp,val in runInfo['deltas']:
                 optList.append('-D%s=%s'%(k,val))
-        print "Opt List = " + str(optList)
         
         model = shadow_network_db_api.ShdNetworkDB(db, modelId)
         
