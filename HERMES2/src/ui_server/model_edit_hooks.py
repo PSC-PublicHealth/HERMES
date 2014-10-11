@@ -21,6 +21,13 @@ import shadow_network as shd
 import base64
 import random
 
+def b64E(s):
+    return base64.b64encode(unicode(s).encode('utf-8'))
+
+def b64D(s):
+    # yes I really want to use str() here
+    return base64.b64decode(str(s)).decode('utf-8')
+
 inlizer=session_support.inlizer
 _=session_support.translateString
 
@@ -53,7 +60,7 @@ def javascriptEscape(s):
 
     This is a first pass and needs to be made complete
     """
-    s = str(s)
+    s = unicode(s)
 
     if s.find('\\'):
         s = string.join(s.split('\\'), '\\\\')
@@ -70,7 +77,7 @@ def htmlEscape(s):
     escape for including in html
     remove <, >, ', ", and & from strings and replace them with the html escape equivalent
     """
-    s = str(s)
+    s = unicode(s)
 
     # ampersand must be done first
     if s.find('&'):
@@ -200,7 +207,7 @@ class ULCM:
 def getIds(storeOrRoute):
     if isinstance(storeOrRoute, shd.ShdStore):
         modelId = storeOrRoute.modelId
-        itemId = METC.WAREHOUSE + str(storeOrRoute.idcode)
+        itemId = METC.WAREHOUSE + unicode(storeOrRoute.idcode)
     elif isinstance(storeOrRoute, shd.ShdRoute):
         modelId = storeOrRoute.modelId
         itemId = METC.ROUTE + storeOrRoute.RouteName
@@ -336,9 +343,9 @@ def packInputId(modelId, item, field, secondaryId=None, tree=None):
 
     itemId = getItemId(item)
     
-    ret = "%s:%d:%s:%s"%(tree, modelId, field, base64.b64encode(str(itemId)))
+    ret = "%s:%d:%s:%s"%(tree, modelId, field, b64E(itemId))
     if secondaryId is not None:
-        ret += ":%s"%base64.b64encode(str(secondaryId))
+        ret += ":%s"%b64E(secondaryId)
     return ret
 
 def encodeItemId(itemId):
@@ -348,7 +355,7 @@ def encodeItemId(itemId):
     
     (specifically used for the local update type 'clearUpdates')
     """
-    return base64.b64encode(str(itemId))
+    return b64E(itemId)
 
 
 def unpackInputId(inputId):
@@ -356,8 +363,8 @@ def unpackInputId(inputId):
     secondaryId = None
     if ':' in itemId:
         (itemId,secondaryId) = itemId.split(':', 1)
-        secondaryId = base64.b64decode(secondaryId)
-    itemId = base64.b64decode(itemId)
+        secondaryId = b64D(secondaryId)
+    itemId = b64D(itemId)
     itemType = itemId[0]
     itemLabel = itemId[1:]
     
@@ -396,7 +403,7 @@ def packNodeId(item, optType=None, tree=None):
         itemId = item.idcode
         nodeType = METC.WAREHOUSE
     elif isinstance(item, shd.ShdRoute):
-        itemId = base64.b64encode(item.RouteName)
+        itemId = b64E(item.RouteName)
         nodeType = METC.ROUTE
     elif isinstance(item, shd.ShdStop):
         itemId = resiliantStopId(item)
@@ -423,7 +430,7 @@ def unpackNodeId(nodeId):
     nodeId = nodeId[2:]
 
     if nodeType == METC.ROUTE:
-        nodeId = base64.b64decode(nodeId)
+        nodeId = b64D(nodeId)
 
     return { 'tree' : tree,
              'nodeType' : nodeType,
@@ -553,7 +560,7 @@ def renderEditableTupleList(modelId, itemId, fieldInfo):
                        (addSelInputId, addSelInputId, addHideInputId, addCountInputId))
         ret.append('onmouseup="unhideCount(\'%s\', \'%s\', \'%s\');" >'%\
                        (addSelInputId, addHideInputId, addCountInputId))
-        ret.extend(renderPullDownOption(('None', 'new %s type'%f.fieldName)))
+        ret.extend(renderPullDownOption(('None', _('new {0} type').format(f.fieldName))))
         for opt in f.pullDownOpts:
             opt = listify(opt)
             ret.extend(renderPullDownOption(opt))
@@ -562,8 +569,9 @@ def renderEditableTupleList(modelId, itemId, fieldInfo):
         ret.append('</td>')
         ret.append('<td><span id="%s" style="display:none;">'%addHideInputId)
         ret.append('<input id="%s" type="text" size="7" />'%addCountInputId)
-        ret.append('<button type="button" onclick="addNewTuple(\'%s\');">add</button>'%\
-                       inputId)
+        ret.append('<button type="button" onclick="addNewTuple(\'%s\');">'%inputId)
+        ret.append(_('add'));
+        ret.append('</button>')
         ret.append('</span></td></tr>')
 
     ret.append('</table>')
@@ -753,7 +761,7 @@ def addStoreMessage(store, msg):
     ULCM.addUpdate(inputId, msg, 'addMessage')
 
     name = store.NAME
-    msg = '%s: %s'%(name, msg)
+    msg = _('{0}: {1}').format(name, msg)
 
     while(True):
         suppliers = store.suppliers()
@@ -774,7 +782,7 @@ def addRouteMessage(route, msg):
     ULCM.addUpdate(inputId, msg, 'addMessage')
 
     name = route.RouteName
-    msg = 'route %s: %s'%(name, msg)
+    msg = _('route {0}: {1}').format(name, msg)
 
     store = route.supplier()
     inputId = packInputId(store.modelId, store, 'storeChildMessages')
@@ -809,18 +817,18 @@ def renderStoreLabel(store):
     editId = packInputId(store.modelId, store, 'storeEditButton')
 #    ret.append('<button id="%s" style="display:inline" onclick="meStoreEdit(%d,%d)">edit</button>'%\
 #                   (editId, store.modelId, store.idcode))
-    ret.append('<button id="%s" class="store-edit-menu" style="display:inline" tabindex="-1">edit</button>'%\
-                   (editId))
+    ret.append('<button id="%s" class="store-edit-menu" style="display:inline" tabindex="-1">%s</button>'%\
+                   (editId, _('edit')))
     return ret
     
 def renderStoreName(store):
-    return renderBasicEditableField(store, 'storeName', 'Name', store.NAME)
+    return renderBasicEditableField(store, 'storeName', _('Name'), store.NAME)
 
 def updateStoreName(inputId, model, origStr, newStr):
     modelId, itemId, field = inputIdTriple(inputId)
     store = getStoreFromItemId(model, itemId)
-    if origStr != str(store.NAME):
-        raise(InvalidUpdate('value previously updated', inputId, str(store.NAME)))
+    if origStr != unicode(store.NAME):
+        raise(InvalidUpdate(_('value previously updated'), inputId, unicode(store.NAME)))
 
     name = newStr.strip()
     store.NAME = name
@@ -839,7 +847,7 @@ def updateRouteName(inputId, model, origStr, newStr):
     name = newStr.strip()
     net = route.model
     if name in net.routes:
-        raise InvalidUpdate("Route names must be unique, %s is already in use."%name)
+        raise InvalidUpdate(_("Route names must be unique, {0} is already in use.").format(name))
 
     # do we need any other validations on the route name?
     
@@ -894,7 +902,7 @@ def renderStoreCategory(store):
         levels.add(store.CATEGORY)
         opts = list(levels)
     
-    return renderBasicEditableField(store, 'storeCategory', 'Category', store.CATEGORY, 
+    return renderBasicEditableField(store, 'storeCategory', _('Category'), store.CATEGORY, 
                                     pullDownOpts = opts)
 
 def updateCategory(inputId, model, origStr, newStr):
@@ -908,28 +916,28 @@ def updateCategory(inputId, model, origStr, newStr):
 
     if origStr in centralLevels:
         if newStr not in centralLevels:
-            raise InvalidUpdate("Central stores can't change categories.")
+            raise InvalidUpdate(_("Central stores can't change categories."))
 
     else:
         if newStr not in levels:
-            raise InvalidUpdate("Attempting to change to an invalid category")
+            raise InvalidUpdate(_("Attempting to change to an invalid category"))
 
     store.CATEGORY = newStr.strip()
     return store.CATEGORY
 
 
 def renderStoreLatLon(store):
-    fields = [EditableFieldInfo('storeLatitude', 'Latitude', store.Latitude, size=10),
-              EditableFieldInfo('storeLongitude', 'Longitude', store.Longitude, size=10)]
+    fields = [EditableFieldInfo('storeLatitude', _('Latitude'), store.Latitude, size=10),
+              EditableFieldInfo('storeLongitude', _('Longitude'), store.Longitude, size=10)]
     return renderBasicEditableFields(store, 'storeLatLon', fields)
     
 def renderStoreUseVials(store):
     fields = [EditableFieldInfo('storeUseVialsInterval', 
-                                'Use Vials Interval', 
+                                _('Use Vials Interval'), 
                                 store.UseVialsInterval, 
                                 size=5),
               EditableFieldInfo('storeUseVialsLatency',
-                                'Latency',
+                                _('Latency'),
                                 store.UseVialsLatency,
                                 size=5)]
 
@@ -938,7 +946,7 @@ def renderStoreUseVials(store):
 def renderStoreDeviceUtilizationRate(store):
     return renderBasicEditableField(store, 
                                     'storeUtilizationRate', 
-                                    'storage utilization rate', 
+                                    _('storage utilization rate'), 
                                     store.utilizationRate)
 
 def id2Store(model, itemId, secondaryId):
@@ -952,30 +960,38 @@ def id22Stop(model, itemId, secondaryId):
     return getStopFromItemId(model, secondaryId)
     
 
+# go through some gyrations so that "internationalizable" strings are found by the
+# search routines but don't actually internationalize anything in this table
+
+def _nopFn(v):
+    return v
+_tempFn = _
+_ = _nopFn
+
 updateFloatFields = {
-    'storeLatitude': (id2Store, 'Latitude', 'latitude', -90.0, 90.0),
-    'storeLongitude': (id2Store, 'Longitude', 'longitude', -180.0, 180.0),
-    'storeUseVialsInterval': (id2Store, 'UseVialsInterval', 'use vials interval', 0.0, None),
-    'storeUseVialsLatency': (id2Store, 'UseVialsLatency', 'use vials latency', None, None),
-    'storeUtilizationRate' : (id2Store, 'utilizationRate', 'storage utilization rate', 0.0, None),
-    'routeDistances' : (id22Stop, 'DistanceKM', 'distance (KM)', 0.0, None),
-    'routeTransitHours' : (id22Stop, 'TransitHours', 'transit hours', 0.0, None),
-    'routeOrderAmount' : (id22Stop, 'PullOrderAmountDays', 'order amounts', 0.0, None),
-    'routeInterval' : (id2Route, 'ShipIntervalDays', 'shipping interval', 0.0, None),
-    'routeLatency' : (id2Route, 'ShipLatencyDays', 'shipping latency', None, None),
+    'storeLatitude': (id2Store, 'Latitude', _('latitude'), -90.0, 90.0),
+    'storeLongitude': (id2Store, 'Longitude', _('longitude'), -180.0, 180.0),
+    'storeUseVialsInterval': (id2Store, 'UseVialsInterval', _('use vials interval'), 0.0, None),
+    'storeUseVialsLatency': (id2Store, 'UseVialsLatency', _('use vials latency'), None, None),
+    'storeUtilizationRate' : (id2Store, 'utilizationRate', _('storage utilization rate'), 0.0, None),
+    'routeDistances' : (id22Stop, 'DistanceKM', _('distance (KM)'), 0.0, None),
+    'routeTransitHours' : (id22Stop, 'TransitHours', _('transit hours'), 0.0, None),
+    'routeOrderAmount' : (id22Stop, 'PullOrderAmountDays', _('order amounts'), 0.0, None),
+    'routeInterval' : (id2Route, 'ShipIntervalDays', _('shipping interval'), 0.0, None),
+    'routeLatency' : (id2Route, 'ShipLatencyDays', _('shipping latency'), None, None),
     }
+_ = _tempFn
 
 def updateFloatErrorString(field, fmin, fmax):
     "generate an error string for an out of bounds float update"
-    eStr = '%s must be a numeric value'%field
     if fmin is not None and fmax is not None:
-        eStr += ' between %s and %s'%(fmin, fmax)
+        return _('{0} must be a numeric value between {1} and {2}.').format(field, fmin, fmax)
     elif fmin is not None:
-        eStr += ' greater than %s'%fmin
+        return _('{0} must be a numeric value greater than {1}.').format(field, fmin)
     elif fmax is not None:
-        eStr += ' less than %s'%fmax
-    eStr += '.'
-    return eStr
+        return _('{0} must be a numeric value less than {1}.').format(field, fmax)
+    else:
+        return _('{0} must be a numeric value.').format(field)
 
 def updateFloat(inputId, model, origStr, newStr):
     "generic updating of a float field based on attributes in updateFloatFields"
@@ -984,9 +1000,9 @@ def updateFloat(inputId, model, origStr, newStr):
     obj = objFn(model, itemId, secondaryId)
     
     curVal = getattr(obj, attr)
-    curValStr = str(curVal)
+    curValStr = unicode(curVal)
     if origStr != curValStr:
-        raise(InvalidUpdate('value of %s previously updated'%name, inputId, curValStr))
+        raise(InvalidUpdate(_('value of {0} previously updated').format(name), inputId, curValStr))
     try:
         newVal = float(newStr.strip())
     except:
@@ -1003,7 +1019,7 @@ def updateFloat(inputId, model, origStr, newStr):
                             curValStr))
 
     setattr(obj, attr, newVal)
-    return str(newVal)
+    return unicode(newVal)
     
 def getDemandTypeList(model):
     people = model.people.values()
@@ -1049,7 +1065,7 @@ def renderStoreDemand(store):
     return renderBasicTupleList(store, 
                                 'storeDemand', 
                                 EditableFieldInfo('storeDemand', 
-                                                  'population', 
+                                                  _('population'), 
                                                   etl,
                                                   fieldType='tuplelist',
                                                   pullDownOpts=opts))
@@ -1061,9 +1077,9 @@ def updateStoreDemandCount(inputId, model, origStr, newStr):
     store = getStoreFromItemId(model, itemId)
     count = store.countDemand(peopleType)
     if origCnt != count:
-        raise(InvalidUpdate('value previously updated', inputId, str(count)))
+        raise(InvalidUpdate(_('value previously updated'), inputId, unicode(count)))
     store.updateDemand(peopleType, newCnt)
-    return str(newCnt)
+    return unicode(newCnt)
 
     
 def addTupleStoreDemand(inputId, model, value, count):
@@ -1080,7 +1096,7 @@ def addTupleStoreDemand(inputId, model, value, count):
     etl = storeDemandEtl(store)
 
     efi = EditableFieldInfo('storeDemand',
-                            'population',
+                            _('population'),
                             etl,
                             fieldType='tuplelist',
                             pullDownOpts=opts)
@@ -1090,10 +1106,12 @@ def getInvTypeList(model, iType):
     inv = getattr(model, iType).values()
     inv.sort(key=lambda i: i.getDisplayName())
     return inv
-
+_tempFn = _
+_ = _nopFn
 _storeInvTitles = {
-    'fridges' : 'storage',
-    'trucks' : 'transport' }
+    'fridges' : _('storage'),
+    'trucks' : _('transport') }
+_ = _tempFn
 
 def storeInvOpts(store, iType):
     opts = []
@@ -1146,9 +1164,9 @@ def updateStoreInvCount(inputId, model, origStr, newStr):
     store = getStoreFromItemId(model, itemId)
     count = store.countInventory(whichType)
     if origCnt != count:
-        raise(InvalidUpdate('value previously updated', inputId, str(count)))
+        raise(InvalidUpdate(_('value previously updated'), inputId, unicode(count)))
     store.updateInventory(whichType, newCnt)
-    return str(newCnt)
+    return unicode(newCnt)
 
     
 def addTupleStoreInv(inputId, model, value, count):
@@ -1173,7 +1191,7 @@ def addTupleStoreInv(inputId, model, value, count):
     return updateBasicTupleList(store, 'store'+iType, efi)
         
 def renderStoreNotes(store):
-    fields = [EditableFieldInfo('storeNotes', 'Notes', store.Notes, 
+    fields = [EditableFieldInfo('storeNotes', _('Notes'), store.Notes, 
                                 fieldType='textarea', size=4000,
                                 rows=5, cols=50)]
     return renderBasicEditableFields(store, 'storeNotes', fields)
@@ -1193,14 +1211,6 @@ def renderStoreMessages(store):
     ret.append('</div>')
 
     clients = store.clients()
-    if 0:
-        for a in xrange(200):
-            client = clients[random.randint(0, len(clients) - 1)][0]
-            addStoreMessage(client, 'test message %s'%a)
-
-            cRoute = clients[random.randint(0, len(clients) - 1)][1]
-            addRouteMessage(cRoute, 'test route message %s'%a)
-
 
     return ret
 
@@ -1247,7 +1257,7 @@ def renderStoreJson(store):
 
 
 def renderRouteLabelString(route):
-    return "<b>Route %s</b>"%(route.RouteName)
+    return "<b>%s</b>"%(_('Route {0}').format(route.RouteName))
 
 def renderRouteLabel(route):
     ret = []
@@ -1255,16 +1265,16 @@ def renderRouteLabel(route):
     ret.append('<p id="%s" class="route-edit-label" style="display:inline;" %s>%s</p>'%\
                    (dispId, dndString, renderRouteLabelString(route)))
     editId = packInputId(route.modelId, route, 'routeEditButton')
-    ret.append('<button id="%s" class="route-edit-menu" style="display:inline" tabindex="-1">edit</button>'%\
-                   (editId))
+    ret.append('<button id="%s" class="route-edit-menu" style="display:inline" tabindex="-1">%s</button>'%\
+                   (editId, _('edit')))
     return ret
 
 def renderRouteName(route):
-    return renderBasicEditableField(route, 'routeName', 'name', route.RouteName)
+    return renderBasicEditableField(route, 'routeName', _('name'), route.RouteName)
 
 def renderRouteType(route):
     opts = shd.ShdRoute.routeTypes.keys()
-    return renderBasicEditableField(route, 'routeType', 'type', route.Type, pullDownOpts = opts)
+    return renderBasicEditableField(route, 'routeType', _('type'), route.Type, pullDownOpts = opts)
 
 def routeTruckOpts(route):
     model = route.model
@@ -1288,7 +1298,7 @@ def renderRouteTruckType(route):
     if route.TruckType in route.model.trucks:
         displayValue = route.model.trucks[route.TruckType].getDisplayName()
 
-    return renderBasicEditableField(route, 'routeTruckType', 'truck type', route.TruckType,
+    return renderBasicEditableField(route, 'routeTruckType', _('truck type'), route.TruckType,
                                     pullDownOpts = opts,
                                     displayValue = displayValue)
 
@@ -1300,14 +1310,14 @@ def updateRouteTruckType(inputId, model, origStr, newStr):
                              route.TruckType,
                              updateType='value',
                              displayValue=model.trucks[newStr].getDisplayName())
-        raise(InvalidUpdate('value previously updated', updateList=ul))
+        raise(InvalidUpdate(_('value previously updated'), updateList=ul))
                             
     if newStr != '' and newStr not in model.trucks:
         ul = LocalUpdateList(inputId, 
                              route.TruckType,
                              updateType='value',
                              displayValue=model.trucks[newStr].getDisplayName())
-        raise(InvalidUpdate('Invalid truck type', updateList=ul))
+        raise(InvalidUpdate(_('Invalid truck type'), updateList=ul))
                             
     route.TruckType = newStr
 
@@ -1352,17 +1362,17 @@ def updateDBRouteType(route, newStr):
 def updateRouteType(inputId, model, origStr, newStr):
     modelId, itemId, field = inputIdTriple(inputId)
     route = getRouteFromItemId(model, itemId)
-    if origStr != str(route.Type):
-        raise(InvalidUpdate('value previously updated', inputId, str(route.Type)))
+    if origStr != unicode(route.Type):
+        raise(InvalidUpdate(_('value previously updated'), inputId, unicode(route.Type)))
     
     routeTypes = shd.ShdRoute.routeTypes
 
     if newStr not in routeTypes.keys():
-        raise(InvalidUpdate('invalid route type', inputId, str(route.Type)))
+        raise(InvalidUpdate(_('invalid route type'), inputId, unicode(route.Type)))
 
     if not shd.ShdRoute.types[newStr].multiClient():
         if len(route.clients()) > 1:
-            raise(InvalidUpdate('New route type %s does not support multiple client stores'%newStr))
+            raise(InvalidUpdate(_('New route type {0} does not support multiple client stores').format(newStr)))
 
     ULCM.addUpdate(inputId, newStr)
 
@@ -1392,33 +1402,34 @@ def updateRouteType(inputId, model, origStr, newStr):
     return True
 
 def renderRouteTimings(route):
-    fields = [EditableFieldInfo('routeInterval', 'shipping interval(days)',
+    fields = [EditableFieldInfo('routeInterval', _('shipping interval(days)'),
                                 route.ShipIntervalDays, size=8),
-              EditableFieldInfo('routeLatency', 'latency(days)',
+              EditableFieldInfo('routeLatency', _('latency(days)'),
                                 route.ShipLatencyDays, size=8)]
     return renderBasicEditableFields(route, 'routeTimings', fields)
 
 def renderRouteConditions(route):
-    return renderBasicEditableField(route, 'routeConditions', 'conditions', route.Conditions)
+    return renderBasicEditableField(route, 'routeConditions', _('conditions'), route.Conditions)
 
 def updateRouteConditions(inputId, model, origStr, newStr):
     modelId, itemId, field = inputIdTriple(inputId)
     route = getRouteFromItemId(model, itemId)
     if route.Conditions != origStr:
-        raise(InvalidUpdate('conditions previously updated', inputId, route.Conditions))
+        raise(InvalidUpdate(_('conditions previously updated'), inputId, route.Conditions))
     route.Conditions = newStr
     return newStr
 
 def renderRouteOrderAmount(route):
     etl = EditableTupleList()
     for stop in route.stops:
+        name = stop.store.NAME
         etl.addTuple(EditableTuple(stop.PullOrderAmountDays,
                                    getItemId(stop),
-                                   'order amount in days for %s'%stop.store.NAME))
+                                   _('order amount in days for {0}').format(name)))
     return renderBasicTupleList(route,
                                 'routeOrderAmount',
                                 EditableFieldInfo('routeOrderAmount',
-                                                  'order amounts',
+                                                  _('order amounts'),
                                                   etl,
                                                   fieldType='tuplelist'))
 
@@ -1427,13 +1438,14 @@ def renderRouteOrderAmount(route):
 def renderRouteDistances(route):
     etl = EditableTupleList()
     for stop in route.stops:
+        nextName = stop.nextStop(loopOk=True).store.NAME
         etl.addTuple(EditableTuple(stop.DistanceKM,
                                    getItemId(stop),
-                                   'distance to %s(km)'%stop.nextStop(loopOk=True).store.NAME))
+                                   _('distance to %s(km)').format(nextName)))
     return renderBasicTupleList(route,
                                 'routeDistances',
                                 EditableFieldInfo('routeDistances',
-                                                  'distances',
+                                                  _('distances'),
                                                   etl,
                                                   fieldType='tuplelist'))
 
@@ -1441,13 +1453,14 @@ def renderRouteDistances(route):
 def renderRouteTransitHours(route):
     etl = EditableTupleList()
     for stop in route.stops:
+        nextName = stop.nextStop(loopOk=True).store.NAME
         etl.addTuple(EditableTuple(stop.TransitHours,
                                    getItemId(stop),
-                                   'time to %s(hours)'%stop.nextStop(loopOk=True).store.NAME))
+                                   _('time to {0}(hours)').format(nextName)))
     return renderBasicTupleList(route,
                                 'routeTransitHours',
                                 EditableFieldInfo('routeTransitHours',
-                                                  'transit hours',
+                                                  _('transit hours'),
                                                   etl,
                                                   fieldType='tuplelist'))
     
@@ -2668,7 +2681,7 @@ def rseUpdateUtilization(store, field, category, unique, action, value, secondar
         if action == 'mult':
             client.utilizationRate *= value
         inputId = packInputId(store.modelId, client, 'storeUtilizationRate')
-        ULCM.addUpdate(inputId, str(client.utilizationRate))
+        ULCM.addUpdate(inputId, unicode(client.utilizationRate))
 
 def rseDispStorage(store, field, category, unique):
     rseDispInventory('fridges', store, field, category, unique)
