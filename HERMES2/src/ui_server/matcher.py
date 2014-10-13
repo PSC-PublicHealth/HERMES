@@ -93,8 +93,9 @@ def _getToolTips():
         pD.update(_toolTipDict[inlizer.currentLocaleName]['*'])
     for k,v in pD.items(): 
         vStr = v
-        if v[0] == '"' and v[len(v)-1] == '"':
-            vStr = v[1:-1]        
+        if len(v) > 1:
+            if v[0] == '"' and v[len(v)-1] == '"':
+                vStr = v[1:-1]        
         sio.write(u'"{0}":"{1}",\n'.format(k,vStr))
     uiSession = session_support.UISession.getFromRequest(bottle.request)
     if 'developerMode' in uiSession and uiSession['developerMode']:
@@ -258,5 +259,9 @@ def jsonNoOp(db, uiSession):
     if 'developerMode' in uiSession and uiSession['developerMode']:
         _logMessage('no-op with params %s'%[(k,v) for k,v in bottle.request.params.items()])
     return {'success':True}
+
+@bottle.route('/tutorial')
+def tutorialPage():
+    return bottle.template('tutorial.tpl',{'breadcrumbPairs':[("top",_("Welcome"))]},_=_,inlizer=inlizer)
 
 application= session_support.wrapBottleApp(bottle.app())

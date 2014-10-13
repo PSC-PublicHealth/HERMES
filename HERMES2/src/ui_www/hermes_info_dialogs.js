@@ -158,7 +158,7 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 						root:"rows"
 					},
 					height : 'auto',
-					width : 'auto',
+					width : 600,
 					scroll : false,
 					scrollOffset : 0,
 					colNames : data.translated_phrases.slice(0,4),

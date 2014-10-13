@@ -849,7 +849,7 @@ def editCreateModel(db,uiSession):
                                 newIdcode = newModelInfo['maxidcode']
                                 pot.add(newIdcode,parentId)
                                 newModelInfo['levelcounts'][lvl] += 1
-                                name = "%s_%d"%(newModelInfo['levelnames'][lvl],newModelInfo['levelcounts'][lvl])
+                                name = u"%s_%d"%(newModelInfo['levelnames'][lvl],newModelInfo['levelcounts'][lvl])
                                 rec = _buildTreeRec(name,1,newModelInfo['shippatterns'][lvl])
                                 #print '###### add %d below %d, rec %s'%(newIdcode,parentId,rec)
                                 potRecDict[newIdcode] = rec

@@ -42,7 +42,7 @@
 				<tr height=20><td></td></tr>
 				<tr>
 					<td rowspan=2 width=90><img src='{{rootPath}}static/icons/users.png' width=80></td>
-					<td><h2 style="margin-bottom:0px;">{{_("HERMES Tutorials")}}</h2></td>
+					<td><h2 style="margin-bottom:0px;"><a href="{{rootPath}}tutorial" target=_blank>{{_("HERMES Tutorials")}}</a></h2></td>
 					</tr>
 				<tr>
 					<td><h3 style="margin-top:0px;">{{_("Learn how to use HERMES")}}</h3></td>

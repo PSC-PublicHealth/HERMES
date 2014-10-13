@@ -83,6 +83,7 @@ def getCostModelVerifier(shdNet):
     if costModelName == 'dummy':
         return dummycostmodel.DummyCostModelVerifier()
     elif costModelName == 'legacy':
+        print "Cost Model, I am here"
         if shdNet.getParameterValue('pricetable') is None:
             return dummycostmodel.DummyCostModelVerifier() # fall back to dummy
         else:

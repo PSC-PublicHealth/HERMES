@@ -1,4 +1,4 @@
-%rebase outer_wrapper title_slogan=_("GeoJson Test"), pageHelpText=pageHelpText, breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId,resultId=resultsId
+%rebase outer_wrapper title_slogan=_("Geographic Visualization"), pageHelpText=pageHelpText, breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId,resultId=resultsId
 
 <script src="{{rootPath}}static/d3/d3.min.js"></script>
 <script src="{{rootPath}}static/d3/topojson.v1.min.js"></script>
@@ -10,6 +10,14 @@
 <script>
 var dialogRouteResName = "routeDialog";
 
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
 $(function() {
 	$.ajax({
 		url: '{{rootPath}}json/dialoghtmlforstore',
@@ -69,8 +77,20 @@ $(function() {
 			<tr>
 				<td width="50px"></td>
 				<td>Routes:</td>
-				<td width:"100px"> 
+				<td width="100px"></td>
+			</tr>
+			<tr>
+				<td width=50px"></td>
+				<td style="padding-left:2em;width:100px;">Color By Route</td>
+				<td width="100px"> 
 					<input type="checkbox" id="show_routes" value="On"/>
+				</td>
+			</tr>
+			<tr>
+				<td width=50px"></td>
+				<td style="padding-left:2em;width:100px;">Color By Utilization</td>
+				<td width="100px"> 
+					<input type="checkbox" id="show_routes_util" value="On"/>
 				</td>
 				</p>
 			</tr>
@@ -134,7 +154,7 @@ $(function() {
   top:10px;
   left:10px;
   width:200px;
-  height:150px;
+  height:auto;
   border-style:solid;
   border-width:1px;
   border-radius:3px;
@@ -216,6 +236,11 @@ $(function() {
 	  pointer-events:none;
 	}
 .store-circle {
+	visibility: visible;
+	cursor:pointer;
+}
+
+.util-circle {
 	visibility: hidden;
 	cursor:pointer;
 }
@@ -234,6 +259,10 @@ $(function() {
 	visibility:hidden;
 	cursor:pointer;
 }
+.route-util-line{
+	visibility:hidden;
+	cursor:pointer;
+}
 
 </style>
 
@@ -241,7 +270,15 @@ $(function() {
 var dialogBoxName = "model_store_info";
 var rainbow = new Rainbow();
 rainbow.setSpectrum('blue','red');
+//var routeRain = new Rainbow();
+//routeRain.setSpectrum('white','black');
+//routeColors = ["black","red","blue","orange","green","purple","white","gold","aqua","maroon"];
 
+var levelColors = ["silver","gold","orange","pink","white","black","green"];
+var routeColors = [];
+for (var i=0; i < 10000; i++){
+	routeColors.push(getRandomColor());
+}
 console.log(rainbow.colorAt(.52));
 var curr_scale = 1.0;
 
@@ -456,19 +493,35 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 			.attr("d",path);
 
 	features
-	.selectAll('.route-line')
-		.data(routesJSON.geoFC.features)
-	.enter()
-		.append("path")
-		.attr("d",path)
-		.attr("class","route-line")
-		.style("stroke",function(d){
-			return "#"+rainbow.colorAt(100*d.util);
-		})
-		.style("stroke-width",0.025+"px")
-		.style("fill-opacity",1.0)
-		.on("click",clickRouteDialog);
-	
+		.selectAll('.route-util-line')
+			.data(routesJSON.geoFC.features)
+		.enter()
+			.append("path")
+			.attr("d",path)
+			.attr("class","route-util-line")
+			.style("stroke",function(d){
+				//console.log(routeColors[d.rindex]);
+				//return routeColors[d.rindex];
+				return "#"+rainbow.colorAt(100*d.util);
+			})
+			.style("stroke-width",0.025+"px")
+			.style("fill-opacity",1.0)
+			.on("click",clickRouteDialog);
+	features
+		.selectAll('.route-line')
+			.data(routesJSON.geoFC.features)
+		.enter()
+			.append("path")
+			.attr("d",path)
+			.attr("class","route-line")
+			.style("stroke",function(d){
+				//console.log(routeColors[d.rindex]);
+				return routeColors[d.rindex];
+				//return "#"+rainbow.colorAt(100*d.util);
+			})
+			.style("stroke-width",0.025+"px")
+			.style("fill-opacity",1.0)
+			.on("click",clickRouteDialog);
 	features
 		.selectAll(".store-circle")
 			.data(storeJSON.geoFC.features)
@@ -485,10 +538,40 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 				return 0.5/(d.level+1);
 			})
 			.style("fill",function(d){
+				return levelColors[d.level];
+				//"#"+rainbow.colourAt(100*d.util);
+			})
+			.style("fill-opacity",0.75)
+			.style("stroke",function(d){
+				return levelColors[d.level];
+			})
+			.style("visibility","visible")
+			.style("stroke-width",0.010+"px")
+			.on("click",clickStoreDialog);
+	
+	features
+		.selectAll(".util-circle")
+			.data(storeJSON.geoFC.features)
+		.enter()
+			.append("circle")
+			.attr("class","util-circle")
+			.attr("cx",function(d){
+				return projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[0];
+			})
+			.attr("cy",function(d) {
+				return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[1];
+			})
+			.attr("r",function(d) {
+				return 0.5/(d.level+1);
+			})
+			.style("fill",function(d){
 				return "#"+rainbow.colourAt(100*d.util);
 			})
 			.style("fill-opacity",1.0)
-			.style("stroke","black")
+			.style("stroke",function(d){
+				return "black";
+				//return levelColors[d.level];
+			})
 			.style("visibility","hidden")
 			.style("stroke-width",0.010+"px")
 			.on("click",clickStoreDialog);
@@ -552,48 +635,74 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 // Turn on and off the elements
 $("#show_population").click(function(){
 	if ($("#show_population").is(':checked')){
+		features.selectAll(".store-circle").style('visibility','hidden');
 		features.selectAll(".pop-circle").style('visibility','visible');
 		$("#poplegend").width("100px");
 		$("#poplegend").show();
 	}
 	else {
 		features.selectAll(".pop-circle").style('visibility','hidden');
+		features.selectAll(".store-circle").style('visibility','visible');
 		$("#poplegend").width("0px");
 		$("#poplegend").hide();
 	}
 });
 $("#show_routes").click(function(){
 	if ($("#show_routes").is(':checked')){
+		if($("#show_routes_util").is(':checked')){
+			$("#show_routes_util").click();
+		}
 		features.selectAll(".route-line").style('visibility','visible');
+		//$("#translegend").width("100px");
+		//$("#translegend").show();
+	}
+	else {
+		features.selectAll(".route-line").style('visibility','hidden');
+		//$("#translegend").width("0px");
+		//$("#translegend").hide();
+	}
+});
+$("#show_routes_util").click(function(){
+	if ($("#show_routes_util").is(':checked')){
+		if($("#show_routes").is(':checked')){
+			$("#show_routes").click();
+		}
+		features.selectAll(".route-util-line").style('visibility','visible');
 		$("#translegend").width("100px");
 		$("#translegend").show();
 	}
 	else {
-		features.selectAll(".route-line").style('visibility','hidden');
+		features.selectAll(".route-util-line").style('visibility','hidden');
 		$("#translegend").width("0px");
 		$("#translegend").hide();
 	}
 });
+
+
 $("#show_vaccine").click(function(){
 	if ($("#show_vaccine").is(':checked')){
+		features.selectAll(".store-circle").style('visibility','hidden');
 		features.selectAll(".va-circle").style('visibility','visible');
 		$("#valegend").width("100px");
 		$("#valegend").show();
 	}
 	else {
 		features.selectAll(".va-circle").style('visibility','hidden');
+		features.selectAll(".store-circle").style('visibility','visible');
 		$("#valegend").width("0px");
 		$("#valegend").hide();
 	}
 });
 $("#show_utilization").click(function(){
 	if ($("#show_utilization").is(':checked')){
-		features.selectAll(".store-circle").style('visibility','visible');
+		features.selectAll(".store-circle").style('visibility','hidden');
+		features.selectAll(".util-circle").style('visibility','visible');
 		$("#storelegend").width("100px");
 		$("#storelegend").show();
 	}
 	else {
-		features.selectAll(".store-circle").style('visibility','hidden');
+		features.selectAll(".util-circle").style('visibility','hidden');
+		features.selectAll(".store-circle").style('visibility','visible');
 		$("#storelegend").width("0px");
 		$("#storelegend").hide();
 	}

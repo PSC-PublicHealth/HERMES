@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HERMES_UI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-22 09:08-0500\n"
-"PO-Revision-Date: 2014-09-22 10:53-0500\n"
+"POT-Creation-Date: 2014-09-30 12:46-0500\n"
+"PO-Revision-Date: 2014-09-30 12:50-0500\n"
 "Last-Translator: Shawn Brown <stbrown@psc.edu>\n"
 "Language-Team: HERMES Team <hermes-devel@psc.edu>\n"
 "Language: pt_MZ\n"
@@ -17,8 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.6.9\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-Basepath: C:\\Users\\Shawn\\Workspaces\\Eclipse 3.6 Classic"
-"\\HERMES2\\src\n"
+"X-Poedit-Basepath: C:\\Users\\Shawn\\Programs\\HERMES2\\src\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SearchPath-0: ui_server\n"
 "X-Poedit-SearchPath-1: ui_server\\views\n"
@@ -54,10 +53,10 @@ msgid "cannot map wire type {0} to clipboard"
 msgstr ""
 
 #: ui_server/clipboard.py:112 ui_server/clipboard.py:131
-#: ui_server/fridgehooks.py:184 ui_server/matcher.py:184
-#: ui_server/peoplehooks.py:149 ui_server/runhooks.py:330
-#: ui_server/runhooks.py:356 ui_server/truckhooks.py:139
-#: ui_server/vaccinehooks.py:249
+#: ui_server/fridgehooks.py:184 ui_server/matcher.py:190
+#: ui_server/peoplehooks.py:149 ui_server/runhooks.py:328
+#: ui_server/runhooks.py:354 ui_server/truckhooks.py:139
+#: ui_server/vaccinehooks.py:253
 msgid "User cannot read this model"
 msgstr "usuário não pode ler este modelo"
 
@@ -80,51 +79,51 @@ msgstr "prancheta não detenha uma {0}"
 msgid "cannot map wire type {0} from clipboard"
 msgstr ""
 
-#: ui_server/clipboard.py:162 ui_server/modelhooks.py:1074
-#: ui_server/modelhooks.py:1125
+#: ui_server/clipboard.py:162 ui_server/modelhooks.py:1080
+#: ui_server/modelhooks.py:1131
 msgid "User cannot modify this model"
 msgstr "Usuário não pode modificar este modelo"
 
-#: ui_server/costhooks.py:29 ui_server/costhooks.py:37
-#: ui_server/costhooks.py:52 ui_server/costhooks.py:57
+#: ui_server/costhooks.py:31 ui_server/costhooks.py:39
+#: ui_server/costhooks.py:54 ui_server/costhooks.py:59
 #: ui_server/views/outer_wrapper.tpl:269 ui_server\views/outer_wrapper.tpl:269
 msgid "Costs"
 msgstr "custos"
 
-#: ui_server/costhooks.py:51
+#: ui_server/costhooks.py:53
 msgid "Fuel"
 msgstr "combustível"
 
-#: ui_server/costhooks.py:56 ui_server/costhooks.py:61
-#: ui_server/costhooks.py:66 ui_server/htmlgenerator.py:49
+#: ui_server/costhooks.py:58 ui_server/costhooks.py:63
+#: ui_server/costhooks.py:68 ui_server/htmlgenerator.py:49
 #: ui_server/modelhooks.py:567 ui_server/truckhooks.py:30
 #: ui_server/views/store_edit_wgt.tpl:5 ui_server\views/store_edit_wgt.tpl:5
 msgid "Storage"
 msgstr "Armazém"
 
-#: ui_server/costhooks.py:62
+#: ui_server/costhooks.py:64
 msgid "Costs Version 2"
 msgstr "custos versão 2"
 
-#: ui_server/costhooks.py:67
+#: ui_server/costhooks.py:69
 msgid "Costs Version 3"
 msgstr "custos versão 3"
 
-#: ui_server/costhooks.py:228 ui_server/costhooks.py:241
+#: ui_server/costhooks.py:225 ui_server/costhooks.py:238
 msgid "Begin"
 msgstr "início"
 
-#: ui_server/costhooks.py:229 ui_server/costhooks.py:242
+#: ui_server/costhooks.py:226 ui_server/costhooks.py:239
 msgid "Revisit"
 msgstr "revisitar"
 
-#: ui_server/costhooks.py:230 ui_server/costhooks.py:243
+#: ui_server/costhooks.py:227 ui_server/costhooks.py:240
 #: ui_server/views/outer_wrapper.tpl:123 ui_server\views/outer_wrapper.tpl:123
 msgid "Continue"
 msgstr "Continuar"
 
-#: ui_server/costhooks.py:246 ui_server/costhooks.py:249
-#: ui_server/costhooks.py:252 ui_server/costhooks.py:255
+#: ui_server/costhooks.py:243 ui_server/costhooks.py:246
+#: ui_server/costhooks.py:249 ui_server/costhooks.py:252
 msgid "Unimplemented"
 msgstr "não implementado"
 
@@ -210,13 +209,14 @@ msgid "Provision Routes"
 msgstr "Rotas de distribuição"
 
 #: ui_server/crumbtracks.py:395 ui_server/geographic_visualization.py:40
-#: ui_server/geographic_visualization.py:246
-#: ui_server/information_dialog_box_hooks.py:77 ui_server/modelhooks.py:71
-#: ui_server/modelhooks.py:78 ui_server/modelhooks.py:91
-#: ui_server/modelhooks.py:114 ui_server/modelhooks.py:123
-#: ui_server/modelhooks.py:137 ui_server/resultshooks.py:50
-#: ui_server/resultshooks.py:189 ui_server/views/outer_wrapper.tpl:262
-#: ui_server\views/outer_wrapper.tpl:262
+#: ui_server/geographic_visualization.py:48
+#: ui_server/geographic_visualization.py:297
+#: ui_server/information_dialog_box_hooks.py:77 ui_server/matcher.py:265
+#: ui_server/modelhooks.py:71 ui_server/modelhooks.py:78
+#: ui_server/modelhooks.py:91 ui_server/modelhooks.py:114
+#: ui_server/modelhooks.py:123 ui_server/modelhooks.py:137
+#: ui_server/resultshooks.py:50 ui_server/resultshooks.py:189
+#: ui_server/views/outer_wrapper.tpl:262 ui_server\views/outer_wrapper.tpl:262
 msgid "Welcome"
 msgstr "Bem vindo"
 
@@ -284,7 +284,7 @@ msgstr "demanda real em escala de zero?"
 msgid "Menu Page"
 msgstr "Página de Menu"
 
-#: ui_server/developerhooks.py:38 ui_server/i18n.py:122
+#: ui_server/developerhooks.py:38 ui_server/i18n.py:128
 msgid "Tree Page"
 msgstr "Página ávore"
 
@@ -378,11 +378,11 @@ msgstr "Modelo"
 #: ui_server/fridgehooks.py:33 ui_server/views/model_create_interlevel.tpl:37
 #: ui_server/views/model_create_interlevel.tpl:39
 #: ui_server/views/model_create_interlevel.tpl:41
-#: ui_server/views/model_create_interlevel.tpl:59
+#: ui_server/views/model_create_interlevel.tpl:66
 #: ui_server\views/model_create_interlevel.tpl:37
 #: ui_server\views/model_create_interlevel.tpl:39
 #: ui_server\views/model_create_interlevel.tpl:41
-#: ui_server\views/model_create_interlevel.tpl:59
+#: ui_server\views/model_create_interlevel.tpl:66
 msgid "Year"
 msgstr "Ano"
 
@@ -427,9 +427,6 @@ msgstr "Ano-base para o custo"
 #: ui_server/fridgehooks.py:44
 msgid "Currency"
 msgstr "Moeda"
-
-msgid "currency"
-msgstr "moeda"
 
 #: ui_server/fridgehooks.py:46
 msgid "Power Rate"
@@ -497,7 +494,8 @@ msgid "Create Modified Version"
 msgstr "Criar uma versão modificada"
 
 #: ui_server/geographic_visualization.py:41
-#: ui_server/geographic_visualization.py:247
+#: ui_server/geographic_visualization.py:49
+#: ui_server/geographic_visualization.py:298
 #: ui_server/information_dialog_box_hooks.py:78 ui_server/resultshooks.py:190
 msgid "This is intended to show page-specific help"
 msgstr ""
@@ -689,61 +687,63 @@ msgstr ""
 msgid "This will go in model {0}"
 msgstr "Esta vai para o modelo {0}"
 
-#: ui_server/htmlgenerator.py:501
+#: ui_server/htmlgenerator.py:500
 msgid "Route Information"
 msgstr "Informação de rota"
 
-#: ui_server/htmlgenerator.py:504
+#: ui_server/htmlgenerator.py:503
 msgid "Vehicle Utilization"
 msgstr "Utilização de veiculo"
 
-#: ui_server/htmlgenerator.py:507
+#: ui_server/htmlgenerator.py:506
 msgid "Trips"
 msgstr "Viagems"
 
-#: ui_server/htmlgenerator.py:565
+#: ui_server/htmlgenerator.py:563
 msgid "General Info"
 msgstr "Informação geral"
 
-#: ui_server/htmlgenerator.py:568
+#: ui_server/htmlgenerator.py:566
 msgid "Population Information"
 msgstr "Informação de população"
 
-#: ui_server/htmlgenerator.py:571
+#: ui_server/htmlgenerator.py:569
 msgid "Utilization"
 msgstr "Utilização"
 
-#: ui_server/htmlgenerator.py:574
+#: ui_server/htmlgenerator.py:572
 msgid "Storage Devices"
 msgstr "Dispositivo de armazen"
 
-#: ui_server/htmlgenerator.py:577
+#: ui_server/htmlgenerator.py:575
 msgid "Transport Devices"
 msgstr "Dispositivos de Transporte"
 
-#: ui_server/htmlgenerator.py:580
+#: ui_server/htmlgenerator.py:578
 msgid "Inventory"
 msgstr "Inventario"
 
-#: ui_server/htmlgenerator.py:583
+#: ui_server/htmlgenerator.py:581
 msgid "Fill Ratio"
 msgstr "Encha rácio"
 
-#: ui_server/htmlgenerator.py:586
+#: ui_server/htmlgenerator.py:584
 msgid "Vaccine Administration"
 msgstr " método de administração "
 
-#: ui_server/htmlgenerator.py:589
+#: ui_server/htmlgenerator.py:587
 msgid "Availability Plot"
 msgstr "Gráfico Disponibilidade"
 
-#: ui_server/htmlgenerator.py:610
+#: ui_server/htmlgenerator.py:607
 msgid "Click on Name of Vaccine to Hide/Show it on the Chart."
 msgstr "Clique no nome de Vacina para ocultar / mostrar na Chart"
 
 #: ui_server/information_dialog_box_hooks.py:94
 #: ui_server/views/model_create_interlevel.tpl:9
+#: ui_server/views/model_create_levelnames.tpl:24
 #: ui_server\views/model_create_interlevel.tpl:9
+#: ui_server\views/model_create_levelnames.tpl:24
 msgid "Level"
 msgstr "Nivel"
 
@@ -837,16 +837,16 @@ msgstr "Capacidade adicional necessária"
 msgid "Trips Taken on Route"
 msgstr "Viagens realizadas na rota"
 
-#: ui_server/matcher.py:121
+#: ui_server/matcher.py:127
 msgid "This title is set in matcher"
 msgstr "Este título é definido em matcher."
 
-#: ui_server/matcher.py:135
+#: ui_server/matcher.py:141
 #, python-brace-format
 msgid "Attempt to build template from {0} failed"
 msgstr "Tentativa de construir modelo de {0} falhou"
 
-#: ui_server/matcher.py:204 ui_server/views/outer_wrapper.tpl:273
+#: ui_server/matcher.py:210 ui_server/views/outer_wrapper.tpl:273
 #: ui_server\views/outer_wrapper.tpl:273
 msgid "Help"
 msgstr "Ajuda"
@@ -884,7 +884,6 @@ msgid "Show Structure"
 msgstr "Mostrar estrutura"
 
 #: ui_server/modelhooks.py:93 ui_server/modelhooks.py:132
-#: ui_server/resultshooks.py:52
 msgid "Edit"
 msgstr "Modificar"
 
@@ -951,7 +950,7 @@ msgstr "Não encontrou armazéns de nível (s) {0}"
 msgid "Route {0} unexpectedly has more than two stops"
 msgstr " Rota {0} de supresa tem mais de duas paradas "
 
-#: ui_server/modelhooks.py:559 ui_server/runhooks.py:152
+#: ui_server/modelhooks.py:559 ui_server/runhooks.py:146
 #: ui_server/views/cost_top.tpl:32 ui_server/views/cost_top.tpl:35
 #: ui_server/views/cost_top.tpl:38 ui_server/views/cost_top.tpl:41
 #: ui_server/views/cost_top.tpl:44 ui_server/views/cost_top.tpl:47
@@ -1002,65 +1001,65 @@ msgstr "Equipamento de armazen"
 msgid "Logistics"
 msgstr "Logistico"
 
-#: ui_server/modelhooks.py:656
+#: ui_server/modelhooks.py:662
 msgid "The model is not ready for provisioning"
 msgstr " O modelo não está pronto para o provisionamento"
 
-#: ui_server/modelhooks.py:661
+#: ui_server/modelhooks.py:667
 msgid "The routes are not ready for provisioning"
 msgstr " O modelo não está pronto para o provisionamento"
 
-#: ui_server/modelhooks.py:695
+#: ui_server/modelhooks.py:701
 #, python-brace-format
 msgid "Expected to know the value of {0} by now"
 msgstr " Espera-se que sabe o valor de {0} por agora "
 
-#: ui_server/modelhooks.py:704 ui_server/views/model_create_begin.tpl:1
+#: ui_server/modelhooks.py:710 ui_server/views/model_create_begin.tpl:1
 #: ui_server/views/model_create_done.tpl:1
 #: ui_server\views/model_create_begin.tpl:1
 #: ui_server\views/model_create_done.tpl:1
 msgid "Create A Model"
 msgstr "Criar um Modelo"
 
-#: ui_server/modelhooks.py:705
+#: ui_server/modelhooks.py:711
 msgid "Select population types to be used in your model."
 msgstr " Selecione os tipos de população para ser usado em seu modelo "
 
-#: ui_server/modelhooks.py:706
+#: ui_server/modelhooks.py:712
 msgid "Select vaccine types to be used in your model."
 msgstr " Selecione os tipos de vacinas para ser usado em seu modelo "
 
-#: ui_server/modelhooks.py:707
+#: ui_server/modelhooks.py:713
 msgid "Select cold storage equipment types to be used in your model."
 msgstr " Selecione o tipo de cadeia de frio para ser usado em seu modelo "
 
-#: ui_server/modelhooks.py:708
+#: ui_server/modelhooks.py:714
 msgid ""
 "Select trucks and other transport equipment types to be used in your model."
 msgstr " Selecione os tipos de transporte para ser usado em seu modelo "
 
-#: ui_server/modelhooks.py:709
+#: ui_server/modelhooks.py:715
 msgid "What are the vaccine requirements of each population type?"
 msgstr " Quais são os requisitos de vacina de cada tipo de população?"
 
-#: ui_server/modelhooks.py:734
+#: ui_server/modelhooks.py:740
 msgid "Lost track of which step we are on"
 msgstr " Perdi a noção de qual etapa onde estamos"
 
-#: ui_server/modelhooks.py:740
+#: ui_server/modelhooks.py:746
 #, python-brace-format
 msgid "An error occurred while provisioning your model: {0}"
 msgstr " Ocorreu um erro durante a criação do modelo: {0}"
 
-#: ui_server/modelhooks.py:889 ui_server/modelhooks.py:914
+#: ui_server/modelhooks.py:895 ui_server/modelhooks.py:920
 msgid "We are not creating a new model right now."
 msgstr " Não estamos criando um novo modelo agora "
 
-#: ui_server/modelhooks.py:892 ui_server/modelhooks.py:917
+#: ui_server/modelhooks.py:898 ui_server/modelhooks.py:923
 msgid "We have lost track of the number of levels"
 msgstr " Perdi a noção de numero de niveis "
 
-#: ui_server/modelhooks.py:926
+#: ui_server/modelhooks.py:932
 msgid "Transit times must be greater than zero"
 msgstr " O tempo de trânsito deve ser maior que zero "
 
@@ -1094,6 +1093,10 @@ msgstr ""
 msgid "Results"
 msgstr "Resultados "
 
+#: ui_server/resultshooks.py:52
+msgid "Summary"
+msgstr ""
+
 #: ui_server/resultshooks.py:53
 msgid "Fireworks"
 msgstr ""
@@ -1115,59 +1118,55 @@ msgstr "Individuo"
 msgid "Group Average"
 msgstr " média do grupo"
 
-#: ui_server/runhooks.py:39 ui_server/runhooks.py:131
+#: ui_server/runhooks.py:33 ui_server/runhooks.py:125
 msgid "Run"
 msgstr "Executar"
 
-#: ui_server/runhooks.py:131
+#: ui_server/runhooks.py:125
 msgid "Seed"
 msgstr "Semente"
 
-#: ui_server/runhooks.py:137
+#: ui_server/runhooks.py:131
 msgid "A seed field has an inappropriate type"
 msgstr " Um campo de semente tem um tipo inadequado "
 
-#: ui_server/runhooks.py:153
-msgid "Verify"
-msgstr "Verificar"
-
-#: ui_server/runhooks.py:154
+#: ui_server/runhooks.py:148
 msgid "Details"
 msgstr " Fornecer alguns detalhes "
 
-#: ui_server/runhooks.py:155
+#: ui_server/runhooks.py:149
 msgid "Go!"
 msgstr "Ir!"
 
-#: ui_server/runhooks.py:169
+#: ui_server/runhooks.py:163
 msgid "Run Model"
 msgstr "Executar o modelo"
 
-#: ui_server/runhooks.py:189
+#: ui_server/runhooks.py:183
 msgid "Edit Run Parameters"
 msgstr ""
 
-#: ui_server/runhooks.py:231
+#: ui_server/runhooks.py:229
 msgid "We have somehow forgotten which step we are on in running your model."
 msgstr ""
 " Temos de algum modo esquecido que passo estamos na gestão do seu modelo."
 
-#: ui_server/runhooks.py:238
+#: ui_server/runhooks.py:236
 #, python-brace-format
 msgid "An error occurred while initiating the run: {0}"
 msgstr "Ocorreu um erro ao iniciar a corrida: {0}"
 
-#: ui_server/runhooks.py:321
+#: ui_server/runhooks.py:319
 #, python-brace-format
 msgid "Run Parameters for model {0}"
 msgstr " Parâmetros para executar o modelo {0}"
 
-#: ui_server/runhooks.py:587
+#: ui_server/runhooks.py:581
 #, python-brace-format
 msgid "Unrecognized parm type {0}"
 msgstr "O tipo {0} parm sem conhecimento"
 
-#: ui_server/runhooks.py:624 ui_server/ui_utils.py:120
+#: ui_server/runhooks.py:618 ui_server/ui_utils.py:120
 msgid "The following parameters are invalid: "
 msgstr "Os seguintes parâmetros são inválidos:"
 
@@ -1545,11 +1544,8 @@ msgid "Check Completeness"
 msgstr "Verifique Integralidade"
 
 #: ui_server/views/d3democlickzoom.tpl:1 ui_server/views/dialogboxdemo.tpl:1
-#: ui_server/views/geojson_demo.tpl:1
-#: ui_server/views/results_geo_visualization.tpl:1
-#: ui_server\views/d3democlickzoom.tpl:1 ui_server\views/dialogboxdemo.tpl:1
-#: ui_server\views/geojson_demo.tpl:1
-#: ui_server\views/results_geo_visualization.tpl:1
+#: ui_server/views/geojson_demo.tpl:1 ui_server\views/d3democlickzoom.tpl:1
+#: ui_server\views/dialogboxdemo.tpl:1 ui_server\views/geojson_demo.tpl:1
 msgid "GeoJson Test"
 msgstr ""
 
@@ -1558,8 +1554,9 @@ msgid "Become System"
 msgstr "Tornar-se sistema"
 
 #: ui_server/views/debugUI.tpl:9 ui_server\views/debugUI.tpl:9
+#, fuzzy
 msgid "Become Anyuser"
-msgstr ""
+msgstr "Tornar-se sistema"
 
 #: ui_server/views/debugUI.tpl:10 ui_server\views/debugUI.tpl:10
 msgid "Clear Server-side Session"
@@ -1642,12 +1639,14 @@ msgstr ""
 "use seu botão do navegador voltar."
 
 #: ui_server/views/fridge_edit.tpl:1 ui_server\views/fridge_edit.tpl:1
+#, fuzzy
 msgid "Modify Cold Storage Type"
-msgstr ""
+msgstr "Tipos de armazenamento a frio"
 
 #: ui_server/views/fridge_edit.tpl:3 ui_server\views/fridge_edit.tpl:3
+#, fuzzy
 msgid "Creating Your Cold Storage Type"
-msgstr ""
+msgstr "Criar um tipo de população"
 
 #: ui_server/views/fridge_edit.tpl:4 ui_server\views/fridge_edit.tpl:4
 msgid ""
@@ -1678,14 +1677,14 @@ msgstr "Cancelar "
 #: ui_server/views/model_create_begin.tpl:48
 #: ui_server/views/model_create_countsbylevel.tpl:45
 #: ui_server/views/model_create_done.tpl:21
-#: ui_server/views/model_create_interlevel.tpl:77
+#: ui_server/views/model_create_interlevel.tpl:84
 #: ui_server/views/people_edit.tpl:18 ui_server/views/run_edit_parms.tpl:24
 #: ui_server/views/run_specify.tpl:30 ui_server/views/truck_edit.tpl:18
 #: ui_server/views/vaccine_edit.tpl:18 ui_server\views/fridge_edit.tpl:16
 #: ui_server\views/model_create_begin.tpl:48
 #: ui_server\views/model_create_countsbylevel.tpl:45
 #: ui_server\views/model_create_done.tpl:21
-#: ui_server\views/model_create_interlevel.tpl:77
+#: ui_server\views/model_create_interlevel.tpl:84
 #: ui_server\views/people_edit.tpl:18 ui_server\views/run_edit_parms.tpl:24
 #: ui_server\views/run_specify.tpl:30 ui_server\views/truck_edit.tpl:18
 #: ui_server\views/vaccine_edit.tpl:18
@@ -1730,8 +1729,9 @@ msgid "Paste"
 msgstr "Paste"
 
 #: ui_server/views/fridge_top.tpl:15 ui_server\views/fridge_top.tpl:15
+#, fuzzy
 msgid "Known Cold Storage Types"
-msgstr ""
+msgstr "Tipos de armazenamento a frio"
 
 #: ui_server/views/fridge_top.tpl:28 ui_server/views/people_top.tpl:31
 #: ui_server/views/truck_top.tpl:31 ui_server/views/vaccine_top.tpl:44
@@ -1791,53 +1791,48 @@ msgstr " Quantos níveis no seu modelo?"
 #: ui_server/views/model_create_begin.tpl:41
 #: ui_server/views/model_create_countsbylevel.tpl:37
 #: ui_server/views/model_create_done.tpl:14
-#: ui_server/views/model_create_interlevel.tpl:69
+#: ui_server/views/model_create_interlevel.tpl:76
 #: ui_server/views/model_create_interlevel_timings.tpl:31
+#: ui_server/views/model_create_levelnames.tpl:36
 #: ui_server/views/model_create_provision.tpl:32
 #: ui_server/views/model_create_provision_routes.tpl:26
 #: ui_server/views/outer_wrapper.tpl:340
 #: ui_server/views/run_realitycheck.tpl:13 ui_server/views/run_run.tpl:10
-#: ui_server/views/run_specifics.tpl:49 ui_server/views/run_specify.tpl:23
+#: ui_server/views/run_specifics.tpl:64 ui_server/views/run_specify.tpl:23
 #: ui_server\views/model_create_begin.tpl:41
 #: ui_server\views/model_create_countsbylevel.tpl:37
 #: ui_server\views/model_create_done.tpl:14
-#: ui_server\views/model_create_interlevel.tpl:69
+#: ui_server\views/model_create_interlevel.tpl:76
 #: ui_server\views/model_create_interlevel_timings.tpl:31
+#: ui_server\views/model_create_levelnames.tpl:36
 #: ui_server\views/model_create_provision.tpl:32
 #: ui_server\views/model_create_provision_routes.tpl:26
 #: ui_server\views/outer_wrapper.tpl:340
 #: ui_server\views/run_realitycheck.tpl:13 ui_server\views/run_run.tpl:10
-#: ui_server\views/run_specifics.tpl:49 ui_server\views/run_specify.tpl:23
-#: ui_server\views/model_create_levelnames.tpl:28
+#: ui_server\views/run_specifics.tpl:64 ui_server\views/run_specify.tpl:23
 msgid "Back"
 msgstr "Voltar"
 
-#: ui_server/views/model_create_countsbylevel.tpl:39
-#: ui_server\views/model_create_interlevel.tpl:71
-#: ui_server\views/model_create_interlevel_timings.tpl:33
-#: ui_server\views/model_create_levelnames.tpl:30
-msgid "Expert"
-msgstr "Perito"
-
 #: ui_server/views/model_create_begin.tpl:43
 #: ui_server/views/model_create_countsbylevel.tpl:40
-#: ui_server/views/model_create_interlevel.tpl:72
+#: ui_server/views/model_create_interlevel.tpl:79
 #: ui_server/views/model_create_interlevel_timings.tpl:34
+#: ui_server/views/model_create_levelnames.tpl:39
 #: ui_server/views/model_create_provision.tpl:34
 #: ui_server/views/model_create_provision_routes.tpl:28
 #: ui_server/views/outer_wrapper.tpl:342
 #: ui_server/views/run_realitycheck.tpl:15
-#: ui_server/views/run_specifics.tpl:51 ui_server/views/run_specify.tpl:25
+#: ui_server/views/run_specifics.tpl:66 ui_server/views/run_specify.tpl:25
 #: ui_server\views/model_create_begin.tpl:43
 #: ui_server\views/model_create_countsbylevel.tpl:40
-#: ui_server\views/model_create_interlevel.tpl:72
+#: ui_server\views/model_create_interlevel.tpl:79
 #: ui_server\views/model_create_interlevel_timings.tpl:34
+#: ui_server\views/model_create_levelnames.tpl:39
 #: ui_server\views/model_create_provision.tpl:34
 #: ui_server\views/model_create_provision_routes.tpl:28
 #: ui_server\views/outer_wrapper.tpl:342
 #: ui_server\views/run_realitycheck.tpl:15
-#: ui_server\views/run_specifics.tpl:51 ui_server\views/run_specify.tpl:25
-#: ui_server\views/model_create_levelnames.tpl:31
+#: ui_server\views/run_specifics.tpl:66 ui_server\views/run_specify.tpl:25
 msgid "Next"
 msgstr "Proximo"
 
@@ -1873,10 +1868,23 @@ msgstr ""
 "las uniformemente entre os fornecedores no nível acima, e em seguida, dar  "
 "lhe a oportunidade de fazer ajustes "
 
+#: ui_server/views/model_create_countsbylevel.tpl:39
+#: ui_server/views/model_create_interlevel.tpl:78
+#: ui_server/views/model_create_interlevel_timings.tpl:33
+#: ui_server/views/model_create_levelnames.tpl:38
+#: ui_server\views/model_create_countsbylevel.tpl:39
+#: ui_server\views/model_create_interlevel.tpl:78
+#: ui_server\views/model_create_interlevel_timings.tpl:33
+#: ui_server\views/model_create_levelnames.tpl:38
+msgid "Expert"
+msgstr "Perito"
+
 #: ui_server/views/model_create_countsbylevel.tpl:46
 #: ui_server\views/model_create_countsbylevel.tpl:46
 msgid "One or more level values is blank or lower than 1; please fix this."
-msgstr "Um ou mais valores de nível de branco ou é menor do que 1; por favor corrigir isso."
+msgstr ""
+"Um ou mais valores de nível de branco ou é menor do que 1; por favor "
+"corrigir isso."
 
 #: ui_server/views/model_create_done.tpl:3
 #: ui_server\views/model_create_done.tpl:3
@@ -1934,34 +1942,37 @@ msgstr "Em um horário fixo"
 msgid "As Needed"
 msgstr "Conforme necessário"
 
+#: ui_server/views/model_create_interlevel.tpl:34
+#: ui_server/views/model_create_interlevel.tpl:64
+#: ui_server\views/model_create_interlevel.tpl:34
+#: ui_server\views/model_create_interlevel.tpl:64
+msgid "times per"
+msgstr "vezes por"
+
 #: ui_server/views/model_create_interlevel.tpl:37
 #: ui_server/views/model_create_interlevel.tpl:39
 #: ui_server/views/model_create_interlevel.tpl:41
-#: ui_server/views/model_create_interlevel.tpl:59
+#: ui_server/views/model_create_interlevel.tpl:66
 #: ui_server\views/model_create_interlevel.tpl:37
 #: ui_server\views/model_create_interlevel.tpl:39
 #: ui_server\views/model_create_interlevel.tpl:41
-#: ui_server\views/model_create_interlevel.tpl:59
+#: ui_server\views/model_create_interlevel.tpl:66
 msgid "Month"
 msgstr "Mes"
 
 #: ui_server/views/model_create_interlevel.tpl:37
 #: ui_server/views/model_create_interlevel.tpl:39
 #: ui_server/views/model_create_interlevel.tpl:41
-#: ui_server/views/model_create_interlevel.tpl:59
+#: ui_server/views/model_create_interlevel.tpl:66
 #: ui_server\views/model_create_interlevel.tpl:37
 #: ui_server\views/model_create_interlevel.tpl:39
 #: ui_server\views/model_create_interlevel.tpl:41
-#: ui_server\views/model_create_interlevel.tpl:59
+#: ui_server\views/model_create_interlevel.tpl:66
 msgid "Week"
 msgstr "Semana"
 
-#: ui_server/views/model_create_interlevel.tpl:34
-msgid "times per"
-msgstr "vezes por"
-
-#: ui_server/views/model_create_interlevel.tpl:78
-#: ui_server\views/model_create_interlevel.tpl:78
+#: ui_server/views/model_create_interlevel.tpl:85
+#: ui_server\views/model_create_interlevel.tpl:85
 msgid "One or more of the values are blank; please fix this."
 msgstr " Um ou mais dos valores estão vazio; por favor corrija esta."
 
@@ -2005,33 +2016,41 @@ msgstr " Quais são os nomes dos níveis do seu modelo?"
 msgid ""
 "For example, a four level model might have levels named \"Central\", \"Region"
 "\", \"District\", and \"Health Post\"."
-msgstr "Por exemplo, um modelo de quatro níveis pode ter níveis chamado "
-"\"Nacional\", \"Província\", \"Distrito\" e \"Unidade Sanitária\"."
-
-#: ui_server/views/model_create_levelnames.tpl:21
-msgid "Central"
-msgstr "Nacional"
-
-#: ui_server/views/model_create_levelnames.tpl:31
-msgid "Province"
-msgstr "Província"
-
-#: ui_server/views/model_create_levelnames.tpl:27
-msgid "Region"
-msgstr "Região"
-
-#: ui_server/views/model_create_levelnames.tpl:28
-msgid "District"
-msgstr "Distrito"
-
-#: ui_server/views/model_create_levelnames.tpl:35
-msgid "Health Post"
-msgstr "Unidade Sanitária"
+msgstr ""
+"Por exemplo, um modelo de quatro níveis pode ter níveis chamado \"Nacional"
+"\", \"Província\", \"Distrito\" e \"Unidade Sanitária\"."
 
 #: ui_server/views/model_create_levelnames.tpl:12
 #: ui_server/views/model_create_levelnames.tpl:19
+#: ui_server\views/model_create_levelnames.tpl:12
+#: ui_server\views/model_create_levelnames.tpl:19
 msgid "Name for level"
 msgstr "Nome do nível"
+
+#: ui_server/views/model_create_levelnames.tpl:20
+#: ui_server\views/model_create_levelnames.tpl:20
+msgid "District"
+msgstr "Distrito"
+
+#: ui_server/views/model_create_levelnames.tpl:20
+#: ui_server\views/model_create_levelnames.tpl:20
+msgid "Region"
+msgstr "Região"
+
+#: ui_server/views/model_create_levelnames.tpl:20
+#: ui_server\views/model_create_levelnames.tpl:20
+msgid "Province"
+msgstr "Província"
+
+#: ui_server/views/model_create_levelnames.tpl:26
+#: ui_server\views/model_create_levelnames.tpl:26
+msgid "Health Post"
+msgstr "Unidade Sanitária"
+
+#: ui_server/views/model_create_levelnames.tpl:27
+#: ui_server\views/model_create_levelnames.tpl:27
+msgid "Central"
+msgstr "Nacional"
 
 #: ui_server/views/model_create_provision.tpl:3
 #: ui_server\views/model_create_provision.tpl:3
@@ -2103,7 +2122,9 @@ msgid "{0} and {1}"
 msgstr "{0} e {1}"
 
 #: ui_server/views/model_show_structure.tpl:3
+#: ui_server/views/results_show_structure.tpl:3
 #: ui_server\views/model_show_structure.tpl:3
+#: ui_server\views/results_show_structure.tpl:3
 msgid ""
 "Click on a name to expand that part of the network.  Right-click on a name "
 "for more detailed information."
@@ -2143,8 +2164,9 @@ msgid "Delete"
 msgstr "Delete"
 
 #: ui_server/views/models_top.tpl:17 ui_server\views/models_top.tpl:17
-msgid "Select A Row To Edit"
-msgstr " Selecione uma linha para editar "
+#, fuzzy
+msgid "Select A Model"
+msgstr "Criar um Modelo"
 
 #: ui_server/views/models_top.tpl:30 ui_server\views/models_top.tpl:30
 msgid "Show Supply Chain For A Model"
@@ -2266,8 +2288,9 @@ msgid "Long format demo"
 msgstr ""
 
 #: ui_server/views/page_4.tpl:2 ui_server\views/page_4.tpl:2
+#, fuzzy
 msgid "This will be my table"
-msgstr ""
+msgstr " Este texto será substituído "
 
 #: ui_server/views/page_4.tpl:11 ui_server\views/page_4.tpl:11
 msgid "one"
@@ -2304,8 +2327,9 @@ msgid "JSON Example"
 msgstr "Exemplo de JSON"
 
 #: ui_server/views/page_5.tpl:4 ui_server\views/page_5.tpl:4
+#, fuzzy
 msgid "This is a file uploader"
-msgstr ""
+msgstr " Este é um exemplo de jsTree."
 
 #: ui_server/views/page_6.tpl:4 ui_server\views/page_6.tpl:4
 msgid "This is for little tests"
@@ -2325,8 +2349,9 @@ msgid "Store idcode"
 msgstr "ID de armazen"
 
 #: ui_server/views/page_8.tpl:4 ui_server\views/page_8.tpl:4
+#, fuzzy
 msgid "Type Selector Tests"
-msgstr ""
+msgstr "seletor de tipo"
 
 #: ui_server/views/page_9.tpl:4 ui_server\views/page_9.tpl:4
 #, fuzzy
@@ -2353,8 +2378,9 @@ msgid ""
 msgstr ""
 
 #: ui_server/views/people_edit.tpl:19 ui_server\views/people_edit.tpl:19
+#, fuzzy
 msgid "This will be replaced."
-msgstr ""
+msgstr " Este texto será substituído "
 
 #: ui_server/views/people_top.tpl:15 ui_server\views/people_top.tpl:15
 msgid "Known Population Types"
@@ -2404,7 +2430,7 @@ msgstr "Executar"
 #: ui_server/views/results_fireworks.tpl:11
 #: ui_server\views/results_fireworks.tpl:11
 msgid "Drag to pan; use mouse wheel to zoom."
-msgstr ""
+msgstr "Arraste para mover; Use a roda do mouse para ampliar"
 
 #: ui_server/views/results_fireworks.tpl:13
 #: ui_server\views/results_fireworks.tpl:13
@@ -2428,6 +2454,16 @@ msgstr "Encha rácio"
 msgid "{0} Supply Ratio"
 msgstr "Encha rácio"
 
+#: ui_server/views/results_geo_visualization.tpl:1
+#: ui_server\views/results_geo_visualization.tpl:1
+msgid "Geographic Visualization"
+msgstr "Visualização Geográfica"
+
+#: ui_server/views/results_show_structure.tpl:1
+#: ui_server\views/results_show_structure.tpl:1
+msgid "Network Visualization"
+msgstr "Visualização de Rede"
+
 #: ui_server/views/results_summary.tpl:1 ui_server/views/results_top.tpl:1
 #: ui_server\views/results_summary.tpl:1 ui_server\views/results_top.tpl:1
 msgid "Simulation Results"
@@ -2438,8 +2474,13 @@ msgstr "Resultados de Simulação"
 msgid "Show Geographic Viz"
 msgstr "Mostrar Visualização Geográfica"
 
-#: ui_server/views/results_summary.tpl:32
-#: ui_server\views/results_summary.tpl:32
+#: ui_server/views/results_summary.tpl:31
+#: ui_server\views/results_summary.tpl:31
+msgid "Show Network Viz"
+msgstr "Mostrar Visualização de Rede"
+
+#: ui_server/views/results_summary.tpl:33
+#: ui_server\views/results_summary.tpl:33
 msgid "Show Fireworks Viz"
 msgstr "Mostrar Visualização Fogos de Artifício"
 
@@ -2498,8 +2539,9 @@ msgid "Save"
 msgstr "Guarda"
 
 #: ui_server/views/run_edit_parms.tpl:26 ui_server\views/run_edit_parms.tpl:26
+#, fuzzy
 msgid "This will be replaced"
-msgstr ""
+msgstr " Este texto será substituído "
 
 #: ui_server/views/run_realitycheck.tpl:2
 #: ui_server\views/run_realitycheck.tpl:2
@@ -2513,7 +2555,7 @@ msgstr "Validar o Modelo"
 
 #: ui_server/views/run_run.tpl:2 ui_server\views/run_run.tpl:2
 msgid "Verify and Start the Run"
-msgstr ""
+msgstr "Você quer começar a execução?"
 
 #: ui_server/views/run_run.tpl:5 ui_server\views/run_run.tpl:5
 msgid "Do you want to start the run?"
@@ -2535,13 +2577,17 @@ msgstr " Fornecer alguns detalhes "
 msgid "Run how many instances?"
 msgstr " Quantos níveis no seu modelo?"
 
-#: ui_server/views/run_specifics.tpl:19 ui_server\views/run_specifics.tpl:19
+#: ui_server/views/run_specifics.tpl:21 ui_server\views/run_specifics.tpl:21
 #, fuzzy
 msgid "Set random seeds?"
 msgstr "Este título é definido em matcher."
 
-#: ui_server/views/run_specifics.tpl:34 ui_server\views/run_specifics.tpl:34
+#: ui_server/views/run_specifics.tpl:38 ui_server\views/run_specifics.tpl:38
 msgid "Try to be deterministic?"
+msgstr ""
+
+#: ui_server/views/run_specifics.tpl:48 ui_server\views/run_specifics.tpl:48
+msgid "Run with Perfect Storage and Transport?"
 msgstr ""
 
 #: ui_server/views/run_specify.tpl:2 ui_server\views/run_specify.tpl:2
@@ -2607,8 +2653,9 @@ msgid "Look! This page has tabs!"
 msgstr "!"
 
 #: ui_server/views/tabs.tpl:1 ui_server\views/tabs.tpl:1
+#, fuzzy
 msgid "UI Experiments"
-msgstr ""
+msgstr "Perito"
 
 #: ui_server/views/truck_edit.tpl:1 ui_server\views/truck_edit.tpl:1
 msgid "Modify Transport Type"
@@ -2632,6 +2679,478 @@ msgstr "Conhecidos tipos de transporte"
 #: ui_server/views/truck_top.tpl:16 ui_server\views/truck_top.tpl:16
 msgid "Showing transport types for"
 msgstr " Mostrando tipos de transporte para "
+
+#: ui_server/views/tutorial.tpl:1 ui_server/views/welcome.tpl:1
+#: ui_server\views/tutorial.tpl:1 ui_server\views/welcome.tpl:1
+msgid "HERMES Graphical User Inferface Start"
+msgstr ""
+
+#: ui_server/views/tutorial.tpl:26 ui_server\views/tutorial.tpl:26
+#, fuzzy
+msgid "HERMES User Interface Tutorial"
+msgstr "HERMES Tutoriais"
+
+#: ui_server/views/tutorial.tpl:27 ui_server\views/tutorial.tpl:27
+msgid ""
+"HERMES is a software platform that allows users to generate a detailed "
+"discrete event simulation modelo of any healthcare supply chain. This "
+"simulation model can serve as a \"virtual laboratory\" for decision makers "
+"(e.g., policy makers, health officials, funders, investors, vaccine and "
+"other technology developers, manufacturers, distributors, logisticians, "
+"scientists, and researchers) to address a variety of important questions."
+msgstr ""
+"HERMES é uma plataforma de software que permite aos usuários gerar um "
+"detalhado  discreto Modelo de simulação de eventos de qualquer cadeia de "
+"suprimentos de saúde. Este modelo de simulação pode servir como um "
+"\"laboratório virtual\" para os tomadores de decisão (por exemplo, os "
+"decisores políticos, as autoridades de saúde, financiadores, investidores, "
+"desenvolvedores de vacinas e outras tecnologias, fabricantes, "
+"distribuidores, operadores de logística, cientistas e investigadores) para "
+"tratar uma variedade questões de importantes."
+
+#: ui_server/views/tutorial.tpl:29 ui_server\views/tutorial.tpl:29
+msgid ""
+"HERMES simulates a given supply chain's locations and equipment, transport "
+"routes, the employees who staff these locations and transport routes, and "
+"the patients who receive the healthcare product in question. To do this, the "
+"user inputs information or selects from a variety of pre-programmed options. "
+"The resulting models can answer a variety of questions, displaying results "
+"in many different graphical and tabular formats."
+msgstr ""
+"HERMES simula os locais e equipamentos, rotas de transporte, os funcionários "
+"que funcionários desses locais e rotas de transporte, e os pacientes que "
+"recebem o produto de saúde em questão, para qualquer cadeia de "
+"abastecimento. Para fazer isto, o utilizador insere a informação ou "
+"selecciona a partir de uma variedade de opções de pré-programado. Os modelos "
+"resultantes podem responder a uma variedade de questões, mostrando os "
+"resultados em muitos formatos gráficos e tabulares diferentes."
+
+#: ui_server/views/tutorial.tpl:32 ui_server\views/tutorial.tpl:32
+msgid ""
+"The following is a brief exercise to get you familiar with the the HERMES "
+"User Interface and perform a simple experiment on a already established model"
+msgstr ""
+"A seguir, um breve exercício de se familiarizar com a interface do usuário "
+"HERMES e realizar um experimento simples sobre um modelo já estabelecido."
+
+#: ui_server/views/tutorial.tpl:34 ui_server\views/tutorial.tpl:34
+msgid "Exercise: Modify an Existing Model  (Addition of Rotarix vaccine) "
+msgstr "Exercício: Modificar um modelo existente (A adição de vacina Rotarix)"
+
+#: ui_server/views/tutorial.tpl:36 ui_server\views/tutorial.tpl:36
+msgid "Making a Copy of the Gaza Province, Mozambique Model"
+msgstr "Fazer uma cópia da província de Gaza, Moçambique Modelo"
+
+#: ui_server/views/tutorial.tpl:38 ui_server\views/tutorial.tpl:38
+msgid ""
+"To start using HERMES, you'll be modifying an existing model of the vaccine "
+"supply chain in . The file already exists in the appliance you've just "
+"installed; to make changes to it, you'll first need to make a copy of the "
+"original."
+msgstr ""
+"Para começar a usar HERMES, você estará modificando um modelo existente da "
+"cadeia de suprimento de vacinas no. O arquivo já existe no aparelho que você "
+"acabou de instalar; para alterá-lo, primeiro você precisa fazer uma cópia do "
+"original."
+
+#: ui_server/views/tutorial.tpl:41 ui_server\views/tutorial.tpl:41
+msgid "From the home page, click the Models tab."
+msgstr "Na página inicial, clique na guia Modelos."
+
+#: ui_server/views/tutorial.tpl:42 ui_server\views/tutorial.tpl:42
+msgid ""
+"Click the Copy button on the left side of your screen, then make sure \"Gaza "
+"Current\" is selected in the Model to <b>Copy</b> dropdown that appears."
+msgstr ""
+"Clique no botão Copiar no lado esquerdo da tela, em seguida, certifique-se  "
+"\"Gaza Current \" está selecionada no modelo de <b> Copiar </ b> suspensa "
+"que aparece."
+
+#: ui_server/views/tutorial.tpl:44 ui_server\views/tutorial.tpl:44
+msgid ""
+"Name your copy - in this example, ours is called \"Gaza Current Copy\". "
+"Click \"OK\" or hit enter. Note that the copy may take several seconds to "
+"create."
+msgstr ""
+"Nomeie sua cópia - neste exemplo, o nosso é chamado  \"Gaza Current Copy \". "
+"Clique em \"OK\" ou tecle enter. Note-se que a cópia pode demorar alguns "
+"segundos para criar."
+
+#: ui_server/views/tutorial.tpl:45 ui_server\views/tutorial.tpl:45
+msgid ""
+"Click the Show Button, and from the dialog, select your newly created "
+"model.  This will display a network diagram of the model.  The circles "
+"represent locations in the supply chain.  Right click on them to recieve "
+"detailed information about the location.  When you are finished exploring "
+"the model, click the Models tab to return to the list of models."
+msgstr ""
+"Clique no botão Mostrar, e na caixa de diálogo, selecione o modelo recém-"
+"criado. Isto irá mostrar um diagrama de rede do modelo. Os círculos "
+"representam locais na cadeia de abastecimento. Botão direito do mouse sobre "
+"eles para receber informações detalhadas sobre a localização. Quando você "
+"terminar de explorar o modelo, clique na guia Modelos para retornar à lista "
+"de modelos."
+
+#: ui_server/views/tutorial.tpl:48 ui_server\views/tutorial.tpl:48
+msgid "Adding a Vaccine to the new Model"
+msgstr "Adicionando uma novo vacina para o modelo"
+
+#: ui_server/views/tutorial.tpl:50 ui_server\views/tutorial.tpl:50
+msgid ""
+"Now that you have a new copy of the Gaza Province, Mozambique model created, "
+"you can add the Rotarix Vaccine to it so that we can see the impact of "
+"adding this vaccine to the current schedule.  This will allow you to "
+"experience interacting with the HERMES Vaccine database, which is populated "
+"with the current WHO PQS vaccines and defining a demand schedule for the new "
+"vaccine."
+msgstr ""
+"Agora que você tem uma nova cópia do modelo do província de Gaza, Moçambique "
+"criado, você pode adicionar o Rotarix Vacina para ele, para que possamos ver "
+"o impacto da adição desta vacina com o cronograma atual. Isto irá permitir-"
+"lhe experimentar a interação com o banco de dados HERMES vacina, que é "
+"preenchida com as atuais vacinas da OMS PQS e definir um cronograma de "
+"demanda para a nova vacina."
+
+#: ui_server/views/tutorial.tpl:53 ui_server\views/tutorial.tpl:53
+msgid ""
+"At the top menu bar, click on the tab labeled \"Vaccines\".  This is a "
+"screen that will allow you to add any number of predefined vaccines to your "
+"newly created model, or in fact define your own."
+msgstr ""
+"Na barra de menu superior, clique na aba \"Vacinas \". Esta é uma tela que "
+"permitirá que você adicionar qualquer número de vacinas pré-definidos para o "
+"modelo recém-criado, ou, de fato, definir o seu próprio."
+
+#: ui_server/views/tutorial.tpl:54 ui_server\views/tutorial.tpl:54
+msgid ""
+"From the dropdown menu at the top labeled \"Showing vaccine types for\", "
+"select your newly copied model (Gaza Current Copy)."
+msgstr ""
+"A partir do menu drop-down no topo chamado \"Mostrando o tipo de vacina para "
+"\", selecione o modelo recém-copiado (Gaza Current Copy)."
+
+#: ui_server/views/tutorial.tpl:55 ui_server\views/tutorial.tpl:55
+msgid ""
+"The vaccines in the database are categorized by type, and currently showing "
+"the standard abbreviation for each type.   Feel free to explore them at your "
+"leisure.  For our purposes, we will be introducing a new Rotavirus vaccine, "
+"which has the abbreviation \"RV\"."
+msgstr ""
+"As vacinas no banco de dados são classificados por tipo, e, atualmente, "
+"mostrando a abreviatura padrão para cada tipo. Sinta-se livre para explorá-"
+"los em seu lazer. Para os nossos propósitos, vamos introduzir uma nova "
+"vacina contra o rotavírus, que tem a sigla \"RV \"."
+
+#: ui_server/views/tutorial.tpl:56 ui_server\views/tutorial.tpl:56
+msgid ""
+"Scroll down to RV and click the \"+\" next to it to display all of the "
+"Rotavirus vaccines in the database.  Vaccines that are already in the "
+"current model will have their box checked in the second column, and as you "
+"can see, there are no Rotavirus vaccines currently in the model."
+msgstr ""
+"Desça até a RV e clique no botão \"+ \" ao lado dele para exibir todas as "
+"vacinas contra o rotavírus no banco de dados. As vacinas que já estão no "
+"atual modelo terá sua caixa marcada na segunda coluna, e como você pode ver, "
+"não há vacinas contra o rotavírus atualmente no modelo."
+
+#: ui_server/views/tutorial.tpl:57 ui_server\views/tutorial.tpl:57
+msgid ""
+"Find the column labeled \"Rotavirus_GSK_50Tube_1Dose\", which is the "
+"presentation of Rotarix that we would like to add to the model.  Click on "
+"the check box to add this vaccine to the model."
+msgstr ""
+"Encontre na coluna denominada \"Rotavirus_GSK_50Tube_1Dose \", que é a "
+"apresentação de Rotarix que gostaria de acrescentar ao modelo. Clique na "
+"caixa de seleção para adicionar esta vacina para o modelo."
+
+#: ui_server/views/tutorial.tpl:58 ui_server\views/tutorial.tpl:58
+msgid ""
+"If you would like to see a set of characteristics for the vaccine, click on "
+"the \"Info\" button, which will show you that the \"Packed vol/dose (cc) of "
+"vaccine\" is 17.1 cc's."
+msgstr ""
+"Se você gostaria de ver um conjunto de características para a vacina, clique "
+"no botão \"Informações \", que irá mostrar-lhe que o \"embalado vol / dose "
+"(cc) da vacina contra \" é de 17,1 cc."
+
+#: ui_server/views/tutorial.tpl:59 ui_server\views/tutorial.tpl:59
+msgid ""
+"This vaccine is now added to your new model, we can proceed to defining the "
+"dosage schedule for the new vaccine."
+msgstr ""
+"Esta vacina é adicionado à sua nova modelo, podemos proceder para definir o "
+"esquema de dosagem para a nova vacina."
+
+#: ui_server/views/tutorial.tpl:62 ui_server\views/tutorial.tpl:62
+msgid "Defining Vaccine Demand for the Rotarix vaccine"
+msgstr "Definindo Demanda para a Rotarix Vacina"
+
+#: ui_server/views/tutorial.tpl:63 ui_server\views/tutorial.tpl:63
+msgid ""
+"Now that we added the Rotarix vaccine to our model, we have to define which "
+"populations will receive the vaccine, and how many doses they will receive "
+"in a year.  HERMES can handle any number of vaccines and dosage schedule a "
+"country might use.  This is necessary for the model to get an accurate "
+"estimate of the number of doses that will be delivered throughout the "
+"simulation."
+msgstr ""
+"Agora que nós adicionamos a vacina Rotarix ao nosso modelo, temos que "
+"definir quais as populações vão receber a vacina, e quantas doses ele "
+"receberá em um ano. HERMES pode lidar com qualquer número de vacinas e "
+"posologia um país pode usar. Isto é necessário para o modelo para obter uma "
+"estimativa precisa do número de doses que será entregue ao longo da "
+"simulação."
+
+#: ui_server/views/tutorial.tpl:66 ui_server\views/tutorial.tpl:66
+msgid ""
+"At the top menu bar, click on the tab labeled \"Demand\".  This will open a "
+"screen that will present the current dose schedule for a model.  There are "
+"two tables.  The one on the left shows all of the vaccines that have been "
+"included in the model.  The one on the right shows on each column heading "
+"the population type that receives vaccines in schedule.  For each row, the "
+"number of doses for each vaccine per population type is given, defining the "
+"dosage schedule for the model's program."
+msgstr ""
+"Na barra de menu superior, clique na aba \"Demanda \". Isto irá abrir uma "
+"tela que vai apresentar o programa de dose atual de um modelo. Existem duas "
+"tabelas. O da esquerda mostra todas as vacinas que foram incluídas no "
+"modelo. O da direita mostra em cada uma das rubricas do tipo população que "
+"recebe vacinas no calendário coluna. Para cada linha, o número de doses de "
+"cada vacina por tipo de população é dada, que define o esquema de dosagem "
+"para o programa do modelo."
+
+#: ui_server/views/tutorial.tpl:67 ui_server\views/tutorial.tpl:67
+msgid ""
+"From the dropdown menu at the top of the table on the right, select your "
+"newly copied model (Gaza Current Copy)."
+msgstr ""
+"A partir do menu drop-down no topo da tabela à direita, selecione o modelo "
+"recém-copiado (Gaza Current Copy)."
+
+#: ui_server/views/tutorial.tpl:68 ui_server\views/tutorial.tpl:68
+msgid ""
+"In the left table, the check box next to \"Rotavirus_GSK_50Tube_1Dose\" "
+"should be unchecked, check it to add the vaccine to the dosage schedule.  "
+"The table on the right should refresh showing the new vaccine with zeros in "
+"all of the columns."
+msgstr ""
+"Na tabela da esquerda, a caixa de seleção ao lado "
+"\"Rotavirus_GSK_50Tube_1Dose\" deve ser desmarcada, marque-a para adicionar "
+"a vacina para o esquema de dosagem. A tabela à direita deve atualizar "
+"mostrando a nova vacina com zeros em todas as colunas."
+
+#: ui_server/views/tutorial.tpl:69 ui_server\views/tutorial.tpl:69
+msgid ""
+"Two doses of Rotarix is given to children under one year of age for Gaza "
+"Province, Mozambique, so in order to specify this, click on the box in the "
+"new row under the column \"0-11 months\" and put a 2 in there and hit return."
+msgstr ""
+"Duas doses de Rotarix é administrado a crianças menores de um ano de idade "
+"para a Província de Gaza, Moçambique, de modo a fim de especificar isso, "
+"clique na caixa na nova linha na coluna \"0-11 meses \" e colocar a 2 lá "
+"dentro, e pressione Enter."
+
+#: ui_server/views/tutorial.tpl:70 ui_server\views/tutorial.tpl:70
+msgid ""
+"Now the new dosage schedule is complete, and we are ready to run the new "
+"model."
+msgstr ""
+"Agora, o novo esquema de dosagem estiver concluída, e estamos prontos para "
+"executar o novo modelo."
+
+#: ui_server/views/tutorial.tpl:73 ui_server\views/tutorial.tpl:73
+#, fuzzy
+msgid "Running the Model"
+msgstr "Executar o modelo"
+
+#: ui_server/views/tutorial.tpl:74 ui_server\views/tutorial.tpl:74
+msgid ""
+"Now that we have added the new vaccine to the schedule, we will need to run "
+"a HERMES simulation to estimate the impact of its addition."
+msgstr ""
+"Agora que nós adicionamos a nova vacina ao calendário, teremos de executar "
+"uma simulação HERMES para estimar o impacto da sua adição."
+
+#: ui_server/views/tutorial.tpl:75 ui_server\views/tutorial.tpl:75
+msgid ""
+"At the top menu bar, click on the tab labeled \"Run HERMES\".  A new screen "
+"will open that has a table that is currently empty.  This is the page where "
+"one can run a simulation and see its progress as it is running."
+msgstr ""
+"Na barra de menu superior, clique na aba \"Run HERMES \". Uma nova tela será "
+"aberta, que tem uma tabela que está vazio. Esta é a página onde se pode "
+"executar uma simulação e ver o seu progresso, uma vez que está em execução."
+
+#: ui_server/views/tutorial.tpl:76 ui_server\views/tutorial.tpl:76
+msgid ""
+"Click on the button \"Run HERMES\", and this will begin a sequence of "
+"screens that will define the HERMES simulation run."
+msgstr ""
+"Clique no botão \"Run HERMES \", e isso vai começar uma seqüência de telas "
+"que irão definir a execução da simulação HERMES."
+
+#: ui_server/views/tutorial.tpl:77 ui_server\views/tutorial.tpl:77
+msgid ""
+"On the first screen, entitled \"Beginning a Hermes Run\", choose your new "
+"model from the dropdown menu next to \"Which model do you wish to run?\".  "
+"Then in the dialogue box immediately below, give the run a unique name (e.g. "
+"Gaza Province, Mozambique with Rotarix).   Click \"Next\"."
+msgstr ""
+"Na primeira tela, intitulado \"Começando uma Executar de HERMES \", escolha "
+"o seu novo modelo no menu suspenso ao lado \"Qual o modelo que deseja "
+"executar? \". Em seguida, na caixa de diálogo imediatamente a seguir, dar o "
+"prazo de um nome exclusivo (por exemplo, província de Gaza, Moçambique com "
+"Rotarix). Clique"
+
+#: ui_server/views/tutorial.tpl:78 ui_server\views/tutorial.tpl:78
+msgid ""
+"The next page, entitled \"Provide Some Details\" allows you to define a few "
+"parameters that are specific to this simulation.  For now the default "
+"parameters will suffice.  Optionally, you can click on the \"Edit Parameters?"
+"\" button, and a page will come up that shows you some of the run options "
+"that HERMES has available.  Feel free to click Next to move on with the "
+"default options."
+msgstr ""
+"A página seguinte, intitulado \"Fornecer alguns detalhes\" permite definir "
+"alguns parâmetros que são específicos para esta simulação. Por enquanto os "
+"parâmetros padrão será suficiente. Opcionalmente, você pode clicar no botão "
+"\"Edit Paramters?\", e uma página irá aparecer que você mostra algumas das "
+"opções de execução que HERMES tem disponível. Sinta-se livre para clicar em "
+"Avançar para seguir em frente com as opções padrão."
+
+#: ui_server/views/tutorial.tpl:79 ui_server\views/tutorial.tpl:79
+msgid ""
+"The next page is a placeholder that will eventually have a display of the "
+"newly created run, this is still under development, please click the \"Start"
+"\" button.  A warning will come up that instructs you not to turn off your "
+"machine during the run.  Click \"Ok\"."
+msgstr ""
+"A próxima página é um espaço reservado que acabará por ter uma exibição da "
+"corrida recém-criado, este ainda está em desenvolvimento, por favor clique "
+"no botão \"Iniciar \". Um aviso vai aparecer que instrui você não desligar o "
+"computador durante o prazo. Clique em \"OK \"."
+
+#: ui_server/views/tutorial.tpl:80 ui_server\views/tutorial.tpl:80
+msgid ""
+"You will now be taken back out to the \"Run Status\" page, and you should "
+"see your new run appearing as a column.  The \"Status\" column will keep you "
+"updated as to the progress of the simulation, and it will indicate when it "
+"is finished.  Depending on how powerful your computer is this could take "
+"several minutes (up to 15), so please be patient, it is currently running a "
+"very sophisticated simulation of the supply chain of the province of Gaza."
+msgstr ""
+"Você será levado de volta para a página de \"o estado de funcionamento\", e "
+"você deverá ver seu novo prazo aparecendo como uma coluna. A coluna \"Status"
+"\" vai mantê-lo atualizado sobre o progresso da simulação, e ele irá indicar "
+"quando ele for concluído. Dependendo do quão poderoso o seu computador é "
+"isso poderia demorar alguns minutos (até 15), por favor, seja paciente, ele "
+"está executando uma simulação muito sofisticado da cadeia da província de "
+"Gaza alimentação."
+
+#: ui_server/views/tutorial.tpl:82 ui_server\views/tutorial.tpl:82
+#, fuzzy
+msgid "Viewing Results"
+msgstr "Ver Resultados "
+
+#: ui_server/views/tutorial.tpl:83 ui_server\views/tutorial.tpl:83
+msgid ""
+"Once the run has completed, the results of the simulation will be ready to "
+"explore.  Your instance of HERMES has been prepopulated with a run of the "
+"Gaza Province, Mozambique model with the EPI vaccine schedule, so we will be "
+"able to compare the simulated immunization program before and after "
+"introduction of Rotarix."
+msgstr ""
+"Uma vez que o prazo tenha terminado, os resultados da simulação estará "
+"pronto para explorar. Sua versão do HERMES foi preenchido com um exemplo da "
+"atual província de Gaza, Moçambique modelo com o calendário de vacinas PAV, "
+"por isso vamos ser capazes de comparar o programa de imunização simulada "
+"antes e depois da introdução de Rotarix."
+
+#: ui_server/views/tutorial.tpl:84 ui_server\views/tutorial.tpl:84
+msgid ""
+"At the top menu bar, click on the tab \"Results\".  You now be presented "
+"with table of \"Available Results\" grouped by model and by run."
+msgstr ""
+"Na barra de menu superior, clique na aba \"Resultados\". Você agora ser "
+"apresentado com mesa de \"resultados disponíveis\" clique neste link e por "
+"prazo."
+
+#: ui_server/views/tutorial.tpl:85 ui_server\views/tutorial.tpl:85
+msgid ""
+"To view the results without Rotarix, click the plus sign next \"Result: Gaza "
+"Current PAV Baseline\".  This was a simulation that was run twice and "
+"average results were collected over those two runs, so you should see two "
+"individual runs, and one \"Group Average\" run."
+msgstr ""
+"Para visualizar os resultados sem Rotarix, clique no sinal de mais ao lado "
+"\"Resultado: Current Gaza PAV linha de base\". Esta foi uma simulação que "
+"foi executado duas vezes e os resultados médios foram coletados durante "
+"essas duas corridas, então você deve ver duas corridas individuais, e um "
+"\"Group Run\"."
+
+#: ui_server/views/tutorial.tpl:86 ui_server\views/tutorial.tpl:86
+msgid ""
+"Click on the row for \"Group Average\" and then click the \"Open\" button to "
+"the left.  You will be presented with a screen that at the top, gives you "
+"statistics of the simulation results by vaccine.  The one to note is the "
+"\"Vaccine Availability\" which is essentially the percentage of the demand "
+"met by the supply chain over the simulated period.  For the Baseline  each "
+"vaccine should range between 88 and 95%, which is indicating the supply "
+"chain is performing well.  Feel free to explore the visualizations using "
+"Geographic Visualization and the Fireworks diagram, although be warned that "
+"they are still under development and can take a significant amount of time "
+"to populate."
+msgstr ""
+"Clique na linha de \"Group Average\" e depois clique no botão \"Open\" para "
+"a esquerda. Você será presenteado com uma tela que no topo, dá-lhe "
+"estatísticas dos resultados da simulação por vacina. O único a notar é o "
+"\"Vaccine disponibilidade\", que é essencialmente o percentual da demanda "
+"atendidas pela cadeia de abastecimento durante o período simulado. Para a "
+"linha de base de cada vacina deve variar entre 88 e 95%, que é o que indica "
+"a cadeia de suprimentos está se saindo bem. Sinta-se livre para explorar as "
+"visualizações usando visualização geográfica eo diagrama de artifício, "
+"embora lembre que eles ainda estão em desenvolvimento e pode levar uma "
+"quantidade significativa de tempo para preencher."
+
+#: ui_server/views/tutorial.tpl:87 ui_server\views/tutorial.tpl:87
+msgid ""
+"Now click on the \"Results\" tab again and select the run under Gaza "
+"Province, Mozambique with Rotarix, and click the \"Open Button\"."
+msgstr ""
+"Agora clique no botão \"Resultados\" tab novamente e selecione a corrida sob "
+"província de Gaza, Moçambique com Rotarix, e clique no botão \"Abrir\" botão."
+
+#: ui_server/views/tutorial.tpl:87 ui_server\views/tutorial.tpl:87
+msgid ""
+"You should see that the Vaccine availability has now gone down by about 10 "
+"indicating the effect that introducing the new vaccine has on the system."
+msgstr ""
+"Você verá que a disponibilidade da vacina já desceu cerca de 10%, indicando "
+"o efeito que a introdução da nova vacina tem no sistema."
+
+#: ui_server/views/tutorial.tpl:89 ui_server\views/tutorial.tpl:89
+msgid ""
+"This completes the HERMES Vaccine Introduction. To further explore the "
+"possibilities with the HERMES software, feel free to make another copy of "
+"the Gaza Province, Mozambique model and \"Modify\" it through our \"Model "
+"Editor\" interface, which gives you access to all aspects of a HERMES model, "
+"or create a new model from scratch by selecting the \"Create\" button on the "
+"Models page."
+msgstr ""
+"Isso completa a HERMES Vacina Introdução Exercício. Para explorar ainda mais "
+"as possibilidades com o software HERMES, sinta-se livre para fazer outra "
+"cópia do modelo província de Gaza, Moçambique e \"Modificar\" através da "
+"nossa interface de \"Model Editor\", o que lhe dá acesso a todos os aspectos "
+"de um modelo Hermes, ou criar um novo modelo a partir do zero, selecionando "
+"o botão \"Criar\" na página \"Models\"."
+
+#: ui_server/views/tutorial.tpl:92 ui_server\views/tutorial.tpl:92
+msgid "If you have any questions or issues, please email"
+msgstr "Se você tiver dúvidas ou problemas, por favor enviar e-mail"
+
+#: ui_server/views/tutorial.tpl:92 ui_server\views/tutorial.tpl:92
+msgid "For more information about the HERMES project, visit"
+msgstr "Para mais informações sobre o projecto HERMES, visiteS"
 
 #: ui_server/views/vaccine_edit.tpl:1 ui_server\views/vaccine_edit.tpl:1
 msgid "Modify Vaccine Type"
@@ -2658,10 +3177,6 @@ msgstr " Mostrando tipos de vacinas para "
 
 #: ui_server/views/vaccine_top.tpl:28 ui_server\views/vaccine_top.tpl:28
 msgid "Grouping subgrids by"
-msgstr ""
-
-#: ui_server/views/welcome.tpl:1 ui_server\views/welcome.tpl:1
-msgid "HERMES Graphical User Inferface Start"
 msgstr ""
 
 #: ui_server/views/welcome.tpl:25 ui_server\views/welcome.tpl:25
@@ -2759,6 +3274,18 @@ msgid ""
 "National Institutes of Health."
 msgstr ""
 
+#~ msgid "currency"
+#~ msgstr "moeda"
+
+#~ msgid "Verify"
+#~ msgstr "Verificar"
+
+#~ msgid "Select A Row To Edit"
+#~ msgstr " Selecione uma linha para editar "
+
+#~ msgid "Costs by Report Level"
+#~ msgstr "Custos por nível de relatório"
+
 #~ msgid "Vials"
 #~ msgstr "Frascos"
 
@@ -2800,8 +3327,3 @@ msgstr ""
 
 #~ msgid "Really delete the model "
 #~ msgstr " Realmente excluir o modelo "
-
-msgid "Costs by Report Level"
-msgstr "Custos por nível de relatório"
-
-

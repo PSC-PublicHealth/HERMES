@@ -14,7 +14,7 @@
 </td>
 
 <td  style="border-style:solid">
-<h3>{{_('Select A Row To Edit')}}</h3>
+<h3>{{_('Select A Model')}}</h3>
 <table id="manage_models_grid"></table>
 <div id="manage_models_pager"> </div>
 </td>

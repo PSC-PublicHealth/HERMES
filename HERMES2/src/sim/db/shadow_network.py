@@ -1606,35 +1606,51 @@ class StoresRpt(Base):
         ### Note, this will not add the blobs, that is not supported at the moment
         if isinstance(storerpt_,StoresRpt) is False:
             raiseRuntimeError("can only iadd a StoreRpt with another StoreRpt")
-
+        #print "Setting Attributes"
         for attr in self.__dict__.keys():
             if isinstance(getattr(self,attr),float):
                 value = getattr(self,attr) + getattr(storerpt_,attr)
                 setattr(self,attr,value)
-         
-        from storagetypes import storageTypeNames
-        if hasattr(storerpt_, 'storage'):
-            for storageType in storageTypeNames:
-                # ## Is it in self?
-                if storageType in self.storage.keys():
-                    if storageType in storerpt_.storage.keys():
-                        self.storage[storageType] += storerpt_.storage[storageType]
-                elif storageType in storerpt_.storage.keys():
-                    strrpt = StorageRpt(storageType, storerpt_.storage[storageType].createRecord())
-                    self.storage[storageType] = strrpt
-        
-        if hasattr(storerpt_,'vax'):
-            for vName,report in self.vax.items():
-                if vName in storerpt_.vax.keys():
-                    report += storerpt_.vax[vName]
-    
-            ### check if the vaccine is in the new storerpt, if so add it 
-            for vName,report in storerpt_.vax.items():
-                if vName not in self.vax.keys():
-                    self.vax[vName] = {}
-                    for key,value in report.items():
-                        self.vax[vName][key] = value
+        #print "Setting Storage Types"
+        try:
+            from storagetypes import storageTypeNames
             
+            if hasattr(storerpt_, 'storage'):
+                if not hasattr(self,'storage'):
+                    for storageType in storageTypeNames:
+                        strrpt = StorageRpt(storageType, storerpt_.storage[storageType].createRecord())
+                        self.storage[storageType] = strrpt
+                else:
+                    for storageType in storageTypeNames:
+                        # ## Is it in self?
+                        if storageType in self.storage.keys():
+                            if storageType in storerpt_.storage.keys():
+                                #print "in both"
+                                #print storageType
+                                self.storage[storageType] += storerpt_.storage[storageType]
+                        elif storageType in storerpt_.storage.keys():
+                            #print "in one"
+                            #print storageType
+                            strrpt = StorageRpt(storageType, storerpt_.storage[storageType].createRecord())
+                            self.storage[storageType] = strrpt
+            #print "Setting Vaccines"
+            if hasattr(storerpt_,'vax'):
+                if not hasattr(self,'vax'):
+                    self.vax = storerpt_.vax
+                else:        
+                    for vName,report in self.vax.items():
+                        if vName in storerpt_.vax.keys():
+                            report += storerpt_.vax[vName]
+            
+                    ### check if the vaccine is in the new storerpt, if so add it 
+                    for vName,report in storerpt_.vax.items():
+                        if vName not in self.vax.keys():
+                            self.vax[vName] = {}
+                            for key,value in report.items():
+                                self.vax[vName][key] = value
+            #print "Done Setting Vaccines"
+        except Exception as e:
+            print str(e)
         return self
     
     def __idiv__(self, factor_):
@@ -1909,21 +1925,29 @@ class HermesResultsGroup(Base):
             summaryRec.resetToZero()
         
         ### for now, setting these to the first result, as we really don't have an average for them yet
+        #print "Summing stores"
         for storeId,storeRpt in firstResult.storesRpts.items():
             aveResult.storesRpts[storeId].storeVialCount_multival = storeRpt.storeVialCount_multival
             aveResult.storesRpts[storeId].storageRatio_multival = storeRpt.storageRatio_multival
-            
+        
+        #print "Summing Routes"
         for routeId,routeRpt in firstResult.routesRpts.items():
             aveResult.routesRpts[routeId].triptimes_multival = routeRpt.triptimes_multival
-        
+        #print "Sum Stores"
         for storeId,storeRpt in aveResult.storesRpts.items():
+            print storeId
             for result in resultsToParse:
+                print result.storesRpts.has_key(storeId)
                 storeRptR = result.storesRpts[storeId]
+         #       print "adding"
                 storeRpt += storeRptR
+        #print "Sum routes"
         for routeId,routeRpt in aveResult.routesRpts.items():
             for result in resultsToParse:
                 routeRptR = result.routesRpts[routeId]
                 routeRpt += routeRptR
+                
+        #print "Sum Sumarrya"
         for summaryId,summaryRec in aveResult.summaryRecs.items():
             for result in resultsToParse:
                 summaryRecR = result.summaryRecs[summaryId]
@@ -2493,7 +2517,7 @@ class ShdCostSummary(Base, ShdCopyable):
         return result
 
     def __iadd__(self,summary_):
-        
+        print "Trying to Add this"
         if summary_.typeClass != self.typeClass:
             raiseRuntimeError("no, no, no")
         
@@ -3951,15 +3975,26 @@ class ShdNetwork(Base):
             clientDict = {'name':thisStore.NAME,'level':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode}
         ### Handle a Transport Loop
         if len(thisLoopList) > 0:
+            loopNameList =[]
+            for lclient in thisLoopList:
+                if lclient[1].Type!="attached" and lclient[1].RouteName not in loopNameList:
+                    loopNameList.append(lclient[1].RouteName)
             if 'children' not in clientDict.keys():
                 clientDict['children'] = []
-            loopClientDict = {'name':'Transport Loop','level':9999,
-                              'idcode':9999,
-                              'children':[]}
+            print "LoopNameList"    
+            print loopNameList
+            loopNameClientDict = {}
+            for name in loopNameList:
+                loopNameClientDict[name] = {'name':'{0} Loop'.format(name),'level':9999,
+                                            'idcode':9999,
+                                            'children':[]}
+            
+           
             for lclient in thisLoopList:
                 lClientList = [x for x in thisStore.clients() if (x[1].Type != "attached")]
-                loopClientDict['children'].append(self.getWalkOfClientsDictForJson(lclient[0].idcode))
-            clientDict['children'].append(loopClientDict)
+                loopNameClientDict[lclient[1].RouteName]['children'].append(self.getWalkOfClientsDictForJson(lclient[0].idcode))
+            for routeId,loopClientDict in loopNameClientDict.items():
+                clientDict['children'].append(loopClientDict)
             
         return clientDict
     

@@ -17,14 +17,14 @@
 %        for i in xrange(nlevels):
 	  	<tr>
   			<td><label for="model_create_levelname_{{i+1}}">{{_("Name for level")}} {{i+1}}</label></td>
-%           prepopval = {3: {1:_("District")}, 4: {1:_("Region"),2:_("District")}, 5: {1:_("Province"),2:_("Region"),3:_("District")}}
+%           prepopval = {3: {1:"District"}, 4: {1:"Province",2:"District"}, 5: {1:"Province",2:"Region",3:"District"}}
 %           try:
 %               val = prepopval[nlevels][i]
 %           except:
 %               val = _("Level") + " " + str(i+1)
 %           end
-%           if i==(nlevels-1): val = _("Health Post")
-%           if i==0: val = _("Central")
+%           if i==(nlevels-1): val = "Health Post"
+%           if i==0: val = "National"
   			<td><input type="text" name="model_create_levelname_{{i+1}}" id="model_create_levelname_{{i+1}}" value="{{val}}"></td>
   		</tr>
 %        end

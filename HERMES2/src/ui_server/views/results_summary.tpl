@@ -1,6 +1,6 @@
 %rebase outer_wrapper title_slogan=_('Simulation Results'), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId
 
-<script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
+<script type="text/javascript" src="{{rootPath}}static/Highcharts-3.0.5/js/highcharts.js"></script>
 <style type="text/css">
 /* for jqGrid tables */
 .ui-jqgrid {font-size:small}
@@ -28,6 +28,7 @@ th.ui-th-column div {
 <table id="vaccine_summary_results_grid"></table>
 <div style="width:500;" id="results_summary_buttons_div">
 <button id="results_summary_show_ge_button" style="width:100px;">{{_('Show Geographic Viz')}}</button>
+<button id="results_summary_show_ne_button" style="width:100px;">{{_('Show Network Viz')}}</button>
 % if gvAvailable:
 <button id="results_summary_show_gv_button" style="width:100px;">{{_('Show Fireworks Viz')}}</button>
 % end
@@ -46,6 +47,10 @@ $("#results_summary_show_ge_button").click( function(){
 	window.location="{{rootPath}}geographic_visualization?modelId="+{{modelId}}+"&resultsId="+{{resultsId}};
 });
 
+$("#results_summary_show_ne_button").click( function(){
+	window.location="{{rootPath}}network_results_visualization?modelId="+{{modelId}}+"&resultsId="+{{resultsId}};
+	});
+	
 % if gvAvailable:
 $("#results_summary_show_gv_button").click( function(){
 	window.location="{{rootPath}}results-fireworks?modelId="+{{modelId}}+"&runId="+{{resultsId}};
@@ -70,8 +75,8 @@ $("#vaccine_summary_results_grid").jqGrid({ //set your grid id
 		"{{_('Availability')}}",
 		"{{_('Vials Used')}}",
 		"{{_('Doses Per Vial')}}",
-		"{{_('Doses Requested')}}",
-		"{{_('Doses Administered')}}",
+		"{{_('Doses Needed')}}",
+		"{{_('Doses Received')}}",
 		"{{_('Open Vial Waste')}}",
 		"{{_('Percent Stored 2 to 8 C')}}",
 		"{{_('Percent Store Below 2C')}}",
@@ -99,49 +104,55 @@ $("#vaccine_summary_results_grid").jqGrid({ //set your grid id
 });
 
 $.getJSON('json/results-vaccine-by-place-by-size-hist?modelId={{modelId}}&resultsId={{resultsId}}', function(results) {
-	$("#vaccine_by_place_graph").highcharts({
-		chart : {
-			type : 'bar',
-			height : 300,
-			width : 300
-		},
-		title : {
-			text : "{{_('Availability by Location')}}"
-		},
-		legend : {
-			enabled : true,
-			title: {
-				text: "{{_('Birth Cohort Size')}}"
-			},
-		},
-		xAxis : {
-			categories : results.categories,
-			title : {
-				text : "{{_('Availability')}}"
-			}
-		},
-		yAxis : {
-			min : 0,
-			title : {
-				text : "{{_('Number Of Locations')}}"
-			}
-		},
-		plotOptions : {
-			bar: {
-				dataLabels : {
+//$(function(){
+//	$.ajax({
+//		url: '{{rootPath}}json/results-vaccine-by-place-by-size-hist',
+//		dataType:'json',
+//		data:{modelId:{{modelId}},resultsId:{{resultsId}}},
+//		success:function(data){
+			$("#vaccine_by_place_graph").highcharts({
+				chart : {
+					type : 'bar',
+					height : 300,
+					width : 300
+				},
+				title : {
+					text : "{{_('Availability by Location')}}"
+				},
+				legend : {
+					enabled : true,
+					title: {
+						text: "{{_('Birth Cohort Size')}}"
+					},
+				},
+				xAxis : {
+					categories : results.categories,
+					title : {
+						text : "{{_('Availability')}}"
+					}
+				},
+				yAxis : {
+					min : 0,
+					title : {
+						text : "{{_('Number Of Locations')}}"
+					}
+				},
+				plotOptions : {
+					bar: {
+						dataLabels : {
+							enabled : false
+						},
+		            	groupPadding: 0,
+		            	pointPadding: 0,
+		            	borderWidth: 0
+					}
+				},
+				credits : {
 					enabled : false
 				},
-            	groupPadding: 0,
-            	pointPadding: 0,
-            	borderWidth: 0
-			}
-		},
-		credits : {
-			enabled : false
-		},
-		series : results.datas
-	});
-}); 
+				series : results.datas
+			});
+		}); 
 
 $.getJSON('json/result-storage-utilization-by-place-by-levelhist?modelId={{modelId}}&resultsId={{resultsId}}', function(results) {
 	$("#storeUtil_by_place_graph").highcharts({

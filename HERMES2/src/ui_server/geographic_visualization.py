@@ -33,6 +33,14 @@ sI = site_info.SiteInfo()
 inlizer=session_support.inlizer
 _=session_support.translateString
 
+@bottle.route('/network_results_visualization')
+def createNetworkResultsViz(db,uiSession):
+    modelId= modelId= _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
+    resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
+    return bottle.template('results_show_structure.tpl',{"breadcrumbPairs":[("top",_("Welcome"))],
+                                            "pageHelpText":_("This is intended to show page-specific help")},
+                                            _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId)
+
 @bottle.route('/geographic_visualization')
 def createGeographicViz(db,uiSession):
     modelId= _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
@@ -41,6 +49,27 @@ def createGeographicViz(db,uiSession):
                                             "pageHelpText":_("This is intended to show page-specific help")},
                                             _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId)
 
+@bottle.route('/json/model-structure-tree-results-d3')
+def jsonModelStructureTreeD3(db,uiSession):
+    try:
+        import locale
+        print locale.getdefaultlocale()[1]
+        modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
+        resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        model = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        r = model.getResultById(resultsId)
+        
+        json = model.getWalkOfClientsDictForJson(model.rootStores()[0].idcode)
+        
+        
+        json['success']=True
+        
+        return json
+    except Exception,e:
+        return {'success':False,
+                'msg':str(e)
+                }
 ### This will just return the locations of the stores with no results
 @bottle.route('/json/storelocations')
 def generateStoreInfoJSON(db, uiSession):
@@ -77,6 +106,15 @@ def generateRouteLinesJSON(db,uiSession):
         #print "YES"
         f = []
         #print "THERE"
+        routeIndexDict = {}
+        count = 1
+        for routeId,route in m.routes.items():
+            if routeId not in routeIndexDict.keys():
+                routeIndexDict[routeId] = count
+                count += 1
+        
+        maxCount = count - 1
+        
         for routeId,route in m.routes.items():
             if route.Type != 'attached':
                 if len(route.stops) == 2:
@@ -85,7 +123,7 @@ def generateRouteLinesJSON(db,uiSession):
                     if (start.Latitude != 0.0 and start.Longitude != 0.0) and \
                        (end.Latitude != 0.0 and end.Longitude != 0.0):
                         #print "HERE"
-                        f.append(Feature(geometry=LineString([(start.Longitude,start.Latitude),(end.Longitude,end.Latitude)]),id=routeId))
+                        f.append(Feature(geometry=LineString([(start.Longitude,start.Latitude),(end.Longitude,end.Latitude)]),id=routeId,rindex=routeIndexDict[routeId],maxcount=maxCount))
         
         FC = FeatureCollection(f)
         
@@ -155,6 +193,19 @@ def generateRouteUtilizationLinesJSON(db,uiSession):
         #print "YES"
         f = []
         #print "THERE"
+        routeIndexDict = {}
+        count = 1
+        for routeId,route in m.routes.items():
+            if routeId not in routeIndexDict.keys():
+                #print route.stops[0][0].CATEGORY
+                #print route.stops[1][0].CATEGORY
+                if route.Type != 'attached' and route.stops[1].store.CATEGORY != "OutreachClinic":
+                    routeIndexDict[routeId] = count
+                    count += 1
+        
+        maxCount = count - 1
+        
+        print routeIndexDict
         for routeId,route in m.routes.items():
             if route.Type != 'attached':
                 if len(route.stops) == 2:
@@ -169,7 +220,7 @@ def generateRouteUtilizationLinesJSON(db,uiSession):
                             fill = 1.0
                             
                         f.append(Feature(geometry=LineString([(start.Longitude,start.Latitude),(end.Longitude,end.Latitude)]),
-                                         id=routeId,util=fill))
+                                         id=routeId,util=fill,rindex=routeIndexDict[routeId],maxcount=maxCount))
                 else:
                     for i in range(0,len(route.stops)):
                         start = route.stops[i].store
@@ -184,7 +235,7 @@ def generateRouteUtilizationLinesJSON(db,uiSession):
                                 fill = 1.0
                             
                             f.append(Feature(geometry=LineString([(start.Longitude,start.Latitude),(end.Longitude,end.Latitude)]),
-                                             id=routeId,util=fill))
+                                             id=routeId,util=fill,rindex=routeIndexDict[routeId],maxcount=maxCount))
         FC = FeatureCollection(f)
         
         return {'success':True,'geoFC':FC}  

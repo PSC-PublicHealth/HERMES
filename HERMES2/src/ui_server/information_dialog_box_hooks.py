@@ -685,8 +685,7 @@ def generateUtilizationForRoute(db,uiSession):
         result = {'success':False,
                   'msg':str(e)}
         return result
-        
-                
+                        
 @bottle.route('/json/get-tripman-for-route',method='post') 
 def generateTripManifestForRoute(db,uiSession):
     try:
