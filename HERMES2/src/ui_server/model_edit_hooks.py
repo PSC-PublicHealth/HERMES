@@ -77,21 +77,20 @@ def htmlEscape(s):
     escape for including in html
     remove <, >, ', ", and & from strings and replace them with the html escape equivalent
     """
+    s = unicode(s)
+
+    # ampersand must be done first
+    if s.find('&'):
+        s = string.join(s.split('&'), '&amp;')
+    if s.find('<'):
+        s = string.join(s.split('<'), '&lt;')
+    if s.find('>'):
+        s = string.join(s.split('>'), '&gt;')
+    if s.find("'"):
+        s = string.join(s.split("'"), '&#39;')
+    if s.find('"'):
+        s = string.join(s.split('"'), '&quot;')
     return s
-#     s = str(s)
-# 
-#     # ampersand must be done first
-#     if s.find('&'):
-#         s = string.join(s.split('&'), '&amp;')
-#     if s.find('<'):
-#         s = string.join(s.split('<'), '&lt;')
-#     if s.find('>'):
-#         s = string.join(s.split('>'), '&gt;')
-#     if s.find("'"):
-#         s = string.join(s.split("'"), '&#39;')
-#     if s.find('"'):
-#         s = string.join(s.split('"'), '&quot;')
-#     return s
 
 h = htmlEscape
 
