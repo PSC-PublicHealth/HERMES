@@ -64,6 +64,7 @@ class KVPParser:
         See http://effbot.org/zone/xml-scanner.htm for this nifty little idiom.
         """
         pos = 0
+        if encoding is not None: text = text.decode(encoding)
         while True:
             m = KVPParser.tokenRe.match(text, pos)
             if not m: break

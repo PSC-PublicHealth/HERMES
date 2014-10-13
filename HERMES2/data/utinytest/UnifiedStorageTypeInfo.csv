@@ -1,4 +1,4 @@
-"Make","Model","Year","Energy","freezer","cooler","roomtemperature","Name","ClassName","ColdLifetime","AlarmDays","SnoozeDays","Notes"
+﻿"Make","Model","Year","Energy","freezer","cooler","roomtemperature","Name","ClassName","ColdLifetime","AlarmDays","SnoozeDays","Notes"
 "mothernature","outdoors","U","U",,,1000000000,"OUTDOORS","Fridge",,,,
 "generic","ColdBoxLarge","U","B",,52.65,,"N_GenericColdBoxLarge_U_B","Fridge",,,,"47x36x25.5 cc at 100% utilization"
 "generic","ColdBoxLarge","U","I",52.65,0,,"N_GenericIceBoxLarge_U_I","Fridge",,,,"47x36x25.5 cc at 100% utilization"

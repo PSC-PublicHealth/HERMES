@@ -114,7 +114,7 @@ def filteredWriteCSV( ofile, keyList, recDictListOriginal, delim=",", quoteStrin
     recDictList= [d.copy() for d in recDictListOriginal]
     revisedKeyList = []
     for k in keyList:
-        lowerK= str(k).lower()
+        lowerK= unicode(k).lower()
 
 
         ##################

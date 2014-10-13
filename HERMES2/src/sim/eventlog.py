@@ -99,7 +99,7 @@ class FileEventLog:
         """
         self.selectedEvents = set(_eventHandlerDict.keys())
         self.regex = re.compile('.*') # matches everything
-        if isinstance(logFileOrFileName,types.StringType):
+        if isinstance(logFileOrFileName,types.StringType) or isinstance(logFileOrFileName,types.UnicodeType):
             self.fileName = logFileOrFileName
             self.file = util.openOutputFile(self.fileName, useTempFile=True)
         else:

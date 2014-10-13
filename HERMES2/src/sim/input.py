@@ -29,6 +29,7 @@ import csv_tools
 import globals as G
 import kvp_tools
 import util
+import chardet
 
 KeywordTokenTypes = [ 'TF', 'string', 'stringOrNone', 'int', 'intOrNone', 'long', 'longOrNone',
                      'float', 'floatOrNone', 'probability','string_list', 'int_list', 'float_list', 'long_list',
@@ -264,11 +265,11 @@ class InputDefault:
                     return valtmp
         elif TokenType in ['string_list', 'filename_list']:
             if type(val) == types.ListType:
-                return [str(x).replace('"','').replace("'","") for x in val]
+                return [unicode(x).replace('"','').replace("'","") for x in val]
             elif val is None:
                 return []
             else:
-                return [str(x).replace('"','').replace("'","") for x in val.split(",")]
+                return [unicode(x).replace('"','').replace("'","") for x in val.split(",")]
         elif TokenType == 'int_list':
             try:
                 if type(val) == types.ListType:
@@ -346,8 +347,17 @@ class UserInput:
         """ Make the definitions, if any """
         if userInputFileName is not None:
             with util.openDataFullPath(userInputFileName,'rU') as f:
+                lines = f.readlines()
+            encodingInfo = chardet.detect("".join(lines))
+            encoding = encodingInfo['encoding']
+            if encodingInfo['confidence'] >= 0.8:
+                encoding = encodingInfo['encoding']
+            else:
+                encoding = sys.getdefaultencoding()
+            if encoding == "utf8" or encoding == "utf-8": encoding = "utf-8-sig"
+            with util.openDataFullPath(userInputFileName,'rU') as f:
                 if userInputFileName[-4:] == '.kvp':
-                    self.addValues(f,replace=True,vtype="kvp")
+                    self.addValues(f,replace=True,vtype="kvp",encoding=encoding)
                 else:
                     self.addValues(f,replace=True,vtype="csv")
                                     
@@ -379,7 +389,7 @@ class UserInput:
             self.frozen= True
         if printInfo: self.printTable()
         
-    def addValues(self,inputIterator,replace=True,vtype="csv"):
+    def addValues(self,inputIterator,replace=True,vtype="csv",encoding=None):
         """
         This method adds the values defined by inputIterator to this UserInput instance.  inputIterator 
         is an iterator providing lines of input either in key-value format or in csvrow format.  If 'replace' 
@@ -410,7 +420,7 @@ class UserInput:
                          
         elif vtype=="kvp":
             parser= kvp_tools.KVPParser()
-            uncheckedDict= parser.parse(inputIterator)
+            uncheckedDict= parser.parse(inputIterator, encoding)
             for key,val in uncheckedDict.items():
                 if self.defaultInput.has_key(key):
                     val = self.defaultInput.processKeywordValue(key,val)

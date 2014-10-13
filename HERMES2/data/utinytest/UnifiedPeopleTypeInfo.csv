@@ -1,4 +1,4 @@
-"Name","SortOrder","Notes"
+﻿"Name","SortOrder","Notes"
 "Service",10000,
 "Service1",10001,
 "Service2",10002,
@@ -15,7 +15,7 @@
 "School_dT",100,
 "SFluVaccRecipients",2000,
 "0-11monthsBCG",1,
-"0-11months",1,
+"0-11mönths",1,
 "12-24months",12,
 "6-years",72,
 "CBAW",100,

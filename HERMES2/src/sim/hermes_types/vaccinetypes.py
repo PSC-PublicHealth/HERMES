@@ -100,7 +100,7 @@ class VaccineGroup(GroupedShippable,Trackable):
                                                            repr(self.vaccineType),
                                                            repr(self.storage.name),
                                                            self.packageType,
-                                                           self.name,
+                                                           self.bName,
                                                            self.currentAge,
                                                            self.tracked,
                                                            self.history)
@@ -109,7 +109,7 @@ class VaccineGroup(GroupedShippable,Trackable):
                                                         str(self.vaccineType),
                                                         str(self.storage.name),
                                                         self.packageType,
-                                                        self.name,
+                                                        self.bName,
                                                         self.history,
                                                         self.currentAge)
     def getStatus(self):
@@ -491,21 +491,21 @@ class VaccineType(GroupedShippableType, HasOVW):
 
     def summarystring(self):
         return self.name \
-               + '\n   Display name: '+ str(self.displayName) \
-               + '\n   Doses per vial : ' +str(self.dosesPerVial) \
-               + '\n   Packed vol per dose(cc) : ' +str(self.ccPerDose) \
+               + '\n   Display name: '+ unicode(self.displayName) \
+               + '\n   Doses per vial : ' +unicode(self.dosesPerVial) \
+               + '\n   Packed vol per dose(cc) : ' +unicode(self.ccPerDose) \
                + '\n   Packed vol diluent per dose(cc) : ' \
-               + str(self.ccDiluentPerDose) \
-               + '\n   Doses per person : ' +str(self.dosesPerPerson) \
-               + '\n   Storage preferences : ' + str([st.name for st in self.storagePriority]) \
-               + '\n   Maximum useful age : ' + str(self.maxAge) \
-               + '\n   freezer aging rate : ' + str(self.freezerFac) \
-               + '\n   cooler aging rate : ' + str(self.coolerFac) \
-               + '\n   room temp aging rate : ' + str(self.roomtempFac) \
-               + '\n   open vial aging rate : ' + str(self.openVialFac) \
-               + '\n   can keep open vials: ' + str(self.keepOpenVials) \
-               + '\n   rand_key: ' + str(self.rndm_jumpahead) \
-               + '\n   packaging types: ' + str([p.name for p in self.packageTypes]) \
+               + unicode(self.ccDiluentPerDose) \
+               + '\n   Doses per person : ' +unicode(self.dosesPerPerson) \
+               + '\n   Storage preferences : ' + unicode([st.name for st in self.storagePriority]) \
+               + '\n   Maximum useful age : ' + unicode(self.maxAge) \
+               + '\n   freezer aging rate : ' + unicode(self.freezerFac) \
+               + '\n   cooler aging rate : ' + unicode(self.coolerFac) \
+               + '\n   room temp aging rate : ' + unicode(self.roomtempFac) \
+               + '\n   open vial aging rate : ' + unicode(self.openVialFac) \
+               + '\n   can keep open vials: ' + unicode(self.keepOpenVials) \
+               + '\n   rand_key: ' + unicode(self.rndm_jumpahead) \
+               + '\n   packaging types: ' + unicode([p.name for p in self.packageTypes]) \
                +'\n\n'
     def computeWastage(self):
         dosesUsed = self.nVialsUsedForTreatment*self.dosesPerVial

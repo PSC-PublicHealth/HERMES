@@ -168,9 +168,11 @@ def parseCSV( ifile ):
     encodingInfo = chardet.detect("".join(lines))
     if encodingInfo['confidence'] >= 0.9: 
         predictedEncoding = encodingInfo['encoding']
+        if predictedEncoding == "utf8" or predictedEncoding == "utf-8": predictedEncoding = "utf-8-sig"
         lines = [l.decode(predictedEncoding) for l in lines]
     else:
         predictedEncoding = encodingInfo['encoding']
+        if predictedEncoding == "utf8" or predictedEncoding == "utf-8": predictedEncoding = "utf-8-sig"
         lines = [l.decode(predictedEncoding,'replace') for l in lines]
     delimFound= 0
     delimForThisFile= None
@@ -273,7 +275,7 @@ def writeCSV( ofile, keyList, recDictList, delim=",", quoteStrings=False, sortCo
             if sortColumn not in keyList:
                 print "Warning: sortColumn specified in  writeCSV is not a valid column, no sorting will be performed."
             else:
-                recDictList.sort(lambda x,y:cmp(str(x[sortColumn]).lower(),str(y[sortColumn]).lower()))
+                recDictList.sort(lambda x,y:cmp(unicode(x[sortColumn]).lower(),unicode(y[sortColumn]).lower()))
         
         for rD in recDictList:
             try:

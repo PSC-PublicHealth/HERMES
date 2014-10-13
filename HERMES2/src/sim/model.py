@@ -48,7 +48,7 @@ import shadow_network as shd
 
 def parseInventoryString(string):
     ret = []
-    string = str(string).strip()
+    string = unicode(string).strip()
     if string is None:
         return ret
     if string in ['', 'None']:
