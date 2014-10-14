@@ -3372,7 +3372,7 @@ class ShdParameter(Base):
     def toStr(self):
         sio = StringIO.StringIO()
         KVPParser().writeKVP(sio, {self.key:self.getValue()})
-        print 'toStr: <%s>'%sio.getvalue()
+        #print 'toStr: <%s>'%sio.getvalue()
         return sio.getvalue()
 
     def parse(self):
