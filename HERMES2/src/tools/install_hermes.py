@@ -584,11 +584,14 @@ def installPip():
 #    pathBase = sI.srcDir()
     subprocess.check_call(['easy_install','pip'],cwd = pathBase)
 
-def installRequirements():
+def installRequirements(upgrade=False):
     pathBase = os.path.split(os.path.abspath(__file__))[0]
 #    pathBase = sI.srcDir()
     requirementsFile = '%s/../../requirements.txt' % pathBase
-    subprocess.check_call(['pip','install','-r',requirementsFile],cwd = pathBase)
+    pip_command = ['pip','install','-r',requirementsFile]
+    if upgrade:
+        pip_command.append('-U')
+    subprocess.check_call(pip_command, cwd = pathBase)
 
 def callAlembicUpgrade():
     import site_info
@@ -647,14 +650,8 @@ def addTypeHolderModel():
     # installUserTypeHolderModel()
 
 
-def main():
-    
-    installEZInstall()
-    #maybeInstallSqlalchemy()
-    #maybeInstallAlembic()
-    installPip()
-    installRequirements()
-    
+def _install_hermes():
+
     import site_info
     sI = site_info.SiteInfo()
 
@@ -672,8 +669,35 @@ def main():
 
     buildPrivTables()
     addTypeHolderModel()
+
+def _install_dependencies(upgrade=False):
+    installEZInstall()
+    #maybeInstallSqlalchemy()
+    #maybeInstallAlembic()
+    installPip()
+    installRequirements()
+ 
+def main():
+
+    import argparse
     
-    
+    parser = argparse.ArgumentParser(
+            description='Install HERMES Standalone Web Server',
+            prefix_chars='-+')
+
+    parser.add_argument('-u', '--upgrade', action='store_true',
+            help='Upgrade dependencies if needed.')
+    parser.add_argument('-d', '--dependencies_only', action='store_false',
+            help='Only install dependencies')
+
+    args = parser.parse_args()
+
+    _install_dependencies(upgrade=args.upgrade)
+
+    if args.dependencies_only:
+        _install_hermes()
+
+
 ############
 # Main hook
 ############
