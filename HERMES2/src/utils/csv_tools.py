@@ -527,6 +527,13 @@ def main():
             with open('test_csv_tools.csv','rU') as f:
                 keys2,recs2= parseCSV(f)
             assert(keys2==keys)
+            for i,tpl in enumerate(zip(recs2,recs)):
+                r2,r = tpl
+                if r != r2:
+                    print "##### record %d differs: "%i
+                    for k in keys:
+                        if r[k] != r2[k]:
+                            print "%s:%s --> %s:%s"%(k,r[k],k,r2[k])
             assert(recs2==recs)
             
 ############

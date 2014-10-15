@@ -2841,6 +2841,13 @@ class ShdTruckType(ShdType):
              ('CoolVolumeCC', FLOAT_ZERO),
              ('Storage',    STRING),
              ('Requires',   STRING_NONE),
+             ('BaseCost',   FLOAT_NONE),
+             ('BaseCostCurCode', STRING_NONE, 'recordName', 'BaseCostCur'),
+             ('BaseCostYear', INTEGER_NONE),
+             ('AmortizationKm', FLOAT_NONE),
+             ('Fuel', STRING_NONE),
+             ('FuelRate',  FLOAT_NONE),
+             ('FuelRateUnits', STRING_NONE),
              ('Notes',      NOTES_STRING)]
 
     def __init__(self, *args, **kwargs):
@@ -2953,6 +2960,7 @@ class ShdVaccineType(ShdType, ShdCopyable):
               'synonym', ['pricePerDose']),
              ('priceUnits',    STRING, 'recordName', 'Price Units',
               'synonym', ['priceUnits']),
+             ('priceBaseYear', INTEGER_NONE, 'recordName', 'Price Year'),
              ('dosesPerPerson', INTEGER, 'recordName', 'Doses/person',
               'synonym',['dosesPerPerson']),
              ('freezerLifetime', FLOAT, 

@@ -1,5 +1,5 @@
-Name,DisplayName,CoolVolumeCC,Storage,Notes
-Std_coldtruck,Cold truck 3570L,3570000,,
-Std_DoubleCabTruck,Double cab truck 4 large CB,0,4*Std_CB_RCW25CF,Source: Communication with Simona Zipursky and www.toyota.co.uk
-Std_SingleCabTruck,Single cab truck 8 large CB,0,8*Std_CB_RCW25CF,
-Std_motorbike,Motorbike 1 VC,0,Std_VC,
+Name,DisplayName,CoolVolumeCC,Storage,BaseCost,BaseCostCur,BaseCostYear,AmortizationKm,Fuel,FuelRate,FuelRateUnits,Notes
+Std_coldtruck,Cold truck 3570L,3570000,,,,,,,,,
+Std_DoubleCabTruck,Double cab truck 4 large CB,0,4*Std_CB_RCW25CF,,,,,,,,Source: Communication with Simona Zipursky and www.toyota.co.uk
+Std_SingleCabTruck,Single cab truck 8 large CB,0,8*Std_CB_RCW25CF,,,,,,,,
+Std_motorbike,Motorbike 1 VC,0,Std_VC,,,,,,,,
