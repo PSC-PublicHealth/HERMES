@@ -168,8 +168,10 @@ def generatePopulationListingForStoreJSON(db,uiSession):
         if peopleServedDict['all']['count'] == 0:
             rows.append({'class':_('Total Served'),'count':_('No Population Vaccinated at Location')})
         else:
-            for psD in peopleServedDict.values():
-                rows.append({'class':psD['displayName'],'count':psD['count']})
+            for cat,psD in peopleServedDict.items():
+                if cat != 'all':
+                    rows.append({'class':psD['displayName'],'count':psD['count']})
+            rows.append({'class':_('Total Served'),'count':peopleServedDict['all']['count']})
             
         results = {'success':True,
                    'total':1,
