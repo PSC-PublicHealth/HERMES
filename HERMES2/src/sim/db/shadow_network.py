@@ -4307,7 +4307,7 @@ class ShdNetwork(Base):
                       'truckfile':(self.trucks,),
                       'vaccinefile':(self.vaccines,),
                       'initialovw':(self.initialOVW, self.getInitialOVWRecs),
-                      'factorywastagefile':(self.factoryWastage,self.getFactoryWastageRecs()),
+                      'factorywastagefile':(self.factoryWastage,self.getFactoryWastageRecs),
                       'calendarfile':(self.unifiedCalendar, self.getCalendarRecs),
                       'catchupfile':None,
                       'consumptioncalendarfile':(self.consumptionCalendar, self.getConsumptionCalendarRecs),
