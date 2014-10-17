@@ -968,6 +968,8 @@ def _nopFn(v):
 _tempFn = _
 _ = _nopFn
 
+# users of updateFloatFields must internationalize the 3rd element at runtime.
+# this can't be done at compile time where this table is created in memory!
 updateFloatFields = {
     'storeLatitude': (id2Store, 'Latitude', _('latitude'), -90.0, 90.0),
     'storeLongitude': (id2Store, 'Longitude', _('longitude'), -180.0, 180.0),
@@ -997,6 +999,7 @@ def updateFloat(inputId, model, origStr, newStr):
     "generic updating of a float field based on attributes in updateFloatFields"
     modelId, itemId, field, secondaryId = inputIdQuad(inputId)
     objFn, attr, name, fmin, fmax = updateFloatFields[field]
+    name = _(name)
     obj = objFn(model, itemId, secondaryId)
     
     curVal = getattr(obj, attr)
@@ -1108,9 +1111,10 @@ def getInvTypeList(model, iType):
     return inv
 _tempFn = _
 _ = _nopFn
+
 _storeInvTitles = {
-    'fridges' : _('storage'),
-    'trucks' : _('transport') }
+    'fridges' : _('storage'),    #  any user of _storeInvTitles must 
+    'trucks' : _('transport') }  #  internationalize at runtime!
 _ = _tempFn
 
 def storeInvOpts(store, iType):
@@ -1145,7 +1149,7 @@ def storeInvEtl(store, iType):
     return etl
 
 def renderStoreInv(store, iType):
-    title = _storeInvTitles[iType]
+    title = _(_storeInvTitles[iType])
     opts = storeInvOpts(store, iType)
     etl = storeInvEtl(store, iType)
 
@@ -1184,7 +1188,7 @@ def addTupleStoreInv(inputId, model, value, count):
     etl = storeInvEtl(store, iType)
 
     efi = EditableFieldInfo('store'+iType,
-                            _storeInvTitles[iType],
+                            _(_storeInvTitles[iType]),
                             etl,
                             fieldType='tuplelist',
                             pullDownOpts=opts)
@@ -1466,8 +1470,9 @@ def renderRouteTransitHours(route):
     
 
 def renderStopLabelString(stop):
-    return '<b>%s(%d) (stop %d)</b>'%\
-        (stop.store.NAME, stop.idcode, stop.RouteOrder)
+    s = _("{0}({1}) (stop {2})").format(stop.store.NAME, stop.idcode, stop.RouteOrder)
+    return '<b>%s</b>'%s
+        
 
 def renderStopLabel(stop):
     ret = []
@@ -1606,8 +1611,9 @@ def renderUnattachedJson(modelId, stores):
     ret = {}
     retData = {}
     dispId = packInputId(modelId, LiteralItem('U'), 'unattachedHeader')
-    retData['title'] = '<h3 id="%s" style="display:inline;" %s>Unattached</h3>'%\
-        (dispId, dropString)
+    s = _('Unattached')
+    retData['title'] = '<h3 id="%s" style="display:inline;" %s>%s</h3>'%\
+        (dispId, dropString, s)
     retData['attr'] = {'href' : '/testing', 'class' : 'em_replace_me'}
     ret['data'] = retData
     if len(stores):
@@ -1675,12 +1681,12 @@ def jsonModelRoutes(db, uiSession, modelId):
                     ret.append(renderRouteJson(route))
 
             elif nodeType == METC.STOP:  # this shouldn't happen
-                raise RuntimeError("invalid code path.  Trying to expand stop")
+                raise RuntimeError(_("invalid code path.  Trying to expand stop"))
                 try:
                     stop = getStopFromResiliantStopId(model, nodeId[1:])
                 except:
                     jsonRet = { 'success' : False,
-                                'errorString' : 'The structure of this model has been changed.  Please reload this page.',
+                                'errorString' : _('The structure of this model has been changed.  Please reload this page.'),
                                 'successString' : 'False' }
                     return jsonRet
 
@@ -1689,7 +1695,7 @@ def jsonModelRoutes(db, uiSession, modelId):
                 for route in routes:
                     ret.append(renderRouteJson(route))
             else:
-                raise RuntimeError('invalid node type %s'%nodeId[0])
+                raise RuntimeError(_('invalid node type {0}').format(nodeId[0]))
 
             updates = ULCM.updateList()
 
@@ -1700,38 +1706,6 @@ def jsonModelRoutes(db, uiSession, modelId):
             #print jsonRet
             return jsonRet
 
-
-
-@bottle.route('/json/XXXmodelTree/<modelId>')
-def XXXjsonModelTree(db, uiSession, modelId):
-    """
-    provide tree updates when nodes are expanded in the model tree
-    """
-    nodeId = getParm('id')
-    modelId = int(modelId)
-    uiSession.getPrivs().mayReadModelId(db, modelId)
-    model = shadow_network_db_api.ShdNetworkDB(db, modelId)
-
-    tree = nodeId[0]
-    nodeId = nodeId[1:]
-
-    with selectTree(tree):
-        ret = []
-        if nodeId == '-1':
-            stores = model.rootStores()
-        else:
-            nodeType = nodeId[0]
-            if nodeType != METC.STORE:
-                raise RuntimeError("invalid node type")
-            nodeId = nodeId[1:]
-            parentStore = model.getStore(long(nodeId))
-            stores = [clientStore for clientStore, route in parentStore.clients()]
-
-        for store in stores:
-            ret.append(renderStoreJson(store))
-
-        jsonRet = { 'success' : True, 'successString' : 'True', 'data' : ret }
-        return jsonRet
 
 
 
@@ -1816,11 +1790,11 @@ def jsonModelUpdate(db, uiSession):
         traceback.print_exc()
         # for lack of anything better, reset the client to the original value
         ul = LocalUpdateList(inputId, origStr)
-        return { 'success' : False, 'errorString' : 'unknown error', 'updateList': ul.updateList() }
+        return { 'success' : False, 'errorString' : _('unknown error'), 'updateList': ul.updateList() }
     
     # for lack of anything better, reset the client to the original value
     ul = LocalUpdateList(inputId, origStr)
-    return { 'success' : False, 'errorString' : 'unreachable error', 'updateList': ul.updateList() }
+    return { 'success' : False, 'errorString' : _('unreachable error'), 'updateList': ul.updateList() }
 
 
 
@@ -1867,9 +1841,9 @@ def jsonModelUpdateAddTuple(db, uiSession):
     except Exception as e:
         print 'Exception: %s'%e
         traceback.print_exc()
-        return { 'success' : False, 'errorString' : 'unknown error' }
+        return { 'success' : False, 'errorString' : _('unknown error') }
 
-    return { 'success' : False, 'errorString' : 'unreachable error' }
+    return { 'success' : False, 'errorString' : _('unreachable error') }
 
 
 def createCopyName(model, name):
@@ -1964,7 +1938,7 @@ def jsonRequestBasicEdit(db, uiSession):
                 nyi = True
 
             if nyi:
-                raise InvalidUpdate('Not yet implemented (itemType %s, request %s)'%(itemType, request))
+                raise InvalidUpdate(_('Not yet implemented (itemType {0}, request {1})').format(itemType, request))
             return {'success' : True, 'updateList' : ULCM.updateList() }
 
     except InvalidUpdate as e:
@@ -1976,7 +1950,7 @@ def jsonRequestBasicEdit(db, uiSession):
         print 'Exception: %s'%e
         traceback.print_exc()
 
-        return { 'success' : False, 'errorString' : 'unknown error' }
+        return { 'success' : False, 'errorString' : _('unknown error') }
 
             
         
@@ -2190,14 +2164,14 @@ def moveStoreToRoute(store, route, srcTree, dstTree, dstParentNode, dstStatus):
     dstSuppliers.append((dstSupplier, None))
     for supStore, xxxRoute in dstSuppliers:
         if store is supStore:
-            raise InvalidUpdate("It is not allowed to move a store to one of its clients")
+            raise InvalidUpdate(_("It is not allowed to move a store to one of its clients"))
 
     if store.supplierRoute() is route:
         return reorderStops(store, None, srcTree, dstTree, dstParentNode, dstStatus)
 
     # verify that the route type will support multiple clients
     if not shd.ShdRoute.types[route.Type].multiClient():
-        raise InvalidUpdate("Destination route type only supports one client store")
+        raise InvalidUpdate(_("Destination route type only supports one client store"))
 
     # at this point we wish to detach the store
     ds = DetachStore()
@@ -2308,12 +2282,12 @@ def moveStoreToStore(store, dstStore, srcTree, dstTree, dstParentNode, dstStatus
     suppliers = dstStore.recursiveSuppliers()
     for supStore, supRoute in suppliers:
         if supStore.idcode == store.idcode:
-            raise InvalidUpdate("It is not allowed to move a store to one of its clients")
+            raise InvalidUpdate(_("It is not allowed to move a store to one of its clients"))
 
     # see which type of move this is.  
     # if src and dst share the same parent route then we're just reordering the route
     if store.supplierRoute() is dstStore.supplierRoute():
-        print "suppliers are same"
+        #print "suppliers are same"
         return reorderStops(store, dstStore, srcTree, dstTree, dstParentNode, dstStatus)
 
     #
@@ -2407,7 +2381,7 @@ def moveRoute(route, store, srcTree, dstTree, dstParentNode, dstStatus):
     suppliers = store.recursiveSuppliers()
     for supStore, supRoute in suppliers:
         if supRoute.RouteName == route.RouteName:
-            raise InvalidUpdate("It is not allowed to move a route to one of its clients")
+            raise InvalidUpdate(_("It is not allowed to move a route to one of its clients"))
 
     
     # perform the move
@@ -2479,7 +2453,7 @@ def jsonModelUpdateDND(db, uiSession):
                               packNodeId(store, tree=dstTree),
                               dstStatus)
                 else:
-                    raise InvalidUpdate('Routes may only be moved to locations')
+                    raise InvalidUpdate(_('Routes may only be moved on to locations'))
 
             if srcField == 'storeHeader':
                 store = getStoreFromItemId(model, srcItemId)
@@ -2510,7 +2484,7 @@ def jsonModelUpdateDND(db, uiSession):
                 elif dstField == 'unattachedHeader':
                     moveStoreToUnlinked(store, srcTree)
                 else:
-                    raise InvalidUpdate('Not yet implemented (dstField: %s)'%dstField)
+                    raise InvalidUpdate(_('Not yet implemented (dstField: {0})').format(dstField))
 
 
             return {'success' : True, 'updateList' : ULCM.updateList() }
@@ -2526,18 +2500,10 @@ def jsonModelUpdateDND(db, uiSession):
         print 'Exception: %s'%e
         traceback.print_exc()
 
-        return { 'success' : False, 'errorString' : 'unknown error' }
+        return { 'success' : False, 'errorString' : _('unknown error') }
 
 
-
-
-    #print srcId
-    #print dstId
-    #print context
-    #print dstStatus
     
-
-
 def updateResendNodeFromItem(item, tree):
     nodeId = packNodeId(item, tree=tree)
     # hmm, I need the node type that packNodeId used.  May as well get it 
@@ -2613,7 +2579,7 @@ def jsonModelResendNode(db, uiSession):
         print 'Exception: %s'%e
         traceback.print_exc()
 
-        return { 'success' : False, 'errorString' : 'unknown error' }
+        return { 'success' : False, 'errorString' : _('unknown error') }
 
 
 def rseRenderAffectedCategories(unique, store, clients):
@@ -2650,13 +2616,13 @@ def rseDispUtilization(store, field, category, unique):
     global currentTree
     divId = 'rse_content_%s'%unique
     ret = []
-    ret.append('<p>Set utilization rate:')
+    ret.append('<p>' + _('Set utilization rate:'))
     ret.append('<input type="text" class="rse_utilization_set_input" id="rseInput_set_%s" />'%unique)
-    ret.append('<button type="button" class="rse_utilization_set_button" onclick="updateRSEValue(%s,%s,\'%s\',\'set\');">Ok</button>'%(unique, store.idcode, currentTree))
+    ret.append('<button type="button" class="rse_utilization_set_button" onclick="updateRSEValue(%s,%s,\'%s\',\'set\');">%s</button>'%(unique, store.idcode, currentTree, _('Ok')))
     ret.append('</p>')
-    ret.append('<p>Mutliply rate by a factor:')
+    ret.append('<p>' + _('Mutliply rate by a factor:'))
     ret.append('<input type="text" class="rse_utilization_mult_input" id="rseInput_mult_%s" />'%unique)
-    ret.append('<button type="button" class="rse_utilization_mult_button" onclick="updateRSEValue(%s,%s,\'%s\',\'mult\');">Ok</button>'%(unique, store.idcode, currentTree))
+    ret.append('<button type="button" class="rse_utilization_mult_button" onclick="updateRSEValue(%s,%s,\'%s\',\'mult\');">%s</button>'%(unique, store.idcode, currentTree, _('Ok')))
     ret.append('</p>')
     ret = string.join(ret, '\n')
     ULCM.addUpdate(divId, ret, 'html')
@@ -2666,10 +2632,10 @@ def rseUpdateUtilization(store, field, category, unique, action, value, secondar
         value = value.strip()
         value = float(value)
     except:
-        raise InvalidRecursiveUpdate('Utilization rate must be 0.0 or greater')
+        raise InvalidRecursiveUpdate(_('Utilization rate must be 0.0 or greater'))
 
     if action not in ['set', 'mult']:
-        raise InvalidRecursiveUpdate('invalid action %s'%action)
+        raise InvalidRecursiveUpdate(_('invalid action {0}').format(action))
 
     clients = store.recursiveClients()
     for client, cRoute in clients:
@@ -2703,10 +2669,10 @@ def rseDispInventory(iType, store, field, category, unique):
     ret = []
     ret.append('<table id="rse_input_table_%s">'%unique)
     ret.append('  <tr>')
-    ret.append('    <td class="rse_%s_action_header">action</td>'%iType)
-    ret.append('    <td class="rse_%s_count_header">count</td>'%iType)
-    ret.append('    <td class="rse_%s_type_header">type</td>'%iType)
-    ret.append('    <td style="display:none" class="rse_%s_repl_header">replace with</td>'%iType)
+    ret.append('    <td class="rse_%s_action_header">%s</td>'%(iType, _('action')))
+    ret.append('    <td class="rse_%s_count_header">%s</td>'%(iType, _('count')))
+    ret.append('    <td class="rse_%s_type_header">%s</td>'%(iType, _('type')))
+    ret.append('    <td style="display:none" class="rse_%s_repl_header">%s</td>'%(iType, _('replace with')))
     ret.append('    <td></td>')
     ret.append('  </tr>')
     ret.append('  <tr>')
@@ -2720,12 +2686,12 @@ def rseDispInventory(iType, store, field, category, unique):
     aeoString += '});"'
     ret.append('      <select class="rse_%s_action_select" id="rse_input_action_%s"'%(iType,unique))
     ret.append('        %s>'%aeoString)
-    ret.append('        <option value="add">Add</option>')
-    ret.append('        <option value="set">Set</option>')
-    ret.append('        <option value="scaleUp">Scale (round up)</option>')
-    ret.append('        <option value="scaleDn">Scale (round dn)</option>')
-    ret.append('        <option value="repl">Replace with</option>')
-    ret.append('        <option value="clear">Clear all</opton>')
+    ret.append('        <option value="add">%s</option>'%_('Add'))
+    ret.append('        <option value="set">%s</option>'%_('Set'))
+    ret.append('        <option value="scaleUp">%s</option>'%_('Scale (round up)'))
+    ret.append('        <option value="scaleDn">%s</option>'%_('Scale (round dn)'))
+    ret.append('        <option value="repl">%s</option>'%_('Replace with'))
+    ret.append('        <option value="clear">%s</opton>'%_('Clear all'))
     ret.append('      </select>')
     ret.append('    </td><td>')
     ret.append('      <input class="rse_%s_count_input" id="rse_input_value_%s" type="text" size="7" />'%(iType, unique))
@@ -2740,7 +2706,7 @@ def rseDispInventory(iType, store, field, category, unique):
         ret.append('    <option value="%s">%s</option>'%(i.Name,i.getDisplayName()))
     ret.append('      </select>')
     ret.append('    </td><td>')
-    ret.append('      <button class="rse_%s_update_button" type="button" onclick="updateRSETypeValue(%s,%s,\'%s\');">Ok</button>'%(iType, unique, store.idcode, currentTree))
+    ret.append('      <button class="rse_%s_update_button" type="button" onclick="updateRSETypeValue(%s,%s,\'%s\');">%s</button>'%(iType, unique, store.idcode, currentTree, _('Ok')))
     ret.append('    </td>')
     ret.append('  </tr>')
     ret.append('<table>')
@@ -2766,16 +2732,16 @@ def rseUpdateInventory(iType, store, field, category, unique, action, value, sec
             count = value.strip()
             count = int(count)
         except:
-            raise InvalidRecursiveUpdate('invalid count for update')
+            raise InvalidRecursiveUpdate(_('invalid count for update'))
 
     if action in ['scaleUp', 'scaleDn']:
         try:
             factor = value.strip()
             factor = float(factor)
             if factor < 0.0:
-                raise InvalidRecursiveUpdate('scaling factor must be a non-negative number')
+                raise InvalidRecursiveUpdate(_('scaling factor must be a non-negative number'))
         except:
-            raise InvalidRecursiveUpdate('scaling factor must be a non-negative number')
+            raise InvalidRecursiveUpdate(_('scaling factor must be a non-negative number'))
 
     if action in ['set', 'add', 'repl', 'scaleUp', 'scaleDn']:
         try:
@@ -2785,7 +2751,7 @@ def rseUpdateInventory(iType, store, field, category, unique, action, value, sec
             else:
                 invType = store.net.types[invName]
         except:
-            raise InvalidRecursiveUpdate('invalid type name for update')
+            raise InvalidRecursiveUpdate(_('invalid type name for update'))
 
     if action in ['repl']:
         try:
@@ -2795,7 +2761,7 @@ def rseUpdateInventory(iType, store, field, category, unique, action, value, sec
             else:
                 replType = store.net.types[invName]
         except:
-            raise InvalidRecursiveUpdate('invalid type name for update')
+            raise InvalidRecursiveUpdate(_('invalid type name for update'))
 
 
     clients = store.recursiveClients()
@@ -2873,13 +2839,13 @@ def rseUpdateInventory(iType, store, field, category, unique, action, value, sec
                 if client.countDemand(invName) < 0:
                     client.updateDemand(invName, 0)
                     if not belowZeroMsg:
-                        ULCM.addUpdate('X', 'This update caused one or more populations to be set negative.  Those have been reset to 0', 'alert')
+                        ULCM.addUpdate('X', _('This update caused one or more populations to be set negative.  Those have been reset to 0'), 'alert')
                         belowZeroMsg = True
             else:
                 if client.countInventory(invName) < 0:
                     client.updateInventory(invName, 0)
                     if not belowZeroMsg:
-                        ULCM.addUpdate('X', 'This update caused one or more inventory items to be set negative.  Those have been reset to 0', 'alert')
+                        ULCM.addUpdate('X', _('This update caused one or more inventory items to be set negative.  Those have been reset to 0'), 'alert')
                         belowZeroMsg = True
 
         # now perform the updates for the changed inventory
@@ -2887,7 +2853,7 @@ def rseUpdateInventory(iType, store, field, category, unique, action, value, sec
             opts = storeDemandOpts(client)
             etl = storeDemandEtl(client)
             efi = EditableFieldInfo('storeDemand',
-                                    'population',
+                                    _('population'),
                                     etl,
                                     fieldType='tuplelist',
                                     pullDownOpts=opts)
@@ -2896,7 +2862,7 @@ def rseUpdateInventory(iType, store, field, category, unique, action, value, sec
             opts = storeInvOpts(client, iType)
             etl = storeInvEtl(client, iType)
             efi = EditableFieldInfo('store'+iType,
-                                    _storeInvTitles[iType],
+                                    _(_storeInvTitles[iType]),
                                     etl,
                                     fieldType='tuplelist',
                                     pullDownOpts=opts)
@@ -2946,7 +2912,7 @@ def jsonRecursiveStoreEditCreate(db, uiSession):
             ret = []
 
             ret.append('<div id="store_edit_wgt_%s">')
-            ret.append('<p>Modify Stores Supplied by %s</p>'%store.NAME)
+            ret.append('<p>%s</p>'%_('Modify Stores Supplied by {0}').format(store.NAME))
             ret.extend(rseRenderAffectedCategories(unique, store, clients))
             ret.extend(rseRenderAvailableFields(unique, store))
             ret.append('<div id="rse_content_%d"></div>'%unique)
@@ -2991,7 +2957,7 @@ def jsonUpdateRSEDialog(db, uiSession):
         print 'Exception: %s'%e
         traceback.print_exc()
         
-        return { 'success' : False, 'errorString' : 'unknown error' }
+        return { 'success' : False, 'errorString' : _('unknown error') }
 
 
 @bottle.route('/json/meUpdateRSEValue')
@@ -3030,7 +2996,7 @@ def jsonUpdateRSEValue(db, uiSession):
                     print 'Exception: %s'%e
                     traceback.print_exc()
                     success = False
-                    errorString = 'unknown error updating records'
+                    errorString = _('unknown error updating records')
 
                 # as long as we're mostly ok, we still want to print this
                 dispFn(store, field, category, unique)
@@ -3046,7 +3012,7 @@ def jsonUpdateRSEValue(db, uiSession):
         print 'Exception: %s'%e
         traceback.print_exc()
         
-        return { 'success' : False, 'errorString' : 'unknown error' }
+        return { 'success' : False, 'errorString' : _('unknown error') }
 
 
 
@@ -3087,5 +3053,5 @@ def jsonValidateModel(db, uiSession):
         print 'Exception: %s'%e
         traceback.print_exc()
 
-        return { 'success' : False, 'errorString' : 'unknown error' }
+        return { 'success' : False, 'errorString' : _('unknown error') }
 
