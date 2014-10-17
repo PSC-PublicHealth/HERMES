@@ -182,7 +182,7 @@ class InputDefault:
         elif TokenType in ['string', 'filename']:
             if type(val) == types.NoneType or (isinstance(val, types.StringTypes) and val.lower=='none'):
                 raise RuntimeError("Keyword %s has invalid value %s; a string is required"%(key,val))
-            return str(val)
+            return unicode(val)
         elif TokenType in ['stringOrNone','filenameOrNone']:
             if val is None: return val
             elif isinstance(val, types.StringTypes) and val.lower=='none': return None
