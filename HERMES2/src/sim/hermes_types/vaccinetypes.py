@@ -25,7 +25,7 @@ different types of vaccines.
 _hermes_svn_id_="$Id$"
 
 import sys,math,types,random
-from abstractbaseclasses import Shippable, GroupedShippable, GroupedShippableType, Trackable
+from abstractbaseclasses import Shippable, GroupedShippable, GroupedShippableType, Trackable, Costable
 from abstractbaseclasses import Deliverable, DeliverableType, HasOVW
 import storagetypes
 import packagetypes
@@ -40,7 +40,7 @@ activeVaccineTypes= [] #: List of currently active VaccineType instances
 _dosesToVialsVC= None 
 _vialsToDosesVC= None 
 
-class VaccineGroup(GroupedShippable,Trackable):
+class VaccineGroup(GroupedShippable,Trackable, Costable):
     "Represents a group of vials of the same type with the same history"
     def __init__(self, nVials, vaccineType, storage, storeWithDiluent, name=None, currentAge=0.0, tracked=False, history=1):
         """This constructor is not meant to be called by the user- use VaccineType.createInstance(wh) instead!"""
@@ -245,6 +245,8 @@ class VaccineGroup(GroupedShippable,Trackable):
         return a list of all true tags.
         """
         return [t for t in self.tags]
+    def getPendingCostEvents(self):
+        return []
 
 class DeliverableVaccineGroup(VaccineGroup, Deliverable):
     def __init__(self, nVials, vaccineType, storage, storeWithDiluent, name, currentAge, tracked, history):
@@ -312,13 +314,14 @@ class DeliverableVaccineGroup(VaccineGroup, Deliverable):
 
 GroupedShippable.register(DeliverableVaccineGroup) # @UndefinedVariable because PyDev doesn't know about abc.register()
 Trackable.register(DeliverableVaccineGroup) # @UndefinedVariable because PyDev doesn't know about abc.register()
+Costable.register(DeliverableVaccineGroup) # @UndefinedVariable because PyDev doesn't know about abc.register()
 
 class VaccineType(GroupedShippableType, HasOVW):
     typeName= 'vaccine'
     def __init__(self, name, displayName, dosesPerVial, ccPerDose, ccDiluentPerDose,
                  dosesPerPerson, storagePriorityList,
                  freezerFac,coolerFac,roomtempFac,openVialFac,
-                 maxAge,lifetimeOpenDays,keepOpenVials=False,rand_key=None):
+                 maxAge,lifetimeOpenDays,keepOpenVials=False,rand_key=None, recDict=None):
         """
         dosesPerVial and dosesPerPerson must be integers;
         storagePriorityList is a list of StorageType instances;
@@ -371,6 +374,7 @@ class VaccineType(GroupedShippableType, HasOVW):
         else: self.rndm_jumpahead= rand_key
         self.packageTypes = []
         self.activatedFlag = False
+        self.recDict = recDict
         allVaccineTypes.append(self)
 
     @staticmethod
@@ -449,7 +453,7 @@ class VaccineType(GroupedShippableType, HasOVW):
         return cls(name, displayName, dosesPerVial, ccPerDose, ccDiluentPerDose,
                    dosesPerPerson, storagePriorityList,
                    freezerFac,coolerFac,roomtempFac,openVialFac,maxAge,
-                   lifetimeOpenDays,mdvp,rand_key=rand_key)
+                   lifetimeOpenDays,mdvp,rand_key=rand_key,recDict=recDict)
 
     def __repr__(self):
         return "<VaccineType(%s,%d,%g,%d,%s,%g,%g,%g,%g,%g)>"%\
@@ -719,10 +723,10 @@ class VaccineType(GroupedShippableType, HasOVW):
 class DeliverableVaccineType(VaccineType, DeliverableType):
     def __init__(self, name, displayName, dosesPerVial, ccPerDose, ccDiluentPerDose, dosesPerPerson,
                  storagePriorityList, freezerFac, coolerFac, roomtempFac, openVialFac, maxAge,
-                 lifetimeOpenDays, keepOpenVials=False, rand_key=None):
+                 lifetimeOpenDays, keepOpenVials=False, rand_key=None, recDict=None):
         VaccineType.__init__(self, name, displayName, dosesPerVial, ccPerDose, ccDiluentPerDose, 
                              dosesPerPerson, storagePriorityList, freezerFac, coolerFac, roomtempFac, openVialFac, maxAge, 
-                             lifetimeOpenDays, keepOpenVials, rand_key)
+                             lifetimeOpenDays, keepOpenVials, rand_key, recDict=recDict)
         DeliverableType.__init__(self)
     
     def createInstance(self,count=1,name=None,currentAge=0.0,tracked=False):

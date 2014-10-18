@@ -1397,8 +1397,20 @@ class Warehouse(Store, abstractbaseclasses.Place):
             else:
                 print "    %s: %s"%(s.__class__.__name__,s.bName)
 
-    def applyToAll(self, filterClass, func, argList=[]):
-        return [func(g, *argList) for g in [gg for gg in self.theBuffer if isinstance(gg, filterClass)]]
+    def applyToAll(self, filterClass, func, negFilterClass=None, argList=[]):
+        """
+        Causes the CanOwn to apply all those owned instances for which isinstance(thisInstance,filterClass) is true
+        to execute func(thisInstance,*argList) and return a list containing the return values of all those
+        function invocations.
+        
+        For this class and its derived classes, and 'owned instance' is an instance of a TrackableType which is found
+        in self.theBuffer .
+        """
+        if negFilterClass is None:
+            return [func(g, *argList) for g in [gg for gg in self.theBuffer if isinstance(gg, filterClass)]]
+        else:
+            return [func(g, *argList) for g in [gg for gg in self.theBuffer 
+                                                if isinstance(gg, filterClass) and not isinstance(gg,negFilterClass)]]
 
 class Clinic(Warehouse):
     def __init__(self,sim, placeholder1, placeholder2, capacityInfo,
@@ -1852,6 +1864,7 @@ class Factory(Process, abstractbaseclasses.UnicodeSupport):
                 self.trackCountdown -= 1
                 self.lastProductionTime = self.sim.now()
                 if targetST.noteHolder is not None:
+                    targetST.noteHolder.addNote(self.sim.costManager.generateFactoryDeliveryCostNotes(productionVC, targetST))
                     totVolCC = 0.0
                     for v, n in productionVC.getTupleList():
                         if isinstance(v, vaccinetypes.VaccineType):

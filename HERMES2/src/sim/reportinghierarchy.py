@@ -23,7 +23,7 @@ This module holds classes used in building reporting hierarchies.
 
 _hermes_svn_id_="$Id: reportinghieararchy.py 879 2012-03-08 16:47:47Z jleonard $"
 
-import sys, os, copy, unittest, StringIO
+import sys, os, copy, unittest, StringIO, types
 import csv_tools, util, abstractbaseclasses
 
 class ReportingHierarchyNode:
@@ -48,7 +48,13 @@ class ReportingHierarchyNode:
             overrides: a dict of the form {fieldName:overrideCB,...} where overrideCB
             has the form:
             
-                val = overrideCB(thisRHN, dictOfPreOverrideVals)
+                val = overrideCB(thisRHN, fieldName)
+                
+                or
+                
+                replacemaneFieldName,val = overrideCB(thisRHN, fieldName)
+                
+                
         """
         self.levelName= levelName
         self.branchName= branchName
@@ -131,7 +137,13 @@ class ReportingHierarchyNode:
                         summaryRec[field] = copy.deepcopy(kidSummaryRec[field])  
         for f in self.overrides:
             if f not in summaryRec: summaryRec[f] = 0.0
-            summaryRec[f]= self.overrides[f](summaryRec,f)
+            newVal = self.overrides[f](summaryRec,f)
+            if newVal is not None:
+                if isinstance(newVal,types.TupleType):
+                    del summaryRec[f] # since the key is being replaced
+                    summaryRec[newVal[0]] = newVal[1]
+                else:
+                    summaryRec[f]= newVal
         return recList
 
     def getReportingLevel(self):

@@ -1028,7 +1028,8 @@ The use of implied links is DEPRECATED and unreliable, and will not be supported
         elaboratedName = "%s(%ld)"%(wh.bName,idcode)
         if category not in byCategoryReportingHierarchyDict:
             byCategoryReportingHierarchyDict[category] = ReportingHierarchyNode('all', category,
-                                        overrides={'LaborCost':sim.costManager.getLaborTotal})
+                                        overrides={'LaborCost':sim.costManager.getOverrideTotal,
+                                                   })
         nh= wh.getNoteHolder()
         if nh is not None: 
             rhn= ReportingHierarchyNode(category, "%s(%ld)"%(nh['name'],idcode), [nh])
@@ -1046,7 +1047,9 @@ The use of implied links is DEPRECATED and unreliable, and will not be supported
                     rhn= ReportingHierarchyNode(category, nh['RouteName'], [nh])
                     byCategoryReportingHierarchyDict[category].add( rhn )
             
-    byCategoryTopRHN = ReportingHierarchyNode('-top-','all',byCategoryReportingHierarchyDict.values())
+    byCategoryTopRHN = ReportingHierarchyNode('-top-','all',byCategoryReportingHierarchyDict.values(),
+                                        overrides={'InventoryChangeCost':sim.costManager.getOverrideTotal
+                                                   })
     shippingTreeTopRHNList = []
     for rhn in shippingTreeReportingHierarchyDict.values():
         if rhn.parent is None: shippingTreeTopRHNList.append(rhn)

@@ -61,13 +61,16 @@ class DummyCostManager:
         return {}
     def generateUseVialsSessionCostNotes(self, level, conditions):
         return {}
-    def getLaborTotal(self, dict, key):
+    def generateFactoryDeliveryCostNotes(self, deliveredSC, targetWH):
         return {}
+    def getOverrideTotal(self, dict, key):
+        return None
     def writeCostRecordsToResultsEntry(self, shdNet, reportingHierarchy, results, timeNow=None):
         if timeNow is None: timeNow = self.sim.now()
         #print reportingHierarchy.getAvailableFieldNames()
         keys, recs= self.generateCostRecordInfo( reportingHierarchy, timeNow )
         results.addCostSummaryRecs(shdNet, recs)
+    
     
     def writeCostRecordList(self, fileName, reportingHierarchy, timeNow=None):
         """

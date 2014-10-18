@@ -218,7 +218,7 @@ class CanOwn(UnicodeSupport):
         return None
     
     @abc.abstractmethod
-    def applyToAll(self, filterClass, func, argList = []):
+    def applyToAll(self, filterClass, func, negFilterClass=None, argList = []):
         """
         Causes the CanOwn to apply all those owned instances for which isinstance(thisInstance,filterClass) is true
         to execute func(thisInstance,*argList) and return a list containing the return values of all those

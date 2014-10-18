@@ -262,17 +262,20 @@ class LegacyCostManager(dummycostmodel.DummyCostManager):
                 print "   %s"%line
             raise RuntimeError("Missing data in price table?")
         
-    def getLaborTotal(self, dict, key):
+    def getOverrideTotal(self, dict, key):
         """
         This method is used to provide an override mechanism for LaborCost in the reporting hierarchy.
         """
-        val= dict['LaborCost']
-        assert dict['ReportingLevel']=='all', 'ReportingHierarchy totalcost override should have level all'
-        try:
-            val = self.priceTable.get("labortotal", "PerYear", level=dict['ReportingBranch'], conditions='normal')
-        except:
-            pass
-        return val * (self.intervalEndTime - self.intervalStartTime)/float(self.model.daysPerYear)
+        if key=='LaborCost':
+            val= dict['LaborCost']
+            assert dict['ReportingLevel']=='all', 'ReportingHierarchy totalcost override should have level all'
+            try:
+                val = self.priceTable.get("labortotal", "PerYear", level=dict['ReportingBranch'], conditions='normal')
+            except:
+                pass
+            return val * (self.intervalEndTime - self.intervalStartTime)/float(self.model.daysPerYear)
+        else:
+            return None
         
     def generateTripCostNotes(self, truckType, level, homeConditions, tripJournal, originatingWH):
         """

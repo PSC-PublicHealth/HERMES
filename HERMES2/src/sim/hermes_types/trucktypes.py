@@ -232,8 +232,19 @@ class Truck(abstractbaseclasses.CanOwn, abstractbaseclasses.Trackable, abstractb
     def getPendingCostEvents(self):
         return []
     
-    def applyToAll(self, filterClass, func, argList=[]):
-        return [func(g, *argList) for g in [gg for gg in self.stock if isinstance(gg, filterClass)]]
+    def applyToAll(self, filterClass, func, negFilterClass=None, argList=[]):
+        """
+        Causes the CanOwn to apply all those owned instances for which isinstance(thisInstance,filterClass) is true
+        to execute func(thisInstance,*argList) and return a list containing the return values of all those
+        function invocations.
+        
+        In this case, an owned instance is any instance of a TrackableType found in self.stock or self.fridges .
+        """
+        if negFilterClass is None:
+            return [func(g, *argList) for g in [gg for gg in (self.stock+self.fridges) if isinstance(gg, filterClass)]]
+        else:
+            return [func(g, *argList) for g in [gg for gg in (self.stock+self.fridges) 
+                                                if isinstance(gg, filterClass) and not isinstance(gg, negFilterClass)]]
 
 class TruckTypeSkeleton(abstractbaseclasses.ManagedType):
     typeName= 'uninitializedTruck'
@@ -274,12 +285,14 @@ class TruckTypeSkeleton(abstractbaseclasses.ManagedType):
         # All trucks get to store things at room temperature
         capacityInfo.append(self.sim.fridges.getTypeByName('OUTDOORS'))
         truckType= TruckType(sim, self.name, self.displayName, capacityInfo,
-                             origStorageCapacityInfo=origStorageCapacityInfo)
+                             origStorageCapacityInfo=origStorageCapacityInfo,
+                             recDict=self.recDict)
         return truckType
     
 class TruckType(abstractbaseclasses.TrackableType):
     typeName= 'truck'
-    def __init__(self, sim, name, displayName, storageCapacityInfo, number=1, origStorageCapacityInfo=None):
+    def __init__(self, sim, name, displayName, storageCapacityInfo, number=1, origStorageCapacityInfo=None,
+                 recDict = None):
         """
         storageCapacityInfo is a list of CanStoreType instances
         number is the number of such trucks in the pool
@@ -293,6 +306,7 @@ class TruckType(abstractbaseclasses.TrackableType):
         self.totalKm= 0.0
         self.totalTravelDays= 0.0
         self.instanceCount= 0
+        self.recDict = recDict
         
     @classmethod
     def fromRec(cls, rec, typeManager):

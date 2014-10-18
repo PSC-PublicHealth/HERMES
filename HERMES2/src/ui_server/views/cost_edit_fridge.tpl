@@ -98,7 +98,7 @@ function buildPage(modelId) {
 	})
 
 	$("#fridge_cost_grid").jqGrid({
-	   	url:'{{rootPath}}json/manage-fridge-cost-table-2',
+	   	url:'{{rootPath}}json/manage-fridge-cost-table',
 	    editurl:'{{rootPath}}edit/edit-cost-fridge',
 		datatype: "json",
 		jsonReader: {
@@ -220,29 +220,30 @@ function buildPage(modelId) {
 					event.stopPropagation();
 				},
 				onEdit:function(event){
-					//var gr = $("#fridge_cost_grid").jqGrid('getGridParam','selRow');
-					//console.log(gr);
-					if(true) {
-						var id = unescape($(this).parent().attr("id"));
-						console.log("ID :"+id);
-						var devName = $("#fridge_cost_grid").jqGrid('getCell',id,"displayname");
-						$("#fridge_cost_grid").jqGrid('editGridRow',id,{
-	                  	  closeAfterEdit:true,
-	                  	  closeOnEscape:true,
-	                  	  jqModal:true,
-	                  	  viewPagerButtons:false,
-	                  	  mType:"POST",
-	                  	  modal:true,
-	                  	  editData: {
-	        					modelId: function() { 
-	        						return $('#model_sel_widget').modelSelector('selId'); 
-	        					}
-	                  	  },
-	                  	  editCaption:"Edit Cost Information for " + devName,
-	                  	  savekey:[true,13]             
-						});
-					}
-					else alert("Please Slect Row");
+					var id = unescape($(this).parent().attr("id"));
+					console.log("ID :"+id);
+					var devName = $("#fridge_cost_grid").jqGrid('getCell',id,"displayname");
+					$("#fridge_cost_grid").jqGrid('editGridRow',id,{
+						closeAfterEdit:true,
+						closeOnEscape:true,
+	                  	jqModal:true,
+	                  	viewPagerButtons:false,
+	                  	mType:"POST",
+	                  	modal:true,
+	                  	editData: {
+	                  		modelId: function() { 
+	                  			return $('#model_sel_widget').modelSelector('selId'); 
+	        				}
+	                  	},
+	                  	editCaption:'{{_("Edit Cost Information for ")}}' + devName,
+	                  	savekey:[true,13],
+	                  	afterSubmit:function(response,postData){
+	                  		var data = $.parseJSON(response.responseText);
+	                  		console.log(data);
+	                  		if (data.success) return [true];
+	                  		else return [false,data.msg];
+	                  	}
+					});
 				}
 			});
 			/*

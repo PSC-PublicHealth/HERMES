@@ -40,8 +40,8 @@ class CostModelHierarchicalSummary(object):
         d = {}
         for r in recs:
             #print 'rec %s'%r
-            if r['ReportingLevel'] == '-top-' or r['ReportingLevel'] == u'-top-':
-                continue
+#             if r['ReportingLevel'] == '-top-' or r['ReportingLevel'] == u'-top-':
+#                 continue
             for g in groups:
                 if g not in d:
                     d[g] = {}
@@ -103,7 +103,6 @@ class CostModelHierarchicalSummary(object):
         prefixLen is an integer giving the length of the substring to clip from the front of each name
         """
         recs = [r.createRecord() for r in self.result.getCostSummaryRecs()]
-        #d = {}
         costSet = set()
         for r in recs: costSet.update([k for k in r.keys() if k in inSet])
         treeD = {}
@@ -113,10 +112,11 @@ class CostModelHierarchicalSummary(object):
             if lvl not in treeD: treeD[lvl] = {}
             assert brch not in treeD[lvl], "Hierarchical cost summary has redundant entry for level %s branch %s"%(lvl,brch)
             treeD[lvl][brch] = {k:v for k,v in r.items() if k in costSet}
-        #print treeD
-        h = self._mkSubTree('all', treeD['all'], treeD, prefixLen)
-        self._printSubTree(h)
-        return h
+        #h = self._mkSubTree('all', treeD['all'], treeD, prefixLen)
+        h = self._mkSubTree('-top-', treeD['-top-'], treeD, prefixLen)
+        #self._printSubTree(h)
+        #return h
+        return h['children'][0]
 
 
 class LegacyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
