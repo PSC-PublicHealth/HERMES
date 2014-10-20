@@ -143,7 +143,10 @@ def jsonFridgeEditVerifyAndCommit(db, uiSession):
             result = {'success':True, 'value':False, 'msg':badStr}
         else:
             # PowerRateUnits is completely determined by energy type
-            attrRec['PowerRateUnits'] = energyTranslationDict[attrRec['Energy'].encode('utf-8')][2]
+            if attrRec['Energy']:
+                attrRec['PowerRateUnits'] = energyTranslationDict[attrRec['Energy'].encode('utf-8')][2]
+            else:
+                attrRec['PowerRateUnits'] = None
             newFridge = shadow_network.ShdStorageType(attrRec.copy()) 
             db.add(newFridge)
             m.types[attrRec['Name']] = newFridge

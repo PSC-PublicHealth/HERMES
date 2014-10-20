@@ -20,13 +20,14 @@ import typehelper
 from sqlalchemy.orm.exc import NoResultFound
 from upload import uploadAndStore, makeClientFileInfo
 from HermesServiceException import HermesServiceException
-from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _safeGetReqParam
+from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _safeGetReqParam, _mergeFormResults
 from gridtools import orderAndChopPage
 import session_support_wrapper as session_support
 from modelhooks import _findCanonicalStores
 from demandhooks import _interpretDemandModelStructure
 import util
 import json
+import truckhooks, fridgehooks, vaccinehooks, peoplehooks
 
 inlizer=session_support.inlizer
 _=session_support.translateString
@@ -44,7 +45,7 @@ def tabPage(uiSession):
                                                        ('ajax/page_9',_('Route Editor')),
                                                        ('ajax/page_10',_('Pop-Up Menu')),
                                                        ('ajax/page_11',_('Data Entry')),
-                                                       ('ajax/page_12',_('Button Triple')),
+                                                       ('ajax/page_12',_('Type Editor')),
                                                        ('debug-ui',_('Debug'))
                                                        ])
 
@@ -66,6 +67,90 @@ def jsonEcho():
     result={'success':True,'value':sio.getvalue()}
     return result
     
+@bottle.route('/json/type-edit-form')
+def jsonTypeEditForm(db, uiSession):
+    try:
+        typeName = _getOrThrowError(bottle.request.params,'typename')
+        modelId = _getOrThrowError(bottle.request.params,'modelId')
+        try:
+            uiSession.getPrivs().mayWriteModelId(db, modelId)
+        except privs.PrivilegeException:
+            raise bottle.BottleException('User may not read model %d'%modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        tp = m.types[typeName]
+        attrRec = {}
+        shadow_network._copyAttrsToRec(attrRec,tp)
+        if tp.shdType == 'fridges':
+            htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,"fridge",modelId,typeName,
+                                                              typehelper.elaborateFieldMap(typeName, attrRec,
+                                                                                           fridgehooks.fieldMap))
+            result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
+        elif tp.shdType == 'trucks':
+            htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,"truck",modelId,typeName,
+                                                              typehelper.elaborateFieldMap(typeName, attrRec,
+                                                                                           truckhooks.fieldMap))
+            result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
+        elif tp.shdType == 'vaccines':
+            htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,"vaccine",modelId,typeName,
+                                                              typehelper.elaborateFieldMap(typeName, attrRec,
+                                                                                           vaccinehooks.fieldMap))
+            result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
+        elif tp.shdType == 'people':
+            htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,"people",modelId,typeName,
+                                                              typehelper.elaborateFieldMap(typeName, attrRec,
+                                                                                           peoplehooks.fieldMap))
+            result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
+        else:
+            raise RuntimeError('Unknown shdType %s'%tp.shdType)
+        return result
+    except Exception,e:
+        _logStacktrace()
+        return {'success':False, 'msg':unicode(e)}
+
+@bottle.route('/json/type-edit-verify-commit')
+def jsonTypeEditVerifyAndCommit(db, uiSession):
+    try:
+        typeName = _getOrThrowError(bottle.request.params,'name')
+        modelId = _getOrThrowError(bottle.request.params,'modelId')
+        try:
+            uiSession.getPrivs().mayWriteModelId(db, modelId)
+        except privs.PrivilegeException:
+            raise bottle.BottleException('User may not read model %d'%modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        tp = m.types[typeName]
+
+        if tp.shdType == 'fridges':
+            m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, fridgehooks.fieldMap,  # @UnusedVariable
+                                                          allowNameCollisions=True)
+            # PowerRateUnits is completely determined by energy type
+            if attrRec['Energy']:
+                attrRec['PowerRateUnits'] = fridgehooks.energyTranslationDict[attrRec['Energy'].encode('utf-8')][2]
+            else:
+                attrRec['PowerRateUnits'] = None
+        elif tp.shdType == 'trucks':
+            m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, truckhooks.fieldMap,  # @UnusedVariable
+                                                          allowNameCollisions=True)
+        elif tp.shdType == 'vaccines':
+            m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, vaccinehooks.fieldMap,  # @UnusedVariable
+                                                          allowNameCollisions=True)
+        elif tp.shdType == 'people':
+            m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, peoplehooks.fieldMap,  # @UnusedVariable
+                                                          allowNameCollisions=True)
+        else:
+            raise RuntimeError('Unknown shdType %s'%tp.shdType)
+
+        if badStr and badStr!="":
+            result = {'success':True, 'value':False, 'msg':badStr}
+        else:
+            shadow_network._moveAttrs(tp, attrRec)
+            result = {'success':True, 'value':True}
+        return result
+    except Exception, e:
+        _logStacktrace()
+        result = {'success':False, 'msg':str(e)}
+        return result
+
+
 @bottle.route('/json/data-entry-get-keys')
 def jsonDataEntryGetKeys(db, uiSession):
     try:

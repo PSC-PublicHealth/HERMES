@@ -64,13 +64,10 @@ function fridgeInfoButtonFormatter(cellvalue, options, rowObject)
 	*/
 };
 
-var priceCheckFailure = false;
-
 function priceCheck(value) {
 	if ((value=='') || (!isNaN(parseFloat(value)) && isFinite(value)))
 		return true;
 	else {
-		priceCheckFailure = true;
 		return false;
 	}
 }

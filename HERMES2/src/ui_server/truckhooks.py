@@ -27,9 +27,16 @@ _=session_support.translateString
 fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'string'},
             {'row':1, 'label':_('DisplayName'), 'key':'DisplayName', 'id':'displayname', 'type':'string'},
             {'row':1, 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'type':'string'},
-            {'row':1, 'label':_('Storage'), 'key':'Storage', 'id':'storage', 'type':'string'},  
+            {'row':2, 'label':_('Storage'), 'key':'Storage', 'id':'storage', 'type':'string'},  
             {'row':2, 'label':_('CoolVolume (cc)'), 'key':'CoolVolumeCC', 'id':'coolvolumecc', 'type':'float'},
-            {'row':2, 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'type':'string'},  
+            {'row':2, 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'type':'string'},
+            {'row':3, 'label':_('Base Price'), 'key':'BaseCost', 'id':'baseprice', 'type':'price'},  
+            {'row':3, 'label':_('Price Units'), 'key':'BaseCostCur', 'id':'basecostcur', 'type':'currency'},   
+            {'row':3, 'label':_('Price Year'), 'key':'BaseCostYear', 'id':'basecostyear', 'type':'int'},  
+            {'row':3, 'label':_('Km To Amortize'), 'key':'AmortizationKm', 'id':'amortkm', 'type':'float'},
+            {'row':4, 'label':_('Fuel'), 'key':'Fuel', 'id':'fuel', 'type':'energy'},
+            {'row':4, 'label':_('Fuel Consumption'), 'key':'FuelRate', 'id':'fuelrate', 'type':'float'},
+            {'row':4, 'label':_('Units'), 'key':'FuelRateUnits', 'id':'fuelunits', 'type':'string'},
             ]
 
 @bottle.route('/truck-top')

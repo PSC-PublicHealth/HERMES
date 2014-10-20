@@ -39,27 +39,30 @@ def costTopPage(db, uiSession):
     return bottle.template("cost_top.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs"),
                                            "minYear":minYear, "maxYear":maxYear})
 
-@bottle.route('/cost-edit-truck')
 @bottle.route('/cost-edit-salary')
 @bottle.route('/cost-edit-building')
-@bottle.route('/cost-check-complete')
 def costUnimplemented(db, uiSession):
     bottle.redirect('%snotimpl'%rootPath)
 
 @bottle.route('/cost-edit-fuel')
 def costEditFuel(db, uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Fuel")))
-    return bottle.template("cost_edit_fuel.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs")})
+    return bottle.template("cost_edit_fuel.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Fuel Costs")})
 
 @bottle.route('/cost-edit-fridge')
 def costEditFridge(db, uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Storage")))
-    return bottle.template("cost_edit_fridge.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs")})
+    return bottle.template("cost_edit_fridge.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Storage Device Costs")})
 
 @bottle.route('/cost-edit-vaccine')
 def costEditVaccine(db, uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Vaccines")))
-    return bottle.template("cost_edit_vaccines.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs")})
+    return bottle.template("cost_edit_vaccines.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Vaccine Costs")})
+
+@bottle.route('/cost-edit-truck')
+def costEditTrucks(db, uiSession):
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Vehicles")))
+    return bottle.template("cost_edit_trucks.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Vehicle Costs")})
 
 @bottle.route('/list/select-currency')
 def handleListCurrency(db,uiSession):
@@ -270,34 +273,27 @@ def getFuelButtonLabel(db, uiSession, m):
     elif nSet==len(vList): return _("Revisit")
     else: return _("Continue")
 
-def getFridgeButtonLabel(db, uiSession, m):
+def getTypeButtonLabel(db, uiSession, m, tpCategory, keyList):
     count = 0
     possible = 0
-    tList = typehelper.getTypeList(db, m.modelId, 'fridges', fallback=False)
+    tList = typehelper.getTypeList(db, m.modelId, tpCategory, fallback=False)
     for t in tList:
-        for fld in ['BaseCost','BaseCostCur','BaseCostYear','PowerRate']:
+        for fld in keyList:
             v = t[fld]
             possible += 1
             if not(v is None or v=='' or v<0): count += 1
     if count == 0: return _("Begin")
     elif count == possible: return _("Revisit")
     else: return _("Continue")
+    
+def getFridgeButtonLabel(db, uiSession, m):
+    return getTypeButtonLabel(db, uiSession, m, 'fridges', ['BaseCost','BaseCostCur','BaseCostYear','PowerRate'])
 
 def getTruckButtonLabel(db, uiSession, m):
-    return _("Unimplemented");
+    return getTypeButtonLabel(db, uiSession, m, 'trucks', ['BaseCost','BaseCostCur','BaseCostYear', 'AmortizationKm', 'FuelRate'])
 
 def getVaccineButtonLabel(db, uiSession, m):
-    count = 0
-    possible = 0
-    tList = typehelper.getTypeList(db, m.modelId, 'vaccines', fallback=False)
-    for t in tList:
-        for fld in ['Vaccine price/vial','Price Units']:
-            v = t[fld]
-            possible += 1
-            if not(v is None or v=='' or v<0): count += 1
-    if count == 0: return _("Begin")
-    elif count == possible: return _("Revisit")
-    else: return _("Continue")
+    return getTypeButtonLabel(db, uiSession, m, 'vaccines', ['Vaccine price/vial', 'Price Units', 'Price Year'])
 
 def getSalaryButtonLabel(db, uiSession, m):
     return _("Unimplemented");
@@ -700,3 +696,95 @@ def editCostVaccine(db, uiSession):
         _logStacktrace()
         return {'success':False, 'msg':str(e)}
             
+@bottle.route('/json/get-cost-info-truck')
+def jsonGetCostInfoTruck(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        result = { 
+                  # I am sure we will want to pass something in here!
+                  'success':True,
+                  }
+        return result
+    except Exception,e:
+        _logStacktrace()
+        return {"success":False, "msg":str(e)} 
+
+@bottle.route('/json/manage-truck-cost-table')
+def jsonManageTruckCostTable(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        try:
+            uiSession.getPrivs().mayReadModelId(db, modelId)
+        except privs.PrivilegeException:
+            raise bottle.BottleException('User may not read model %d'%modelId)
+        tList = typehelper.getTypeList(db, modelId, 'trucks', fallback=False)
+        tList = [t for t in tList if t['Name'] not in typehelper.hiddenTypesSet]
+        for rec in tList:
+            if 'DisplayName' not in rec \
+                or rec['DisplayName'] is None or rec['DisplayName']=='':
+                rec['DisplayName'] = rec['Name']
+        nPages,thisPageNum,totRecs,tList = orderAndChopPage(tList,
+                                                            {'name':'Name',
+                                                             'displayname':'DisplayName',
+                                                             'basecost':'BaseCost',
+                                                             'currency':'BaseCostCur',
+                                                             'basecostyear':'BaseCostYear'
+                                                             },
+                                                            bottle.request)
+        for t in tList:
+            print t
+            for k in ['BaseCost']: 
+                if t[k] == 0: t[k] = None
+                
+        result = {
+                  'success':True,
+                  "total":1,    # total pages
+                  "page":1,     # which page is this
+                  "records":totRecs,  # total records
+                  "rows": [ {"name":t['Name'],
+                            "displayname":t['DisplayName'],
+                            "detail":t['Name'],
+                            "basecost":t['BaseCost'],
+                            "currency":t['BaseCostCur'],
+                            "basecostyear":t['BaseCostYear'],
+                             }
+                           for t in tList if t['Name'] not in typehelper.hiddenTypesSet]
+                  }
+        return result
+    except Exception,e:
+        _logStacktrace()
+        return {'success':False, 'msg':str(e)}
+    
+@bottle.route('/edit/edit-cost-truck', method='POST')
+def editCostTruck(db, uiSession):
+    try:
+        #print [(k,v) for k,v in bottle.request.params.items()]
+        if bottle.request.params['oper']=='edit':
+            modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+            uiSession.getPrivs().mayModifyModelId(db, modelId)
+            m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+            typeName = _getOrThrowError(bottle.request.params, 'id')
+            if typeName in m.types:
+                tp = m.types[typeName]
+                assert isinstance(tp,shadow_network.ShdTruckType),"Type %s is not a truck"%typeName
+                print dir(tp)
+                for opt in ['category', 'displayname']:
+                    if opt in bottle.request.params:
+                        raise RuntimeError(_('Editing of {0} is not supported').format(opt))
+                if 'basecost' in bottle.request.params:
+                    tp.pricePerVial = _safeGetReqParam(bottle.request.params, 'basecost', isFloat=True)
+                if 'currency' in bottle.request.params:
+                    tp.priceUnits = _safeGetReqParam(bottle.request.params, 'currency')
+                if 'basecostyear' in bottle.request.params:
+                    tp.priceBaseYear = _safeGetReqParam(bottle.request.params, 'basecostyear', isInt=True)
+                return {'success':True}
+            else:
+                raise RuntimeError(_('Model {0} does not contain type {1}').format(m.name, typeName))
+        else: raise RuntimeError(_('Unsupported operation {0}').format(bottle.request.params['oper']))
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        _logStacktrace()
+        return {'success':False, 'msg':str(e)}

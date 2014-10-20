@@ -454,7 +454,7 @@ def _buildEditFieldTable(fieldMap):
                         raise RuntimeError("Nonsense lifetime units code %s"+units)
                 else:
                     sio.write('  <td><div %s class="hrm_lifetime"><input type=text id="%s" onkeypress="validateFloat(event)" %s>\n'%\
-                              (hideStr,d['id']))
+                              (hideStr,d['id'],hideStr))
                     sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W">%s</option><option value="M">%s</option></select></div></td>\n'%\
                               (d['id'],_("Days"),_("Weeks"),_("Months")))
             elif d['type'] == 'currency':

@@ -77,7 +77,7 @@ def _getAttrDict(bottleRequest, db, uiSession, fMap, throwException=False):
             raise HermesServiceException(_("Missing or invalid parameters for {0}").format(badStr))
     return attrRec
 
-def _mergeFormResults(bottleRequest, db, uiSession, fieldMap):
+def _mergeFormResults(bottleRequest, db, uiSession, fieldMap, allowNameCollisions=False):
     """
     fieldMap is a field map list, as described for various routines in the htmlgenerator module.
     """
@@ -86,7 +86,7 @@ def _mergeFormResults(bottleRequest, db, uiSession, fieldMap):
     badStr = ""
     if 'modelId' in attrRec:
         m = shadow_network_db_api.ShdNetworkDB(db,attrRec['modelId'])
-        if attrRec['Name'] in m.types:
+        if attrRec['Name'] in m.types and not allowNameCollisions:
             badStr += _("The name {0} is already in use. ").format(attrRec['Name'])
     else:
         m = None
@@ -99,9 +99,9 @@ def _mergeFormResults(bottleRequest, db, uiSession, fieldMap):
         if d['key'] in attrRec:
             if d['type'] == 'select':
                 selected = attrRec[d['key']]
-                for val,txt,enabledList,disabledList in d['options']:
+                for val,txt,enabledList,disabledList in d['options']:  # @UnusedVariable
                     if val==selected:
-                        disabledItems.update([fieldDict[id]['key'] for id in disabledList])
+                        disabledItems.update([fieldDict[disabledId]['key'] for disabledId in disabledList])
             elif d['type'] == 'hide':
                 disabledItems.add(d['key'])
     nBP = []

@@ -10,6 +10,13 @@ var n = this,
    return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
  };
  
+ String.prototype.unformatMoney = function(t) {
+	 var cStr = this, 
+	    t = t == undefined ? "," : t;
+	 var val = Number(cStr.replace(t,""));
+	 return val;
+ };
+
  // Thanks to Anentropic http://stackoverflow.com/questions/1219860/html-encoding-in-javascript-jquery
  String.prototype.htmlEscape = function() {
 	 return this.replace(/&/g, '&amp;')
@@ -18,7 +25,7 @@ var n = this,
      .replace(/</g, '&lt;')
      .replace(/>/g, '&gt;');
  };
-
+ 
 // setup grid print capability for jqGrid.  Add print button to navigation bar and bind to click.
 // Thanks to nelsonm: http://www.trirand.com/blog/?page_id=393/help/improved-print-grid-function/
 function setPrintGrid(gid,pid,pgTitle){
@@ -1004,8 +1011,14 @@ function addToggleExpansionButton($grid) {
  					var dict = {modelId:settings.modelId}
  					$(this).find('input,select').each( function( index ) {
  						var tj = $(this);
- 						dict[tj.attr('id')] = tj.val();
- 						
+ 						if (tj.hasClass('hrm_price')) {
+ 							dict[tj.attr('id')] = tj.val().unformatMoney()
+ 						}
+ 						else {
+ 	 						dict[tj.attr('id')] = tj.val();
+ 	 						
+ 							
+ 						}
  					});
  					$(this).find('.hrm_currency').each(function() {
  						var tj = $(this);
