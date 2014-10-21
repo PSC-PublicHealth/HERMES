@@ -4,3 +4,4 @@ chardet
 geojson
 kitchen
 zest.pocompile
+xlwt
