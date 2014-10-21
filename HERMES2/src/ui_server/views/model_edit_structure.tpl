@@ -3,6 +3,26 @@
 <script src="{{rootPath}}static/base64v1_0.js"></script>
 <script src="{{rootPath}}static/model_edit.js"></script>
 
+% Attrs = [
+%    { 'field' : "Name",         'type' : 'store', 'title' : _('names') },
+%    { 'field' : "Category",     'type' : 'store', 'title' : _('categories') },
+%    { 'field' : "LatLon",       'type' : 'store', 'title' : _('lat / lon') },
+%    { 'field' : "UseVials",     'type' : 'store', 'title' : _('use vials') },
+%    { 'field' : "UtilizationRate", 'type' : 'store', 'title' : _('utilization rate') },
+%    { 'field' : "Demand",       'type' : 'store', 'title' : _('population') },
+%    { 'field' : "fridges",      'type' : 'store', 'title' : _('storage') },
+%    { 'field' : "trucks",       'type' : 'store', 'title' : _('transport') },
+%    { 'field' : "Notes",        'type' : 'store', 'title' : _('notes') },
+%    { 'field' : "Name",         'type' : 'route', 'title' : _('route names') },
+%    { 'field' : "Type",         'type' : 'route', 'title' : _('route types') },
+%    { 'field' : "TransitHours", 'type' : 'route', 'title' : _('transit hours') },
+%    { 'field' : "Distances",    'type' : 'route', 'title' : _('distances') },
+%    { 'field' : "OrderAmount",  'type' : 'route', 'title' : _('order amounts') },
+%    { 'field' : "TruckType",    'type' : 'route', 'title' : _('truck type') },
+%    { 'field' : "Timings",      'type' : 'route', 'title' : _('route timings') },
+%    { 'field' : "Conditions",   'type' : 'route', 'title' : _('route conditions') },
+% ]
+
 <style>
 #em_content { width: 100%; height: 100%; top: 0; bottom: 0; }
 #em_leftSide { 
@@ -25,20 +45,25 @@
 
 <div id="model_edit_info_dialog" title="This should get replaced"></div>
 
-<h2>'Edit model'</h2>
+<h2>{{_('Edit model')}}</h2>
 <table>
   <tr>
     <td>
 <ul class='em_disp_menu'>
-  <li class='no_ul'><a href="#">store viewing options</a>
+  <li class='no_ul'><a href="#">{{_('store viewing options')}}</a>
     <ul>
-      %for c in ['Name', 'Category', 'LatLon', 'UseVials', 'UtilizationRate', 'Demand', 'fridges', 'trucks', 'Notes']:
+      % for a in Attrs:
+      %     if not a['type'] == 'store': 
+      %         continue 
+      %     end
+      %     f = a['field']
+      %     t = a['title']
        <li class='no_ul'>
-	 <a href="#">store {{c}}</a>
+	 <a href="#">{{_('store {0}').format(t)}}</a>
 	 <ul>
-	   <li class='no_ul' onclick="show_attr('store{{c}}')"><a href="#">edit store {{c}}</a></li>
-	   <li class='no_ul' onclick="ro_attr('store{{c}}')"><a href="#">view store {{c}}</a></li>
-	   <li class='no_ul' onclick="hide_attr('store{{c}}')"><a href="#">hide store {{c}}</a></li>
+	   <li class='no_ul' onclick="show_attr('store{{f}}')"><a href="#">{{_('edit store {0}').format(t)}}</a></li>
+	   <li class='no_ul' onclick="ro_attr('store{{f}}')"><a href="#">{{_('view store {0}').format(t)}}</a></li>
+	   <li class='no_ul' onclick="hide_attr('store{{f}}')"><a href="#">{{_('hide store {0}').format(t)}}</a></li>
 	 </ul>
        </li>
       %end
@@ -51,15 +76,20 @@
 </td>
 <td>
 <ul class='em_disp_menu'>
-  <li class='no_ul'><a href="#">route viewing options</a>
+  <li class='no_ul'><a href="#">{{_('route viewing options')}}</a>
     <ul>
-      %for c in ['Name', 'Type', 'TransitHours', 'Distances', 'OrderAmount', 'TruckType', 'Timings', 'Conditions']:
+      % for a in Attrs:
+      %     if not a['type'] == 'route': 
+      %         continue 
+      %     end
+      %     f = a['field']
+      %     t = a['title']
        <li class='no_ul'>
-	 <a class="no_ul" href="#">route {{c}}</a>
+	 <a class="no_ul" href="#">{{_('route {0}').format(t)}}</a>
 	 <ul>
-	   <li class='no_ul' onclick="show_attr('route{{c}}')"><a href="#">edit route {{c}}</a></li>
-	   <li class='no_ul' onclick="ro_attr('route{{c}}')"><a href="#">view route {{c}}</a></li>
-	   <li class='no_ul' onclick="hide_attr('route{{c}}')"><a href="#">hide route {{c}}</a></li>
+	   <li class='no_ul' onclick="show_attr('route{{f}}')"><a href="#">{{_('edit route {0}').format(t)}}</a></li>
+	   <li class='no_ul' onclick="ro_attr('route{{f}}')"><a href="#">{{_('view route {0}').format(t)}}</a></li>
+	   <li class='no_ul' onclick="hide_attr('route{{f}}')"><a href="#">{{_('hide route {0}').format(t)}}</a></li>
 	 </ul>
        </li>
       % #       <li class="route{{c}}_Button", onclick="toggle_attr('route{{c}}')"><a class="no_ul" href="#">toggle route {{c}}</a></li>
@@ -72,45 +102,25 @@
 <td>
   <ul class='em_disp_menu'>
     <li class='no_ul'>
-      <a href="#">Model Validation</a>
+      <a href="#">{{_('Model Validation')}}</a>
       <ul>
 	<li class='no_ul' onclick="validateModel()">
-	  <a href="#">Validate Model</a>
+	  <a href="#">{{_('Validate Model')}}</a>
 	</li>
 	<li class='no_ul' onclick="clearMessages()">
-	  <a href="#">Clear Messages</a>
+	  <a href="#">{{_('Clear Messages')}}</a>
 	</li>
       </ul>
     </li>
   </ul>
 </td>
-<!-- td>
-  <ul class='em_disp_menu_1'>
-    <li class='no_ul'>
-      <a href="#">Model XXX</a>
-      <ul class='em_disp_model_2'>
-	<li class='no_ul' onclick="validateModel()">
-	  <a href="#">XXX</a>
-	  <ul>
-	    <li><a href="#">This is a test</a></li>
-	    <li><a href="#">This is a test 1</a></li>
-	    <li><a href="#">This is a test 2</a></li>
-	  </ul>
-	</li>
-	<li class='no_ul' onclick="clearMessages()">
-	  <a href="#">Clear Messages</a>
-	</li>
-      </ul>
-    </li>
-  </ul>
-</td -->
   </tr>
 </table>
 
 <div id="em_context">
-    <p>Route to use as template for newly created routes: 
+    <p>{{_('Route to use as template for newly created routes:')}} 
         <span id='routeTemplateText'>None</span>
-        <button type="button" onclick="clearRouteTemplate()">Clear</button>
+        <button type="button" onclick="clearRouteTemplate()">{{_('Clear')}}</button>
     </p>
 </div>
 <div id="em_content">
@@ -142,23 +152,9 @@ var modelId = {{modelId}};
 var extraContext = {'routeTemplate' : null};
 
 var Attrs = {
-    "storeCategory" : { 'type' : 'store', 'title' : 'categories' },
-    "storeLatLon" :   { 'type' : 'store', 'title' : 'lat / lon' },
-    "storeName" :     { 'type' : 'store', 'title' : 'store names' },
-    "storeDemand" :   { 'type' : 'store', 'title' : 'population' },
-    "storefridges" :  { 'type' : 'store', 'title' : 'storage' },
-    "storetrucks" :   { 'type' : 'store', 'title' : 'transport' },
-    "storeUseVials" : { 'type' : 'store', 'title' : 'use vials' },
-    "storeUtilizationRate" : { 'type' : 'store', 'title' : 'utilization rate' },
-    "storeNotes" :    { 'type' : 'store', 'title' : 'notes' },
-    "routeName" : { 'type' : 'route', 'title' : 'route names' },
-    "routeTransitHours" : { 'type' : 'route', 'title' : 'transit hours' },
-    "routeType" :     { 'type' : 'route', 'title' : 'route types' },
-    "routeDistances" : { 'type' : 'route', 'title' : 'distances' },
-    "routeOrderAmount" : { 'type' : 'route', 'title' : 'order amounts' },
-    "routeTruckType" : { 'type' : 'route', 'title' : 'truck type' },
-    "routeTimings" : { 'type' : 'route', 'title' : 'route timings' },
-    "routeConditions" : { 'type' : 'route', 'title' : 'route conditions' },
+% for a in Attrs:
+    "{{a['type']}}{{a['field']}}" : { 'type': '{{a['type']}}', 'title': '{{a['title']}}' },
+%end
 };
 
 var TreeLabels = {
@@ -193,9 +189,9 @@ $(function() {
 			success = data.success;
 			if (!success) {
 			    if('errorString' in data) {
-				alert('error fetching node: '+data.errorString);
+				alert('{{_('error fetching node: ')}}'+data.errorString);
 			    } else {
-				alert('error fetching node');
+				alert('{{_('error fetching node')}}');
 			    }
 			    return NULL;
 			}
@@ -207,7 +203,7 @@ $(function() {
                         //alert('success');
                     },
                     "error" : function(jqxhr, textStatus, error) {
-                        alert('error fetching route tree');
+                        alert('{{_('error fetching route tree')}}');
                     } 
 		}
 	    }
@@ -238,7 +234,7 @@ $(function() {
                         //alert('success');
                     },
                     "error" : function(jqxhr, textStatus, error) {
-                        alert('error fetching unattached route tree');
+                        alert({{_('error fetching unattached route tree')}});
                     }
 
 		}
