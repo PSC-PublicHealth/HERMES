@@ -342,7 +342,7 @@ def _buildEditFieldTable(fieldMap):
                 field on the client side
        
        'type':  one of ['string','float','int','bool','lifetime','hide',
-                'select']
+                'select', 'energy', 'fuel', 'price', 'currency']
        
        'default': default value
        
@@ -401,7 +401,7 @@ def _buildEditFieldTable(fieldMap):
                         s = ",".join([str(v).replace('"','&quot;') for v in oldVal])
                         escapedStr= str(s)
                     else:
-                        print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
+                        #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
                         escapedStr = oldVal.replace('"','&quot;')
                     sio.write('  <td><input type=text value="%s" id="%s" %s></td>\n'%(escapedStr,d['id'],hideStr))
                 else:
@@ -462,7 +462,7 @@ def _buildEditFieldTable(fieldMap):
                     sio.write('  <td><div class="hrm_currency" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
 
                 else:
-                    print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
+                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
                     sio.write('  <td><div class="hrm_currency" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
                 if 'price' in d and 'year' in d:
                     # We have enough info to make a cost editing triple
@@ -472,8 +472,15 @@ def _buildEditFieldTable(fieldMap):
                     sio.write('  <td><div class="hrm_energy" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
 
                 else:
-                    print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
+                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
                     sio.write('  <td><div class="hrm_energy" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
+            elif d['type'] == 'fuel':
+                if oldVal is None:
+                    sio.write('  <td><div class="hrm_fuel" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
+
+                else:
+                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
+                    sio.write('  <td><div class="hrm_fuel" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
             else:
                 raise HermesServiceException(_("Unknown type {0} in fieldmap entry for {1}".format(d['type'],d['key'])))
             

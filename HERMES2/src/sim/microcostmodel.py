@@ -39,7 +39,8 @@ priceKeyTable = {'propane':'pricepropaneperkg',
                  'diesel':'pricedieselperl', 
                  'electric':'priceelectricperkwh',
                  'solar':('pricesolarperkw','solarpanellifetimeyears'),
-                 'ice':'priceiceperliter'
+                 'ice':'priceiceperliter',
+                 'free':None
                  }
 
 class MicroCostManager(dummycostmodel.DummyCostManager):
@@ -93,7 +94,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         errList = []
         runCur = self.sim.userInput['currencybase']
         runCurYear = self.sim.userInput['currencybaseyear']
-        inflation = self.sim.userInput['priceinflation']/self.model.daysPerYear  # ignore compounding to save math
+        inflation = self.sim.userInput['priceinflation'] # currency converter wants per-year inflation
         for tpName,cnt in pairList:
             try:
                 tp = self.sim.typeManager.getTypeByName(tpName)
@@ -167,7 +168,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         # We do this loop in a try/except to bundle more error messages together, since there is a
         # long annoying process of finding missing price info.
         fridgeAmortPeriod = self.sim.userInput['amortizationstorageyears']*self.model.daysPerYear
-        inflation = self.sim.userInput['priceinflation']/self.model.daysPerYear  # ignore compounding to save math
+        inflation = self.sim.userInput['priceinflation'] # ultimately used by currencyConverter, so per-year
         allPendingCostEvents = []
         for r in self.sim.warehouseWeakRefs:
             wh= r()
@@ -303,6 +304,40 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
             
         errList = []
         result = {}
+        
+        #  Costs associated with the truck
+        tCur = truckType.recDict['BaseCostCur']
+        tYear = truckType.recDict['BaseCostYear']
+        fuel = trucktypes.fuelTranslationDict[truckType.recDict['Fuel']][4]
+        costPattern = trucktypes.fuelTranslationDict[truckType.recDict['Fuel']][5]
+        runCur = self.sim.userInput['currencybase']
+        runCurYear = self.sim.userInput['currencybaseyear']
+        inflation = self.sim.userInput['priceinflation'] # currencyConverter wants per-year inflation
+        priceKeyInfo = priceKeyTable[fuel]
+        if priceKeyInfo is not None and self.sim.userInput[priceKeyInfo] != 0.0:
+            assert costPattern == 'distance', u"Transport type %s does not cost by distance?"%truckType.name
+            assert isinstance(priceKeyInfo, types.StringTypes), u"fuel type for %s should not have amortization"%truckType.name
+            fuelPrice = self.sim.userInput[priceKeyInfo] # in run currency at run base year
+            assert fuelPrice is not None, u"Cost information for fuel type %s is missing"%fuel
+            fuelRate = truckType.recDict['FuelRate']
+            assert fuelRate is not None, u"Cost information for %s is incomplete"%truckType.name
+            #
+            # fuel cost is totKm/fuelRate, since fuelRate is an inverse, like Km/liter.  The price of fuel
+            # is already given in the run currency at the run year, so no currency conversion is needed.
+            #
+            fuelCost = (totKm/fuelRate)*fuelPrice
+        else:
+            # Fuel is free
+            fuelCost = 0.0
+        baseCost = truckType.recDict['BaseCost']
+        assert baseCost is not None, u"Cost information for %s is incomplete"%truckType.name
+        amortKm = truckType.recDict['AmortizationKm']
+        rawAmortCost = baseCost*totKm/amortKm
+        amortCost = self.currencyConverter.convertTo(rawAmortCost, tCur, runCur, tYear, runCurYear, inflation)
+        for k,v in [("m1C_%s"%fuel, fuelCost), ("m1C_TruckAmort",amortCost)]:
+            if k in result: result[k] += v
+            else: result[k] = v
+        
         #  Add in the miscellaneous costs
         miscCostDict = {}
         for tpl in allPendingCostEvents:
@@ -348,11 +383,11 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                             runCurYear = self.sim.userInput['currencybaseyear']
                             fuelPrice = self.sim.userInput[priceKeyInfo] # in run currency at run base year
                             assert not isinstance(fuelPrice,types.TupleType), "Ice should not have an amortization rate"
-                            rawFuelCost = powerRate*fuelPrice # one charge for this trip
-                            fCur = tp.recDict['BaseCostCur']
-                            fYear = tp.recDict['BaseCostYear']
-                            inflation = self.sim.userInput['priceinflation']/self.model.daysPerYear  # ignore compounding to save math
-                            fuelCost = self.currencyConverter.convertTo(rawFuelCost, fCur, runCur, fYear, runCurYear, inflation)
+                            #
+                            # fuel cost is just powerRat*fuelPrice, since this is per-trip and not time-dependent.  The price of fuel
+                            # is already given in the run currency at the run year, so no currency conversion is needed.
+                            #
+                            fuelCost = powerRate*fuelPrice # one charge for this trip
                             valKey = "m1C_%s"%fuel
                             fuelCost *= n
                             if valKey in result: result[valKey] += fuelCost
@@ -379,14 +414,6 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
 #         perTripCost= self.priceTable.get("driver", "PerTrip", level=level, conditions=leg0Conditions) + \
 #                      self.priceTable.get(truckType.name,"PerTrip",level=level, conditions=leg0Conditions)
                       
-#         transportCost= perTripCost + perKmCost + perDiemCost
-#         return {"PerDiemDays":perDiemDays,
-#                 "PerDiemCost":perDiemCost,
-#                 "PerKmCost":perKmCost,
-#                 "PerTripCost":perTripCost,
-#                 "LaborCost":laborCost,
-#                 "TransportCost":transportCost
-#                 }
         return result
         
     def generateUseVialsSessionCostNotes(self, level, conditions):
@@ -440,8 +467,11 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
             if fuelPrice == 0.0: 
                 fuelCost = 0.0  # fuel handled elsewhere; save some math
             else:
-                rawFuelCost = powerRate*fuelPrice*(self.intervalEndTime - self.intervalStartTime)
-                fuelCost = self.currencyConverter.convertTo(rawFuelCost, fCur, runCur, fYear, runCurYear, inflation)
+                #
+                #  This cost is proportional to time.  Since the fuel price is already in run currency at the run year,
+                #  no inflation or currency conversion is needed.
+                #
+                fuelCost = powerRate*fuelPrice*(self.intervalEndTime - self.intervalStartTime)
             return {"m1C_%s"%fuel:fuelCost, "m1C_FridgeAmort":amortCost}
 
     def _generateBuildingCostNotes(self, level, conditions, startTime, endTime ):
@@ -507,9 +537,21 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
         except:
             return False
         
+    def _verifyTruck(self, invTp):
+        try:
+            return (invTp.Fuel is not None \
+                    and (isinstance(invTp.BaseCost,types.FloatType) and invTp.BaseCost>=0.0) \
+                    and invTp.BaseCostCurCode is not None \
+                    and (isinstance(invTp.BaseCostYear,(types.IntType, types.LongType)) and invTp.BaseCostYear>=2000) \
+                    and (isinstance(invTp.FuelRate,types.FloatType) and invTp.FuelRate>=0.0) \
+                    )
+        except:
+            return False
+        
     def _verifyCostConversion(self, curCode, year):
         try:
-            return (0.0<=self.currencyConverter.convertTo(1.0,curCode,'USD',year))
+            if curCode is None or year is None: return True
+            else: return (0.0<=self.currencyConverter.convertTo(1.0,curCode,'USD',year))
         except:
             return False
 
@@ -527,6 +569,7 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
         print '####### beginning checks'
         # Check all the fuel price entries from parms
         for v in priceKeyTable.values()+['priceinflation', 'amortizationstorageyears'] :
+            if v is None: continue  # 'free' fuel
             if isinstance(v, types.TupleType):
                 for vv in v:
                     try:
@@ -574,6 +617,11 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
                         problemSet.add("No currency conversion value is available for the currency %s in %s"%\
                                            (invTp.BaseCostCurCode, invTp.BaseCostYear))
                 elif invTp.typeClass == 'trucks':
+                    if not self._verifyTruck(invTp):
+                        problemSet.add("Truck type %s has missing costing entries"%invTp.Name)
+                    if not self._verifyCostConversion(invTp.BaseCostCurCode, invTp.BaseCostYear):
+                        problemSet.add("No currency conversion value is available for the currency %s in %s"%\
+                                           (invTp.BaseCostCurCode, invTp.BaseCostYear))
                     truckStorageNames = [b for a,b in util.parseInventoryString(shdInv.invType.Storage)]  # @UnusedVariable
                     for fridge in [net.fridges[nm] for nm in truckStorageNames]:
                         if fridge.Name in alreadyChecked: continue
@@ -595,30 +643,6 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
                                (v.priceUnits, v.priceBaseYear))
         print '##### Done checking'
 
-        # For each fridge type, check that we can do currency conversion from costing currency to run
-        # currency in the purchase year of the fridge
-
-#         print '####### checked the following types'
-#         print alreadyChecked
-#         print '####### problemSet follows'
-#         for s in problemSet: print s
-#         print '####### end of problemSet'
-#             
-#         for routeId,route in net.routes.items():
-#             truckType = route.TruckType
-#             if truckType != u'': # attached routes have no truck
-#                 print route.RouteName
-#                 print route.Type
-#                 category = route.supplier().CATEGORY
-#                 conditions = route.Conditions
-#                 if conditions is None or conditions==u'': conditions = u'normal'
-#                 print '%s %s %s'%(truckType,category,conditions)
-#                 neededEntries.add((truckType,u'PerKm',category,conditions))
-#                 neededEntries.add((truckType,u'PerDiem',category,conditions))
-#                 neededEntries.add((truckType,u'PerTrip',category,conditions))
-#                 neededEntries.add((u'driver',u'PerYear',category,conditions))
-#                 neededEntries.add((u'driver',u'PerDiem',category,conditions))
-#                 neededEntries.add((u'driver',u'PerTrip',category,conditions))
         return list(problemSet)
 
 

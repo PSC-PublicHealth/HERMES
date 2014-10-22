@@ -17,6 +17,7 @@ import typehelper
 import costmodel
 import typehelper
 from fridgetypes import energyTranslationDict
+from trucktypes import fuelTranslationDict
 import currencyhelper
 
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _safeGetReqParam, _mergeFormResults
@@ -264,11 +265,13 @@ def jsonSetBaseCurrency(db, uiSession):
 def getFuelButtonLabel(db, uiSession, m):
     vList = []
     for val in _fuelNames.values():
-        if isinstance(val, types.TupleType):
+        if val is None: # free fuel
+            pass
+        elif isinstance(val, types.TupleType):
             vList += list(val)
         else:
             vList.append(val)
-    nSet = sum([v is not None and v!='' and v!=0.0 for v in [m.getParameterValue(vv) for vv in vList]])
+    nSet = sum([v is not None and v!='' and v!=0.0 for v in [m.getParameterValue(vv) for vv in vList if vv is not None]])
     if nSet==0: return _("Begin")
     elif nSet==len(vList): return _("Revisit")
     else: return _("Continue")
@@ -329,6 +332,7 @@ def jsonGetFuelPriceInfo(db, uiSession):
         currencyConverter = _getCurrencyConverter(db, uiSession, m)
         result = {}
         for fuel,fuelParamName in _fuelNames.items():
+            if fuelParamName is None: continue  # this fuel is free
             fuelCurString = '%sCurrency'%fuel
             fuelValueString = '%sValue'%fuel
             if fuelCurString not in uiSession: uiSession[fuelCurString] = currencyBase
@@ -730,14 +734,20 @@ def jsonManageTruckCostTable(db, uiSession):
                                                              'displayname':'DisplayName',
                                                              'basecost':'BaseCost',
                                                              'currency':'BaseCostCur',
-                                                             'basecostyear':'BaseCostYear'
+                                                             'basecostyear':'BaseCostYear',
+                                                             'fuel':'Fuel',
+                                                             'fuelrate':'FuelRate',
+                                                             'fuelrateunits':'FuelRateUnits'
                                                              },
                                                             bottle.request)
         for t in tList:
-            print t
             for k in ['BaseCost']: 
                 if t[k] == 0: t[k] = None
+            if t['FuelRateUnits'] and fuelTranslationDict[t['Fuel']][2] and t['FuelRateUnits'].lower() != fuelTranslationDict[t['Fuel']][2].lower():
+                raise RuntimeError("Fuel units for %s are inconsistent: %s vs. %s"%\
+                                   (t['Name'],t['FuelRateUnits'],fuelTranslationDict[t['Fuel']][2]))
                 
+            if t['Name'] == 'N_4x4_truck': print t
         result = {
                   'success':True,
                   "total":1,    # total pages
@@ -749,6 +759,10 @@ def jsonManageTruckCostTable(db, uiSession):
                             "basecost":t['BaseCost'],
                             "currency":t['BaseCostCur'],
                             "basecostyear":t['BaseCostYear'],
+                            "fuelrate":t['FuelRate'],
+                            "fuelrateunits":t['FuelRateUnits'],
+                            "fuel":fuelTranslationDict[t['Fuel']][1],
+                            "amortizationkm":t['AmortizationKm']
                              }
                            for t in tList if t['Name'] not in typehelper.hiddenTypesSet]
                   }
@@ -769,16 +783,19 @@ def editCostTruck(db, uiSession):
             if typeName in m.types:
                 tp = m.types[typeName]
                 assert isinstance(tp,shadow_network.ShdTruckType),"Type %s is not a truck"%typeName
-                print dir(tp)
-                for opt in ['category', 'displayname']:
+                for opt in ['name', 'displayname','fuel','fuelrateunits']:
                     if opt in bottle.request.params:
                         raise RuntimeError(_('Editing of {0} is not supported').format(opt))
                 if 'basecost' in bottle.request.params:
-                    tp.pricePerVial = _safeGetReqParam(bottle.request.params, 'basecost', isFloat=True)
+                    tp.BaseCost = _safeGetReqParam(bottle.request.params, 'basecost', isFloat=True)
                 if 'currency' in bottle.request.params:
-                    tp.priceUnits = _safeGetReqParam(bottle.request.params, 'currency')
+                    tp.BaseCostCurCode = _safeGetReqParam(bottle.request.params, 'currency')
                 if 'basecostyear' in bottle.request.params:
-                    tp.priceBaseYear = _safeGetReqParam(bottle.request.params, 'basecostyear', isInt=True)
+                    tp.BaseCostYear = _safeGetReqParam(bottle.request.params, 'basecostyear', isInt=True)
+                if 'amortkm' in bottle.request.params:
+                    tp.AmortizationKm = _safeGetReqParam(bottle.request.params, 'amortkm', isFloat=True)
+                if 'fuelrate' in bottle.request.params:
+                    tp.FuelRate = _safeGetReqParam(bottle.request.params, 'fuelrate', isFloat=True)
                 return {'success':True}
             else:
                 raise RuntimeError(_('Model {0} does not contain type {1}').format(m.name, typeName))

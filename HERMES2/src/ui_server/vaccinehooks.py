@@ -51,7 +51,7 @@ fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'stri
             {'row':4, 'label':_('Packed vol/dose(cc) of diluent'), 'key':'diluentVolPerDose', 'id':'volperdosedil', 'type':'float'},
             {'row':5, 'label':_('Vaccine price/dose'), 'key':'pricePerDose', 'id':'priceperdose', 'type':'hide'},  
             {'row':5, 'label':_('Vaccine price/vial'), 'key':'pricePerVial', 'id':'pricepervial', 'type':'price'},  
-            {'row':5, 'label':_('Price Units'), 'key':'priceUnits', 'id':'priceunits', 'type':'string'},   
+            {'row':5, 'label':_('Price Units'), 'key':'priceUnits', 'id':'priceunits', 'type':'currency'},   
             {'row':5, 'label':_('Price Year'), 'key':'priceYear', 'id':'priceyear', 'type':'int'},  
             {'row':6, 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'type':'string'},  
             {'row':6, 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'type':'string'},

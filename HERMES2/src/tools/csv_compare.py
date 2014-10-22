@@ -93,6 +93,7 @@ def main():
             label2 = fname2
     else:
         label1 = fname1
+        label2 = fname2
 
     # Clean up command line parser
     parser.destroy()

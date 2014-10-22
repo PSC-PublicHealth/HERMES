@@ -6,16 +6,10 @@
 			<div align='center' id='model_sel_widget'></div>
 		</td>
 	</tr>
-	<tr><td>
-		<div align='center' id='fridge_amort_div'>
-		<label for="fridge_amort_years">{{_("Years to amortize these devices")}}</label>
-		<input type="number" min="1" max="20" name="fridge_amort_years" id="fridge_amort_years">
-		</div>
-	</td></tr>
 	<tr>
 		<td width=100%>
-			<table id="fridge_cost_grid"></table>
-			<div id="fridge_cost_pager"> </div>
+			<table id="truck_cost_grid"></table>
+			<div id="truck_cost_pager"> </div>
 		</td>
 	</tr>
 </table>
@@ -27,16 +21,16 @@
     </table>
 </form>
 
-<div id="fridge_info_dialog" title="This should get replaced"></div>
+<div id="truck_info_dialog" title="This should get replaced"></div>
 
 <script>
 { // local scope
 
 function updateAllButGrid(modelId) {
-	$.getJSON('{{rootPath}}json/get-cost-info-fridge',{modelId:modelId})
+	$.getJSON('{{rootPath}}json/get-cost-info-truck',{modelId:modelId})
 	.done(function(data) {
 		if (data.success) {
-			$("#fridge_amort_years").val(data.amortYears);
+			// Nothing to do so far
 		}
 	    else {
 	    	alert('{{_("Failed: ")}}'+data.msg);
@@ -50,10 +44,10 @@ function updateAllButGrid(modelId) {
 
 function updatePage(modelId) {
 	updateAllButGrid(modelId);
-	$("#fridge_cost_grid").trigger("reloadGrid");
+	$("#truck_cost_grid").trigger("reloadGrid");
 }
 
-function fridgeInfoButtonFormatter(cellvalue, options, rowObject)
+function truckInfoButtonFormatter(cellvalue, options, rowObject)
 {
     // cellvalue will be the name string
 	return "<div class=\"hermes_button_triple\" id=\""+escape(cellvalue)+"\"></div>";
@@ -63,6 +57,13 @@ function fridgeInfoButtonFormatter(cellvalue, options, rowObject)
 			"<button type=\"button\" class=\"this_info_button\" id="+escape(cellvalue)+" disabled>Del</button>";
 	*/
 };
+
+function floatCheck(value) {
+	if ((value=='') || (!isNaN(parseFloat(value)) && isFinite(value)))
+		return true;
+	else return false;
+}
+
 
 function priceCheck(value) {
 	if ((value=='') || (!isNaN(parseFloat(value)) && isFinite(value)))
@@ -74,29 +75,10 @@ function priceCheck(value) {
 
 function buildPage(modelId) {
 	updateAllButGrid(modelId);
-	$('#fridge_amort_years').blur( function(evt) {
-		$.getJSON('{{rootPath}}json/set-fridge-amort-years',
-			{modelId:$('#model_sel_widget').modelSelector('selId'),
-			amortYears:$('#fridge_amort_years').val()
-		})
-		.done(function(data) {
-			if (data.success) {
-				// do nothing
-			}
-    		else {
-    			alert('{{_("Failed: ")}}'+data.msg);
-    			if (data.amortYears)
-    				$('#fridge_amort_years').val(data.amortYears);
-    			}
-		})
-		.fail(function(jqxhr, textStatus, error) {
-    		alert('{{_("Error: ")}}'+jqxhr.responseText);
-		});
-	})
 
-	$("#fridge_cost_grid").jqGrid({
-	   	url:'{{rootPath}}json/manage-fridge-cost-table',
-	    editurl:'{{rootPath}}edit/edit-cost-fridge',
+	$("#truck_cost_grid").jqGrid({
+	   	url:'{{rootPath}}json/manage-truck-cost-table',
+	    editurl:'{{rootPath}}edit/edit-cost-truck',
 		datatype: "json",
 		jsonReader: {
 				root:'rows',
@@ -109,20 +91,18 @@ function buildPage(modelId) {
 		rowNum:9999, // all on one page
 		colNames:[
 		          "{{_('TrueName')}}",
-		          "{{_('Category')}}",
 		          "{{_('Name')}}",
 		          "{{_('Base Cost')}}",
 		          "{{_('Currency')}}",
 		          "{{_('Base Cost Year')}}",
-		          "{{_('Ongoing')}}",
+		          "{{_('Km To Amortize')}}",
+		          "{{_('Fuel Consumption')}}",
 		          "{{_('Units')}}",
 		          "{{_('Of')}}",
-		          "{{_('Details')}}"
-		          
+		          "{{_('Details')}}"		          
 		], //define column names
 		colModel:[
 		          {name:'name', jsonmap:'name', index:'name', hidden:true, key:true},
-		          {name:'category', jsonmap:'category', index:'category'},
 		          {name:'displayname', jsonmap:'displayname', index:'displayname', width:400},
 		          {name:'basecost', jsonmap:'basecost', index:'basecost', jsonmapwidth:100, align:'center', 
 		        		  formatter:'currency', formatoptions:{defaultValue:''},
@@ -165,26 +145,40 @@ function buildPage(modelId) {
 		        	  }
 		          },
 		          {name:'basecostyear', jsonmap:'basecostyear', index:'basecostyear', align:'center',
-		        		  editable:true, edittype:'text', editrules:{integer:true, minValue:2000, maxValue:2020}},
-		          {name:'ongoing', jsonmap: 'powerrate', index:'ongoing', editable:true, edittype:'text', width:100, align:'center', 
-			        	  formatter:'currency', formatoptions:{defaultValue:''},
-			        	  editable:true, editrules:{ 
-			        		  custom:true, 
-			        		  custom_func: function(value,colname) {
-			        			  if (priceCheck(value))
-			        				  return [true,''];
-			        			  else
-			        				  return [false,'{{_("Please enter a valid price for Ongoing Cost")}}'];
-			        		  }
-			        	  }
+		        	  editable:true, edittype:'text', editrules:{integer:true, minValue:2000, maxValue:2020}
 		          },
-		          {name:'ongoingunits', jsonmap: 'powerrateunits', index:'ongoingunits', width:100, align:'center'},
-		          {name:'ongoingwhat', jsonmap: 'energy', index:'ongoingwhat', align:'center'},
+		          {name:'amortkm', jsonmap:'amortizationkm', index:'amortizationkm', align:'center',
+		        	  editable:true, edittype:'text', 
+		        	  editrules:{
+		        		  custom:true,
+		        		  custom_func: function(value,colname) {
+		        			  if (floatCheck(value))
+		        				  return [true,''];
+		        			  else
+		        				  return [false,'{{_("Please enter a valid number of kilometers to amortize this vehicle")}}'];		        			  
+		        		  }
+		        	  }
+		          },
+		          {name:'fuelrate', jsonmap: 'fuelrate', index:'fuelrate', editable:true, edittype:'text', width:100, align:'center', 
+		        	  formatter:'currency', formatoptions:{defaultValue:''},
+		        	  editable:true, 
+		        	  editrules:{
+		        		  custom:true, 
+		        		  custom_func: function(value,colname) {
+		        			  if (floatCheck(value))
+		        				  return [true,''];
+		        			  else
+		        				  return [false,'{{_("Please enter a valid price for Ongoing Cost")}}'];
+		        		  }
+				      	}
+		          },
+		          {name:'fuelrateunits', jsonmap: 'fuelrateunits', index:'fuelrateunits', width:100, align:'center'},
+		          {name:'fuel', jsonmap: 'fuel', index:'fuel', align:'center'},
 		          {name:'info', jsonmap: 'detail', index:'info', width:140, align:'center', sortable:false, 
-		        	  formatter:fridgeInfoButtonFormatter}
+		        	  formatter:truckInfoButtonFormatter}
 		          
 		], //define column models
-		pager: 'fridge_cost_pager', //set your pager div id
+		pager: 'truck_cost_pager', //set your pager div id
 		pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
 		pginput: false, //ditto
 		sortname: 'name', //the column according to which data is to be sorted; optional
@@ -199,12 +193,12 @@ function buildPage(modelId) {
 				widget:'buttontriple',
 				onInfo:function(event) {
 					var id = unescape($(this).parent().attr("id"));
-					$.getJSON('{{rootPath}}json/fridge-info',{name:id, modelId:$('#model_sel_widget').modelSelector('selId')})
+					$.getJSON('{{rootPath}}json/truck-info',{name:id, modelId:$('#model_sel_widget').modelSelector('selId')})
 					.done(function(data) {
 						if (data.success) {									
-							$("#fridge_info_dialog").html(data['htmlstring']);
-							$("#fridge_info_dialog").dialog('option','title',data['title']);
-							$("#fridge_info_dialog").dialog("open");
+							$("#truck_info_dialog").html(data['htmlstring']);
+							$("#truck_info_dialog").dialog('option','title',data['title']);
+							$("#truck_info_dialog").dialog("open");
 						}
 						else {
 		    				alert('{{_("Failed: ")}}'+data.msg);
@@ -218,10 +212,10 @@ function buildPage(modelId) {
 				},
 				onEdit:function(event){
 					var id = unescape($(this).parent().attr("id"));
-					var devName = $("#fridge_cost_grid").jqGrid('getCell',id,"displayname");
-					var units = $("#fridge_cost_grid").jqGrid('getCell',id,"ongoingunits");
-					var fuel = $("#fridge_cost_grid").jqGrid('getCell',id,"ongoingwhat");
-					$("#fridge_cost_grid").jqGrid('editGridRow',id,{
+					var devName = $("#truck_cost_grid").jqGrid('getCell',id,"displayname");
+					var units = $("#truck_cost_grid").jqGrid('getCell',id,"fuelrateunits");
+					var fuel = $("#truck_cost_grid").jqGrid('getCell',id,"fuel");
+					$("#truck_cost_grid").jqGrid('editGridRow',id,{
 						closeAfterEdit:true,
 						closeOnEscape:true,
 	                  	jqModal:true,
@@ -242,20 +236,21 @@ function buildPage(modelId) {
 	                  		else return [false,data.msg];
 	                  	},
 	            		beforeShowForm:function($form) {
-	            			var $elt = $form.find('#tr_ongoing').find('td').first();
+	            			var $elt = $form.find('#tr_fuelrate').find('td').first();
 	            			$elt.html(units + ' ' + fuel);
-	            		},	                  	
+	            		},
+	                  	
 					});
 				}
 			});
 			/*
 			$(".hermes_info_button").click(function(event) {
-				$.getJSON('{{rootPath}}json/fridge-info',{name:unescape($(this).attr('id')), modelId:$('#model_sel_widget').modelSelector('selId')})
+				$.getJSON('{{rootPath}}json/truck-info',{name:unescape($(this).attr('id')), modelId:$('#model_sel_widget').modelSelector('selId')})
 				.done(function(data) {
 					if (data.success) {									
-						$("#fridge_info_dialog").html(data['htmlstring']);
-						$("#fridge_info_dialog").dialog('option','title',data['title']);
-						$("#fridge_info_dialog").dialog("open");
+						$("#truck_info_dialog").html(data['htmlstring']);
+						$("#truck_info_dialog").dialog('option','title',data['title']);
+						$("#truck_info_dialog").dialog("open");
 					}
 					else {
 	    				alert('{{_("Failed: ")}}'+data.msg);
@@ -270,12 +265,12 @@ function buildPage(modelId) {
 			*/
 			/*
 			$(".this_edit_button").click(function(event){
-				//var gr = $("#fridge_cost_grid").jqGrid('getGridParam','selRow');
+				//var gr = $("#truck_cost_grid").jqGrid('getGridParam','selRow');
 				//console.log(gr);
 				if(true) {
 					console.log("ID :"+ $(this).attr("id"));
-					var devName = $("#fridge_cost_grid").jqGrid('getCell',$(this).attr("id"),"displayname");
-					$("#fridge_cost_grid").jqGrid('editGridRow',$(this).attr("id"),{
+					var devName = $("#truck_cost_grid").jqGrid('getCell',$(this).attr("id"),"displayname");
+					$("#truck_cost_grid").jqGrid('editGridRow',$(this).attr("id"),{
                   	  closeAfterEdit:true,
                   	  closeOnEscape:true,
                   	  jqModal:true,
@@ -303,16 +298,16 @@ function buildPage(modelId) {
 	        	alert('{{_("Failed: ")}}'+data.msg);
 			}
 		},
-		grouping:true,
-		groupingView:{
-			groupField:['category'],
-			groupDataSorted:true,
-			groupText:['<b>{0} - {1} '+"{{_('Item(s)')}}"+'</b>'],
-			groupColumnShow:[false]
-		},
-	    caption:"{{_("Cold Storage Costs")}}"
+		grouping:false,
+//		groupingView:{
+//			groupField:['category'],
+//			groupDataSorted:true,
+//			groupText:['<b>{0} - {1} '+"{{_('Item(s)')}}"+'</b>'],
+//			groupColumnShow:[false]
+//		},
+	    caption:"{{_("Vehicle Costs")}}"
 	})
-	.jqGrid('navGrid','#fridge_cost_pager',
+	.jqGrid('navGrid','#truck_cost_pager',
 			{edit:false,add:false,del:false,search:false},
 			{ 
 			},
@@ -384,7 +379,7 @@ $(function() {
 })
 
 $(function() {
-	$("#fridge_info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
+	$("#truck_info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
 });
 
 $(function(){

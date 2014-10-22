@@ -616,7 +616,8 @@ function addToggleExpansionButton($grid) {
 						sel.data('prev_value',selected);
 					}
 				
-					$.getJSON('{{rootPath}}list/select-energy', { 
+					var url = settings.OptionURL || '{{rootPath}}list/select-energy';
+					$.getJSON(url, { 
 						encode: true,
 						selected: selected
 					})
@@ -1028,6 +1029,10 @@ function addToggleExpansionButton($grid) {
  						var tj = $(this);
  						dict[tj.attr('id')] = tj.energySelector('selId');
  					})
+ 					$(this).find('.hrm_fuel').each(function() {
+ 						var tj = $(this);
+ 						dict[tj.attr('id')] = tj.energySelector('selId');
+ 					})
  					return dict;
  				}
 				else {
@@ -1058,6 +1063,17 @@ function addToggleExpansionButton($grid) {
  	 						widget:'energySelector',
  	 						label:'',
  	 						selected:sel
+ 	 					})
+ 	 				});
+ 	 				$elem.find('.hrm_fuel').each( function(idx) {
+ 	 					$field = $(this);
+ 	 					var sel = $field.text();
+ 	 					$field.text('');
+ 	 					$field.hrmWidget({
+ 	 						widget:'energySelector',
+ 	 						label:'',
+ 	 						selected:sel,
+ 	 						OptionURL:'{{rootPath}}list/select-fuel'
  	 					})
  	 				});
  	 				$elem.find('.hrm_price').each( function(idx) {

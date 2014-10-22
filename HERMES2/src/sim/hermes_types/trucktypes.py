@@ -24,7 +24,7 @@ carries Shippable instances between Warehouses.
 
 _hermes_svn_id_="$Id$"
 
-import math,types,random
+import math,types,random,collections
 from SimPy.Simulation  import *
 #from SimPy.SimulationGUIDebug import *
 import abstractbaseclasses
@@ -36,6 +36,16 @@ import storagemodel
 import util
 import constants as C
 from copy import copy
+
+#: fuelTranslationDict maps the 'Fuel' field of the type record to a tuple containing a short name, a longer name, a string 
+#: for rate units for that fuel type, a string for scalar (non-rate) units, the fuel type string for costing purposes, and
+#: the charge-by pattern.
+fuelTranslationDict = collections.defaultdict(lambda : ('Unknown',None,None,None,None,None),
+                                              {'P':('Petrol','Petrol','km/liter','Liter','gasoline','distance'),
+                                               'G':('Propane','LP Gas','km/kg','Kg','propane','distance'),
+                                               'D':('Diesel','Diesel Fuel','km/liter','Liter','diesel','distance'),
+                                               'F':('Free','No Fuel','','None','free','distance')
+                                               })
 
 class Truck(abstractbaseclasses.CanOwn, abstractbaseclasses.Trackable, abstractbaseclasses.Costable):
     def __init__(self, truckType, instanceNum):

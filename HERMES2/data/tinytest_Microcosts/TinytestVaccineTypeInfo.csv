@@ -1,21 +1,21 @@
-"DisplayName","LifetimeRoomTempDays","LifetimeOpenDays","Vaccine presentation","Abbreviation","Packed vol/dose(cc) of diluent","Packed vol/dose(cc) of vaccine","RandomKey","Price Units","Manufacturer","Name","Secondary Packaging","Notes","LifetimeCoolerDays","link","Requires","Vaccine price/dose","Doses per vial","Method of administration","Doses/person","Vaccine price/vial","LifetimeFreezerDays"
-"Oral Polio",0.02,28.0,"Liquid","VPO",0.0,1.0,4000,"USD","","N_Oral Polio","","",672.0,"","",0.14,20,"",4,2.72,28.0
-"Pentavalent",0.02,28.0,"Liquid","DTC-HepB-Hib",0.0,16.8,6000,"USD","","N_DTP-HepB-Hib liquid","","",672.0,"","",3.64,1,"",3,3.6,0.04
-"Yellow Fever",0.02,0.25,"Freeze Dried","VAA",6.0,2.5,5000,"USD","","N_Yellow Fever","","",672.0,"","",0.83,10,"",1,8.32,0.04
-"Tetanus Toxoid",0.02,28.0,"Liquid","VAT",0.0,3.0,2000,"USD","","N_Tetanus_Toxoid","","",672.0,"","",0.09,10,"",2,0.9,0.04
-"MenA",0.02,5.0,"Freeze Dried","Men A",0.0,3.8,7000,"USD","","N_Meningococcal","","",504.0,"","",0.46,10,"",1,4.6,0.04
-"Measles",0.02,0.25,"Freeze Dried","VAR",0.5,2.111,3000,"USD","","N_Measles","","",672.0,"","",0.24,10,"",1,2.38,0.04
-"Two Dose Measles",0.02,0.25,"Liquid","M2",0.5,12.6,3000,"USD","","N_Measles-twodose","","",672.0,"","",1.98,2,"",1,1.98,0.04
-"Five Dose Measles",0.02,0.25,"Liquid","M5",0.5,4.72,3000,"USD","","N_Measles-fivedose","","",672.0,"","",1.98,5,"",1,1.98,0.04
-"Rotavirus (11.6)",0.02,28.0,"Freeze Dried","Rota_liq_v7",88.9,11.6,8000,"USD","","N_RotavirusV7","","",672.0,"","","",1,"",3,"",0.04
-"Rotavirus (75cc)",0.02,28.0,"Liquid","Rota_liq_v6",0.0,75.0,8000,"","","N_RotavirusV6","","",672.0,"","","",1,"",2,"",0.04
-"Rotavirus (17cc)",0.02,28.0,"Liquid","Rota_liq_v5",0.0,17.1,8000,"USD","","N_RotavirusV5","","",672.0,"","",5.5,1,"",2,"",0.04
-"Rotavirus (46cc)",0.02,28.0,"Liquid","Rota_liq_v4",0.0,46.3,8000,"","","N_RotavirusV4","","",672.0,"","",7.5,1,"",3,"",0.04
-"Rotavirus (79cc)",0.02,28.0,"Liquid","Rota_liq_v3",0.0,79.8,8000,"","","N_RotavirusV3","","",672.0,"","","",1,"",3,"",0.04
-"Rotavirus (156cc)",0.02,28.0,"Liquid","Rota_liq_v2",0.0,156.0,8000,"USD","","N_RotavirusV2","","",672.0,"","","",1,"",2,"",0.04
-"Rotavirus (256cc)",0.02,28.0,"Liquid","Rota_liq_v1",0.0,259.8,8000,"USD","","N_RotavirusV1","","",672.0,"","","",1,"",2,"",0.04
-"BCG",0.02,0.25,"Freeze Dried","BCG",0.7,1.2,1000,"USD","","N_Tuberculosis","","",672.0,"","",0.1,20,"",1,2.05,0.04
-"PCV",0.02,28.0,"Liquid","PCV",0.0,55.9,9000,"USD","","N_Pneumococcal","","",672.0,"","",7.0,1,"",3,7.0,0.04
-"MenafriVac",0.02,0.25,"Freeze Dried","MAV",2.6,2.6,7000,"","","N_MenAfriVac","","",672.0,"","","",10,"",1,"",0.04
-"PCV13",0.02,28.0,"Liquid","PCV13",0.0,12.0,20000,"","","N_Pneumococcal13","","",672.0,"","","",1,"",3,"",0.04
-"Unidose Measles",0.02,0.25,"Liquid","M1",0.5,25.61,3000,"USD","","N_Measles-unidose","","",672.0,"","",1.98,1,"",1,1.98,0.04
+"DisplayName","Price Year","LifetimeRoomTempDays","LifetimeOpenDays","Vaccine presentation","LifetimeFreezerDays","Packed vol/dose(cc) of diluent","Packed vol/dose(cc) of vaccine","RandomKey","Price Units","Manufacturer","Name","Secondary Packaging","Notes","LifetimeCoolerDays","link","Requires","Vaccine price/dose","Doses per vial","Method of administration","Doses/person","Vaccine price/vial","Abbreviation"
+"Oral Polio",2010,0.02,28.0,"Liquid",28.0,0.0,1.0,4000,"USD","","N_Oral Polio","","",672.0,"","",0.14,20,"",4,2.72,"VPO"
+"Yellow Fever",2010,0.02,0.25,"Freeze Dried",0.04,6.0,2.5,5000,"USD","","N_Yellow Fever","","",672.0,"","",0.83,10,"",1,8.32,"VAA"
+"Tetanus Toxoid",2010,0.02,28.0,"Liquid",0.04,0.0,3.0,2000,"USD","","N_Tetanus_Toxoid","","",672.0,"","",0.09,10,"",2,0.9,"VAT"
+"MenA",2010,0.02,5.0,"Freeze Dried",0.04,0.0,3.8,7000,"USD","","N_Meningococcal","","",504.0,"","",0.46,10,"",1,4.6,"Men A"
+"Measles",2010,0.02,0.25,"Freeze Dried",0.04,0.5,2.111,3000,"USD","","N_Measles","","",672.0,"","",0.24,10,"",1,2.38,"VAR"
+"Unidose Measles",2010,0.02,0.25,"Liquid",0.04,0.5,25.61,3000,"USD","","N_Measles-unidose","","",672.0,"","",1.98,1,"",1,1.98,"M1"
+"Five Dose Measles",2010,0.02,0.25,"Liquid",0.04,0.5,4.72,3000,"USD","","N_Measles-fivedose","","",672.0,"","",1.98,5,"",1,1.98,"M5"
+"Rotavirus (11.6)",2004,0.02,28.0,"Freeze Dried",0.04,88.9,11.6,8000,"USD","","N_RotavirusV7","","",672.0,"","","",1,"",3,2.46,"Rota_liq_v7"
+"Rotavirus (75cc)",2003,0.02,28.0,"Liquid",0.04,0.0,75.0,8000,"USD","","N_RotavirusV6","","",672.0,"","","",1,"",2,2.46,"Rota_liq_v6"
+"Rotavirus (17cc)",2012,0.02,28.0,"Liquid",0.04,0.0,17.1,8000,"USD","","N_RotavirusV5","","",672.0,"","",5.5,1,"",2,5.67,"Rota_liq_v5"
+"Rotavirus (46cc)",2010,0.02,28.0,"Liquid",0.04,0.0,46.3,8000,"USD","","N_RotavirusV4","","",672.0,"","",7.5,1,"",3,1.23,"Rota_liq_v4"
+"Rotavirus (79cc)",2008,0.02,28.0,"Liquid",0.04,0.0,79.8,8000,"USD","","N_RotavirusV3","","",672.0,"","","",1,"",3,1.57,"Rota_liq_v3"
+"Rotavirus (156cc)",2008,0.02,28.0,"Liquid",0.04,0.0,156.0,8000,"USD","","N_RotavirusV2","","",672.0,"","","",1,"",2,2.34,"Rota_liq_v2"
+"Rotavirus (256cc)",2010,0.02,28.0,"Liquid",0.04,0.0,259.8,8000,"USD","","N_RotavirusV1","","",672.0,"","","",1,"",2,2.34,"Rota_liq_v1"
+"BCG",2010,0.02,0.25,"Freeze Dried",0.04,0.7,1.2,1000,"USD","","N_Tuberculosis","","",672.0,"","",0.1,20,"",1,2.05,"BCG"
+"PCV",2010,0.02,28.0,"Liquid",0.04,0.0,55.9,9000,"USD","","N_Pneumococcal","","",672.0,"","",7.0,1,"",3,7.0,"PCV"
+"MenafriVac",2011,0.02,0.25,"Freeze Dried",0.04,2.6,2.6,7000,"AFN","","N_MenAfriVac","","",672.0,"","","",10,"",1,1.23,"MAV"
+"PCV13",2009,0.02,28.0,"Liquid",0.04,0.0,12.0,20000,"THB","","N_Pneumococcal13","","",672.0,"","","",1,"",3,1.35,"PCV13"
+"Two Dose Measles",2010,0.02,0.25,"Liquid",0.04,0.5,12.6,3000,"USD","","N_Measles-twodose","","",672.0,"","",1.98,2,"",1,1.98,"M2"
+"Pentavalent",2010,0.02,28.0,"Liquid",0.04,0.0,16.8,6000,"USD","","N_DTP-HepB-Hib liquid","","",672.0,"","",3.64,1,"",3,3.6,"DTC-HepB-Hib"

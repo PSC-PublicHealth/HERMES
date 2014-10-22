@@ -36,7 +36,8 @@ import copy
 from csv_tools import castTypes
 
 #: energyTranslationDict maps the 'Energy' field of the type record to a tuple containing a short name, a longer name, a string 
-#: for rate units for that energy type, a string for scalar (non-rate) units, the fuel type string for costing purposes
+#: for rate units for that energy type, a string for scalar (non-rate) units, the fuel type string for costing purposes, and
+#: the charge-by pattern.
 energyTranslationDict = collections.defaultdict(lambda : ('Unknown',None,None,None,None,None),
                                                 {'E':('Electric','Electric Mains','KwH/day','Kilowatt Hour','electric','time'),
                                                  'K':('Kerosene','Kerosene','liters/day','Liter','kerosene','time'),

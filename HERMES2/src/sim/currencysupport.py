@@ -32,7 +32,7 @@ class CurrencyConverter:
     """
     def __init__(self, csvFile, currencyBase, currencyBaseYear, inflationRate):
         """
-        inflationRate is a scale factory- for example, inflationRate=0.03 implies 3% inflation
+        inflationRate is a scale factor- for example, inflationRate=0.03 implies 3% inflation over 1 year
         """
         self.cb= unicode(currencyBase)
         self.year= int(currencyBaseYear)

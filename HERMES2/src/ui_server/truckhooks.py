@@ -18,6 +18,7 @@ from gridtools import orderAndChopPage
 import privs
 import htmlgenerator
 import typehelper
+from trucktypes import fuelTranslationDict
 
 from ui_utils import _logMessage, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults
 
@@ -33,10 +34,10 @@ fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'stri
             {'row':3, 'label':_('Base Price'), 'key':'BaseCost', 'id':'baseprice', 'type':'price'},  
             {'row':3, 'label':_('Price Units'), 'key':'BaseCostCur', 'id':'basecostcur', 'type':'currency'},   
             {'row':3, 'label':_('Price Year'), 'key':'BaseCostYear', 'id':'basecostyear', 'type':'int'},  
-            {'row':3, 'label':_('Km To Amortize'), 'key':'AmortizationKm', 'id':'amortkm', 'type':'float'},
-            {'row':4, 'label':_('Fuel'), 'key':'Fuel', 'id':'fuel', 'type':'energy'},
+            {'row':4, 'label':_('Km To Amortize'), 'key':'AmortizationKm', 'id':'amortkm', 'type':'float'},
+            {'row':4, 'label':_('Fuel'), 'key':'Fuel', 'id':'fuel', 'type':'fuel'},
             {'row':4, 'label':_('Fuel Consumption'), 'key':'FuelRate', 'id':'fuelrate', 'type':'float'},
-            {'row':4, 'label':_('Units'), 'key':'FuelRateUnits', 'id':'fuelunits', 'type':'string'},
+            {'row':4, 'label':_('Units'), 'key':'FuelRateUnits', 'id':'fuelunits', 'type':'hide'},
             ]
 
 @bottle.route('/truck-top')
@@ -106,6 +107,11 @@ def jsonManageTruckTable(db, uiSession):
 @bottle.route('/json/truck-edit-verify-commit')
 def jsonTruckEditVerifyCommit(db, uiSession):
     m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, fieldMap) # @UnusedVariable
+            # FuelRateUnits is completely determined by energy type
+    if attrRec['Fuel']:
+        attrRec['FuelRateUnits'] = fuelTranslationDict[attrRec['Fuel'].encode('utf-8')][2]
+    else:
+        attrRec['FuelRateUnits'] = None
     if badStr and badStr!="":
         result = {'success':True, 'value':False, 'msg':badStr}
     else:

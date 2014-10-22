@@ -6,16 +6,10 @@
 			<div align='center' id='model_sel_widget'></div>
 		</td>
 	</tr>
-	<tr><td>
-		<div align='center' id='fridge_amort_div'>
-		<label for="fridge_amort_years">{{_("Years to amortize these devices")}}</label>
-		<input type="number" min="1" max="20" name="fridge_amort_years" id="fridge_amort_years">
-		</div>
-	</td></tr>
 	<tr>
 		<td width=100%>
-			<table id="fridge_cost_grid"></table>
-			<div id="fridge_cost_pager"> </div>
+			<table id="vaccine_cost_grid"></table>
+			<div id="vaccine_cost_pager"> </div>
 		</td>
 	</tr>
 </table>
@@ -27,16 +21,16 @@
     </table>
 </form>
 
-<div id="fridge_info_dialog" title="This should get replaced"></div>
+<div id="vaccine_info_dialog" title="This should get replaced"></div>
 
 <script>
 { // local scope
 
 function updateAllButGrid(modelId) {
-	$.getJSON('{{rootPath}}json/get-cost-info-fridge',{modelId:modelId})
+	$.getJSON('{{rootPath}}json/get-cost-info-vaccine',{modelId:modelId})
 	.done(function(data) {
 		if (data.success) {
-			$("#fridge_amort_years").val(data.amortYears);
+			// Nothing to do so far
 		}
 	    else {
 	    	alert('{{_("Failed: ")}}'+data.msg);
@@ -50,10 +44,10 @@ function updateAllButGrid(modelId) {
 
 function updatePage(modelId) {
 	updateAllButGrid(modelId);
-	$("#fridge_cost_grid").trigger("reloadGrid");
+	$("#vaccine_cost_grid").trigger("reloadGrid");
 }
 
-function fridgeInfoButtonFormatter(cellvalue, options, rowObject)
+function vaccineInfoButtonFormatter(cellvalue, options, rowObject)
 {
     // cellvalue will be the name string
 	return "<div class=\"hermes_button_triple\" id=\""+escape(cellvalue)+"\"></div>";
@@ -64,39 +58,23 @@ function fridgeInfoButtonFormatter(cellvalue, options, rowObject)
 	*/
 };
 
+var priceCheckFailure = false;
+
 function priceCheck(value) {
 	if ((value=='') || (!isNaN(parseFloat(value)) && isFinite(value)))
 		return true;
 	else {
+		priceCheckFailure = true;
 		return false;
 	}
 }
 
 function buildPage(modelId) {
 	updateAllButGrid(modelId);
-	$('#fridge_amort_years').blur( function(evt) {
-		$.getJSON('{{rootPath}}json/set-fridge-amort-years',
-			{modelId:$('#model_sel_widget').modelSelector('selId'),
-			amortYears:$('#fridge_amort_years').val()
-		})
-		.done(function(data) {
-			if (data.success) {
-				// do nothing
-			}
-    		else {
-    			alert('{{_("Failed: ")}}'+data.msg);
-    			if (data.amortYears)
-    				$('#fridge_amort_years').val(data.amortYears);
-    			}
-		})
-		.fail(function(jqxhr, textStatus, error) {
-    		alert('{{_("Error: ")}}'+jqxhr.responseText);
-		});
-	})
 
-	$("#fridge_cost_grid").jqGrid({
-	   	url:'{{rootPath}}json/manage-fridge-cost-table',
-	    editurl:'{{rootPath}}edit/edit-cost-fridge',
+	$("#vaccine_cost_grid").jqGrid({
+	   	url:'{{rootPath}}json/manage-vaccine-cost-table',
+	    editurl:'{{rootPath}}edit/edit-cost-vaccine',
 		datatype: "json",
 		jsonReader: {
 				root:'rows',
@@ -111,12 +89,9 @@ function buildPage(modelId) {
 		          "{{_('TrueName')}}",
 		          "{{_('Category')}}",
 		          "{{_('Name')}}",
-		          "{{_('Base Cost')}}",
+		          "{{_('Cost Per Vial')}}",
 		          "{{_('Currency')}}",
 		          "{{_('Base Cost Year')}}",
-		          "{{_('Ongoing')}}",
-		          "{{_('Units')}}",
-		          "{{_('Of')}}",
 		          "{{_('Details')}}"
 		          
 		], //define column names
@@ -166,25 +141,11 @@ function buildPage(modelId) {
 		          },
 		          {name:'basecostyear', jsonmap:'basecostyear', index:'basecostyear', align:'center',
 		        		  editable:true, edittype:'text', editrules:{integer:true, minValue:2000, maxValue:2020}},
-		          {name:'ongoing', jsonmap: 'powerrate', index:'ongoing', editable:true, edittype:'text', width:100, align:'center', 
-			        	  formatter:'currency', formatoptions:{defaultValue:''},
-			        	  editable:true, editrules:{ 
-			        		  custom:true, 
-			        		  custom_func: function(value,colname) {
-			        			  if (priceCheck(value))
-			        				  return [true,''];
-			        			  else
-			        				  return [false,'{{_("Please enter a valid price for Ongoing Cost")}}'];
-			        		  }
-			        	  }
-		          },
-		          {name:'ongoingunits', jsonmap: 'powerrateunits', index:'ongoingunits', width:100, align:'center'},
-		          {name:'ongoingwhat', jsonmap: 'energy', index:'ongoingwhat', align:'center'},
 		          {name:'info', jsonmap: 'detail', index:'info', width:140, align:'center', sortable:false, 
-		        	  formatter:fridgeInfoButtonFormatter}
+		        	  formatter:vaccineInfoButtonFormatter}
 		          
 		], //define column models
-		pager: 'fridge_cost_pager', //set your pager div id
+		pager: 'vaccine_cost_pager', //set your pager div id
 		pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
 		pginput: false, //ditto
 		sortname: 'name', //the column according to which data is to be sorted; optional
@@ -199,12 +160,12 @@ function buildPage(modelId) {
 				widget:'buttontriple',
 				onInfo:function(event) {
 					var id = unescape($(this).parent().attr("id"));
-					$.getJSON('{{rootPath}}json/fridge-info',{name:id, modelId:$('#model_sel_widget').modelSelector('selId')})
+					$.getJSON('{{rootPath}}json/vaccine-info',{name:id, modelId:$('#model_sel_widget').modelSelector('selId')})
 					.done(function(data) {
 						if (data.success) {									
-							$("#fridge_info_dialog").html(data['htmlstring']);
-							$("#fridge_info_dialog").dialog('option','title',data['title']);
-							$("#fridge_info_dialog").dialog("open");
+							$("#vaccine_info_dialog").html(data['htmlstring']);
+							$("#vaccine_info_dialog").dialog('option','title',data['title']);
+							$("#vaccine_info_dialog").dialog("open");
 						}
 						else {
 		    				alert('{{_("Failed: ")}}'+data.msg);
@@ -218,10 +179,9 @@ function buildPage(modelId) {
 				},
 				onEdit:function(event){
 					var id = unescape($(this).parent().attr("id"));
-					var devName = $("#fridge_cost_grid").jqGrid('getCell',id,"displayname");
-					var units = $("#fridge_cost_grid").jqGrid('getCell',id,"ongoingunits");
-					var fuel = $("#fridge_cost_grid").jqGrid('getCell',id,"ongoingwhat");
-					$("#fridge_cost_grid").jqGrid('editGridRow',id,{
+					console.log("ID :"+id);
+					var devName = $("#vaccine_cost_grid").jqGrid('getCell',id,"displayname");
+					$("#vaccine_cost_grid").jqGrid('editGridRow',id,{
 						closeAfterEdit:true,
 						closeOnEscape:true,
 	                  	jqModal:true,
@@ -240,22 +200,18 @@ function buildPage(modelId) {
 	                  		console.log(data);
 	                  		if (data.success) return [true];
 	                  		else return [false,data.msg];
-	                  	},
-	            		beforeShowForm:function($form) {
-	            			var $elt = $form.find('#tr_ongoing').find('td').first();
-	            			$elt.html(units + ' ' + fuel);
-	            		},	                  	
+	                  	}
 					});
 				}
 			});
 			/*
 			$(".hermes_info_button").click(function(event) {
-				$.getJSON('{{rootPath}}json/fridge-info',{name:unescape($(this).attr('id')), modelId:$('#model_sel_widget').modelSelector('selId')})
+				$.getJSON('{{rootPath}}json/vaccine-info',{name:unescape($(this).attr('id')), modelId:$('#model_sel_widget').modelSelector('selId')})
 				.done(function(data) {
 					if (data.success) {									
-						$("#fridge_info_dialog").html(data['htmlstring']);
-						$("#fridge_info_dialog").dialog('option','title',data['title']);
-						$("#fridge_info_dialog").dialog("open");
+						$("#vaccine_info_dialog").html(data['htmlstring']);
+						$("#vaccine_info_dialog").dialog('option','title',data['title']);
+						$("#vaccine_info_dialog").dialog("open");
 					}
 					else {
 	    				alert('{{_("Failed: ")}}'+data.msg);
@@ -270,12 +226,12 @@ function buildPage(modelId) {
 			*/
 			/*
 			$(".this_edit_button").click(function(event){
-				//var gr = $("#fridge_cost_grid").jqGrid('getGridParam','selRow');
+				//var gr = $("#vaccine_cost_grid").jqGrid('getGridParam','selRow');
 				//console.log(gr);
 				if(true) {
 					console.log("ID :"+ $(this).attr("id"));
-					var devName = $("#fridge_cost_grid").jqGrid('getCell',$(this).attr("id"),"displayname");
-					$("#fridge_cost_grid").jqGrid('editGridRow',$(this).attr("id"),{
+					var devName = $("#vaccine_cost_grid").jqGrid('getCell',$(this).attr("id"),"displayname");
+					$("#vaccine_cost_grid").jqGrid('editGridRow',$(this).attr("id"),{
                   	  closeAfterEdit:true,
                   	  closeOnEscape:true,
                   	  jqModal:true,
@@ -310,9 +266,9 @@ function buildPage(modelId) {
 			groupText:['<b>{0} - {1} '+"{{_('Item(s)')}}"+'</b>'],
 			groupColumnShow:[false]
 		},
-	    caption:"{{_("Cold Storage Costs")}}"
+	    caption:"{{_("Vaccine Costs")}}"
 	})
-	.jqGrid('navGrid','#fridge_cost_pager',
+	.jqGrid('navGrid','#vaccine_cost_pager',
 			{edit:false,add:false,del:false,search:false},
 			{ 
 			},
@@ -384,7 +340,7 @@ $(function() {
 })
 
 $(function() {
-	$("#fridge_info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
+	$("#vaccine_info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
 });
 
 $(function(){

@@ -130,6 +130,12 @@ def jsonTypeEditVerifyAndCommit(db, uiSession):
         elif tp.shdType == 'trucks':
             m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, truckhooks.fieldMap,  # @UnusedVariable
                                                           allowNameCollisions=True)
+            print attrRec
+            # FuelRateUnits is completely determined by energy type
+            if attrRec['Fuel']:
+                attrRec['FuelRateUnits'] = truckhooks.fuelTranslationDict[attrRec['Fuel'].encode('utf-8')][2]
+            else:
+                attrRec['FuelRateUnits'] = None
         elif tp.shdType == 'vaccines':
             m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, vaccinehooks.fieldMap,  # @UnusedVariable
                                                           allowNameCollisions=True)
