@@ -331,7 +331,7 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
             "modelId={{modelId}}",
             "resultsId={{resultsId}}"],
         minWidth: 768,
-        minHeight: 175,
+        minHeight: 775,
         resizable: false,
         scrollable: true,
         trant: {
