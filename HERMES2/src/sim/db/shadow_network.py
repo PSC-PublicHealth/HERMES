@@ -971,7 +971,13 @@ class ShdStore(Base, ShdCopyable):
             return
         self.relatedStops.remove(stop)
 
-
+    def isAttached(self):
+        if self.supplierRoute() is None:
+            return False
+        if self.supplierRoute().Type == "attached":
+            return True
+        return False
+        
 def storeLoadListener(store, context):
     pass
     #print "loading store %s (%d)"%(store.NAME, store.idcode)
@@ -3682,7 +3688,19 @@ class ShdNetwork(Base):
                 countDict[store.CATEGORY] += 1        
         sortedcount = [x[0] for x in sorted(countDict.iteritems(),key=operator.itemgetter(1))]
         return sortedcount
-        
+    
+    def getLevelCount(self,fixedOnly=True): 
+        countDict = {}
+        for storeId,store in self.stores.items():
+            if fixedOnly:
+                if store.isAttached():
+                    continue
+            if store.CATEGORY not in countDict.keys():
+                countDict[store.CATEGORY] = 1
+            else:
+                countDict[store.CATEGORY] += 1    
+        sortedcount = [x[0] for x in sorted(countDict.iteritems(),key=operator.itemgetter(1))]
+        return (sortedcount,countDict)
     # the following group of functions are analogs to the db api
     def getStore(self, storeId):
         return self.stores[storeId]
@@ -3975,12 +3993,14 @@ class ShdNetwork(Base):
         thisLoopList = [x for x in thisStore.clients() if len(x[1].stops) > 2]
         thisClientList = [x for x in thisStore.clients() if (x[1].Type != "attached" and x not in thisLoopList)]
         if len(thisClientList) > 0:
-            clientDict = {'name':thisStore.NAME,'level':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode,'children':[]}
+            clientDict = {'name':thisStore.NAME,'level':levels.index(thisStore.CATEGORY),
+                          'depth':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode,'children':[]}
             for client in thisClientList:
                 if client[1].Type != "attached":
                     clientDict['children'].append(self.getWalkOfClientsDictForJson(client[0].idcode))
         else:
-            clientDict = {'name':thisStore.NAME,'level':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode}
+            clientDict = {'name':thisStore.NAME,'level':levels.index(thisStore.CATEGORY),
+                          'depth':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode}
         ### Handle a Transport Loop
         if len(thisLoopList) > 0:
             loopNameList =[]

@@ -77,14 +77,19 @@ $(document).ready(function(){
 						$.ajax({
 							url: '{{rootPath}}json/create-xls-summary',
 							dataType:'json',
-							data:{modelId:{{modelId}},resultsId:{{resultsId}},filename:filename},
-							success:function(data){
-								
+							data:{modelId:{{modelId}},resultsId:{{resultsId}},filename:filename}})
+						.done(function(data){
+							if (data.success==true){
 								$.fileDownload('{{rootPath}}downloadXLS?shortname='+filename) 
 									.done(function(){})
-									.fail(function(){alert("A problem has occured in the creation of the report.");});
-								
+									.fail(function(){alert("{{_('A problem has occured in the creation of the report.')}}");});
 							}
+							else {
+								alert('{{_("There was a problem creating the report")}}\n'+ data.msg);
+							}
+						})
+						.fail( function(data){
+							alert(data.msg);
 						});
 					}
 				}

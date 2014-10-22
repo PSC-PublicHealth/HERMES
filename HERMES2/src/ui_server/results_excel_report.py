@@ -24,6 +24,9 @@ from xlwt.Style import *
 import xlwt
 ezxf = xlwt.easyxf
 
+inlizer=session_support.inlizer
+_=session_support.translateString
+
 @bottle.route('/json/create-xls-summary')
 def createExcelSummary(db, uiSession):
     try:
@@ -41,10 +44,39 @@ def createExcelSummary(db, uiSession):
     
         row = 0
         col = 1
+        # Define some formatting styles for the spreadsheet.
         modelHeading_xf = ezxf('font: bold on, height 240; align: wrap on, horiz centre, vert top; borders: bottom thin')
+        divider_1_xf = ezxf('font: bold on, height 222, colour white; align: horiz left; pattern: pattern solid, fore-color dark_red; borders: bottom thin')
+        total_label_xf = ezxf('font: bold on, height 222; align: horiz left; pattern: pattern solid, fore-color grey25',num_format_str='0%')
+        total_percent_xf =  ezxf('font: bold on, height 222; align: horiz right; pattern: pattern solid, fore-color grey25',num_format_str='0%')
+        total_xf =  ezxf('font: bold on, height 222; align: horiz right; pattern: pattern solid, fore-color grey25',num_format_str='#,##0')
+        plain_xf = ezxf('font: bold off, height 222; align: horiz right',num_format_str="#,##0")
+        plain_label_xf = ezxf('font: bold off, height 222; align: horiz left')
+        plain_percent_xf =  ezxf('font: bold off, height 222; align: horiz right',num_format_str='0%')
+        doses_label_xf = ezxf('font: bold on, height 222; align: horiz left; pattern: pattern solid, fore-color olive_ega',num_format_str="#,##0")
+        doses_xf = ezxf('font: bold on, height 222; align: horiz right; pattern: pattern solid, fore-color olive_ega',num_format_str="#,##0")
+        final_label_xf = ezxf('font: bold on, height 222; align: horiz left; pattern: pattern solid, fore-color light_green',num_format_str="#,##0")
+        final_xf = ezxf('font: bold on, height 222; align: horiz right; pattern: pattern solid, fore-color light_green',num_format_str="#,##0.00")
     
-        ws0.write(0,0,u'Model: %s'%m.name)
-     
+        ws0.row(0).height = 2500
+        ws0.col(0).width = 6000
+        ws0.write_merge(0,0,0,4,_("Results Summary for {0}".format(m.name)),modelHeading_xf)
+        ws0.write_merge(1,1,0,4,_("System Statistics"),divider_1_xf)
+        ws0.write_merge(2,2,0,1,"Total Number of Locations",plain_label_xf)
+        ws0.write(2,2,getNumberOfLocationsFromModel(m),plain_xf)
+        row = 3
+        levelCount = m.getLevelCount()
+        for level in levelCount[0]:
+            ws0.write(row,1,level,plain_label_xf)
+            ws0.write(row,2,levelCount[1][level])
+            row+=1
+#         for level,count in m.getLevelList().items():
+#             ws0.write(row,1,level,plain_label_xf)
+#             ws0.write(row,2,count,plain_xf)
+#             row+=1
+        
+        #ws0.write_merge(1,1,0,4,_("Vaccine Results"),divider_1_xf)
+        
         with uiSession.getLockedState() as state:
             (fileKey,fullFileName) = \
                 state.fs().makeNewFileInfo(shortName = "%s.xls"%fname,
@@ -65,4 +97,17 @@ def downloadXLS(db,uiSession):
         fullname = "%s/%s.xls"%(state.fs().workDir,shortname)
     return bottle.static_file(xlsName,os.path.dirname(fullname),
                               mimetype='application/vnd.ms-excel',download=xlsName)
+    
+def getNumberOfLocationsFromModel(model):
+    
+    placeCount = 0
+    for storeId,stores in model.stores.items():
+        if not stores.isAttached():
+            placeCount += 1
+    return placeCount
+
+def getNumberOfLocationsByLevel(model):
+    return model.getLevelCount()
+    
+        
     
