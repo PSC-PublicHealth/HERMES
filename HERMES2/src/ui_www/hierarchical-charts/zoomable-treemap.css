@@ -1,17 +1,15 @@
+.chart {
+  display: block;
+  margin: auto;
+  margin-top: 40px;
+}
+
 text {
-  font: 10px sans-serif;
+  font: 11px sans-serif;
 }
 
-rect.background {
-  fill: white;
-}
-
-.axis {
-  shape-rendering: crispEdges;
-}
-
-.axis path,
-.axis line {
+rect {
   fill: none;
-  stroke: #000;
 }
+
+
