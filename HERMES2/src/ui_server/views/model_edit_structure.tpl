@@ -189,9 +189,9 @@ $(function() {
 			success = data.success;
 			if (!success) {
 			    if('errorString' in data) {
-				alert('{{_('error fetching node: ')}}'+data.errorString);
+				alert("{{_('error fetching node: ')}}"+data.errorString);
 			    } else {
-				alert('{{_('error fetching node')}}');
+				alert("{{_('error fetching node')}}");
 			    }
 			    return NULL;
 			}
@@ -203,7 +203,7 @@ $(function() {
                         //alert('success');
                     },
                     "error" : function(jqxhr, textStatus, error) {
-                        alert('{{_('error fetching route tree')}}');
+                        alert("{{_('error fetching route tree')}}");
                     } 
 		}
 	    }
@@ -234,7 +234,7 @@ $(function() {
                         //alert('success');
                     },
                     "error" : function(jqxhr, textStatus, error) {
-                        alert({{_('error fetching unattached route tree')}});
+                        alert("{{_('error fetching unattached route tree')}}");
                     }
 
 		}
