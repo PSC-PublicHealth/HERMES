@@ -313,30 +313,42 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         runCur = self.sim.userInput['currencybase']
         runCurYear = self.sim.userInput['currencybaseyear']
         inflation = self.sim.userInput['priceinflation'] # currencyConverter wants per-year inflation
-        priceKeyInfo = priceKeyTable[fuel]
-        if priceKeyInfo is not None and self.sim.userInput[priceKeyInfo] != 0.0:
-            assert costPattern == 'distance', u"Transport type %s does not cost by distance?"%truckType.name
-            assert isinstance(priceKeyInfo, types.StringTypes), u"fuel type for %s should not have amortization"%truckType.name
-            fuelPrice = self.sim.userInput[priceKeyInfo] # in run currency at run base year
-            assert fuelPrice is not None, u"Cost information for fuel type %s is missing"%fuel
-            fuelRate = truckType.recDict['FuelRate']
-            assert fuelRate is not None, u"Cost information for %s is incomplete"%truckType.name
-            #
-            # fuel cost is totKm/fuelRate, since fuelRate is an inverse, like Km/liter.  The price of fuel
-            # is already given in the run currency at the run year, so no currency conversion is needed.
-            #
-            fuelCost = (totKm/fuelRate)*fuelPrice
-        else:
-            # Fuel is free
+        if costPattern == 'distance':
+            priceKeyInfo = priceKeyTable[fuel]
+            if priceKeyInfo is not None and self.sim.userInput[priceKeyInfo] != 0.0:
+                assert isinstance(priceKeyInfo, types.StringTypes), u"fuel type for %s should not have amortization"%truckType.name
+                fuelPrice = self.sim.userInput[priceKeyInfo] # in run currency at run base year
+                assert fuelPrice is not None, u"Cost information for fuel type %s is missing"%fuel
+                fuelRate = truckType.recDict['FuelRate']
+                assert fuelRate is not None, u"Cost information for %s is incomplete"%truckType.name
+                #
+                # fuel cost is totKm/fuelRate, since fuelRate is an inverse, like Km/liter.  The price of fuel
+                # is already given in the run currency at the run year, so no currency conversion is needed.
+                #
+                fuelCost = (totKm/fuelRate)*fuelPrice
+                fare = 0.0
+            else:
+                # Fuel is free
+                fuelCost = 0.0
+                fare = 0.0
+        elif costPattern == 'pertrip':
+            rawFare = truckType.recDict['FuelRate']
+            fare = self.currencyConverter.convertTo(rawFare, tCur, runCur, tYear, runCurYear, inflation)
             fuelCost = 0.0
+        else:
+            raise RuntimeError(u'Transport type %s as an unexpected costing pattern'%truckType.name)
         baseCost = truckType.recDict['BaseCost']
         assert baseCost is not None, u"Cost information for %s is incomplete"%truckType.name
         amortKm = truckType.recDict['AmortizationKm']
-        rawAmortCost = baseCost*totKm/amortKm
-        amortCost = self.currencyConverter.convertTo(rawAmortCost, tCur, runCur, tYear, runCurYear, inflation)
-        for k,v in [("m1C_%s"%fuel, fuelCost), ("m1C_TruckAmort",amortCost)]:
-            if k in result: result[k] += v
-            else: result[k] = v
+        if baseCost != 0.0:
+            rawAmortCost = baseCost*totKm/amortKm
+            amortCost = self.currencyConverter.convertTo(rawAmortCost, tCur, runCur, tYear, runCurYear, inflation)
+        else:
+            amortCost = 0.0
+        for k,v in [("m1C_%s"%fuel, fuelCost), ("m1C_TruckAmort",amortCost),("m1C_TransitFareCost",fare)]:
+            if v != 0.0:
+                if k in result: result[k] += v
+                else: result[k] = v
         
         #  Add in the miscellaneous costs
         miscCostDict = {}
