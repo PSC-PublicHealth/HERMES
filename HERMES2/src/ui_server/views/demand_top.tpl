@@ -369,6 +369,18 @@ function buildPage(modelId, modelName) {
 										}
 									},
 								});
+                  var ids = $("#demand_edit_grid").jqGrid('getDataIDs');
+									for(var i=0; i<ids.length; i++) { 
+                      $( document ).on( "blur", "input[id^='" + ids[i] + "_']", function() { 
+                          var focusfrom = $(this).parent().parent().attr('id');
+                          setTimeout(function()
+                          {
+                              if ($(document.activeElement).parent().parent().attr("id")!=focusfrom) {
+                                  $('#demand_edit_grid').jqGrid('saveRow',focusfrom);
+                              }
+                          }, 1);
+                      });
+									}
    							}
 						//}
 						//else {
