@@ -34,17 +34,22 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\..\data\*"; Excludes: "*.pyc"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\..\dev_docs\*"; Excludes: "*.pyc"; DestDir: "{app}\dev_docs"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\..\documentation\*"; Excludes: "*.pyc"; DestDir: "{app}\documentation"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\..\master_data\*"; Excludes: "*.pyc,..\..\master_data\*\regression-output\*"; DestDir: "{app}\master_data"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\..\performance\*"; Excludes: "*.pyc"; DestDir: "{app}\performance"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\..\src\*"; Excludes: "*.pyc,..\..\src\ui_www\jquery-ui-1.10.2\demos\*,..\..\src\ui_www\jquery-ui-1.10.2\tests\*"; DestDir: "{app}\src"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\..\*"; Excludes: "*.pyc"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\HERMES2\*"; Excludes: "*.pyc,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\demos\*,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\tests\*,..\..\HERMES2\master_data\*\regression-output\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "requirements\*"; Excludes: "*.pyc"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+
+;Source: "..\..\data\*"; Excludes: "*.pyc"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
+;Source: "..\..\dev_docs\*"; Excludes: "*.pyc"; DestDir: "{app}\dev_docs"; Flags: ignoreversion recursesubdirs createallsubdirs
+;Source: "..\..\documentation\*"; Excludes: "*.pyc"; DestDir: "{app}\documentation"; Flags: ignoreversion recursesubdirs createallsubdirs
+;Source: "..\..\master_data\*"; Excludes: "*.pyc,..\..\master_data\*\regression-output\*"; DestDir: "{app}\master_data"; Flags: ignoreversion recursesubdirs createallsubdirs
+;Source: "..\..\performance\*"; Excludes: "*.pyc"; DestDir: "{app}\performance"; Flags: ignoreversion recursesubdirs createallsubdirs
+;Source: "..\..\src\*"; Excludes: "*.pyc,..\..\src\ui_www\jquery-ui-1.10.2\demos\*,..\..\src\ui_www\jquery-ui-1.10.2\tests\*"; DestDir: "{app}\src"; Flags: ignoreversion recursesubdirs createallsubdirs
+;Source: "..\..\*"; Excludes: "*.pyc"; DestDir: "{app}"; Flags: ignoreversion
+;Source: "requirements\*"; Excludes: "*.pyc"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
+
 ;Source: "python\*"; Excludes: "*.pyc"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
 ;Source: "requirements\Scripts\*"; Excludes: "*.pyc"; DestDir: "{app}\python\Scripts"; Flags: ignoreversion recursesubdirs createallsubdirs
 ;Source: "requirements\Lib\*"; Excludes: "*.pyc"; DestDir: "{app}\python\Lib"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "requirements\*"; Excludes: "*.pyc"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ;use
 ;Source: "Z:\Hermes\*"; Excludes: "*.pyc,Z:\Hermes\src\ui_www\jquery-ui-1.10.2\demos\*,Z:\Hermes\src\ui_www\jquery-ui-1.10.2\tests\*,Z:\Hermes\master_data\*\regression-output\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs

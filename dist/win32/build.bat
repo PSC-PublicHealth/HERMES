@@ -6,7 +6,7 @@ set oldcurdir=%cd%
 cd /d %~dp0
 if exist requirements\nul goto :compile
 python -m virtualenv requirements
-requirements\Scripts\pip install -r ..\..\requirements.txt
+requirements\Scripts\pip install -r ..\..\HERMES2\requirements.txt
 echo Merging requirements into python directory
 xcopy python requirements /e /s /d /y /q
 :compile
