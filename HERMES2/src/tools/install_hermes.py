@@ -896,18 +896,21 @@ def main():
 
     parser.add_argument('-u', '--upgrade', action='store_true',
             help='Upgrade dependencies if needed.')
-    parser.add_argument('-d', '--dependencies_only', action='store_false',
+    parser.add_argument('-d', '--dependencies_only', action='store_true',
             help='Only install dependencies')
+    parser.add_argument('-n', '--no_dependencies', action='store_true',
+                        help='Do not install dependencies')
     parser.add_argument('-r', '--replace', action='store_true',
                         help='Delete and replace existing HERMES database if present')
 
     args = parser.parse_args()
 
-    _install_dependencies(upgrade=args.upgrade)
+    if not args.no_dependencies:
+        _install_dependencies(upgrade=args.upgrade)
 
     overwrite = False
     
-    if args.dependencies_only:
+    if not args.dependencies_only:
         _install_hermes(overwrite=args.replace)
 
 
