@@ -48,3 +48,5 @@ try:
     sys.path = fullpaths + sys.path
 except:
     pass
+
+HermesBaseDir = os.path.normpath(os.path.join(cwd, '..'))

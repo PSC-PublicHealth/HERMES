@@ -28,6 +28,7 @@ from gridtools import orderAndChopPage
 from model_edit_hooks import updateDBRouteType
 from transformation import setLatenciesByNetworkPosition, setUseVialLatenciesAsOffsetOfShipLatencyFromRoute
 import crumbtracks
+import runhooks
 
 from ui_utils import _logMessage, _logStacktrace, _safeGetReqParam, _getOrThrowError, _smartStrip
 
@@ -57,6 +58,24 @@ def modelsTopPage(uiSession):
                            {
                             "breadcrumbPairs":crumbTrack
                             })
+
+@bottle.route('/model-edit-params')
+def modelsEditParams(db, uiSession):
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Params")))
+    if "id" in bottle.request.params:
+        modelId = int(bottle.request.params['id'])
+        uiSession['selectedModelId'] = modelId
+        uiSession['modelIdBeingEdited'] = modelId
+    
+        return bottle.template("model_edit_parms.tpl",
+                               {"modelId":modelId,
+                               "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
+                                                  ("model-edit-params",_("Edit parameters"))]})
+
+    return bottle.template("problem.tpl", {"comment":_("no model id specified"),
+                                           "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
+                                                              ("model-edit-params",_("Edit parameters"))]})
+
 
 @bottle.route('/model-show-structure')
 def modelShowStructurePage(db,uiSession):
@@ -1338,3 +1357,36 @@ def jsonGetModelName(db,uiSession):
     except Exception,e:
         result = {'success':False, 'msg':str(e)}
         return result    
+
+
+@bottle.route('/json/model-parms-edit')
+@bottle.route('/json/model-parms-edit', method='POST')
+def jsonRunParmsEdit(db, uiSession):
+    modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
+    uiSession.getPrivs().mayModifyModelId(db, modelId)
+    m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+
+    badParms,deltas = runhooks._parseRunParms(db, uiSession, m, bottle.request.params)
+                
+    badStr = None
+    if badParms:
+        badStr = _("The following parameters are invalid: ")
+        for p in badParms: badStr += "%s, "%p
+        badStr = badStr[:-2] # trim trailing comma
+    if badStr:
+        result = {'success':True, 'value':False, 'msg':badStr}
+    else:
+        parms = m.parms
+
+        for d in deltas:
+            (key, typeString, value) = d
+            if key in parms:
+                parms[key].setValue(value)
+            else:
+                parms[key] = shadow_network.ShdParameter(key, value)
+
+
+        result = {'success':True, 'value':True}
+    return result
+    
+

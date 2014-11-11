@@ -21,6 +21,8 @@ _hermes_svn_id_="$Id$"
 
 import os, os.path, platform
 import kvp_tools
+import ipath
+from full_import_paths import HermesBaseDir
 
 class SiteInfo:
     def __init__(self):
@@ -29,10 +31,12 @@ class SiteInfo:
             homeDir = os.environ['HOME']
             defaultScratchDir = '/tmp'
             defaultOutTmpDir = '/tmp'
+            defaultDbLoc = os.path.join(HermesBaseDir, 'hermes.db')
             
         elif s == 'Windows':
             homeDir = os.path.join(os.environ['HOMEDRIVE'],os.environ['HOMEPATH'])
             defaultScratchDir = defaultOutTmpDir = homeDir
+            defaultDbLoc = os.path.join(HermesBaseDir, 'hermes.db')
 
         else:
             raise RuntimeError("Cannot determine site-specific information for a %s system!"%s)
@@ -40,7 +44,8 @@ class SiteInfo:
         self.d = {'srcdir':os.path.split(os.path.abspath(__file__))[0],
                   'scratchdir':defaultScratchDir,
                   'outtmpdir':defaultOutTmpDir,
-                  'dbtype':'sqlite'}
+                  'dbtype':'sqlite',
+                  'dbloc':defaultDbLoc }
         configFile = os.path.join(homeDir,'hermes_conf.kvp')
         if os.path.exists(configFile):
             parser = kvp_tools.KVPParser()
@@ -59,6 +64,8 @@ class SiteInfo:
         return self.d['srcdir']
     def dbType(self):
         return self.d['dbtype']
+    def dbLoc(self):
+        return self.d['dbloc']
     
 def main():
     "This is a simple test routine"

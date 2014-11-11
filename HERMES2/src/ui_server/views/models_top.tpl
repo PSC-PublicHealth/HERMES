@@ -326,7 +326,7 @@ function deleteModel(modelId, modelName) {
 }
 
 function editParams(modelId) {
-    alert('this needs relinked/fixed');
+    window.location = "model-edit-params?id="+modelId;
 }
 
 function runHermes(modelId) {

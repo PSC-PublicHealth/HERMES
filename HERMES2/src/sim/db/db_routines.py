@@ -58,12 +58,12 @@ class DbInterface:
                  password = 'hermes_pass', 
                  host = '127.0.0.1',
                  echo = False,
-                 scratchDir = None):
+                 dbLoc = None):
         sI = site_info.SiteInfo()
         if dbType is None: 
             dbType = sI.dbType()
-        if scratchDir is None: 
-            scratchDir = sI.scratchDir()
+        if dbLoc is None: 
+            dbLoc = sI.dbLoc()
 
         self.dbType = dbType
 
@@ -80,8 +80,7 @@ class DbInterface:
             
             engine = create_engine(uri, echo = echo, pool_recycle=3600)
         elif dbType == 'sqlite':
-            uri = 'sqlite:///%s/%s.db'%(scratchDir,name)
-            
+            uri = 'sqlite:///%s'%(dbLoc)
             engine = create_engine(uri, echo = echo, encoding = 'utf-8')
             engine.raw_connection().connection.text_factory=str
         else:

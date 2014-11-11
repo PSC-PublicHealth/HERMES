@@ -463,13 +463,16 @@ def jsonRunTerminate(db, uiSession):
         result = {'success':False, 'msg':str(e)}
         return result
 
-def _parseRunParms(db, uiSession, model):
+def _parseRunParms(db, uiSession, model, postParms = None):
     """
     returns badParms, deltas where:
        badParms is a list of parameters the formats of which are invalid
        deltas is a list of triples (key, typeString, value)
     """
     inputDefault = input.InputDefault()
+
+    if postParms is None:
+        postParms = bottle.request.params
 
     eFM = {}
     for pKey,p in model.parms.items():
@@ -485,8 +488,8 @@ def _parseRunParms(db, uiSession, model):
     badParms = [] # list of inputs with invalid types
     deltas = [] # list of (key,typeString,value) tuples
     for k in inputDefault.iterkeys():
-        if k in bottle.request.params:
-            v = _safeGetReqParam(bottle.request.params,k)
+        if k in postParms:
+            v = _safeGetReqParam(postParms,k)
             if k in eFM: 
                 oldV = eFM[k]['value']
             else:
