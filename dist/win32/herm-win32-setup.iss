@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "HERMES"
-#define MyAppVersion "0.4"
+#define MyAppVersion "0.9.0"
 #define MyAppPublisher "HERMES Team"
 #define MyAppURL "http://hermes.psc.edu"
 
@@ -26,6 +26,7 @@ OutputBaseFilename=hermes-setup-win32
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=admin
+AppMutex=HERMES: Highly Extensible Resource for Modeling Event-driven Supply chains; {{D82029AE-9A89-4A58-AD00-3E5C5CE68400},Global\HERMES: Highly Extensible Resource for Modeling Event-driven Supply chains; {{D82029AE-9A89-4A58-AD00-3E5C5CE68400}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -34,54 +35,39 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\..\HERMES2\*"; Excludes: "*.pyc,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\demos\*,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\tests\*,..\..\HERMES2\master_data\*\regression-output\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "requirements\*"; Excludes: "*.pyc"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
-
-
-;Source: "..\..\data\*"; Excludes: "*.pyc"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "..\..\dev_docs\*"; Excludes: "*.pyc"; DestDir: "{app}\dev_docs"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "..\..\documentation\*"; Excludes: "*.pyc"; DestDir: "{app}\documentation"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "..\..\master_data\*"; Excludes: "*.pyc,..\..\master_data\*\regression-output\*"; DestDir: "{app}\master_data"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "..\..\performance\*"; Excludes: "*.pyc"; DestDir: "{app}\performance"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "..\..\src\*"; Excludes: "*.pyc,..\..\src\ui_www\jquery-ui-1.10.2\demos\*,..\..\src\ui_www\jquery-ui-1.10.2\tests\*"; DestDir: "{app}\src"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "..\..\*"; Excludes: "*.pyc"; DestDir: "{app}"; Flags: ignoreversion
-;Source: "requirements\*"; Excludes: "*.pyc"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
-
-;Source: "python\*"; Excludes: "*.pyc"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "requirements\Scripts\*"; Excludes: "*.pyc"; DestDir: "{app}\python\Scripts"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "requirements\Lib\*"; Excludes: "*.pyc"; DestDir: "{app}\python\Lib"; Flags: ignoreversion recursesubdirs createallsubdirs
-
-;use
-;Source: "Z:\Hermes\*"; Excludes: "*.pyc,Z:\Hermes\src\ui_www\jquery-ui-1.10.2\demos\*,Z:\Hermes\src\ui_www\jquery-ui-1.10.2\tests\*,Z:\Hermes\master_data\*\regression-output\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "Y:\Python27\*"; Excludes: "*.pyc"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "Z:\hermes-tray.py"; DestDir: "{app}\src\tools"; Flags: ignoreversion
-;Source: "Z:\winsystray.py"; DestDir: "{app}\src\tools"; Flags: ignoreversion
-;use
-
-;Source: "C:\Program Files\HermesTest\*"; Excludes: "*.pyc,C:\Program Files\HermesTest\pkgs\*,Z:\Hermes\src\ui_www\jquery-ui-1.10.2\demos\*,Z:\Hermes\src\ui_www\jquery-ui-1.10.2\tests\*,Z:\Hermes\master_data\*\regression-output\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "C:\Python27\*"; Excludes: "*.pyc"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
-
-;Source: "Z:\Hermes\*"; Excludes: "*.pyc,Z:\Hermes\src\ui_www\jquery-ui-1.10.2\demos\*,Z:\Hermes\src\ui_www\jquery-ui-1.10.2\tests\*,Z:\Hermes\master_data\*\regression-output\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "C:\Program Files\HermesTest\pkgs\*"; Excludes: "*.pyc"; DestDir: "{app}\python\Lib\site-packages"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "Z:\SysTrayIcon.py"; DestDir: "{app}"; Flags: ignoreversion
-;temp, to install:
-;Source: "C:\Users\User\Downloads\python-2.7.8.msi"; DestDir: "{app}"; Flags: ignoreversion deleteafterinstall
-;Source: "Z:\install-pkgs.bat"; DestDir: "{app}"; Flags: ignoreversion deleteafterinstall
-;Source: "Z:\zest.pocompile-1.4\*"; DestDir: "{app}\pkgs\zest.pocompile"; Flags: ignoreversion recursesubdirs createallsubdirs deleteafterinstall
-;Source: "Z:\pywin32-219.win32-py2.7.exe"; DestDir: "{app}"; Flags: ignoreversion deleteafterinstall
+Source: "..\..\HERMES2\*"; Excludes: "*.pyc,*.pyo,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\demos\*,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\tests\*,..\..\HERMES2\master_data\*\regression-output\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "requirements\*"; Excludes: "*.pyc,*.pyo"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "misc\hermes-tray.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "misc\log_install_hermes.bat"; DestDir: "{app}\src\tools"; Flags: ignoreversion
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\python\pythonw.exe"; Parameters: """{app}\src\tools\hermes-tray.py"""; IconFilename: "{app}\src\ui_www\icons\favicon.ico"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\hermes-tray.exe"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\python\pythonw.exe"; Parameters: """{app}\src\tools\hermes-tray.py"""; IconFilename: "{app}\src\ui_www\icons\favicon.ico"; Tasks: desktopicon
+Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\hermes-tray.exe"; Tasks: desktopicon
+
 
 [Run]
-;Filename: "msiexec.exe"; Parameters: "/i ""{app}\python-2.7.8.msi"" /qb ADDLOCAL=TclTk TARGETDIR=""{app}\python"""; Flags: waituntilterminated 
-;Filename: "cmd.exe"; Parameters: "/c ""{app}\install-pkgs.bat"""; Flags: waituntilterminated
-;Filename: "cmd.exe"; Parameters: "/c ""{app}\src\tools\install_hermes.bat"""; Flags: waituntilterminated
-;Filename: "{app}\python\Scripts\easy_install.exe"; Parameters: """{app}\pywin32-219.win32-py2.7.exe"""; Description: "Run HERMES"; Flags: waituntilterminated
-;Filename: "cmd.exe"; Parameters: "/c ""{app}\install-pkgs.bat"""; Flags: runhidden waituntilterminated
-Filename: "{app}\python\pythonw.exe"; Parameters: """{app}\src\tools\install_hermes.py"" -n"; StatusMsg: "Installing HERMES database"
-Filename: "{app}\python\pythonw.exe"; Parameters: """{app}\src\tools\hermes-tray.py"""; Description: "Run HERMES"; Flags: nowait postinstall skipifsilent
+Filename: "{cmd}"; Parameters: "/C ""{app}\src\tools\log_install_hermes.bat"""; StatusMsg: "Installing HERMES database"; Flags: runhidden
+Filename: "{app}\hermes-tray.exe"; Description: "Run HERMES"; Flags: nowait postinstall skipifsilent
+
+[UninstallDelete]
+Type: files; Name: "{%userprofile}\standalone.log"
+Type: filesandordirs; Name: "{pf}"
+
+[Code]
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var mRes : integer;
+begin
+  case CurUninstallStep of
+    usUninstall:
+      begin
+        mRes := MsgBox('Do you want to remove the HERMES database? This contains models you have created or modified while using HERMES.', mbConfirmation, MB_YESNO or MB_DEFBUTTON2)
+        if mRes = IDYES then
+          begin
+             DeleteFile(ExpandConstant('{%app}\hermes.db'));
+          end;
+      end;
+  end;
+end;

@@ -4,13 +4,15 @@ if %errorlevel%==1 goto :novenv
 setlocal
 set oldcurdir=%cd%
 cd /d %~dp0
+echo Building hermes-tray
+call misc\build-hermes-tray
 if exist requirements\nul goto :compile
 python -m virtualenv requirements
 requirements\Scripts\pip install -r ..\..\HERMES2\requirements.txt
-echo Merging requirements into python directory
-xcopy python requirements /e /s /d /y /q
+echo Merging python into requirements directory
+xcopy python requirements /e /s /y /q
 :compile
-..\tools\InnoSetup\iscc /O"build" herm-win32-setup.iss
+..\tools\InnoSetup\iscc /qp /O"build" herm-win32-setup.iss
 cd /d %oldcurdir%
 endlocal
 goto :EOF
