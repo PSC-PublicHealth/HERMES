@@ -38,7 +38,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "..\..\HERMES2\*"; Excludes: "*.pyc,*.pyo,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\demos\*,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\tests\*,..\..\HERMES2\master_data\*\regression-output\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "requirements\*"; Excludes: "*.pyc,*.pyo"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "misc\hermes-tray.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "misc\log_install_hermes.bat"; DestDir: "{app}\src\tools"; Flags: ignoreversion
+;Source: "misc\log_install_hermes.bat"; DestDir: "{app}\src\tools"; Flags: ignoreversion
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
@@ -49,11 +49,12 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\hermes-tray.exe"; Tasks: 
 
 
 [Run]
+Filename: "{app}\python\pythonw.exe"; Parameters: "-m compileall ""{app}"""; StatusMsg: "Compiling Python libraries"
 Filename: "{cmd}"; Parameters: "/C ""{app}\src\tools\log_install_hermes.bat"""; StatusMsg: "Installing HERMES database"; Flags: runhidden
 Filename: "{app}\hermes-tray.exe"; Description: "Run HERMES"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
-Type: files; Name: "{%userprofile}\standalone.log"
+Type: files; Name: "{%appdata}\HERMES\standalone.log"
 Type: filesandordirs; Name: "{pf}"
 
 [Code]
@@ -66,7 +67,7 @@ begin
         mRes := MsgBox('Do you want to remove the HERMES database? This contains models you have created or modified while using HERMES.', mbConfirmation, MB_YESNO or MB_DEFBUTTON2)
         if mRes = IDYES then
           begin
-             DeleteFile(ExpandConstant('{%app}\hermes.db'));
+             DeleteFile(ExpandConstant('{%appdata}\HERMES\hermes.db'));
           end;
       end;
   end;

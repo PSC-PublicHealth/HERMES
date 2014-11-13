@@ -6,19 +6,19 @@
 url = http://localhost:8080/bottle_hermes/top
 seconds_to_attempt = 30
 mutex = HERMES: Highly Extensible Resource for Modeling Event-driven Supply chains; {D82029AE-9A89-4A58-AD00-3E5C5CE68400}
-logfile = %USERPROFILE%\standalone.log
+logfile = %APPDATA%\HERMES\standalone.log
 bugemail = hermes-devel@psc.edu
 bugsubject = HERMES bug report
 bugsubject := uriEncode(bugsubject)
 
 hMutex := DllCall("OpenMutex", "UInt", 0x00100000, "Int", null, "Str", "Global\" mutex) ; SYNCHRONIZE = 0x00100000L
-DllCall("CreateMutex", "uint", 0, "int", false, "Str", mutex)
-DllCall("CreateMutex", "uint", 0, "int", false, "Str", "Global\" mutex)
 if hMutex <> 0
 {
     Gosub, Launch
     ExitApp
 }
+DllCall("CreateMutex", "uint", 0, "int", false, "Str", mutex)
+DllCall("CreateMutex", "uint", 0, "int", false, "Str", "Global\" mutex)
 
 Menu, Tray, NoStandard
 Menu, Tray, Tip, Starting HERMES...
@@ -30,7 +30,16 @@ IfNotExist, %logfile%
 
 ;EnvSet, PATH, %A_ScriptDir%\python\,%A_ScriptDir%\python\Scripts\,%PATH%
 SetWorkingDir %A_ScriptDir%\src\ui_server
-Run, %A_ScriptDir%\python\pythonw.exe standalone_server.py, , , StandaloneServerPid
+if FileExist(A_ScriptDir "\python\pythonw.exe")
+{
+    Run, %A_ScriptDir%\python\pythonw.exe standalone_server.py, , , StandaloneServerPid
+}
+else
+{
+    MsgBox, Error: Cannot find Python.
+    ExitApp
+}
+
 
 FoundServer := false
 Loop, %seconds_to_attempt% {
@@ -55,7 +64,6 @@ Menu, Tray, Add ; separator
 Menu, Tray, Add, Quit, Quit
 Menu, Tray, Tip, HERMES
 
-MsgBox, %IsFirstRun%
 if (IsFirstRun)
 {
     TrayTip, HERMES, First time running HERMES? Launch or quit it from here., 30

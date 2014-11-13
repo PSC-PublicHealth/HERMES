@@ -34,9 +34,12 @@ class SiteInfo:
             defaultDbLoc = os.path.join(HermesBaseDir, 'hermes.db')
             
         elif s == 'Windows':
-            homeDir = os.path.join(os.environ['HOMEDRIVE'],os.environ['HOMEPATH'])
+            homeDir = os.path.join(os.environ['APPDATA'], 'HERMES')
             defaultScratchDir = defaultOutTmpDir = homeDir
-            defaultDbLoc = os.path.join(HermesBaseDir, 'hermes.db')
+            if not os.path.exists(defaultScratchDir):
+                os.makedirs(defaultScratchDir)
+            defaultDbLoc = os.path.join(defaultScratchDir, 'hermes.db')
+            
 
         else:
             raise RuntimeError("Cannot determine site-specific information for a %s system!"%s)
