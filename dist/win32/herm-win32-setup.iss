@@ -55,7 +55,7 @@ Filename: "{app}\hermes-tray.exe"; Description: "Run HERMES"; Flags: nowait post
 
 [UninstallDelete]
 Type: files; Name: "{%appdata}\HERMES\standalone.log"
-Type: filesandordirs; Name: "{pf}"
+Type: filesandordirs; Name: "{app}"
 
 [Code]
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
