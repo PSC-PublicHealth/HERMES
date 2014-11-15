@@ -120,8 +120,7 @@ class FridgeType(abstractbaseclasses.CanStoreType, abstractbaseclasses.NonScalin
 
     def createInstance(self,count=1,name=None,currentAge=0.0,tracked=False):
         """
-        Create an instance of this FridgeType.  The instance will be a Fridge; the 'place' parameter specifies
-        the owning Warehouse.  (This is necessary because usage rules vary by place).
+        Create an instance of this FridgeType.  The instance will be a Fridge.
         """
         if count!=1:
             raise RuntimeError("Internal error: Fridge creation with non-unit count")
@@ -205,8 +204,7 @@ class ShippableFridgeType(FridgeType, abstractbaseclasses.ShippableType, abstrac
 
     def createInstance(self,count=1,name=None,currentAge=0.0,tracked=False):
         """
-        Create an instance of this ShippableFridgeType.  The instance will be a ShippableFridge; 
-        the 'place' parameter specifies the owning Warehouse.  (This is necessary because usage rules vary by place).
+        Create an instance of this ShippableFridgeType.  The instance will be a ShippableFridge.
         """
         if count!=1:
             raise RuntimeError("Internal error: Fridge creation with non-unit count")

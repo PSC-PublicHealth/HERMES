@@ -27,6 +27,7 @@ import peoplehooks
 import vaccinehooks
 import fridgehooks
 import truckhooks
+import staffhooks
 import runhooks
 import resultshooks
 import pagehelp

@@ -119,7 +119,8 @@ class Truck(abstractbaseclasses.CanOwn, abstractbaseclasses.Trackable, abstractb
         """
         shippable must not satisfy isinstance(shippable,abstractbaseclasses.CanStore)
         """
-        self.getPackagingModel().repackage(shippable)
+        if isinstance(shippable, abstractbaseclasses.Shippable):
+            self.getPackagingModel().repackage(shippable)
         self.stock.append(shippable)
 #        shippable.setArrivalTime( self.sim.now() )
     def detachStock(self,shippable):

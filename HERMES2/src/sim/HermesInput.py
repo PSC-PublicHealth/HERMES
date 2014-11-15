@@ -21,7 +21,7 @@ zipSubFileKeys = ['calendarfile','storesfile', 'factoryfile',
                   'routesfile', 'demandfile', 'initialovw',
                   'customoutput', 'storesoverlayfiles',
                   'vaccinefile', 'truckfile', 'peoplefile',
-                  'fridgefile', 'icefile', 'packagefile', 
+                  'fridgefile', 'icefile', 'packagefile', 'stafffile',
                   'gapstorefile','factorywastagefile',
                   'currencyconversionfile','pricetable',
                   'shippingdemandfile','consumptiondemandfile',
@@ -69,6 +69,7 @@ class GatherInputs:
         self._addfiles(unifiedInput.fridgeFile)
         self._addfiles(unifiedInput.iceFile)
         self._addfiles(unifiedInput.packageFile)
+        self._addfiles(unifiedInput.staffFile)
 
         for uInput in userInputList:
             for field in zipSubFileKeys:

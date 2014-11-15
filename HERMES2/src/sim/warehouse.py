@@ -1343,17 +1343,19 @@ class Warehouse(Store, abstractbaseclasses.Place):
         """
         shippable must not satisfy isinstance(shippable,abstractbaseclasses.CanStore)
         """
-        shippable.clearTag(abstractbaseclasses.Shippable.RECYCLE_TAG)
-        self.getPackagingModel().repackage(shippable)
-        if not shippable.getTag(abstractbaseclasses.Shippable.EXCLUDE_FROM_STATS_TAG):
-            self._recordStockArrivalStats(shippable)
+        if isinstance(shippable, abstractbaseclasses.Shippable):
+            shippable.clearTag(abstractbaseclasses.Shippable.RECYCLE_TAG)
+            self.getPackagingModel().repackage(shippable)
+            if not shippable.getTag(abstractbaseclasses.Shippable.EXCLUDE_FROM_STATS_TAG):
+                self._recordStockArrivalStats(shippable)
         
     def detachStock(self,shippable):
         """
         shippable must not satisfy isinstance(shippable,abstractbaseclasses.CanStore)
         """
-        if not shippable.getTag(abstractbaseclasses.Shippable.EXCLUDE_FROM_STATS_TAG):
-            self._recordStockDepartureStats(shippable)
+        if isinstance(shippable, abstractbaseclasses.Shippable):
+            if not shippable.getTag(abstractbaseclasses.Shippable.EXCLUDE_FROM_STATS_TAG):
+                self._recordStockDepartureStats(shippable)
         
     def attachIce(self,thisIce):
         """
@@ -1583,13 +1585,17 @@ class Clinic(Warehouse):
         """
         shippable must not satisfy isinstance(shippable,abstractbaseclasses.CanStore)
         """
-        self.getPackagingModel().repackage(shippable)
-        self._recordStockArrivalStats(shippable)
+        if isinstance(shippable, abstractbaseclasses.Shippable):
+            self.getPackagingModel().repackage(shippable)
+            if not shippable.getTag(abstractbaseclasses.Shippable.EXCLUDE_FROM_STATS_TAG):
+                self._recordStockArrivalStats(shippable)
     def detachStock(self,shippable):
         """
         shippable must not satisfy isinstance(shippable,abstractbaseclasses.CanStore)
         """
-        self._recordStockDepartureStats(shippable)
+        if isinstance(shippable, abstractbaseclasses.Shippable):
+            if not shippable.getTag(abstractbaseclasses.Shippable.EXCLUDE_FROM_STATS_TAG):
+                self._recordStockDepartureStats(shippable)
 
     def attachIce(self,thisIce):
         """

@@ -423,19 +423,22 @@ class HermesSim(SimulationStep):
             if not costmodel.getCostModelVerifier(shdNet).checkReady(shdNet):
                 raise RuntimeError('cost model verification failed!')
 
-        #------------------
+        ###################
         # The model is now fully initialized.
-        #------------------
+        ###################
 
-        seenSet = set()
-        for typeManager in typeManagers.values():
-            tList= [t for t in typeManager.getActiveTypes() if t not in seenSet]
-            if len(tList) > 0:
-                self.outputfile.write("\n\nFollowing %d %s types are included in the simulation:\n"%\
-                                      (len(tList),typeManager.typeClass.typeName))
-                for t in tList:
-                    self.outputfile.write(t.summarystring())
-                    seenSet.add(t)
+        tpD = {}
+        for tp in self.typeManager.getActiveTypes():
+            key = tp.typeName
+            if key in tpD:
+                tpD[key].append(tp)
+            else:
+                tpD[key] = [tp]
+        for key, tL in tpD.items():
+            self.outputfile.write("\n\nFollowing %d %s types are included in the simulation:\n" %
+                                  (len(tL), key))
+            for tp in tL:
+                self.outputfile.write(tp.summarystring())
 
         #Activate burninTrigger
         self.burninTrigger= BurninTrigger(self.model,sim=self)

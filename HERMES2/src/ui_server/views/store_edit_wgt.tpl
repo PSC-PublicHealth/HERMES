@@ -8,6 +8,7 @@
 	-->
 	<li><a href='#store_edit_wgt_{{unique}}_tab4'>{{_("Transport")}}</a></li>
 	<li><a href='#store_edit_wgt_{{unique}}_tab5'>{{_("Population")}}</a></li>
+	<li><a href='#store_edit_wgt_{{unique}}_tab6'>{{_("Staff")}}</a></li>
 </ul>
 <div id='store_edit_wgt_{{unique}}_tab1'>
 	<table>
@@ -77,6 +78,10 @@
 	<table id='store_edit_wgt_people_tbl_{{unique}}'></table>
 	<div id='store_edit_wgt_people_tbl_pager_{{unique}}'></div>
 </div>
+<div id='store_edit_wgt_{{unique}}_tab6'>
+	<table id='store_edit_wgt_staff_tbl_{{unique}}'></table>
+	<div id='store_edit_wgt_staff_tbl_pager_{{unique}}'></div>
+</div>
 </form>
 </div> 
 
@@ -89,6 +94,7 @@
 % include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='trucks',caption=tS('Transport'),customCols=[(tS('Cold Volume (L)'),'cooler','CoolVolumeL'), (tS('Storage'),'storage','Storage')],loadonce=True,hiddengrid=False
 //% include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='vaccines',caption=tS('Vaccines'),customCols=[(tS('Doses per vial'),'dosespervial','dosespervial'),(tS('Requires'),'requires','Requires')],loadonce=True,hiddengrid=False
 % include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='people',caption=tS('Client Population'),customCols=[],loadonce=True,hiddengrid=False
+% include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='staff',caption=tS('Local Staff'),customCols=[],loadonce=True,hiddengrid=False
 % simpleTemplateDict = _
 % _ = tS
 
@@ -128,7 +134,8 @@ $(function() {
 				modelId:{{modelId}}, idcode:{{idcode}}, unique:{{unique}},
 				fridgedata:getTypeData( $("#store_edit_wgt_fridges_tbl_{{unique}}") ),
 				peopledata:getTypeData( $("#store_edit_wgt_people_tbl_{{unique}}") ),
-				truckdata:getTypeData( $("#store_edit_wgt_trucks_tbl_{{unique}}") )
+				truckdata:getTypeData( $("#store_edit_wgt_trucks_tbl_{{unique}}") ),
+				staffdata:getTypeData( $("#store_edit_wgt_staff_tbl_{{unique}}") )
 			},
 			url:'{{rootPath}}json/store-update',
 			dataType:'json',

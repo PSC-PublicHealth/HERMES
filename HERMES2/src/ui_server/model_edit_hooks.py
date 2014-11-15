@@ -1114,7 +1114,8 @@ _ = _nopFn
 
 _storeInvTitles = {
     'fridges' : _('storage'),    #  any user of _storeInvTitles must 
-    'trucks' : _('transport') }  #  internationalize at runtime!
+    'trucks' : _('transport'),
+    'staff' : _('staff') }  #  internationalize at runtime!
 _ = _tempFn
 
 def storeInvOpts(store, iType):
@@ -2658,6 +2659,9 @@ def rseDispTransport(store, field, category, unique):
 def rseDispDemand(store, field, category, unique):
     rseDispInventory('demand', store, field, category, unique)
 
+def rseDispStaff(store, field, category, unique):
+    rseDispInventory('staff', store, field, category, unique)
+
 def rseDispInventory(iType, store, field, category, unique):
     global currentTree
     divId = 'rse_content_%s'%unique
@@ -2722,6 +2726,9 @@ def rseUpdateTransport(store, field, category, unique, action, value, secondary,
 
 def rseUpdateDemand(store, field, category, unique, action, value, secondary, tertiary):
     rseUpdateInventory('demand', store, field, category, unique, action, value, secondary, tertiary)
+
+def rseUpdateStaff(store, field, category, unique, action, value, secondary, tertiary):
+    rseUpdateInventory('staff', store, field, category, unique, action, value, secondary, tertiary)
 
 def rseUpdateInventory(iType, store, field, category, unique, action, value, secondary, tertiary):
     if action not in ['set', 'add', 'clear', 'repl', 'scaleUp', 'scaleDn']:
@@ -2878,6 +2885,7 @@ rseFields = {
     'storage' : ['storage', rseDispStorage, rseUpdateStorage],
     'transport' : ['transport', rseDispTransport, rseUpdateTransport],
     'population' : ['population', rseDispDemand, rseUpdateDemand],
+    'staff' : ['staff', rseDispStaff, rseUpdateStaff]
     }
     
 def rseRenderAvailableFields(unique, store):

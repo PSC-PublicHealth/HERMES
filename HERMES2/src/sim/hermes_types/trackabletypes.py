@@ -42,7 +42,7 @@ class TrackableTypeManager:
         """
         self.tm= typeManager
         self.typeClass= TrackableType
-
+        
     def getCollection(self, tupleList=[]):
         """
         format of tupleList is [(ShippableType,n),(ShippableType,n)...]

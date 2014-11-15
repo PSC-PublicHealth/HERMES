@@ -135,6 +135,27 @@ def getPeopleInfoHTML(db,uiSession, modelId, typeName):
     
     return sio.getvalue(), titleStr
 
+def getStaffInfoHTML(db,uiSession, modelId, typeName):
+    canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
+    model = shadow_network_db_api.ShdNetworkDB(db,modelId)
+
+    if canWrite:
+        titleStr = _("Staff Type {0} in {1}").format(typeName,model.name)
+    else:
+        titleStr = _("Staff Type {0}").format(typeName)
+    sio = StringIO()
+    sio.write("<h3>\n")
+    sio.write("{0}\n".format(typeName))
+    sio.write("</h3>\n")
+    sio.write("<table>\n")
+    attrRec = {}
+    shadow_network._copyAttrsToRec(attrRec,typeInstance)
+    for k,v in attrRec.items(): 
+        sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
+    sio.write("</table>\n")
+    
+    return sio.getvalue(), titleStr
+
 def getVaccineInfoHTML(db, uiSession, modelId, typeName):
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
@@ -249,6 +270,7 @@ def getGenericTypeInfoHTML(db, uiSession, modelId, typeName):
     elif category=='vaccines': return getVaccineInfoHTML(db, uiSession, modelId, typeName)
     elif category=='ice': return getIceInfoHTML(db, uiSession, modelId, typeName)
     elif category=='packaging': return getPackagingInfoHTML(db, uiSession, modelId, typeName)
+    elif category=='staff': return getStaffInfoHTML(db, uiSession, modelId, typeName)
 
 def getRunInfoHTML(db, uiSession, runId, minionFactory):
     minionInfo,sp = minionFactory.liveRuns[runId]

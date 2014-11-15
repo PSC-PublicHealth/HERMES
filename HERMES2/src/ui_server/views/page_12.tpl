@@ -12,6 +12,7 @@ Warning: this can invalidate runs and create type naming discrepancies!  Only mi
 <option value="trucks">Trucks</option>
 <option value="vaccines">Vaccines</option>
 <option value="people">People</option>
+<option value="staff">Staff</option>
 </select>
 <div id='type_sel_div'></div>
 <button id='edit_button'>Edit</button>

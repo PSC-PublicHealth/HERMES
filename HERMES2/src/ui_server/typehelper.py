@@ -214,7 +214,6 @@ def getSuggestedName(db, modelId, target, proposedName, excludeATM=False):
     
 def elaborateFieldMap(proposedName, instanceOrValDict, fieldMap):
     outMap = []
-    print 'elaborateFieldMap: instanceOrValDict is %s'%instanceOrValDict
     for rec in fieldMap:
         outRec = rec.copy()
         if rec['key'] == 'Name': outRec['value'] = proposedName

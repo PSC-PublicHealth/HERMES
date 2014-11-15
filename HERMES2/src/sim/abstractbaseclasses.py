@@ -343,7 +343,22 @@ class ManagedType(UnicodeSupport):
         """
         return {}
 
-class HasOVW(ManagedType):
+class TangibleType(ManagedType):
+    """
+    Classes derived from this abstract base class represent types for which it makes sense to create an
+    instance- for example, vaccines and trucks but not StorageTypes (which are just temperature labels).
+    """
+    
+    # I really wish this was a 'classproperty' or 'abc.abstractclassproperty', but those are not
+    # yet cleanly implemented.
+    typeName= "tangible"
+
+    @abc.abstractmethod
+    def createInstance(self,count=1,name=None,currentAge=0.0,tracked=False):
+        """Returns an instance of the type, for example a VaccineGroup or a Fridge"""
+        return None
+
+class HasOVW(TangibleType):
     """
     This class is used as a tag to exempt things which don't come in vials (like cold boxes) from
     open vial waste calculations.
@@ -414,7 +429,7 @@ class Trackable(UnicodeSupport):
         """ 
         return ""
 
-class TrackableType(ManagedType):
+class TrackableType(TangibleType):
     """
     Classes derived from this abstract base class produce instances which include the Trackable ABC
     """
@@ -653,10 +668,6 @@ class ShippableType(TrackableType):
     def __init__(self):
         self.requiredByList = []      
     
-    @abc.abstractmethod
-    def createInstance(self,count=1,name=None,currentAge=0.0,tracked=False):
-        """Returns an instance of the type, for example a VaccineGroup or a Fridge"""
-        return None
     @abc.abstractmethod
     def getNDosesPerVial(self): 
         """Returns doses per vial- since everything shippable is sometimes treated like a vaccine"""

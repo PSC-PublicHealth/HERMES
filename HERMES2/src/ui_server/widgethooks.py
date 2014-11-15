@@ -35,7 +35,8 @@ _typeCategoryNameMap = {'people':_('population types'),
                         'ice':_('ice types'),
                         'vaccines':_('vaccines'),
                         'fridges':_('cold storage'),
-                        'packaging':_('packaging')}
+                        'packaging':_('packaging'),
+                        'staff':_('staff')}
 
 @bottle.route('/hrmwidgets.js')
 def getHrmWidgetsJS(db, uiSession):
@@ -370,6 +371,46 @@ def jsonStoreEditManageTable(db, uiSession):
                                for t in tList ],
                       "userdata":totals
                       }
+        elif invtype=='staff':
+            for s in [store]+attachedClinics:
+                for thing in s.inventory:
+                    if thing.invType.shdType=='staff' and thing.count>0:
+                        if thing.invName in tDictDict:
+                            d = tDictDict[thing.invName]
+                            d['count'] += s.countInventory(thing)
+                        else:
+                            tDictDict[thing.invName] = {'Name':thing.invName,
+                                                        'count':s.countInventory(thing), 
+                                                        'category':_typeCategoryNameMap[thing.invType.shdType],
+                                                        'description':thing.invType.getDisplayName(),
+                                                        }
+            totals = {"description":"Totals","storage":"","cooler":0.0, "count":0}
+            for thing in tDictDict.values():
+                totals['count'] += thing['count']
+                
+            nPages,thisPageNum,totRecs,tList = orderAndChopPage(tDictDict.values(),
+                                                                {'typestring':'Name', 'count':'count',
+                                                                 'category':'category',
+                                                                 'cooler':'cooler','storage':'storage'},
+                                                                bottle.request,
+                                                                defaultSortIndex='typestring')
+            
+            
+            result = {
+                      "success":True,
+                      "total":nPages,    # total pages
+                      "page":thisPageNum,     # which page is this
+                      "records":totRecs,  # total records
+                      "rows": [ {"name":t['Name'], 
+                                 "cell":[t['Name'], t['count'],t['Name'],t['description'], t['count'], t['Name']]}
+                               for t in tList ],
+                      "userdata":totals
+                      }
+        else:
+            result = {
+                      "success":False,
+                      "msg":_("Unknown inventory type {0}".format(invtype))
+                      }
     except Exception,e:
         _logMessage(str(e))
         _logStacktrace()
@@ -697,12 +738,18 @@ def jsonStoreUpdate(db, uiSession):
         else:
             return {'success':True, 'value':False, 'msg':"\n".join(badParms)}
 
-        for invtype in ['fridgedata','truckdata','peopledata','vaccinedata']:
+        print 'point 0'
+        for invtype in ['fridgedata','truckdata','peopledata','vaccinedata','staffdata']:
             offset = 0
             demandFlag = ( invtype=='peopledata' )
+            print 'point 1'
             while True:
                 count = _safeGetReqParam(bottle.request.params,"%s[%d][%s]"%(invtype,offset,'count'),isInt=True)
+                print 'point 2 %s'%invtype
+                if invtype=='staffdata':
+                    for k,v in bottle.request.params.items(): print '%s: %s'%(k,v)
                 if count is not None:
+                    print 'point 3 %s'%count
                     origcount = _safeGetReqParam(bottle.request.params,"%s[%d][%s]"%(invtype,offset,'origcount'),isInt=True)
                     origtypename = _getOrThrowError(bottle.request.params,"%s[%d][%s]"%(invtype,offset,'typename'))
                     typename = _getOrThrowError(bottle.request.params,"%s[%d][%s]"%(invtype,offset,'visibletypename'))

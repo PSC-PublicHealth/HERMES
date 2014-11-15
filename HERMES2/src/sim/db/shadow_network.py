@@ -756,6 +756,7 @@ class ShdStore(Base, ShdCopyable):
         """
         set inventory or demand level for a specific type in a store
         """
+        print '######## updateInventory %s %s %s'%(invType,count,useDemandList)
         if useDemandList:
             invList = self.demand
         else:
@@ -779,6 +780,7 @@ class ShdStore(Base, ShdCopyable):
             return
 
         item.count = count
+        print '######## updateInventory main exist'
 
     def countInventory(self, invType, useDemandList=False):
         """
@@ -2768,6 +2770,29 @@ class ShdPeopleType(ShdType):
      
 _makeColumns(ShdPeopleType)
 
+class ShdStaffType(ShdType):
+    __tablename__ = "stafftypes"
+    shdType = 'staff'
+    __mapper_args__ = {'polymorphic_identity':shdType}
+
+    stafftypeId = Column(Integer, ForeignKey('types.typeId'), primary_key=True)
+    attrs = [('Name',       DataType(STRING, dbType=None)),
+             ('DisplayName', STRING_NONE),
+             ('SortOrder',  INTEGER),
+             ('BaseSalary',   FLOAT_NONE),
+             ('BaseSalaryCurCode', STRING_NONE, 'recordName', 'BaseSalaryCur'),
+             ('BaseSalaryYear', INTEGER_NONE),
+             ('FractionEPI', FLOAT_NONE),
+             ('Notes',      NOTES_STRING)]
+    
+    def __init__(self, *args, **kwargs):
+        _initShdType(self, args, kwargs)
+
+    def copy(self):
+        return ShdStaffType(self.createRecord())
+     
+_makeColumns(ShdStaffType)
+
 
 class ShdStorageType(ShdType, ShdCopyable):
     __tablename__ = "storagetypes"
@@ -3001,7 +3026,8 @@ class ShdTypes:
                 'people': ShdPeopleType,
                 'fridges': ShdStorageType,
                 'trucks': ShdTruckType,
-                'vaccines': ShdVaccineType}
+                'vaccines': ShdVaccineType,
+                'staff': ShdStaffType}
              
     def __init__(self):
         self.types = {}
@@ -3036,7 +3062,9 @@ class ShdTypes:
                       (userInput['icefile'],         'ice'),
                       (unifiedInput.iceFile,         'ice'),
                       (userInput['fridgefile'],      'fridges'),
-                      (unifiedInput.fridgeFile,      'fridges')]
+                      (unifiedInput.fridgeFile,      'fridges'),
+                      (userInput['stafffile'],       'staff'),
+                      (unifiedInput.staffFile,       'staff')]
 
         for (f,t) in typesFiles:
             if f is None:
@@ -3257,7 +3285,8 @@ ShdTypeSummary.typesMap = {'vaccinetype':ShdVaccineSummary,
                            'peopletype':ShdBasicSummary,
                            'packagetype':ShdBasicSummary,
                            'storagetype':ShdBasicSummary,
-                           'icetype':ShdIceSummary}
+                           'icetype':ShdIceSummary,
+                           'stafftype':ShdBasicSummary}
 
 class DemandEnums:
     # enumerations for demand and calendarType
@@ -3473,7 +3502,7 @@ class ShdNetwork(Base):
         stores:  Dictionary of ShdStore's keyed off of their idcode's.
         routes:  Dictionary of ShdRoute's keyed off of their RouteName's.
         types:   Dictionary of ShdType's keyed off 'Name'.
-        ice, packaging, people, fridges, trucks, vaccines:
+        ice, packaging, people, fridges, trucks, vaccines, staff:
                  Dictionaries of these specific subclasses of types, keyed off 'Name'.
         parms:   list of parameters defining a hermes run
         demands: list of people/vaccine demands.
@@ -4326,6 +4355,7 @@ class ShdNetwork(Base):
                       'peoplefile':(self.people,),
                       'truckfile':(self.trucks,),
                       'vaccinefile':(self.vaccines,),
+                      'stafffile':(self.staff,),
                       'initialovw':(self.initialOVW, self.getInitialOVWRecs),
                       'factorywastagefile':(self.factoryWastage,self.getFactoryWastageRecs),
                       'calendarfile':(self.unifiedCalendar, self.getCalendarRecs),
@@ -4349,6 +4379,7 @@ class ShdNetwork(Base):
         filesToFake = {'fridgefile':(uI.fridgeFile,ShdStorageType),
                        'truckfile':(uI.truckFile,ShdTruckType),
                        'peoplefile':(uI.peopleFile,ShdPeopleType),
+                       'stafffile':(uI.staffFile,ShdStaffType),
                        'icefile':(uI.iceFile,ShdIceType),
                        'packagefile':(uI.packageFile,ShdPackageType),
                        'vaccinefile':(uI.vaccineFile,ShdVaccineType)

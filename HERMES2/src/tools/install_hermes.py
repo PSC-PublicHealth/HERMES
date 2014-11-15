@@ -107,6 +107,17 @@ def getTableByName(tblName, metadata, engine):
     import sqlalchemy as sa
     return sa.Table(tblName, metadata, autoload=True, autoload_with=engine)
 
+def dropAllTables():
+    """
+    Drop all tables in the database, so we can start from scratch
+    """
+    import sqlalchemy as sa
+    
+    engine = sa.create_engine(getURI(), echo=True)
+    md = sa.MetaData(engine)
+    md.drop_all()
+    
+
 def createDBFromHistory(replace=True):
     """
     This is basically an auto-generated Alembic script, modified
@@ -830,8 +841,10 @@ def addTypeHolderModel(replace=True):
             for row in rows:
                 m = shadow_network_db_api.ShdNetworkDB(session,row['modelId'])
                 session.delete(m)
+            print 'dropped old allTypesModel %s'%row['modelId']
         else:
             print 'allTypesModel exists; not replacing it'
+            return
     
     # this needs to be harmonized with installTypeHolderModel()
 
@@ -844,7 +857,8 @@ def addTypeHolderModel(replace=True):
                          ('people','people'),
                          ('packaging','packaging'),
                          ('fridge','fridges'),
-                         ('truck','trucks')
+                         ('truck','trucks'),
+                         ('staff','staff')
                          ]:
                 if fN.lower().find(s)>=0: 
                     with util.logContext("loading types from %s as %s for shadow network"%(fN,tp)):
@@ -902,6 +916,8 @@ def main():
                         help='Do not install dependencies')
     parser.add_argument('-r', '--replace', action='store_true',
                         help='Delete and replace existing HERMES database if present')
+    parser.add_argument('-C', '--clobber', action='store_true',
+                        help='Totally delete tables from existing HERMES database, including schemas')
 
     args = parser.parse_args()
 
@@ -909,6 +925,9 @@ def main():
         _install_dependencies(upgrade=args.upgrade)
 
     overwrite = False
+    
+    if args.clobber:
+        dropAllTables()
     
     if not args.dependencies_only:
         _install_hermes(overwrite=args.replace)

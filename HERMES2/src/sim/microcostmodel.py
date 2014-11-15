@@ -27,7 +27,7 @@ import sys, os, StringIO, types, unittest
 import ipath
 import abstractbaseclasses, warehouse, reportinghierarchy
 import csv_tools
-import fridgetypes, trucktypes, vaccinetypes
+import fridgetypes, trucktypes, vaccinetypes, stafftypes
 import util
 import dummycostmodel
 from currencysupport import CurrencyConverter
@@ -193,9 +193,11 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                                                              innerItem.getType(), fridgeAmortPeriod, inflation))
                                 except Exception,e:
                                     errList.append(str(e))
+                    elif isinstance(costable, stafftypes.Staff):
+                        pass
                     else:
                         print 'Unexpectedly found %s on %s'%(type(costable),wh.name)
-                        raise RuntimeError("Expected only Fridges and Trucks on this list")
+                        raise RuntimeError("Expected only Fridges, Trucks, or Staff on this list")
                 # No danger of double counting because getPendingCostEvents clears the list of events
                 allPendingCostEvents.extend( wh.applyToAll(abstractbaseclasses.Costable, MicroCostManager._getPendingCostEvents))
                 for costable in wh.ownedCostables:
@@ -215,7 +217,6 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         """
         if key=='InventoryChangeCost':
             assert dict['ReportingLevel']=='-top-', 'ReportingHierarchy InventoryChangeCost override should have level all'
-            print '######### Point 1: %s'%dict
             if dict['ReportingBranch']=='all':
                 return 'm1C_'+key,self.inventoryChangeCost
             else:

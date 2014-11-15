@@ -521,7 +521,8 @@ class Model:
                       + sim.trucks.getActiveTypes() \
                       + sim.ice.getActiveTypes() \
                       + sim.packaging.getActiveTypes() \
-                      + sim.fridges.getActiveTypes():
+                      + sim.fridges.getActiveTypes() \
+                      + sim.staff.getActiveTypes():
             sDict= entity.getSummaryDict()
             for k in sDict.keys():
                 if k not in allKeys: allKeys.append(k)

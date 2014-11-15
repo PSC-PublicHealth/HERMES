@@ -65,16 +65,17 @@ class StaffType(abstractbaseclasses.TrackableType):
         return self.name
 
     def summarystring(self):
-        
+        infoStr = '%s, salary %g %s %d'%(self.recDict['DisplayName'], 
+                                         self.recDict['BaseSalary'],
+                                         self.recDict['BaseSalaryCur'],
+                                         self.recDict['BaseSalaryYear'])
         return self.name \
-               + '\n   %s '%unicode(['%s:%s'%(k,v) for k,v in self.recDict.items() if k!='Name']) \
+               + '\n  %s '%infoStr \
                +'\n\n'
 
     def statisticsstring(self):
-        str= "%s \n"%self.name
-        str += "      No statistics are currently gathered\n"
-        str += "\n"
-        return str
+        s= "%s : %d instances"%(self.name,self.instanceCount)
+        return s
 
     def getSummaryDict(self):
         return {'Type':'stafftype','Name':self.name}

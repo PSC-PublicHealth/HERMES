@@ -33,6 +33,7 @@ import trucktypes
 import fridgetypes
 import icetypes
 import packagetypes
+import stafftypes
 
 class TypeManagerLoader():
     """
@@ -102,7 +103,13 @@ class TypeManagerLoader():
                                  trucktypes.TruckType, self.verbose, self.debug)
         tms['trucks']= trucktypes.TruckTypeManager(self.typeManager)
 
-
+        if shdNet:
+            self._importTypeRecords('staff', stafftypes.StaffType)
+        else:
+            self._importTypeRecords(userInput['stafffile'], stafftypes.StaffType)
+            self._importTypeRecords(unifiedInput.staffFile, stafftypes.StaffType)
+        tms['staff'] = stafftypes.StaffTypeManager(self.typeManager)
+         
         tms['shippables']= trackabletypes.TrackableTypeManager(self.typeManager)
         if shdNet:
             vRecs = map(lambda t: t.createRecord(), shdNet.vaccines.values())
@@ -131,7 +138,7 @@ class TypeManagerLoader():
         for name in tms['packaging'].getAllValidTypeNames():
             pkgType = tms['packaging'].getTypeByName(name,activateFlag=False)
             tms['shippables'].getTypeByName(pkgType.containsStr, activateFlag=False).addPackageType(pkgType)
-         
+            
         self.typeManagers = tms
         
 

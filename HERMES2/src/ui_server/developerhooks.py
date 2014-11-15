@@ -27,7 +27,7 @@ from modelhooks import _findCanonicalStores
 from demandhooks import _interpretDemandModelStructure
 import util
 import json
-import truckhooks, fridgehooks, vaccinehooks, peoplehooks
+import truckhooks, fridgehooks, vaccinehooks, peoplehooks, staffhooks
 
 inlizer=session_support.inlizer
 _=session_support.translateString
@@ -100,6 +100,11 @@ def jsonTypeEditForm(db, uiSession):
                                                               typehelper.elaborateFieldMap(typeName, attrRec,
                                                                                            peoplehooks.fieldMap))
             result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
+        elif tp.shdType == 'staff':
+            htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,"staff",modelId,typeName,
+                                                              typehelper.elaborateFieldMap(typeName, attrRec,
+                                                                                           staffhooks.fieldMap))
+            result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
         else:
             raise RuntimeError('Unknown shdType %s'%tp.shdType)
         return result
@@ -130,7 +135,6 @@ def jsonTypeEditVerifyAndCommit(db, uiSession):
         elif tp.shdType == 'trucks':
             m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, truckhooks.fieldMap,  # @UnusedVariable
                                                           allowNameCollisions=True)
-            print attrRec
             # FuelRateUnits is completely determined by energy type
             if attrRec['Fuel']:
                 attrRec['FuelRateUnits'] = truckhooks.fuelTranslationDict[attrRec['Fuel'].encode('utf-8')][2]
@@ -141,6 +145,9 @@ def jsonTypeEditVerifyAndCommit(db, uiSession):
                                                           allowNameCollisions=True)
         elif tp.shdType == 'people':
             m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, peoplehooks.fieldMap,  # @UnusedVariable
+                                                          allowNameCollisions=True)
+        elif tp.shdType == 'staff':
+            m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, staffhooks.fieldMap,  # @UnusedVariable
                                                           allowNameCollisions=True)
         else:
             raise RuntimeError('Unknown shdType %s'%tp.shdType)

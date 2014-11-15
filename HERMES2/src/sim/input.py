@@ -523,7 +523,7 @@ class UnifiedInput:
         self.fridgeFile  = "UnifiedStorageTypeInfo.csv"
         self.iceFile     = "UnifiedIceTypeInfo.csv"
         self.packageFile = "UnifiedPackageTypeInfo.csv"
-        
+        self.staffFile   = "UnifiedStaffTypeInfo.csv"
 
 def main():
     inputDefault = InputDefault()
