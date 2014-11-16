@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from kitchen.text.display import fill
 
 ####################################
 # Notes:
@@ -212,16 +213,26 @@ def generateRouteUtilizationLinesJSON(db,uiSession):
                     start = route.stops[0].store
                     end = route.stops[1].store
                     if (start.Latitude != 0.0 and start.Longitude != 0.0) and \
-                       (end.Latitude != 0.0 and end.Longitude != 0.0):
+                       (end.Latitude != 0.0 and end.Longitude != 0.0) and \
+                       (start.Latitude != None and start.Longitude != None) and \
+                       (end.Latitude != None and end.Longitude != None):
                         #print "HERE"
-                        #print "theeee"
+                        print "theeee"
+                        print routeId
                         fill = r.routesRpts[routeId].RouteFill
+                        print fill
+                        print start.Latitude
+                        print start.Longitude
+                        print end.Latitude
+                        print end.Longitude
+                        
                         if fill > 1.0:
                             fill = 1.0
                             
                         f.append(Feature(geometry=LineString([(start.Longitude,start.Latitude),(end.Longitude,end.Latitude)]),
                                          id=routeId,util=fill,rindex=routeIndexDict[routeId],maxcount=maxCount))
                 else:
+                    print routeId
                     for i in range(0,len(route.stops)):
                         start = route.stops[i].store
                         if i == len(route.stops)-1:
