@@ -816,12 +816,28 @@ def jsonEditModels(db,uiSession):
         elif bottle.request.params['oper']=='add':
             raise bottle.BottleException("Adding a model is not that simple!")
         elif bottle.request.params['oper']=='del':
-            modelId = int(bottle.request.params['id'])
-            uiSession.getPrivs().mayWriteModelId(db, modelId)
-            m = shadow_network_db_api.ShdNetworkDB(db,modelId)
-            _logMessage("Deleting %s"%m.name)
-            db.delete(m)
-            return {'success':True}
+            modelId = _getOrThrowError(bottle.request.params, 'id', isInt=True)
+            allModelIds = [p.modelId for p in db.query(shadow_network.ShdNetwork)]
+            allAllowedIds = []
+            prv = uiSession.getPrivs()
+            for id in allModelIds:
+                try:
+                    prv.mayReadModelId(db,id)
+                    allAllowedIds.append(id)
+                except privs.PrivilegeException:
+                    pass
+            if len(allAllowedIds) < 2:
+                raise RuntimeError(_("You cannot delete the very last model"))
+            if modelId in allAllowedIds:
+                prv.mayWriteModelId(db,modelId)
+                m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+                _logMessage("Deleting %s"%m.name)
+                db.delete(m)
+                if 'selectedModelId' in uiSession and uiSession['selectedModelId'] == modelId:
+                    del uiSession['selectedModelId']
+                return {'success':True}
+            else:
+                raise RuntimeError(_("Tried to delete a nonexistent model"))
         else:
             raise bottle.BottleException("Bad parameters to "+bottle.request.path)
     except bottle.HTTPResponse:
