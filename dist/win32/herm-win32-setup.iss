@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "HERMES"
-#define MyAppVersion "0.9.0"
+#define MyAppVersion "0.9.1"
 #define MyAppPublisher "HERMES Team"
 #define MyAppURL "http://hermes.psc.edu"
 
@@ -34,11 +34,16 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
+[InstallDelete]
+;de-fang old faulty {pf}-deleting uninstaller
+Type: files; Name: "{app}\unins*.dat"
+Type: files; Name: "{app}\unins*.exe"
+
 [Files]
 Source: "..\..\HERMES2\*"; Excludes: "*.pyc,*.pyo,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\demos\*,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\tests\*,..\..\HERMES2\master_data\*\regression-output\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "requirements\*"; Excludes: "*.pyc,*.pyo"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "misc\hermes-tray.exe"; DestDir: "{app}"; Flags: ignoreversion
-;Source: "misc\log_install_hermes.bat"; DestDir: "{app}\src\tools"; Flags: ignoreversion
+Source: "misc\log_install_hermes.bat"; DestDir: "{app}\src\tools"; Flags: ignoreversion
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
@@ -55,6 +60,7 @@ Filename: "{app}\hermes-tray.exe"; Description: "Run HERMES"; Flags: nowait post
 
 [UninstallDelete]
 Type: files; Name: "{%appdata}\HERMES\standalone.log"
+Type: dirifempty; Name: "{%appdata}\HERMES"
 Type: filesandordirs; Name: "{app}"
 
 [Code]
