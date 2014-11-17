@@ -186,7 +186,7 @@ def createResultsSummary(db, uiSession):
         raise bottle.BottleException("resultsId is missing getting kmlstring")
         return None
 
-    return bottle.template("results_summary.tpl",{"breadcrumbPairs":[("top",_("Welcome"))],
+    return bottle.template("results_summary.tpl",{"breadcrumbPairs":[("top",_("Welcome")),("results-top",_("Results"))],
                                "pageHelpText":_("This is intended to show page-specific help")},
                                _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId,
                                gvAvailable=_gvAvailable)
