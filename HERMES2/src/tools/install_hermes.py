@@ -803,7 +803,10 @@ def callAlembicUpgrade():
     sI = site_info.SiteInfo()
 
     pathBase = os.path.join(sI.srcDir(),'..','..',)
-    if platform.system() == 'Windows': sep = ';'
+    alembicproc = 'alembic'
+    if platform.system() == 'Windows':
+        sep = ';'
+        if os.path.isfile(os.path.join(pathBase,'python','Scripts','alembic.bat')): alembicproc = 'alembic.bat'
     else: sep = ':'
     if 'PYTHONPATH' in os.environ:
         os.environ['PYTHONPATH'] = '%s%s%s%s%s'%(os.environ['PYTHONPATH'],
@@ -815,7 +818,7 @@ def callAlembicUpgrade():
         os.environ['PYTHONPATH'] = '%s%s%s'%(os.path.join(pathBase,'src/sim'),
                                              sep,
                                              os.path.join(pathBase,'src/ui_server'))
-    subprocess.check_call(['alembic','upgrade','head'],cwd = pathBase)
+    subprocess.check_call([alembicproc,'upgrade','head'],cwd = pathBase)
 
 def addTypeHolderModel(replace=True):
     import shadow_network
