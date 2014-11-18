@@ -738,18 +738,14 @@ def jsonStoreUpdate(db, uiSession):
         else:
             return {'success':True, 'value':False, 'msg':"\n".join(badParms)}
 
-        print 'point 0'
         for invtype in ['fridgedata','truckdata','peopledata','vaccinedata','staffdata']:
             offset = 0
             demandFlag = ( invtype=='peopledata' )
-            print 'point 1'
             while True:
                 count = _safeGetReqParam(bottle.request.params,"%s[%d][%s]"%(invtype,offset,'count'),isInt=True)
-                print 'point 2 %s'%invtype
                 if invtype=='staffdata':
                     for k,v in bottle.request.params.items(): print '%s: %s'%(k,v)
                 if count is not None:
-                    print 'point 3 %s'%count
                     origcount = _safeGetReqParam(bottle.request.params,"%s[%d][%s]"%(invtype,offset,'origcount'),isInt=True)
                     origtypename = _getOrThrowError(bottle.request.params,"%s[%d][%s]"%(invtype,offset,'typename'))
                     typename = _getOrThrowError(bottle.request.params,"%s[%d][%s]"%(invtype,offset,'visibletypename'))

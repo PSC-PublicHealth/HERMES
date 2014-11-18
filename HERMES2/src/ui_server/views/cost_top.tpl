@@ -41,10 +41,16 @@
 					<td>{{_("Vaccines")}}</td><td><button id="cost_vaccine_btn">{{_("Start")}}</button></td>
 				</tr>
 				<tr>
-					<td>{{_("Salaries and Per Diem")}}</td><td><button id="cost_salary_btn">{{_("Start")}}</button></td>
+					<td>{{_("Salaries")}}</td><td><button id="cost_salary_btn">{{_("Start")}}</button></td>
+				</tr>
+				<tr>
+					<td>{{_("Per Diem")}}</td><td><button id="cost_perdiem_btn">{{_("Start")}}</button></td>
 				</tr>
 				<tr>
 					<td>{{_("Buildings")}}</td><td><button id="cost_building_btn">{{_("Start")}}</button></td>
+				</tr>
+				<tr>
+					<td>{{_("Miscellaneous")}}</td><td><button id="cost_misc_btn">{{_("Start")}}</button></td>
 				</tr>
 			</table>
 		</td>
@@ -70,7 +76,7 @@
 
 { // local scope
 
-var buttonNames = ['fuel', 'truck', 'fridge', 'vaccine', 'salary', 'building'];
+var buttonNames = ['fuel', 'truck', 'fridge', 'vaccine', 'salary', 'perdiem', 'building', 'misc'];
 
 var getCurrentModelId = function(){ return $('#model_sel_widget').modelSelector('selId'); };
 var getCurrentModelName = function(){ return $('#model_sel_widget').modelSelector('selName'); };

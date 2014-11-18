@@ -66,9 +66,9 @@ def descNode(node):
 
 
 class Validator:
-    availableTests = ["checkStorage","checkUseVials",
-                      "checkDemands","checkStoreVehicles",
-                      "checkRouteDistances"]
+    availableTests = ["checkStorage", "checkUseVials",
+                      "checkDemands", "checkStoreVehicles",
+                      "checkRouteDistances", "checkStaffLocations"]
     def __init__(self,_shdNtwk):
         self.warnings = []
         self.fatals = []
@@ -185,8 +185,9 @@ class Validator:
             hasCoolerStorage = False
             totalStorage = {"cooler":0.0,"freezer":0.0}
             for device in store.inventory:
-                if type(device.invType) != shd.ShdStorageType and\
-                    type(device.invType) != shd.ShdTruckType:
+                if type(device.invType) != shd.ShdStorageType and \
+                        type(device.invType) != shd.ShdTruckType and \
+                        type(device.invType) != shd.ShdStaffType:
                     self.fatal(store, "contains an invalid Storage Device %s"%device.invName)
                 if type(device.invType)== shd.ShdStorageType:
                     hasStorage = True
@@ -282,6 +283,23 @@ class Validator:
 
                     #if stop.TransitHours != 0 and stop.DistanceKM != 0 and stop.DistanceKM /stop.TransitHours > 80:
                     #    self.registerWarning("checkRouteDistances","Route %s stop %d has a vehicle that will travel greater than 80 KM/Hour"%(route.RouteName,route.stops.index(stop)))
+
+    def checkStaffLocations(self):
+        """
+        Any store which has clients probably should have staff, to trans-ship
+        to the clients or to staff the attached clinic.  Likewise, any store
+        which has a vehicle presumably should have a staff member to drive it.
+        """
+        for storeId, store in self._shdNtwk.stores.items():  # @UnusedVariable
+            hasClients = (len(store.clients()) > 0)
+            hasTruck = any([iRec for iRec in store.inventory
+                            if iRec.invType.typeClass == 'trucks'])
+            hasStaff = any([iRec for iRec in store.inventory
+                            if iRec.invType.typeClass == 'staff'])
+            if (hasClients or hasTruck) and not hasStaff:
+                self.warning(store,
+                             "has client stores or a vehicle but no staff")
+
 if __name__ == '__main__':
 
     inputDict = parseCommandLine()

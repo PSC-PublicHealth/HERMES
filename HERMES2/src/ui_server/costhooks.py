@@ -40,11 +40,6 @@ def costTopPage(db, uiSession):
     return bottle.template("cost_top.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs"),
                                            "minYear":minYear, "maxYear":maxYear})
 
-@bottle.route('/cost-edit-salary')
-@bottle.route('/cost-edit-building')
-def costUnimplemented(db, uiSession):
-    bottle.redirect('%snotimpl'%rootPath)
-
 @bottle.route('/cost-edit-fuel')
 def costEditFuel(db, uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Fuel")))
@@ -64,6 +59,20 @@ def costEditVaccine(db, uiSession):
 def costEditTrucks(db, uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Vehicles")))
     return bottle.template("cost_edit_trucks.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Vehicle Costs")})
+
+
+@bottle.route('/cost-edit-salary')
+def costEditSalary(db, uiSession):
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path, _("Salaries")))
+    return bottle.template("cost_edit_salary.tpl", {"breadcrumbPairs":crumbTrack,
+                                                    "title_slogan":_("Staff Costs")})
+
+
+@bottle.route('/cost-edit-building')
+@bottle.route('/cost-edit-perdiem')
+@bottle.route('/cost-edit-misc')
+def costUnimplemented(db, uiSession):
+    bottle.redirect('%snotimpl'%rootPath)
 
 @bottle.route('/list/select-currency')
 def handleListCurrency(db,uiSession):
@@ -146,7 +155,9 @@ def jsonGetCurrencyInfo(db, uiSession):
                   'fridgeLabel':getFridgeButtonLabel(db, uiSession, m),
                   'vaccineLabel':getVaccineButtonLabel(db, uiSession, m),
                   'salaryLabel':getSalaryButtonLabel(db, uiSession, m),
+                  'perdiemLabel':getPerDiemButtonLabel(db, uiSession, m),
                   'buildingLabel':getBuildingButtonLabel(db, uiSession, m),
+                  'miscLabel':getMiscButtonLabel(db, uiSession, m)
                   }
         return result
     except Exception,e:
@@ -299,9 +310,15 @@ def getVaccineButtonLabel(db, uiSession, m):
     return getTypeButtonLabel(db, uiSession, m, 'vaccines', ['Vaccine price/vial', 'Price Units', 'Price Year'])
 
 def getSalaryButtonLabel(db, uiSession, m):
+    return getTypeButtonLabel(db, uiSession, m, 'staff', ['BaseSalary', 'BaseSalaryCur', 'BaseSalaryYear','FractionEPI'])
+
+def getPerDiemButtonLabel(db, uiSession, m):
     return _("Unimplemented");
 
 def getBuildingButtonLabel(db, uiSession, m):
+    return _("Unimplemented");
+
+def getMiscButtonLabel(db, uiSession, m):
     return _("Unimplemented");
 
 
@@ -747,7 +764,7 @@ def jsonManageTruckCostTable(db, uiSession):
                 raise RuntimeError("Fuel units for %s are inconsistent: %s vs. %s"%\
                                    (t['Name'],t['FuelRateUnits'],fuelTranslationDict[t['Fuel']][2]))
                 
-            if t['Name'] == 'N_4x4_truck': print t
+
         result = {
                   'success':True,
                   "total":1,    # total pages
@@ -770,7 +787,8 @@ def jsonManageTruckCostTable(db, uiSession):
     except Exception,e:
         _logStacktrace()
         return {'success':False, 'msg':str(e)}
-    
+
+
 @bottle.route('/edit/edit-cost-truck', method='POST')
 def editCostTruck(db, uiSession):
     try:
@@ -805,3 +823,115 @@ def editCostTruck(db, uiSession):
     except Exception,e:
         _logStacktrace()
         return {'success':False, 'msg':str(e)}
+
+
+@bottle.route('/json/get-cost-info-salary')
+def jsonGetCostInfoSalary(db, uiSession):
+    try:
+        # We will surely have real info to pass back soon enough
+        modelId = _getOrThrowError(bottle.request.params, 'modelId',
+                                   isInt=True)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        # m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        result = {'success': True,
+                  }
+        return result
+    except Exception, e:
+        _logStacktrace()
+        return {"success": False, "msg": str(e)}
+
+
+@bottle.route('/json/manage-staff-cost-table')
+def jsonManageStaffCostTable(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId',
+                                   isInt=True)
+        try:
+            uiSession.getPrivs().mayReadModelId(db, modelId)
+        except privs.PrivilegeException:
+            raise bottle.BottleException('User may not read model %d' %
+                                         modelId)
+        tList = typehelper.getTypeList(db, modelId, 'staff', fallback=False)
+        tList = [t for t in tList
+                 if t['Name'] not in typehelper.hiddenTypesSet]
+        for rec in tList:
+            if 'DisplayName' not in rec or rec['DisplayName'] is None \
+                    or rec['DisplayName'] == '':
+                rec['DisplayName'] = rec['Name']
+        nPages, thisPageNum, totRecs, tList = (  # @UnusedVariable
+            orderAndChopPage(tList,
+                             {'name': 'Name',
+                              'displayname': 'DisplayName',
+                              'basesalary': 'BaseSalary',
+                              'currency': 'BaseSalaryCur',
+                              'basesalaryyear': 'BaseSalaryYear',
+                              'fractionepi': 'FractionEPI'
+                              },
+                             bottle.request))
+        for t in tList:
+            for k in ['BaseSalary']:
+                if t[k] == 0:
+                    t[k] = None
+
+        result = {'success': True,
+                  "total": 1,    # total pages
+                  "page": 1,     # which page is this
+                  "records": totRecs,  # total records
+                  "rows": [{"name": t['Name'],
+                            "displayname": t['DisplayName'],
+                            "detail": t['Name'],
+                            "basesalary": t['BaseSalary'],
+                            "currency": t['BaseSalaryCur'],
+                            "basesalaryyear": t['BaseSalaryYear'],
+                            "fractionepi": t['FractionEPI']
+                            }
+                           for t in tList
+                           if t['Name'] not in typehelper.hiddenTypesSet]
+                  }
+        return result
+    except Exception, e:
+        _logStacktrace()
+        return {'success': False, 'msg': str(e)}
+
+
+@bottle.route('/edit/edit-cost-staff', method='POST')
+def editCostStaff(db, uiSession):
+    try:
+        # print [(k,v) for k,v in bottle.request.params.items()]
+        bRQ = bottle.request.params
+        if bRQ['oper'] == 'edit':
+            modelId = _getOrThrowError(bRQ, 'modelId',
+                                       isInt=True)
+            uiSession.getPrivs().mayModifyModelId(db, modelId)
+            m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+            typeName = _getOrThrowError(bRQ, 'id')
+            if typeName in m.types:
+                tp = m.types[typeName]
+                assert isinstance(tp, shadow_network.ShdStaffType), \
+                    "Type %s is not a truck" % typeName
+                for opt in ['name', 'displayname']:
+                    if opt in bRQ:
+                        raise RuntimeError(_('Editing of {0} is not supported').format(opt))
+                if 'basesalary' in bRQ:
+                    tp.BaseSalary = _safeGetReqParam(bRQ, 'basesalary',
+                                                     isFloat=True)
+                if 'currency' in bRQ:
+                    tp.BaseSalaryCurCode = _safeGetReqParam(bRQ, 'currency')
+                if 'basesalaryyear' in bRQ:
+                    tp.BaseSalaryYear = _safeGetReqParam(bRQ, 'basesalaryyear',
+                                                         isInt=True)
+                if 'fractionepi' in bRQ:
+                    tp.FractionEPI = _safeGetReqParam(bRQ, 'fractionepi',
+                                                      isFloat=True)
+                return {'success': True}
+            else:
+                raise RuntimeError(_('Model {0} does not contain type {1}').
+                                   format(m.name, typeName))
+        else:
+            raise RuntimeError(_('Unsupported operation {0}').
+                               format(bRQ['oper']))
+    except bottle.HTTPResponse:
+        raise  # bottle will handle this
+    except Exception, e:
+        _logStacktrace()
+        return {'success': False, 'msg': str(e)}
