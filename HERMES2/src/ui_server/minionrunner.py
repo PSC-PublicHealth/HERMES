@@ -65,7 +65,7 @@ class MinionFactory():
             while not self.done:
                 line = p.readline()
                 if len(line)>0:
-                    #sys.stderr.write(line+'\n')
+                    sys.stderr.write(line+'\n')
                     if line.find('#finished#')>=0:
                         self.mutex.acquire()
                         self.statusString = "%s %s"%(_('finished at'),time.asctime())
@@ -115,7 +115,7 @@ class MinionFactory():
         env = os.environ.copy()
         env['HERMES_DATA_PATH'] = os.path.join(self.siteInfo.srcDir(),'master_data','unified')
         mainSrc = os.path.join(self.siteInfo.srcDir(),'main.py')
-        argList = ['python', mainSrc, '--minion', '--average', "--out=%s"%runName]
+        argList = ['python', '-u', mainSrc, '--minion', '--average', "--out=%s"%runName]
         if optList is not None:
             argList += optList[:] #shallow copy
         argList += ['--use_db', '%d:%d'%(modelId,nReps)]
