@@ -922,7 +922,7 @@ def getDataFullPath(path, dontPrint = False):
     msg += "\n   ".join(searchThese)
     if not dontPrint:
         print msg
-    raise RuntimeError(msg)
+    raise IOError(msg)
 
 class openDataFullPath():
     """

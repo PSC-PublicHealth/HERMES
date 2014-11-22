@@ -3028,7 +3028,7 @@ class ShdTypes:
                 'trucks': ShdTruckType,
                 'vaccines': ShdVaccineType,
                 'staff': ShdStaffType}
-             
+
     def __init__(self):
         self.types = {}
         for key in self.typesMap.keys():
@@ -3041,13 +3041,13 @@ class ShdTypes:
         typeDict[name] = newType
 
     def importRecordsFromFile(self, fileOrHandle, recType):
-        (keys, recs) = csv_tools.parseCSV(fileOrHandle)
+        (keys, recs) = csv_tools.parseCSV(fileOrHandle)  # @UnusedVariable
         for rec in recs:
             newType = self.typesMap[recType](rec)
             typeName = newType.Name
             if typeName in self.types:
                 continue
-            
+
             self.addType(newType)
 
     def loadShdNetworkTypeManagers(self, userInput, unifiedInput):
@@ -4574,14 +4574,11 @@ for (typeName,typeClass) in ShdTypes.typesMap.items():
 
 _makeColumns(ShdNetwork)
 
+
 def networkLoadListener(net, context):
     net.fromDb = True
 
 saEvent.listen(ShdNetwork, 'load', networkLoadListener)
-
-
-
-
 
 
 def loadShdTypes(userInput, unifiedInput):
@@ -4589,9 +4586,11 @@ def loadShdTypes(userInput, unifiedInput):
     shdTypes.loadShdNetworkTypeManagers(userInput, unifiedInput)
     return shdTypes
 
+
 def loadShdNetwork(userInput, shdTypes, name=None):
     """
-    loads the stores and routes files and populates and then returns a ShdNetwork class Instance.
+    loads the stores and routes files and populates and then returns a
+    ShdNetwork class Instance.
     """
 
     (storeKeys, storeRecList, routeKeys, routeRecList, factoryKeys, factoryRecList) = \

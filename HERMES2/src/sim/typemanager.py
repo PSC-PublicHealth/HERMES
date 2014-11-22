@@ -27,7 +27,7 @@ _hermes_svn_id_="$Id$"
 import abstractbaseclasses, genericcollection, csv_tools
 import util
 
-class TypeManager:
+class TypeManager(object):
     """
     A container to hold instances of a class that are intended to be constant through
     a simulation and act as 'types'- instances of class VaccineType for example. All

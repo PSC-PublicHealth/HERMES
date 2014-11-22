@@ -33,7 +33,7 @@ BREAK_IN_TRANSIT = 2
 
 class BreakageModel:
     """
-    A map between a collection of people and their vaccine needs.
+    A representation of damage to goods in shipping and handling.
     """
     def __init__(self):
         """

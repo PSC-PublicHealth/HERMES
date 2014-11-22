@@ -238,7 +238,7 @@ class UISession(db_routines.Base):
                 uiSession = UISession(sessionId)
                 getDBInterface().Session().add(uiSession)
                 getDBInterface().Session().commit()
-                raise bottle.HTTPResponse('Previous session information is not available',410)
+                # raise bottle.HTTPResponse('Previous session information is not available',410)
         else:
             sessionId= "%013d_%06d_%015d"%(int(1000*time.time()),os.getpid(),thread.get_ident())
             rootPath = bottleRequest.fullpath[:-len(bottleRequest.path)]

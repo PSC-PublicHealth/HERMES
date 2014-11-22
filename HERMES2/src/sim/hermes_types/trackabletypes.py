@@ -30,7 +30,7 @@ import util
 import typemanager
 import csv_tools
         
-class TrackableTypeManager:
+class TrackableTypeManager(object):
     """
     A specialization of TypeManager just for Trackables.
     """
@@ -107,7 +107,7 @@ class TrackableTypeManager:
             if isinstance(v,DeliverableType):
                 fullSC += v.getRequiredToPrepSC(n)
         return fullSC
-                
+
     def importRecords(self, tupleList, verbose=False, debug=False):
         """
         The format of tupleList is [([fileNameOrRecList,...], ShippableType, DeliverableType), ...]  where 
@@ -118,99 +118,129 @@ class TrackableTypeManager:
         is determined to be needed as described below.  DeliverableType may also be a TrackableType
         which is not a DeliverableType, for example a FridgeType; in this case ShippableType is expected
         to be None.
-        
+
         Each CSV record may contain a 'Requires' column, containing an expression in a format like:
         '3*SOME_VACCINE_TYPE+SOME_ICE_TYPE' .  The presence of such a column implies that DeliverableType
         must be an actual DeliverableType (like a VaccineType) rather than a TrackableType (like a FridgeType).
         This information defines a dependency on other shippable types.  For example, if this Requires column 
         appeared in a record with the 'Name' column entry 'MY_VACCINE', MY_VACCINE would have a dependency on 
         SOME_VACCINE_TYPE and SOME_ICE_TYPE.  The required types must be ShippableTypes.
-        
+
         Once all records have been scanned, those types which no other type lists as a dependency are
         built using the given DeliverableType value.  Those on which some other type depends are built
         using the given ShippableType value.  The 'Requires' entry above would force SOME_VACCINE_TYPE 
         and SOME_ICE_TYPE to be ShippableTypes rather than DeliverableTypes (or non-shippable TrackableTypes).
-        
-        Once every input record has been scanned for dependencies and classified, those which are shippables
-        will be instantiated using the ShippableType entry from the same input tuple; the rest will be 
+
+        Once every input record has been scanned for dependencies and
+        classified, those which are shippables will be instantiated using
+        the ShippableType entry from the same input tuple; the rest will be
         instantiated with the corresponding DeliverableType entry.
         """
-        allRecsDict = {} # indexed by name; entries are tuples like (rec, shippableType, deliverableType, dependedOnList)
+        allRecsDict = {}  # indexed by name; entries are tuples like (rec, shippableType, deliverableType, dependedOnList)
         for fnameOrRecList, shippableClass, deliverableClass in tupleList:
             if fnameOrRecList is None:
                 continue
             elif not isinstance(fnameOrRecList, types.ListType):
-                fnameOrRecList = [fnameOrRecList] # *now* it's a list
+                fnameOrRecList = [fnameOrRecList]  # *now* it's a list
 
             thisBlockDict = {}
             for fnameOrRec in fnameOrRecList:
                 if fnameOrRec is None:
                     continue
-                elif isinstance(fnameOrRec,types.DictType):
+                elif isinstance(fnameOrRec, types.DictType):
                     # Single record
                     r = fnameOrRec
                     assert 'Name' in r.keys(), "Record has no 'Name' field"
                     if r['Name'] in thisBlockDict:
-                        util.logWarning("Definition of type %s was masked by an earlier definition"%r['Name'])
+                        util.logWarning("Definition of type %s" % r['Name'] +
+                                        " was masked by an earlier definition")
                     else:
-                        thisBlockDict[r['Name']] = (r, shippableClass, deliverableClass, [], [])                       
+                        thisBlockDict[r['Name']] = (r, shippableClass,
+                                                    deliverableClass, [], [])
                 else:
-                    assert isinstance(fnameOrRec,types.StringTypes), "Record source is neither a string nor a list"
+                    assert isinstance(fnameOrRec, types.StringTypes), \
+                        "Record source is neither a string nor a list"
                     if fnameOrRec not in ['', 'None']:
+                        # Silently handle missing 'Unified' files
+                        if fnameOrRec.lower().startswith('unified'):
+                            try:
+                                util.getDataFullPath(fnameOrRec,
+                                                     dontPrint=True)
+                            except IOError:
+                                # No such file
+                                continue
                         with util.openDataFullPath(fnameOrRec) as f:
-                            keys,recs = csv_tools.parseCSV(f)
-                            assert 'Name' in keys, "Shippable table %s has no 'Name' field"%fnameOrRec
+                            keys, recs = csv_tools.parseCSV(f)
+                            assert 'Name' in keys, \
+                                "Shippable table %s has no 'Name' field" % \
+                                fnameOrRec
                             for r in recs:
                                 if r['Name'] in thisBlockDict:
-                                    util.logWarning("Definition of type %s was masked by an earlier definition"%r['Name'])
+                                    util.logWarning("Definition of type %s" %
+                                                    r['Name'] +
+                                                    " was masked by an" +
+                                                    " earlier definition")
+                                    # I hate PEP8
                                 else:
-                                    thisBlockDict[r['Name']] = (r, shippableClass, deliverableClass, [], [])                       
-            for k,v in thisBlockDict.items():
+                                    thisBlockDict[r['Name']] = (r,
+                                                                shippableClass,
+                                                                deliverableClass,
+                                                                [], [])
+            for k, v in thisBlockDict.items():
                 if k in allRecsDict:
-                    raise RuntimeError("Two different shippable types share the name '%s'"%k)
+                    raise RuntimeError("Two different types share the name '%s'" % k)
                 else:
                     allRecsDict[k] = v
-            
-        for name,v in allRecsDict.items():
-            rec, sClass, dClass, depList, reqList = v
-            if 'Requires' in rec and rec['Requires'] is not None and rec['Requires'] != '':
-                assert dClass is None or isinstance(dClass,DeliverableType), \
-                    "The ManagedType %s has a Requires field but is not Shippable"%rec['Name']
-                invTupleList = util.parseInventoryString(rec['Requires'])
-                for count,subName in invTupleList:
-                    allRecsDict[name][4].append((count,subName))
-                    if subName in allRecsDict: allRecsDict[subName][3].append(name)
-                    else:
-                        raise RuntimeError("%s requires the unknown type %s"%(name,subName))
 
-        for name,v in allRecsDict.items():
-            rec, sClass, dClass, depList, reqPairList = v
+        for name, v in allRecsDict.items():
+            rec, sClass, dClass, depList, reqList = v  # @UnusedVariable
+            if 'Requires' in rec and rec['Requires'] is not None \
+                    and rec['Requires'] != '':
+                assert dClass is None \
+                    or isinstance(dClass, DeliverableType), \
+                    "Type %s has a Requires field but is not Shippable" % \
+                    rec['Name']
+                invTupleList = util.parseInventoryString(rec['Requires'])
+                for count, subName in invTupleList:
+                    allRecsDict[name][4].append((count, subName))
+                    if subName in allRecsDict:
+                        allRecsDict[subName][3].append(name)
+                    else:
+                        raise RuntimeError("%s requires the unknown type %s" %
+                                           (name, subName))
+
+        for name, v in allRecsDict.items():
+            rec, sClass, dClass, depList, reqPairList = v  # @UnusedVariable
             if len(depList):
                 # This is required by something
-                if debug: print "%s is required by %s"%(name,depList)
+                if debug:
+                    print "%s is required by %s" % (name, depList)
                 self.tm.addType(rec, sClass, verbose, debug)
             else:
                 # Not required by anything, so this must be a deliverable
-                if debug: print "%s is a deliverable or trackable of class %s"%(name,dClass)
+                if debug:
+                    print "%s is a deliverable or trackable of class %s" % \
+                        (name, dClass)
                 self.tm.addType(rec, dClass, verbose, debug)
-                
-        for name,v in allRecsDict.items():
-            rec, sClass, dClass, depList, reqPairList = v
-            if len(depList) == 0: 
+
+        for name, v in allRecsDict.items():
+            rec, sClass, dClass, depList, reqPairList = v  # @UnusedVariable
+            tp = self.tm.getTypeByName(name, activateFlag=False)
+            if len(depList) == 0:
                 # This is a deliverable
                 reqPairTList = self._accumRequiredPairs(name, allRecsDict)
-                reqPairTList = reqPairTList[1:] # Remove the first element, which is the deliverable itself
-                tp = self.getTypeByName(name,activateFlag=False)
+                # Remove the first element, which is the deliverable itself
+                reqPairTList = reqPairTList[1:]
                 if isinstance(tp, DeliverableType):
-                    reqPairSC = self.getCollection([(self.getTypeByName(nm,activateFlag=False),ct)
-                                                    for ct,nm in reqPairTList])
+                    tplList = [(self.getTypeByName(nm, activateFlag=False), ct)
+                               for ct, nm in reqPairTList]
+                    reqPairSC = self.getCollection(tplList)
                     tp.setRequiredToPrepSC(reqPairSC)
-                else: 
-                    assert len(reqPairTList) == 0, "Found %s when expecting a DeliverableType"%name                
+                else:
+                    assert len(reqPairTList) == 0, \
+                        "Found %s when expecting a DeliverableType" % name
             else:
                 # This shippable is required by something
                 for depName in depList:
-                    depT = self.getTypeByName(depName,activateFlag=False)
-                    self.getTypeByName(name, activateFlag=False).requiredByList.append(depT)
-                
-                
+                    depT = self.getTypeByName(depName, activateFlag=False)
+                    tp.requiredByList.append(depT)
