@@ -2,11 +2,27 @@
 setlocal
 set oldcurdir=%cd%
 cd /d %~dp0
-echo Building hermes-tray
-call misc\build-hermes-tray
+if not exist misc\hermes-tray.exe goto :buildtray
+..\tools\md5sum misc\hermes-tray.ahk > misc\hermes-tray.ahk.curr.md5
+if not exist misc\hermes-tray.ahk.last.md5 goto :buildtray
+fc misc\hermes-tray.ahk.curr.md5 misc\hermes-tray.ahk.last.md5 > nul
+if errorlevel 1 (
+	goto :buildtray
+) else (
+	del misc\hermes-tray.ahk.curr.md5
+	echo No changes detected to hermes-tray.ahk. Using existing hermes-tray.exe.
+	goto :nextreq
+)
+:buildtray
+del misc\hermes-tray.ahk.last.md5
+move misc\hermes-tray.ahk.curr.md5 misc\hermes-tray.ahk.last.md5
+del misc\hermes-tray.exe
+echo Building hermes-tray.exe
+start /b %comspec% /c misc\build-hermes-tray > nul
+:nextreq
 if exist requirements\nul (
     echo Requirements already downloaded, not updating
-    goto :compile
+    goto :try_compile
 )
 echo Copying \python to \requirements
 xcopy python requirements\ /e /s /q
@@ -22,8 +38,19 @@ for %%f in (*-script.py) do (
 )
 setlocal DisableDelayedExpansion
 cd /d %~dp0
-:compile
+:try_compile
+::wait for hermes-tray.exe because build-hermes-tray.bat was started asynchronously
+for /l %%i in (1,1,30) do (
+	if not exist misc\hermes-tray.exe (
+		ping -n 2 127.0.0.1 > nul
+	) else (
+		goto :compile_setup
+	)
+)
+echo Error! Could not build hermes-tray.exe. Aborting...
+goto :end
+:compile_setup
 ..\tools\InnoSetup\iscc /qp /O"build" herm-win32-setup.iss
+:end
 cd /d %oldcurdir%
 endlocal
-goto :EOF
