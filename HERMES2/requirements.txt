@@ -1,7 +1,1 @@
-SQLAlchemy>=0.7,<=0.9.3
-alembic
-chardet
-geojson
-kitchen
-zest.pocompile
-xlwt
+-r requirements/production.txt
