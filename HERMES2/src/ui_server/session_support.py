@@ -145,18 +145,24 @@ class UISession(db_routines.Base):
     def __contains__(self, item):
         return item in self.sessionDict
     
-    def getDictSummary(self):
+    @staticmethod
+    def _getDictSummaryFromDict(dd):
         d = {}
-        #getDBInterface().Session().refresh(self)
-        for k,v in self.sessionDict.items():
+        for k,v in dd.items():
             if isinstance(v,HermesUserFS):
                 d[k] = v.getJSONSafeSummary()
             elif hasattr(v,'_toJSON'):
                 d[k] = v._toJSON()
             elif hasattr(v,'__getstate__'):
                 d[k] = v.__getstate__()
+            elif isinstance(v,dict):
+                d[k] = UISession._getDictSummaryFromDict(v)
             else:
                 d[k] = v
+        return d
+### Rewrote this to now be recursive   
+    def getDictSummary(self):
+        d = self._getDictSummaryFromDict(self.sessionDict)
         d['sessionId'] = self.sessionId
         return d
         

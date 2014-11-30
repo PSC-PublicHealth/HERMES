@@ -345,6 +345,67 @@ def _buildRunParmEditFieldTableNew(fieldMap):
     
     return htmlString
 
+def _buildNameLevelsForm(prefix="",numberOfLevels=4,currentLevelNames=None):
+    
+    htmlDoc = HTMLDocument("levalnameform",None,standAlone_=False)
+    htmlForm = HTMLForm("Level_Names")
+    
+    print "Number of Levels = " + str(numberOfLevels)
+    fillTableNames = []
+    if currentLevelNames:
+        if len(currentLevelNames) != numberOfLevels:
+            return '<p> There was a problem creating the Levels Form</p>'
+    
+        fillTableNames = currentLevelNames
+    else:
+        if numberOfLevels == 3:
+            fillTableNames = [_("Central"),_("District"),_("Health Post")]
+        elif numberOfLevels == 4:
+            fillTableNames = [_("Central"),_("Region"),_("District"),_("Health Post")]
+        elif numberOfLevels == 5:
+            fillTableNames = [_("Central"),_("Province"),_("Region"),_("District"),_("Health Post")]
+        else:
+            fillTableNames = [_("Level {0}".format(x+1)) for x in range(0,numberOfLevels)]
+    
+    for i in range(0,numberOfLevels):
+        htmlForm.addElement(HTMLFormInputBox('model_create_levelname_{0}'.format(i+1),
+                                             'Name for Level {0}'.format(i+1),
+                                             fillTableNames[i],
+                                             'string',
+                                             True))
+                            
+    htmlDoc.addConstruct(htmlForm)
+    htmlString = htmlDoc.htmlString()
+    
+    return htmlString
+
+def _buildNumberPlacesPerLevelsForm(prefix="",levelNames=[],currentLevelNumbers=None):
+    
+    htmlDoc = HTMLDocument("levalplacenumbersform",None,standAlone_=False)
+    htmlForm = HTMLForm("Level_Place_Numbers")
+    
+    fillTableNums = []
+    numberOfLevels = len(levelNames)
+    if currentLevelNumbers:
+        if len(currentLevelNumbers) != numberOfLevels:
+            return '<p> There was a problem creating the Levels Form</p>'
+    
+        fillTableNums = currentLevelNumbers
+    else:
+        fillTableNums = [1 for x in range(0,numberOfLevels)]
+    
+    for i in range(0,numberOfLevels):
+        htmlForm.addElement(HTMLFormInputBox('model_create_lcounts_{0}'.format(i+1),
+                                             'Number of Locations in {0} level'.format(levelNames[i]),
+                                             fillTableNums[i],
+                                             'string',
+                                             True))
+                            
+    htmlDoc.addConstruct(htmlForm)
+    htmlString = htmlDoc.htmlString()
+    
+    return htmlString 
+   
 def _buildEditFieldTable(fieldMap):
     """
     fieldMap defines the layout of form fields on a page.  It is a 
@@ -653,6 +714,7 @@ def getStoreDialogHTML(db,uiSession,name="model_store_dialog",buttonName=None,ge
     stringList.append("height:'auto',")
     stringList.append("width:'auto',")
     stringList.append("close: function() {")
+    stringList.append("$('#ajax_busy_image').hide();")
     stringList.append("$('#%s_content').tabs();"%name)
     stringList.append("    $('#%s_content').tabs('destroy');"%name)
     stringList.append("    $('#%s_content').innerHtml = '';"%name)

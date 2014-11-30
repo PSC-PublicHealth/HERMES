@@ -36,6 +36,18 @@
     <div class="bar" style="width: 0%;"></div>
 </div>
 
+<div id="model_create_dialog_form" title={{_("Give a Name to the New Model")}}?
+	<form>
+		<fieldset>
+			<table>
+				<tr>
+					<td>{{_('New Model Name')}}</td>
+					<td><input type="text" name="model_create_dlg_new_name" id="model_create_dlg_new_name" class="text ui-widget-content ui-corner-all" /></td>
+				</tr>
+			</table>
+		</fieldset>
+	</form>
+</div>
 
 <div id="model_copy_dialog_form" title={{_("Copy A Model")}}>
   <form>
@@ -87,6 +99,8 @@
 <div id="model_confirm_delete" title='{{_("Delete Model")}}'>
 </div>
 
+<div id="model_create_existing_dialog" title='{{_("Model Creation Started")}}'>
+<p>{{_('You have already started creating this model, would you like to continue or start over?')}}; </div>
 <script>
 {{!setupToolTips()}}
 
@@ -107,12 +121,12 @@ $("#manage_models_grid").jqGrid({ //set your grid id
 	"{{_('Name')}}",
 	"{{_('Model ID')}}",
 	"{{_('Note')}}",
-	"{{_('Download Zip')}}",
-	"{{_('Model Status')}}"
+	"{{_('Download')}}",
+	"{{_('Information')}}"
     ], //define column names
     colModel:[
 	{name:'name', index:'name', width:100, editable:true, edittype:'text'},
-	{name:'id', index:'id', width:50, key:true, sorttype:'int'},
+	{name:'id', index:'id',width:50, key:true, sorttype:'int',hidden:true},
 	{name:'note', index:'note', width:200, editable:true, edittype:'textarea'},
 	{name:'download zip', index:'downloadzip'},
 	{name:'statinfo', index:'statinfo', width:110, align:'center', formatter:modelsInfoButtonFormatter}
@@ -247,9 +261,107 @@ $(function () {
 		}
     });
     
+    
     $('#zipfilename').change( function () {
     	$("#shortname").val($(this).val().split('\\').pop().replace(/\.[^/.]+$/,""));
     });
+    
+    $("#model_create_existing_dialog").dialog({
+    	resizable: false,
+    	model: true,
+    	autoOpen:false,
+    	buttons:{
+    		'{{_("Continue")}}': function() {
+    			$(this).dialog("close");
+    			lastsel_models=null;
+    			window.location="model-create?name="+$("#model_create_dlg_new_name").val();
+    		},
+    		'{{_("Restart")}}': function(){
+    			$(this).dialog("close");
+    			$.ajax({
+    				url:'{{rootPath}}json/get-newmodelinfo-from-session',
+    				async:false,
+					dataType:'json',
+					success: function(json){
+						if ($("#model_create_dlg_new_name").val() in json.data){
+							thisModelJSon = json.data[$("#model_create_dlg_new_name").val()];
+							$.ajax({
+								url:'{{rootPath}}json/delete-model-from-newmodelinfo-session?name='+$("#model_create_dlg_new_name").val(),
+			    				async:false,
+								dataType:'json',
+								success:function(data){
+									if ('modelId' in thisModelJSon){
+										if(json.modelExists){
+										/// must delete this model first
+											deleteModel(thisModelJSon.modelId,$("#model_create_dlg_new_name").val());
+										}
+									}
+									window.location='{{rootPath}}model-create?name='+$("#model_create_dlg_new_name").val()
+								}
+							});
+						}
+					}
+    			});
+    			
+    		},
+    		'{{_("Cancel")}}': function(){
+    			$(this).dialog("close");
+    		}
+    	},
+	    open: function(e,ui) {
+			$(this)[0].onkeypress = function(e) {
+				if (e.keyCode == $.ui.keyCode.ENTER) {
+					e.preventDefault();
+					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+					}
+			    };
+		}
+    });
+    
+    $("#model_create_dialog_form").dialog({
+		resizable: false,
+      	modal: true,
+		autoOpen:false,
+     	buttons: {
+	    	'{{_("Create")}}': function() {
+	    		$.ajax({
+	    			url:'{{rootPath}}json/get-existing-models-creating',
+	    			async:false,
+					dataType:'json',
+					success: function(json){
+						if (json.names.indexOf($("#model_create_dlg_new_name").val())>-1){
+							$('#model_create_dialog_form').dialog("close");
+							$('#model_create_existing_dialog').dialog("open");
+						}
+						else if (!$("#model_create_dlg_new_name").val()){
+				    		alert("{{_('The New Model Name fields must be set to proceed.')}}");
+				    	}
+				    	else if (names.indexOf($("#model_create_dlg_new_name").val()) >-1){
+				    		alert("{{_('Model name already exists, please select another.')}}");
+				    	}
+				    	else{
+				    		$("#model_create_dialog_form").dialog('close');
+				    		lastsel_models=null;
+				    		window.location="model-create?name="+$("#model_create_dlg_new_name").val();
+				    	}
+					}
+	    		});
+			},
+        	'{{_("Cancel")}}': function() {
+          		$( this ).dialog( "close" );
+        	}
+     	},
+     	open: function(e,ui) {
+			$(this)[0].onkeypress = function(e) {
+				if (e.keyCode == $.ui.keyCode.ENTER) {
+					e.preventDefault();
+					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+ 				}
+ 		    };
+		}
+	});
+    
+    
     
     $('#zipmodelupload').fileupload({
         dataType: 'json',
@@ -297,7 +409,7 @@ $(function() {
 %end
 
 function createModel() {
-    window.location="model-create";
+	$("#model_create_dialog_form").dialog("open");
 }
 
 function editModel(modelId) {
@@ -338,9 +450,7 @@ function results(modelId) {
 }
 
 
-
-
-$(function() {
+$(function() {		
     $("#model_copy_dialog_form").dialog({
 	resizable: false,
       	modal: true,

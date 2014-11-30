@@ -167,16 +167,21 @@ def modelEditStructurePage(db, uiSession):
 
 
 def _createModel(db,uiSession):
-    if 'newModelInfo' not in uiSession \
-            or not all([key in uiSession['newModelInfo'] 
-                        for key in ['name','levelnames','pottable','potrecdict',
-                                    'shippatterns_transittimes','shippatterns_transitunits']]):
+    if 'newModelInfo' not in uiSession :
+        raise bottle.BottleException(_("There is new model data in session."))
+    if 'currentModelName' not in uiSession['newModelInfo']:
+        raise bottle.BottleException(_("There is no current model in the new model data in session."))
+    if uiSession['newModelInfo']['currentModelName'] not in uiSession['newModelInfo'].keys():
+        raise bottle.BottleException(_("The currently selected model {0} has no data in session".format(uiSession['newModelInfo']['currentModelName'])))
+    if not all([key in uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]
+        for key in ['name','levelnames','pottable','potrecdict',
+            'shippatterns_transittimes','shippatterns_transitunits']]):
         raise bottle.BottleException(_("Model creation data table is missing or corrupted"))
-    newModelInfo = uiSession['newModelInfo']
+    newModelInfoCN = uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]
     shdTypes = shadow_network.ShdTypes()
-    shdNetwork = shadow_network.ShdNetwork(None, None, None,shdTypes, newModelInfo['name'] )
-    pot = PreOrderTree(newModelInfo['pottable'])
-    potRecDict = newModelInfo['potrecdict']
+    shdNetwork = shadow_network.ShdNetwork(None, None, None,shdTypes, newModelInfoCN['name'] )
+    pot = PreOrderTree(newModelInfoCN['pottable'])
+    potRecDict = newModelInfoCN['potrecdict']
     storeStack = []
     storeDict = {}
     prevLevel = -1
@@ -184,7 +189,7 @@ def _createModel(db,uiSession):
     pot.table.sort() # Sort to depth-first
     for lkey,rkey,lvl,idcode in pot.table:
         rec = potRecDict[idcode]
-        category = newModelInfo['levelnames'][lvl]
+        category = newModelInfoCN['levelnames'][lvl]
         isLeaf = (rkey==lkey+1)
         if isLeaf: 
             fctn = 'Administration'
@@ -228,8 +233,8 @@ def _createModel(db,uiSession):
                                              'ShipIntervalDays':shipIntervalDays, 'PullOrderAmountDays':shipIntervalDays,
                                              'ShipLatencyDays':shipLatencyDays}, noStops=True)
                 ignoredNumber = 17
-                transitUnits = newModelInfo['shippatterns_transitunits'][len(storeStack)-2]
-                transitTimeRaw = newModelInfo['shippatterns_transittimes'][len(storeStack)-2]
+                transitUnits = newModelInfoCN['shippatterns_transitunits'][len(storeStack)-2]
+                transitTimeRaw = newModelInfoCN['shippatterns_transittimes'][len(storeStack)-2]
                 
                 transitHours = {'hour':1.0, 'day':24.0, 'week':168.0, 'month':4704.0, 'year':56448.0}[transitUnits] * transitTimeRaw
                 if rec['isfetch']:
@@ -259,7 +264,7 @@ def _createModel(db,uiSession):
     uiSession.getPrivs().registerModelId(db, shdNetwork.modelId, 
                                          uiSession.getDefaultReadGroupID(),uiSession.getDefaultWriteGroupID())
 
-    quotedLevelNames = ["'%s'"%nm for nm in newModelInfo['levelnames']]
+    quotedLevelNames = ["'%s'"%nm for nm in newModelInfoCN['levelnames']]
     shdNetwork.addParm(shadow_network.ShdParameter('levellist',','.join(quotedLevelNames)))
     shdNetwork.addParm(shadow_network.ShdParameter('cliniclevellist',quotedLevelNames[-1]))
     shdNetwork.addParm(shadow_network.ShdParameter('centrallevellist',quotedLevelNames[0]))
@@ -277,7 +282,7 @@ def _createModel(db,uiSession):
     # All models need a copy of the currencyConversion table- grab it from the AllTypesModel
     shdNetwork.addCurrencyTable( aM.getCurrencyTableRecs()[1] )
     
-    _logMessage("Created the model '%s'"%newModelInfo['name'])
+    _logMessage("Created the model '%s'"%newModelInfoCN['name'])
     return shdNetwork.name,shdNetwork.modelId
 
 def _addLevel(pot, recDict, ngList, countsList, otherList, parent, recBuilder):
@@ -347,6 +352,22 @@ def _buildPreOrderTree(info,pot_in=None,recDict_in=None,parent_in=None,baseLvl=0
     #print recDict
     return (pot,recDict)
 
+def _checkDefAndNewDict(reqParams,defDict,name1):
+    """ This function takes a parameters of name1 to the bottle request and 
+        creates an dictionary entry with the name1 parameter inside it.
+        This makes it so that we can have multiple session entries 
+        underneath one, such as in newModelInfo.
+    """
+    if name1 in reqParams:
+        if reqParams[name1] not in defDict.keys():
+            defDict[reqParams[name1]] = {name1:reqParams[name1]}
+        
+        return reqParams[name1]
+    else:
+        return None
+
+    
+    
 def _checkDefAndInvalidate(reqParams,defDict,name1,name2,invalidateName=None):
     #print '###### check and invalidate <%s> <%s> <%s>'%(name1,name2,invalidateName)
     if name1 in reqParams:
@@ -571,13 +592,13 @@ def modelCreateBack(db,uiSession,step="unknown"):
 def modelCreatePage(db,uiSession,step="unknown"):
     #paramList = ['%s:%s'%(str(k),str(v)) for k,v in bottle.request.params.items()]
     #_logMessage("Hit model_create; step=%s, params=%s"%(step,paramList))
-
     formVals = { 'breadcrumbPairs':uiSession.getCrumbs() }
     try:
         crumbTrack = uiSession.getCrumbs()
-        stepPairs = [('nlevels',_('Start')),
-                     ('levelnames',_('Names')),                 
-                     ('countsbylevel',_('Counts')),                 
+        print "Crumb Track 1:" + str(crumbTrack)
+        stepPairs = [('nlevels',_('Create Model')),
+                    # ('levelnames',_('Edit Level Names')),                 
+                    # ('countsbylevel',_('Counts')),                 
                      ('interlevel',_('Shipping')),                 
                      ('interleveltimes',_('Times')),                 
                      ('done',_('Adjust')),                 
@@ -591,26 +612,64 @@ def modelCreatePage(db,uiSession,step="unknown"):
                      ]
         namedStepList = [a for a,b in stepPairs] # @UnusedVariable
         screen = None
-        if "subCrumbTrack" in uiSession:
-            subCrumbTrack = uiSession['subCrumbTrack']
+
+        ### Setup the session information
+        if 'newModelInfo' not in uiSession:
+            uiSession['newModelInfo'] = {}
+            
+        newModelInfo = uiSession['newModelInfo']
+        reqParams = bottle.request.params
+        
+        ### new names specific dict
+        ### There needs to be a current model, otherwise, there is no way to comeback from this.
+        if 'currentModelName' not in newModelInfo.keys():
+            newModelInfo['currentModelName'] = "none"
+        
+        cName = _checkDefAndNewDict(reqParams,newModelInfo,'name')
+
+        if cName:
+            newModelInfo['currentModelName'] = cName
+            
+        curName = newModelInfo['currentModelName']
+        ### Else current name stays the same
+        
+        ### Catch this, if we are running through this and there is no current name, then bad
+        if newModelInfo['currentModelName'] == "none":
+            raise RuntimeError(_("Entered into here without a model set, so new model Info cannot work."))
+        
+        newModelInfoCN = newModelInfo[newModelInfo['currentModelName']]
+        
+        if "subCrumbTrack" in newModelInfoCN:
+            subCrumbTrack = newModelInfoCN['subCrumbTrack']
             if crumbTrack.trail[-1] != subCrumbTrack:
                 crumbTrack.push(subCrumbTrack)
         else:
             subCrumbTrack = None
-        if 'newModelInfo' not in uiSession:
-            uiSession['newModelInfo'] = {}
+
+        if "subCrumbTrack" in newModelInfoCN:
+            subCrumbTrack = newModelInfoCN['subCrumbTrack']
+            
+            if crumbTrack.trail[-1] != subCrumbTrack:
+                crumbTrack.push(subCrumbTrack)
+        else:
+            subCrumbTrack = None
+  
         if step=="unknown":
+            print "Step is unknown"
             if subCrumbTrack is None:
                 subCrumbTrack = crumbtracks.TrackCrumbTrail(bottle.request.path, "Create Model")
                 for a,b in stepPairs: subCrumbTrack.append((a,b))
-                uiSession['subCrumbTrack'] = subCrumbTrack
+                newModelInfoCN['subCrumbTrack'] = subCrumbTrack
                 crumbTrack.push(subCrumbTrack)
+                ## we assume a new model is being born
+            #uiSession['newModelInfo'] = {}
             step = screen = subCrumbTrack.current()
+
         elif step=='next':
             screen = subCrumbTrack.next()
             if screen is None:
                 # We just finished the track
-                del uiSession['subCrumbTrack']
+                del newModelInfoCN['subCrumbTrack']
                 crumbTrack.pop()
                 screen = 'models-top'
         elif step=='back':
@@ -624,47 +683,57 @@ def modelCreatePage(db,uiSession,step="unknown"):
                 raise bottle.BottleException("Invalid step %s in model create"%step)
             screen = crumbTrack.current()
     
-        newModelInfo = uiSession['newModelInfo']
-        reqParams = bottle.request.params
-        _checkDefAndInvalidate(reqParams, newModelInfo, 'name', 'name', 'pottable')
-        _intCheckDefAndInvalidate(reqParams, newModelInfo, 'nlevels', 'nlevels', 'pottable')
-        _checkAscendingListAndInvalidate(reqParams,newModelInfo,'model_create_levelname_%d','levelnames','pottable')
-        _intCheckAscendingListAndInvalidate(reqParams,newModelInfo,'model_create_lcounts_%d','levelcounts','pottable')
-        _boolCheckAscendingListAndInvalidate(reqParams,newModelInfo,'model_create_interl_isfetch_%d','shippatterns_isfetch','pottable',2)
-        _boolCheckAscendingListAndInvalidate(reqParams,newModelInfo,'model_create_interl_issched_%d','shippatterns_issched','pottable',2)
-        _intCheckAscendingListAndInvalidate(reqParams,newModelInfo,'model_create_interl_howoften_%d','shippatterns_howoften','pottable',2)
-        _checkAscendingListAndInvalidate(reqParams,newModelInfo,'model_create_interl_ymw_%d','shippatterns_ymw','pottable',2)
-        if all([k in newModelInfo for k in ['shippatterns_isfetch','shippatterns_issched','shippatterns_howoften','shippatterns_ymw']]):
-            shipPatternList = [()] + zip(newModelInfo['shippatterns_isfetch'],newModelInfo['shippatterns_issched'],
-                                         newModelInfo['shippatterns_howoften'],newModelInfo['shippatterns_ymw'])[1:]
-            newModelInfo['shippatterns'] = shipPatternList
+        
+        _intCheckDefAndInvalidate(reqParams, newModelInfoCN,'nlevels','nlevels','pottable')
+        _checkAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_levelname_%d','levelnames','pottable')
+        _intCheckAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_lcounts_%d','levelcounts','pottable')
+        _boolCheckAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_interl_isfetch_%d','shippatterns_isfetch','pottable',2)
+        _boolCheckAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_interl_issched_%d','shippatterns_issched','pottable',2)
+        _intCheckAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_interl_howoften_%d','shippatterns_howoften','pottable',2)
+        _checkAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_interl_ymw_%d','shippatterns_ymw','pottable',2)
+        
+        if all([k in newModelInfoCN for k in ['shippatterns_isfetch','shippatterns_issched','shippatterns_howoften','shippatterns_ymw']]):
+            shipPatternList = [()] + zip(newModelInfoCN['shippatterns_isfetch'],newModelInfoCN['shippatterns_issched'],
+                                         newModelInfoCN['shippatterns_howoften'],newModelInfoCN['shippatterns_ymw'])[1:]
+            newModelInfoCN['shippatterns'] = shipPatternList
             for k in ['shippatterns_isfetch','shippatterns_issched','shippatterns_howoften','shippatterns_ymw']:
-                del newModelInfo[k]
-                
+                del newModelInfoCN[k]
+           
+        ### STB NEED to Figure out what to do here
+        print "Before" + str(uiSession.getDictSummary())
         if 'create' in bottle.request.params and bottle.request.params['create'] == 'true':
-                if 'modelId' in newModelInfo:
-                    # the user is messing around with the back/next buttons
-                    pass
-                else:
-                    newModelInfo['name'],newModelInfo['modelId'] = _createModel(db,uiSession)
+            print "In Create"
+            if 'modelId' in newModelInfoCN:
+                # the user is messing around with the back/next buttons
+                pass
+            else:
+                nameTmp,modelIdTmp = _createModel(db,uiSession)
+                newModelInfoCN['name2'] = nameTmp
+                newModelInfoCN['modelId'] = modelIdTmp
+                #newModelInfoCN['name2'],newModelInfoCN['modelId'] = _createModel(db,uiSession)
+                print "New Info " + str(newModelInfoCN['name']) + " " + str(newModelInfoCN['modelId'])
+                print 'After ' + str(uiSession.getDictSummary())           
+                print "modelID for god sake" + str(newModelInfoCN['modelId'])
+                #print 'is it in uisession ' +  str(uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]['modelId'])
+        #### STB NEED to fix this
         if 'expert' in bottle.request.params and bottle.request.params['expert'] == 'true':
-                if 'modelId' in newModelInfo:
+                if 'modelId' in newModelInfoCN:
                     # the user is messing around with the back/next buttons
                     pass
                 else:
                     # fake the remaining unfilled pages so the PreOrderTree can get created
-                    if 'levelcounts' not in newModelInfo: newModelInfo['levelcounts'] = [1 for x in xrange(newModelInfo['nlevels'])]
-                    if 'shippatterns_transitunits' not in newModelInfo: newModelInfo['shippatterns_transitunits'] = ['hour' for x in xrange(newModelInfo['nlevels']-1)]
-                    if 'shippatterns_transittimes' not in newModelInfo: newModelInfo['shippatterns_transittimes'] = [1.0 for x in xrange(newModelInfo['nlevels']-1)]
-                    if 'shippatterns' not in newModelInfo: newModelInfo['shippatterns'] = [() if x==0 else (False, True, 1, 'year') for x in xrange(newModelInfo['nlevels'])]
-                    if 'pottable' not in newModelInfo:
-                        pot,recDict = _buildPreOrderTree(newModelInfo)
-                        newModelInfo['pottable'] = pot.table
-                        newModelInfo['potrecdict'] = recDict
-                        newModelInfo['maxidcode'] = NumberedNameGenerator.totCount
-                    newModelInfo['name'],newModelInfo['modelId'] = _createModel(db,uiSession)
+                    if 'levelcounts' not in newModelInfoCN: newModelInfoCN['levelcounts'] = [1 for x in xrange(newModelInfo['nlevels'])]
+                    if 'shippatterns_transitunits' not in newModelInfoCN: newModelInfoCN['shippatterns_transitunits'] = ['hour' for x in xrange(newModelInfoCN['nlevels']-1)]
+                    if 'shippatterns_transittimes' not in newModelInfoCN: newModelInfoCN['shippatterns_transittimes'] = [1.0 for x in xrange(newModelInfoCN['nlevels']-1)]
+                    if 'shippatterns' not in newModelInfoCN: newModelInfoCN['shippatterns'] = [() if x==0 else (False, True, 1, 'year') for x in xrange(newModelInfoCN['nlevels'])]
+                    if 'pottable' not in newModelInfoCN:
+                        pot,recDict = _buildPreOrderTree(newModelInfoCN)
+                        newModelInfoCN['pottable'] = pot.table
+                        newModelInfoCN['potrecdict'] = recDict
+                        newModelInfoCN['maxidcode'] = NumberedNameGenerator.totCount
+                    newModelInfoCN['name'],newModelInfoCN['modelId'] = _createModel(db,uiSession)
                     # clean up current model creation session
-                    createdModelId = newModelInfo['modelId']
+                    createdModelId = newModelInfoCN['modelId']
                     del uiSession['subCrumbTrack']
                     crumbTrack.pop()
                     del uiSession['newModelInfo']
@@ -675,26 +744,29 @@ def modelCreatePage(db,uiSession,step="unknown"):
                     rootPath = fp[:offset+1] # to include slash                    
                     bottle.redirect('{}model-edit-structure?id={}'.format(rootPath,createdModelId))
         if 'provision' in bottle.request.params and bottle.request.params['provision'] == 'true':
-            if 'modelId' in newModelInfo:
-                _provisionModel(db, newModelInfo['modelId'])
+            if 'modelId' in newModelInfoCN:
+                print "provisioning model"
+                _provisionModel(db, newModelInfoCN['modelId'])
             else:
                 raise RuntimeError(_("The model is not ready for provisioning"))
         if 'provisionroutes' in bottle.request.params and bottle.request.params['provisionroutes'] == 'true':
-            if 'modelId' in newModelInfo:
-                _provisionModelRoutes(db, newModelInfo['modelId'])
+            if 'modelId' in newModelInfoCN:
+                _provisionModelRoutes(db, newModelInfoCN['modelId'])
             else:
                 raise RuntimeError(_("The routes are not ready for provisioning"))
                     
         formVals = {"breadcrumbPairs":crumbTrack}
         for k in ['name','nlevels','levelnames','levelcounts','shippatterns','modelId']:
-            if k in newModelInfo: formVals[k] = newModelInfo[k]
+            if k in newModelInfoCN: 
+                formVals[k] = newModelInfoCN[k]
         
         screenToTpl = {"nlevels":"model_create_begin.tpl",
-                       "levelnames":"model_create_levelnames.tpl",
-                       "countsbylevel":"model_create_countsbylevel.tpl",
+                       #"levelnames":"model_create_levelnames.tpl",
+                       #"countsbylevel":"model_create_countsbylevel.tpl",
                        "interlevel":"model_create_interlevel.tpl",
                        "interleveltimes":"model_create_interlevel_timings.tpl",
                        "done":"model_create_done.tpl",
+                       ### Want to get to here first
                        "provision":"model_create_provision.tpl",
                        "provisionroutes":"model_create_provision_routes.tpl",
                        'people':'people_top.tpl',
@@ -735,15 +807,15 @@ def modelCreatePage(db,uiSession,step="unknown"):
                                            }[screen]
                              })
         elif screen=="done":
-            if 'pottable' not in newModelInfo:
-                pot,recDict = _buildPreOrderTree(newModelInfo)
-                newModelInfo['pottable'] = pot.table
-                newModelInfo['potrecdict'] = recDict
-                newModelInfo['maxidcode'] = NumberedNameGenerator.totCount
+            if 'pottable' not in newModelInfoCN:
+                pot,recDict = _buildPreOrderTree(newModelInfoCN)
+                newModelInfoCN['pottable'] = pot.table
+                newModelInfoCN['potrecdict'] = recDict
+                newModelInfoCN['maxidcode'] = NumberedNameGenerator.totCount
             
-        uiSession['newModelInfo'] = newModelInfo
+        uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']] = newModelInfoCN
         uiSession.changed()
-            
+  
         if screen in screenToTpl:
             return bottle.template(screenToTpl[screen],formVals)
         elif screen=="models-top":
@@ -799,7 +871,7 @@ def handleListModel(db,uiSession):
     result = {"menustr":s,"pairs":allowedPairs,"selid":selectedModelId,"selname":selectedModelName}
     # Caller is expected to commit the DB
     return result
- 
+
 @bottle.route('/edit/edit-models.json',method='POST')   
 @bottle.route('/edit/edit-models.json')
 def jsonEditModels(db,uiSession):
@@ -816,28 +888,12 @@ def jsonEditModels(db,uiSession):
         elif bottle.request.params['oper']=='add':
             raise bottle.BottleException("Adding a model is not that simple!")
         elif bottle.request.params['oper']=='del':
-            modelId = _getOrThrowError(bottle.request.params, 'id', isInt=True)
-            allModelIds = [p.modelId for p in db.query(shadow_network.ShdNetwork)]
-            allAllowedIds = []
-            prv = uiSession.getPrivs()
-            for id in allModelIds:
-                try:
-                    prv.mayReadModelId(db,id)
-                    allAllowedIds.append(id)
-                except privs.PrivilegeException:
-                    pass
-            if len(allAllowedIds) < 2:
-                raise RuntimeError(_("You cannot delete the very last model"))
-            if modelId in allAllowedIds:
-                prv.mayWriteModelId(db,modelId)
-                m = shadow_network_db_api.ShdNetworkDB(db,modelId)
-                _logMessage("Deleting %s"%m.name)
-                db.delete(m)
-                if 'selectedModelId' in uiSession and uiSession['selectedModelId'] == modelId:
-                    del uiSession['selectedModelId']
-                return {'success':True}
-            else:
-                raise RuntimeError(_("Tried to delete a nonexistent model"))
+            modelId = int(bottle.request.params['id'])
+            uiSession.getPrivs().mayWriteModelId(db, modelId)
+            m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+            _logMessage("Deleting %s"%m.name)
+            db.delete(m)
+            return {'success':True}
         else:
             raise bottle.BottleException("Bad parameters to "+bottle.request.path)
     except bottle.HTTPResponse:
@@ -847,12 +903,17 @@ def jsonEditModels(db,uiSession):
 
 @bottle.route('/edit/edit-create-model.json',method='POST')        
 def editCreateModel(db,uiSession):
-    if 'newModelInfo' not in uiSession or 'levelnames' not in uiSession['newModelInfo'] \
-            or 'pottable' not in uiSession['newModelInfo'] or 'potrecdict' not in uiSession['newModelInfo']:
+    if 'newModelInfo' not in uiSession:
+            raise bottle.BottleException(_("We are not creating a new model right now."))
+    if 'currentModelName' not in uiSession['newModelInfo'].keys() or uiSession['newModelInfo']['currentModelName'] == "none":
+            raise bottle.BottleException(_("We have lost track of the new model you were creating"))
+        
+    newModelInfoCN = uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']] 
+    if 'levelnames' not in newModelInfoCN.keys() or 'pottable' not in newModelInfoCN.keys() or 'potrecdict' not in newModelInfoCN.keys():
         raise bottle.BottleException("Model creation data table is missing")
-    newModelInfo = uiSession['newModelInfo']
-    pot = PreOrderTree(newModelInfo['pottable'])
-    potRecDict = newModelInfo['potrecdict']
+    
+    pot = PreOrderTree(newModelInfoCN['pottable'])
+    potRecDict = newModelInfoCN['potrecdict']
     needsReload = False
     if bottle.request.params['oper']=='edit':
         if 'idcode'in bottle.request.params:
@@ -873,19 +934,19 @@ def editCreateModel(db,uiSession):
                 needsReload = True
                 if oldNKids < newNKids:
                     pot.emit()
-                    if lvl < newModelInfo['nlevels']-1:
+                    if lvl < newModelInfoCN['nlevels']-1:
                         cloneLvl = lvl+1
                         for _ in xrange(newNKids-oldNKids):
                             parentId = idcode
-                            for lvl,name,count in zip(xrange(cloneLvl,newModelInfo['nlevels']),
-                                                      newModelInfo['levelnames'][cloneLvl:],
-                                                      newModelInfo['levelcounts'][cloneLvl:]):
-                                newModelInfo['maxidcode'] += 1
-                                newIdcode = newModelInfo['maxidcode']
+                            for lvl,name,count in zip(xrange(cloneLvl,newModelInfoCN['nlevels']),
+                                                      newModelInfoCN['levelnames'][cloneLvl:],
+                                                      newModelInfoCN['levelcounts'][cloneLvl:]):
+                                newModelInfoCN['maxidcode'] += 1
+                                newIdcode = newModelInfoCN['maxidcode']
                                 pot.add(newIdcode,parentId)
-                                newModelInfo['levelcounts'][lvl] += 1
-                                name = u"%s_%d"%(newModelInfo['levelnames'][lvl],newModelInfo['levelcounts'][lvl])
-                                rec = _buildTreeRec(name,1,newModelInfo['shippatterns'][lvl])
+                                newModelInfoCN['levelcounts'][lvl] += 1
+                                name = u"%s_%d"%(newModelInfoCN['levelnames'][lvl],newModelInfoCN['levelcounts'][lvl])
+                                rec = _buildTreeRec(name,1,newModelInfoCN['shippatterns'][lvl])
                                 #print '###### add %d below %d, rec %s'%(newIdcode,parentId,rec)
                                 potRecDict[newIdcode] = rec
                                 parentId = newIdcode
@@ -899,9 +960,9 @@ def editCreateModel(db,uiSession):
                         for deletedNode in pot.removeRecursively(k):
                             del potRecDict[deletedNode]
             # force uiSession to notice the change, and save
-            newModelInfo['potrecdict'] = potRecDict
-            newModelInfo['pottable'] = pot.table
-            uiSession['newModelInfo'] = newModelInfo
+            newModelInfoCN['potrecdict'] = potRecDict
+            newModelInfoCN['pottable'] = pot.table
+            #uiSession['newModelInfo'] = newModelInfo
             uiSession.changed()
             return {'reload':needsReload}
         else:
@@ -928,7 +989,10 @@ def jsonModelCreateTimingFormVals(db, uiSession):
     try:
         if 'newModelInfo' not in uiSession:
             raise bottle.BottleException(_("We are not creating a new model right now."))
-        newModelInfo = uiSession['newModelInfo']
+        if 'currentModelName' not in uiSession['newModelInfo'].keys() or uiSession['newModelInfo']['currentModelName'] == "none":
+            raise bottle.BottleException(_("We have lost track of the new model you were creating"))
+        
+        newModelInfo = uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]
         if 'nlevels' not in newModelInfo:
             raise bottle.BottleException(_("We have lost track of the number of levels"))
         if 'shippatterns_transittimes' not in newModelInfo:
@@ -953,7 +1017,9 @@ def jsonModelCreateTimingVerifyCommit(db, uiSession):
             print '%s: %s'%(k,v)
         if 'newModelInfo' not in uiSession:
             raise bottle.BottleException(_("We are not creating a new model right now."))
-        newModelInfo = uiSession['newModelInfo']
+        if 'currentModelName' not in uiSession['newModelInfo'].keys() or uiSession['newModelInfo']['currentModelName'] == "none":
+            raise bottle.BottleException(_("We have lost track of the new model you were creating"))
+        newModelInfo = uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]
         if 'nlevels' not in newModelInfo:
             raise bottle.BottleException(_("We have lost track of the number of levels"))
         if 'shippatterns_transittimes' not in newModelInfo:
@@ -972,7 +1038,7 @@ def jsonModelCreateTimingVerifyCommit(db, uiSession):
         #print units
         newModelInfo['shippatterns_transittimes'] = times
         newModelInfo['shippatterns_transitunits'] = units
-        uiSession['newModelInfo'] = newModelInfo
+        #uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]= newModelInfo
         uiSession.changed()
         return {'success':True, 'value':True}
     except bottle.HTTPResponse:
@@ -1029,12 +1095,19 @@ def jsonManageModelsTable(db, uiSession):
     
 @bottle.route('/json/adjust-models-table')
 def jsonAdjustModelsTable(db,uiSession):
-    if 'newModelInfo' not in uiSession or 'levelnames' not in uiSession['newModelInfo'] \
-            or 'pottable' not in uiSession['newModelInfo'] or 'potrecdict' not in uiSession['newModelInfo']:
+    if 'newModelInfo' not in uiSession :
+        raise bottle.BottleException(_("There is new model data in session."))
+    if 'currentModelName' not in uiSession['newModelInfo']:
+        raise bottle.BottleException(_("There is no current model in the new model data in session."))
+    if uiSession['newModelInfo']['currentModelName'] not in uiSession['newModelInfo'].keys():
+        raise bottle.BottleException(_("The currently selected model {0} has no data in session".format(uiSession['newModelInfo']['currentModelName'])))
+    if  'levelnames' not in uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']] \
+            or 'pottable' not in uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']] \
+            or 'potrecdict' not in uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]:
         raise bottle.BottleException("Model creation data table is missing")
-    newModelInfo = uiSession['newModelInfo']
-    pot = PreOrderTree(newModelInfo['pottable'])
-    potRecDict = newModelInfo['potrecdict']
+    newModelInfoCN = uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]
+    pot = PreOrderTree(newModelInfoCN['pottable'])
+    potRecDict = newModelInfoCN['potrecdict']
     _logMessage('For output, potRecDict is %s'%potRecDict)
     if 'nodeid' in bottle.request.params and bottle.request.params['nodeid'] != '':
         nodeId = int(bottle.request.params['nodeid'])
@@ -1046,14 +1119,14 @@ def jsonAdjustModelsTable(db,uiSession):
             lkey, rkey, lvl, idcode = tblRec
             if ( lkey>reqLft and rkey<reqRgt ):
                 if reqLvl == lvl:
-                    r = {'levelname':newModelInfo['levelnames'][lvl], 'idcode':idcode, 
+                    r = {'levelname':newModelInfoCN['levelnames'][lvl], 'idcode':idcode, 
                          'level':lvl, 'lft':lkey, 'rgt':rkey, 'isLeaf':(rkey==lkey+1),'expanded':(lvl<2),
                          'kids':pot.nKids(idcode,tpl=(lkey,rkey,lvl))}
                     r.update(potRecDict[idcode])
                     mList.append(r)
     else: # Initial request for root
         lkey, rkey, lvl, idcode = pot.getRoot(returnAll=True)
-        r = {'levelname':newModelInfo['levelnames'][lvl], 'idcode':idcode, 
+        r = {'levelname':newModelInfoCN['levelnames'][lvl], 'idcode':idcode, 
              'level':lvl, 'lft':lkey, 'rgt':rkey, 'isLeaf':(rkey==lkey+1),'expanded':(lvl<2),
              'kids':pot.nKids(idcode,tpl=(lkey,rkey,lvl))}
         r.update(potRecDict[idcode])
@@ -1359,6 +1432,19 @@ def jsonGetExistingModelNames(db,uiSession):
         result = {'success':False, 'msg':str(e)}
         return result  
     
+@bottle.route('/json/get-existing-models-creating')
+def jsonGetModelsBeingCreated(db,uiSession):
+    try:
+        mList = []
+        if 'newModelInfo' in uiSession:
+            mList = uiSession['newModelInfo'].keys()
+        
+        return {'success':True,'names':mList}
+    except bottle.HTTPResponse:
+        raise
+    except Exception as e:
+        result = {'success':False, 'msg':str(e)}
+        return result 
 
 @bottle.route('/json/get-model-name')
 def jsonGetModelName(db,uiSession):
@@ -1374,7 +1460,49 @@ def jsonGetModelName(db,uiSession):
         result = {'success':False, 'msg':str(e)}
         return result    
 
+@bottle.route('/json/get-newmodelinfo-from-session')
+def jsonGetModelInfoFromSession(db,uiSession):
+    try:
+        newModelDict = {}
+        if 'newModelInfo' in uiSession:
+            newModelDict = uiSession.getDictSummary()['newModelInfo']
+        
+        return {'data':newModelDict,'success':True}
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result    
 
+@bottle.route('/json/delete-model-from-newmodelinfo-session')   
+def jsonDeleteModelFromNewModelInfo(db,uiSession):
+    try:
+        modelName = _getOrThrowError(bottle.request.params,'name',isInt=False)
+        modelExists = False
+        if 'newModelInfo' in uiSession:
+            if modelName in uiSession['newModelInfo']:
+                del uiSession['newModelInfo'][modelName]
+                uiSession.changed()
+                mList = []
+                #prv = uiSession.getPrivs()
+                for m in db.query(shadow_network.ShdNetwork):
+                    try:
+                        if m.name == userTypesModelName:
+                            continue
+                            #prv.mayReadModelId(db, m.name)
+                        mList.append(m.name)
+                
+                    except privs.PrivilegeException:
+                        pass
+                if modelName in mList:
+                    modelExists = True 
+        return {'success':True,'modelExists':modelExists}
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+     
 @bottle.route('/json/model-parms-edit')
 @bottle.route('/json/model-parms-edit', method='POST')
 def jsonRunParmsEdit(db, uiSession):
@@ -1405,4 +1533,32 @@ def jsonRunParmsEdit(db, uiSession):
         result = {'success':True, 'value':True}
     return result
     
-
+@bottle.route('/json/model-create-name-levels-form')
+def jsonCreateLevelsForm(db,uiSession):
+    try:
+        import htmlgenerator
+        nLevels = _getOrThrowError(bottle.request.params, 'nLevels', isInt=True)
+        
+        return {'htmlString':htmlgenerator._buildNameLevelsForm("model_create", nLevels, None),
+                'success':True}
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'msg':str(e)}
+        
+@bottle.route('/json/model-create-number-places-per-level-form', method='POST')
+def jsonCreatePlacesPerLevelForm(db,uiSession):
+    try:
+        import htmlgenerator
+        levelNamesDict = bottle.request.params
+        levelNames = ["" for x in range(0,len(levelNamesDict))]
+        for levelNum,levelName in levelNamesDict.items():
+            levelNames[int(levelNum)] = levelName
+            
+        print "level " + str(levelNames)
+        return {'htmlString':htmlgenerator._buildNumberPlacesPerLevelsForm("model_create_", levelNames),'success':True}
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'msg':str(e)}
+        
