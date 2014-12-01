@@ -67,9 +67,13 @@ def costEditSalary(db, uiSession):
     return bottle.template("cost_edit_salary.tpl", {"breadcrumbPairs":crumbTrack,
                                                     "title_slogan":_("Staff Costs")})
 
+@bottle.route('/cost-edit-perdiem')
+def costEditPerDiem(db, uiSession):
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path, _("Per Diem Rates")))
+    return bottle.template("cost_edit_perdiem.tpl", {"breadcrumbPairs":crumbTrack,
+                                                     "title_slogan":_("Per Diem Rates")})
 
 @bottle.route('/cost-edit-building')
-@bottle.route('/cost-edit-perdiem')
 @bottle.route('/cost-edit-misc')
 def costUnimplemented(db, uiSession):
     bottle.redirect('%snotimpl'%rootPath)
@@ -298,22 +302,35 @@ def getTypeButtonLabel(db, uiSession, m, tpCategory, keyList):
             if not(v is None or v=='' or v<0): count += 1
     if count == 0: return _("Begin")
     elif count == possible: return _("Revisit")
-    else: return _("Continue")
-    
+    else:
+        return _("Continue")
+
+
 def getFridgeButtonLabel(db, uiSession, m):
-    return getTypeButtonLabel(db, uiSession, m, 'fridges', ['BaseCost','BaseCostCur','BaseCostYear','PowerRate'])
+    return getTypeButtonLabel(db, uiSession, m, 'fridges', ['BaseCost', 'BaseCostCur',
+                                                            'BaseCostYear', 'PowerRate'])
+
 
 def getTruckButtonLabel(db, uiSession, m):
-    return getTypeButtonLabel(db, uiSession, m, 'trucks', ['BaseCost','BaseCostCur','BaseCostYear', 'AmortizationKm', 'FuelRate'])
+    return getTypeButtonLabel(db, uiSession, m, 'trucks', ['BaseCost', 'BaseCostCur',
+                                                           'BaseCostYear', 'AmortizationKm',
+                                                           'FuelRate'])
+
 
 def getVaccineButtonLabel(db, uiSession, m):
-    return getTypeButtonLabel(db, uiSession, m, 'vaccines', ['Vaccine price/vial', 'Price Units', 'Price Year'])
+    return getTypeButtonLabel(db, uiSession, m, 'vaccines', ['Vaccine price/vial', 'Price Units',
+                                                             'Price Year'])
+
 
 def getSalaryButtonLabel(db, uiSession, m):
-    return getTypeButtonLabel(db, uiSession, m, 'staff', ['BaseSalary', 'BaseSalaryCur', 'BaseSalaryYear','FractionEPI'])
+    return getTypeButtonLabel(db, uiSession, m, 'staff', ['BaseSalary', 'BaseSalaryCur',
+                                                          'BaseSalaryYear', 'FractionEPI'])
+
 
 def getPerDiemButtonLabel(db, uiSession, m):
-    return _("Unimplemented");
+    return getTypeButtonLabel(db, uiSession, m, 'perdiems', ['BaseAmount', 'BaseAmountCur',
+                                                             'BaseAmountYear', 'MinKmHome',
+                                                             'MustBeOvernight', 'CountFirstDay'])
 
 def getBuildingButtonLabel(db, uiSession, m):
     return _("Unimplemented");
@@ -792,16 +809,17 @@ def jsonManageTruckCostTable(db, uiSession):
 @bottle.route('/edit/edit-cost-truck', method='POST')
 def editCostTruck(db, uiSession):
     try:
-        #print [(k,v) for k,v in bottle.request.params.items()]
-        if bottle.request.params['oper']=='edit':
+        # print [(k,v) for k,v in bottle.request.params.items()]
+        if bottle.request.params['oper'] == 'edit':
             modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
             uiSession.getPrivs().mayModifyModelId(db, modelId)
             m = shadow_network_db_api.ShdNetworkDB(db, modelId)
             typeName = _getOrThrowError(bottle.request.params, 'id')
             if typeName in m.types:
                 tp = m.types[typeName]
-                assert isinstance(tp,shadow_network.ShdTruckType),"Type %s is not a truck"%typeName
-                for opt in ['name', 'displayname','fuel','fuelrateunits']:
+                assert isinstance(tp, shadow_network.ShdTruckType), \
+                    "Type %s is not a truck" % typeName
+                for opt in ['name', 'displayname', 'fuel', 'fuelrateunits']:
                     if opt in bottle.request.params:
                         raise RuntimeError(_('Editing of {0} is not supported').format(opt))
                 if 'basecost' in bottle.request.params:
@@ -908,7 +926,7 @@ def editCostStaff(db, uiSession):
             if typeName in m.types:
                 tp = m.types[typeName]
                 assert isinstance(tp, shadow_network.ShdStaffType), \
-                    "Type %s is not a truck" % typeName
+                    _("Type %s is not a staff type").format(typeName)
                 for opt in ['name', 'displayname']:
                     if opt in bRQ:
                         raise RuntimeError(_('Editing of {0} is not supported').format(opt))
@@ -923,6 +941,106 @@ def editCostStaff(db, uiSession):
                 if 'fractionepi' in bRQ:
                     tp.FractionEPI = _safeGetReqParam(bRQ, 'fractionepi',
                                                       isFloat=True)
+                return {'success': True}
+            else:
+                raise RuntimeError(_('Model {0} does not contain type {1}').
+                                   format(m.name, typeName))
+        else:
+            raise RuntimeError(_('Unsupported operation {0}').
+                               format(bRQ['oper']))
+    except bottle.HTTPResponse:
+        raise  # bottle will handle this
+    except Exception, e:
+        _logStacktrace()
+        return {'success': False, 'msg': str(e)}
+
+
+@bottle.route('/json/manage-perdiem-cost-table')
+def jsonManagePerDiemCostTable(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId',
+                                   isInt=True)
+        try:
+            uiSession.getPrivs().mayReadModelId(db, modelId)
+        except privs.PrivilegeException:
+            raise bottle.BottleException('User may not read model %d' %
+                                         modelId)
+        tList = typehelper.getTypeList(db, modelId, 'perdiems', fallback=False)
+        tList = [t for t in tList
+                 if t['Name'] not in typehelper.hiddenTypesSet]
+        for rec in tList:
+            if 'DisplayName' not in rec or rec['DisplayName'] is None \
+                    or rec['DisplayName'] == '':
+                rec['DisplayName'] = rec['Name']
+        nPages, thisPageNum, totRecs, tList = (  # @UnusedVariable
+            orderAndChopPage(tList,
+                             {'name': 'Name',
+                              'displayname': 'DisplayName',
+                              'baseamount': 'BaseAmount',
+                              'currency': 'BaseAmountCur',
+                              'baseamountyear': 'BaseAmountYear',
+                              'minkmhome': 'MinKmHome',
+                              'mustbeovernight': 'MustBeOvernight',
+                              'countfirstday': 'CountFirstDay'
+                              },
+                             bottle.request))
+
+        result = {'success': True,
+                  "total": 1,    # total pages
+                  "page": 1,     # which page is this
+                  "records": totRecs,  # total records
+                  "rows": [{"name": t['Name'],
+                            "displayname": t['DisplayName'],
+                            "detail": t['Name'],
+                            "baseamount": t['BaseAmount'],
+                            "currency": t['BaseAmountCur'],
+                            "baseamountyear": t['BaseAmountYear'],
+                            "minkmhome": t['MinKmHome'],
+                            'mustbeovernight': t['MustBeOvernight'],
+                            'countfirstday': t['CountFirstDay']
+                            }
+                           for t in tList
+                           if t['Name'] not in typehelper.hiddenTypesSet]
+                  }
+        return result
+    except Exception, e:
+        _logStacktrace()
+        return {'success': False, 'msg': str(e)}
+
+
+@bottle.route('/edit/edit-cost-perdiem', method='POST')
+def editCostperdiem(db, uiSession):
+    try:
+        # print [(k, v) for k, v in bottle.request.params.items()]
+        bRQ = bottle.request.params
+        if bRQ['oper'] == 'edit':
+            modelId = _getOrThrowError(bRQ, 'modelId', isInt=True)
+            uiSession.getPrivs().mayModifyModelId(db, modelId)
+            m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+            typeName = _getOrThrowError(bRQ, 'id')
+            if typeName in m.types:
+                tp = m.types[typeName]
+                assert isinstance(tp, shadow_network.ShdPerDiemType), \
+                    _("Type {0} is not a PerDiem rule").format(typeName)
+                for opt in ['name', 'displayname']:
+                    if opt in bRQ:
+                        raise RuntimeError(_('Editing of {0} is not supported').format(opt))
+                if 'baseamount' in bRQ:
+                    tp.BaseSalary = _safeGetReqParam(bRQ, 'baseamount', isFloat=True)
+                if 'currency' in bRQ:
+                    tp.BaseAmountCurCode = _safeGetReqParam(bRQ, 'currency')
+                if 'baseamountyear' in bRQ:
+                    tp.BaseAmountYear = _safeGetReqParam(bRQ, 'baseamountyear', isInt=True)
+                if 'minkmhome' in bRQ:
+                    tp.MinKmHome = _safeGetReqParam(bRQ, 'minkmhome', isFloat=True)
+                if 'mustbeovernight' in bRQ:
+                    v = _safeGetReqParam(bRQ, 'mustbeovernight')
+                    tp.MustBeOvernight = (v is not None and isinstance(v, types.StringTypes)
+                                          and v.lower() in ['on', 't', 'true'])
+                if 'countfirstday' in bRQ:
+                    v = _safeGetReqParam(bRQ, 'countfirstday')
+                    tp.CountFirstDay = (v is not None and isinstance(v, types.StringTypes)
+                                        and v.lower() in ['on', 't', 'true'])
                 return {'success': True}
             else:
                 raise RuntimeError(_('Model {0} does not contain type {1}').

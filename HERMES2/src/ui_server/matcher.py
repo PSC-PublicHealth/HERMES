@@ -66,7 +66,6 @@ def initializeToolTips():
     try:
         with open(csvFname,'rU') as f:
             keys,recs = csv_tools.parseCSV(f)
-            print recs
             localeList = [ k for k in keys if k not in ['Location','Path','Button ID','Notes']]
             for l in localeList:
                 if l not in result: result[l] = {}
