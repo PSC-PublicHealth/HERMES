@@ -1272,6 +1272,31 @@ def jsonModelStoreInfo(db, uiSession):
         raise bottle.BottleException("Ill-formed model-store-info request")
     return result
 
+
+@bottle.route('/json/store-info')
+def jsonStoreInfo(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        storeId = _getOrThrowError(bottle.request.params, 'storeId', isInt=True)
+        htmlStr, titleStr = htmlgenerator.getModelStoreInfoHTML(db, uiSession, modelId, storeId)
+        result = {"success": True, "htmlstring": htmlStr, "title": titleStr}
+        return result
+    except Exception, e:
+        return {"success": False, "msg": str(e)}
+
+
+@bottle.route('/json/route-info')
+def jsonRouteInfo(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        routeName = _getOrThrowError(bottle.request.params, 'routeName')
+        htmlStr, titleStr = htmlgenerator.getModelRouteInfoHTML(db, uiSession, modelId, routeName)
+        result = {"success": True, "htmlstring": htmlStr, "title": titleStr}
+        return result
+    except Exception, e:
+        return {"success": False, "msg": str(e)}
+
+
 @bottle.route('/json/model-structure-tree-d3')
 def jsonModelStructureTreeD3(db,uiSession):
     try:

@@ -28,6 +28,7 @@ Warning: this can invalidate runs and create type naming discrepancies!  Only mi
 </table>
 
 <div id="get_name_dialog" title='{{_("Name for new type?")}}'>
+Reload the page to see the newly created type.
 <form>
 <fieldset>
 	<table>

@@ -62,7 +62,7 @@ function setPrintGrid(gid,pid,pgTitle){
 }
 
 // adds a 'expand/collapse all' button to the header row; this should only be
-// used for grids that contain subgrids (goverened by opts.has_subgrid); this
+// used for grids that contain subgrids (governed by opts.has_subgrid); this
 // function is called from hermify
 function addToggleExpansionButton($grid) {
     var plusIcon = 'ui-icon-plus';
@@ -176,6 +176,27 @@ function addToggleExpansionButton($grid) {
 					$(window).resize(resize_grid);  //bind resize_grid to window resize
 					resize_grid();
 					if (opts.debug) console.log('resize handling set');
+					
+				}
+				if (opts.resizable_hz) {
+					function resize_grid_hz() {
+						var offset = $grid.offset() //position of grid on page
+						//hardcoded minimum width
+						if ( $(window).width() > 710 ) {
+                            // the maximum width should be set as a freaction of the available
+                            // space, rather than subtracting a fixed amount.
+                            if (!opts.subgrid) {
+							    $grid.jqGrid('setGridWidth', $(window).width()-offset.left-50);
+                            }
+                            else {
+                                $grid.jqGrid('setGridWidth', $(window).width()-offset.left-70);
+                            }
+						}
+					}
+					$(window).load(resize_grid_hz); //necessary to trigger resize_grid onload due to loading breadcrumbs changing grid offset
+					$(window).resize(resize_grid_hz);  //bind resize_grid to window resize
+					resize_grid_hz();
+					if (opts.debug) console.log('horizontal resize handling set');
 					
 				}
 				if (opts.printable) {

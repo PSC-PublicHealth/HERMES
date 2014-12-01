@@ -105,13 +105,37 @@ def getModelRouteInfoHTML(db, uiSession, modelId, routeName):
     sio.write("{0}\n".format(route.RouteName))
     sio.write("</h3>\n")
     sio.write("<table>\n")
+    supplierStore = route.supplier()
+    clientStoreList = route.clients()
+    if supplierStore is None:
+        sio.write('<tr><td>%s</td><td>%s</td></tr>' % (_('Supplier'),
+                                                       _('None')))
+    else:
+        sio.write('<tr><td>%s</td><td>%s (%d)</td></tr>' % (_('Supplier'),
+                                                            supplierStore.NAME,
+                                                            supplierStore.idcode))
+    if clientStoreList is None or len(clientStoreList) == 0:
+        sio.write('<tr><td>%s</td><td>%s</td></tr>' % (_('Clients'),
+                                                       _('None')))
+    else:
+        start = True
+        for clientStore in clientStoreList:
+            if start:
+                sio.write('<tr><td>%s</td><td>%s (%d)</td></tr>' % (_('Clients'),
+                                                                    clientStore.NAME,
+                                                                    clientStore.idcode))
+                start = False
+            else:
+                sio.write('<tr><td></td><td>%s (%d)</td></tr>' % (clientStore.NAME,
+                                                                  clientStore.idcode))
+
     attrRec = {}
-    shadow_network._copyAttrsToRec(attrRec,route)
-    for k,v in attrRec.items(): 
-        if k != 'RouteName': # because that's obvious
-            sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
+    shadow_network._copyAttrsToRec(attrRec, route)
+    for k, v in attrRec.items():
+        if k != 'RouteName':  # because that's obvious
+            sio.write('<tr><td>%s</td><td>%s</td>\n' % (k, v))
     sio.write("</table>\n")
-    
+
     return sio.getvalue(), titleStr
 
 def getPeopleInfoHTML(db,uiSession, modelId, typeName):
