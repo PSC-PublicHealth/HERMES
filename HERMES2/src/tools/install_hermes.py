@@ -861,7 +861,8 @@ def addTypeHolderModel(replace=True):
                          ('packaging','packaging'),
                          ('fridge','fridges'),
                          ('truck','trucks'),
-                         ('staff','staff')
+                         ('staff','staff'),
+                         ('perDiem','perdiems')
                          ]:
                 if fN.lower().find(s)>=0: 
                     with util.logContext("loading types from %s as %s for shadow network"%(fN,tp)):
