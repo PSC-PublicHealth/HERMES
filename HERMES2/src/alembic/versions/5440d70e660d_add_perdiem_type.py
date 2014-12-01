@@ -66,49 +66,48 @@ def upgrade():
     for row in conn.execute(sa.select([models]).where(models.c.name==op.inline_literal('AllTypesModel'))):
         allTypesModelId = row[models.c.modelId]
 
-    assert allTypesModelId is not None, "Failed to find allTypesModelId"
-
-    print '##### loading perDiemTypeInfo #####'
-    here = os.path.split(os.path.abspath(__file__))[0]
-    with open(os.path.join(here, '..', '..', '..', 'master_data',
-                           'standardtypes', 'perDiemTypeInfo.csv'), 'rU') as f:
-        keys, recs = csv_tools.parseCSV(f)  # @UnusedVariable
-
-    print '##### inserting standard types #####'
-    for rec in recs:
-        # print rec['Name']
-        for k in ['DisplayName', 'ClassName', 'SortOrder',
-                  'BaseAmount', 'BaseAmountCur', 'BaseAmountYear',
-                  'MustBeOvernight', 'CountFirstDay', 'MinKmHome', 'Notes']:
-            if rec[k] == '':
-                rec[k] = None
-        for k, v in rec.items():
-            if isinstance(v, types.StringType):
-                rec[k] = v.decode('utf8')
-        for k in ['CountFirstDay', 'MustBeOvernight']:
-            if rec[k].lower() in ['false','f','0']:
-                rec[k] = False
-            else:
-                rec[k] = True
-
-        result = conn.execute(typeTable.insert().values(typeClass='perdiems',
-                                                        modelId=allTypesModelId,
-                                                        Name=rec['Name']))
-        conn.execute(perdiemtypes.insert().values(perdiemtypeId=result.inserted_primary_key[0],
-                                                  DisplayName=rec['DisplayName'],
-                                                  ClassName=rec['ClassName'],
-                                                  SortOrder=rec['SortOrder'],
-                                                  BaseAmount=rec['BaseAmount'],
-                                                  BaseAmountCurCode=rec['BaseAmountCur'],
-                                                  BaseAmountYear=rec['BaseAmountYear'],
-                                                  MustBeOvernight=rec['MustBeOvernight'],
-                                                  CountFirstDay=rec['CountFirstDay'],
-                                                  MinKmHome=rec['MinKmHome'],
-                                                  Notes=rec['Notes']
-                                                  )
-                     )
-
-
+    if allTypesModelId is not None:
+        print '##### loading perDiemTypeInfo #####'
+        here = os.path.split(os.path.abspath(__file__))[0]
+        with open(os.path.join(here, '..', '..', '..', 'master_data',
+                               'standardtypes', 'perDiemTypeInfo.csv'), 'rU') as f:
+            keys, recs = csv_tools.parseCSV(f)  # @UnusedVariable
+    
+        print '##### inserting standard types #####'
+        for rec in recs:
+            # print rec['Name']
+            for k in ['DisplayName', 'ClassName', 'SortOrder',
+                      'BaseAmount', 'BaseAmountCur', 'BaseAmountYear',
+                      'MustBeOvernight', 'CountFirstDay', 'MinKmHome', 'Notes']:
+                if rec[k] == '':
+                    rec[k] = None
+            for k, v in rec.items():
+                if isinstance(v, types.StringType):
+                    rec[k] = v.decode('utf8')
+            for k in ['CountFirstDay', 'MustBeOvernight']:
+                if rec[k].lower() in ['false','f','0']:
+                    rec[k] = False
+                else:
+                    rec[k] = True
+    
+            result = conn.execute(typeTable.insert().values(typeClass='perdiems',
+                                                            modelId=allTypesModelId,
+                                                            Name=rec['Name']))
+            conn.execute(perdiemtypes.insert().values(perdiemtypeId=result.inserted_primary_key[0],
+                                                      DisplayName=rec['DisplayName'],
+                                                      ClassName=rec['ClassName'],
+                                                      SortOrder=rec['SortOrder'],
+                                                      BaseAmount=rec['BaseAmount'],
+                                                      BaseAmountCurCode=rec['BaseAmountCur'],
+                                                      BaseAmountYear=rec['BaseAmountYear'],
+                                                      MustBeOvernight=rec['MustBeOvernight'],
+                                                      CountFirstDay=rec['CountFirstDay'],
+                                                      MinKmHome=rec['MinKmHome'],
+                                                      Notes=rec['Notes']
+                                                      )
+                         )
+    else:
+        print '##### No AllTypesModel, so nothing to update #####'
 
     print '##### creating new routes table #####'
     op.create_table('newroutes',
