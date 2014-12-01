@@ -114,15 +114,6 @@ def jsonStaffEditVerifyCommit(db,uiSession):
         result = {'success':True, 'value':True, 'goto':crumbTrack.currentPath()}
     return result
             
-@bottle.route('/json/generic-edit-cancel')
-def jsonGenericEditCancel(db,uiSession):
-    try:
-        crumbTrack = uiSession.getCrumbs().pop()
-        return {'success':True, 'value': True, 'goto':crumbTrack.currentPath()}
-    except Exception, e:
-        result = {'success':False, 'msg':str(e)}
-        return result    
-            
 @bottle.route('/json/staff-info')
 def jsonStaffInfo(db,uiSession):
     try:

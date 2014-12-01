@@ -753,6 +753,9 @@ class VaccineTypeManager(trackabletypes.TrackableTypeManager):
     """
     A specialization of TypeManager just for Shippables.  (Formerly just for Vaccines)
     """
+
+    subTypeKey = "vaccines"
+
     def __init__(self, typeManager):
         """
         Initialize the manager, which is really just a wrapper around the simulation-wide TypeManager,

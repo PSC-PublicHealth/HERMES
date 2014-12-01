@@ -17,7 +17,8 @@ inlizer=session_support.inlizer
 _=session_support.translateString
 
 wireTypeMap = {'people':shadow_network.ShdPeopleType, 'vaccine':shadow_network.ShdVaccineType,
-               'fridge':shadow_network.ShdStorageType,'truck':shadow_network.ShdTruckType}
+               'fridge':shadow_network.ShdStorageType,'truck':shadow_network.ShdTruckType,
+               'staff':shadow_network.ShdStaffType, 'perdiems':shadow_network.ShdPerDiemType}
 wireTypeNameMap = { k:v.__name__ for k,v in wireTypeMap.items() }
 
 class Clipboard(object):

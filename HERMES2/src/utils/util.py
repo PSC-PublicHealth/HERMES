@@ -1377,6 +1377,26 @@ def zipper(dir, zip_file):
     zip.close()
     return zip_file
 
+
+def createSubclassIterator(baseclass, filterFunc=None):
+    """
+    Iterate over all subclasses of the given new-style class
+    for which filterFunc(subclass) is True.  If filterFunc
+    is not given, assume that all subclasses pass the filter.
+    """
+    if filterFunc is None:
+        def filterFunc(x): return True
+    for c in baseclass.__subclasses__():
+        if filterFunc(c):
+            yield c
+        if len(c.__subclasses__()) > 0:
+            subIter = createSubclassIterator(c, filterFunc)
+            for subC in subIter:
+                yield subC
+
+
+
+
 def describeSelf():
     print \
 """

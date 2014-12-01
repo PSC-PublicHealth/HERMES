@@ -31,6 +31,9 @@ hiddenTypesSet = set(['OUTDOORS'])
 def _getAllTypesModel(db):
     return db.query(shadow_network.ShdNetwork).filter(shadow_network.ShdNetwork.name==allTypesModelName).one()
 
+def getAllTypesModel(db):
+    return _getAllTypesModel(db)
+
 def _getUserTypesModel(db):
     return db.query(shadow_network.ShdNetwork).filter(shadow_network.ShdNetwork.name==userTypesModelName).one()
 

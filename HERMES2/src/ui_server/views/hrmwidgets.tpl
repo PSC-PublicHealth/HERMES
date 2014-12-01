@@ -1015,10 +1015,11 @@ function addToggleExpansionButton($grid) {
  						if (tj.hasClass('hrm_price')) {
  							dict[tj.attr('id')] = tj.val().unformatMoney()
  						}
+ 						else if (tj.is(':checkbox')) {
+ 							dict[tj.attr('id')] = tj.is(':checked')
+ 						}
  						else {
  	 						dict[tj.attr('id')] = tj.val();
- 	 						
- 							
  						}
  					});
  					$(this).find('.hrm_currency').each(function() {

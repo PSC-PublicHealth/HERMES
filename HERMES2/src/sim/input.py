@@ -516,7 +516,7 @@ class UnifiedInput:
         #     adding both the unified file and the field in userInput for the override
         #     file.  (HermesInput.py)
         #   * added to the list of files to be faked in shadow_network.writeCSVRepresentation
-        
+
         self.vaccineFile = "UnifiedVaccineTypeInfo.csv"
         self.truckFile   = "UnifiedTruckCapacityInfo.csv"
         self.peopleFile  = "UnifiedPeopleTypeInfo.csv"
@@ -524,6 +524,7 @@ class UnifiedInput:
         self.iceFile     = "UnifiedIceTypeInfo.csv"
         self.packageFile = "UnifiedPackageTypeInfo.csv"
         self.staffFile   = "UnifiedStaffTypeInfo.csv"
+        self.perDiemFile = "UnifiedPerDiemTypeInfo.csv"
 
 def main():
     inputDefault = InputDefault()

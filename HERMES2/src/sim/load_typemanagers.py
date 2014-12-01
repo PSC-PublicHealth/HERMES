@@ -24,6 +24,7 @@ _hermes_svn_id_ = "$Id$"
 
 import sys
 import abstractbaseclasses
+import util
 import typemanager
 import peopletypes
 import storagetypes
@@ -34,17 +35,7 @@ import fridgetypes
 import icetypes
 import packagetypes
 import stafftypes
-
-
-# def findsubclass(baseclass, indent=0):
-#     if indent == 0:
-#         print "Subclasses of %s are:" % baseclass.__name__
-#     indent = indent + 1
-#     if hasattr(baseclass, 'typeName'):
-#         print "-"*indent*4 + " " + 'typeName %s' % baseclass.typeName
-#     for c in baseclass.__subclasses__():
-#         print "-"*indent*4 + ">" + c.__name__
-#         findsubclass(c, indent)
+import perdiemtypes
 
 
 class TypeManagerLoader(object):
@@ -92,12 +83,6 @@ class TypeManagerLoader(object):
         self.shdNet = sim.shdNet
         shdNet = sim.shdNet
 
-#         print '####### typemanager subclasses'
-#         findsubclass(trackabletypes.TrackableTypeManager)
-# 
-#         print '####### managedtype subclasses'
-#         findsubclass(abstractbaseclasses.ManagedType)
-
         self.typeManager = typemanager.TypeManager([], verbose=verbose,
                                                    debug=debug, sim=sim)
         trackableTypes = trackabletypes.TrackableTypeManager(self.typeManager)
@@ -136,7 +121,9 @@ class TypeManagerLoader(object):
                            (self._getDBRecs('ice'),
                             None, icetypes.IceType),
                            (self._getDBRecs('fridges'),
-                            None, fridgetypes.FridgeType)
+                            None, fridgetypes.FridgeType),
+                           (self._getDBRecs('perdiems'),
+                            None, perdiemtypes.PerDiemType)
                            ]
         else:
             sourceList += [([userInput['peoplefile'],
@@ -161,21 +148,16 @@ class TypeManagerLoader(object):
                            ([userInput['fridgefile'],
                              unifiedInput.fridgeFile],
                             None, fridgetypes.FridgeType),
+                           ([userInput['perdiemfile'],
+                             unifiedInput.perDiemFile],
+                            None, perdiemtypes.PerDiemType),
                            ]
         trackableTypes.importRecords(sourceList,
                                      self.verbose, self.debug)
 
-        # dictionary of the individual type managers
-        tms = {'shippables': trackableTypes,  # backward compatible
-               'storage': storagetypes.StorageTypeManager(self.typeManager),
-               'people': peopletypes.PeopleTypeManager(self.typeManager),
-               'packaging': packagetypes.PackageTypeManager(self.typeManager),
-               'trucks': trucktypes.TruckTypeManager(self.typeManager),
-               'staff': stafftypes.StaffTypeManager(self.typeManager),
-               'vaccines': vaccinetypes.VaccineTypeManager(self.typeManager),
-               'ice': icetypes.IceTypeManager(self.typeManager),
-               'fridges': fridgetypes.FridgeTypeManager(self.typeManager)
-               }
+        # dictionary of the individual type managers by subTypeKey
+        tms = {c.subTypeKey: c(self.typeManager)
+               for c in util.createSubclassIterator(typemanager.SubTypeManager)}
 
         # Pull in any package types not mentioned explicitly but contained in
         # package types that are mentioned

@@ -355,6 +355,9 @@ class DeliverableIceType( IceType ):
         return retval
 
 class IceTypeManager(trackabletypes.TrackableTypeManager):
+
+    subTypeKey = "ice"
+
     def __init__(self, typeManager):
         """
         Initialize the manager, which is really just a wrapper around the simulation-wide TypeManager,

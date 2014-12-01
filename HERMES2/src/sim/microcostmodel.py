@@ -24,7 +24,10 @@ with simulations.
 
 _hermes_svn_id_ = "$Id$"
 
-import sys, os, StringIO, types, unittest
+import sys
+import StringIO
+import types
+import unittest
 import ipath
 import abstractbaseclasses
 import warehouse
@@ -32,6 +35,7 @@ import fridgetypes
 import trucktypes
 import vaccinetypes
 import stafftypes
+import perdiemtypes
 import util
 import dummycostmodel
 from currencysupport import CurrencyConverter
@@ -48,100 +52,110 @@ priceKeyTable = {'propane': 'pricepropaneperkg',
                  'free': None
                  }
 
+
 class MicroCostManager(dummycostmodel.DummyCostManager):
     @staticmethod
     def _getPendingCostEvents(costable):
         l = costable.getPendingCostEvents()
-        # No danger of double-counting with this recursion because _getPendingCostEvents clears the list
+        # No danger of double-counting with this recursion because _getPendingCostEvents
+        # clears the list
         if isinstance(costable, abstractbaseclasses.CanOwn):
-            l.extend( costable.applyToAll(abstractbaseclasses.Costable, MicroCostManager._getPendingCostEvents) )
+            l.extend(costable.applyToAll(abstractbaseclasses.Costable,
+                                         MicroCostManager._getPendingCostEvents))
         return l
-    
+
     @staticmethod
     def _getInventory(costable):
         return [(costable.getType().name, 'inventory', costable.getCount())]
-    
+
     def _getFullInventory(self):
         """
-        Returns a dict of item counts by type name and a set containing error messages (hopefully empty)
+        Returns a dict of item counts by type name and a set containing error messages
+        (hopefully empty)
         """
         # Traverse the network, collecting inventory information
         inventoryList = []
         errSet = set()
         for r in self.sim.warehouseWeakRefs:
-            wh= r()
+            wh = r()
             if wh is not None:
                 try:
-                    newInventory= wh.applyToAll(abstractbaseclasses.Costable, MicroCostManager._getInventory,
-                                                negFilterClass=trucktypes.Truck)
+                    newInventory = wh.applyToAll(abstractbaseclasses.Costable,
+                                                 MicroCostManager._getInventory,
+                                                 negFilterClass=trucktypes.Truck)
                     for t in [tt for tt in wh.ownedCostables if isinstance(tt, trucktypes.Truck)]:
-                        newInventory.extend(t.applyToAll(abstractbaseclasses.Costable, MicroCostManager._getInventory))
-                except Exception,e:
+                        newInventory.extend(t.applyToAll(abstractbaseclasses.Costable,
+                                                         MicroCostManager._getInventory))
+                except Exception, e:
                     errSet.add(unicode(e))
                 inventoryList.extend(newInventory)
 
         if len(errSet) > 0:
             util.logError("The following errors were found during inventory-taking for costing")
             for s in list(errSet):
-                util.logError(s);
+                util.logError(s)
             raise RuntimeError("Exiting due to errors during inventory-taking")
 
         invDict = {}
         for l in inventoryList:
-            for name,key,count in [tpl[:3] for tpl in l]:
-                assert key=='inventory', 'internal error scanning inventory'
-                if name in invDict: invDict[name] += count
-                else: invDict[name] = count
+            for name, key, count in [tpl[:3] for tpl in l]:
+                assert key == 'inventory', 'internal error scanning inventory'
+                if name in invDict:
+                    invDict[name] += count
+                else:
+                    invDict[name] = count
         return invDict
-        
+
     def _calcInventoryCost(self, pairList):
         tot = 0.0
         errList = []
         runCur = self.sim.userInput['currencybase']
         runCurYear = self.sim.userInput['currencybaseyear']
-        inflation = self.sim.userInput['priceinflation'] # currency converter wants per-year inflation
-        for tpName,cnt in pairList:
+        inflation = self.sim.userInput['priceinflation']  # cur converter wants per-year inflation
+        for tpName, cnt in pairList:
             try:
                 tp = self.sim.typeManager.getTypeByName(tpName)
                 if isinstance(tp, vaccinetypes.VaccineType):
                     baseCost = tp.recDict['Vaccine price/vial']
                     baseCostCurCode = tp.recDict['Price Units']
                     baseCostYear = tp.recDict['Price Year']
-                elif isinstance(tp, fridgetypes.FridgeType) or isinstance(tp, trucktypes.TruckType):
+                elif (isinstance(tp, fridgetypes.FridgeType)
+                      or isinstance(tp, trucktypes.TruckType)):
                     baseCost = tp.recDict['BaseCost']
                     baseCostCurCode = tp.recDict['BaseCostCur']
                     baseCostYear = tp.recDict['BaseCostYear']
                 else:
-                    raise RuntimeError("Inventory of %s changed - what is this type?"%tpName)
-                unitCost = self.currencyConverter.convertTo(baseCost, baseCostCurCode, runCur, baseCostYear, runCurYear, inflation)
+                    raise RuntimeError("Inventory of %s changed - what is this type?" % tpName)
+                unitCost = self.currencyConverter.convertTo(baseCost, baseCostCurCode, runCur,
+                                                            baseCostYear, runCurYear, inflation)
                 tot += cnt*unitCost
-            except Exception,e:
+            except Exception, e:
                 errList.append(unicode(e))
         return tot, errList
-    
+
     def __init__(self, sim, model, currencyConverter):
         """
-        This class knows how to calculate and output cost information, based on the current Model and
-        type-specific base costs.
+        This class knows how to calculate and output cost information, based on the current Model
+        and type-specific base costs.
         """
         self.currencyConverter = currencyConverter
         self.startingInventoryDict = None
         self.inventoryChangeCost = None
         dummycostmodel.DummyCostManager.__init__(self, sim, model)
-    
+
     def startCostingInterval(self, timeNow=None):
-        dummycostmodel.DummyCostManager.startCostingInterval(self, timeNow) # Do the default stuff
+        dummycostmodel.DummyCostManager.startCostingInterval(self, timeNow)  # Do the default stuff
         invDict = self._getFullInventory()
         self.startingInventoryDict = invDict
-        
+
     def endCostingInterval(self, timeNow=None):
         """
-        End the costing interval and trigger the addition of cost-related notes for this interval to
-        all StatProviders.  It is expected that this call will be followed by one or more calls to 
-        generateCostRecordInfo with different ReportingHierarchies, perhaps followed by clearing of
-        costing data from the StatProviders, followed by a call to startCostingInterval to begin the 
-        cycle again.
-        
+        End the costing interval and trigger the addition of cost-related notes for this interval
+        to all StatProviders.  It is expected that this call will be followed by one or more calls
+        to generateCostRecordInfo with different ReportingHierarchies, perhaps followed by
+        clearing of costing data from the StatProviders, followed by a call to startCostingInterval
+        to begin the cycle again.
+
         This CostManager should return the following data:
            for Fridges: fuelCost, amortizationCost
            for Trucks: fuelCost, amortizationByKmCost, driverCost, perDiemCost
@@ -149,8 +163,8 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
            for warehouses: staffCost, buildingCost
         How does it know the right units?
         """
-        
-        errList= []
+
+        errList = []
 
         if self.startingInventoryDict is None:
             raise RuntimeError("Inventory from interval start is missing")
@@ -158,22 +172,23 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         invChanges = []
         for k in set(invDict.keys()+self.startingInventoryDict.keys()):
             startingCount = self.startingInventoryDict[k] if k in self.startingInventoryDict else 0
-            endingCount =  invDict[k] if k in invDict else 0
+            endingCount = invDict[k] if k in invDict else 0
             if startingCount != endingCount:
-                invChanges.append((k,endingCount-startingCount))
-        #print 'list of inventory changes: %s'%invChanges
-        self.inventoryChangeCost,newErrList = self._calcInventoryCost(invChanges)
+                invChanges.append((k, endingCount - startingCount))
+        # print 'list of inventory changes: %s'%invChanges
+        self.inventoryChangeCost, newErrList = self._calcInventoryCost(invChanges)
         self.startingInventoryDict = None
         errList.extend(newErrList)
 
-        if timeNow is None: timeNow= self.sim.now()
+        if timeNow is None:
+            timeNow = self.sim.now()
         if self.intervalStartTime is None or self.intervalEndTime is not None:
             raise RuntimeError("Costing interval is not properly bounded")
         self.intervalEndTime = timeNow
         # We do this loop in a try/except to bundle more error messages together, since there is a
         # long annoying process of finding missing price info.
         fridgeAmortPeriod = self.sim.userInput['amortizationstorageyears']*self.model.daysPerYear
-        inflation = self.sim.userInput['priceinflation']  # ultimately used by currencyConverter, so per-year
+        inflation = self.sim.userInput['priceinflation']  # used by currencyConverter, so per-year
         allPendingCostEvents = []
         for r in self.sim.warehouseWeakRefs:
             wh = r()
@@ -185,24 +200,24 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                                            self.intervalEndTime))
                 for costable in wh.ownedCostables:
                     if isinstance(costable, abstractbaseclasses.CanStore):
-                        try: 
+                        try:
                             nh.addNote(self._generateFridgeCostNotes(wh.reportingLevel,
-                                                                     wh.conditions, 
+                                                                     wh.conditions,
                                                                      self.intervalStartTime,
-                                                                     self.intervalEndTime, 
+                                                                     self.intervalEndTime,
                                                                      costable.getType(),
                                                                      fridgeAmortPeriod,
                                                                      inflation))
-                        except Exception,e:
+                        except Exception, e:
                             errList.append(unicode(e))
                     elif isinstance(costable, trucktypes.Truck):
                         for innerItem in costable.getCargo():
                             if isinstance(innerItem, abstractbaseclasses.CanStore):
                                 try:
                                     nh.addNote(self._generateFridgeCostNotes(wh.reportingLevel,
-                                                                             wh.conditions, 
+                                                                             wh.conditions,
                                                                              self.intervalStartTime,
-                                                                             self.intervalEndTime, 
+                                                                             self.intervalEndTime,
                                                                              innerItem.getType(),
                                                                              fridgeAmortPeriod,
                                                                              inflation))
@@ -211,9 +226,9 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                     elif isinstance(costable, stafftypes.Staff):
                         try:
                             nh.addNote(self._generateStaffCostNotes(wh.reportingLevel,
-                                                                    wh.conditions, 
+                                                                    wh.conditions,
                                                                     self.intervalStartTime,
-                                                                    self.intervalEndTime, 
+                                                                    self.intervalEndTime,
                                                                     costable.getType(),
                                                                     inflation))
                         except Exception, e:
@@ -225,8 +240,8 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                            " or Staff on this list")
                 # No danger of double counting because getPendingCostEvents
                 # clears the list of events
-                allPendingCostEvents.extend( wh.applyToAll(abstractbaseclasses.Costable,
-                                                           MicroCostManager._getPendingCostEvents))
+                allPendingCostEvents.extend(wh.applyToAll(abstractbaseclasses.Costable,
+                                                          MicroCostManager._getPendingCostEvents))
                 for costable in wh.ownedCostables:
                     if isinstance(costable, abstractbaseclasses.CanOwn):
                         allPendingCostEvents.extend(costable.applyToAll(abstractbaseclasses.Costable,
@@ -270,96 +285,100 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
 
     def generateFactoryDeliveryCostNotes(self, deliveredSC, targetWH):
         """
-        This routine is called once per factory delivery, and returns a Dict suitable for NoteHolder.addNote()
-        containing cost information appropriate for the delivery.
+        This routine is called once per factory delivery, and returns a Dict suitable for
+        NoteHolder.addNote() containing cost information appropriate for the delivery.
         """
         errList = []
-        vaxCost,newErrList = self._calcInventoryCost([(v.name,n) for v,n in deliveredSC.items() 
-                                                        if isinstance(v,vaccinetypes.VaccineType)])
+        vaxCost, newErrList = self._calcInventoryCost([(v.name, n) for v, n in deliveredSC.items()
+                                                       if isinstance(v, vaccinetypes.VaccineType)])
         errList.extend(newErrList)
-        fridgeCost,newErrList = self._calcInventoryCost([(v.name,n) for v,n in deliveredSC.items() 
-                                                        if isinstance(v,fridgetypes.FridgeType)])
+        fridgeCost, newErrList = self._calcInventoryCost([(v.name, n)
+                                                          for v, n in deliveredSC.items()
+                                                          if isinstance(v, fridgetypes.FridgeType)])
         errList.extend(newErrList)
-        truckCost,newErrList = self._calcInventoryCost([(v.name,n) for v,n in deliveredSC.items() 
-                                                        if isinstance(v,trucktypes.TruckType)])
-        if len(errList)!= 0:
+        truckCost, newErrList = self._calcInventoryCost([(v.name, n)
+                                                         for v, n in deliveredSC.items()
+                                                         if isinstance(v, trucktypes.TruckType)])
+        if len(errList) != 0:
             util.logError("The following errors were encountered generating costs:")
             for line in errList:
-                util.logError("   %s"%line)
-            raise RuntimeError("Cost calculation failed")            
+                util.logError("   %s" % line)
+            raise RuntimeError("Cost calculation failed")
 
-        return {'m1C_Vaccines':vaxCost, 'm1C_Storage':fridgeCost,'m1C_Transport':truckCost}
-    
-    def generateTripCostNotes(self, truckType, level, homeConditions, tripJournal, originatingWH):
-        """
-        This routine is called once per shipping trip, and returns a Dict suitable for NoteHolder.addNote() 
-        containing cost information appropriate for the trip.  
-        
-        truckType is obviously the type of truck used to make the trip; level and homeConditions are used
-        as per their definitions in PriceTable.  
-        
-        tripJournal is a list of tuples describing the steps of the just-completed trip.
-        tripJournal entries all start with (stepname, legStartTime, legEndTime, legConditions...);
-        see the description of warehouse.createTravelGenerator for additional details.
-        legConditions==None is equivalent to legConditions=='normal'.
+        return {'m1C_Vaccines': vaxCost, 'm1C_Storage': fridgeCost, 'm1C_Transport': truckCost}
 
-        originatingWH is used both as the starting point of the trip for travel distance purposes and as the 'home' 
-        for the driver for per diem purposes.
-        
-        PerKm costs are calculated based on the legConditions for each leg traversed; PerDiem and PerTrip costs are 
-        based on home conditions.
+    def generateTripCostNotes(self, truckType, level, homeConditions,
+                              tripJournal, originatingWH, perDiemModel):
         """
-        startWh= originatingWH
+        This routine is called once per shipping trip, and returns a Dict
+        suitable for NoteHolder.addNote() containing cost information
+        appropriate for the trip.
+
+        truckType is obviously the type of truck used to make the trip; level
+        and homeConditions are used as per their definitions in PriceTable.
+
+        tripJournal is a list of tuples describing the steps of the
+        just-completed trip.  tripJournal entries all start with
+        (stepname, legStartTime, legEndTime, legConditions...);
+        see the description of warehouse.createTravelGenerator for additional
+        details.  legConditions==None is equivalent to legConditions=='normal'.
+
+        originatingWH is used both as the starting point of the trip for travel
+        distance purposes and as the 'home' for the driver for per diem
+        purposes.
+
+        perDiemModel is an instance of PerDiemModel, presumably that associated
+        with the trip in question.
+
+        PerKm costs are calculated based on the legConditions for each leg
+        traversed; PerDiem and PerTrip costs are based on home conditions.
+        """
         totKm = 0.0
-        perKmCost= 0.0
-        laborCost= 0.0
-        ### This is to ensure that the condition on the first leg of the trip is used for 
-        ### The per trip costs
-        condFlag = False
-        leg0Conditions = None
         allPendingCostEvents = []
-        for tuple in tripJournal:
-            op = tuple[0]
+        for tpl in tripJournal:
+            op = tpl[0]
             if op == "move":
-                legConditions = tuple[3]
-                fromWH = tuple[4]
-                toWH = tuple[5]
-                if condFlag is False:
-                    leg0Conditions = legConditions
-                    condFlag = True
+                legConditions = tpl[3]
+                fromWH = tpl[4]
+                toWH = tpl[5]
                 conditionMultiplier = 1.0
-                totKm += conditionMultiplier*fromWH.getKmTo(toWH,level,legConditions)
-#                 perKmCost += fromWH.getKmTo(toWH,level,legConditions) * self.priceTable.get(truckType.name,"PerKm",
-#                                                                                        level=level, conditions=legConditions)
+                totKm += (conditionMultiplier *
+                          fromWH.getKmTo(toWH, level, legConditions))
             else:
-                startTime = tuple[1]
-                endTime = tuple[2]
-                legConditions = tuple[3]
-            miscCosts = tuple[-1]
+                legConditions = tpl[3]
+            miscCosts = tpl[-1]
             allPendingCostEvents.extend(miscCosts)
-            
+
         errList = []
         result = {}
-        
+
         #  Costs associated with the truck
         tCur = truckType.recDict['BaseCostCur']
         tYear = truckType.recDict['BaseCostYear']
-        fuel = trucktypes.fuelTranslationDict[truckType.recDict['Fuel']][4]
-        costPattern = trucktypes.fuelTranslationDict[truckType.recDict['Fuel']][5]
+        eTpl = trucktypes.fuelTranslationDict[truckType.recDict['Fuel']]
+        fuel = eTpl[4]
+        costPattern = eTpl[5]
         runCur = self.sim.userInput['currencybase']
         runCurYear = self.sim.userInput['currencybaseyear']
-        inflation = self.sim.userInput['priceinflation'] # currencyConverter wants per-year inflation
+        inflation = self.sim.userInput['priceinflation']
         if costPattern == 'distance':
             priceKeyInfo = priceKeyTable[fuel]
-            if priceKeyInfo is not None and self.sim.userInput[priceKeyInfo] != 0.0:
-                assert isinstance(priceKeyInfo, types.StringTypes), u"fuel type for %s should not have amortization"%truckType.name
-                fuelPrice = self.sim.userInput[priceKeyInfo] # in run currency at run base year
-                assert fuelPrice is not None, u"Cost information for fuel type %s is missing"%fuel
+            if (priceKeyInfo is not None
+                    and self.sim.userInput[priceKeyInfo] != 0.0):
+                assert isinstance(priceKeyInfo, types.StringTypes), \
+                    (u"fuel type for %s should not have amortization" %
+                     truckType.name)
+                fuelPrice = self.sim.userInput[priceKeyInfo]  # in run currency at run base year
+                assert fuelPrice is not None, \
+                    u"Cost information for fuel type %s is missing" % fuel
                 fuelRate = truckType.recDict['FuelRate']
-                assert fuelRate is not None, u"Cost information for %s is incomplete"%truckType.name
+                assert fuelRate is not None, \
+                    u"Cost information for %s is incomplete" % truckType.name
                 #
-                # fuel cost is totKm/fuelRate, since fuelRate is an inverse, like Km/liter.  The price of fuel
-                # is already given in the run currency at the run year, so no currency conversion is needed.
+                # fuel cost is totKm/fuelRate, since fuelRate is an inverse,
+                # like Km/liter.  The price of fuel is already given in the
+                # run currency at the run year, so no currency conversion is
+                # needed.
                 #
                 fuelCost = (totKm/fuelRate)*fuelPrice
                 fare = 0.0
@@ -369,42 +388,62 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                 fare = 0.0
         elif costPattern == 'pertrip':
             rawFare = truckType.recDict['FuelRate']
-            fare = self.currencyConverter.convertTo(rawFare, tCur, runCur, tYear, runCurYear, inflation)
+            fare = self.currencyConverter.convertTo(rawFare, tCur, runCur,
+                                                    tYear, runCurYear,
+                                                    inflation)
             fuelCost = 0.0
         else:
-            raise RuntimeError(u'Transport type %s as an unexpected costing pattern'%truckType.name)
+            raise RuntimeError(u'Transport type %s has an unexpected costing pattern' %
+                               truckType.name)
         baseCost = truckType.recDict['BaseCost']
-        assert baseCost is not None, u"Cost information for %s is incomplete"%truckType.name
+        assert baseCost is not None, \
+            u"Cost information for %s is incomplete" % truckType.name
         amortKm = truckType.recDict['AmortizationKm']
         if baseCost != 0.0:
             rawAmortCost = baseCost*totKm/amortKm
-            amortCost = self.currencyConverter.convertTo(rawAmortCost, tCur, runCur, tYear, runCurYear, inflation)
+            amortCost = self.currencyConverter.convertTo(rawAmortCost, tCur,
+                                                         runCur, tYear,
+                                                         runCurYear, inflation)
         else:
             amortCost = 0.0
-        for k,v in [("m1C_%s"%fuel, fuelCost), ("m1C_TruckAmort",amortCost),("m1C_TransitFareCost",fare)]:
+        perDiemCostTuple = perDiemModel.calcPerDiemAmountTriple(tripJournal,
+                                                                originatingWH)
+        pdAmt, pdCur, pdYear = perDiemCostTuple
+        perDiemCost = self.currencyConverter.convertTo(pdAmt, pdCur, runCur,
+                                                       pdYear, runCurYear,
+                                                       inflation)
+        for k, v in [("m1C_%s" % fuel, fuelCost),
+                     ("m1C_TruckAmort", amortCost),
+                     ("m1C_TransitFareCost", fare),
+                     ("m1C_PerDiem", perDiemCost)]:
             if v != 0.0:
-                if k in result: result[k] += v
-                else: result[k] = v
-        
+                if k in result:
+                    result[k] += v
+                else:
+                    result[k] = v
+
         #  Add in the miscellaneous costs
         miscCostDict = {}
         for tpl in allPendingCostEvents:
-            tpName,evtStr,count = tpl[0:3]
-            key = (tpName,evtStr)
+            tpName, evtStr, count = tpl[0:3]
+            key = (tpName, evtStr)
             if key in miscCostDict:
                 miscCostDict[key] += count
             else:
                 miscCostDict[key] = count
-        
-        for innerFridge,n in truckType.getFridgeCollection().items():
-            assert isinstance(innerFridge, fridgetypes.FridgeType), "Expected only Fridges in this category"
+
+        for innerFridge, n in truckType.getFridgeCollection().items():
+            assert isinstance(innerFridge, fridgetypes.FridgeType), \
+                "Expected only Fridges in this category"
             if innerFridge.name.startswith(u'onthefly_'):
                 continue
-            energyInfo = fridgetypes.energyTranslationDict[innerFridge.recDict['Energy']] # a long tuple
+            eKey = innerFridge.recDict['Energy']
+            energyInfo = fridgetypes.energyTranslationDict[eKey]  # long tuple
             costPattern = energyInfo[5]
             if costPattern == 'charge':
-                # We will assume all ice fridges associated with the truck are charged once per trip
-                key = (innerFridge.recDict['Name'],'recharge')
+                # We will assume all ice fridges associated with the truck are
+                # charged once per trip
+                key = (innerFridge.recDict['Name'], 'recharge')
                 if key in miscCostDict.items():
                     miscCostDict[key] += n
                 else:
@@ -417,63 +456,66 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
             tpName, evtStr = k
             tp = self.sim.typeManager.getTypeByName(tpName)
             if isinstance(tp, fridgetypes.FridgeType):
-                energyInfo = fridgetypes.energyTranslationDict[tp.recDict['Energy']]  # a long tuple
+                eKey = tp.recDict['Energy']
+                energyInfo = fridgetypes.energyTranslationDict[eKey]
                 costPattern = energyInfo[5]
-                if evtStr=='recharge':
+                if evtStr == 'recharge':
                     if costPattern == 'charge':
-                        # We will assume all ice fridges associated with the truck are charged once per trip
+                        # We will assume all ice fridges associated with the
+                        # truck are charged once per trip
                         try:
                             fuel = energyInfo[4]
                             priceKeyInfo = priceKeyTable[fuel]
                             powerRate = tp.recDict['PowerRate']
-                            assert powerRate is not None, u"Cost information for %s is incomplete"%tp.name
+                            assert powerRate is not None, \
+                                (u"Cost information for %s is incomplete" %
+                                 tp.name)
                             runCur = self.sim.userInput['currencybase']
                             runCurYear = self.sim.userInput['currencybaseyear']
-                            fuelPrice = self.sim.userInput[priceKeyInfo] # in run currency at run base year
-                            assert not isinstance(fuelPrice,types.TupleType), "Ice should not have an amortization rate"
+                            fuelPrice = self.sim.userInput[priceKeyInfo]  # in run currency at run base year
+                            assert not isinstance(fuelPrice, types.TupleType), \
+                                "Ice should not have an amortization rate"
                             #
-                            # fuel cost is just powerRat*fuelPrice, since this is per-trip and not time-dependent.  The price of fuel
-                            # is already given in the run currency at the run year, so no currency conversion is needed.
+                            # fuel cost is just powerRat*fuelPrice, since this
+                            # is per-trip and not time-dependent.  The price
+                            # of fuel is already given in the run currency at
+                            # the run year, so no currency conversion is
+                            # needed.
                             #
-                            fuelCost = powerRate*fuelPrice # one charge for this trip
-                            valKey = "m1C_%s"%fuel
+                            fuelCost = powerRate * fuelPrice  # one charge per trip
+                            valKey = "m1C_%s" % fuel
                             fuelCost *= n
-                            if valKey in result: result[valKey] += fuelCost
-                            else: result[valKey] = fuelCost
-                        except Exception,e:
+                            if valKey in result:
+                                result[valKey] += fuelCost
+                            else:
+                                result[valKey] = fuelCost
+                        except Exception, e:
                             errList.append(unicode(e))
                 else:
-                    errList.append("Unhandled cost event %s for type %s (%d instances)"%(tpName,evtStr,count))
+                    errList.append("Unhandled cost event %s for type %s (%d instances)" %
+                                   (tpName, evtStr, count))
             else:
-                errList.append("Unhandled cost event %s for type %s (%d instances)"%(tpName,evtStr,count))
+                errList.append("Unhandled cost event %s for type %s (%d instances)" %
+                               (tpName, evtStr, count))
 
-        if len(errList)>0:
-            util.logError("The following errors were encountered generating trip costs:")
+        if len(errList) > 0:
+            util.logError("The following errors were encountered generating "
+                          "trip costs:")
             for line in errList:
-                util.logError( "   %s"%line)
+                util.logError("   %s" % line)
             raise RuntimeError("Trip Cost calculation failed")
-            
-#             laborCost += (endTime-startTime) * self.priceTable.get("driver", "PerYear", level=level, conditions=legConditions)
-#         perDiemDays= self.model.calcPerDiemDays(tripJournal,originatingWH)
-#         perDiemCost= perDiemDays * (self.priceTable.get("driver", "PerDiem",level=level, conditions=leg0Conditions) +
-#                                     self.priceTable.get(truckType.name,"PerDiem",level=level, conditions=leg0Conditions))
-         
-#         laborCost /= float(self.model.daysPerYear)
-#         perTripCost= self.priceTable.get("driver", "PerTrip", level=level, conditions=leg0Conditions) + \
-#                      self.priceTable.get(truckType.name,"PerTrip",level=level, conditions=leg0Conditions)
-                      
+
         return result
-        
+
     def generateUseVialsSessionCostNotes(self, level, conditions):
         """
-        This routine is called once per UseVials session, and returns a Dict suitable for NoteHolder.addNote()
-        containing cost information appropriate for the session.
-        
-        level and conditions are used as per their definitions in PriceTable.
+        This routine is called once per UseVials session, and returns a Dict
+        suitable for NoteHolder.addNote() containing cost information
+        appropriate for the session.
+
+        Under microcosting there are no such costs because we are only costing
+        for transport infrastructure, so we return an empty dict.
         """
-#         return {"CostingTreatmentDays":1,
-#                 "LaborCost":self.priceTable.get("healthworker","PerTreatmentDay",
-#                                                 level=level,conditions=conditions)}
         return {}
 
     def _generateFridgeCostNotes(self, level, conditions, startTime, endTime,
@@ -494,8 +536,9 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         else:
             fCur = fridge.recDict['BaseCostCur']
             fYear = fridge.recDict['BaseCostYear']
-            fuel = fridgetypes.energyTranslationDict[fridge.recDict['Energy']][4]
-            costPattern = fridgetypes.energyTranslationDict[fridge.recDict['Energy']][5]
+            eTpl = fridgetypes.energyTranslationDict[fridge.recDict['Energy']]
+            fuel = eTpl[4]
+            costPattern = eTpl[5]
             priceKeyInfo = priceKeyTable[fuel]
             if costPattern == 'charge':
                 fuelPrice = 0.0  # handled elsewhere
@@ -555,9 +598,9 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
             u"Cost information for %s is incomplete" % staff.name
         runCur = self.sim.userInput['currencybase']
         runCurYear = self.sim.userInput['currencybaseyear']
-        rawStaffCost = baseSalary * (self.intervalEndTime
-                                     - self.intervalStartTime) \
-                                / self.model.daysPerYear
+        rawStaffCost = (baseSalary * (self.intervalEndTime
+                                      - self.intervalStartTime)
+                        / self.model.daysPerYear)
         # print 'handling %s'%staff.recDict['Name']
         staffCost = self.currencyConverter.convertTo(rawStaffCost,
                                                      fCur, runCur,
@@ -565,30 +608,32 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                                      inflation)
         return {"m1C_StaffSalary": staffCost}
 
-    def _generateBuildingCostNotes(self, level, conditions, startTime, endTime ):
+    def _generateBuildingCostNotes(self, level, conditions, startTime, endTime):
         """
-        This routine is called once per Warehouse or Clinic instance per reporting interval, and returns a Dict 
-        suitable for NoteHoder.addNote() containing cost information associated with the building or location
-        for that instance over the interval.
+        This routine is called once per Warehouse or Clinic instance per reporting interval,
+        and returns a Dict suitable for NoteHoder.addNote() containing cost information
+        associated with the building or location for that instance over the interval.
 
-        Note that it is probably an error to call this function for an AttachedClinic instance, as AttachedClinics
-        have no associated building.
+        Note that it is probably an error to call this function for an AttachedClinic instance,
+        as AttachedClinics have no associated building.
         """
 #         costPerYear= self.priceTable.get("building","PerYear",level=level,conditions=conditions)
 #         return {"BuildingCost":((endTime-startTime)/float(self.model.daysPerYear))*costPerYear}
         return {}
-        
+
     def generateCostRecordInfo(self, reportingHierarchy, timeNow=None):
         """
         Returns a set of cost statistics for the given reportingHierarchy.  The function returns
         a tuple (keys, recs) in the format used for reading and writing CSV files.
         """
-        if timeNow is None: timeNow = self.sim.now()
+        if timeNow is None:
+            timeNow = self.sim.now()
         available = reportingHierarchy.getAvailableFieldNames()
         wanted = [fld for fld in available if fld.startswith('m1C_')]
-        keys = ['ReportingLevel','ReportingBranch','ReportingIntervalDays','DaysPerYear','Currency','BaseYear','Type']+wanted
+        keys = ['ReportingLevel', 'ReportingBranch', 'ReportingIntervalDays', 'DaysPerYear',
+                'Currency', 'BaseYear', 'Type'] + wanted
         recs = reportingHierarchy.report(wanted)
-        keys += ['Currency','BaseYear']
+        keys += ['Currency', 'BaseYear']
         for rec in recs:
             rec['Currency'] = self.currencyConverter.getBaseCurrency()
             rec['BaseYear'] = self.currencyConverter.getBaseYear()
@@ -596,13 +641,18 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
             rec['DaysPerYear'] = float(self.model.daysPerYear)
             rec['Type'] = 'micro1'
         return keys, recs
-    
+
     def realityCheck(self):
         """
-        This scans for inappropriate costs entries- but since everything is done from the type records, there is nothing
-        to be checked.
+        This scans for inappropriate costs entries- but since everything is
+        done from the type records, there is nothing to be checked.
         """
         pass
+
+    def getPerDiemModel(self, perDiemName):
+        assert perDiemName is not None and perDiemName != '', \
+            "Microcosting requires real per diem type names"
+        return self.sim.perdiems.getTypeByName(perDiemName)
 
 
 class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
@@ -669,6 +719,30 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
             else:
                 return (0.0 <= self.currencyConverter.convertTo(1.0, curCode,
                                                                 'USD', year))
+        except:
+            return False
+
+    def _verifyRoute(self, shdRoute, shdNet):
+        try:
+            return ((shdRoute.PerDiemType is not None and shdRoute.PerDiemType != '')
+                    and shdRoute.PerDiemType in shdNet.perdiems)
+        except:
+            return False
+
+    def _verifyPerDiem(self, perDiemType):
+        try:
+            return ((isinstance(perDiemType.BaseAmount, types.FloatType)
+                     and perDiemType.BaseAmount >= 0.0)
+                    and perDiemType.BaseAmountCurCode is not None
+                    and (isinstance(perDiemType.BaseAmountYear, (types.IntType,
+                                                                 types.LongType))
+                         and perDiemType.BaseAmountYear >= 2000)
+                    and (isinstance(perDiemType.MinKmHome, types.FloatType)
+                         and perDiemType.MinKmHome >= 0.0)
+                    and (isinstance(perDiemType.MustBeOvernight, types.BooleanType))
+                    and (isinstance(perDiemType.CountFirstDay, types.BooleanType))
+                    )
+
         except:
             return False
 
@@ -739,18 +813,18 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
                                     invTp.Name)
                     if not self._verifyCostConversion(invTp.BaseCostCurCode,
                                                       invTp.BaseCostYear):
-                        probSet.add("No currency conversion value is available for the currency %s in %s" %
-                                    (invTp.BaseCostCurCode,
-                                     invTp.BaseCostYear))
+                        probSet.add("No currency conversion value is available for the"
+                                    " currency %s in %s" % (invTp.BaseCostCurCode,
+                                                            invTp.BaseCostYear))
                 elif invTp.typeClass == 'trucks':
                     if not self._verifyTruck(invTp):
                         probSet.add("Truck type %s has missing costing entries" %
                                     invTp.Name)
                     if not self._verifyCostConversion(invTp.BaseCostCurCode,
                                                       invTp.BaseCostYear):
-                        probSet.add("No currency conversion value is available for the currency %s in %s"%\
-                                    (invTp.BaseCostCurCode,
-                                     invTp.BaseCostYear))
+                        probSet.add("No currency conversion value is available for the"
+                                    " currency %s in %s" % (invTp.BaseCostCurCode,
+                                                            invTp.BaseCostYear))
                     truckStorageNames = [b for a, b  # @UnusedVariable
                                          in util.parseInventoryString(shdInv.invType.Storage)]
                     for fridge in [net.fridges[nm]
@@ -764,18 +838,35 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
                                         % fridge.Name)
                         if not self._verifyCostConversion(fridge.BaseCostCurCode,
                                                           fridge.BaseCostYear):
-                            probSet.add("No currency conversion value is available for the currency %s in %s" %
-                                        (fridge.BaseCostCurCode,
-                                         fridge.BaseCostYear))
+                            probSet.add("No currency conversion value is available for the"
+                                        " currency %s in %s" % (fridge.BaseCostCurCode,
+                                                                fridge.BaseCostYear))
                 elif invTp.typeClass == 'staff':
                     if not self._verifyStaff(invTp):
                         probSet.add("Staff type %s has missing cost entries" %
                                     invTp.Name)
                     if not self._verifyCostConversion(invTp.BaseSalaryCurCode,
                                                       invTp.BaseSalaryYear):
-                        probSet.add("No currency conversion value is available for the currency %s in %s" %
-                                    (invTp.BaseCostCurCode,
-                                     invTp.BaseCostYear))
+                        probSet.add("No currency conversion value is available for the"
+                                    " currency %s in %s" % (invTp.BaseCostCurCode,
+                                                            invTp.BaseCostYear))
+
+        for routeName, route in net.routes.items():
+            if not self._verifyRoute(route, net):
+                probSet.add("Route %s has missing costing entries" % routeName)
+            pDTName = route.PerDiemType
+            pDT = net.perdiems[pDTName]
+            if pDTName in alreadyChecked:
+                continue
+            else:
+                alreadyChecked.add(pDTName)
+                if not self._verifyPerDiem(pDT):
+                    probSet.add("PerDiem type %s has missing costing entries" % pDTName)
+                if not self._verifyCostConversion(pDT.BaseAmountCurCode,
+                                                  pDT.BaseAmountYear):
+                    probSet.add("No currency conversion value is available for the"
+                                " currency %s in %s" % (pDT.BaseAmountCurCode,
+                                                        pDT.BaseAmountYear))
 
         for v in [net.vaccines[dmnd.vaccineStr]
                   for dmnd in (net.unifiedDemands
@@ -798,20 +889,20 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
 
 
 def describeSelf():
-    print \
-"""
+    print """
 Testing options:
 
   None so far
 
 """
 
-def main(myargv = None):
+
+def main(myargv=None):
     "Provides a few test routines"
-    
-    if myargv is None: 
+
+    if myargv is None:
         myargv = sys.argv
-    
+
     # Remember, valid CSV input must have column headers on line zero.
     # Create a small but adequate CurrencyTable
     currencyFile = StringIO.StringIO(

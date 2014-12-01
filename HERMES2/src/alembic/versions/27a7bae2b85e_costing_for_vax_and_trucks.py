@@ -97,7 +97,7 @@ def upgrade():
         sa.PrimaryKeyConstraint('vaccinetypeId')
         )
     newVaccinetypes.create(conn, checkfirst=True)
-    
+
     print "###### Copying vaccine records"   
     rows = conn.execute(sa.select([vaccinetypes])).fetchall()
     for i in range(len(rows)):

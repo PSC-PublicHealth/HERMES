@@ -30,10 +30,13 @@ import util
 import typemanager
 import csv_tools
         
-class TrackableTypeManager(object):
+class TrackableTypeManager(typemanager.SubTypeManager):
     """
     A specialization of TypeManager just for Trackables.
     """
+
+    subTypeKey = 'shippables'  # for backward compatibility
+
     def __init__(self, typeManager):
         """
         Initialize the manager, which is really just a wrapper around the simulation-wide TypeManager,

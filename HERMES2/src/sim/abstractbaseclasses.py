@@ -495,7 +495,19 @@ class StatProvider(UnicodeSupport):
         Return a list of all valid stat names.
         """
         return []
-    
+
+class CostableType(UnicodeSupport):
+    """
+    Types which contribute to capital or ongoing costs.  Currently all the functionality is implemented 
+    in CostManager, so there are no methods here.
+    """
+
+    def __init__(self):
+        """
+        This is to satisfy Eclipse syntax checking
+        """
+        pass
+
 class Costable(UnicodeSupport):
     """
     Classes which contribute to capital or ongoing costs.  Currently all the functionality is implemented 

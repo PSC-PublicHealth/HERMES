@@ -88,7 +88,11 @@ class PackageType(abstractbaseclasses.ManagedType):
         """
         return self.nextSmaller
 
-class PackageTypeManager:
+
+class PackageTypeManager(typemanager.SubTypeManager):
+
+    subTypeKey = "packaging"
+
     def __init__(self, typeManager):
         """
         Initialize the manager, which is really just a wrapper around the simulation-wide TypeManager,

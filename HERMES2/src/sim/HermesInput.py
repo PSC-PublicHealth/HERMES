@@ -17,15 +17,15 @@ zipSubFileKeys gives the list of keys specified in a HERMES input .kvp file
 which specify auxiliary files if present.  These auxiliary files must thus
 be included in any zip file representing the inputs.
 """
-zipSubFileKeys = ['calendarfile','storesfile', 'factoryfile',
+zipSubFileKeys = ['calendarfile', 'storesfile', 'factoryfile',
                   'routesfile', 'demandfile', 'initialovw',
                   'customoutput', 'storesoverlayfiles',
                   'vaccinefile', 'truckfile', 'peoplefile',
                   'fridgefile', 'icefile', 'packagefile', 'stafffile',
-                  'gapstorefile','factorywastagefile',
-                  'currencyconversionfile','pricetable',
-                  'shippingdemandfile','consumptiondemandfile',
-                  'shippingcalendarfile','consumptioncalendarfile']
+                  'perdiemfile', 'gapstorefile', 'factorywastagefile',
+                  'currencyconversionfile', 'pricetable',
+                  'shippingdemandfile', 'consumptiondemandfile',
+                  'shippingcalendarfile', 'consumptioncalendarfile']
 
 class GatherInputs:
     def _addfiles(self,fileNames):
@@ -62,7 +62,6 @@ class GatherInputs:
         self.files['userInputList.pkl'] = pickle.dumps(userInputList)
         self.files['gblInputs.pkl'] = pickle.dumps(gblInputs)
 
-        
         self._addfiles(unifiedInput.vaccineFile)
         self._addfiles(unifiedInput.truckFile)
         self._addfiles(unifiedInput.peopleFile)
@@ -70,6 +69,7 @@ class GatherInputs:
         self._addfiles(unifiedInput.iceFile)
         self._addfiles(unifiedInput.packageFile)
         self._addfiles(unifiedInput.staffFile)
+        self._addfiles(unifiedInput.perDiemFile)
 
         for uInput in userInputList:
             for field in zipSubFileKeys:

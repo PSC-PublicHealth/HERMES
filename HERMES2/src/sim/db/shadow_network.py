@@ -1146,6 +1146,7 @@ class ShdRoute(Base):
              ('RouteName',            STRING, 'delete', False),
              ('Type',                 STRING),
              ('TruckType',            STRING_NULL),
+             ('PerDiemType',          STRING_NULL),
              ('ShipIntervalDays',     FLOAT_ZERO),
              ('ShipLatencyDays',      FLOAT_ZERO),
              ('Conditions',           STRING_NULL),
@@ -2784,14 +2785,42 @@ class ShdStaffType(ShdType):
              ('BaseSalaryYear', INTEGER_NONE),
              ('FractionEPI', FLOAT_NONE),
              ('Notes',      NOTES_STRING)]
-    
+
     def __init__(self, *args, **kwargs):
         _initShdType(self, args, kwargs)
 
     def copy(self):
         return ShdStaffType(self.createRecord())
-     
+
 _makeColumns(ShdStaffType)
+
+
+class ShdPerDiemType(ShdType):
+    __tablename__ = "perdiemtypes"
+    shdType = 'perdiems'
+    __mapper_args__ = {'polymorphic_identity': shdType}
+
+    perdiemtypeId = Column(Integer, ForeignKey('types.typeId'), 
+                           primary_key=True)
+    attrs = [('Name',       DataType(STRING, dbType=None)),
+             ('DisplayName', STRING_NONE),
+             ('ClassName', STRING_NONE),
+             ('SortOrder',  INTEGER),
+             ('BaseAmount',   FLOAT_NONE),
+             ('BaseAmountCurCode', STRING_NONE, 'recordName', 'BaseAmountCur'),
+             ('BaseAmountYear', INTEGER_NONE),
+             ('MustBeOvernight', BOOLEAN),
+             ('CountFirstDay', BOOLEAN),
+             ('MinKmHome', FLOAT_NONE),
+             ('Notes',      NOTES_STRING)]
+
+    def __init__(self, *args, **kwargs):
+        _initShdType(self, args, kwargs)
+
+    def copy(self):
+        return ShdPerDiemType(self.createRecord())
+     
+_makeColumns(ShdPerDiemType)
 
 
 class ShdStorageType(ShdType, ShdCopyable):
@@ -3027,7 +3056,8 @@ class ShdTypes:
                 'fridges': ShdStorageType,
                 'trucks': ShdTruckType,
                 'vaccines': ShdVaccineType,
-                'staff': ShdStaffType}
+                'staff': ShdStaffType,
+                'perdiems': ShdPerDiemType}
 
     def __init__(self):
         self.types = {}
@@ -3064,11 +3094,19 @@ class ShdTypes:
                       (userInput['fridgefile'],      'fridges'),
                       (unifiedInput.fridgeFile,      'fridges'),
                       (userInput['stafffile'],       'staff'),
-                      (unifiedInput.staffFile,       'staff')]
+                      (unifiedInput.staffFile,       'staff'),
+                      (userInput['perdiemfile'],     'perdiems'),
+                      (unifiedInput.perdiemFile,     'perdiems')]
 
         for (f,t) in typesFiles:
             if f is None:
                 continue
+            if f.lower().startswith('unified'):
+                try:
+                    util.getDataFullPath(f, dontPrint=True)
+                except IOError:
+                    # No such file
+                    continue
             with util.logContext("loading types from %s for shadow network"%f):
                 self.importRecordsFromFile(f,t)
 
@@ -3277,16 +3315,17 @@ class ShdVaccineSummary(ShdTypeSummary):
     
 _makeColumns(ShdVaccineSummary)
 
-ShdTypeSummary.typesMap = {'vaccinetype':ShdVaccineSummary,
-                           'trucktypeskeleton':ShdTruckSummary,
-                           'trucktype':ShdTruckSummary,
-                           'fridgetype':ShdFridgeSummary,
-                           'shippablefridgetype':ShdFridgeSummary,
-                           'peopletype':ShdBasicSummary,
-                           'packagetype':ShdBasicSummary,
-                           'storagetype':ShdBasicSummary,
-                           'icetype':ShdIceSummary,
-                           'stafftype':ShdBasicSummary}
+ShdTypeSummary.typesMap = {'vaccinetype': ShdVaccineSummary,
+                           'trucktypeskeleton': ShdTruckSummary,
+                           'trucktype': ShdTruckSummary,
+                           'fridgetype': ShdFridgeSummary,
+                           'shippablefridgetype': ShdFridgeSummary,
+                           'peopletype': ShdBasicSummary,
+                           'packagetype': ShdBasicSummary,
+                           'storagetype': ShdBasicSummary,
+                           'icetype': ShdIceSummary,
+                           'stafftype': ShdBasicSummary,
+                           'perdiemtype': ShdBasicSummary}
 
 class DemandEnums:
     # enumerations for demand and calendarType
@@ -3502,7 +3541,7 @@ class ShdNetwork(Base):
         stores:  Dictionary of ShdStore's keyed off of their idcode's.
         routes:  Dictionary of ShdRoute's keyed off of their RouteName's.
         types:   Dictionary of ShdType's keyed off 'Name'.
-        ice, packaging, people, fridges, trucks, vaccines, staff:
+        ice, packaging, people, fridges, trucks, vaccines, staff, perdiems:
                  Dictionaries of these specific subclasses of types, keyed off 'Name'.
         parms:   list of parameters defining a hermes run
         demands: list of people/vaccine demands.
@@ -4356,6 +4395,7 @@ class ShdNetwork(Base):
                       'truckfile':(self.trucks,),
                       'vaccinefile':(self.vaccines,),
                       'stafffile':(self.staff,),
+                      'perdiemfile':(self.perdiems),
                       'initialovw':(self.initialOVW, self.getInitialOVWRecs),
                       'factorywastagefile':(self.factoryWastage,self.getFactoryWastageRecs),
                       'calendarfile':(self.unifiedCalendar, self.getCalendarRecs),

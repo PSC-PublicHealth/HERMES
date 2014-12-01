@@ -1,0 +1,2 @@
+Name,DisplayName,ClassName,SortOrder,BaseAmount,BaseAmountCur,BaseAmountYear,MustBeOvernight,CountFirstDay,MinKmHome,Notes
+Std_PerDiem_None,No PerDiem,PerDiem,1,0,USD,2012,FALSE,FALSE,0.0,

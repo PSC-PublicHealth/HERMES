@@ -142,7 +142,10 @@ class Staff(abstractbaseclasses.Trackable, abstractbaseclasses.Costable):
         if self.tracked:
             print '\n%g, "%s", "%s"\n'%(self.fridgeType.sim.now(),str(self),info)
 
-class StaffTypeManager:
+class StaffTypeManager(typemanager.SubTypeManager):
+
+    subTypeKey = "staff"
+
     def __init__(self, typeManager):
         """
         Initialize the manager, which is really just a wrapper around the simulation-wide TypeManager,

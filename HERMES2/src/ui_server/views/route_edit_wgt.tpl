@@ -24,6 +24,10 @@
 		<td><label for='route_edit_wgt_f6_{{unique}}' id='route_edit_wgt_l6_{{unique}}' style="display:none">{{_("On-Demand Order Days")}}</label></td>
 		<td><input type='text' id='route_edit_wgt_f6_{{unique}}' name='pullorderamountdays' value='{{PullOrderAmountDays}}' onkeypress="validateFloat(event)" style="display:none"></td>
 	</tr>
+	<tr>
+		<td><label>{{_('Per Diem Rule')}}</label></td>
+		<td><div id='perdiem_select_div_{{unique}}'></div></td>
+	</tr>
 	</table>
 </div>
 
@@ -80,6 +84,14 @@ $(function() {
 		invtype:'trucks',
 		modelId:{{modelId}},
 		selected:'{{truckType}}'
+	});
+
+	$('#perdiem_select_div_{{unique}}').hrmWidget({
+		widget:'typeSelector',
+		label:'',
+		invtype:'perdiems',
+		modelId:{{modelId}},
+		selected:'{{perdiemType}}'
 	});
 
 	$('#route_edit_wgt_stops_tbl_{{unique}}').jqGrid({
@@ -208,7 +220,8 @@ $(function() {
 				modelId:{{modelId}}, routename:'{{routeName}}', unique:{{unique}},
 				routeType:function(){ return $('#routetype_select_div_{{unique}}').routeTypeSelector('selValue'); },
 				truckType:function(){ return $('#truck_select_div_{{unique}}').typeSelector('selValue'); },
-				stopdata:getStopData( $("#route_edit_wgt_stops_tbl_{{unique}}") )
+				stopdata:getStopData( $("#route_edit_wgt_stops_tbl_{{unique}}") ),
+				perdiemType:function(){ return $('#perdiem_select_div_{{unique}}').typeSelector('selValue'); }
 			},
 			url:'{{rootPath}}json/route-update',
 			dataType:'json',

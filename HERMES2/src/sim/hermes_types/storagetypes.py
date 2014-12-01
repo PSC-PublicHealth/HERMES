@@ -67,8 +67,10 @@ class StorageType(abstractbaseclasses.ManagedType):
     def resetCounters(self): 
         pass
 
-class StorageTypeManager:
-    
+class StorageTypeManager(typemanager.SubTypeManager):
+
+    subTypeKey = "storage"
+
     def __init__(self, typeManager):
         """
         Initialize the manager, which is really just a wrapper around the simulation-wide TypeManager,

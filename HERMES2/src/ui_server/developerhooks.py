@@ -27,7 +27,7 @@ from modelhooks import _findCanonicalStores
 from demandhooks import _interpretDemandModelStructure
 import util
 import json
-import truckhooks, fridgehooks, vaccinehooks, peoplehooks, staffhooks
+import truckhooks, fridgehooks, vaccinehooks, peoplehooks, staffhooks, perdiemhooks
 
 inlizer=session_support.inlizer
 _=session_support.translateString
@@ -105,6 +105,11 @@ def jsonTypeEditForm(db, uiSession):
                                                               typehelper.elaborateFieldMap(typeName, attrRec,
                                                                                            staffhooks.fieldMap))
             result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
+        elif tp.shdType == 'perdiems':
+            htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,"perdiem",modelId,typeName,
+                                                              typehelper.elaborateFieldMap(typeName, attrRec,
+                                                                                           perdiemhooks.fieldMap))
+            result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
         else:
             raise RuntimeError('Unknown shdType %s'%tp.shdType)
         return result
@@ -149,6 +154,9 @@ def jsonTypeEditVerifyAndCommit(db, uiSession):
         elif tp.shdType == 'staff':
             m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, staffhooks.fieldMap,  # @UnusedVariable
                                                           allowNameCollisions=True)
+        elif tp.shdType == 'perdiems':
+            m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, perdiemhooks.fieldMap,  # @UnusedVariable
+                                                          allowNameCollisions=True)
         else:
             raise RuntimeError('Unknown shdType %s'%tp.shdType)
 
@@ -162,6 +170,32 @@ def jsonTypeEditVerifyAndCommit(db, uiSession):
         _logStacktrace()
         result = {'success':False, 'msg':str(e)}
         return result
+
+
+@bottle.route('/json/devel-create-type')
+def jsonDevelCreateType(db, uiSession):
+    try:
+        typeName = _getOrThrowError(bottle.request.params, 'name')
+        modelId = _getOrThrowError(bottle.request.params, 'modelId')
+        typeClass = _getOrThrowError(bottle.request.params, 'type')
+        try:
+            uiSession.getPrivs().mayWriteModelId(db, modelId)
+        except privs.PrivilegeException:
+            raise bottle.BottleException('User may not read model %d' % modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        aTM = typehelper.getAllTypesModel(db)
+        assert len(getattr(aTM, typeClass)) > 0, "AllTypesModel has no %s types!" % typeClass
+        rec = getattr(aTM, typeClass).values()[0].createRecord()
+        rec['Name'] = typeName
+        tpInstance = shadow_network.ShdTypes.typesMap[typeClass](rec)
+        m.types[typeName] = tpInstance
+        return {'success': True}
+
+    except Exception, e:
+        _logStacktrace()
+        result = {'success': False, 'msg': str(e)}
+        return result
+
 
 
 @bottle.route('/json/data-entry-get-keys')

@@ -31,6 +31,7 @@ import fridgetypes, trucktypes, vaccinetypes
 import util
 import dummycostmodel
 from currencysupport import CurrencyConverter
+import perdiemmodel
 
 class PriceTable:
     """
@@ -277,7 +278,7 @@ class LegacyCostManager(dummycostmodel.DummyCostManager):
         else:
             return None
         
-    def generateTripCostNotes(self, truckType, level, homeConditions, tripJournal, originatingWH):
+    def generateTripCostNotes(self, truckType, level, homeConditions, tripJournal, originatingWH, perDiemModel):
         """
         This routine is called once per shipping trip, and returns a Dict suitable for NoteHolder.addNote() 
         containing cost information appropriate for the trip.  
@@ -292,6 +293,8 @@ class LegacyCostManager(dummycostmodel.DummyCostManager):
 
         originatingWH is used both as the starting point of the trip for travel distance purposes and as the 'home' 
         for the driver for per diem purposes.
+        
+        perDiemModel is an instance of PerDiemModel, presumably that associated with the trip in question.
         
         PerKm costs are calculated based on the legConditions for each leg traversed; PerDiem and PerTrip costs are 
         based on home conditions.
@@ -318,7 +321,8 @@ class LegacyCostManager(dummycostmodel.DummyCostManager):
                 endTime = tuple[2]
                 legConditions = tuple[3]
             laborCost += (endTime-startTime) * self.priceTable.get("driver", "PerYear", level=level, conditions=legConditions)
-        perDiemDays= self.model.calcPerDiemDays(tripJournal,originatingWH)
+#         perDiemDays= self.model.calcPerDiemDays(tripJournal,originatingWH)
+        perDiemDays = perDiemModel.calcPerDiemDays(tripJournal, originatingWH)
         perDiemCost= perDiemDays * (self.priceTable.get("driver", "PerDiem",level=level, conditions=leg0Conditions) +
                                     self.priceTable.get(truckType.name,"PerDiem",level=level, conditions=leg0Conditions))
         
@@ -436,6 +440,9 @@ class LegacyCostManager(dummycostmodel.DummyCostManager):
             if specialKey in recDict:
                 for rec in recDict[specialKey]: self._checkOneRec(specialKey, rec)
 
+    def getPerDiemModel(self, perDiemName):
+        return LegacyPerDiemModel(self.model)
+
 class LegacyCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
     def __init__(self, priceTable):
         self.priceTable = priceTable
@@ -517,9 +524,26 @@ class LegacyCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
 
         return missingList
 
+
+class LegacyPerDiemModel(perdiemmodel.PerDiemModel):
+    """
+    A PerDiemModel for Legacy cost calculations
+    """
+    def __init__(self, model):
+        self.model = model
+
+    def __str__(self):
+        return "<DummyPerDiemModel>"
+
+    def calcPerDiemDays(self, tripJournal, homeWH):
+        return self.model.calcPerDiemDays(tripJournal, homeWH)
+
+    def calcPerDiemAmountTriple(self, tripJournal, homeWH):
+        raise RuntimeError("LegacyPerDiemModel.calcPerDiemAmountTriple "
+                           "should never be called")
+
 def describeSelf():
-    print \
-"""
+    print """
 Testing options:
 
   The following tests operate on PriceTable:
@@ -534,10 +558,10 @@ Testing options:
   test8
   test9
 
-     Perform simple tests using iternal data
-     
+     Perform simple tests using internal data
+
   testfile csvFileName item entry [conditions [level]]
-  
+
      Load the named CSV file and print the value of 'entry' for item 'item'
 
 """

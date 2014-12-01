@@ -2585,11 +2585,19 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 if proc.noteHolder is None:
                     raise RuntimeError("This route lacks noteHolder needed for accounting!")
                 else:
-                    proc.noteHolder.addNote( proc.sim.costManager.generateTripCostNotes(truckType,
-                                                                                        costOwnerW.reportingLevel,
-                                                                                        costOwnerW.conditions,   
-                                                                                        tripJournal,
-                                                                                        endingW) )
+                    if hasattr(proc, 'getPerDiemModel'):
+                        perDiemModel = proc.getPerDiemModel()
+                        costMgr = proc.sim.costManager
+                        tripNotes = costMgr.generateTripCostNotes(truckType,
+                                                                  costOwnerW.reportingLevel,
+                                                                  costOwnerW.conditions,
+                                                                  tripJournal,
+                                                                  endingW,
+                                                                  perDiemModel)
+                        proc.noteHolder.addNote(tripNotes)
+                    else:
+                        raise RuntimeError("proc %s has no PerDiemModel" %
+                                           proc.name)
                 segmentCount = 0
                 for journalEntry in tripJournal:
                     if journalEntry[0] == "move":
@@ -2662,7 +2670,15 @@ class ShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
         self.nextWakeTime= startupLatency
         self.packagingModel = packagingmodel.DummyPackagingModel() # to be replaced later
         self.storageModel = storagemodel.DummyStorageModel() # to be replaced later
+        self.perDiemModel = None
         fromWarehouse.sim.processWeakRefs.append( weakref.ref(self) )
+
+    def setPerDiemModel(self, perDiemModel):
+        self.perDiemModel = perDiemModel
+
+    def getPerDiemModel(self):
+        return self.perDiemModel
+
     def finishBuild(self, szFunc):
         """
         This method should be called after the shipping network has been assembled.
@@ -3074,7 +3090,15 @@ class OnDemandShipment(Process, abstractbaseclasses.UnicodeSupport):
         self.packagingModel = packagingmodel.DummyPackagingModel()
         self.storageModel = storagemodel.DummyStorageModel()
         self.first = True
+        self.perDiemModel = None
         fromWarehouse.sim.processWeakRefs.append( weakref.ref(self) )
+
+    def setPerDiemModel(self, perDiemModel):
+        self.perDiemModel = perDiemModel
+
+    def getPerDiemModel(self):
+        return self.perDiemModel
+
     def finishBuild(self, szFunc):
         """
         This method should be called after the shipping network has been assembled.

@@ -65,6 +65,8 @@ def _getAttrDict(bottleRequest, db, uiSession, fMap, throwException=False):
         elif field['type']=='lifetime':
             v = (_safeGetReqParam(bottleRequest.params,field['id'],isFloat=True),
                  _safeGetReqParam(bottleRequest.params,field['id']+'_units'))
+        elif field['type']=='bool':
+            v = (_safeGetReqParam(bottleRequest.params, field['id']).lower() == 'true')
         else:
             v = _safeGetReqParam(bottleRequest.params,field['id'])
         attrRec[field['key']] = v

@@ -418,7 +418,10 @@ class TruckType(abstractbaseclasses.TrackableType):
         self.totalTravelDays += transitTimeDays
         self.totalKm += fromWH.getKmTo(toWH, level, conditions)
         
-class TruckTypeManager:
+class TruckTypeManager(typemanager.SubTypeManager):
+
+    subTypeKey = "trucks"
+
     def __init__(self, typeManager):
         """
         Initialize the manager, which is really just a wrapper around the simulation-wide TypeManager,

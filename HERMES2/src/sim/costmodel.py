@@ -118,5 +118,3 @@ def getCostModelSummary(shdNet, result):
         return Micro1CostModelHierarchicalSummary(result)
     else:
         raise RuntimeError("Unrecognized cost model name <%s>"%costModelName)
-
-

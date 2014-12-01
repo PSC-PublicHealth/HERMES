@@ -39,7 +39,7 @@ def upgrade():
                 )
     newroutes.create(conn, checkfirst=True)
     
-    print '## Transcribing old routes'             
+    print '## Transcribing old routes'
     result = conn.execute(sa.select([routes]))
     rows = result.fetchall()
     

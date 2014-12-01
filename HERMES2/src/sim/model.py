@@ -31,6 +31,7 @@ import abstractbaseclasses
 import csv_tools
 import constants as C
 import recorders
+import typemanager
 import vaccinetypes
 import trucktypes
 import peopletypes
@@ -513,20 +514,19 @@ class Model:
                                 arcname = '_'.join(arcname.split()) # remove whitespace
                                 myzip.writestr(arcname, histo.toJSON())
 
-        allKeys= []
-        allRecs= []
-        sim= self.sim
-        for entity in sim.vaccines.getActiveTypes() \
-                      + sim.people.getActiveTypes() \
-                      + sim.trucks.getActiveTypes() \
-                      + sim.ice.getActiveTypes() \
-                      + sim.packaging.getActiveTypes() \
-                      + sim.fridges.getActiveTypes() \
-                      + sim.staff.getActiveTypes():
-            sDict= entity.getSummaryDict()
-            for k in sDict.keys():
-                if k not in allKeys: allKeys.append(k)
-            allRecs.append(sDict)
+        allKeys = set()
+        allRecs = []
+        sim = self.sim
+        for tp in util.createSubclassIterator(typemanager.SubTypeManager,
+                                              lambda c: len(c.__subclasses__()) == 0):
+            entityList = getattr(sim, tp.subTypeKey).getActiveTypes()
+            for entity in entityList:
+                sDict = entity.getSummaryDict()
+                for k in sDict.keys():
+                    if k not in allKeys:
+                        allKeys.add(k)
+                allRecs.append(sDict)
+        allKeys = list(allKeys)
         allKeys.sort()
 
         if self.sim.userInput.fromDb:

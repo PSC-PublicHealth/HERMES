@@ -36,7 +36,8 @@ _typeCategoryNameMap = {'people':_('population types'),
                         'vaccines':_('vaccines'),
                         'fridges':_('cold storage'),
                         'packaging':_('packaging'),
-                        'staff':_('staff')}
+                        'staff':_('staff'),
+                        'perdiems':_('per diem')}
 
 @bottle.route('/hrmwidgets.js')
 def getHrmWidgetsJS(db, uiSession):
@@ -111,6 +112,7 @@ def jsonRouteEditCreate(db, uiSession):
                                                                    'ShipIntervalDays':route.ShipIntervalDays,
                                                                    'ShipLatencyDays':route.ShipLatencyDays,
                                                                    'truckType':route.TruckType,
+                                                                   'perdiemType':route.PerDiemType,
                                                                    'routeType':route.Type,
                                                                    'Conditions':route.Conditions,
                                                                    'PullOrderAmountDays':pullOrderAmountDays,
@@ -503,35 +505,49 @@ def handleListRouteType(db,uiSession):
         _logStacktrace()
         return {"success":False, "msg":str(e)}
 
+
 @bottle.route('/list/select-type')
-def handleListType(db,uiSession):
+def handleListType(db, uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayReadModelId(db, modelId)
         invtype = _getOrThrowError(bottle.request.params, 'invtype')
         typestring = _safeGetReqParam(bottle.request.params, 'typestring')
         escapeFlag = _safeGetReqParam(bottle.request.params, 'encode')
-        if typestring=='null' or typestring=='': typestring = None
-        typeList = typehelper.getTypeList(db,modelId,invtype,fallback=False)
+        if typestring == 'null' or typestring == '':
+            typestring = None
+        typeList = typehelper.getTypeList(db, modelId, invtype, fallback=False)
         sio = StringIO()
-        for t in typeList:
-            
-            if escapeFlag: eName = urllib.quote(t['Name'].encode('utf8'))
-            else: eName = t['Name']
-            
-            if typestring and typestring==t['Name']:
-                sio.write("  <option value='%s' selected >%s</option>\n"%(eName,t['Name']))
-            else:
-                sio.write("  <option value='%s'>%s</option>\n"%(eName,t['Name']))
-        
-        return {"success":True,
-                "menustr":sio.getvalue(),
-                "selected":( typestring if typestring is not None else typeList[0] )
-                }
-    except Exception,e:
+        if len(typeList) > 0:
+            for t in typeList:
+
+                if escapeFlag:
+                    eName = urllib.quote(t['Name'].encode('utf8'))
+                else:
+                    eName = t['Name']
+
+                if typestring and typestring == t['Name']:
+                    sio.write("  <option value='%s' selected >%s</option>\n" % (eName,
+                                                                                t['Name']))
+                else:
+                    sio.write("  <option value='%s'>%s</option>\n" % (eName, t['Name']))
+
+            return {"success": True,
+                    "menustr": sio.getvalue(),
+                    "selected": (typestring if typestring is not None else typeList[0])
+                    }
+        else:
+            sio.write("  <option value='noneavailable' disabled>%s</option>\n" %
+                      _("None Available"))
+            return {"success": True,
+                    "menustr": sio.getvalue(),
+                    "selected": ""
+                    }
+
+    except Exception, e:
         _logMessage(str(e))
         _logStacktrace()
-        return {"success":False, "msg":str(e)}
+        return {"success": False, "msg": str(e)}
 
 @bottle.route('/list/select-energy')
 def handleListEnergy(db,uiSession):
@@ -793,6 +809,7 @@ def jsonRouteUpdate(db, uiSession):
         pullMeanFreqNeeded = ( route.types[route.Type].usesPullMeanFrequency() )
         for key,name,isInt,isFloat,vList,range in [('routeType','Type',False,False,route.types.keys(),None),
                                                    ('truckType','TruckType',False,False,[],None),
+                                                   ('perdiemType','PerDiemType',False,False,[],None),
                                                    ('shipintervaldays','ShipIntervalDays',False,True,None,(0.0,336.0)),
                                                    ('shiplatencydays','ShipLatencyDays',False,True,None,(0.0,336.0)),
                                                    ('conditions','Conditions',False,False,None,None),
@@ -840,7 +857,7 @@ def jsonRouteUpdate(db, uiSession):
                 if key=='routeType':
                     updateDBRouteType(route, v) # Includes re-ordering stops if necessary
                 elif key in frozenset(['truckType','shipintervaldays','shiplatencydays',
-                                       'conditions']):
+                                       'conditions','perdiemType']):
                     setattr(route, name, v)
                 elif key=='pullorderamountdays':
                     for stop in route.stops: stop.PullOrderAmountDays = v

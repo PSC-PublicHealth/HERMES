@@ -206,33 +206,41 @@ class TypeManager(object):
         Test to see if the type name is known without activating it.
         """
         return (name in self.typeDict)
-    
+
     def getAllValidTypeNames(self):
         return self.typeDict.keys()[:]
 
-    def validTypeNameImplementing(self,name, someClass):
+    def validTypeNameImplementing(self, name, someClass):
         """
         Test to see if the type name is known without activating it.
         """
-        return (name in self.typeDict and isinstance(self.typeDict[name],someClass))
+        return (name in self.typeDict and isinstance(self.typeDict[name], someClass))
 
     def getAllValidTypeNamesImplementing(self, someClass):
         return [name for name in self.typeDict.keys() if isinstance(self.typeDict[name],someClass)]
-
 
     def getCollection(self, tupleList=[]):
         """
         format of tupleList is [(managedType,n),(managedType,n)...]
         """
-        return self.getCollectionImplementing(tupleList,abstractbaseclasses.ManagedType)
-    
+        return self.getCollectionImplementing(tupleList, abstractbaseclasses.ManagedType)
+
     def getCollectionImplementing(self, tupleList, someClass):
         """
         format of tupleList is [(someType,n),(someType,n)...]
-        where all managedTypes must satisfy isinstance (someType, someClass) and
-        someClass must satisfy isinstance(someClass,ManagedType)
+        where all managedTypes must satisfy isinstance (someType, someClass)
+        and someClass must satisfy isinstance(someClass,ManagedType)
         """
         return TypeManager.TypeCollection(self, tupleList, someClass)
+
+
+class SubTypeManager(object):
+    """A class from which specialized type managers will be derived.
+    """
+
+    subTypeKey = None
+    """A key used for indexing derived *TypeManager types
+    """
 
 def main():
     "Provides a few test routines"

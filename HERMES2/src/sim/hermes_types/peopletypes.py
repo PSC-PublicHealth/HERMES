@@ -69,7 +69,10 @@ class PeopleType(abstractbaseclasses.ManagedType):
         self.patientsTreated= 0
         self.patientsApplied= 0
 
-class PeopleTypeManager:
+class PeopleTypeManager(typemanager.SubTypeManager):
+
+    subTypeKey = "people"
+
     def __init__(self, typeManager):
         """
         Initialize the manager, which is really just a wrapper around the simulation-wide TypeManager,

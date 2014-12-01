@@ -13,9 +13,11 @@ Warning: this can invalidate runs and create type naming discrepancies!  Only mi
 <option value="vaccines">Vaccines</option>
 <option value="people">People</option>
 <option value="staff">Staff</option>
+<option value="perdiems">Per Diems</option>
 </select>
 <div id='type_sel_div'></div>
 <button id='edit_button'>Edit</button>
+<button id='create_button'>Create New</button>
 <div id='edit_form_div'></div>
 <table width=100%>
 <tr>
@@ -24,6 +26,20 @@ Warning: this can invalidate runs and create type naming discrepancies!  Only mi
   <td></td>
 </tr>
 </table>
+
+<div id="get_name_dialog" title='{{_("Name for new type?")}}'>
+<form>
+<fieldset>
+	<table>
+		<tr>
+  		<td><input type="text" name="new_name" id="get_name_dlg_new_name" 
+  			class="text ui-widget-content ui-corner-all" /></td>
+  		</tr>
+  	</table>
+</fieldset>
+</form>
+</div>
+
 <script>
 
 
@@ -106,12 +122,65 @@ $(function() {
 		loadForm();
 	});
 
+	$("#create_button").button().click(function() {
+		$("#get_name_dialog").dialog("open");
+	});
+
 	$("#cancel_button").button().click( function() {
 		loadForm();
 	});
 	
 	$('#done_button').button().click( function() {
 		saveForm();
+	});
+
+	$("#get_name_dialog").dialog({
+		autoOpen:false, height:"auto", width:300, modal:true,
+		buttons: {
+	    	Ok: function() {
+	    		var newNm = $("#get_name_dlg_new_name").val();
+				$.getJSON('{{rootPath}}check-unique-hint',
+						{modelId:$('#model_sel_widget').modelSelector('selId'), typeName:newNm})
+				.done(function(data) {
+					if (data.success) {
+						if (data.value) {
+							$.getJSON('{{rootPath}}json/devel-create-type', {
+								modelId:$('#model_sel_widget').modelSelector('selId'), 
+								type:$('#type_class_sel_div').val(),
+								name:newNm
+							})
+							.done(function(data) {
+								if (data.success) {
+									loadForm();
+								}
+								else {
+									alert('{{_("Failed: ")}}'+data.msg);								
+								}
+					      		$("#get_name_dialog").dialog( "close" );
+							})
+							.fail(function(jqxhr, textStatus, error) {
+						  		alert("Error: "+jqxhr.responseText);
+						  		$( this ).dialog( "close" );
+							});							
+						}
+						else {
+							alert('{{_("That name is also in use.")}}');
+						}
+					}
+					else {
+	    				alert('{{_("Failed: ")}}'+data.msg);
+	    	      		$( this ).dialog( "close" );
+					}
+				})
+		    	.fail(function(jqxhr, textStatus, error) {
+		    		alert('{{_("Error: ")}}'+jqxhr.responseText);
+		      		$( this ).dialog( "close" );
+		    	});
+	    	},
+	    	Cancel: function() {
+	      		$( this ).dialog( "close" );
+	    	}
+		}
 	});
 });
 

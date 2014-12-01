@@ -826,8 +826,10 @@ abstractbaseclasses.CanStore.register(AlarmedIceFridge) # @UndefinedVariable bec
 abstractbaseclasses.Costable.register(AlarmedIceFridge) # @UndefinedVariable because PyDev can't see abc.register()
 abstractbaseclasses.Deliverable.register(AlarmedIceFridge) # @UndefinedVariable because PyDev can't see abc.register()
 
+
 class FridgeTypeManager(trackabletypes.TrackableTypeManager):
-        
+    subTypeKey = 'fridges'
+
     def __init__(self, typeManager):
         """
         Initialize the manager, which is really just a wrapper around the simulation-wide TypeManager,

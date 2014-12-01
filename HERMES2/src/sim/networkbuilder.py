@@ -57,12 +57,23 @@ def _conditionsFromRec(rec):
 	           return "normal"
     else:
         return "normal"
+    
+def _perDiemNameFromRec(rec):
+    if ('PerDiemType' in rec
+            and rec['PerDiemType'] is not None):
+        return rec['PerDiemType']
+    else:
+        return None
 
 def _genericRouteChecks(locList,storeDict):
     """
     Do some consistency checks on the route information
     """
+    perDiemName = _perDiemNameFromRec(locList[0])
     for rec in locList:
+        assert _perDiemNameFromRec(rec) == perDiemName, \
+            ("Inconsistent per diem policies for route %s" %
+             rec['RouteName'])
         if 'LocName' in rec:
             if storeDict[rec['idcode']] is None:
                 print "***Error*** route %s references location %d which is considered dead."%\
@@ -107,8 +118,8 @@ def _innerBuildScheduledRoute(routeName, sim, locList, storeDict, getShipInterva
     if 'ShipLatencyDays' in supplierRec:
         shipStartupLatency = float(supplierRec['ShipLatencyDays'])
     else:
-        print str(supplierRec)
-        shipStartupLatency = getStartupLatency(storeDict,supplierKey)
+        # print str(supplierRec)
+        shipStartupLatency = getStartupLatency(storeDict, supplierKey)
     conditions = _conditionsFromRec(supplierRec)
     transitTimeHours= float(supplierRec['TransitHours']) 
     if transitTimeHours > 0.0:
@@ -990,7 +1001,7 @@ The use of implied links is DEPRECATED and unreliable, and will not be supported
             lastWh = wh
         if km is not None:
             sim.geo.setKmBetween( lastWh, startWh, km, lastWh.category, conditions )
-        
+
         # All the nodes in this route are now guaranteed to exist
         _genericRouteChecks(l,storeDict)
         shippingProcList = None 
@@ -1014,9 +1025,9 @@ The use of implied links is DEPRECATED and unreliable, and will not be supported
             allShippingProcs += shippingProcList
         else:
             raise RuntimeError('Route %s is of unknown type %s'%(routeName,routeType))
-            
+
         shippingProcDict[routeName] = shippingProcList
-            
+
     # Insert these nodes into the reporting hierarchies
     shippingTreeReportingHierarchyDict= {}
     byCategoryReportingHierarchyDict= {}
@@ -1038,6 +1049,7 @@ The use of implied links is DEPRECATED and unreliable, and will not be supported
     for routeName, l in routeDict.items():
         shippingProcList= shippingProcDict[routeName]
         startingID= l[0]['idcode']
+        perDiemName = _perDiemNameFromRec(l[0])
         category= storeRecDict[startingID]['CATEGORY']
         for p in shippingProcList: 
             if hasattr(p,'getNoteHolder'): 
@@ -1046,7 +1058,9 @@ The use of implied links is DEPRECATED and unreliable, and will not be supported
                     nh.addNote({'category':category})
                     rhn= ReportingHierarchyNode(category, nh['RouteName'], [nh])
                     byCategoryReportingHierarchyDict[category].add( rhn )
-            
+            if hasattr(p,'setPerDiemModel'):
+                p.setPerDiemModel(sim.costManager.getPerDiemModel(perDiemName))
+
     byCategoryTopRHN = ReportingHierarchyNode('-top-','all',byCategoryReportingHierarchyDict.values(),
                                         overrides={'InventoryChangeCost':sim.costManager.getOverrideTotal
                                                    })
