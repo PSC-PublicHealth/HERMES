@@ -648,11 +648,14 @@ class ShdStore(Base, ShdCopyable):
              ('Storage',           DataType(STRING_NULL, dbType=None),
               'copy', copyStorage, 
               'relationship', 'inventory',
-              'recencode', inventoryToRec, 'recdecode', inventoryFromRec),              
+              'recencode', inventoryToRec, 'recdecode', inventoryFromRec),
              ('Inventory',         DataType(STRING_NULL, dbType=None),
               'copy', copyStorage,
               'relationship', 'inventory',
               'recencode', inventoryToRec, 'recdecode', inventoryFromRec),
+             ('SiteCost',          FLOAT_NONE, 'recordName', 'SiteCostPerYear'),
+             ('SiteCostCurCode',   STRING_NONE, 'recordName', 'SiteCostCur'),
+             ('SiteCostYear',      INTEGER_NONE, 'recordName', 'SiteCostBaseYear'),
              ('Notes',             NOTES_STRING),
              ('inventory',         None, 'relationshiptype', 'onetomany'),
              ('demand',            None, 'relationshiptype', 'onetomany',
@@ -3516,9 +3519,10 @@ class ShdDemand(Base):
         # Fill entry values with explicit zeros so generated tables have no blanks
         for v in vacSet:
             for p in pplSet:
-                if p not in recs[v]: recs[v][p] = 0
-        
-        return recs.values()[:] #defense against python 3?
+                if p not in recs[v]:
+                    recs[v][p] = 0
+
+        return recs.values()[:]  # defense against python 3?
 
     @classmethod
     def toKeys(cls, demands):

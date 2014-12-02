@@ -67,13 +67,21 @@ def costEditSalary(db, uiSession):
     return bottle.template("cost_edit_salary.tpl", {"breadcrumbPairs":crumbTrack,
                                                     "title_slogan":_("Staff Costs")})
 
+
 @bottle.route('/cost-edit-perdiem')
 def costEditPerDiem(db, uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path, _("Per Diem Rates")))
-    return bottle.template("cost_edit_perdiem.tpl", {"breadcrumbPairs":crumbTrack,
-                                                     "title_slogan":_("Per Diem Rates")})
+    return bottle.template("cost_edit_perdiem.tpl", {"breadcrumbPairs": crumbTrack,
+                                                     "title_slogan": _("Per Diem Rates")})
+
 
 @bottle.route('/cost-edit-building')
+def costEditBuilding(db, uiSession):
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path, _("Building Costs")))
+    return bottle.template("cost_edit_buildings.tpl", {"breadcrumbPairs": crumbTrack,
+                                                       "title_slogan": _("Building Costs")})
+
+
 @bottle.route('/cost-edit-misc')
 def costUnimplemented(db, uiSession):
     bottle.redirect('%snotimpl'%rootPath)
@@ -126,6 +134,7 @@ def jsonSetCurrencyBaseYear(db, uiSession):
         _logStacktrace()
         return {"success":False, "msg":str(e)} 
 
+
 @bottle.route('/json/set-cost-inflation-percent')
 def jsonSetCostInflationPercent(db, uiSession):
     try:
@@ -133,13 +142,14 @@ def jsonSetCostInflationPercent(db, uiSession):
         uiSession.getPrivs().mayWriteModelId(db, modelId)
         inflation = _getOrThrowError(bottle.request.params, 'inflation', isInt=True)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-        m.addParm(shadow_network.ShdParameter('priceinflation',str(0.01*inflation)))
+        m.addParm(shadow_network.ShdParameter('priceinflation', str(0.01 * inflation)))
 
-        result = { 'inflation':inflation, 'success':True }
+        result = {'inflation': inflation, 'success': True}
         return result
-    except Exception,e:
+    except Exception, e:
         _logStacktrace()
-        return {"success":False, "msg":str(e)} 
+        return {"success": False, "msg": str(e)}
+
 
 @bottle.route('/json/get-currency-info')
 def jsonGetCurrencyInfo(db, uiSession):
@@ -151,23 +161,24 @@ def jsonGetCurrencyInfo(db, uiSession):
         currencyBaseYear = m.getParameterValue('currencybaseyear')
         priceInflation = int(round(100*m.getParameterValue('priceinflation')))
         microCostingEnabled = (m.getParameterValue('costmodel') == 'micro1')
-        result = { 'success':True, 'baseCurrencyId':baseCurrencyId, 'currencyBaseYear':currencyBaseYear,
-                  'priceInflation':priceInflation,
-                  'microCostingEnabled':microCostingEnabled,
-                  'fuelLabel':getFuelButtonLabel(db, uiSession, m),
-                  'truckLabel':getTruckButtonLabel(db, uiSession, m),
-                  'fridgeLabel':getFridgeButtonLabel(db, uiSession, m),
-                  'vaccineLabel':getVaccineButtonLabel(db, uiSession, m),
-                  'salaryLabel':getSalaryButtonLabel(db, uiSession, m),
-                  'perdiemLabel':getPerDiemButtonLabel(db, uiSession, m),
-                  'buildingLabel':getBuildingButtonLabel(db, uiSession, m),
-                  'miscLabel':getMiscButtonLabel(db, uiSession, m)
+        result = {'success': True,
+                  'baseCurrencyId': baseCurrencyId, 'currencyBaseYear': currencyBaseYear,
+                  'priceInflation': priceInflation,
+                  'microCostingEnabled': microCostingEnabled,
+                  'fuelLabel': getFuelButtonLabel(db, uiSession, m),
+                  'truckLabel': getTruckButtonLabel(db, uiSession, m),
+                  'fridgeLabel': getFridgeButtonLabel(db, uiSession, m),
+                  'vaccineLabel': getVaccineButtonLabel(db, uiSession, m),
+                  'salaryLabel': getSalaryButtonLabel(db, uiSession, m),
+                  'perdiemLabel': getPerDiemButtonLabel(db, uiSession, m),
+                  'buildingLabel': getBuildingButtonLabel(db, uiSession, m),
+                  'miscLabel': getMiscButtonLabel(db, uiSession, m)
                   }
         return result
-    except Exception,e:
+    except Exception, e:
         _logStacktrace()
-        return {"success":False, "msg":str(e)} 
-        
+        return {"success": False, "msg": str(e)} 
+
 @bottle.route('/json/get-default-currency')
 def jsonGetDefaultCurrency(db, uiSession):
     try:
@@ -277,19 +288,25 @@ def jsonSetBaseCurrency(db, uiSession):
         _logStacktrace()
         return {"success":False, "msg":str(e)} 
 
+
 def getFuelButtonLabel(db, uiSession, m):
     vList = []
     for val in _fuelNames.values():
-        if val is None: # free fuel
+        if val is None:  # free fuel
             pass
         elif isinstance(val, types.TupleType):
             vList += list(val)
         else:
             vList.append(val)
-    nSet = sum([v is not None and v!='' and v!=0.0 for v in [m.getParameterValue(vv) for vv in vList if vv is not None]])
-    if nSet==0: return _("Begin")
-    elif nSet==len(vList): return _("Revisit")
-    else: return _("Continue")
+    nSet = sum([v is not None and v != '' and v != 0.0
+                for v in [m.getParameterValue(vv) for vv in vList if vv is not None]])
+    if nSet == 0:
+        return _("Begin")
+    elif nSet == len(vList):
+        return _("Revisit")
+    else:
+        return _("Continue")
+
 
 def getTypeButtonLabel(db, uiSession, m, tpCategory, keyList):
     count = 0
@@ -299,9 +316,12 @@ def getTypeButtonLabel(db, uiSession, m, tpCategory, keyList):
         for fld in keyList:
             v = t[fld]
             possible += 1
-            if not(v is None or v=='' or v<0): count += 1
-    if count == 0: return _("Begin")
-    elif count == possible: return _("Revisit")
+            if not(v is None or v == '' or v < 0):
+                count += 1
+    if count == 0:
+        return _("Begin")
+    elif count == possible:
+        return _("Revisit")
     else:
         return _("Continue")
 
@@ -332,27 +352,44 @@ def getPerDiemButtonLabel(db, uiSession, m):
                                                              'BaseAmountYear', 'MinKmHome',
                                                              'MustBeOvernight', 'CountFirstDay'])
 
+
 def getBuildingButtonLabel(db, uiSession, m):
-    return _("Unimplemented");
+    count = 0
+    possible = 0
+    keyList = ['SiteCost', 'SiteCostCurCode', 'SiteCostYear']
+    for s in m.stores.values():
+        for k in keyList:
+            possible += 1
+            val = getattr(s, k)
+            if val is not None and val != '':
+                count += 1
+    if count == 0:
+        return _("Begin")
+    elif count == possible:
+        return _("Revisit")
+    else:
+        return _("Continue")
+
 
 def getMiscButtonLabel(db, uiSession, m):
-    return _("Unimplemented");
+    return _("Unimplemented")
 
 
 def _getCurrencyConverter(db, uiSession, m):
     currencyBase = m.getParameterValue('currencybase')
     currencyBaseYear = m.getParameterValue('currencybaseyear')
     inflationRate = m.getParameterValue('priceinflation')
-    if 'currencyConverter' not in uiSession or 'currencyConverterModelId' not in uiSession \
-        or uiSession['currencyConverterModelId'] != m.modelId \
-        or uiSession['currencyConverter'].getBaseCurrency() != currencyBase \
-        or uiSession['currencyConverter'].getBaseYear() != currencyBaseYear \
-        or uiSession['currencyConverter'].getInflationRate() != inflationRate:
-            uiSession['currencyConverter'] = costmodel.CurrencyConverter( m.getCurrencyTableRecs(),
-                                                                          currencyBase, currencyBaseYear,
-                                                                          inflationRate )
-            uiSession['currencyConverterModelId'] = m.modelId
-            uiSession.changed()
+    if ('currencyConverter' not in uiSession or 'currencyConverterModelId' not in uiSession
+            or uiSession['currencyConverterModelId'] != m.modelId
+            or uiSession['currencyConverter'].getBaseCurrency() != currencyBase
+            or uiSession['currencyConverter'].getBaseYear() != currencyBaseYear
+            or uiSession['currencyConverter'].getInflationRate() != inflationRate):
+        uiSession['currencyConverter'] = costmodel.CurrencyConverter(m.getCurrencyTableRecs(),
+                                                                     currencyBase,
+                                                                     currencyBaseYear,
+                                                                     inflationRate)
+        uiSession['currencyConverterModelId'] = m.modelId
+        uiSession.changed()
 
     return uiSession['currencyConverter']
 
@@ -1114,7 +1151,6 @@ def jsonManageRoutePerDiemTable(db, uiSession):
                   "page": 1,     # which page is this
                   "records": totRecs,  # total records
                   "rows": [{"routename": t['routename'],
-                            "detail": t['routename'],
                             "pdtype": t['pdtype'],
                             "supplier": t['supplier'],
                             "level": t['level'],
@@ -1131,7 +1167,7 @@ def jsonManageRoutePerDiemTable(db, uiSession):
 @bottle.route('/edit/edit-cost-route-perdiem', method='POST')
 def editCostRoutePerDiem(db, uiSession):
     try:
-        print [(k, v) for k, v in bottle.request.params.items()]
+        # print [(k, v) for k, v in bottle.request.params.items()]
         bRQ = bottle.request.params
         if bRQ['oper'] == 'edit':
             modelId = _getOrThrowError(bRQ, 'modelId', isInt=True)
@@ -1149,6 +1185,102 @@ def editCostRoutePerDiem(db, uiSession):
                     raise RuntimeError(_('Editing of {0} is not supported').format(opt))
             rt = m.routes[routeName]
             rt.PerDiemType = pdTypeName
+            return {'success': True}
+        else:
+            raise RuntimeError(_('Unsupported operation {0}').
+                               format(bRQ['oper']))
+    except bottle.HTTPResponse:
+        raise  # bottle will handle this
+    except Exception, e:
+        _logStacktrace()
+        return {'success': False, 'msg': str(e)}
+
+
+@bottle.route('/json/get-cost-info-buildings')
+def jsonGetCostInfoBuildings(db, uiSession):
+    try:
+        # We will surely have real info to pass back soon enough
+        modelId = _getOrThrowError(bottle.request.params, 'modelId',
+                                   isInt=True)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        # m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        result = {'success': True,
+                  }
+        return result
+    except Exception, e:
+        _logStacktrace()
+        return {"success": False, "msg": str(e)}
+
+
+@bottle.route('/json/manage-cost-buildings-table')
+def jsonManageCostBuildingsTable(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId',
+                                   isInt=True)
+        try:
+            uiSession.getPrivs().mayReadModelId(db, modelId)
+        except privs.PrivilegeException:
+            raise bottle.BottleException('User may not read model %d' %
+                                         modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        tList = []
+        for s in m.stores.values():
+            tList.append({'id': s.idcode,
+                          'name': s.NAME,
+                          'level': s.CATEGORY,
+                          'cost': s.SiteCost,
+                          'costcur': s.SiteCostCurCode,
+                          'costyear': s.SiteCostYear
+                          })
+        nPages, thisPageNum, totRecs, tList = (  # @UnusedVariable
+            orderAndChopPage(tList,
+                             {'id': 'id',
+                              'name': 'name',
+                              'level': 'level',
+                              'cost': 'cost',
+                              'costcur': 'costcur',
+                              'costyear': 'costyear'
+                              },
+                             bottle.request))
+
+        result = {'success': True,
+                  "total": 1,    # total pages
+                  "page": 1,     # which page is this
+                  "records": totRecs,  # total records
+                  "rows": [{"id": t['id'],
+                            "name": t['name'],
+                            "level": t['level'],
+                            "cost": t['cost'],
+                            "costcur": t['costcur'],
+                            "costyear": t['costyear'],
+                            "detail": t['id']
+                            }
+                           for t in tList]
+                  }
+        return result
+    except Exception, e:
+        _logStacktrace()
+        return {'success': False, 'msg': str(e)}
+
+
+@bottle.route('/edit/edit-cost-buildings', method='POST')
+def editCostBuildings(db, uiSession):
+    try:
+        print [(k, v) for k, v in bottle.request.params.items()]
+        bRQ = bottle.request.params
+        if bRQ['oper'] == 'edit':
+            modelId = _getOrThrowError(bRQ, 'modelId', isInt=True)
+            uiSession.getPrivs().mayModifyModelId(db, modelId)
+            m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+            idcode = long(_getOrThrowError(bRQ, 'id'))
+            assert idcode in m.stores, _("This model has no store with id code {0}").format(idcode)
+            for opt in ['name', 'level', 'detail', 'info']:
+                if opt in bRQ:
+                    raise RuntimeError(_('Editing of {0} is not supported').format(opt))
+            s = m.stores[idcode]
+            s.SiteCost = _getOrThrowError(bRQ, 'cost', isFloat=True)
+            s.SiteCostCurCode = _getOrThrowError(bRQ, 'costcur')
+            s.SiteCostYear = _getOrThrowError(bRQ, 'costyear')
             return {'success': True}
         else:
             raise RuntimeError(_('Unsupported operation {0}').

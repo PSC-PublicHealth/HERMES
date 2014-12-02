@@ -736,7 +736,7 @@ def buildNetwork(storeKeys, storeRecList,
       rec is a CSV record, which is a dictionary containing column data;
 
         tFunc,qFunc= getPullControlFuncs(storeDict,code)
-    
+
       where:
           vaccineCollection= tFunc(toWH)
           vaccineCollection= qFunc(fromWH,toWH,timeNow)
@@ -749,12 +749,12 @@ def buildNetwork(storeKeys, storeRecList,
          ID codes.
         A list of Processes which implement the shipping routes; they have not
          yet been registered or activated.
-    
+
     The following columns of routesCsvFile are required and/or recognized:
         idcode (required; long positive integer)
         RouteName (required; string)
         Type (required string; one of 'push','varpush', 'pull', or 'attached',
-              'askingpush', 'schedfetch', 'schedvarfetch', 'demandfetch', 
+              'askingpush', 'schedfetch', 'schedvarfetch', 'demandfetch',
               'persistentpull', 'persistentdemandfetch', or 'dropandcollect')
         TruckType (optional trucktype string; default is 'default')
         RouteOrder (required; integer, unique within a given RouteName)
@@ -771,20 +771,27 @@ def buildNetwork(storeKeys, storeRecList,
         PullOrderAmountDays (optional float; default is to call getPullMeanFrequency.
                           Only the value for the destination site is used.  This value
                           is ignored for all shipments which are not 'pull'.)
-        
+
     buildNetwork also instantiates any PeopleTypes or inventory types specified for the
-    network.  
-
-
+    network.
     """
-    
+
     # Scan for Stores columns matching known PeopleTypes
     for k in storeKeys:
         if sim.people.validTypeName(k):
             sim.people.getTypeByName(k) # force instantiation as a side effect
     if len(sim.people.getActiveTypeNames())==0:
         sim.people.getTypeByName(peopletypes.genericPeopleTypeName)
-    
+
+    # Tweak warehouseFromRec so that the resulting wh has an attached copy of the source rec
+    def _wrapWFR(wFR):
+        def wrappedFun(subSim, subRec, **kwargs):
+            result = wFR(subSim, subRec, **kwargs)
+            result.recDict = subRec.copy()
+            return result
+        return wrappedFun
+    warehouseFromRec = _wrapWFR(warehouseFromRec)
+
     # Index the store records for easy access
     storeRecDict= {} # will contain records which have not yet been converted to Warehouse instances
     for rec in storeRecList:
@@ -920,7 +927,7 @@ The use of implied links is DEPRECATED and unreliable, and will not be supported
 """%(routeRec0['Type'],supplierRec['NAME'],supplierID,wh.bName,idcode)
             except Exception,e:
                 print "Unable to check for implied suppliers for %s(%ld) : %s"%(storeRec['NAME'],idcode,e)
-        
+
     # To determine node types, we need client and supplier counts for the nodes.
     clientDict= {}   # Entries are [ (clientID,routeType),... ] indexed by supplierID
     supplierDict= {} # Entries are [ (supplierID,routeType),... ] indexed by clientID

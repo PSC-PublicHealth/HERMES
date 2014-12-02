@@ -165,7 +165,7 @@ function buildPage(modelId) {
 		        	  }
 		          },
 		          {name:'basecostyear', jsonmap:'basecostyear', index:'basecostyear', align:'center',
-		        		  editable:true, edittype:'text', editrules:{integer:true, minValue:2000, maxValue:2020}},
+		        		  editable:true, edittype:'text', editrules:{integer:true, minValue:2000, maxValue:3000}},
 		          {name:'ongoing', jsonmap: 'powerrate', index:'ongoing', editable:true, edittype:'text', width:100, align:'center', 
 			        	  formatter:'currency', formatoptions:{defaultValue:''},
 			        	  editable:true, editrules:{ 

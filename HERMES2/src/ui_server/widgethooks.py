@@ -163,7 +163,10 @@ def jsonStoreEditCreate(db, uiSession):
                                                                    'Notes':store.Notes,
                                                                    'levelNames':levelNames,
                                                                    'functionNameTs':functionNameTs,
-                                                                   'closeOnSuccess':closeOnSuccess
+                                                                   'closeOnSuccess':closeOnSuccess,
+                                                                   'cost':store.SiteCost if store.SiteCost else '',
+                                                                   'costCur':store.SiteCostCurCode if store.SiteCostCurCode else '',
+                                                                   'costYear':store.SiteCostYear if store.SiteCostYear else ''
                                                                    })
                 }
     except Exception,e:
@@ -597,7 +600,7 @@ def handleListFuel(db,uiSession):
                 sio.write("  <option value='%s' selected >%s</option>\n"%(k,v))
             else:
                 sio.write("  <option value='%s'>%s</option>\n"%(k,v))
-        print sio.getvalue()
+        # print sio.getvalue()
         return {"success":True,
                 "menustr":sio.getvalue(),
                 "selected":sel
@@ -737,6 +740,9 @@ def jsonStoreUpdate(db, uiSession):
                                                    ('utilizationrate','utilizationRate',False,True,None,(0.0,1.0)),
                                                    ('longitude','Longitude',False,True,None,(-180.0,180.0)),
                                                    ('latitude','Latitude',False,True,None,(-90.0,90.0)),
+                                                   ('cost','SiteCost',False,True,None,(0.0,float('inf'))),
+                                                   ('costcur','SiteCostCurCode',False,False,None,None),
+                                                   ('costyear','SiteCostYear',True,False,None,(2000,3000))
                                                    ]:
             v = _safeGetReqParam(bottle.request.params, key)
             if v:
@@ -750,6 +756,7 @@ def jsonStoreUpdate(db, uiSession):
                     goodPairs.append((name,v))
         if badParms==[]:
             for name,v in goodPairs:
+                print 'setattr %s %s %s'%(name,v,type(v))
                 setattr(store, name, v)
         else:
             return {'success':True, 'value':False, 'msg':"\n".join(badParms)}

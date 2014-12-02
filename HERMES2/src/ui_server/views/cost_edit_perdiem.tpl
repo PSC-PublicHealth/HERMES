@@ -160,7 +160,7 @@ function buildPage(modelId) {
 		        	  }
 		          },
 		          {name:'baseamountyear', jsonmap:'baseamountyear', index:'baseamountyear', align:'center',
-		        	  editable:true, edittype:'text', editrules:{integer:true, minValue:2000, maxValue:2020}
+		        	  editable:true, edittype:'text', editrules:{integer:true, minValue:2000, maxValue:3000}
 		          },
 		          {name:'mustbeovernight', jsonmap:'mustbeovernight', index:'mustbeovernight', align:'center',
 		        	  editable:true, edittype:'checkbox'
@@ -426,7 +426,7 @@ function buildPage(modelId) {
 $(function() {
 	$("#model_sel_widget").hrmWidget({
 		widget:'modelSelector',
-		label:'{{_("Showing storage costs for")}}',
+		label:'{{_("Showing per diem costs for")}}',
 		afterBuild:function(mysel,mydata) {
 			buildPage( mydata.selid );
 		},

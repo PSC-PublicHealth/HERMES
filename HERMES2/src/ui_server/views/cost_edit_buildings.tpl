@@ -7,10 +7,10 @@
 		</td>
 	</tr>
 	<tr>
-		<td width=100%>
-			<table id="staff_cost_grid"></table>
-			<div id="staff_cost_pager"> </div>
-		</td>
+	<td width=100%>
+		<table id="store_cost_grid"></table>
+		<div id="store_cost_pager"> </div>
+	</td>
 	</tr>
 </table>
 	<table width=100%>
@@ -21,13 +21,13 @@
     </table>
 </form>
 
-<div id="staff_info_dialog" title="This should get replaced"></div>
+<div id="store_info_dialog" title="This should get replaced"></div>
 
 <script>
 { // local scope
 
 function updateAllButGrid(modelId) {
-	$.getJSON('{{rootPath}}json/get-cost-info-salary',{modelId:modelId})
+	$.getJSON('{{rootPath}}json/get-cost-info-buildings',{modelId:modelId})
 	.done(function(data) {
 		if (data.success) {
 			// Nothing to do so far
@@ -44,22 +44,14 @@ function updateAllButGrid(modelId) {
 
 function updatePage(modelId) {
 	updateAllButGrid(modelId);
-	$("#staff_cost_grid").trigger("reloadGrid");
+	$("#store_cost_grid").trigger("reloadGrid");
 }
 
-function staffInfoButtonFormatter(cellvalue, options, rowObject)
+function storeInfoButtonFormatter(cellvalue, options, rowObject)
 {
-    // cellvalue will be the name string
+    // cellvalue will be the routename string
 	return "<div class=\"hermes_button_triple\" id=\""+escape(cellvalue)+"\"></div>";
 };
-
-function fracCheck(value) {
-	if ((value=='') || (!isNaN(parseFloat(value)) && isFinite(value))
-			&& parseFloat(value)>=0.0 && parseFloat(value)<=1.0)
-		return true;
-	else return false;
-}
-
 
 function priceCheck(value) {
 	if ((value=='') || (!isNaN(parseFloat(value)) && isFinite(value)))
@@ -72,9 +64,9 @@ function priceCheck(value) {
 function buildPage(modelId) {
 	updateAllButGrid(modelId);
 
-	$("#staff_cost_grid").jqGrid({
-	   	url:'{{rootPath}}json/manage-staff-cost-table',
-	    editurl:'{{rootPath}}edit/edit-cost-staff',
+	$("#store_cost_grid").jqGrid({
+	   	url:'{{rootPath}}json/manage-cost-buildings-table',
+	    editurl:'{{rootPath}}edit/edit-cost-buildings',
 		datatype: "json",
 		jsonReader: {
 				root:'rows',
@@ -86,30 +78,31 @@ function buildPage(modelId) {
 		},
 		rowNum:9999, // all on one page
 		colNames:[
-		          "{{_('TrueName')}}",
-		          "{{_('Name')}}",
-		          "{{_('Base Salary')}}",
-		          "{{_('Currency')}}",
-		          "{{_('Base Salary Year')}}",
-		          "{{_('Fraction EPI')}}",
+		          "{{_('ID')}}",
+		          "{{_('Store Name')}}",
+		          "{{_('Level')}}",
+		          "{{_('Cost Per Year')}}",
+		          "{{_('Cost Currency')}}",
+		          "{{_('Cost Base Year')}}",
 		          "{{_('Details')}}"		          
 		], //define column names
 		colModel:[
-		          {name:'name', jsonmap:'name', index:'name', hidden:true, key:true},
-		          {name:'displayname', jsonmap:'displayname', index:'displayname', width:400},
-		          {name:'basesalary', jsonmap:'basesalary', index:'basesalary', jsonmapwidth:100, align:'center', 
-		        		  formatter:'currency', formatoptions:{defaultValue:''},
-		        		  editable:true, editrules:{ 
-			        		  custom:true, 
-			        		  custom_func: function(value,colname) {
-			        			  if (priceCheck(value))
-			        				  return [true,''];
-			        			  else
-			        				  return [false,'{{_("Please enter a valid price for Base Salary")}}'];
-			        		  }
-			        	  }
+		          {name:'id', jsonmap:'id', index:'id', key:true},
+		          {name:'name', jsonmap:'name', index:'name', key:true},
+		          {name:'level', jsonmap:'level', index:'level'},
+		          {name:'cost', jsonmap:'cost', index:'cost', jsonmapwidth:100, align:'center',
+	        		  formatter:'currency', formatoptions:{defaultValue:''},
+	        		  editable:true, editrules:{ 
+		        		  custom:true, 
+		        		  custom_func: function(value,colname) {
+		        			  if (priceCheck(value))
+		        				  return [true,''];
+		        			  else
+		        				  return [false,'{{_("Please enter a valid cost for Cost Per Year")}}'];
+		        		  }
+		        	  }
 		          },
-		          {name:'currency', jsonmap:'currency', index:'currency', width:70, align:'center', sortable:true,
+		          {name:'costcur', jsonmap:'costcur', index:'costcur', width:70, align:'center', sortable:false,
 		        	  editable:true,
 		        	  edittype:'custom',
 		        	  editoptions: {
@@ -137,26 +130,13 @@ function buildPage(modelId) {
 		        		  }
 		        	  }
 		          },
-		          {name:'basesalaryyear', jsonmap:'basesalaryyear', index:'basesalaryyear', align:'center',
+		          {name:'costyear', jsonmap:'costyear', index:'costyear', align:'center',
 		        	  editable:true, edittype:'text', editrules:{integer:true, minValue:2000, maxValue:3000}
 		          },
-		          {name:'fractionepi', jsonmap:'fractionepi', index:'fractionepi', align:'center',
-		        	  editable:true, edittype:'text', 
-		        	  editrules:{
-		        		  custom:true,
-		        		  custom_func: function(value,colname) {
-		        			  if (fracCheck(value))
-		        				  return [true,''];
-		        			  else
-		        				  return [false,'{{_("Please enter a value between 0.0 and 1.0 to give the fraction of this staff member\'s time spent on EPI work")}}'];		        			  
-		        		  }
-		        	  }
-		          },
 		          {name:'info', jsonmap: 'detail', index:'info', width:140, align:'center', sortable:false, 
-		        	  formatter:staffInfoButtonFormatter}
-		          
-		], //define column models
-		pager: 'staff_cost_pager', //set your pager div id
+		        	  formatter:storeInfoButtonFormatter}
+		          ], //define column models
+		pager: 'store_cost_pager', //set your pager div id
 		pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
 		pginput: false, //ditto
 		sortname: 'name', //the column according to which data is to be sorted; optional
@@ -171,12 +151,13 @@ function buildPage(modelId) {
 				widget:'buttontriple',
 				onInfo:function(event) {
 					var id = unescape($(this).parent().attr("id"));
-					$.getJSON('{{rootPath}}json/staff-info',{name:id, modelId:$('#model_sel_widget').modelSelector('selId')})
+					$.getJSON('{{rootPath}}json/store-info',
+							{storeId:id, modelId:$('#model_sel_widget').modelSelector('selId')})
 					.done(function(data) {
 						if (data.success) {									
-							$("#staff_info_dialog").html(data['htmlstring']);
-							$("#staff_info_dialog").dialog('option','title',data['title']);
-							$("#staff_info_dialog").dialog("open");
+							$("#store_info_dialog").html(data['htmlstring']);
+							$("#store_info_dialog").dialog('option','title',data['title']);
+							$("#store_info_dialog").dialog("open");
 						}
 						else {
 		    				alert('{{_("Failed: ")}}'+data.msg);
@@ -190,8 +171,8 @@ function buildPage(modelId) {
 				},
 				onEdit:function(event){
 					var id = unescape($(this).parent().attr("id"));
-					var devName = $("#staff_cost_grid").jqGrid('getCell',id,"displayname");
-					$("#staff_cost_grid").jqGrid('editGridRow',id,{
+					var storeName = $("#store_cost_grid").jqGrid('getCell',id,"name");
+					$("#store_cost_grid").jqGrid('editGridRow',id,{
 						closeAfterEdit:true,
 						closeOnEscape:true,
 	                  	jqModal:true,
@@ -203,7 +184,7 @@ function buildPage(modelId) {
 	                  			return $('#model_sel_widget').modelSelector('selId'); 
 	        				}
 	                  	},
-	                  	editCaption:'{{_("Edit Salary Information for ")}}' + devName,
+	                  	editCaption:'{{_("Edit Site Cost Information for Store ")}}' + storeName + ' (' + id + ')',
 	                  	savekey:[true,13],
 	                  	afterSubmit:function(response,postData){
 	                  		var data = $.parseJSON(response.responseText);
@@ -223,16 +204,17 @@ function buildPage(modelId) {
 	        	alert('{{_("Failed: ")}}'+data.msg);
 			}
 		},
-		grouping:false,
-//		groupingView:{
-//			groupField:['category'],
-//			groupDataSorted:true,
-//			groupText:['<b>{0} - {1} '+"{{_('Item(s)')}}"+'</b>'],
-//			groupColumnShow:[false]
-//		},
-	    caption:"{{_("Staff Costs")}}"
+		grouping: true,
+		groupingView:{
+			groupField:['level'],
+			groupDataSorted:true,
+			groupText:['<b>{0} - {1} '+"{{_('Item(s)')}}"+'</b>'],
+			groupColumnShow:[false],
+			groupCollapse: true
+		},
+	    caption:"{{_("Route Per Diem Rules")}}"
 	})
-	.jqGrid('navGrid','#staff_cost_pager',
+	.jqGrid('navGrid','#store_cost_pager',
 			{edit:false,add:false,del:false,search:false},
 			{ 
 			},
@@ -253,7 +235,7 @@ function buildPage(modelId) {
 $(function() {
 	$("#model_sel_widget").hrmWidget({
 		widget:'modelSelector',
-		label:'{{_("Showing salary costs for")}}',
+		label:'{{_("Showing building costs for")}}',
 		afterBuild:function(mysel,mydata) {
 			buildPage( mydata.selid );
 		},
@@ -263,26 +245,6 @@ $(function() {
 		},
 	});
 });
-
-
-$('#cost_base_year').blur( function(evt) {
-	$.getJSON('{{rootPath}}json/set-currency-base-year',
-		{modelId:$('#model_sel_widget').modelSelector('selId'),
-		baseYear:$('#cost_base_year').val()
-	})
-	.done(function(data) {
-		if (data.success) {
-			// do nothing
-		}
-		else {
-			alert('{{_("Failed: ")}}'+data.msg);
-		}
-	})
-	.fail(function(jqxhr, textStatus, error) {
-		alert('{{_("Error: ")}}'+jqxhr.responseText);
-	});
-})
-
 
 $(function() {
 	var btn = $("#done_button");
@@ -304,12 +266,10 @@ $(function() {
 })
 
 $(function() {
-	$("#staff_info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
+	$("#store_info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
 });
 
-$(function(){
-	
-})
+
 } // end local scope
 </script>
  

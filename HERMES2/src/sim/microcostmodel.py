@@ -192,61 +192,65 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         allPendingCostEvents = []
         for r in self.sim.warehouseWeakRefs:
             wh = r()
-            if wh is not None and not isinstance(wh, warehouse.AttachedClinic):
+            if wh is not None:
                 nh = wh.getNoteHolder()
-                nh.addNote(self._generateBuildingCostNotes(wh.reportingLevel,
-                                                           wh.conditions,
+                if nh is None:
+                    continue
+                nh.addNote(self._generateBuildingCostNotes(wh,
                                                            self.intervalStartTime,
-                                                           self.intervalEndTime))
-                for costable in wh.ownedCostables:
-                    if isinstance(costable, abstractbaseclasses.CanStore):
-                        try:
-                            nh.addNote(self._generateFridgeCostNotes(wh.reportingLevel,
-                                                                     wh.conditions,
-                                                                     self.intervalStartTime,
-                                                                     self.intervalEndTime,
-                                                                     costable.getType(),
-                                                                     fridgeAmortPeriod,
-                                                                     inflation))
-                        except Exception, e:
-                            errList.append(unicode(e))
-                    elif isinstance(costable, trucktypes.Truck):
-                        for innerItem in costable.getCargo():
-                            if isinstance(innerItem, abstractbaseclasses.CanStore):
-                                try:
-                                    nh.addNote(self._generateFridgeCostNotes(wh.reportingLevel,
-                                                                             wh.conditions,
-                                                                             self.intervalStartTime,
-                                                                             self.intervalEndTime,
-                                                                             innerItem.getType(),
-                                                                             fridgeAmortPeriod,
-                                                                             inflation))
-                                except Exception, e:
-                                    errList.append(str(e))
-                    elif isinstance(costable, stafftypes.Staff):
-                        try:
-                            nh.addNote(self._generateStaffCostNotes(wh.reportingLevel,
-                                                                    wh.conditions,
-                                                                    self.intervalStartTime,
-                                                                    self.intervalEndTime,
-                                                                    costable.getType(),
-                                                                    inflation))
-                        except Exception, e:
-                            errList.append(unicode(e))
-                    else:
-                        print 'Unexpectedly found %s on %s' % (type(costable),
-                                                               wh.name)
-                        raise RuntimeError("Expected only Fridges, Trucks,"
-                                           " or Staff on this list")
-                # No danger of double counting because getPendingCostEvents
-                # clears the list of events
-                allPendingCostEvents.extend(wh.applyToAll(abstractbaseclasses.Costable,
-                                                          MicroCostManager._getPendingCostEvents))
-                for costable in wh.ownedCostables:
-                    if isinstance(costable, abstractbaseclasses.CanOwn):
-                        allPendingCostEvents.extend(costable.applyToAll(abstractbaseclasses.Costable,
-                                                                        MicroCostManager._getPendingCostEvents))
-        # print 'allPendingCostEvents from scan: %s'%allPendingCostEvents
+                                                           self.intervalEndTime,
+                                                           inflation))
+                if not isinstance(wh, warehouse.AttachedClinic):
+                    for costable in wh.ownedCostables:
+                        if isinstance(costable, abstractbaseclasses.CanStore):
+                            try:
+                                nh.addNote(self._generateFridgeCostNotes(wh.reportingLevel,
+                                                                         wh.conditions,
+                                                                         self.intervalStartTime,
+                                                                         self.intervalEndTime,
+                                                                         costable.getType(),
+                                                                         fridgeAmortPeriod,
+                                                                         inflation))
+                            except Exception, e:
+                                errList.append(unicode(e))
+                        elif isinstance(costable, trucktypes.Truck):
+                            for innerItem in costable.getCargo():
+                                if isinstance(innerItem, abstractbaseclasses.CanStore):
+                                    try:
+                                        nh.addNote(self._generateFridgeCostNotes(wh.reportingLevel,
+                                                                                 wh.conditions,
+                                                                                 self.intervalStartTime,
+                                                                                 self.intervalEndTime,
+                                                                                 innerItem.getType(),
+                                                                                 fridgeAmortPeriod,
+                                                                                 inflation))
+                                    except Exception, e:
+                                        errList.append(str(e))
+                        elif isinstance(costable, stafftypes.Staff):
+                            try:
+                                nh.addNote(self._generateStaffCostNotes(wh.reportingLevel,
+                                                                        wh.conditions,
+                                                                        self.intervalStartTime,
+                                                                        self.intervalEndTime,
+                                                                        costable.getType(),
+                                                                        inflation))
+                            except Exception, e:
+                                errList.append(unicode(e))
+                        else:
+                            print 'Unexpectedly found %s on %s' % (type(costable),
+                                                                   wh.name)
+                            raise RuntimeError("Expected only Fridges, Trucks,"
+                                               " or Staff on this list")
+                    # No danger of double counting because getPendingCostEvents
+                    # clears the list of events
+                    allPendingCostEvents.extend(wh.applyToAll(abstractbaseclasses.Costable,
+                                                              MicroCostManager._getPendingCostEvents))
+                    for costable in wh.ownedCostables:
+                        if isinstance(costable, abstractbaseclasses.CanOwn):
+                            allPendingCostEvents.extend(costable.applyToAll(abstractbaseclasses.Costable,
+                                                                            MicroCostManager._getPendingCostEvents))
+                    # print 'allPendingCostEvents from scan: %s'%allPendingCostEvents
+
         if len(errList) > 0:
             util.logError("The following errors were encountered generating"
                           " costs:")
@@ -608,7 +612,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                                      inflation)
         return {"m1C_StaffSalary": staffCost}
 
-    def _generateBuildingCostNotes(self, level, conditions, startTime, endTime):
+    def _generateBuildingCostNotes(self, wh, startTime, endTime, inflation):
         """
         This routine is called once per Warehouse or Clinic instance per reporting interval,
         and returns a Dict suitable for NoteHoder.addNote() containing cost information
@@ -617,9 +621,14 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         Note that it is probably an error to call this function for an AttachedClinic instance,
         as AttachedClinics have no associated building.
         """
-#         costPerYear= self.priceTable.get("building","PerYear",level=level,conditions=conditions)
-#         return {"BuildingCost":((endTime-startTime)/float(self.model.daysPerYear))*costPerYear}
-        return {}
+        rawCost = wh.recDict['SiteCostPerYear']*((endTime-startTime)/self.model.daysPerYear)
+        fCur = wh.recDict['SiteCostCur']
+        fYear = wh.recDict['SiteCostBaseYear']
+        runCur = self.sim.userInput['currencybase']
+        runCurYear = self.sim.userInput['currencybaseyear']
+        cost = self.currencyConverter.convertTo(rawCost, fCur, runCur, fYear, runCurYear,
+                                                inflation)
+        return {"m1C_BuildingCost": cost}
 
     def generateCostRecordInfo(self, reportingHierarchy, timeNow=None):
         """
@@ -729,6 +738,17 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
         except:
             return False
 
+    def _verifyStore(self, shdStore, shdNet):
+        try:
+            return ((shdStore.SiteCost is not None and shdStore.SiteCost != ''
+                     and float(shdStore.SiteCost) >= 0.0)
+                    and (shdStore.SiteCostCurCode is not None)
+                    and (isinstance(shdStore.SiteCostYear, (types.IntType, types.LongType))
+                         and shdStore.SiteCostYear >= 2000 and shdStore.SiteCostYear <= 3000)
+                    )
+        except:
+            return False
+
     def _verifyPerDiem(self, perDiemType):
         try:
             return ((isinstance(perDiemType.BaseAmount, types.FloatType)
@@ -800,6 +820,10 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
                 conditions = store.conditions
             else:
                 conditions = u'normal'
+
+            if not self._verifyStore(store, net):
+                probSet.add("The location %s (%d) has missing cost entries" %
+                            (store.NAME, storeId))
 
             for shdInv in store.inventory:
                 invTp = shdInv.invType

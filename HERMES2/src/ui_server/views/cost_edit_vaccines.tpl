@@ -140,7 +140,7 @@ function buildPage(modelId) {
 		        	  }
 		          },
 		          {name:'basecostyear', jsonmap:'basecostyear', index:'basecostyear', align:'center',
-		        		  editable:true, edittype:'text', editrules:{integer:true, minValue:2000, maxValue:2020}},
+		        		  editable:true, edittype:'text', editrules:{integer:true, minValue:2000, maxValue:3000}},
 		          {name:'info', jsonmap: 'detail', index:'info', width:140, align:'center', sortable:false, 
 		        	  formatter:vaccineInfoButtonFormatter}
 		          
@@ -289,7 +289,7 @@ function buildPage(modelId) {
 $(function() {
 	$("#model_sel_widget").hrmWidget({
 		widget:'modelSelector',
-		label:'{{_("Showing storage costs for")}}',
+		label:'{{_("Showing vaccine costs for")}}',
 		afterBuild:function(mysel,mydata) {
 			buildPage( mydata.selid );
 		},
