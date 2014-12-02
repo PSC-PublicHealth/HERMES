@@ -2,9 +2,18 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "HERMES"
-#define MyAppVersion "0.9.1"
 #define MyAppPublisher "HERMES Team"
 #define MyAppURL "http://hermes.psc.edu"
+#define BaseVersion "0.9.1"
+#define BaseFilename "hermes-setup-w32"
+
+#ifdef SvnRevision
+#	define MyAppVersion BaseVersion + "." + SvnRevision
+#	define MySetupName BaseFilename + "-r" + StringChange(SvnRevision, ":", "-")
+#else
+#	define MyAppVersion BaseVersion
+#	define MySetupName BaseFilename
+#endif
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -21,8 +30,8 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-OutputDir=C:\HermesInnoOut
-OutputBaseFilename=hermes-setup-win32
+OutputDir=build
+OutputBaseFilename={#MySetupName}
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=poweruser

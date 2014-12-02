@@ -2,6 +2,8 @@
 setlocal
 set oldcurdir=%cd%
 cd /d %~dp0
+where /q svnversion
+if not errorlevel 1 for /f "usebackq tokens=*" %%v in (`svnversion ..\..\HERMES2\ https://redmine.hindsight.psc.edu/svn/hermes/trunk/HERMES2`) do set SvnRevision="/dSvnRevision=%%v"
 if not exist misc\hermes-tray.exe goto :buildtray
 ..\tools\md5sum misc\hermes-tray.ahk > misc\hermes-tray.ahk.curr.md5
 if not exist misc\hermes-tray.ahk.last.md5 goto :buildtray
@@ -50,7 +52,7 @@ for /l %%i in (1,1,30) do (
 echo Error! Could not build hermes-tray.exe. Aborting...
 goto :end
 :compile_setup
-..\tools\InnoSetup\iscc /qp /O"build" herm-win32-setup.iss
+..\tools\InnoSetup\iscc /qp %SvnRevision% herm-win32-setup.iss
 :end
 cd /d %oldcurdir%
 endlocal
