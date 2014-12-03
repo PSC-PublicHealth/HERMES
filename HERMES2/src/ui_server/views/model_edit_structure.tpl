@@ -195,8 +195,7 @@ $(function() {
 			    }
 			    return NULL;
 			}
-			updates = data.updates;
-			doUpdates(updates);
+			$.merge(updatesSavedForLoadNode, data.updates);
                         return JSON.stringify(data.data);
                     },
                     "success" : function(result) {
@@ -228,6 +227,16 @@ $(function() {
 		    "data" : function(n) { return { id : n.attr ? n.attr("id") : 'B-2' }; },
                     "dataFilter" : function(data, type) {
                         data = jQuery.parseJSON(data);
+			success = data.success;
+			if (!success) {
+			    if('errorString' in data) {
+				alert("{{_('error fetching node: ')}}"+data.errorString);
+			    } else {
+				alert("{{_('error fetching node')}}");
+			    }
+			    return NULL;
+			}
+			$.merge(updatesSavedForLoadNode, data.updates);
                         return JSON.stringify(data.data);
                     },
                     "success" : function(result) {

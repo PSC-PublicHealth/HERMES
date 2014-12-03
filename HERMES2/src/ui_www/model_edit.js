@@ -918,9 +918,13 @@ function closeNode(event, data) {
     //alert("closeNode: " + data.args[0].attr("id"));
 }
 
+var updatesSavedForLoadNode = [];
+
 function loadNode(event, data) {
     fixNewNodes();
     insertSavedMessages();
+    doUpdates(updatesSavedForLoadNode);
+    UpdatesSavedForLoadNode = [];
     //alert("loadNode: " + data.args[0].attr("id"));
 }
 
