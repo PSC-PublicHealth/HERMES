@@ -217,7 +217,7 @@ function validateModelSuccess(data, textStatus, jqXHR) {
 var fieldChanges = {};
 
 function doUpdate(u) {
-    if (u.updateType == 'value') {
+	if (u.updateType == 'value') {
 	/* value is a special case.  We need to support
 	   updates for both 'input' and 'select' tags and
 	   update the fixed copy as well.
@@ -239,25 +239,46 @@ function doUpdate(u) {
 	    if (element.nodeName == "INPUT") {
 		element.value = u.value;
 	    } else if (element.nodeName == "TEXTAREA") {
-		element.value = u.value;
-            } else if (element.nodeName == "SELECT") {
-		// hmm, apparently this could be done with 
-		// a single line of jquery.  Oh well.
-		for (var i = 0; element.options[i]; ++i) {
-		    if (element.options[i].value == u.value) {
-			element.selectedIndex = i;
-		    }
-		}
+	    	element.value = u.value;
+	    } else if (element.nodeName == "SELECT") {
+	    	// hmm, apparently this could be done with 
+	    	// a single line of jquery.  Oh well.
+	    	for (var i = 0; element.options[i]; ++i) {
+	    		if (element.options[i].value == u.value) {
+	    			element.selectedIndex = i;
+	    		}
+	    	} 
+        } else if ($(element).hasClass('hrm_widget')){
+			var $elt = $(element);
+			if ($elt.hasClass('hrm_widget_typeSelector')) {
+				$elt.typeSelector('set',u.value);
+			}
+			else if ($elt.hasClass('hrm_widget_energySelector')) {
+				$elt.energySelector('selId',u.value);
+			}
+			else if ($elt.hasClass('hrm_widget_currencySelector')) {
+				$elt.currencySelector('selId',u.value);
+			}
+			else alert('unsupported widget type for "value" update type '+elt.nodeName);
 	    } else {
-		alert('invalid nodeName for "value" update type '+element.nodeName);
+	    	alert('invalid nodeName for "value" update type '+element.nodeName);
 	    }
 	}
 	fieldChanges[u.inputId] = u.value;
     } else if (u.updateType == 'html') {
 	// generic update of innerHTML
-	var element = document.getElementById(u.inputId);
+    	var element = document.getElementById(u.inputId);
 	if (element)
 	    element.innerHTML = u.value;
+    } else if (u.updateType == 'widget') {
+    	var widgetOpts = u.value;
+    	var widgetType = widgetOpts.widget;
+    	var id = u.inputId;
+        var elt = document.getElementById(u.inputId);
+    	widgetOpts.onChange = function( evt, parm2 ) { widgetChangeCB(id, widgetType, evt, parm2); };
+        $(elt).hrmWidget(widgetOpts);
+        $(elt).addClass('hrm_widget');
+        $(elt).addClass('hrm_widget_'+widgetType);
     } else if (u.updateType == 'savedValue') {
         fieldChanges[u.inputId] = u.value;
     } else if (u.updateType == 'focus') {
@@ -327,6 +348,59 @@ function doUpdate(u) {
 	alert(u.value);
     } else {
 	alert('invalid update type: '+u.updateType);
+    }
+}
+
+function changeWidgetSuccess(widgetType, id, data, textStatus, jqXHR) {
+    // this has become the catchall handler for anything
+    // that just returns an update list
+    if (!('success' in data)) {
+    	alert('got invalid server response from a widget update');
+    	return;
+    }
+    
+    if ('updateList' in data) {
+    	doUpdates(data.updateList);
+    }
+    
+    if (data.success == false) {
+    	if ('errorString' in data) {
+    		alert(data.errorString);
+    	} else {
+    		alert('unknown server error');
+    	}
+    }
+    $(document).tooltips('applyTips');	
+}
+
+function widgetChangeCB(id, widgetType, evt, parm2) {
+    var origStr = "";
+    
+    if (id in fieldChanges) {
+    	origStr = fieldChanges[id];
+    }
+
+    var curStr = null;
+    if ($.inArray(widgetType, ['typeSelector', 'energySelector', 'currencySelector']) > -1) {
+    	curStr = parm2;
+    }
+    else {
+    	alert('change to unsuppoted widget type '+widgetType);
+    }
+
+    if (origStr != curStr) {
+    	var request = $.ajax({
+    		url:'json/modelUpdate',
+    		type:'POST',
+    		data:{
+    			'inputId' : id,
+    			'origStr' : origStr,
+    			'newStr' : curStr
+    		},
+    		success: function(data, textStatus, jqXHR) {
+    			changeWidgetSuccess(widgetType, id, data, textStatus, jqXHR);
+    		}
+    	});
     }
 }
 
@@ -810,6 +884,38 @@ function updateRSEValue(unique, storeId, tree, action) {
 	    'value' : value,
 	    'secondary' : 'X',
 	    'tertiary' : 'X'
+	},
+	success: function(data, textStatus, jqXHR) {
+	    changeStringSuccess(data, textStatus, jqXHR);
+	}
+    });
+	    
+}
+
+function updateRSECostValue(unique, storeId, tree, action) {
+	alert('made it!');
+    var category = getSelectValue('rse_category_' + unique);
+    var field = getSelectValue('rse_field_' + unique);
+    var cost = document.getElementById('rseInput_set_cost_' + unique).value;
+    var costcur = document.getElementById('rseInput_set_costcur_' + unique).value;
+    var costyear = document.getElementById('rseInput_set_costyear_' + unique).value;
+    
+    var div = document.getElementById('rse_content_' + unique);
+    div.innerHTML = '<p>Updating.  This may take a moment...</p>';
+
+    var request = $.ajax({
+	url:'json/meUpdateRSEValue',
+	data: {
+	    'modelId' : modelId,
+	    'idcode' : storeId,
+	    'tree' : tree,
+	    'category' : category,
+	    'field' : field,
+	    'unique' : unique,
+	    'action' : action,
+	    'value' : cost,
+	    'secondary' : costcur,
+	    'tertiary' : costyear
 	},
 	success: function(data, textStatus, jqXHR) {
 	    changeStringSuccess(data, textStatus, jqXHR);

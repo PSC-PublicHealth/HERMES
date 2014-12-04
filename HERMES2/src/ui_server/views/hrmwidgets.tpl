@@ -691,11 +691,14 @@ function addToggleExpansionButton($grid) {
  		}
  		
  		else if (settings['widget']=='typeSelector') {
-			$.fn.typeSelector = function( arg ) {
+			$.fn.typeSelector = function( arg, arg2 ) {
 				var sel = this.first().find("select");
  				var myThis = this;
 				if (arg=='selValue') {
 					return unescape(sel.val());
+				}
+				else if (arg=='set') {
+					sel.val(arg2);
 				}
 				else if (arg=='rebuild') {
 					var modelId;

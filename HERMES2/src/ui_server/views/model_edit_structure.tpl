@@ -20,7 +20,8 @@
 %    { 'field' : "OrderAmount",  'type' : 'route', 'title' : _('order amounts') },
 %    { 'field' : "TruckType",    'type' : 'route', 'title' : _('truck type') },
 %    { 'field' : "Timings",      'type' : 'route', 'title' : _('route timings') },
-%    { 'field' : "Conditions",   'type' : 'route', 'title' : _('route conditions') },
+%    { 'field' : "PerDiemType",      'type' : 'route', 'title' : _('per diem policy')},
+%    { 'field' : "Conditions",   'type' : 'route', 'title' : _('route conditions') }
 % ]
 
 <style>

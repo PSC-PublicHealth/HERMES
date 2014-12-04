@@ -143,6 +143,7 @@ def createLocalUpdateEntry(inputId, value, updateType='value', displayValue=None
     changeId : change the node id of a single node.  The client will immediately request
                that the node be resent as well.
     alert : generate a popup text message for the user.
+    widget : use the value to create a widget on the client.
     """
     #if updateType == 'value':
     #    displayValue = h(displayValue)
@@ -458,18 +459,20 @@ class EditableFieldInfo:
     based on fieldType.  Acceptable fieldType values include:
     'pulldown'  : requires pullDownOpts to have a value
     'tuplelist' : may have pullDownOpts for adding to the tuple list
+    'widget'    : requires widgetOpts
     'textarea'  :
     'button'    : Currently only partially implemented
 
     """
     def __init__(self, className, fieldName, value, fieldType='text',
                  pullDownOpts=None, size=None, displayValue=None,
-                 cols=None, rows=None):
+                 cols=None, rows=None, widgetOpts=None):
         self.className = className
         self.fieldName = fieldName
         self.value = value
         self.fieldType = fieldType
         self.pullDownOpts = pullDownOpts
+        self.widgetOpts = widgetOpts
         self.size = size
         self.cols = cols
         self.rows = rows
@@ -485,6 +488,9 @@ class EditableTuple:
         self.count = count
         self.item = item
         self.displayName = displayName
+        
+    def __repr__(self):
+        return 'EditableTuple(%s, %s, %s)'%(self.count, self.item, self.displayName)
 
 class EditableTupleList:
     def __init__(self, et=None):
@@ -635,6 +641,18 @@ def renderEditableString(modelId, itemId, fieldInfo):
     ULCM.addUpdate(inputId, "%s"%f.value, 'savedValue')
     return ret
 
+def renderWidget(modelId, itemId, fieldInfo):
+    f = fieldInfo
+    ret = []
+    inputId = packInputId(modelId, itemId, f.className)
+    attrString = ''
+    if f.size:
+        attrString += ' size="%s"'%f.size
+    ret.append('<div id="%s" class="%s" %s>%s</div>' %
+               (inputId, f.className, attrString, h(f.value)))
+    ULCM.addUpdate(inputId, f.widgetOpts, 'widget')
+    return ret
+
 def renderEditableTextArea(modelId, itemId, fieldInfo):
     f = fieldInfo
     ret = []
@@ -718,10 +736,9 @@ def renderBasicEditableFields(storeOrRoute, groupClassName, EditableFields):
 
     ret = []
     ret.append('<div class="%s" title="this is a tool tip">'%groupClassName)
-    ret.append('<p>')
     EditableFields = listify(EditableFields)
     for f in EditableFields:
-        ret.append('%s: <span class="edit_%s">'%(f.fieldName, groupClassName))
+        ret.append('%s: <div class="edit_%s">'%(f.fieldName, groupClassName))
         if f.fieldType == 'pulldown':
             ret.extend(renderPullDown(modelId, itemId, f))
         elif f.fieldType == 'textarea':
@@ -730,19 +747,22 @@ def renderBasicEditableFields(storeOrRoute, groupClassName, EditableFields):
             ret.extend(renderButton(modelId, itemId, f))
         elif f.fieldType == 'text':
             ret.extend(renderEditableString(modelId, itemId, f))
+        elif f.fieldType == 'widget':
+            ret.extend(renderWidget(modelId, itemId, f))
         else:
             raise RuntimeError("invalid fieldType %s"%f.fieldType)
         fixedInputId = 'fixed_' + packInputId(modelId, itemId, f.className)
-        ret.append('</span><span class="%s"><b id="%s">%s</b></span>'%\
+        ret.append('</div><span class="%s"><b id="%s">%s</b></span>'%\
                        ('fixed_'+groupClassName, fixedInputId, h(f.displayValue)))
-    ret.append('</p>')
     ret.append('</div>')
     return ret
 
 def renderBasicEditableField(storeOrRoute, className, fieldName, value, 
-                             pullDownOpts=None, displayValue=None):
+                             pullDownOpts=None, displayValue=None, widgetOpts=None):
     fieldType = 'text'
-    if pullDownOpts is not None:
+    if widgetOpts is not None:
+        fieldType = 'widget'
+    elif pullDownOpts is not None:
         fieldType = 'pulldown'
     return renderBasicEditableFields(storeOrRoute,
                                      className,
@@ -751,7 +771,8 @@ def renderBasicEditableField(storeOrRoute, className, fieldName, value,
                                                         value,
                                                         fieldType = fieldType,
                                                         pullDownOpts = pullDownOpts,
-                                                        displayValue = displayValue)])
+                                                        displayValue = displayValue,
+                                                        widgetOpts = widgetOpts)])
 
 
 def addStoreMessage(store, msg):
@@ -1307,6 +1328,7 @@ def renderRouteTruckType(route):
                                     pullDownOpts = opts,
                                     displayValue = displayValue)
 
+
 def updateRouteTruckType(inputId, model, origStr, newStr):
     modelId, itemId, field = inputIdTriple(inputId)
     route = getRouteFromItemId(model, itemId)
@@ -1321,7 +1343,7 @@ def updateRouteTruckType(inputId, model, origStr, newStr):
         ul = LocalUpdateList(inputId, 
                              route.TruckType,
                              updateType='value',
-                             displayValue=model.trucks[newStr].getDisplayName())
+                             displayValue=model.trucks[origStr].getDisplayName())
         raise(InvalidUpdate(_('Invalid truck type'), updateList=ul))
                             
     route.TruckType = newStr
@@ -1332,6 +1354,63 @@ def updateRouteTruckType(inputId, model, origStr, newStr):
 
     ULCM.addUpdate(inputId, newStr, updateType='value', 
                    displayValue=displayValue)
+
+    return True
+
+
+def routePerDiemWidgetOpts(route):
+    opts = {'widget': 'typeSelector',
+            'label': '',
+            'invtype': 'perdiems',
+            'modelId': route.model.modelId,
+            'selected': route.PerDiemType
+            }.copy()
+    return opts
+
+
+def renderRoutePerDiemType(route):
+    opts = routePerDiemWidgetOpts(route)
+
+    displayValue = ''
+    if route.PerDiemType in route.model.perdiems:
+        displayValue = route.model.perdiems[route.PerDiemType].getDisplayName()
+
+    return renderBasicEditableField(route, 'routePerDiemType', _('per diem rule'),
+                                    route.PerDiemType,
+                                    widgetOpts=opts,
+                                    displayValue=displayValue)
+
+
+def updateRoutePerDiemType(inputId, model, origStr, newStr):
+    modelId, itemId, field = inputIdTriple(inputId)  # @UnusedVariable
+    route = getRouteFromItemId(model, itemId)
+    print 'point 1: <%s> <%s>'%(origStr,route.PerDiemType)
+    if origStr != '' and origStr != route.PerDiemType:
+        ul = LocalUpdateList(inputId,
+                             route.PerDiemType,
+                             updateType='value',
+                             displayValue=model.perdiems[newStr].getDisplayName())
+        raise(InvalidUpdate(_('value previously updated'), updateList=ul))
+
+    if newStr not in model.perdiems:
+        ul = LocalUpdateList(inputId,
+                             route.PerDiemType,
+                             updateType='value',
+                             displayValue=model.perdiems[origStr].getDisplayName())
+        raise(InvalidUpdate(_('Invalid per diem type'), updateList=ul))
+    print 'point 2'
+
+    route.PerDiemType = newStr
+    print 'point 3'
+
+    displayValue = ''
+    if route.PerDiemType in route.model.perdiems:
+        displayValue = route.model.perdiems[route.PerDiemType].getDisplayName()
+    print 'point 4'
+
+    ULCM.addUpdate(inputId, newStr, updateType='value',
+                   displayValue=displayValue)
+    print 'point 5'
 
     return True
 
@@ -1532,6 +1611,7 @@ def renderRouteData(route):
     ret.extend(renderRouteDistances(route))
     ret.extend(renderRouteOrderAmount(route))
     ret.extend(renderRouteConditions(route))
+    ret.extend(renderRoutePerDiemType(route))
     ret.append('</div>')
     return ret
 
@@ -1735,7 +1815,8 @@ updateFn = {
     'routeTruckType' : updateRouteTruckType,
     'routeInterval' : updateFloat,
     'routeLatency' : updateFloat,
-    'routeConditions' : updateRouteConditions
+    'routeConditions' : updateRouteConditions,
+    'routePerDiemType' : updateRoutePerDiemType
     }
 
 
@@ -1751,6 +1832,8 @@ def jsonModelUpdate(db, uiSession):
         inputs = unpackInputId(inputId)
         origStr = getParm('origStr')
         newStr = string.strip(getParm('newStr'))
+        print 'Inputs: %s'%inputs
+        print 'parms: %s'%{a:b for a,b in bottle.request.params.items()}
 
         modelId = inputs['modelId']
         itemId = inputs['itemId']
@@ -1763,6 +1846,7 @@ def jsonModelUpdate(db, uiSession):
 
         with selectTree(tree):
             with ULCM():
+                print updateFn.keys()
                 val = updateFn[field](inputId, model, origStr, newStr)
 
                 if val is not True:
@@ -2650,6 +2734,52 @@ def rseUpdateUtilization(store, field, category, unique, action, value, secondar
         inputId = packInputId(store.modelId, client, 'storeUtilizationRate')
         ULCM.addUpdate(inputId, unicode(client.utilizationRate))
 
+def rseDispCosts(store, field, category, unique):
+    global currentTree
+    divId = 'rse_content_%s'%unique
+    ret = []
+    ret.append('<p>' + _('Set cost information:'))
+    ret.append('<div class="rse_cost_set_input" id="rseInput_set_%s">'%unique)
+    ret.append('<input type="text" class="rse_cost1_set_input" id="rseInput_set_cost_%s" />'%unique)
+    ret.append('<input type="text" class="rse_cost2_set_input" id="rseInput_set_costcur_%s" />'%unique)
+    ret.append('<input type="text" class="rse_cost3_set_input" id="rseInput_set_costyear_%s" />'%unique)
+    ret.append('</div>\n')
+    ret.append('<button type="button" class="rse_cost_set_button" onclick="updateRSECostValue(%s,%s,\'%s\',\'set\');">%s</button>'%(unique, store.idcode, currentTree, _('Ok')))
+    ret.append('</p>')
+    ret = string.join(ret, '\n')
+    ULCM.addUpdate(divId, ret, 'html')
+
+def rseUpdateCosts(store, field, category, unique, action, value, secondary, tertiary):
+    try:
+        cost = value.strip()
+        cost = float(cost)
+    except:
+        raise InvalidRecursiveUpdate(_('Site cost must be 0.0 or greater'))
+    try:
+        costcur = secondary.strip()
+    except:
+        raise InvalidRecursiveUpdate(_('Site cost currency is an invalid code'))
+    try:
+        costyear = tertiary.strip()
+        costyear = int(costyear)
+    except:
+        raise InvalidRecursiveUpdate(_('Site cost base year must be an integer'))
+
+    if action not in ['set']:
+        raise InvalidRecursiveUpdate(_('invalid action {0}').format(action))
+
+    clients = store.recursiveClients()
+    for client, cRoute in clients:
+        if client.CATEGORY != category:
+            continue
+
+        if action == 'set':
+            client.SiteCost = cost
+            client.SiteCostCurCode = costcur
+            client.SiteCostYear = costyear
+        inputId = packInputId(store.modelId, client, 'storeCost')
+        ULCM.addUpdate(inputId, unicode(client.SiteCost))
+
 def rseDispStorage(store, field, category, unique):
     rseDispInventory('fridges', store, field, category, unique)
 
@@ -2885,7 +3015,8 @@ rseFields = {
     'storage' : ['storage', rseDispStorage, rseUpdateStorage],
     'transport' : ['transport', rseDispTransport, rseUpdateTransport],
     'population' : ['population', rseDispDemand, rseUpdateDemand],
-    'staff' : ['staff', rseDispStaff, rseUpdateStaff]
+    'staff' : ['staff', rseDispStaff, rseUpdateStaff],
+    'costs' : ['costs', rseDispCosts, rseUpdateCosts]
     }
     
 def rseRenderAvailableFields(unique, store):
