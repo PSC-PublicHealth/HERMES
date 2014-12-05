@@ -903,6 +903,11 @@ def getDataFullPath(path, dontPrint = False):
         elif os.environ.has_key('HERMES_DATA_PATH'):
             hdp = os.environ['HERMES_DATA_PATH']
             if hdp.startswith('zipfile:'):
+                # Verify that the requested file is actually in there
+                (trash,zipName) = hdp.split('zipfile:', 1)
+                zipHandle = zipfile.ZipFile(zipName,'r')
+                if path not in zipHandle.namelist():
+                    raise IOError("No such subfile %s in zipfile"%path)
                 return hdp
             searchThese= hdp.split(os.pathsep)
             searchThese.reverse()
