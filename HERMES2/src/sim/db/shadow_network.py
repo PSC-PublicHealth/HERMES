@@ -803,6 +803,12 @@ class ShdStore(Base, ShdCopyable):
         else:
             return item.count
 
+    def countAllInventory(self):
+       invDict= {}
+       for inv in self.inventory:    
+           invDict[inv.invName] = inv.count
+       return invDict
+
     def updateDemand(self, demandType, count):
         self.updateInventory(demandType, count, True)
 
@@ -982,7 +988,52 @@ class ShdStore(Base, ShdCopyable):
         if self.supplierRoute().Type == "attached":
             return True
         return False
+
+    def isVaccinating(self):
+        #returnValue = False
+        excludeList = ['Service1']
+        ### Outreach Clinic is always vaccinating
+        if self.CATEGORY == "OutreachClinic":
+            return True
+        ### Attached Clinics are not "Vaccinating" they represent demand from some other location
+        if self.supplierRoute() is not None:
+            if self.supplierRoute().Type == "attached":
+                return False
+        ### First, does the place itself have people demand
+        if len([x for x in self.demand if x.invName not in excludeList]) > 0:
+            return 1
         
+        ### Then have to check for attached clinics if there is one that is not outreach or surrogate, must be there to vaccinate
+        for client in self.clients():
+            if(client[1].Type == "attached" and (client[0].FUNCTION != "Surrogate" and client[0].CATEGORY != "OutreachClinic")):
+                return True
+       
+        return False
+
+    def reportDemandServedDict(self):
+        ### This will return the total demand served by this location
+        ### This takes into account is a location has attached clinics
+        ### and will return the total demand of all attached clinics
+        ### unless the attached is a surrogate or an outreach locations
+        excludeList = ['Service1']
+        returnDict = {}
+        for demand in self.demand:
+            if demand.invName not in excludeList:
+                #print demand.invType.getDisplayName()
+                returnDict[demand.invType.getDisplayName()] = demand.count
+        for client in self.clients():
+            if client[1].Type == 'attached':
+                if client[0].FUNCTION != "Surrogate" and client[0].CATEGORY != "OutreachClinic":
+                    for demand in client[0].demand:
+                        if demand.invName not in excludeList:
+                            dispName = demand.invType.getDisplayName()
+                            if dispName not in returnDict.keys():
+                                returnDict[dispName] = demand.count
+                            else:
+                                returnDict[dispName] += demand.count
+        
+        return returnDict
+    
 def storeLoadListener(store, context):
     pass
     #print "loading store %s (%d)"%(store.NAME, store.idcode)
@@ -1345,7 +1396,17 @@ class ShdRoute(Base):
 
         return clients
         
-
+    def getDistanceKM(self):
+        distanceKM = 0.0
+        for stop in self.stops:
+            distanceKM += stop.DistanceKM
+        
+        return distanceKM
+    
+    def isLoop(self):
+        if len(self.stops) > 2:
+            return True
+        return False
 _makeColumns(ShdRoute)
 Index('routesIdxName', ShdRoute.modelId, ShdRoute.RouteName)
 
@@ -3534,6 +3595,18 @@ class ShdDemand(Base):
 
 _makeColumns(ShdDemand)
 
+class ModelSummaryBlobHolder(Base):
+    """
+    This class holds the model Summary json as a blob so that it does not
+    have to be created everytime it is used as it is very costly
+    """
+    __tablename__ = 'modelSummaryBlobHolder'
+    blobId = Column(Integer, primary_key=True)
+    blob = Column(LargeBinary)
+    
+    def __init__(self,blob):
+        self.blob = blob
+
 
 class ShdNetwork(Base):
     """
@@ -3578,10 +3651,19 @@ class ShdNetwork(Base):
     __tablename__ = 'models'
     __table_args__ = {'mysql_engine':'InnoDB'}
     modelId = Column(Integer, primary_key=True)
+
+    def copyModelSummary(self,tt):
+        if tt is None or tt == '':
+            self.modelSummaryJsonRef = None
+            return
+        self.modelSummaryJsonRef = ModelSummaryBlobHolder(tt)
+    
     note = Column(String(4096))
     attrs = [('name',    STRING),
-             ('refOnly',  BOOLEAN),  # set if this model is only for holding types
-             ]
+			 ('refOnly',  BOOLEAN),  # set if this model is only for holding types
+             ('modelSummaryJsonRef',
+              DataType(INTEGER, foreignKey='modelSummaryBlobHolder.blobId'),
+              'copy',copyModelSummary)]
 
     factories = relationship('ShdFactory',
                             backref='model',
@@ -3692,7 +3774,8 @@ class ShdNetwork(Base):
                                                     "ShdInventory.sourceType]"
                                     )
 
-
+    modelSummaryJson = relationship('ModelSummaryBlobHolder',uselist=False)
+    
     def __init__(self, storeRecs, routeRecs, factoryRecs, shdTypes, name=None):
         """
         Instantiates a new hermes network based on the 'storeRecs' and 'routeRecs'.
@@ -3711,6 +3794,8 @@ class ShdNetwork(Base):
         self.name = name
         self.demands = []
         self.resultsGroups = []
+        self.modelSummaryJson = None
+    
 
         # segregated copy of the types as well
         for key in ShdTypes.typesMap.keys():
@@ -3754,7 +3839,28 @@ class ShdNetwork(Base):
                 for name,rrList in rrDict.items():
                     rrList.sort(key = lambda r: r['RouteOrder'])
                     self.addRoute(rrList)
-   
+
+    ### for adding and geting model summaries
+    def addModelSummaryJson(self):
+        import reporthooks
+        modelJson = reporthooks.createModelSummarySerialized(self)
+        if self.modelSummaryJson is None:
+            self.modelSummaryJson = ModelSummaryBlobHolder(modelJson)
+        else:
+            bh = self.modelSummaryJson
+            bh.blob = modelJson
+            
+    def getModelSummaryJson(self):
+        import json
+        
+        if self.modelSummaryJson is None:
+            return None
+        print "BLOB"
+        #print self.modelSummaryJson.blob
+        print json.loads(self.modelSummaryJson.blob)['name']
+        return json.loads(self.modelSummaryJson.blob)
+    
+    ### The next set of members produce data in formats for reporting
     def getLevelList(self):
         countDict = {}
         for storeId,store in self.stores.items():
@@ -3777,6 +3883,106 @@ class ShdNetwork(Base):
                 countDict[store.CATEGORY] += 1    
         sortedcount = [x[0] for x in sorted(countDict.iteritems(),key=operator.itemgetter(1))]
         return (sortedcount,countDict)
+    
+    def getVaccinatingLevelCount(self): 
+        countDict = {}
+        for storeId,store in self.stores.items():
+            if not store.isVaccinating():
+                continue
+            if store.CATEGORY not in countDict.keys():
+                countDict[store.CATEGORY] = 1
+            else:
+                countDict[store.CATEGORY] += 1    
+        sortedcount = [x[0] for x in sorted(countDict.iteritems(),key=operator.itemgetter(1))]
+        return (sortedcount,countDict)
+    
+    def getInventoryByLevel(self,includeVehicles=False):
+        inventoryDict = {}
+        volumeCounts = {}
+        
+        for storeId,store in self.stores.items():
+            if store.CATEGORY not in inventoryDict.keys():
+                inventoryDict[store.CATEGORY] = {}
+                volumeCounts[store.CATEGORY] = []
+            invDict = store.countAllInventory()
+            for item, count in invDict.items():
+                if item in inventoryDict[store.CATEGORY].keys():
+                    inventoryDict[store.CATEGORY][item] += count
+                else:
+                    inventoryDict[store.CATEGORY][item] = count
+                     
+        return inventoryDict
+    
+    def getDemandLevelCount(self):
+        countDict = {}
+        levelCount = {}
+        for storeId,store in self.stores.items():
+            if not store.isVaccinating():
+                continue
+            if store.CATEGORY not in countDict.keys():
+                countDict[store.CATEGORY] = {}
+                levelCount[store.CATEGORY] = 1.0
+            else:
+                levelCount[store.CATEGORY] += 1.0
+                demandDict = store.reportDemandServedDict()
+                #print "DemandDict for %s = %s"%(str(storeId),str())
+                for cat,count in demandDict.items():
+                    if cat not in countDict[store.CATEGORY].keys():
+                        countDict[store.CATEGORY][cat] = {'ave':float(count),'max':count,
+                                                          'min':count,'count':count}
+                    else:
+                        countDict[store.CATEGORY][cat]['ave'] += float(count)
+                        countDict[store.CATEGORY][cat]['count'] += count
+                        if count > countDict[store.CATEGORY][cat]['max']:
+                            countDict[store.CATEGORY][cat]['max'] = count
+                        if count < countDict[store.CATEGORY][cat]['min']:
+                            countDict[store.CATEGORY][cat]['min'] = count
+                            
+        for level in levelCount.keys():
+            for cat in countDict[level].keys():
+                countDict[level][cat]['ave']/=levelCount[level]
+        
+        return countDict
+    
+    def getRoutesLevelCount(self):
+        levelCount = {}
+        countDict = {}
+        for routeId,route in self.routes.items():
+            if route.Type == "attached":
+                continue
+            level = route.stops[0].store.CATEGORY 
+            if level not in countDict.keys():
+                countDict[level] = {'number':1,'distance':{'ave':float(route.getDistanceKM()),
+                                                         'total':route.getDistanceKM(),
+                                                         'max':route.getDistanceKM(),
+                                                         'min':route.getDistanceKM()},
+                                    'vehicleCount':{route.TruckType:1},
+                                    'routeTypeCount':{route.Type:1}}
+            else:
+                countDict[level]['number']+=1
+                countDict[level]['distance']['ave'] += float(route.getDistanceKM())
+                countDict[level]['distance']['total'] += float(route.getDistanceKM())
+                countDict[level]['distance']['max'] = max(countDict[level]['distance']['max'],route.getDistanceKM())
+                countDict[level]['distance']['min'] = min(countDict[level]['distance']['min'],route.getDistanceKM())
+                if route.TruckType in countDict[level]['vehicleCount'].keys():
+                    countDict[level]['vehicleCount'][route.TruckType]+=1
+                else:
+                    countDict[level]['vehicleCount'][route.TruckType]=1
+                if route.isLoop():
+                    rType = route.Type+"_Loop"
+                else:
+                    rType = route.Type
+                if rType in countDict[level]['routeTypeCount'].keys():
+                        countDict[level]['routeTypeCount'][rType]+=1
+                else:
+                    countDict[level]['routeTypeCount'][rType]=1
+                
+                
+                
+        for level in countDict.keys():    
+            countDict[level]['distance']['ave'] /= float(countDict[level]['number'])
+        return countDict
+        
     # the following group of functions are analogs to the db api
     def getStore(self, storeId):
         return self.stores[storeId]
@@ -4057,8 +4263,24 @@ class ShdNetwork(Base):
             clientIds += self.getWalkOfClientIds(client[0].idcode)
         
         return clientIds
+    
+    def getWalkOfClientIdsWithDepth(self, idcode, depth=0):
+        ''' This member will walk up from an store through the network 
+            and return a list of idcodes for all of the client chain for
+            the store
+        '''
+        clientIds = []
+        if depth==0:
+            clientIds.append((idcode,0))
+        thisStore = self.stores[idcode]
+        for client in thisStore.clients():
+            if client[1].Type != "attached":
+                clientIds.append((client[0].idcode,depth+1))
+            clientIds += self.getWalkOfClientIdsWithDepth(client[0].idcode, depth=depth+1)
 
-### STB - Helper function here to creat a json, it was just easier    
+        return clientIds
+
+    ### STB - Helper function here to creat a json, it was just easier    
     def getWalkOfClientsDictForJson(self,idcode):
         ''' This member will walk up from an store through the network 
             and return a dict for heirarchical reps for all of the client chain for
@@ -4070,13 +4292,15 @@ class ShdNetwork(Base):
         thisClientList = [x for x in thisStore.clients() if (x[1].Type != "attached" and x not in thisLoopList)]
         if len(thisClientList) > 0:
             clientDict = {'name':thisStore.NAME,'level':levels.index(thisStore.CATEGORY),
-                          'depth':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode,'children':[]}
+                          'depth':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode,
+                          'latlong':[thisStore.Latitude,thisStore.Longitude],'children':[]}
             for client in thisClientList:
                 if client[1].Type != "attached":
                     clientDict['children'].append(self.getWalkOfClientsDictForJson(client[0].idcode))
         else:
             clientDict = {'name':thisStore.NAME,'level':levels.index(thisStore.CATEGORY),
-                          'depth':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode}
+                          'depth':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode,
+                          'latlong':[thisStore.Latitude,thisStore.Longitude]}
         ### Handle a Transport Loop
         if len(thisLoopList) > 0:
             loopNameList =[]
@@ -4101,7 +4325,7 @@ class ShdNetwork(Base):
                 clientDict['children'].append(loopClientDict)
             
         return clientDict
-    
+
     def createRouteListOrderdByWalkOfClients(self, idcode):
         ''' This member will create a list of routes that are 
             are ordered by a list for all of the client chain
