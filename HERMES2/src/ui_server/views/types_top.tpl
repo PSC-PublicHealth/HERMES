@@ -357,7 +357,7 @@ $("#dest_grid").jqGrid({
     pgbuttons: false,
     pginput: false,
     sortname: 'dispName',
-    viwerecords: true,
+    viewerecords: true,
     sortorder: 'asc',
     gridview: true,
     onSelectRow: function(id) {
@@ -369,8 +369,12 @@ $("#dest_grid").jqGrid({
     caption: "{{_('used types')}}",
 });
 
-function catchNewType(event, ui, data) {
-    alert('dropped');
+$("#dest_grid").jqGrid('navGrid', '#dest_pager', {edit:false, add:false, del:false});
+
+function catchNewType(event, ui, data, $source, $target) {
+    ui.helper.dropped = false;
+    //alert(data.name);
+    copySelected(data.name);
 }
 
 $("#src_grid").jqGrid({
@@ -387,7 +391,7 @@ $("#src_grid").jqGrid({
     pgbuttons: false,
     pginput: false,
     sortname: 'dispName',
-    viwerecords: true,
+    viewerecords: true,
     sortorder: 'asc',
     gridview: true,
     onSelectRow: function(id) {
@@ -399,10 +403,11 @@ $("#src_grid").jqGrid({
     },
     // editurl:
     caption: "{{_('available types')}}",
-    gridDnD : {connectWith : '#dest_grid', 
-	       dragcopy : true, 
-	       ondrop : catchNewType },
 });
+$("#src_grid").jqGrid('navGrid', '#src_pager', {edit:false, add:false, del:false});
+$("#src_grid").jqGrid('gridDnD', {connectWith : '#dest_grid', 
+				  dragcopy : true, 
+				  beforedrop : catchNewType });
 
 var sel_model_name = null;
 var sel_model_id = null;
@@ -445,12 +450,14 @@ function populateSrcModelSelect() {
 	});
 }
 
-function copySelected() {
+function copySelected(name) {
+    if (typeof name == 'undefined')
+	name = src.lastSelName;
     var request = $.ajax( {
 	url:'json/copyTypeToModel',
 	data : { 'modelId' : {{modelId}},
 		 'srcModelId' : sel_model_id,
-		 'typeName' : src.lastSelName },
+		 'typeName' : name },
         success: function(data, textStatus, jqXHR) {
 	    reloadGrid(dest);
         },
