@@ -738,7 +738,7 @@ def renderBasicEditableFields(storeOrRoute, groupClassName, EditableFields):
     ret.append('<div class="%s" title="this is a tool tip">'%groupClassName)
     EditableFields = listify(EditableFields)
     for f in EditableFields:
-        ret.append('%s: <div class="edit_%s">'%(f.fieldName, groupClassName))
+        ret.append('<table><tr><td>%s: </td><td><div class="edit_%s">'%(f.fieldName, groupClassName))
         if f.fieldType == 'pulldown':
             ret.extend(renderPullDown(modelId, itemId, f))
         elif f.fieldType == 'textarea':
@@ -752,7 +752,7 @@ def renderBasicEditableFields(storeOrRoute, groupClassName, EditableFields):
         else:
             raise RuntimeError("invalid fieldType %s"%f.fieldType)
         fixedInputId = 'fixed_' + packInputId(modelId, itemId, f.className)
-        ret.append('</div><span class="%s"><b id="%s">%s</b></span>'%\
+        ret.append('</div><span class="%s"><b id="%s">%s</b></span></td></tr></table>'%\
                        ('fixed_'+groupClassName, fixedInputId, h(f.displayValue)))
     ret.append('</div>')
     return ret
@@ -951,7 +951,74 @@ def renderStoreLatLon(store):
     fields = [EditableFieldInfo('storeLatitude', _('Latitude'), store.Latitude, size=10),
               EditableFieldInfo('storeLongitude', _('Longitude'), store.Longitude, size=10)]
     return renderBasicEditableFields(store, 'storeLatLon', fields)
-    
+
+
+def storeSiteCostCurWidgetOpts(store):
+    opts = {'widget': 'currencySelector',
+            'label': '',
+            'modelId': store.modelId,
+            'selected': store.SiteCostCurCode
+            }.copy()
+    return opts
+
+
+def renderStoreSiteCost(store):
+    fields = [EditableFieldInfo('storeSiteCost', _('Site Cost Per Year'), store.SiteCost, size=10),
+              EditableFieldInfo('storeSiteCostCurCode', _('Currency'), store.SiteCostCurCode,
+                                size=10, fieldType='widget',
+                                widgetOpts=storeSiteCostCurWidgetOpts(store)),
+              EditableFieldInfo('storeSiteCostYear', _('Site Cost Base Year'), store.SiteCostYear,
+                                size=10),
+              ]
+    return renderBasicEditableFields(store, 'storeSiteCost', fields)
+
+
+def updateStoreSiteCostCurCode(inputId, model, origStr, newStr):
+    modelId, itemId, field = inputIdTriple(inputId)  # @UnusedVariable
+    store = getStoreFromItemId(model, itemId)
+
+    if origStr != '' and origStr != store.SiteCostCurCode:
+        ul = LocalUpdateList(inputId,
+                             store.SiteCostCurCode,
+                             updateType='value')
+        raise(InvalidUpdate(_('value previously updated'), updateList=ul))
+
+    if newStr not in [cc.code for cc in model.currencyTable]:
+        ul = LocalUpdateList(inputId,
+                             store.SiteCostCurCode,
+                             updateType='value')
+        raise(InvalidUpdate(_('Invalid currency code'), updateList=ul))
+
+    store.SiteCostCurCode = newStr
+
+    ULCM.addUpdate(inputId, newStr, updateType='value')
+
+    return True
+
+
+def updateStoreSiteCostYear(inputId, model, origStr, newStr):
+    modelId, itemId, field = inputIdTriple(inputId)  # @UnusedVariable
+    store = getStoreFromItemId(model, itemId)
+
+    curVal = store.SiteCostYear
+    curValStr = unicode(curVal)
+    if origStr != curValStr:
+        raise(InvalidUpdate(_('value of site cost base year previously updated'),
+                            inputId, curValStr))
+    try:
+        newVal = int(newStr.strip())
+    except:
+        raise(InvalidUpdate(_('invalid site cost base year {0}').format(newStr),
+                            inputId, 
+                            curValStr))
+
+    store.SiteCostYear = newVal
+
+    ULCM.addUpdate(inputId, newStr, updateType='value')
+
+    return True
+
+
 def renderStoreUseVials(store):
     fields = [EditableFieldInfo('storeUseVialsInterval', 
                                 _('Use Vials Interval'), 
@@ -997,6 +1064,7 @@ updateFloatFields = {
     'storeUseVialsInterval': (id2Store, 'UseVialsInterval', _('use vials interval'), 0.0, None),
     'storeUseVialsLatency': (id2Store, 'UseVialsLatency', _('use vials latency'), None, None),
     'storeUtilizationRate' : (id2Store, 'utilizationRate', _('storage utilization rate'), 0.0, None),
+    'storeSiteCost' : (id2Store, 'SiteCost', _('yearly site cost'), 0.0, None),
     'routeDistances' : (id22Stop, 'DistanceKM', _('distance (KM)'), 0.0, None),
     'routeTransitHours' : (id22Stop, 'TransitHours', _('transit hours'), 0.0, None),
     'routeOrderAmount' : (id22Stop, 'PullOrderAmountDays', _('order amounts'), 0.0, None),
@@ -1262,6 +1330,7 @@ def renderStoreData(store):
     ret.extend(renderStoreDemand(store))
     ret.extend(renderStoreInv(store, 'fridges'))
     ret.extend(renderStoreInv(store, 'trucks'))
+    ret.extend(renderStoreSiteCost(store))
     ret.extend(renderStoreNotes(store))
     ret.append('</div>')
     return ret
@@ -1384,7 +1453,7 @@ def renderRoutePerDiemType(route):
 def updateRoutePerDiemType(inputId, model, origStr, newStr):
     modelId, itemId, field = inputIdTriple(inputId)  # @UnusedVariable
     route = getRouteFromItemId(model, itemId)
-    print 'point 1: <%s> <%s>'%(origStr,route.PerDiemType)
+
     if origStr != '' and origStr != route.PerDiemType:
         ul = LocalUpdateList(inputId,
                              route.PerDiemType,
@@ -1398,19 +1467,15 @@ def updateRoutePerDiemType(inputId, model, origStr, newStr):
                              updateType='value',
                              displayValue=model.perdiems[origStr].getDisplayName())
         raise(InvalidUpdate(_('Invalid per diem type'), updateList=ul))
-    print 'point 2'
 
     route.PerDiemType = newStr
-    print 'point 3'
 
     displayValue = ''
     if route.PerDiemType in route.model.perdiems:
         displayValue = route.model.perdiems[route.PerDiemType].getDisplayName()
-    print 'point 4'
 
     ULCM.addUpdate(inputId, newStr, updateType='value',
                    displayValue=displayValue)
-    print 'point 5'
 
     return True
 
@@ -1807,6 +1872,9 @@ updateFn = {
     'storefridges' : updateStoreInvCount,
     'storetrucks' : updateStoreInvCount,
     'storeNotes' : updateStoreNotes,
+    'storeSiteCost' : updateFloat,
+    'storeSiteCostCurCode' : updateStoreSiteCostCurCode,
+    'storeSiteCostYear' : updateStoreSiteCostYear,
     'routeName' : updateRouteName,
     'routeType' : updateRouteType,
     'routeTransitHours' : updateFloat,
@@ -1832,8 +1900,6 @@ def jsonModelUpdate(db, uiSession):
         inputs = unpackInputId(inputId)
         origStr = getParm('origStr')
         newStr = string.strip(getParm('newStr'))
-        print 'Inputs: %s'%inputs
-        print 'parms: %s'%{a:b for a,b in bottle.request.params.items()}
 
         modelId = inputs['modelId']
         itemId = inputs['itemId']
@@ -1846,7 +1912,6 @@ def jsonModelUpdate(db, uiSession):
 
         with selectTree(tree):
             with ULCM():
-                print updateFn.keys()
                 val = updateFn[field](inputId, model, origStr, newStr)
 
                 if val is not True:

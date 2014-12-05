@@ -698,7 +698,7 @@ function addToggleExpansionButton($grid) {
 					return unescape(sel.val());
 				}
 				else if (arg=='set') {
-					sel.val(arg2);
+					sel.val(arg2.htmlEscape());
 				}
 				else if (arg=='rebuild') {
 					var modelId;

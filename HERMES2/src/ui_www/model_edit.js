@@ -921,7 +921,6 @@ function updateRSECostValue(unique, storeId, tree, action) {
 	    changeStringSuccess(data, textStatus, jqXHR);
 	}
     });
-	    
 }
 
 function updateRSETypeValue(unique, storeId, tree) {

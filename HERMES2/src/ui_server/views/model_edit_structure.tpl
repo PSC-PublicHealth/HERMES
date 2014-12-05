@@ -12,6 +12,7 @@
 %    { 'field' : "Demand",       'type' : 'store', 'title' : _('population') },
 %    { 'field' : "fridges",      'type' : 'store', 'title' : _('storage') },
 %    { 'field' : "trucks",       'type' : 'store', 'title' : _('transport') },
+%    { 'field' : "SiteCost",     'type' : 'store', 'title' : _('site cost')},
 %    { 'field' : "Notes",        'type' : 'store', 'title' : _('notes') },
 %    { 'field' : "Name",         'type' : 'route', 'title' : _('route names') },
 %    { 'field' : "Type",         'type' : 'route', 'title' : _('route types') },
@@ -20,7 +21,7 @@
 %    { 'field' : "OrderAmount",  'type' : 'route', 'title' : _('order amounts') },
 %    { 'field' : "TruckType",    'type' : 'route', 'title' : _('truck type') },
 %    { 'field' : "Timings",      'type' : 'route', 'title' : _('route timings') },
-%    { 'field' : "PerDiemType",      'type' : 'route', 'title' : _('per diem policy')},
+%    { 'field' : "PerDiemType",  'type' : 'route', 'title' : _('per diem policy')},
 %    { 'field' : "Conditions",   'type' : 'route', 'title' : _('route conditions') }
 % ]
 
