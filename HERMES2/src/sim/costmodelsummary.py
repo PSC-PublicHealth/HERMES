@@ -139,7 +139,7 @@ class CostModelHierarchicalSummary(object):
                     self._cullTree(child)
             treeD['children'] = newKids
 
-    def _clipNames(self, treeD, testSet, clipLen):
+    def _clipNames(self, treeD, testSet, clipLen=0):
         if 'children' in treeD:
             for child in treeD['children']:
                 self._clipNames(child, testSet, clipLen)
@@ -149,13 +149,19 @@ class CostModelHierarchicalSummary(object):
 
 class LegacyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
 
-    def dict(self):
+    def dict(self, mixed=False):
         groups = ('ReportingLevel',)
         costs = (
                 # 'PerDiemCost', 'PerKmCost', 'PerTripCost',
                 'LaborCost', 'BuildingCost', 'StorageCost', 'TransportCost'
                 )
-        return self._doByContainer(groups, set(costs))
+        if mixed:
+            return self._doByContainer(groups, set(costs))
+        else:
+            treeD = self._doByContainer(groups, set(costs))
+            self._cullTree(treeD)
+            # self._printSubTree(treeD)
+            return treeD
 
 
 class DummyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
