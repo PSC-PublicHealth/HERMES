@@ -2,8 +2,6 @@
     $.widget("hierarchical.barchart", {
         options: {
             file: "static/hierarchical-charts/hierarchical-barchart-testdata.json",
-            //jsonDataURLBase: "json/results-cost-hierarchical",
-            //jsonDataURLParameters: ["modelId=3", "resultsId=6"],
             minWidth: 800,
             minHeight: 300,
             scrollable: true,
@@ -14,7 +12,6 @@
                 title: 'Hierarchical Barchart'
             }
         },
-
 
         _create: function() {
     

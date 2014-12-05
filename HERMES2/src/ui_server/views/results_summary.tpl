@@ -319,6 +319,8 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
 
 <!-- Hierarchical Charts for Cost Summaries -->
 <div id="costcharts" name="costcharts"/>
+
+<!-- Hierarchical Barchart -->
 <div id="hierarchicalBarchart" name "hierarchicalBarchart"/>
 <script src="{{rootPath}}static/d3/d3.min.js"></script>
 <script src="{{rootPath}}static/hierarchical-charts/hierarchical-barcharts.js"></script>
@@ -342,3 +344,54 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
 
     });
 </script>
+
+<!-- Zoomable Treemap
+<div id="hierarchicalBarchart" name "hierarchicalBarchart"/>
+<script src="{{rootPath}}static/d3/d3.min.js"></script>
+<script src="{{rootPath}}static/hierarchical-charts/hierarchical-barcharts.js"></script>
+<script>
+    $("#hierarchicalBarchart").barchart({
+        hasChildrenColor: "steelblue",
+        noChildrenColor: "#ccc",
+        jsonDataURLBase: "json/results-cost-hierarchical",
+        jsonDataURLParameters: [
+            "modelId={{modelId}}",
+            "resultsId={{resultsId}}"],
+        minWidth: 768,
+        minHeight: 775,
+        resizable: false,
+        scrollable: true,
+        trant: {
+             "title": "{{_('Costs by Report Level')}}", 
+             "currency_label": "{{_('Currency')}}",
+             "year_label": "{{_('Year')}}",
+        }
+
+    });
+</script>
+-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
