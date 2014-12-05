@@ -330,7 +330,7 @@ class Model(model.Model):
         if self.autoUpdateThresholdsFlag:
             threshVialsVC = vaccineVialsVC * 0.25
             threshVialsVC.roundUp()
-            fVC,cVC,wVC = toW.calculateStorageFillRatios(threshVialsVC+otherVialsVC)
+            fVC,cVC,wVC = toW.calculateStorageFillRatios(threshVialsVC) # never include ordered fridges in available space calc
             threshVialsVC = threshVialsVC * (fVC + cVC + wVC)
             threshVialsVC.roundDown()
             toW.resetLowThresholds(threshVialsVC)
@@ -338,20 +338,20 @@ class Model(model.Model):
             #      (toW.name, [(v.name,n) for v,n in threshVialsVC.items()])
         vaccineVialsVC *= 1.25
         vaccineVialsVC.roundUp()
-        fVC,cVC,wVC= toW.calculateStorageFillRatios(vaccineVialsVC+otherVialsVC)
+        # We may get shippable fridges with the order, but don't plan for them when considering space-
+        # so we exclude otherVialsVC from storage volume calculations
+        fVC,cVC,wVC= toW.calculateStorageFillRatios(vaccineVialsVC)
         fillVC= fVC+cVC+wVC
+#         print "warehouseShipQuantityFunc %s: otherVialsVC is %s"%(toW.name,otherVialsVC)
+#         print "warehouseShipQuantityFunc %s: fillVC is %s"%(toW.name,fillVC)
         scaledVaccineVialsVC= vaccineVialsVC*fillVC
         scaledVaccineVialsVC.roundDown()
-#         lowVC= (scaledVaccineVialsVC+otherVialsVC) \
-#                - self.sim.shippables.getCollectionFromGroupList([s for s in toW.theBuffer
-#                                                                if isinstance(s,abstractbaseclasses.Shippable)])
-        # Never order non-vaccines
-        lowVC= (scaledVaccineVialsVC) \
+        lowVC= (scaledVaccineVialsVC+otherVialsVC) \
                - self.sim.shippables.getCollectionFromGroupList([s for s in toW.theBuffer
                                                                if isinstance(s,abstractbaseclasses.Shippable)])
         lowVC.floorZero()
         lowVC = toW.getPackagingModel().applyPackagingRestrictions(lowVC)
-        #print "warehouseShipQuantityFunc %s: %s"%(toW.name,lowVC)
+#         print "warehouseShipQuantityFunc %s: %s"%(toW.name,lowVC)
         return lowVC
 
     def warehouseShipThresholdFunc(self, toW, pullMeanFrequencyDays):
@@ -375,7 +375,6 @@ class Model(model.Model):
             if n > 0.0 and n < 1.0:
                 threshVC[v] = 1.0
         threshVC.roundDown()
-        threshVC= scaledVaccineVialsVC*0.25
         # print "warehouseShipThresholdFunc %s: %s"%(toW.name,threshVC)
         return threshVC
 
@@ -834,7 +833,7 @@ class Model(model.Model):
                 raise RuntimeError('The interval between sessions of clinic %s %ld is invalid'%(name,code))
 
         w= None
-        inventory= self._inventoryFromTableRec(rec,sUF)
+        inventory = self._inventoryFromTableRec(rec, sUF)
         inventoryOrg = None
         if self.sim.perfect== True:
             inventoryOrg= copy(inventory)

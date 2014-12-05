@@ -457,6 +457,43 @@ def jsonResultsSummaryTransportUtiliztionByRouteByLevel(db, uiSession):
         result = {'success':False, 'msg':str(e)}
         return result
 
+@bottle.route('/json/results-cost-hierarchical-mixed')
+def jsonResultSummaryCostHierarchicalMixed(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,
+                'modelId',isInt=True)
+        resultsId = _getOrThrowError(bottle.request.params,
+                'resultsId',isInt=True)
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        r = m.getResultById(resultsId)
+
+        base = m.getParameterValue('currencybase')
+        year = m.getParameterValue('currencybaseyear')
+
+        try:
+            cost_summary = getCostModelSummary(m, r)
+            result = {
+                    'success': True,
+                    'data': {
+                      'cost_summary': cost_summary.dict(mixed=True),
+                      'currency_base': base,
+                      'currency_year': year
+                    }
+                }
+        except:
+            _logStacktrace()
+            result = {'success': False,
+                      'data': '{}'}
+
+        return result
+
+    except Exception, e:
+        _logStacktrace()
+        result = {'success':False, 'msg':str(e)}
+        return result
+
 @bottle.route('/json/results-cost-hierarchical')
 def jsonResultSummaryCostHierarchical(db, uiSession):
     try:

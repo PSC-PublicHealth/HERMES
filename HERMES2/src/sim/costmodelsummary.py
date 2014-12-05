@@ -83,40 +83,68 @@ class CostModelHierarchicalSummary(object):
                                  'name':lKey[prefixLen:],
                                  'size':lVal
                                  })
-        return {
-                'name':key,
-                'children':children
+        return {'name': key,
+                'children': children
                 }
 
     def _printSubTree(self, tree, depth=0):
         if 'children' in tree:
-            print '%s%s:'%('    '*depth,tree['name'])
+            print '%s%s:' % ('    '*depth, tree['name'])
             for child in tree['children']:
                 self._printSubTree(child, depth+1)
         else:
-            print '%s%s: %s'%('    '*depth,tree['name'],tree['size'])
+            if tree:
+                print '%s%s: %s' % ('    '*depth, tree['name'], tree['size'])
+            else:
+                print '%s-empty-' % ('    '*depth)
 
-    def _doByContainer(self, groups, inSet, prefixLen = 0):
+    def _doByContainer(self, groups, inSet, prefixLen=0):
         """
         groups is a sequence type or iterator
         inSet must implement at least '__contains__'
-        prefixLen is an integer giving the length of the substring to clip from the front of each name
+        prefixLen is an integer giving the length of the substring to clip from the front of
+            each name
         """
         recs = [r.createRecord() for r in self.result.getCostSummaryRecs()]
         costSet = set()
-        for r in recs: costSet.update([k for k in r.keys() if k in inSet])
+        for r in recs:
+            costSet.update([k for k in r.keys() if k in inSet])
+        # print costSet
         treeD = {}
         for r in recs:
             lvl = r['ReportingLevel']
             brch = r['ReportingBranch']
-            if lvl not in treeD: treeD[lvl] = {}
-            assert brch not in treeD[lvl], "Hierarchical cost summary has redundant entry for level %s branch %s"%(lvl,brch)
-            treeD[lvl][brch] = {k:v for k,v in r.items() if k in costSet}
-        #h = self._mkSubTree('all', treeD['all'], treeD, prefixLen)
+            if lvl not in treeD:
+                treeD[lvl] = {}
+            assert brch not in treeD[lvl], \
+                ("Hierarchical cost summary has redundant entry for level %s branch %s"
+                 % (lvl, brch))
+            treeD[lvl][brch] = {k: v for k, v in r.items() if k in costSet}
+        # h = self._mkSubTree('all', treeD['all'], treeD, prefixLen)
         h = self._mkSubTree('-top-', treeD['-top-'], treeD, prefixLen)
-        #self._printSubTree(h)
-        #return h
+        # self._printSubTree(h)
+        # return h
         return h['children'][0]
+
+    def _cullTree(self, treeD):
+        if 'children' in treeD:
+            newKids = []
+            nGrandKids = len([child for child in treeD['children']
+                             if 'children' in child])
+            for child in treeD['children']:
+                if child['name'].startswith('m1C_') and nGrandKids > 0:
+                    pass  # drop this one
+                else:
+                    newKids.append(child)
+                    self._cullTree(child)
+            treeD['children'] = newKids
+
+    def _clipNames(self, treeD, testSet, clipLen):
+        if 'children' in treeD:
+            for child in treeD['children']:
+                self._clipNames(child, testSet, clipLen)
+        if treeD['name'] in testSet:
+            treeD['name'] = treeD['name'][clipLen:]
 
 
 class LegacyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
@@ -124,24 +152,34 @@ class LegacyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
     def dict(self):
         groups = ('ReportingLevel',)
         costs = (
-                #'PerDiemCost','PerKmCost','PerTripCost',
-                'LaborCost','BuildingCost','StorageCost','TransportCost'
+                # 'PerDiemCost', 'PerKmCost', 'PerTripCost',
+                'LaborCost', 'BuildingCost', 'StorageCost', 'TransportCost'
                 )
         return self._doByContainer(groups, set(costs))
+
 
 class DummyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
 
     def dict(self):
         return {}
 
+
 class Micro1CostModelHierarchicalSummary(CostModelHierarchicalSummary):
     class PrefixFakeSet(object):
         def __init__(self, prefix):
             self.prefix = prefix
+
         def __contains__(self, arg):
             return isinstance(arg, types.StringTypes) and arg.startswith(self.prefix)
-    def dict(self):
+
+    def dict(self, mixed=False):
         groups = ('ReportingLevel',)
         tag = u'm1C_'
-        return self._doByContainer(groups, self.PrefixFakeSet(tag), len(tag))
-
+        if mixed:
+            return self._doByContainer(groups, self.PrefixFakeSet(tag), len(tag))
+        else:
+            treeD = self._doByContainer(groups, self.PrefixFakeSet(tag), 0)
+            self._cullTree(treeD)
+            self._clipNames(treeD, self.PrefixFakeSet(tag), len(tag))
+            # self._printSubTree(treeD)
+            return treeD
