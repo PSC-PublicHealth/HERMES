@@ -178,6 +178,7 @@ def createResultsSummary(db, uiSession):
     global _gvAvailable
     modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
     resultsId = _safeGetReqParam(bottle.request.params,'resultsId',isInt=True)
+    hRG = db.query(s_n.HermesResults).filter(s_n.HermesResults.resultsId==resultsId).one().resultsGroup
 
     if modelId is None:
         raise bottle.BottleException("modelId is missing getting kmlstring")
@@ -185,8 +186,8 @@ def createResultsSummary(db, uiSession):
     if resultsId is None:
         raise bottle.BottleException("resultsId is missing getting kmlstring")
         return None
-
-    return bottle.template("results_summary.tpl",{"breadcrumbPairs":[("top",_("Welcome")),("results-top",_("Results"))],
+	
+    return bottle.template("results_summary.tpl",{"breadcrumbPairs":[("top",_("Welcome")),("results-top",_("Results")),("results-summary?modelId=%d&resultsId=%d"%(hRG.modelId,resultsId),_("Summary"))],
                                "pageHelpText":_("This is intended to show page-specific help")},
                                _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId,
                                gvAvailable=_gvAvailable)
