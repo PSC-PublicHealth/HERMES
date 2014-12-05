@@ -69,6 +69,10 @@ button.hrm_cur_sel_btn {
 	
 }
 
+ul.ui-menu {
+	z-index: 9999;
+}
+
 li.ui-menu-item.selected {
 	background: #9e9e9e;
 	display: block;
