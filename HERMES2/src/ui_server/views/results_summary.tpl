@@ -321,7 +321,7 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
 <div id="costcharts" name="costcharts"/>
 
 <!-- Hierarchical Barchart -->
-<div id="hierarchicalBarchart" name "hierarchicalBarchart"/>
+<!-- div id="hierarchicalBarchart" name "hierarchicalBarchart"/>
 <script src="{{rootPath}}static/d3/d3.min.js"></script>
 <script src="{{rootPath}}static/hierarchical-charts/hierarchical-barcharts.js"></script>
 <script>
@@ -343,7 +343,7 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
         }
 
     });
-</script>
+</script -->
 
 <!-- Zoomable Treemap -->
 <div id="zoomableTreemap" name="zoomableTreemap"/>
