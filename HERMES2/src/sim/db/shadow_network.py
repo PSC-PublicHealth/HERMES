@@ -3099,7 +3099,7 @@ class ShdTypes:
                       (userInput['stafffile'],       'staff'),
                       (unifiedInput.staffFile,       'staff'),
                       (userInput['perdiemfile'],     'perdiems'),
-                      (unifiedInput.perdiemFile,     'perdiems')]
+                      (unifiedInput.perDiemFile,     'perdiems')]
 
         for (f,t) in typesFiles:
             if f is None:
