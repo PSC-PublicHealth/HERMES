@@ -75,7 +75,7 @@ $(document).ready(function(){
 						var filename = $("#download_xls_saveas_name").val();
 						$(this).dialog('close');
 						$.ajax({
-							url: '{{rootPath}}json/create-xls-summary',
+							url: '{{rootPath}}json/create-xls-summary-openpyxl',
 							dataType:'json',
 							data:{modelId:{{modelId}},resultsId:{{resultsId}},filename:filename}})
 						.done(function(data){

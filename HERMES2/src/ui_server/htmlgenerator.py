@@ -24,10 +24,36 @@ import privs
 import typehelper
 import minionrunner
 from htmlHelper import *
+from reporthooks import *
 
 _=translateString
 
 def getModelInfoHTML(db,uiSession,modelId):
+    
+    model = shadow_network_db_api.ShdNetworkDB(db,modelId)
+    modelJSON = createModelSummaryWSCall(db,uiSession)
+    
+    titleStr = _("Model {0}").format(modelJSON['name'])
+    table = HTMLTable(name_="Model Summary",title_= _("Model Summary Statistics"),width='300px', 
+                      border='1px solid black')
+    table.addRow([_("Facility Statistics")],["m",3])
+    table.addRow([_("Level"),_("Total"),_("Vaccinating")],["n",1,1,1])
+    levels = modelJSON['orderedLevelList']
+    levelCount = modelJSON['fixedLocationCount']
+    vaccLevelCount = modelJSON['vaccinationLocationCount']
+    for level in levels:
+        if level in levelCount.keys():
+            tableList = [level,levelCount[level]]
+            if level in vaccLevelCount.keys():
+                tableList.append(vaccLevelCount[level])
+            else:
+                tableList.append(0)
+            table.addRow(tableList,['c',1,1,1])
+    table.addRow([_('All Levels'),levelCount['Total'],vaccLevelCount['Total']],
+                 ['n',1,1,1])   
+    return table.htmlString(),titleStr
+
+def XgetModelInfoHTML(db,uiSession,modelId):
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
 
     titleStr = _("Model {0}").format(model.name)

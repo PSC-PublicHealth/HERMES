@@ -25,7 +25,9 @@ _hermes_svn_id_="$Id: util.py 1425 2013-08-30 19:55:57Z stbrown $"
 import types
 
 class HTMLPrimitive:
-    _allowedStyleElements = ['width','height','visibility','display','table-layout']
+    _allowedStyleElements = ['width','height','visibility',
+                             'display','table-layout','border',
+                             'background','color','fontweight','fontsize']
     def __init__(self,name_,**kwargs):
         self.name = name_
         self.classString = ''
@@ -34,10 +36,15 @@ class HTMLPrimitive:
         for arg,value in kwargs.items():
             if self.styleString == '':
                 self.styleString = ' style="'
-            if arg == 'class':
+            if arg == 'cssclass':
                 self.classString = ' class = "%s" '%value
             if arg in self._allowedStyleElements:
-                self.styleString += '%s:%s;'%(arg,value)
+                if arg == 'fontsize':
+                    self.styleString += 'font-size:%s;'%value
+                elif arg == 'fontweight':
+                    self.styleString += 'font-weight:%s;'%value
+                else:
+                    self.styleString += '%s:%s;'%(arg,value)
         if self.styleString != '':
             self.styleString += '" '
             
@@ -150,7 +157,8 @@ class HTMLTableColumn(HTMLElement):
         return '<%s id="%s" colspan=%d %s %s>%s</%s>'%(mon,self.name,self.colspan,self.classString,self.styleString,str(self.value),mon)
     
 class HTMLTable(HTMLConstruct):
-    def __init__(self,name_="Table",title_=None,pretty_=True,**kwargs):
+    def __init__(self,name_="Table",title_=None,pretty_=True,titleColor_="#282A57",majorColor_="#D6D6D6",
+                 minorColor_="#EDEDED",**kwargs):
         if "table_class" in kwargs.keys():
             kwargs['class'] = kwargs['table_class']
         HTMLConstruct.__init__(self,name_,pretty_,**kwargs)
@@ -159,16 +167,19 @@ class HTMLTable(HTMLConstruct):
         self.nRows = 0
         self.name = name_
         self.title = title_
+        self.titleColor = titleColor_
+        self.majorColor = majorColor_
+        self.minorColor = minorColor_
         
         self.data = []
-        self.possibleFormats = ["m","n","c"] #Major, Minor, Clear
+        self.possibleFormats = ["m","n","b","c"] #Major, Minor, Clear
         self.rowFormats = []
         self.rows = []
         
     def addRow(self,rowList,rowFormats):
         if len(rowList)+1 != len(rowFormats):
-            print "RowList: " + str(rowList)
-            print "RowFormats: " + str(rowFormats)
+            #print "RowList: " + str(rowList)
+            #print "RowFormats: " + str(rowFormats)
             raise RuntimeError("In Table %s, incorrect list being passed to add row"%self.name)
         
         ### Create the HTML Row and fill it with data
@@ -180,7 +191,7 @@ class HTMLTable(HTMLConstruct):
     def createTableElements(self):
         ### create Title Row
         if self.title is not None:
-            titleRow = HTMLTableRow("%s_title_row"%self.name,self.pretty)
+            titleRow = HTMLTableRow("%s_title_row"%self.name,self.pretty,background=self.titleColor,color="white",fontweight='bold',fontsize='18px')
             titleRow.addColumn(HTMLTableColumn("%s_title_col"%self.name,self.title,self.nCols,True,self.pretty))
             self.rows.append(titleRow)
 
@@ -199,8 +210,14 @@ class HTMLTable(HTMLConstruct):
             #else:
             if rowStyle == 'h':
                 row = HTMLTableRow("%s_row_%d"%(self.name,i),self.pretty,display='none')
+            elif rowStyle == 'm':
+                row = HTMLTableRow("%s_row_%d"%(self.name,i),self.pretty,background=self.majorColor,color="black",fontweight='bold',fontsize='16px')
+            elif rowStyle == 'n':
+                row = HTMLTableRow("%s_row_%d"%(self.name,i),self.pretty,background=self.minorColor,color="black",fontweight='bold',fontsize='14px')
+            elif rowStyle == 'b':
+                row = HTMLTableRow("%s_row_%d"%(self.name,i),self.pretty,background="white",color="black",fontweight='bold',fontsize='12px')
             else:
-                row = HTMLTableRow("%s_row_%d"%(self.name,i),self.pretty)
+                row = HTMLTableRow("%s_row_%d"%(self.name,i),self.pretty,background="white",color="black",fontsize='12px')
             for j in range(0,len(rowData)):
                 row.addColumn(HTMLTableColumn("%s_col_%d"%(row.name,j),rowData[j],rowFormat.pop(0),False,self.pretty))
             

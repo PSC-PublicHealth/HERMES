@@ -7,3 +7,4 @@ geojson
 kitchen
 zest.pocompile
 xlwt
+openpyxl
