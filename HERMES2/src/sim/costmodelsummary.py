@@ -126,17 +126,17 @@ class CostModelHierarchicalSummary(object):
         # return h
         return h['children'][0]
 
-    def _cullTree(self, treeD):
+    def _cullTree(self, treeD, testSet):
         if 'children' in treeD:
             newKids = []
             nGrandKids = len([child for child in treeD['children']
                              if 'children' in child])
             for child in treeD['children']:
-                if child['name'].startswith('m1C_') and nGrandKids > 0:
+                if child['name'] in testSet and nGrandKids > 0:
                     pass  # drop this one
                 else:
                     newKids.append(child)
-                    self._cullTree(child)
+                    self._cullTree(child, testSet)
             treeD['children'] = newKids
 
     def _clipNames(self, treeD, testSet, clipLen=0):
@@ -159,8 +159,8 @@ class LegacyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
             return self._doByContainer(groups, set(costs))
         else:
             treeD = self._doByContainer(groups, set(costs))
-            self._cullTree(treeD)
-            # self._printSubTree(treeD)
+            self._cullTree(treeD, set(costs))
+            self._printSubTree(treeD)
             return treeD
 
 
@@ -185,7 +185,7 @@ class Micro1CostModelHierarchicalSummary(CostModelHierarchicalSummary):
             return self._doByContainer(groups, self.PrefixFakeSet(tag), len(tag))
         else:
             treeD = self._doByContainer(groups, self.PrefixFakeSet(tag), 0)
-            self._cullTree(treeD)
+            self._cullTree(treeD, self.PrefixFakeSet(tag))
             self._clipNames(treeD, self.PrefixFakeSet(tag), len(tag))
             # self._printSubTree(treeD)
             return treeD
