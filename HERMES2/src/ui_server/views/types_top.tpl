@@ -4,16 +4,17 @@
 <script src="{{rootPath}}static/base64v1_0.js"></script>
 
 % typesEntries = [
-%    ['vaccines', _('Vaccines')],
-%    ['trucks',   _('Transport')],
-%    ['fridges',  _('Storage')],
-%    ['people', _('Population')],
+%    ['vaccines', _('Vaccines'),    'json/vaccine-info'],
+%    ['trucks',   _('Transport'),   'json/truck-info'],
+%    ['fridges',  _('Storage'),     'json/fridge-info'],
+%    ['people', _('Population'),    'json/people-info'],
 % ]
 
 % def unpackTypesEntry(te):
 %    ret = {}
 %    ret['type'] = te[0]
 %    ret['name'] = te[1]
+%    ret['infoUrl'] = te[2]
 %    return ret
 % end
 
@@ -81,6 +82,7 @@
   </tr>
 </table>
 
+<div id="info_dialog" title='replace me'></div>
 <script>
 // many characters in a jquery id need escaped.
 function jId(i) {
@@ -93,7 +95,7 @@ var modelName = "{{modelName}}";
 
 var typesMap = {
 % for t in typesEntries:
-    '{{t[0]}}' : { 'dispName' : '{{t[1]}}' },
+    '{{t[0]}}' : { 'dispName' : '{{t[1]}}', 'infoUrl' : '{{rootPath}}{{t[2]}}' },
 % end
 };
 
@@ -134,6 +136,9 @@ $(function() {
     var btn = $('#copy_to_model_button')
     btn.button();
     btn.click( copySelected );
+
+    // info dialog
+    $("#info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
 });
 
 // dest and src jqGrids
@@ -293,7 +298,30 @@ function delType(id) {
 }
 
 function infoType(id) {
+    event.stopPropagation();
 
+    upId = unpackId(id);
+    var modelId = upId.modelId;
+    var name = upId.name;
+    var grid = upId.grid;
+
+    var jsonFn = typesMap[currentType].infoUrl;
+
+    $.getJSON(jsonFn,{name:name, modelId:modelId})
+	.done(function(data) {
+	    if (data.success) {
+		$("#info_dialog").html(data['htmlstring']);
+		$("#info_dialog").dialog('option','title',data['title']);
+		$("#info_dialog").dialog("open");	
+	    }
+	    else {
+    		alert('{{_("Failed: ")}}'+data.msg);
+	    }
+	})
+	.fail(function(jqxhr, textStatus, error) {
+	    alert("Error: "+jqxhr.responseText);
+	});
+    
 }
 
 function editType(id) {
