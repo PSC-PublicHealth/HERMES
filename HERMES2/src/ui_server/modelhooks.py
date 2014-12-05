@@ -17,11 +17,10 @@ from preordertree import PreOrderTree
 from upload import uploadAndStore, makeClientFileInfo
 import htmlgenerator
 import typehelper
-from typeholdermodel import userTypesModelName
 import shadow_network_db_api
 import privs
 import session_support_wrapper as session_support
-import shadow_network
+import shadow_network as shd
 import util
 from HermesServiceException import HermesServiceException
 from gridtools import orderAndChopPage
@@ -30,7 +29,7 @@ from transformation import setLatenciesByNetworkPosition, setUseVialLatenciesAsO
 import crumbtracks
 import runhooks
 
-from ui_utils import _logMessage, _logStacktrace, _safeGetReqParam, _getOrThrowError, _smartStrip
+from ui_utils import _logMessage, _logStacktrace, _safeGetReqParam, _getOrThrowError, _smartStrip, b64E, b64D
 
 ## If executing under mod_wsgi, we need to add the path to the source
 ## directory of this script.
@@ -51,6 +50,9 @@ sI = site_info.SiteInfo()
 inlizer=session_support.inlizer
 _=session_support.translateString
 
+def getParm(parm):
+    return _safeGetReqParam(bottle.request.params, parm)
+
 @bottle.route('/models-top')
 def modelsTopPage(uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Models")))
@@ -62,19 +64,44 @@ def modelsTopPage(uiSession):
 @bottle.route('/model-edit-params')
 def modelsEditParams(db, uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Params")))
-    if "id" in bottle.request.params:
+    try:
         modelId = int(bottle.request.params['id'])
+        uiSession.getPrivs().mayModifyModelId(db, modelId)
         uiSession['selectedModelId'] = modelId
         uiSession['modelIdBeingEdited'] = modelId
     
         return bottle.template("model_edit_parms.tpl",
                                {"modelId":modelId,
-                               "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
+                                "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
                                                   ("model-edit-params",_("Edit parameters"))]})
+    
+    except:
+        return bottle.template("problem.tpl", {"comment":_("no model id specified"),
+                                               "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
+                                                                  ("model-edit-params",_("Edit parameters"))]})
 
-    return bottle.template("problem.tpl", {"comment":_("no model id specified"),
-                                           "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
-                                                              ("model-edit-params",_("Edit parameters"))]})
+
+@bottle.route('/model-add-types')
+def modelsAddTypes(db, uiSession):
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Params")))
+    try:
+        modelId = int(bottle.request.params['id'])
+        uiSession.getPrivs().mayModifyModelId(db, modelId)
+        model = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        uiSession['selectedModelId'] = modelId
+        uiSession['modelIdBeingEdited'] = modelId
+    
+        return bottle.template("types_top.tpl",
+                               {"modelId":modelId,
+                                "modelName":model.name,
+                               "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
+                                                  ("model-add-types",_("Add Types"))]})
+
+    except:
+        return bottle.template("problem.tpl", {"comment":_("no model id specified"),
+                                               "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
+                                                                  ("model-add-types",_("Add Types"))]})
+
 
 
 @bottle.route('/model-show-structure')
@@ -178,8 +205,8 @@ def _createModel(db,uiSession):
             'shippatterns_transittimes','shippatterns_transitunits']]):
         raise bottle.BottleException(_("Model creation data table is missing or corrupted"))
     newModelInfoCN = uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]
-    shdTypes = shadow_network.ShdTypes()
-    shdNetwork = shadow_network.ShdNetwork(None, None, None,shdTypes, newModelInfoCN['name'] )
+    shdTypes = shd.ShdTypes()
+    shdNetwork = shd.ShdNetwork(None, None, None,shdTypes, newModelInfoCN['name'] )
     pot = PreOrderTree(newModelInfoCN['pottable'])
     potRecDict = newModelInfoCN['potrecdict']
     storeStack = []
@@ -198,7 +225,7 @@ def _createModel(db,uiSession):
             fctn = 'Distribution'
             useVialsInterval = 1.0 # it may get an attached clinic, so we need a valid value
         useVialsLatency = 0.0
-        store = shadow_network.ShdStore({'CATEGORY':category, 'FUNCTION':fctn, 'NAME':rec['name'], 'idcode':idcode,
+        store = shd.ShdStore({'CATEGORY':category, 'FUNCTION':fctn, 'NAME':rec['name'], 'idcode':idcode,
                                          'Inventory':'','Device Utilization Rate':1.0,
                                          'UseVialsInterval':useVialsInterval, 'UseVialsLatency':useVialsLatency},
                                         shdNetwork)
@@ -265,17 +292,17 @@ def _createModel(db,uiSession):
                                          uiSession.getDefaultReadGroupID(),uiSession.getDefaultWriteGroupID())
 
     quotedLevelNames = ["'%s'"%nm for nm in newModelInfoCN['levelnames']]
-    shdNetwork.addParm(shadow_network.ShdParameter('levellist',','.join(quotedLevelNames)))
-    shdNetwork.addParm(shadow_network.ShdParameter('cliniclevellist',quotedLevelNames[-1]))
-    shdNetwork.addParm(shadow_network.ShdParameter('centrallevellist',quotedLevelNames[0]))
-    shdNetwork.addParm(shadow_network.ShdParameter('model','model_generic'))
-    shdNetwork.addParm(shadow_network.ShdParameter('demandfile','demand_from_db'))
+    shdNetwork.addParm(shd.ShdParameter('levellist',','.join(quotedLevelNames)))
+    shdNetwork.addParm(shd.ShdParameter('cliniclevellist',quotedLevelNames[-1]))
+    shdNetwork.addParm(shd.ShdParameter('centrallevellist',quotedLevelNames[0]))
+    shdNetwork.addParm(shd.ShdParameter('model','model_generic'))
+    shdNetwork.addParm(shd.ShdParameter('demandfile','demand_from_db'))
 
     # All models have a copy of the OUTDOORS fridge type
     aM = typehelper._getAllTypesModel(db)
     attrRec = {'_inmodel':False, 'modelId':aM.modelId}
-    shadow_network._copyAttrsToRec(attrRec, aM.fridges['OUTDOORS'])
-    newFridge = shadow_network.ShdStorageType(attrRec.copy()) 
+    shd._copyAttrsToRec(attrRec, aM.fridges['OUTDOORS'])
+    newFridge = shd.ShdStorageType(attrRec.copy()) 
     db.add(newFridge)
     shdNetwork.types[attrRec['Name']] = newFridge
     
@@ -844,7 +871,7 @@ def handleListModel(db,uiSession):
         selectedModelId = int(uiSession['selectedModelId']) # should be int already, but just in case
     else:
         selectedModelId = None
-    mList = db.query(shadow_network.ShdNetwork)
+    mList = db.query(shd.ShdNetwork).filter(shd.ShdNetwork.refOnly != True)
     pairs = [(p.modelId,p.name) for p in mList]
     pairs.sort()
     s = ""
@@ -852,8 +879,6 @@ def handleListModel(db,uiSession):
     allowedPairs = []
     for thisId,name in pairs: 
         try:
-            if name == userTypesModelName:
-                continue
             prv.mayReadModelId(db, thisId) # Exclude models for which we don't have read access
             allowedPairs.append((thisId,name))
             if selectedModelId is None:
@@ -871,6 +896,61 @@ def handleListModel(db,uiSession):
     result = {"menustr":s,"pairs":allowedPairs,"selid":selectedModelId,"selname":selectedModelName}
     # Caller is expected to commit the DB
     return result
+
+@bottle.route('/list/select-model-list')
+def handleModelList(db, uiSession):
+    """
+    this is very similar to select-model but will show models including the system models
+    but only models that have anything in the selected types dictionaries and allows you 
+    to exclude a model.
+    """
+    curType = getParm('curType')
+    curModel = getParm('curModel')
+    ignoreModel = getParm('ignoreModel')
+    try: 
+        curModel = int(curModel)
+        print curModel
+    except: pass
+    try: 
+        ignoreModel = int(ignoreModel)
+        print ignoreModel
+    except: pass
+
+    mList = db.query(shd.ShdNetwork)
+    # query objects aren't subclasses of lists so do a shallow copy
+    mList = mList[:]
+    mList.sort(key=lambda m: m.modelId)
+    s = ""
+    prv = uiSession.getPrivs()
+    allowedModels = []
+    selModelId = None
+    selModelName = None
+    allowedPairs = []
+    for m in mList:
+        try:
+            if ignoreModel == m.modelId:
+                continue
+
+            prv.mayReadModelId(db, m.modelId) # Exclude models for which we don't have read access
+            # get rid of anything that doesn't have appropriate types
+            if len(getattr(m, curType)) == 0:
+                continue
+            
+            allowedPairs.append((m.modelId,m.name))
+            if curModel == m.modelId:
+                selModelId = m.modelId
+                selModelName = m.name
+                s += "<option value=%d selected>%s</option>\n"%(m.modelId,m.name)
+            else:
+                s += "<option value=%d>%s</option>\n"%(m.modelId,m.name)
+        except privs.PrivilegeException:
+            pass
+
+    if selModelId is None:
+        (selModelId, selModelName) = allowedPairs[0]
+    result = {"menustr":s,"pairs":allowedPairs,"selid":selModelId,"selname":selModelName}
+    return result
+    
 
 @bottle.route('/edit/edit-models.json',method='POST')   
 @bottle.route('/edit/edit-models.json')
@@ -1068,9 +1148,7 @@ def jsonSetSelectedModel(db, uiSession):
 def jsonManageModelsTable(db, uiSession):
     mList = []
     prv = uiSession.getPrivs()
-    for m in db.query(shadow_network.ShdNetwork):
-        if m.name == userTypesModelName:
-            continue
+    for m in db.query(shd.ShdNetwork).filter(shd.ShdNetwork.refOnly != True):
         try:
             prv.mayReadModelId(db, m.modelId)
             mList.append(m)
@@ -1092,7 +1170,99 @@ def jsonManageModelsTable(db, uiSession):
                        for m in mList ]
               }
     return result
-    
+
+@bottle.route('/json/types-manage-grid')
+def jsonGetTypesGrid(db, uiSession):
+    modelId = getParm('modelId')
+    try:
+        modelId = int(modelId)
+    except:
+        return {
+            "total":1,    # total pages
+              "page":1,     # which page is this
+              "records":0,  # total records
+              "rows": [],
+              }
+       
+    uiSession.getPrivs().mayReadModelId(db, modelId)
+    model = shadow_network_db_api.ShdNetworkDB(db, modelId)
+    flags = 'R'
+    try: 
+        uiSession.getPrivs().mayModifyModelId(db, modelId)
+        flags = 'W'
+    except:
+        pass
+
+    getType = getParm('type')
+
+    types = getattr(model, getType)
+    rowList = []
+    for t in types.values():
+        row = {}
+        row['dispName'] = t.DisplayName
+        row['name'] = t.Name
+        row['modelId'] = t.modelId
+        row['flags'] = flags
+        rowList.append(row)
+
+    #rowList = [{'dispName':'disp', 'modelId':'5', 'flags':'R', 'name':'nm'}, 
+    #           {'dispName':'disp2', 'modelId':'5', 'flags':'R', 'name':'nm2'},
+    #           ]
+
+    (nPages,thisPageNum,totRecs,mList) = orderAndChopPage(rowList,
+                                                          {'dispName':'dispName',
+                                                           'name':'name',
+                                                           'flags':'flags',
+                                                           'modelId':'modelId'},
+                                                          bottle.request)
+
+    result = {
+              "total":nPages,    # total pages
+              "page":thisPageNum,     # which page is this
+              "records":totRecs,  # total records
+              "rows": [ {"id": "%s:%s"%(modelId,b64E(r['name'])), 
+                         "cell":[r['dispName'], r['name'], r['modelId'], r['flags']]
+                         }
+                        for r in mList ]
+              }
+#    print result
+    return result
+
+
+@bottle.route('/json/copyTypeToModel')
+def jsonCopyTypeToModel(db, uiSession):
+    try:
+        modelId = int(getParm('modelId'))
+        srcModelId = int(getParm('srcModelId'))
+        typeName = getParm('typeName')
+
+        uiSession.getPrivs().mayModifyModelId(db, modelId)
+        dest = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        src = shadow_network_db_api.ShdNetworkDB(db, srcModelId)
+
+        typehelper.addTypeToModel(db, dest, typeName, src, True);
+    except Exception, e:
+        return {'success' : False }
+
+    return {'success':True}
+
+
+@bottle.route('/json/removeTypeFromModel')
+def jsonRemoveTypeFromModel(db, uiSession):
+    try:
+        modelId = int(getParm('modelId'))
+        typeName = getParm('typeName')
+        uiSession.getPrivs().mayModifyModelId(db, modelId)
+        
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+
+        typehelper.removeTypeFromModel(db, m, typeName, True)
+        
+        return { 'success' : True }
+    except Exception, e:
+        print e
+        return { 'success' : False }
+
 @bottle.route('/json/adjust-models-table')
 def jsonAdjustModelsTable(db,uiSession):
     if 'newModelInfo' not in uiSession :
@@ -1379,9 +1549,9 @@ def uploadModel(db,uiSession):
         unifiedInput = UnifiedInput()
         userInputList,gblDict = HermesInput.extractInputs(info['serverSideName']) # @UnusedVariable
         userInput = userInputList[0]
-        shdTypes = shadow_network.ShdTypes()
+        shdTypes = shd.ShdTypes()
         shdTypes.loadShdNetworkTypeManagers(userInput, unifiedInput)
-        net = shadow_network.loadShdNetwork(userInput, shdTypes, name=info['shortName'])
+        net = shd.loadShdNetwork(userInput, shdTypes, name=info['shortName'])
         net.attachParms(userInput.definitionFileName)
         db.add(net)
         db.flush()
@@ -1441,10 +1611,9 @@ def jsonGetExistingModelNames(db,uiSession):
     try:
         mList = []
         #prv = uiSession.getPrivs()
-        for m in db.query(shadow_network.ShdNetwork):
+
+        for m in db.query(shd.ShdNetwork).filter(shd.ShdNetwork.refOnly != True):
             try:
-                if m.name == userTypesModelName:
-                    continue
                 #prv.mayReadModelId(db, m.name)
                 mList.append(m.name)
             except privs.PrivilegeException:
@@ -1510,10 +1679,10 @@ def jsonDeleteModelFromNewModelInfo(db,uiSession):
                 uiSession.changed()
                 mList = []
                 #prv = uiSession.getPrivs()
-                for m in db.query(shadow_network.ShdNetwork):
+                for m in db.query(shd.ShdNetwork).filter(shd.ShdNetwork.refOnly != True):
                     try:
-                        if m.name == userTypesModelName:
-                            continue
+                        #if m.name == userTypesModelName:
+                        #    continue
                             #prv.mayReadModelId(db, m.name)
                         mList.append(m.name)
                 
@@ -1552,7 +1721,7 @@ def jsonRunParmsEdit(db, uiSession):
             if key in parms:
                 parms[key].setValue(value)
             else:
-                parms[key] = shadow_network.ShdParameter(key, value)
+                parms[key] = shd.ShdParameter(key, value)
 
 
         result = {'success':True, 'value':True}

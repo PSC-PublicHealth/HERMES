@@ -11,6 +11,7 @@
 %    [ 'upload', _('Upload'), False, False, 'uploadModel' ],
 %    [ 'delete', _('Delete'), True, True, 'deleteModel' ],
 %    [ 'parameters', _('Parameters'), True, False, 'editParams' ],
+%    [ 'types', _('types'), True, False, 'addTypes' ],
 %    [ 'run', _('Run'), False, False, 'runHermes' ],
 %    [ 'results', _('Results'), False, False, 'showResults' ],
 % ]
@@ -135,7 +136,7 @@ $("#manage_models_grid").jqGrid({ //set your grid id
     pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
     pginput: false, //ditto
     sortname: 'name', //the column according to which data is to be sorted; optional
-    viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� optional
+    viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� "optional
     sortorder: "asc", //sort order; optional
     gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
     onSelectRow: function(id){
@@ -439,6 +440,10 @@ function deleteModel(modelId, modelName) {
 
 function editParams(modelId) {
     window.location = "model-edit-params?id="+modelId;
+}
+
+function addTypes(modelId) {
+    window.location = "model-add-types?id="+modelId;
 }
 
 function runHermes(modelId) {

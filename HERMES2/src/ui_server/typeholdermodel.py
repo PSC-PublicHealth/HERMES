@@ -18,6 +18,11 @@ from main import parseCommandLine
 allTypesModelName = 'AllTypesModel'
 userTypesModelName = 'UserTypesModel'
 
+def typeHolderModels(db):
+    "return a list of all system type holder models"
+    model = db.query(shadow_network.ShdNetwork).filter(shadow_network.ShdNetwork.name==allTypesModelName).one()
+    return [model]
+
 def installTypeHolderModel():
     
     unifiedInput = UnifiedInput()  # pointers to 'unified' files

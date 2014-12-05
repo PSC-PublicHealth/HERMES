@@ -3579,7 +3579,9 @@ class ShdNetwork(Base):
     __table_args__ = {'mysql_engine':'InnoDB'}
     modelId = Column(Integer, primary_key=True)
     note = Column(String(4096))
-    attrs = [('name',    STRING)]
+    attrs = [('name',    STRING),
+             ('refOnly',  BOOLEAN),  # set if this model is only for holding types
+             ]
 
     factories = relationship('ShdFactory',
                             backref='model',
@@ -3698,7 +3700,9 @@ class ShdNetwork(Base):
         if name is None: name = "unnamed model"
 
         self.fromDb = False
-        
+
+        self.refOnly = False
+
         self.types = shdTypes.types
         self.factories = {}
         self.routes = {}

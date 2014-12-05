@@ -21,12 +21,7 @@ import shadow_network as shd
 import base64
 import random
 
-def b64E(s):
-    return base64.b64encode(unicode(s).encode('utf-8'))
-
-def b64D(s):
-    # yes I really want to use str() here
-    return base64.b64decode(str(s)).decode('utf-8')
+from ui_utils import b64E, b64D
 
 inlizer=session_support.inlizer
 _=session_support.translateString

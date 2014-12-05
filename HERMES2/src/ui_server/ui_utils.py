@@ -5,6 +5,8 @@ _hermes_svn_id_="$Id$"
 import sys,os,time,traceback,types
 import site_info
 
+import base64
+
 from HermesServiceException import HermesServiceException
 
 import shadow_network_db_api
@@ -213,4 +215,12 @@ class loggingFileHandle():
     def close(self):
         if self.t:
             self.t.close()
+
+
+def b64E(s):
+    return base64.b64encode(unicode(s).encode('utf-8'))
+
+def b64D(s):
+    # yes I really want to use str() here
+    return base64.b64decode(str(s)).decode('utf-8')
 
