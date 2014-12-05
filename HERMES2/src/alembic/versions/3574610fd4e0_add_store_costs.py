@@ -12,6 +12,7 @@ down_revision = '5440d70e660d'
 
 from alembic import op
 import sqlalchemy as sa
+import ipath
 from alembic_helper import copyTableRecords
 
 
@@ -37,16 +38,16 @@ def upgrade():
                     sa.ForeignKeyConstraint(['modelId'], ['models.modelId'], ),
                     sa.PrimaryKeyConstraint('storeId')
                     )
-
+ 
     print '##### Copying records #####'
     conn = op.get_bind()
     meta = sa.MetaData()
-
+ 
     stores = sa.Table('stores', meta, autoload=True, autoload_with=conn.engine)
     newstores = sa.Table('newstores', meta, autoload=True, autoload_with=conn.engine)
-
+ 
     copyTableRecords(stores, newstores, conn)
-
+ 
     print '##### swapping tables #####'
     op.rename_table('stores', 'oldstores')
     op.rename_table('newstores', 'stores')

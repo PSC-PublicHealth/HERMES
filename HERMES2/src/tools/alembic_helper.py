@@ -28,3 +28,9 @@ def copyTableRecords(inTable, outTable, conn, defaultVal=None):
             print 'dropping bad record on error: %s' % str(e)
             rows = conn.execute(sa.select([inTable])).fetchall()
 
+def findAllTypesModelId(conn, meta):
+    models = sa.Table('models', meta, autoload=True, autoload_with=conn.engine)
+    allTypesModelId = None
+    for row in conn.execute(sa.select([models]).where(models.c.name==op.inline_literal('AllTypesModel'))):
+        allTypesModelId = row[models.c.modelId]
+    return allTypesModelId
