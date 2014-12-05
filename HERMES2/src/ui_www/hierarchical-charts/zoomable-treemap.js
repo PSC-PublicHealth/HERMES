@@ -56,12 +56,17 @@ var treemap = d3.layout.treemap()
     .ratio(height / width * 0.5 * (1 + Math.sqrt(5)))
     .round(false);
 
-var svg = d3.select("#chart").append("svg")
+var svgTitle = d3.select("#"+this.svgContainerID).append("div")
+    .attr("id", "title")
+    .attr("text-align", "center")
+    .text(trant['title']);
+
+var svg = d3.select("#"+this.svgContainerID).append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.bottom + margin.top)
     .style("margin-left", -margin.left + "px")
     .style("margin.right", -margin.right + "px")
-  .append("g")
+    .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
     .style("shape-rendering", "crispEdges");
 
@@ -78,7 +83,7 @@ grandparent.append("text")
     .attr("y", 6 - margin.top)
     .attr("dy", ".75em");
 
-d3.json("flare.json", function(root) {
+d3.json(this.options.file, function(root) {
   initialize(root);
   accumulate(root);
   layout(root);

@@ -345,15 +345,15 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
     });
 </script>
 
-<!-- Zoomable Treemap
-<div id="hierarchicalBarchart" name "hierarchicalBarchart"/>
+<!-- Zoomable Treemap -->
+<div id="zoomableTreemap" name="zoomableTreemap"/>
 <script src="{{rootPath}}static/d3/d3.min.js"></script>
-<script src="{{rootPath}}static/hierarchical-charts/hierarchical-barcharts.js"></script>
+<script src="{{rootPath}}static/hierarchical-charts/zoomable-treemap.js"></script>
 <script>
-    $("#hierarchicalBarchart").barchart({
+    $("#zoomableTreemap").treemap({
         hasChildrenColor: "steelblue",
         noChildrenColor: "#ccc",
-        jsonDataURLBase: "json/results-cost-hierarchical",
+        jsonDataURLBase: "json/results-cost-hierarchical-mixed",
         jsonDataURLParameters: [
             "modelId={{modelId}}",
             "resultsId={{resultsId}}"],
@@ -369,7 +369,6 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
 
     });
 </script>
--->
 
 
 
