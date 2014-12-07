@@ -36,58 +36,73 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-var margin = {top: 20, right: 0, bottom: 0, left: 0},
-    width = 960,
-    height = 500 - margin.top - margin.bottom,
-    formatNumber = d3.format(",d"),
-    transitioning;
+  var margin = {top: 20, right: 0, bottom: 0, left: 0},
+      width = 960,
+      height = 500 - margin.top - margin.bottom,
+      formatNumber = d3.format(",d"),
+      transitioning;
+  
+  var x = d3.scale.linear()
+      .domain([0, width])
+      .range([0, width]);
+  
+  var y = d3.scale.linear()
+      .domain([0, height])
+      .range([0, height]);
+  
+  var treemap = d3.layout.treemap()
+      .children(function(d, depth) { return depth ? null : d._children; })
+      .sort(function(a, b) { return a.value - b.value; })
+      .ratio(height / width * 0.5 * (1 + Math.sqrt(5)))
+      .round(false);
+  
+  var svgTitle = d3.select("#"+this.svgContainerID).append("div")
+      .attr("id", "title")
+      .attr("text-align", "center")
+      .text(trant['title']);
+  
+  var svg = d3.select("#"+this.svgContainerID).append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.bottom + margin.top)
+      .style("margin-left", -margin.left + "px")
+      .style("margin.right", -margin.right + "px")
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .style("shape-rendering", "crispEdges");
+  
+  var grandparent = svg.append("g")
+      .attr("class", "grandparent");
+  
+  grandparent.append("rect")
+      .attr("y", -margin.top)
+      .attr("width", width)
+      .attr("height", margin.top);
+  
+  grandparent.append("text")
+      .attr("x", 6)
+      .attr("y", 6 - margin.top)
+      .attr("dy", ".75em");
+  
+  //d3.json(this.options.file, function(root) {
+  //  console.log(root);
+  //  initialize(root);
+  //  accumulate(root);
+  //  layout(root);
+  //  display(root);
 
-var x = d3.scale.linear()
-    .domain([0, width])
-    .range([0, width]);
+  d3.json(jsonDataURL, function(error, ret) {
+      console.log(ret.error);
+      console.log(ret.data.cost_summary);
+      var root = ret.data.cost_summary;
+      currency = ret.data.currency_base;
+      currency_year = ret.data.currency_year; 
+      initialize(root);
+      accumulate(root);
+      layout(root);
+      display(root);
 
-var y = d3.scale.linear()
-    .domain([0, height])
-    .range([0, height]);
 
-var treemap = d3.layout.treemap()
-    .children(function(d, depth) { return depth ? null : d._children; })
-    .sort(function(a, b) { return a.value - b.value; })
-    .ratio(height / width * 0.5 * (1 + Math.sqrt(5)))
-    .round(false);
 
-var svgTitle = d3.select("#"+this.svgContainerID).append("div")
-    .attr("id", "title")
-    .attr("text-align", "center")
-    .text(trant['title']);
-
-var svg = d3.select("#"+this.svgContainerID).append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.bottom + margin.top)
-    .style("margin-left", -margin.left + "px")
-    .style("margin.right", -margin.right + "px")
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    .style("shape-rendering", "crispEdges");
-
-var grandparent = svg.append("g")
-    .attr("class", "grandparent");
-
-grandparent.append("rect")
-    .attr("y", -margin.top)
-    .attr("width", width)
-    .attr("height", margin.top);
-
-grandparent.append("text")
-    .attr("x", 6)
-    .attr("y", 6 - margin.top)
-    .attr("dy", ".75em");
-
-d3.json(this.options.file, function(root) {
-  initialize(root);
-  accumulate(root);
-  layout(root);
-  display(root);
 
   function initialize(root) {
     root.x = root.y = 0;
@@ -100,9 +115,10 @@ d3.json(this.options.file, function(root) {
   // treemap layout, but not here because of our custom implementation.
   // We also take a snapshot of the original children (_children) to avoid
   // the children being overwritten when when layout is computed.
+  // TODO parseInt should really be parseFloat
   function accumulate(d) {
     return (d._children = d.children)
-        ? d.value = d.children.reduce(function(p, v) { return p + accumulate(v); }, 0)
+        ? d.value = d.children.reduce(function(p, v) { return parseInt(p) + accumulate(v); }, 0)
         : d.value;
   }
 

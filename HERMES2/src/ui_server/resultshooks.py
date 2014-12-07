@@ -459,7 +459,23 @@ def jsonResultsSummaryTransportUtiliztionByRouteByLevel(db, uiSession):
         return result
 
 @bottle.route('/json/results-cost-hierarchical-mixed')
-def jsonResultSummaryCostHierarchicalMixed(db, uiSession):
+def jsonResultSummaryCostHierarchicalMixed(db, uiSession, value_format='size'):
+    def _convert_key(_item, _from, _to):
+        """ recurse through supplied dict converting all _from keys to _to keys
+        
+        This is necessary becuse d3.treemap expects "value" while
+        d3.hierarchical-barchart expects "
+        """
+        if _to == 'size':
+            return _item
+        if isinstance(_item, dict):
+            return {_to if k==_from else k: _convert_key(v, _from, _to) \
+                    for k,v in _item.items()}
+        elif isinstance(_item, list):
+            return [_convert_key(v, _from, _to) for v in _item]
+        else:
+            return _item
+
     try:
         modelId = _getOrThrowError(bottle.request.params,
                 'modelId',isInt=True)
@@ -472,13 +488,16 @@ def jsonResultSummaryCostHierarchicalMixed(db, uiSession):
 
         base = m.getParameterValue('currencybase')
         year = m.getParameterValue('currencybaseyear')
+        if value_format == 'value':
+            _to = 'value'
+            _from = 'size'
 
         try:
             cost_summary = getCostModelSummary(m, r)
             result = {
                     'success': True,
                     'data': {
-                      'cost_summary': cost_summary.dict(mixed=True),
+                      'cost_summary': _convert_key(cost_summary.dict(mixed=True), _from, _to),
                       'currency_base': base,
                       'currency_year': year
                     }
@@ -494,6 +513,11 @@ def jsonResultSummaryCostHierarchicalMixed(db, uiSession):
         _logStacktrace()
         result = {'success':False, 'msg':str(e)}
         return result
+
+
+@bottle.route('/json/results-cost-hierarchical-mixed-value')
+def jsonResultSummaryCostHierarchicalMixedValue(db, uiSession):
+    return jsonResultSummaryCostHierarchicalMixed(db, uiSession, value_format='value')
 
 @bottle.route('/json/results-cost-hierarchical')
 def jsonResultSummaryCostHierarchical(db, uiSession):
