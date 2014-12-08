@@ -1,2 +1,2 @@
-Make,Model,Year,Energy,freezer,cooler,roomtemperature,Name,ClassName,ColdLifetime,AlarmDays,SnoozeDays,Notes
-mothernature,outdoors,U,U,,,1000000000,OUTDOORS,Fridge,,,,
+Make,Model,Year,Energy,freezer,cooler,roomtemperature,Name,BaseCost,BaseCostCur,BaseCostYear,AmortYears,ClassName,ColdLifetime,AlarmDays,SnoozeDays,Notes
+mothernature,outdoors,U,U,,,1000000000,OUTDOORS,0,USD,2012,1,Fridge,,,,

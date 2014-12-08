@@ -1,5 +1,5 @@
 Make,Model,DisplayName,Year,Energy,Category,Technology,BaseCost,BaseCostCur,BaseCostYear,AmortYears,PowerRate,PowerRateUnits,NoPowerHoldoverDays,freezer,cooler,roomtemperature,Name,ClassName,chain,ColdLifetime,AlarmDays,SnoozeDays,Notes
-mothernature,outdoors,outdoors,YearUnk,S,outdoors,none,0,EUR,2012,,0,kW,,0,0,1000000000,OUTDOORS,Fridge,,,,,
+mothernature,outdoors,outdoors,YearUnk,S,outdoors,none,0,EUR,2012,1,0,kW,,0,0,1000000000,OUTDOORS,Fridge,,,,,
 Apex,AICB 444 L,Apex CB 18L,YearUnk,I,ColdBox,ice,135,USD,2009,8.53,17.6,liters/charge,5.83,0,18,,Std_CB_Apex_AICB,ShippableFridge,,5.83,,,PQS 2013
 Dometic/Electrolux,RCW12,CB RCW12,YearUnk,I,ColdBox,ice,473,EUR,2010,8.53,8.4,liters/charge,4.7875,0,7,,Std_CB_RCW12,ShippableFridge,,4.7875,,,PQS 2013
 Dometic/Electrolux,RCW25,CB RCW 25,YearUnk,I,ColdBox,ice,600,EUR,2010,8.53,14.4,liters/charge,5.6083,0,20,,Std_CB_RCW25CF,ShippableFridge,,5.6083,,,PQS 2013
