@@ -328,7 +328,8 @@ def getTypeButtonLabel(db, uiSession, m, tpCategory, keyList):
 
 def getFridgeButtonLabel(db, uiSession, m):
     return getTypeButtonLabel(db, uiSession, m, 'fridges', ['BaseCost', 'BaseCostCur',
-                                                            'BaseCostYear', 'PowerRate'])
+                                                            'BaseCostYear', 'PowerRate',
+                                                            'AmortYears'])
 
 
 def getTruckButtonLabel(db, uiSession, m):
@@ -474,26 +475,6 @@ def jsonSetFuelPrice(db, uiSession, fuelName):
         _logStacktrace()
         return {"success":False, "msg":str(e)} 
 
-# def jsonSetFuelPriceCurrency(db, uiSession, fuelName):
-#     try:
-#         assert fuelName in _fuelNames.keys(), _("{0} is not a valid fuel type").format(fuelName)
-#         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
-#         uiSession.getPrivs().mayReadModelId(db, modelId)
-#         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-#         currencyId = urllib.unquote(_getOrThrowError(bottle.request.params, 'id'))
-#         currencyParamName = _fuelNames[fuelName]
-#         oldPriceInBaseCurrency = m.getParameterValue(currencyParamName)
-#         price = _safeGetReqParam(bottle.request.params, 'price', isFloat=True)
-#         converter = _getCurrencyConverter(db, uiSession, m)
-#         if oldPriceInBaseCurrency is not None:
-#             pass
-#         if paramPrice is None: priceInTargetCurrency = None
-#         else: priceInTargetCurrency = converter.convertTo(paramPrice, converter.getBaseCurrency(), currencyId)
-#         result = {'success':True, 'id':urllib.quote(currencyId)}
-#         return result
-#     except Exception,e:
-#         _logStacktrace()
-#         return {"success":False, "msg":str(e)} 
 
 @bottle.route('/json/manage-fridge-cost-table')
 def jsonManageFridgeCostTable(db, uiSession):
@@ -502,140 +483,88 @@ def jsonManageFridgeCostTable(db, uiSession):
         try:
             uiSession.getPrivs().mayReadModelId(db, modelId)
         except privs.PrivilegeException:
-            raise bottle.BottleException('User may not read model %d'%modelId)
+            raise bottle.BottleException('User may not read model %d' % modelId)
         tList = typehelper.getTypeList(db, modelId, 'fridges', fallback=False)
         tList = [t for t in tList if t['Category'] != '-chained-'
                  and t['Name'] not in typehelper.hiddenTypesSet]
         for rec in tList:
             if 'DisplayName' not in rec \
-                or rec['DisplayName'] is None or rec['DisplayName']=='':
+                    or rec['DisplayName'] is None or rec['DisplayName'] == '':
                 rec['DisplayName'] = rec['Name']
             if 'Category' not in rec \
-                or rec['Category'] is None or rec['Category']=='':
+                    or rec['Category'] is None or rec['Category'] == '':
                 rec['Category'] = _('Uncategorized')
-        nPages,thisPageNum,totRecs,tList = orderAndChopPage(tList,
-                                                            {'category':'Category',
-                                                             'name':'Name',
-                                                             'displayname':'DisplayName',
-                                                             'basecost':'BaseCost',
-                                                             'currency':'BaseCostCurCode',
-                                                             'basecostyear':'BaseCostYear',
-                                                             },
-                                                            bottle.request)
+        nPages, thisPageNum, totRecs, tList = orderAndChopPage(tList,  # @UnusedVariable
+                                                               {'category': 'Category',
+                                                                'name': 'Name',
+                                                                'displayname': 'DisplayName',
+                                                                'basecost': 'BaseCost',
+                                                                'currency': 'BaseCostCurCode',
+                                                                'basecostyear': 'BaseCostYear',
+                                                                'amortyears': 'AmortYears',
+                                                                'ongoing': 'PowerRate',
+                                                                'ongoingunits': 'PowerRateUnits'
+                                                                },
+                                                               bottle.request)
         for t in tList:
-            for k in ['BaseCost','BaseCostYear','PowerRate']: 
-                if t[k] == 0: t[k] = None
-            if t['PowerRateUnits'] and energyTranslationDict[t['Energy']][2] and t['PowerRateUnits'].lower() != energyTranslationDict[t['Energy']][2].lower():
-                raise RuntimeError("Power units for %s are inconsistent: %s vs. %s"%\
-                                   (t['Name'],t['PowerRateUnits'],energyTranslationDict[t['Energy']][2]))
-                
-        result = {
-                  'success':True,
-                  "total":1,    # total pages
-                  "page":1,     # which page is this
-                  "records":totRecs,  # total records
-                  "rows": [ {"name":t['Name'],
-                            "category":t['Category'],
-                            "displayname":t['DisplayName'],
-                            "detail":t['Name'],
-                            "basecost":t['BaseCost'],
-                            "currency":t['BaseCostCur'],
-                            "basecostyear":t['BaseCostYear'],
-                            "powerrate":t['PowerRate'],
+            for k in ['BaseCost', 'BaseCostYear', 'PowerRate', 'AmortYears']:
+                if t[k] == 0:
+                    t[k] = None
+            if (t['PowerRateUnits'] and energyTranslationDict[t['Energy']][2]
+                    and t['PowerRateUnits'].lower() != energyTranslationDict[t['Energy']][2].lower()):
+                raise RuntimeError("Power units for %s are inconsistent: %s vs. %s" %
+                                   (t['Name'], t['PowerRateUnits'],
+                                    energyTranslationDict[t['Energy']][2]))
+
+        result = {'success': True,
+                  "total": 1,    # total pages
+                  "page": 1,     # which page is this
+                  "records": totRecs,  # total records
+                  "rows": [{"name": t['Name'],
+                            "category": t['Category'],
+                            "displayname": t['DisplayName'],
+                            "detail": t['Name'],
+                            "basecost": t['BaseCost'],
+                            "currency": t['BaseCostCur'],
+                            "basecostyear": t['BaseCostYear'],
+                            'amortyears': t['AmortYears'],
+                            "powerrate": t['PowerRate'],
                             "powerrateunits":t['PowerRateUnits'],
                             "energy":energyTranslationDict[t['Energy']][1]
-                             }
+                            }
                            for t in tList if t['Name'] not in typehelper.hiddenTypesSet]
                   }
         return result
-    except Exception,e:
-        return {'success':False, 'msg':str(e)}
+    except Exception, e:
+        return {'success': False, 'msg': str(e)}
 
-# @bottle.route('/json/manage-fridge-cost-table')
-# def jsonManageFridgeCostTable(db, uiSession):
-#     try:
-#         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
-#         try:
-#             uiSession.getPrivs().mayReadModelId(db, modelId)
-#         except privs.PrivilegeException:
-#             raise bottle.BottleException('User may not read model %d'%modelId)
-#         tList = typehelper.getTypeList(db, modelId, 'fridges', fallback=False)
-#         tList = [t for t in tList if t['Category'] != '-chained-'
-#                  and t['Name'] not in typehelper.hiddenTypesSet]
-#         for rec in tList:
-#             if 'DisplayName' not in rec \
-#                 or rec['DisplayName'] is None or rec['DisplayName']=='':
-#                 rec['DisplayName'] = rec['Name']
-#             if 'Category' not in rec \
-#                 or rec['Category'] is None or rec['Category']=='':
-#                 rec['Category'] = _('Uncategorized')
-#         nPages,thisPageNum,totRecs,tList = orderAndChopPage(tList,
-#                                                             {'category':'Category',
-#                                                              'name':'Name',
-#                                                              'displayname':'DisplayName',
-#                                                              'basecost':'BaseCost',
-#                                                              'currency':'BaseCostCurCode',
-#                                                              'basecostyear':'BaseCostYear',
-#                                                              },
-#                                                             bottle.request)
-#         for t in tList:
-#             for k in ['BaseCost','BaseCostYear','PowerRate']: 
-#                 if t[k] == 0: t[k] = None
-#             if t['PowerRateUnits'] and energyTranslationDict[t['Energy']][2] and t['PowerRateUnits'].lower() != energyTranslationDict[t['Energy']][2].lower():
-#                 raise RuntimeError("Power units for %s are inconsistent: %s vs. %s"%\
-#                                    (t['Name'],t['PowerRateUnits'],energyTranslationDict[t['Energy']][2]))
-#                 
-#         result = {
-#                   'success':True,
-#                   "total":nPages,    # total pages
-#                   "page":thisPageNum,     # which page is this
-#                   "records":totRecs,  # total records
-#                   "rows": [ {"name":t['Name'], 
-#                              "cell":[t['Name'],
-#                                      t['Category'],
-#                                      t['DisplayName'],
-#                                      t['Name'],
-#                                      t['BaseCost'],
-#                                      t['BaseCostCur'],
-#                                      t['BaseCostYear'],
-#                                      t['PowerRate'],
-#                                      t['PowerRateUnits'],
-#                                      energyTranslationDict[t['Energy']][1]]
-#                              }
-#                            for t in tList if t['Name'] not in typehelper.hiddenTypesSet]
-#                   }
-#         return result
-#     except Exception,e:
-#         return {'success':False, 'msg':str(e)}
 
 @bottle.route('/json/get-cost-info-fridge')
 def jsonGetCostInfoFridge(db, uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayReadModelId(db, modelId)
-        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-        amortYears = int(round(m.getParameterValue('amortizationstorageyears')))
-        result = { 
-                  'success':True,
-                  'amortYears':amortYears
+        # m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        result = {'success': True  # currently nothing need be sent
                   }
         return result
-    except Exception,e:
+    except Exception, e:
         _logStacktrace()
-        return {"success":False, "msg":str(e)} 
+        return {"success": False, "msg": str(e)}
+
 
 @bottle.route('/edit/edit-cost-fridge', method='POST')
 def editCostFridge(db, uiSession):
     try:
-        #print [(k,v) for k,v in bottle.request.params.items()]
-        if bottle.request.params['oper']=='edit':
+        # print [(k,v) for k,v in bottle.request.params.items()]
+        if bottle.request.params['oper'] == 'edit':
             modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
             uiSession.getPrivs().mayModifyModelId(db, modelId)
             m = shadow_network_db_api.ShdNetworkDB(db, modelId)
             typeName = _getOrThrowError(bottle.request.params, 'id')
             if typeName in m.types:
                 tp = m.types[typeName]
-                for opt in ['category', 'displayname', 'ongoingunits','ongoingwhat']:
+                for opt in ['category', 'displayname', 'ongoingunits', 'ongoingwhat']:
                     if opt in bottle.request.params:
                         raise RuntimeError(_('Editing of {0} is not supported').format(opt))
                 if 'basecost' in bottle.request.params:
@@ -643,50 +572,40 @@ def editCostFridge(db, uiSession):
                 if 'currency' in bottle.request.params:
                     tp.BaseCostCurCode = _safeGetReqParam(bottle.request.params, 'currency')
                 if 'basecostyear' in bottle.request.params:
-                    tp.BaseCostYear = _safeGetReqParam(bottle.request.params, 'basecostyear', isInt=True)
+                    tp.BaseCostYear = _safeGetReqParam(bottle.request.params, 'basecostyear',
+                                                       isInt=True)
                 if 'ongoing' in bottle.request.params:
                     tp.PowerRate = _safeGetReqParam(bottle.request.params, 'ongoing', isFloat=True)
-                return {'success':True}
+                if 'amortyears' in bottle.request.params:
+                    tp.AmortYears = _safeGetReqParam(bottle.request.params, 'amortyears',
+                                                     isFloat=True)
+                return {'success': True}
             else:
-                raise RuntimeError(_('Model {0} does not contain type {1}').format(m.name, typeName))
-        else: raise RuntimeError(_('Unsupported operation {0}').format(bottle.request.params['oper']))
+                raise RuntimeError(_('Model {0} does not contain type {1}')
+                                   .format(m.name, typeName))
+        else:
+            raise RuntimeError(_('Unsupported operation {0}')
+                               .format(bottle.request.params['oper']))
     except bottle.HTTPResponse:
-        raise # bottle will handle this
-    except Exception,e:
+        raise  # bottle will handle this
+    except Exception, e:
         _logStacktrace()
-        return {'success':False, 'msg':str(e)}
-            
-@bottle.route('/json/set-fridge-amort-years')
-def jsonSetFridgeAmortYears(db, uiSession):
-    try:
-        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
-        uiSession.getPrivs().mayReadModelId(db, modelId)
-        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-        amortYears = _getOrThrowError(bottle.request.params, 'amortYears', isInt=True)
-        if amortYears is not None and amortYears!='':
-            m.addParm(shadow_network.ShdParameter('amortizationstorageyears', amortYears))
-        result = {'success':True, 'amortYears':amortYears}
-        return result
-    except Exception,e:
-        _logStacktrace()
-        return {"success":False, "msg":str(e), 
-                'amortYears':int(round(m.getParameterValue('amortizationstorageyears')))
-                } 
+        return {'success': False, 'msg': str(e)}
+
 
 @bottle.route('/json/get-cost-info-vaccine')
 def jsonGetCostInfoVaccine(db, uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayReadModelId(db, modelId)
-        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-        result = { 
+        # m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        result = {'success': True,
                   # I am sure we will want to pass something in here!
-                  'success':True,
                   }
         return result
-    except Exception,e:
+    except Exception, e:
         _logStacktrace()
-        return {"success":False, "msg":str(e)} 
+        return {"success": False, "msg": str(e)}
 
 
 @bottle.route('/json/manage-vaccine-cost-table')

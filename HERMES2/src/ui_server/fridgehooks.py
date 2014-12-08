@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 
-####################################
-# Notes:
-# -A session could be hijacked just by grabbing the SessionID;
-#  should use an encrypted cookie to prevent this.
-####################################
 _hermes_svn_id_="$Id$"
 
 import sys,os,os.path,time,json,math,types
@@ -42,6 +37,7 @@ fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'stri
             {'row':4, 'label':_('Base Cost Year'), 'key':'BaseCostYear', 'id':'basecostyear', 'type':'int'},  
             {'row':4, 'label':_('Currency'), 'key':'BaseCostCur', 'id':'basecostcur', 'type':'currency',
              'price':'basecost','year':'basecostyear'},
+            {'row':4, 'label':_("Years To Amortize"), 'key':'AmortYears', 'id':'amortyears', 'type':'float'},
             {'row':5, 'label':_('Energy'), 'key':'Energy', 'id':'energy', 'type':'energy'},
             {'row':5, 'label':_('Power Rate'), 'key':'PowerRate', 'id':'powerrate', 'type':'float'},  
             {'row':5, 'label':_('Power Rate Units'), 'key':'PowerRateUnits', 'id':'powerrateunits', 'type':'hide'},  

@@ -187,7 +187,6 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         self.intervalEndTime = timeNow
         # We do this loop in a try/except to bundle more error messages together, since there is a
         # long annoying process of finding missing price info.
-        fridgeAmortPeriod = self.sim.userInput['amortizationstorageyears']*self.model.daysPerYear
         inflation = self.sim.userInput['priceinflation']  # used by currencyConverter, so per-year
         allPendingCostEvents = []
         for r in self.sim.warehouseWeakRefs:
@@ -209,7 +208,6 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                                                          self.intervalStartTime,
                                                                          self.intervalEndTime,
                                                                          costable.getType(),
-                                                                         fridgeAmortPeriod,
                                                                          inflation))
                             except Exception, e:
                                 errList.append(unicode(e))
@@ -222,7 +220,6 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                                                                  self.intervalStartTime,
                                                                                  self.intervalEndTime,
                                                                                  innerItem.getType(),
-                                                                                 fridgeAmortPeriod,
                                                                                  inflation))
                                     except Exception, e:
                                         errList.append(str(e))
@@ -523,7 +520,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         return {}
 
     def _generateFridgeCostNotes(self, level, conditions, startTime, endTime,
-                                 costable, amortPeriod, inflation):
+                                 costable, inflation):
         """
         This routine is called once per Fridge instance per reporting interval,
         and returns a Dict suitable for NoteHoder.addNote() containing cost
@@ -551,19 +548,21 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                     u"Fuel type %s has amortization but is not by-instance" % \
                     fridge.name
                 basePrice = self.sim.userInput[priceKeyInfo[0]]
-                amortPeriod = self.sim.userInput[priceKeyInfo[1]]
+                fuelAmortPeriod = self.sim.userInput[priceKeyInfo[1]]
                 assert basePrice is not None, \
                     u"Cost information for power type %s is missing" % fuel
-                assert amortPeriod is not None and amortPeriod != 0.0, \
+                assert fuelAmortPeriod is not None and fuelAmortPeriod != 0.0, \
                     u"Component lifetime for power type %s is missing" % fuel
-                fuelPrice = basePrice/amortPeriod
+                fuelPrice = basePrice/fuelAmortPeriod
             else:
                 fuelPrice = self.sim.userInput[priceKeyInfo]  # in run currency at run base year
                 assert fuelPrice is not None, \
                     u"Cost information for power type %s is missing" % fuel
             baseCost = fridge.recDict['BaseCost']
             powerRate = fridge.recDict['PowerRate']
-            assert baseCost is not None and powerRate is not None, \
+            amortPeriod = fridge.recDict['AmortYears']*self.model.daysPerYear
+            assert (baseCost is not None and powerRate is not None
+                    and fridge.recDict['AmortYears'] is not None), \
                 u"Cost information for %s is incomplete" % fridge.name
             runCur = self.sim.userInput['currencybase']
             runCurYear = self.sim.userInput['currencybaseyear']
@@ -678,6 +677,8 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
                     and (isinstance(invTp.BaseCostYear, (types.IntType,
                                                          types.LongType))
                          and invTp.BaseCostYear >= 2000)
+                    and (isinstance(invTp.AmortYears, types.FloatType)
+                         and invTp.AmortYears >= 0.0)
                     and (isinstance(invTp.PowerRate, types.FloatType)
                          and invTp.PowerRate >= 0.0))
         except:

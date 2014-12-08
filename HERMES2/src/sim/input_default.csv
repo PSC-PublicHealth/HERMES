@@ -120,6 +120,6 @@ vizshapes,Old Google Earth Param,string_list,c:s:c:s,9999,118,gEarth visualizati
 demanddayspattern,Clinic open days pattern,stringOrNone,None,3,119,this field expects a calender pattern of the form xxxxxxx:xxxx:xxxxxxxxxxxx where each x is either 0 or 1,
 demanddaysbytypepattern,Clinic open days pattern,string_list,None,3,120,this field expects a list of calender patterns of the form peopletype:xxxxxxx:xxxx:xxxxxxxxxxxx where each x is either 0 or 1,
 donotvizlevellist,Turn off Google Earth Viz by Level,string_list,None,9999,121,,
-amortizationstorageyears,Years to fully amortize a storage device,float,7,2,122,Over how many years should the base cost of a storage device like a refrigerator be amortized?,
+amortizationstorageyears,deprecated,float,7,9999,122,Deprecated – this option is now ignored,
 orderpendinglifetime,Order Pending Lifetime,float,1.1,1,123,How long should a shipment be delayed waiting for goods to arrive?,
 patientwaitinterval,Patient Wait Interval,float,0.3,1,124,How long should a patient wait for vaccine to arrive at a clinic?,

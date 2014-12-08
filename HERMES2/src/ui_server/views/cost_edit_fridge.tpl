@@ -6,12 +6,6 @@
 			<div align='center' id='model_sel_widget'></div>
 		</td>
 	</tr>
-	<tr><td>
-		<div align='center' id='fridge_amort_div'>
-		<label for="fridge_amort_years">{{_("Years to amortize these devices")}}</label>
-		<input type="number" min="1" max="20" name="fridge_amort_years" id="fridge_amort_years">
-		</div>
-	</td></tr>
 	<tr>
 		<td width=100%>
 			<table id="fridge_cost_grid"></table>
@@ -36,7 +30,7 @@ function updateAllButGrid(modelId) {
 	$.getJSON('{{rootPath}}json/get-cost-info-fridge',{modelId:modelId})
 	.done(function(data) {
 		if (data.success) {
-			$("#fridge_amort_years").val(data.amortYears);
+			// As of right now, there is nothing to do
 		}
 	    else {
 	    	alert('{{_("Failed: ")}}'+data.msg);
@@ -64,7 +58,7 @@ function fridgeInfoButtonFormatter(cellvalue, options, rowObject)
 	*/
 };
 
-function priceCheck(value) {
+function floatCheck(value) {
 	if ((value=='') || (!isNaN(parseFloat(value)) && isFinite(value)))
 		return true;
 	else {
@@ -72,28 +66,18 @@ function priceCheck(value) {
 	}
 }
 
+function nonNegCheck(value) {
+	if ((value=='') || (!isNaN(parseFloat(value)) && isFinite(value) && value>=0.0))
+		return true;
+	else {
+		return false;
+	}	
+}
+
+function priceCheck(value) { return nonNegCheck(value); }
+
 function buildPage(modelId) {
 	updateAllButGrid(modelId);
-	$('#fridge_amort_years').blur( function(evt) {
-		$.getJSON('{{rootPath}}json/set-fridge-amort-years',
-			{modelId:$('#model_sel_widget').modelSelector('selId'),
-			amortYears:$('#fridge_amort_years').val()
-		})
-		.done(function(data) {
-			if (data.success) {
-				// do nothing
-			}
-    		else {
-    			alert('{{_("Failed: ")}}'+data.msg);
-    			if (data.amortYears)
-    				$('#fridge_amort_years').val(data.amortYears);
-    			}
-		})
-		.fail(function(jqxhr, textStatus, error) {
-    		alert('{{_("Error: ")}}'+jqxhr.responseText);
-		});
-	})
-
 	$("#fridge_cost_grid").jqGrid({
 	   	url:'{{rootPath}}json/manage-fridge-cost-table',
 	    editurl:'{{rootPath}}edit/edit-cost-fridge',
@@ -114,6 +98,7 @@ function buildPage(modelId) {
 		          "{{_('Base Cost')}}",
 		          "{{_('Currency')}}",
 		          "{{_('Base Cost Year')}}",
+		          "{{_('Years to Amortize')}}",
 		          "{{_('Ongoing')}}",
 		          "{{_('Units')}}",
 		          "{{_('Of')}}",
@@ -165,16 +150,27 @@ function buildPage(modelId) {
 		        	  }
 		          },
 		          {name:'basecostyear', jsonmap:'basecostyear', index:'basecostyear', align:'center',
-		        		  editable:true, edittype:'text', editrules:{integer:true, minValue:2000, maxValue:3000}},
-		          {name:'ongoing', jsonmap: 'powerrate', index:'ongoing', editable:true, edittype:'text', width:100, align:'center', 
-			        	  formatter:'currency', formatoptions:{defaultValue:''},
+	        		  editable:true, edittype:'text', editrules:{integer:true, minValue:2000, maxValue:3000}},
+			      {name:'amortyears', jsonmap:'amortyears', index:'amortyears', align:'center',
+			        	  formatter:'number', formatoptions:{defaultValue:''},
 			        	  editable:true, editrules:{ 
 			        		  custom:true, 
 			        		  custom_func: function(value,colname) {
-			        			  if (priceCheck(value))
+			        			  if (nonNegCheck(value))
 			        				  return [true,''];
 			        			  else
-			        				  return [false,'{{_("Please enter a valid price for Ongoing Cost")}}'];
+			        				  return [false,'{{_("Please enter a valid value for Years to Amortize")}}'];
+			        		  }
+			        	  }},
+		          {name:'ongoing', jsonmap: 'powerrate', index:'ongoing', editable:true, edittype:'text', width:100, align:'center', 
+			        	  formatter:'number', formatoptions:{defaultValue:''},
+			        	  editable:true, editrules:{ 
+			        		  custom:true, 
+			        		  custom_func: function(value,colname) {
+			        			  if (nonNegCheck(value))
+			        				  return [true,''];
+			        			  else
+			        				  return [false,'{{_("Please enter a valid value for Ongoing Cost")}}'];
 			        		  }
 			        	  }
 		          },
@@ -222,10 +218,12 @@ function buildPage(modelId) {
 					var units = $("#fridge_cost_grid").jqGrid('getCell',id,"ongoingunits");
 					var fuel = $("#fridge_cost_grid").jqGrid('getCell',id,"ongoingwhat");
 					$("#fridge_cost_grid").jqGrid('editGridRow',id,{
-						closeAfterEdit:true,
+						//closeAfterEdit:true,
+						closeAfterEdit:false,
 						closeOnEscape:true,
 	                  	jqModal:true,
-	                  	viewPagerButtons:false,
+	                  	//viewPagerButtons:false,
+	                  	viewPagerButtons:true,
 	                  	mType:"POST",
 	                  	modal:true,
 	                  	editData: {
@@ -248,52 +246,6 @@ function buildPage(modelId) {
 					});
 				}
 			});
-			/*
-			$(".hermes_info_button").click(function(event) {
-				$.getJSON('{{rootPath}}json/fridge-info',{name:unescape($(this).attr('id')), modelId:$('#model_sel_widget').modelSelector('selId')})
-				.done(function(data) {
-					if (data.success) {									
-						$("#fridge_info_dialog").html(data['htmlstring']);
-						$("#fridge_info_dialog").dialog('option','title',data['title']);
-						$("#fridge_info_dialog").dialog("open");
-					}
-					else {
-	    				alert('{{_("Failed: ")}}'+data.msg);
-					}
-					
-				})
-					.fail(function(jqxhr, textStatus, error) {
-						alert("Error: "+jqxhr.responseText);
-				});
-				event.stopPropagation();
-			});
-			*/
-			/*
-			$(".this_edit_button").click(function(event){
-				//var gr = $("#fridge_cost_grid").jqGrid('getGridParam','selRow');
-				//console.log(gr);
-				if(true) {
-					console.log("ID :"+ $(this).attr("id"));
-					var devName = $("#fridge_cost_grid").jqGrid('getCell',$(this).attr("id"),"displayname");
-					$("#fridge_cost_grid").jqGrid('editGridRow',$(this).attr("id"),{
-                  	  closeAfterEdit:true,
-                  	  closeOnEscape:true,
-                  	  jqModal:true,
-                  	  viewPagerButtons:false,
-                  	  mType:"POST",
-                  	  modal:true,
-                  	  editData: {
-        					modelId: function() { 
-        						return $('#model_sel_widget').modelSelector('selId'); 
-        					}
-                  	  },
-                  	  editCaption:"Edit Cost Information for " + devName,
-                  	  savekey:[true,13]             
-					});
-				}
-				else alert("Please Slect Row");
-			});
-			*/
 		},
 		loadError: function(xhr,status,error){
 	    	alert('{{_("Error: ")}}'+status);
@@ -343,26 +295,6 @@ $(function() {
 		},
 	});
 });
-
-
-$('#cost_base_year').blur( function(evt) {
-	$.getJSON('{{rootPath}}json/set-currency-base-year',
-		{modelId:$('#model_sel_widget').modelSelector('selId'),
-		baseYear:$('#cost_base_year').val()
-	})
-	.done(function(data) {
-		if (data.success) {
-			// do nothing
-		}
-		else {
-			alert('{{_("Failed: ")}}'+data.msg);
-		}
-	})
-	.fail(function(jqxhr, textStatus, error) {
-		alert('{{_("Error: ")}}'+jqxhr.responseText);
-	});
-})
-
 
 $(function() {
 	var btn = $("#done_button");
