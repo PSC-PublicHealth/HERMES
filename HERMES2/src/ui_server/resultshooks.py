@@ -179,6 +179,7 @@ def createResultsSummary(db, uiSession):
     modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
     resultsId = _safeGetReqParam(bottle.request.params,'resultsId',isInt=True)
     hRG = db.query(s_n.HermesResults).filter(s_n.HermesResults.resultsId==resultsId).one().resultsGroup
+    m = shadow_network_db_api.ShdNetworkDB(db,hRG.modelId)
 
     if modelId is None:
         raise bottle.BottleException("modelId is missing getting kmlstring")
@@ -188,7 +189,7 @@ def createResultsSummary(db, uiSession):
         return None
 	
     return bottle.template("results_summary.tpl",{"breadcrumbPairs":[("top",_("Welcome")),("results-top",_("Results")),("results-summary?modelId=%d&resultsId=%d"%(hRG.modelId,resultsId),_("Summary"))],
-                               "pageHelpText":_("This is intended to show page-specific help")},
+                               "pageHelpText":_("This is intended to show page-specific help"),"modelName":m.name,"resultsGroupName":hRG.name},
                                _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId,
                                gvAvailable=_gvAvailable)
 

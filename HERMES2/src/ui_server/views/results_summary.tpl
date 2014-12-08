@@ -24,7 +24,8 @@ th.ui-th-column div {
 }
 </style>
 
-
+<h1>{{modelName}}</h1>
+<h4>Results: {{resultsGroupName}}</h4>
 <div id="summary_div" width="100%">
 <table id="vaccine_summary_results_grid"></table>
 <div style="width:500;" id="results_summary_buttons_div">
