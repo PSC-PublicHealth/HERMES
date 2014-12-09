@@ -35,19 +35,21 @@ _=session_support.translateString
 
 @bottle.route('/tabs')
 def tabPage(uiSession):
-    return bottle.template("tabs.tpl",topLevelTabPairs=[('ajax/page_2',_('Menu Page')),
-                                                       ('ajax/page_3',_('Tree Page')),
-                                                       ('ajax/page_4',_('Table Page')),
-                                                       ('ajax/page_5',_('Upload Page')),
-                                                       ('ajax/page_6',_('Test Button')),
-                                                       ('ajax/page_7',_('Store Editor')),
-                                                       ('ajax/page_8',_('Type Selector')),
-                                                       ('ajax/page_9',_('Route Editor')),
-                                                       ('ajax/page_10',_('Pop-Up Menu')),
-                                                       ('ajax/page_11',_('Data Entry')),
-                                                       ('ajax/page_12',_('Type Editor')),
-                                                       ('debug-ui',_('Debug'))
-                                                       ])
+    return bottle.template("tabs.tpl", topLevelTabPairs=[
+        # ('ajax/page_2', _('Menu Page')),
+        # ('ajax/page_3', _('Tree Page')),
+        # ('ajax/page_4', _('Table Page')),
+        # ('ajax/page_5', _('Upload Page')),
+        # ('ajax/page_6', _('Test Button')),
+        ('ajax/page_7', _('Store Editor')),
+        # ('ajax/page_8', _('Type Selector')),
+        ('ajax/page_9', _('Route Editor')),
+        # ('ajax/page_10',_('Pop-Up Menu')),
+        ('ajax/page_11', _('Data Entry')),
+        ('ajax/page_12', _('Type Editor')),
+        ('debug-ui', _('Debug'))
+        ])
+
 
 @bottle.route('/debug-ui')
 def debugUIPage(uiSession):

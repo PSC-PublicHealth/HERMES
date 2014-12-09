@@ -269,7 +269,9 @@ $(function() {
 	    			<li><a href="{{rootPath}}cost-top?crmb=clear">{{_('Costs')}}</a></li>
 	    			<li><a href="{{rootPath}}run-top?crmb=clear">{{_('Run Hermes')}}</a></li>
 	    			<li><a href="{{rootPath}}results-top?crmb=clear">{{_('Results')}}</a></li>
+	    			<!--
 	    			<li><a href="{{rootPath}}tabs">{{_('Developer')}}</a></li>
+	    			-->
 	    			<li><a href="{{rootPath}}show-help">{{_('Help')}}</a></li>
 	  			</ul> 
      			</div>

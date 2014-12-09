@@ -63,6 +63,9 @@
 				<tr>
 					<td><h3 style="margin-top:0px;">{{_("Browse through HERMES database of vaccines, refrigerators, freezers, cold boxes and transport vehicles.")}}</h3></td>
 				</tr>
+				<tr>
+					<td><span class='hrm_invisible'><a href='tabs'>Open Developer Page</a></span></td><td></td>
+				</tr>
 				<tr height=20><td></td></tr>
 			</table>
 		</div>

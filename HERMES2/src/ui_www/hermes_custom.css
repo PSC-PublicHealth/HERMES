@@ -5,6 +5,19 @@
 /************
 * Hermes-specific mods follow
 */
+
+/* A class for invisible buttons */
+.hrm_invisible {
+	outline: 1px solid transparent;
+}
+
+.hrm_invisible a {
+	visibility: hidden;
+}
+.hrm_invisible:hover a {
+	visibility: visible;
+}
+
 /* Keep the page select box for jqGrid small */
 input[type="text"].ui-pg-input {
     width: auto; !important;
