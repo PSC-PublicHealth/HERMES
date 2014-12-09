@@ -29,7 +29,11 @@ $(function() {
 		})
 	.done(function(data) {
 		if (data.success) {
-			$("#people_edit_form_div").html(data['htmlstring']);
+			$("#people_edit_form_div").hrmWidget({
+				widget:'editFormManager',
+				html:data['htmlstring'],
+				modelId:modelId
+			});			
 		}
 		else {
 	    	alert('{{_("Failed: ")}}'+data.msg);
@@ -81,11 +85,7 @@ $(function() {
 	var btn = $("#done_button");
 	btn.button();
 	btn.click( function() {
-		var dict = {modelId:{{get('modelId')}}}
-		$("#people_edit_form input,select").each( function( index ) {
-			var tj = $(this);
-			dict[tj.attr('id')] = tj.val();
-		});
+		var dict = $('#people_edit_form_div').editFormManager('getEntries');
 		$.getJSON("{{rootPath}}json/people-edit-verify-commit",dict)
 		.done(function(data) {
 			if (data.success) {
