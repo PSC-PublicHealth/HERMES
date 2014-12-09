@@ -66,7 +66,7 @@ STRING_NULL = DataType(STRING, emptyCast = castTypes.EMPTY_IS_NULL_STRING)
 
 NOTES_STRING = DataType(STRING_NULL, dbType=String(4096))
 
-BOOLEAN = DataType(cast = castTypes.INT, 
+BOOLEAN = DataType(cast = castTypes.BOOLEAN, 
                    dbType = Boolean)
 
 

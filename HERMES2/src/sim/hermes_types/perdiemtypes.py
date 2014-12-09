@@ -89,6 +89,8 @@ class PerDiemType(abstractbaseclasses.ManagedType,
         return {u'BaseAmountYear': [castTypes.POSITIVE_INT, castTypes.EMPTY_IS_NONE],
                 u'BaseAmount': [castTypes.FLOAT, castTypes.EMPTY_IS_NONE],
                 u'MinKmHome': [castTypes.FLOAT, castTypes.EMPTY_IS_ZERO],
+                u'MustBeOvernight': [castTypes.BOOLEAN],
+                u'CountFirstDay': [castTypes.BOOLEAN]
                 }
 
     def resetCounters(self):

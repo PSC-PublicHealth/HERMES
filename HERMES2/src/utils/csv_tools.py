@@ -426,6 +426,30 @@ class castTypes:
         if val == "":
             return True, None
         return False, val
+    
+    @staticmethod
+    def CastBoolean(val, **kwargs):
+        """This actually returns an int, 1 or 0, rather than python True/False"""
+        if val is None:
+            return True, 0
+        elif isinstance(val, types.StringTypes):
+            if val.lower() == 't' or val.lower() == 'true':
+                return True, 1
+            elif val.lower() == 'f' or val.lower() == 'false':
+                return True, 0
+            else:
+                try:
+                    ival = float(val)
+                    if ival:
+                        return True, 1
+                    else:
+                        return True, 0
+                except ValueError:
+                    pass
+        if val:
+            return True, 1
+        else:
+            return True, 0
 
     INT                   = CastInt
     STRING                = CastString
@@ -438,6 +462,7 @@ class castTypes:
     EMPTY_IS_NULL_STRING  = CastEmptyIsNullString
     EMPTY_IS_ZERO         = CastEmptyIsZero
     EMPTY_IS_NONE         = CastEmptyIsNone
+    BOOLEAN               = CastBoolean
 
 class castFail(Exception):
     "Exception class called if any member of a column failed its cast"
