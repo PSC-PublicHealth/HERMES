@@ -2,8 +2,8 @@
 %rebase outer_wrapper **locals()
 
 <table>
-<tr><td  style="border-style:solid">
-<h2>Task:</h2>
+<tr><td style="float:left;width:80px">
+<h2 style="display:none">Task:</h2>
 <table>
 <tr><td><button id="create_people_from_proto_button" style="width:100%">{{!_('Create')}}</button></td></tr>
 <tr><td><button id="copy_people_button" style="width:100%">{{!_('Copy')}}</button></td></tr>
@@ -11,8 +11,8 @@
 </table>
 </td>
 
-<td  style="border-style:solid">
-<h3>{{_('Known Population Types')}}</h3>
+<td>
+<h3 style="display:none">{{_('Known Population Types')}}</h3>
 <label for="people_top_model_select">{{_('Showing population types for')}}</label>
 <select name="people_top_model_select" id="people_top_model_select"></select>
 <table id="manage_people_grid"></table>
@@ -160,7 +160,7 @@ $("#manage_people_grid").jqGrid({ //set your grid id
 	rowattr: function(rowdata){
 		if (!rowdata.usedin) return {"class":"not-editable-row"};
 	},
-    caption:"{{_("Available Population Types")}}"
+    caption:"{{ _("Available Population Types") if not defined('smallCaption') else smallCaption }}"
 }).jqGrid('hermify',{debug:true});
 $("#manage_people_grid").jqGrid('navGrid','#manage_people_pager',{edit:false,add:false,del:false});
 

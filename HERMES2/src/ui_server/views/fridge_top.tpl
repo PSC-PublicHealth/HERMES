@@ -2,8 +2,8 @@
 %rebase outer_wrapper **locals()
 
 <table>
-<tr><td  style="border-style:solid">
-<h2>Task:</h2>
+<tr><td style="float:left;width:80px">
+<h2 style="display:none">Task:</h2>
 <table>
 <tr><td><button id="create_fridge_from_proto_button" style="width:100%">{{!_('Create')}}</button></td></tr>
 <tr><td><button id="copy_fridge_button" style="width:100%">{{!_('Copy')}}</button></td></tr>
@@ -11,8 +11,8 @@
 </table>
 </td>
 
-<td  style="border-style:solid">
-<h3>{{_('Known Cold Storage Types')}}</h3>
+<td>
+<h3 style="display:none">{{_('Known Cold Storage Types')}}</h3>
 <div name="model_select" id="model_select"></div>
 <table id="manage_fridge_grid"></table>
 <div id="manage_fridge_pager"> </div>
@@ -217,7 +217,7 @@ $("#manage_fridge_grid").jqGrid({ //set your grid id
 		groupColumnShow:[false],
 		groupCollapse:true
 	},
-    caption:"{{_("Available Cold Storage Types")}}"
+    caption:"{{ _("Available Cold Storage Types") if not defined('smallCaption') else smallCaption }}"
 }).jqGrid('hermify',{debug:true});
 $("#manage_fridge_grid").jqGrid('navGrid','#manage_fridge_pager',{edit:false,add:false,del:false});
 

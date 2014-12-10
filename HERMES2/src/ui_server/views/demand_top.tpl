@@ -1,7 +1,7 @@
 % title_slogan=_("Specify Vaccine Demand")
 %rebase outer_wrapper **locals()
 
-<h2 style="text-align:center;">{{_('Vaccine Demand By Population Type')}}</h2>
+<h2 style="display:none">{{_('Vaccine Demand By Population Type')}}</h2>
 <table>
 <tr>
 	<td>

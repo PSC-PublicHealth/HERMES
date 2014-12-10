@@ -1,7 +1,7 @@
 %rebase outer_wrapper title_slogan=_('Available Models'),breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
 <table>
-<tr><td  style="border-style:solid">
-<h2>{{_('Task:')}}</h2>
+<tr><td style="float:left;width:110px">
+<h2 style="display:none">{{_('Task:')}}</h2>
 % buttonList = [
 % # [ title, label, acts on row, confirm, function ]
 %    [ 'create', _('Create'), False, False, 'createModel' ],
@@ -23,8 +23,8 @@
 </table>
 </td>
 
-<td  style="border-style:solid">
-<h3>{{_('Select A Model')}}</h3>
+<td>
+<h3 style="display:none">{{_('Select A Model')}}</h3>
 <table id="manage_models_grid"></table>
 <div id="manage_models_pager"> </div>
 </td>
@@ -169,27 +169,36 @@ $("#manage_models_grid").jqGrid({ //set your grid id
 	});
     },
     editurl:'edit/edit-models.json',	
-    caption:"{{_("Available Models")}}"
+    caption:"{{_("Select a Model")}}"
     
 });
 $("#manage_models_grid").jqGrid('navGrid','#manage_models_pager',{edit:false,add:false,del:false});
 // setup grid print capability. Add print button to navigation bar and bind to click.
-setPrintGrid('manage_models_grid','manage_models_pager','{{_("Available Models")}}');
+setPrintGrid('manage_models_grid','manage_models_pager','{{_("Select a Model")}}');
 
-
-var table_orig_height = $("#manage_models_grid").parent().closest('td').height(); //get original height of table containing jqGrid
+var buttonsBottom;	//may error if user scrolls to bottom of long page and refreshes so buttons' offset().top become negative
+$(window).load(function(){
+	$('.ui-button').each(function(i, obj) {
+	if ( (buttonsBottom === undefined) || ($(this).offset().top + $(this).height() > buttonsBottom) ) {
+	  buttonsBottom = $(this).offset().top + $(this).height();
+	}
+	});
+	var scrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop
+	buttonsBottom = buttonsBottom + scrollTop + 65
+	$("#manage_models_grid").jqGrid('setGridHeight', buttonsBottom-$("#manage_models_grid").offset().top-scrollTop-100);
+});
 // resize jqGrid according to window size
 function resize_grid() {
   var idGrid = "#manage_models_grid"
   var offset = $(idGrid).offset() //position of grid on page
- 
+  var scrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop
   //hardcoded minimum width
   if ( $(window).width() > 710 ) {
     $(idGrid).jqGrid('setGridWidth', $(window).width()-offset.left-50);
   }
   //minimum height to correspond to original unresized table, in order to line up with side buttons
-  if ( $(window).height() > ( $(idGrid).parent().closest('td').offset().top + table_orig_height + 70) ) {
-    $(idGrid).jqGrid('setGridHeight', $(window).height()-offset.top-130);
+  if ( $(window).height() > buttonsBottom ) {
+    $(idGrid).jqGrid('setGridHeight', $(window).height()-offset.top-scrollTop-100);
   }
 }
 $(window).load(resize_grid); //necessary to trigger resize_grid onload due to loading breadcrumbs changing grid offset

@@ -3,8 +3,8 @@
 
 <table>
 <tr>
-<td  style="border-style:solid">
-<h2>Task:</h2>
+<td style="float:left;width:80px">
+<h2 style="display:none">Task:</h2>
 <table>
 <tr><td><button id="create_vaccine_from_proto_button" style="width:100%">
             {{!_('Create')}}
@@ -18,9 +18,9 @@
 </table>
 </td>
 
-<td  style="border-style:solid">
+<td>
 
-<h3>{{_('Known Vaccine Types')}}</h3>
+<h3 style="display:none">{{_('Known Vaccine Types')}}</h3>
 
 <label for="vaccine_top_model_select">{{_('Showing vaccine types for')}}</label>
 <select name="vaccine_top_model_select" id="vaccine_top_model_select"></select>
@@ -149,7 +149,7 @@ $("#manage_vaccine_grid").jqGrid({ //set your grid id
 	rowattr: function(rowdata){
 		if (!rowdata.usedin) return {"class":"not-editable-row"};
 	},
-    caption:"{{_("Available Vaccine Types")}}",
+    caption:"{{ _("Available Vaccine Types") if not defined('smallCaption') else smallCaption }}",
     // subgrid dynamically expands to show grouped rows that all the share
     // same (subkey) value
     subGrid: true,

@@ -1,16 +1,16 @@
 %rebase outer_wrapper title_slogan=_('Simulation Results'), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
 
 <table>
-<tr><td  style="border-style:solid">
-<h2>{{_('Task:')}}</h2>
+<tr><td style="float:left;width:80px">
+<h2 style="display:none">{{_('Task:')}}</h2>
 <table>
 <tr><td><button id="results_edit_button" style="width:100%">{{_('Open')}}</button></td></tr>
 <tr><td><button id="results_delete_button" style="width:100%">{{_('Delete')}}</button></td></tr>
 </table>
 </td>
 
-<td  style="border-style:solid">
-<h3>{{_('Available Results')}}</h3>
+<td>
+<h3 style="display:none">{{_('Available Results')}}</h3>
 <table id="manage_results_grid"></table>
 <div id="manage_results_pager"> </div>
 

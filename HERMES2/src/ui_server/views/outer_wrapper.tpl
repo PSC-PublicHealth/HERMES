@@ -227,7 +227,7 @@ $(function() {
 	<iframe id="content-iframe" style="border:0px;width:0px;height:0px"></iframe>
 	<div id="art-main">
 		<header class="art-header clearfix">
-			<div class="art-shapes" style="width:1000px;">
+			<div class="art-shapes">
 				<div style="float:left">
 	     			<h1 class="art-headline">
 						HERMES
@@ -236,7 +236,7 @@ $(function() {
 						{{get('title_slogan','Slogan is undefined')}}
 					</h2>
 				</div>
-				<div style="float:right">
+				<div style="float:right;margin-right:15px">
 					%if inlizer.implemented:
 					<h3 style="color:white;display:inline;">Languages:</h3>
 					<h3 style="display:inline;">
@@ -323,14 +323,14 @@ $(function() {
 														  <img id="ajax_busy_image" src="{{rootPath}}static/icons/ajax-loader.gif" width='32' height='32' />
 														</div>
 													</td>
-													<td width=10%>
+													<td width=10% style="text-align:right">
 														<input type="image" id="wrappage_help_button" src="{{rootPath}}static/icons/helpicon.bmp">
 													</td>
 												</tr>
 											</table>
 
 % if defined('topCaption'):
-<h3>{{topCaption}}</h3>
+<h1>{{topCaption}}</h1>
 %end
 
 %include

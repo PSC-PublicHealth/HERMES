@@ -1,15 +1,15 @@
 %rebase outer_wrapper title_slogan=_('Run A Model'), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
 
 <table>
-<tr><td  style="border-style:solid">
-<h2>{{_('Task:')}}</h2>
+<tr><td  style="float:left;width:100px">
+<h2 style="display:none">{{_('Task:')}}</h2>
 <table>
-<tr><td><button id="run_model_button" style="width:100%" >{{_('Run HERMES')}}</button></td></tr>
+<tr><td><button id="run_model_button">{{_('Run HERMES')}}</button></td></tr>
 </table>
 </td>
 
-<td  style="border-style:solid">
-<h3>{{_('Run Status')}}</h3>
+<td>
+<h3 style="display:none">{{_('Run Status')}}</h3>
 <table id="manage_runs_grid"></table>
 <div id="manage_runs_pager"> </div>
 

@@ -6,6 +6,19 @@
 * Hermes-specific mods follow
 */
 
+.ui-state-highlight,
+.ui-widget-content .ui-state-highlight,
+.ui-widget-header .ui-state-highlight {
+	border: 1px solid #3c4664/*{borderColorHighlight}*/;
+	background: #9ca6be/*{bgColorHighlight}*/ url(images/ui-bg_glass_55_fbf9ee_1x400.png)/*{bgImgUrlHighlight}*/ 50%/*{bgHighlightXPos}*/ 50%/*{bgHighlightYPos}*/ repeat-x/*{bgHighlightRepeat}*/;
+	color: #363636/*{fcHighlight}*/;
+}
+.ui-state-highlight a,
+.ui-widget-content .ui-state-highlight a,
+.ui-widget-header .ui-state-highlight a {
+	color: #363636/*{fcHighlight}*/;
+}
+
 /* A class for invisible buttons */
 .hrm_invisible {
 	outline: 1px solid transparent;
@@ -324,8 +337,8 @@ ul.art-vmenu a
 .art-postcontent h1
 {
    color: #5053AF;
-   margin-top: 21px;
-   margin-bottom: 21px;
+   margin-top: -10px;
+   margin-bottom: 10px;
    font-size: 32px;
    font-family: 'Century Gothic', Arial, 'Arial Unicode MS', Helvetica, Sans-Serif;
 }
@@ -605,7 +618,7 @@ li p, .art-postcontent li p, .art-blockcontent li p
   min-width: 50px;
   /* top: 39px; */
   line-height: 100%;
-  margin-left: 0px; !important;
+  margin-left: 15px; !important;
   /* left: 200px; */
   -webkit-transform: rotate(0deg);
   -moz-transform: rotate(0deg);
@@ -629,7 +642,7 @@ text-decoration: none;
 text-transform: uppercase;
 text-shadow: 0.7px 0.7px 0px rgba(153, 153, 153, 0.8), 1.4px 1.4px 0px rgba(140, 140, 140, 0.8), 2.1px 2.1px 1px rgba(122, 122, 122, 0.5), 2.8px 2.8px 0px rgba(107, 107, 107, 0.5), 3.5px 3.5px 0px rgba(92, 92, 92, 0.48);
   padding: 0;
-  margin: 0;
+  /*margin: 0;*/
   color: #FFFFFF !important;
   white-space: nowrap;
 }
