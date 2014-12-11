@@ -1,0 +1,41 @@
+{'name':'Central',
+'children':[
+	{
+	'name':'Regional_1',
+	'children':[
+		{
+		'name':'District_1',
+		'children':[
+			{'name':'HP_1':'size':1000},
+			{'name':'HP_2':'size':1000}
+			]
+		}
+		'name':'District_2',
+		'children':[
+			{'name':'HP_3':'size':1000},
+			{'name':'HP_4':'size':1000}
+			]
+		}
+	]
+	},
+	{
+	'name':'Regional_2',
+	'children':[
+		{
+		'name':'District_3',
+		'children':[
+			{'name':'HP_5':'size':1000},
+			{'name':'HP_6':'size':1000}
+			]
+		}
+		'name':'District_4',
+		'children':[
+			{'name':'HP_7':'size':1000},
+			{'name':'HP_8':'size':1000}
+			]
+		}
+		]
+	}
+}
+
+					
