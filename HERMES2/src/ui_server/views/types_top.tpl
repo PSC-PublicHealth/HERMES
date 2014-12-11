@@ -4,10 +4,10 @@
 <script src="{{rootPath}}static/base64v1_0.js"></script>
 
 % typesEntries = [
-%    ['vaccines', _('Vaccines'),    'json/vaccine-info'],
-%    ['trucks',   _('Transport'),   'json/truck-info'],
-%    ['fridges',  _('Storage'),     'json/fridge-info'],
-%    ['people', _('Population'),    'json/people-info'],
+%    ['vaccines', _('Vaccines'),    'json/vaccine-info', 'vaccine-edit'],
+%    ['trucks',   _('Transport'),   'json/truck-info',   'truck-edit'],
+%    ['fridges',  _('Storage'),     'json/fridge-info',  'fridge-edit'],
+%    ['people', _('Population'),    'json/people-info',  'people-edit'],
 % ]
 
 % def unpackTypesEntry(te):
@@ -15,6 +15,7 @@
 %    ret['type'] = te[0]
 %    ret['name'] = te[1]
 %    ret['infoUrl'] = te[2]
+%    ret['editUrl'] = te[3]
 %    return ret
 % end
 
@@ -95,7 +96,10 @@ var modelName = "{{modelName}}";
 
 var typesMap = {
 % for t in typesEntries:
-    '{{t[0]}}' : { 'dispName' : '{{t[1]}}', 'infoUrl' : '{{rootPath}}{{t[2]}}' },
+    '{{t[0]}}' : { 'dispName' : '{{t[1]}}', 
+                   'infoUrl'  : '{{rootPath}}{{t[2]}}',  
+                   'editUrl'  : '{{rootPath}}{{t[3]}}',
+                 },
 % end
 };
 
@@ -179,6 +183,10 @@ function selectRow(id, grid) {
 //    $(jId(grid.lastSel)).children().css("background-color", "green !important");
 }
 
+function clone(object) {
+    return JSON.parse(JSON.stringify(object));
+}
+
 var columnNames = [
     "{{_('Name')}}",
     "{{_('RealName')}}",
@@ -186,12 +194,21 @@ var columnNames = [
     "{{_('Info')}}",
 ];
 
-var columnModel = [
+var columnModelSrc = [
     {name: 'dispName', index: 'dispName'},
     {name: 'name', index: 'name', hidden: true},
     {name: 'modelId', index: 'modelId', hidden: true},
     {name: 'flags', index: 'flags', formatter:infoFormatter},
 ];
+
+var columnModelDest = clone(columnModelSrc);
+var flagsColumn = 3;
+if (columnModelDest[flagsColumn].name != 'flags')
+    alert('column model definitions are out of synch!');
+else
+    columnModelDest[flagsColumn].formatter = tripleFormatter;
+
+
 
 function unpackRowObject(row) {
     ret = {};
@@ -225,6 +242,15 @@ function unpackId(id) {
 }
 
 function infoFormatter(value, options, rowObject) {
+    s = "";
+    s += "<button class='new_hermes_info_button' onclick='infoType(\""
+    s += packId(rowObject);
+    s += "\");'>{{_('info')}}</button>";
+    return s;
+    return "<div class='new_hermes_info_button' id='bt_" + packId(rowObject) + "'></div>";
+}
+
+function tripleFormatter(value, options, rowObject) {
     if (value == 'R') { 
 	return "<div class='new_hermes_button_triple_R' id='bt_" + packId(rowObject) + "'></div>";
     } else {
@@ -325,7 +351,15 @@ function infoType(id) {
 }
 
 function editType(id) {
+    event.stopPropagation();
 
+    upId = unpackId(id);
+    var modelId = upId.modelId;
+    var name = upId.name;
+    var grid = upId.grid;
+
+    var url = typesMap[currentType].editUrl;
+    window.location = url + '?modelId='+modelId+"&protoname='"+name+"'";
 }
 	    
 
@@ -347,7 +381,7 @@ function setupButtonTriples() {
 	onEdit:function(event){
 	    var id = $(this).parent().attr("id");
 	    id = id.slice(3);  // remove 'bt_'
-	    infoType(id);
+	    editType(id);
 	},
     });
     
@@ -380,7 +414,7 @@ $("#dest_grid").jqGrid({
 	type : function() { return currentType; },
     },
     colNames: columnNames,
-    colModel: columnModel,
+    colModel: columnModelDest,
     pager: '#dest_pager',
     pgbuttons: false,
     pginput: false,
@@ -402,7 +436,7 @@ $("#dest_grid").jqGrid('navGrid', '#dest_pager', {edit:false, add:false, del:fal
 function catchNewType(event, ui, data, $source, $target) {
     ui.helper.dropped = false;
     //alert(data.name);
-    copySelected(data.name);
+    copyType(data.name);
 }
 
 $("#src_grid").jqGrid({
@@ -414,7 +448,7 @@ $("#src_grid").jqGrid({
 	type : function() { return currentType; },
     },
     colNames : columnNames,
-    colModel : columnModel,
+    colModel : columnModelSrc,
     pager: '#src_pager',
     pgbuttons: false,
     pginput: false,
@@ -478,9 +512,11 @@ function populateSrcModelSelect() {
 	});
 }
 
-function copySelected(name) {
-    if (typeof name == 'undefined')
-	name = src.lastSelName;
+function copySelected() {
+    return copyType(src.lastSelName);
+}
+
+function copyType(name) {
     var request = $.ajax( {
 	url:'json/copyTypeToModel',
 	data : { 'modelId' : {{modelId}},

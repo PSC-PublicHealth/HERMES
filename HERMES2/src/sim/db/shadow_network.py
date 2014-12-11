@@ -3777,7 +3777,7 @@ class ShdNetwork(Base):
 
     modelSummaryJson = relationship('ModelSummaryBlobHolder',uselist=False)
     
-    def __init__(self, storeRecs, routeRecs, factoryRecs, shdTypes, name=None):
+    def __init__(self, storeRecs, routeRecs, factoryRecs, shdTypes, name=None, refOnly=False):
         """
         Instantiates a new hermes network based on the 'storeRecs' and 'routeRecs'.
         """
@@ -3785,7 +3785,7 @@ class ShdNetwork(Base):
 
         self.fromDb = False
 
-        self.refOnly = False
+        self.refOnly = refOnly
 
         self.types = shdTypes.types
         self.factories = {}

@@ -868,10 +868,10 @@ def addTypeHolderModel(replace=True):
                     with util.logContext("loading types from %s as %s for shadow network"%(fN,tp)):
                         shdTypes.importRecordsFromFile(os.path.join(stdTypePath,fN), tp)
 
-    net = shadow_network.ShdNetwork([], [], [], shdTypes, name=allTypesModelName)
+    net = shadow_network.ShdNetwork([], [], [], shdTypes, name=allTypesModelName, refOnly=True)
     session.add(net)
     session.commit()
-    privs.Privileges(1).registerModelId(session, net.modelId,1,1)
+    privs.Privileges(1).registerModelId(session, net.modelId,2,1)
     
     # let the alembic scripts do this instead.
     # installUserTypeHolderModel()

@@ -53,6 +53,14 @@ _=session_support.translateString
 def getParm(parm):
     return _safeGetReqParam(bottle.request.params, parm)
 
+def addCrumb(uiSession, label, noInlize=False):
+    if not noInlize:
+        label = _(label)
+    url = bottle.request.path + '?' + bottle.request.query_string
+    crumb = (url, label)
+    crumbTrack = uiSession.getCrumbs().push(crumb)
+    return crumbTrack
+
 @bottle.route('/models-top')
 def modelsTopPage(uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Models")))
@@ -63,7 +71,9 @@ def modelsTopPage(uiSession):
 
 @bottle.route('/model-edit-params')
 def modelsEditParams(db, uiSession):
-    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Params")))
+#    crumbTrack = uiSession.getCrumbs().push((bottle.request.path + "?" + bottle.request.query_string,_("Params")))
+
+    crumbTrack = addCrumb(uiSession, "Params")
     try:
         modelId = int(bottle.request.params['id'])
         uiSession.getPrivs().mayModifyModelId(db, modelId)
@@ -72,18 +82,20 @@ def modelsEditParams(db, uiSession):
     
         return bottle.template("model_edit_parms.tpl",
                                {"modelId":modelId,
-                                "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
-                                                  ("model-edit-params",_("Edit parameters"))]})
+                                "breadcrumbPairs" : crumbTrack})
+#                                "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
+#                                                  ("model-edit-params",_("Edit parameters"))]})
     
     except:
         return bottle.template("problem.tpl", {"comment":_("no model id specified"),
-                                               "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
-                                                                  ("model-edit-params",_("Edit parameters"))]})
+                                               "breadcrumbPairs" : crumbTrack})
+#                                               "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
+#                                                                  ("model-edit-params",_("Edit parameters"))]})
 
 
 @bottle.route('/model-add-types')
 def modelsAddTypes(db, uiSession):
-    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Params")))
+    crumbTrack = addCrumb(uiSession, 'Add Types')
     try:
         modelId = int(bottle.request.params['id'])
         uiSession.getPrivs().mayModifyModelId(db, modelId)
@@ -94,18 +106,17 @@ def modelsAddTypes(db, uiSession):
         return bottle.template("types_top.tpl",
                                {"modelId":modelId,
                                 "modelName":model.name,
-                               "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
-                                                  ("model-add-types",_("Add Types"))]})
+                                "breadcrumbPairs": crumbTrack})
 
     except:
         return bottle.template("problem.tpl", {"comment":_("no model id specified"),
-                                               "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
-                                                                  ("model-add-types",_("Add Types"))]})
+                                               "breadcrumbPairs":crumbTrack})
 
 
 
 @bottle.route('/model-show-structure')
 def modelShowStructurePage(db,uiSession):
+    crumbTrack = addCrumb(uiSession, 'Show Structure')
     if "id" in bottle.request.params:
         modelId = int(bottle.request.params['id'])
         uiSession['selectedModelId'] = modelId
@@ -114,17 +125,17 @@ def modelShowStructurePage(db,uiSession):
         modelId = uiSession['modelIdBeingEdited']
     else:
         return bottle.template("problem.tpl",{"comment":_("We have somehow forgotten which model to show."),
-                                              "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
-                                                                 ("model-show-structure",_("Show Structure"))]})
+                                              "breadcrumbPairs":crumbTrack})
+
     uiSession.getPrivs().mayReadModelId(db,modelId)
     m = shadow_network_db_api.ShdNetworkDB(db,modelId)
     return bottle.template("model_show_structure.tpl",
                            {"slogan":"Supply Chain Structure Of %s"%m.name,
                             "modelId":m.modelId,
-                            "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
-                                               ("model-show-structure",_("Show Structure"))]})
+                            "breadcrumbPairs":crumbTrack})
     
-def _doModelEditPage(db, uiSession, editStructure=False):
+def _doModelEditPage(db, uiSession):
+    crumbTrack = addCrumb(uiSession, 'Edit')
     if "id" in bottle.request.params:
         modelId = int(bottle.request.params['id'])
         uiSession['selectedModelId'] = modelId
@@ -134,9 +145,8 @@ def _doModelEditPage(db, uiSession, editStructure=False):
         modelId = uiSession['modelIdBeingEdited']
     else:
         return bottle.template("problem.tpl",{"comment":"We have somehow forgotten which model to edit.",
-                                             "breadcrumbPairs":[("top",_("Welcome")),
-                                                                ("models-top",_("Models")),
-                                                                ("model-edit",_("Edit"))]})
+                                             "breadcrumbPairs":crumbTrack})
+
     nr = ''
     if "nr" in bottle.request.params:
         nr = '_nr'
@@ -157,8 +167,8 @@ def _doModelEditPage(db, uiSession, editStructure=False):
             comment = _("This is an invalid model.  Either it doesn't exist or " + \
                             "you do not have permission to view it")
             return bottle.template("problem.tpl", {'comment' : comment,
-                                                   "breadcrumbPairs":[("top",_("Welcome")),
-                                                                      ("models-top",_("Models"))]})
+                                                   "breadcrumbPairs":crumbTrack})
+
 
     # we should have a better page than this, possibly the editor with editing
     # disabled.
@@ -166,31 +176,21 @@ def _doModelEditPage(db, uiSession, editStructure=False):
         comment = _("This model is read-only.  You may edit a copy of the model " + \
                         "by copying the model and editing that one instead.")
         return bottle.template("problem.tpl", {'comment' : comment,
-                                               "breadcrumbPairs":[("top",_("Welcome")),
-                                                                  ("models-top",_("Models"))]})
+                                               "breadcrumbPairs":crumbTrack})
         
     m = shadow_network_db_api.ShdNetworkDB(db,modelId)
-    if editStructure:
-        template = 'model_edit_structure.tpl'
-        lastCrumb = ("model-edit-structure", _("Edit Supply Chain"))
-    else:
-        template = 'model_edit.tpl'
-        lastCrumb = ("model-edit", _("Edit"))
+    template = 'model_edit_structure.tpl'
 
     return bottle.template(template, {"slogan":_("Editing")+" %s"%m.name,
                                       "modelId":m.modelId,
                                       "nr":nr,
-                                      "breadcrumbPairs":[("top",_("Welcome")),
-                                                         ("models-top",_("Models")),
-                                                         lastCrumb]})
+                                      "breadcrumbPairs":crumbTrack
+                                      })
 
 @bottle.route('/model-edit')
-def modelEditPage(db,uiSession):
-    return _doModelEditPage(db, uiSession)
-
 @bottle.route('/model-edit-structure')
 def modelEditStructurePage(db, uiSession):
-    return _doModelEditPage(db, uiSession, editStructure=True)
+    return _doModelEditPage(db, uiSession)
 
 
 def _createModel(db,uiSession):
