@@ -1314,6 +1314,11 @@ div.art-block img
    margin:0 auto;
 }
 
+#models_top_breadcrumbs
+{
+    color: #ccc;
+}
+
 a.art-button,
 a.art-button:link,
 a:link.art-button:link,

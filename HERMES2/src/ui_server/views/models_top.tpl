@@ -12,7 +12,7 @@
 %    [ 'delete', _('Delete'), True, True, 'deleteModel' ],
 %    [ 'parameters', _('Parameters'), True, False, 'editParams' ],
 %    [ 'types', _('types'), True, False, 'addTypes' ],
-%    [ 'run', _('Run'), False, False, 'runHermes' ],
+%    [ 'run', _('Run'), True, False, 'runHermes' ],
 %    [ 'results', _('Results'), False, False, 'showResults' ],
 % ]
 
@@ -37,7 +37,7 @@
     <div class="bar" style="width: 0%;"></div>
 </div>
 
-<div id="model_create_dialog_form" title={{_("Give a Name to the New Model")}}?
+<div id="model_create_dialog_form" title="{{_('Give a Name to the New Model')}}">
 	<form>
 		<fieldset>
 			<table>
@@ -176,7 +176,7 @@ $("#manage_models_grid").jqGrid('navGrid','#manage_models_pager',{edit:false,add
 // setup grid print capability. Add print button to navigation bar and bind to click.
 setPrintGrid('manage_models_grid','manage_models_pager','{{_("Select a Model")}}');
 
-var buttonsBottom;	//may error if user scrolls to bottom of long page and refreshes so buttons' offset().top become negative
+var buttonsBottom;
 $(window).load(function(){
 	$('.ui-button').each(function(i, obj) {
 	if ( (buttonsBottom === undefined) || ($(this).offset().top + $(this).height() > buttonsBottom) ) {
@@ -456,7 +456,7 @@ function addTypes(modelId) {
 }
 
 function runHermes(modelId) {
-    window.location = "model-run";
+    window.location = "model-run?modelId="+modelId;
 }
 
 function results(modelId) {
