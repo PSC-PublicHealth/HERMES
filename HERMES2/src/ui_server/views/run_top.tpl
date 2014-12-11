@@ -131,6 +131,10 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
 			var state = $('#manage_runs_grid').getCell(id, 'isrunning');
 			$(this).prop('disabled', (state == 'false'));
 		});
+		if (lastsel_runs != undefined) {
+			// preserve selection across reload
+			$('#manage_runs_grid').jqGrid('setSelection', lastsel_runs);
+		}
 	},
     editurl:'edit/edit-runs.json',	
     caption:"{{_('Available Runs')}}"
