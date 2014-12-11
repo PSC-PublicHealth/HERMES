@@ -623,11 +623,11 @@ def modelCreatePage(db,uiSession,step="unknown"):
     try:
         crumbTrack = uiSession.getCrumbs()
         print "Crumb Track 1:" + str(crumbTrack)
-        stepPairs = [('nlevels',_('Create Model')),
+        stepPairs = [('nlevels',_('Edit Supply Chain Structure')),
                     # ('levelnames',_('Edit Level Names')),                 
                     # ('countsbylevel',_('Counts')),                 
-                     ('interlevel',_('Shipping')),                 
-                     ('interleveltimes',_('Times')),                 
+                     ('interlevel',_('Edit Shipping Policy')),                 
+                     ('interleveltimes',_('Edit Shipping Times')),                 
                      ('done',_('Adjust')),                 
                      ('people',_('Population')),                 
                      ('vaccines',_('Vaccines')),                 
@@ -761,9 +761,10 @@ def modelCreatePage(db,uiSession,step="unknown"):
                     newModelInfoCN['name'],newModelInfoCN['modelId'] = _createModel(db,uiSession)
                     # clean up current model creation session
                     createdModelId = newModelInfoCN['modelId']
-                    del uiSession['subCrumbTrack']
+                    del uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]['subCrumbTrack']
                     crumbTrack.pop()
-                    del uiSession['newModelInfo']
+                    del uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]
+                    uiSession.changed()
                     # open the model editor
                     p = bottle.request.path
                     fp = bottle.request.fullpath
@@ -1630,10 +1631,16 @@ def jsonGetExistingModelNames(db,uiSession):
 def jsonGetModelsBeingCreated(db,uiSession):
     try:
         mList = []
+        mmList = []
         if 'newModelInfo' in uiSession:
             mList = uiSession['newModelInfo'].keys()
         
-        return {'success':True,'names':mList}
+        for m in db.query(shd.ShdNetwork):
+            try:
+                mmList.append(m.name)
+            except privs.PrivilegeException:
+                pass
+        return {'success':True,'names':mList,'dbnames':mmList}
     except bottle.HTTPResponse:
         raise
     except Exception as e:
@@ -1733,7 +1740,7 @@ def jsonCreateLevelsForm(db,uiSession):
         import htmlgenerator
         nLevels = _getOrThrowError(bottle.request.params, 'nLevels', isInt=True)
         
-        return {'htmlString':htmlgenerator._buildNameLevelsForm("model_create", nLevels, None),
+        return {'htmlString':"<h4>"+_("What are the levels called?") + "</h4>" + htmlgenerator._buildNameLevelsForm("model_create", nLevels, None),
                 'success':True}
     except bottle.HTTPResponse:
         raise
@@ -1748,11 +1755,57 @@ def jsonCreatePlacesPerLevelForm(db,uiSession):
         levelNames = ["" for x in range(0,len(levelNamesDict))]
         for levelNum,levelName in levelNamesDict.items():
             levelNames[int(levelNum)] = levelName
-            
+
         print "level " + str(levelNames)
-        return {'htmlString':htmlgenerator._buildNumberPlacesPerLevelsForm("model_create_", levelNames),'success':True}
+        return {'htmlString':"<h4>"+_("What are the total number of locations within each level?") + "</h4>" + htmlgenerator._buildNumberPlacesPerLevelsForm("model_create_", levelNames),'success':True}
     except bottle.HTTPResponse:
         raise
     except Exception,e:
         return {'success':False,'msg':str(e)}
         
+def nameGen(baseName, count):
+    if count == 1:
+        yield "%s"%(baseName)
+    else:
+        for i in xrange(count):
+            yield "%s_%d" % (baseName, i)
+
+
+def treeGen(lvlNames, counts):
+    myCount = counts[0]
+    myNameGen = nameGen(lvlNames[0], myCount)
+    if len(counts) == 1:
+        for nm in myNameGen:
+            yield {'name': nm}
+    else:
+        subGen = treeGen(lvlNames[1:], counts[1:])
+        block = int(counts[1]/myCount)
+        for i in xrange(myCount-1):  # @UnusedVariable
+            yield({'name': myNameGen.next(),
+                   'children': [subGen.next() for j in xrange(block)]})  # @UnusedVariable
+        yield({'name': myNameGen.next(), 'children': [k for k in subGen]})
+
+@bottle.route('/json/model-create-tree-json',method='POST')
+def jsonCreateTree(db,uiSession):
+    try:
+        levelInfoDict = bottle.request.params
+        print "Dict" + str(bottle.request.params.keys())
+        levelNames = ["" for x in xrange(len(levelInfoDict)/2)]
+        levelCount = ["" for x in xrange(len(levelInfoDict)/2)]
+        for i in xrange(len(levelInfoDict)/2):
+            print "i = " + str(i)
+            levelNames[i] = levelInfoDict["%d[n]"%i]
+            levelCount[i] = int(levelInfoDict["%d[c]"%i])
+
+        print "Entering Tree"
+        tG = treeGen(levelNames,levelCount)
+        print "Exiting Tree"
+        tree = [x for x in tG]
+        print "TRee = " + str(tree)
+        tree[0]['levelnames'] = levelNames
+        tree[0]['levelcounts'] = levelCount
+        return {'net':tree[0],'success':True}
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'msg':str(e)}

@@ -430,14 +430,14 @@ def _buildNameLevelsForm(prefix="",numberOfLevels=4,currentLevelNames=None):
     
         fillTableNames = currentLevelNames
     else:
-        if numberOfLevels == 3:
-            fillTableNames = [_("Central"),_("District"),_("Health Post")]
-        elif numberOfLevels == 4:
-            fillTableNames = [_("Central"),_("Region"),_("District"),_("Health Post")]
-        elif numberOfLevels == 5:
-            fillTableNames = [_("Central"),_("Province"),_("Region"),_("District"),_("Health Post")]
-        else:
-            fillTableNames = [_("Level {0}".format(x+1)) for x in range(0,numberOfLevels)]
+#         if numberOfLevels == 3:
+#             fillTableNames = [_("Central"),_("District"),_("Health Post")]
+#         elif numberOfLevels == 4:
+#             fillTableNames = [_("Central"),_("Region"),_("District"),_("Health Post")]
+#         elif numberOfLevels == 5:
+#             fillTableNames = [_("Central"),_("Province"),_("Region"),_("District"),_("Health Post")]
+#         else:
+        fillTableNames = [_("Level {0}".format(x+1)) for x in range(0,numberOfLevels)]
     
     for i in range(0,numberOfLevels):
         htmlForm.addElement(HTMLFormInputBox('model_create_levelname_{0}'.format(i+1),
