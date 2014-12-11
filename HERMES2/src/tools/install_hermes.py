@@ -828,6 +828,7 @@ def addTypeHolderModel(replace=True):
     import shadow_network_db_api
     import util
     import site_info
+    import csv_tools
     sI = site_info.SiteInfo()
 
     # If an existing typeHolderModel exists, deal with it
@@ -869,6 +870,16 @@ def addTypeHolderModel(replace=True):
                         shdTypes.importRecordsFromFile(os.path.join(stdTypePath,fN), tp)
 
     net = shadow_network.ShdNetwork([], [], [], shdTypes, name=allTypesModelName, refOnly=True)
+
+    currencyFilePath = os.path.join(sI.srcDir(), os.pardir, os.pardir, 'master_data', 'unified',
+                                    'CurrencyConversionTable.csv')
+    if os.path.isfile(currencyFilePath):
+        with util.logContext("loading currency conversion records from %s" % currencyFilePath):
+            keys, recs = csv_tools.parseCSV(currencyFilePath)  # @UnusedVariable
+            net.addCurrencyTable(recs)
+    else:
+        print "Warning: CurrencyConversionTable is missing!"
+
     session.add(net)
     session.commit()
     privs.Privileges(1).registerModelId(session, net.modelId,2,1)
@@ -922,19 +933,22 @@ def main():
                         help='Delete and replace existing HERMES database if present')
     parser.add_argument('-C', '--clobber', action='store_true',
                         help='Totally delete tables from existing HERMES database, including schemas')
+    parser.add_argument('-R', '--rebuildalltypes', action='store_true',
+                        help='Delete and rebuild the AllTypesModel, leaving everything else intact')
 
     args = parser.parse_args()
 
-    if not args.no_dependencies:
-        _install_dependencies(upgrade=args.upgrade)
+    if args.rebuildalltypes:
+        addTypeHolderModel(replace=True)
+    else:
+        if not args.no_dependencies:
+            _install_dependencies(upgrade=args.upgrade)
 
-    overwrite = False
-    
-    if args.clobber:
-        dropAllTables()
-    
-    if not args.dependencies_only:
-        _install_hermes(overwrite=args.replace)
+        if args.clobber:
+            dropAllTables()
+
+        if not args.dependencies_only:
+            _install_hermes(overwrite=args.replace)
 
 
 ############
