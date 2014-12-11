@@ -57,7 +57,8 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
 		"{{_('Submitted')}}",
 		"{{_('Status')}}",
         "{{_('Details')}}",
-		""
+		"",
+        "{{_('Running')}}"
 	], //define column names
 	colModel:[
 	{name:'runname', index:'runname', editable:false, width:275},
@@ -69,7 +70,8 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
     {name:'info', index:'info', width:110, align:'center', sortable:false,
 	  	  formatter:runInfoButtonFormatter},
     {name:'cancel', index:'cancel', width:160, align:'center', sortable:false,
-    	  formatter:runCancelButtonFormatter}
+    	  formatter:runCancelButtonFormatter},
+    {name:'isrunning', index:'isrunning', sorttype:'int', hidden:true}
 	], //define column runs
 	pager: '#manage_runs_pager', //set your pager div id
   pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
@@ -95,7 +97,7 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
 		$(".hermes_info_button").click(function(event) {
 			$.getJSON('json/run-info',{runId:$(this).attr('id')})
 			.done(function(data) {
-    			if (data.success) {
+				if (data.success) {
     				$("#run_info_dialog").html(data['htmlstring']);
     				$("#run_info_dialog").dialog('option','title',data['title']);
     				$("#run_info_dialog").dialog("open");		
@@ -123,6 +125,11 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
 				alert('{{_("Error: ")}}'+jqxhr.responseText);
 			});
 			event.stopPropagation();
+		});
+		$(".hermes_cancel_button").each(function() {
+			var id = $(this).attr('id');
+			var state = $('#manage_runs_grid').getCell(id, 'isrunning');
+			$(this).prop('disabled', (state == 'false'));
 		});
 	},
     editurl:'edit/edit-runs.json',	

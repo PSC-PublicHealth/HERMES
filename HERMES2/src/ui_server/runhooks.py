@@ -268,7 +268,8 @@ def jsonManageRunsTable():
               "records":totRecs,  # total records
               "rows": [ {"runid":r['runId'],
                          "cell":[r['runName'], r['runId'], r['modelName'], r['modelId'], r['submitted'],
-                                 r['status'], r['runId'],r['runId']]}
+                                 r['status'], r['runId'], r['runId'], 
+                                 (not _minionFactory.liveRuns[r['runId']][1].done)]}
                        for r in rList]
               }
     return result
@@ -437,7 +438,9 @@ def jsonRunInfo(db, uiSession):
     try:
         runId = _getOrThrowError(bottle.request.params, 'runId', isInt=True)
         htmlStr, titleStr = htmlgenerator.getRunInfoHTML(db,uiSession,runId,_minionFactory)
-        result = { "success":True, "htmlstring":htmlStr, "title":titleStr}
+        runInfo,runMinion = _minionFactory.liveRuns[runId]        
+        result = {"success":True, "htmlstring":htmlStr, "title":titleStr,
+                  "running": (not runMinion.done)}
         return result
     except bottle.HTTPResponse:
         raise # bottle will handle this
@@ -455,7 +458,7 @@ def jsonRunTerminate(db, uiSession):
         runInfo,runMinion = _minionFactory.liveRuns[runId]
         uiSession.getPrivs().mayWriteModelId(db,runInfo['modelId'])
         runMinion.terminate()
-        result = {'success':True}
+        result = {'success':True, 'id':runId}
         return result
     except bottle.HTTPResponse:
         raise # bottle will handle this
