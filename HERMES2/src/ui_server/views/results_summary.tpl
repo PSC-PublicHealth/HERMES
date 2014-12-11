@@ -354,7 +354,7 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
     $("#zoomableTreemap").treemap({
         hasChildrenColor: "steelblue",
         noChildrenColor: "#ccc",
-        jsonDataURLBase: "json/results-cost-hierarchical-mixed-value",
+        jsonDataURLBase: "json/results-cost-hierarchical-value",
         jsonDataURLParameters: [
             "modelId={{modelId}}",
             "resultsId={{resultsId}}"],

@@ -57,7 +57,7 @@ class CostModelHierarchicalSummary(object):
                         if c_attr=='': c_attr = None
                         c_attr = float(c_attr) if c_attr is not None else 0.0
                         d[g][g_attr][c] += c_attr
-        #print d
+        # print d
         h = {} 
         for g in groups:
             h['name'] = g
@@ -109,7 +109,6 @@ class CostModelHierarchicalSummary(object):
         costSet = set()
         for r in recs:
             costSet.update([k for k in r.keys() if k in inSet])
-        # print costSet
         treeD = {}
         for r in recs:
             lvl = r['ReportingLevel']
@@ -146,22 +145,87 @@ class CostModelHierarchicalSummary(object):
         if treeD['name'] in testSet:
             treeD['name'] = treeD['name'][clipLen:]
 
+    def _collectLeaves(self, treeD, labelList, parentInfo=None):
+        """Walk the tree depth first, collecting a list of dicts.  Each dict in the list
+        contains keys and values for all layers encountered in the walk.  Labellist is
+        a list of keys for successive labels, such as ['ignore','level','location']
+        """
+        if parentInfo is None:
+            parentInfo = {}
+        subPI = parentInfo.copy()
+        if 'children' in treeD:
+            assert labelList, 'we have run out of labels'
+            subPI[labelList[0]] = treeD['name']
+            kidDicts = []
+            for kid in treeD['children']:
+                kidDicts.extend(self._collectLeaves(kid, labelList[1:], subPI))
+        else:
+            d = subPI.copy()
+            d.update(treeD)
+            assert len(labelList) == 1, "ran out of labels at leaf"
+            d[labelList[0]] = d['name']
+            del d['name']
+            kidDicts = [d]
+        return kidDicts
+
+    def _listToTreeList(self, keyList, leafList, depth=0):
+        """Given a list of elaborated leaf nodes 'leafList' as produced by _collectLeaves,
+        reconstruct a list of trees with layers determined by the given 'keyList'.
+        """
+        if keyList:
+            myKey = keyList[0]
+            myDict = {}
+            for l in leafList:
+                if myKey in l:
+                    k = l[myKey]
+                    if k not in myDict:
+                        myDict[k] = []
+                    subL = l.copy()
+                    del subL[myKey]
+                    myDict[k].append(subL)
+            return [{'name': k, 'children': self._listToTreeList(keyList[1:], v, depth+1)}
+                    for k, v in myDict.items()]
+        else:
+            # print '%sleaf returning %s' % ('    '*depth, leafList)
+            return leafList
+
+    def _cleanSubTree(self, treeD):
+        for k in treeD.keys()[:]:
+            if k not in ['children', 'size', 'name']:
+                del treeD[k]
+        if 'children' in treeD:
+            for kid in treeD['children']:
+                self._cleanSubTree(kid)
+
+    def _rekeySubTree(self, treeD, oldKey, newKey):
+        if oldKey in treeD:
+            treeD[newKey] = treeD[oldKey]
+            del treeD[oldKey]
+        if 'children' in treeD:
+            for kid in treeD['children']:
+                self._rekeySubTree(kid, oldKey, newKey)
+
 
 class LegacyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
 
-    def dict(self, mixed=False):
+    def dict(self, fmt=None):
+        """
+        Return a tree of costs.  'fmt' must be 'mixed' or None.
+        """
         groups = ('ReportingLevel',)
         costs = (
                 # 'PerDiemCost', 'PerKmCost', 'PerTripCost',
                 'LaborCost', 'BuildingCost', 'StorageCost', 'TransportCost'
                 )
-        if mixed:
+        if fmt == 'mixed':
             return self._doByContainer(groups, set(costs))
-        else:
+        elif format is None:
             treeD = self._doByContainer(groups, set(costs))
             self._cullTree(treeD, set(costs))
-            self._printSubTree(treeD)
+            # self._printSubTree(treeD)
             return treeD
+        else:
+            raise RuntimeError("Unrecognized hierarchy format %s" % format)
 
 
 class DummyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
@@ -171,6 +235,23 @@ class DummyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
 
 
 class Micro1CostModelHierarchicalSummary(CostModelHierarchicalSummary):
+    costGroups = {'solar': 'fuel/power',
+                  'electric': 'fuel/power',
+                  'diesel': 'fuel/power',
+                  'gasoline': 'fuel/power',
+                  'kerosene': 'fuel/power',
+                  'petrol': 'fuel/power',
+                  'ice': 'fuel/power',
+                  'propane': 'fuel/power',
+                  'StaffSalary': 'staff',
+                  'PerDiem': 'staff',
+                  'TransitFareCost': 'staff',
+                  'Vaccines': 'cargo',
+                  'BuildingCost': 'equipment',
+                  'FridgeAmort': 'equipment',
+                  'TruckAmort': 'equipment'
+                  }
+
     class PrefixFakeSet(object):
         def __init__(self, prefix):
             self.prefix = prefix
@@ -178,14 +259,72 @@ class Micro1CostModelHierarchicalSummary(CostModelHierarchicalSummary):
         def __contains__(self, arg):
             return isinstance(arg, types.StringTypes) and arg.startswith(self.prefix)
 
-    def dict(self, mixed=False):
+    def _parseFormat(self, fmtStr):
+        assert isinstance(fmtStr, types.StringTypes) and fmtStr != 'mixed', \
+            "Cannot parse the hierarchy format %s" % fmtStr
+        charList = list(fmtStr.lower())
+        assert all([(c == 'l' or c == 'c') for c in charList]), \
+            "Invalid hierarchy format %s - must be c's or l's" % fmtStr
+        assert len(charList) <= 4, "Maximum hierarchy format length is 4 so %s is invalid" % fmtStr
+        assert len(charList) > 0, "Minimum hierarchy format length is 1 so empty string is invalid"
+        return charList
+
+    def dict(self, fmt=None):
+        """
+        Return a tree of costs.  'fmt' must be None, 'mixed', or a string between 1 and 3
+        characters long containing up to two 'c' characters and up to two 'l' characters.
+        The rightmost 'c' if present denotes cost item name; the next left 'c' if present
+        denotes cost item category.  The rightmost 'l' if present denotes location; the
+        next left 'l' if present denotes network level.  The root of the tree is the
+        leftmost character.
+        """
         groups = ('ReportingLevel',)
         tag = u'm1C_'
-        if mixed:
+        if fmt == 'mixed':
             return self._doByContainer(groups, self.PrefixFakeSet(tag), len(tag))
         else:
             treeD = self._doByContainer(groups, self.PrefixFakeSet(tag), 0)
             self._cullTree(treeD, self.PrefixFakeSet(tag))
             self._clipNames(treeD, self.PrefixFakeSet(tag), len(tag))
-            # self._printSubTree(treeD)
-            return treeD
+            if fmt is None:
+                return treeD
+            else:
+                lvlList = self._parseFormat(fmt)
+                nC = lvlList.count('c')
+                nL = lvlList.count('l')
+                kidDicts = self._collectLeaves(treeD, ['ignore', 'level', 'location', 'key'])
+                for k in kidDicts:
+                    del k['ignore']
+                    if k['key'] in self.costGroups:
+                        k['category'] = self.costGroups[k['key']]
+                    else:
+                        if 'size' not in k or k['size'] != 0.0:
+                            raise RuntimeError('Unexpected leaf dictionary %s' % k)
+
+                if nC == 0:
+                    pass
+                elif nC == 1:
+                    lvlList[lvlList.index('c')] = 'key'
+                elif nC == 2:
+                    lvlList[lvlList.index('c')] = 'category'
+                    lvlList[lvlList.index('c')] = 'key'
+                else:
+                    raise RuntimeError("invalid format %s - only 2 c's allowed" % fmt)
+
+                if nL == 0:
+                    pass
+                elif nL == 1:
+                    lvlList[lvlList.index('l')] = 'location'
+                elif nL == 2:
+                    lvlList[lvlList.index('l')] = 'level'
+                    lvlList[lvlList.index('l')] = 'location'
+                else:
+                    raise RuntimeError("invalid format %s - only 2 l's allowed" % fmt)
+
+                treeD = {'name': 'all',
+                         'children': self._listToTreeList(lvlList[:-1],
+                                                          kidDicts)}
+                self._rekeySubTree(treeD, lvlList[-1], 'name')
+                self._cleanSubTree(treeD)
+                self._printSubTree(treeD)
+                return treeD

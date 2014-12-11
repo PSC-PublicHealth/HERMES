@@ -29,6 +29,9 @@ def copyTableRecords(inTable, outTable, conn, defaultVal=None):
             rows = conn.execute(sa.select([inTable])).fetchall()
 
 def findAllTypesModelId(conn, meta):
+    """
+    Find the id of the AllTypesModel.  Returns NULL if that model doesn't exist.
+    """
     models = sa.Table('models', meta, autoload=True, autoload_with=conn.engine)
     allTypesModelId = None
     for row in conn.execute(sa.select([models]).where(models.c.name==op.inline_literal('AllTypesModel'))):

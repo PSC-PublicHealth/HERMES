@@ -1050,7 +1050,7 @@ The use of implied links is DEPRECATED and unreliable, and will not be supported
                                                    })
         nh= wh.getNoteHolder()
         if nh is not None: 
-            rhn= ReportingHierarchyNode(category, "%s(%ld)"%(nh['name'],idcode), [nh])
+            rhn= ReportingHierarchyNode(category, "loc: %s(%ld)"%(nh['name'],idcode), [nh])
             byCategoryReportingHierarchyDict[category].add( rhn )
 
     for routeName, l in routeDict.items():
@@ -1063,7 +1063,7 @@ The use of implied links is DEPRECATED and unreliable, and will not be supported
                 nh = p.getNoteHolder()
                 if nh is not None: 
                     nh.addNote({'category':category})
-                    rhn= ReportingHierarchyNode(category, nh['RouteName'], [nh])
+                    rhn= ReportingHierarchyNode(category, 'rt: '+nh['RouteName'], [nh])
                     byCategoryReportingHierarchyDict[category].add( rhn )
             if hasattr(p,'setPerDiemModel'):
                 p.setPerDiemModel(sim.costManager.getPerDiemModel(perDiemName))

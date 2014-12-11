@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 
-####################################
-# Notes:
-# -A session could be hijacked just by grabbing the SessionID;
-#  should use an encrypted cookie to prevent this.
-####################################
 _hermes_svn_id_="$Id$"
 
 import sys,os,os.path,time,json,math,types
@@ -459,24 +454,24 @@ def jsonResultsSummaryTransportUtiliztionByRouteByLevel(db, uiSession):
         result = {'success':False, 'msg':str(e)}
         return result
 
+def _convert_key(_item, _from, _to):
+    """ recurse through supplied dict converting all _from keys to _to keys
+
+    This is necessary becuse d3.treemap expects "value" while
+    d3.hierarchical-barchart expects "
+    """
+    if _to == 'size':
+        return _item
+    if isinstance(_item, dict):
+        return {_to if k==_from else k: _convert_key(v, _from, _to) \
+                for k,v in _item.items()}
+    elif isinstance(_item, list):
+        return [_convert_key(v, _from, _to) for v in _item]
+    else:
+        return _item
+
 @bottle.route('/json/results-cost-hierarchical-mixed')
 def jsonResultSummaryCostHierarchicalMixed(db, uiSession, value_format='size'):
-    def _convert_key(_item, _from, _to):
-        """ recurse through supplied dict converting all _from keys to _to keys
-        
-        This is necessary becuse d3.treemap expects "value" while
-        d3.hierarchical-barchart expects "
-        """
-        if _to == 'size':
-            return _item
-        if isinstance(_item, dict):
-            return {_to if k==_from else k: _convert_key(v, _from, _to) \
-                    for k,v in _item.items()}
-        elif isinstance(_item, list):
-            return [_convert_key(v, _from, _to) for v in _item]
-        else:
-            return _item
-
     try:
         modelId = _getOrThrowError(bottle.request.params,
                 'modelId',isInt=True)
@@ -489,16 +484,18 @@ def jsonResultSummaryCostHierarchicalMixed(db, uiSession, value_format='size'):
 
         base = m.getParameterValue('currencybase')
         year = m.getParameterValue('currencybaseyear')
+        _from = 'size'
         if value_format == 'value':
             _to = 'value'
-            _from = 'size'
+        else:
+            _to = 'size'
 
         try:
             cost_summary = getCostModelSummary(m, r)
             result = {
                     'success': True,
                     'data': {
-                      'cost_summary': _convert_key(cost_summary.dict(mixed=True), _from, _to),
+                      'cost_summary': _convert_key(cost_summary.dict(fmt='mixed'), _from, _to),
                       'currency_base': base,
                       'currency_year': year
                     }
@@ -512,7 +509,7 @@ def jsonResultSummaryCostHierarchicalMixed(db, uiSession, value_format='size'):
 
     except Exception, e:
         _logStacktrace()
-        result = {'success':False, 'msg':str(e)}
+        result = {'success': False, 'msg': str(e)}
         return result
 
 
@@ -520,41 +517,51 @@ def jsonResultSummaryCostHierarchicalMixed(db, uiSession, value_format='size'):
 def jsonResultSummaryCostHierarchicalMixedValue(db, uiSession):
     return jsonResultSummaryCostHierarchicalMixed(db, uiSession, value_format='value')
 
+
 @bottle.route('/json/results-cost-hierarchical')
-def jsonResultSummaryCostHierarchical(db, uiSession):
+def jsonResultSummaryCostHierarchical(db, uiSession, value_format='size', fmt=None):
     try:
         modelId = _getOrThrowError(bottle.request.params,
-                'modelId',isInt=True)
+                                   'modelId', isInt=True)
         resultsId = _getOrThrowError(bottle.request.params,
-                'resultsId',isInt=True)
-        uiSession.getPrivs().mayReadModelId(db,modelId)
+                                     'resultsId', isInt=True)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
 
-        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         r = m.getResultById(resultsId)
 
         base = m.getParameterValue('currencybase')
         year = m.getParameterValue('currencybaseyear')
+        _from = 'size'
+        if value_format == 'value':
+            _to = 'value'
+        else:
+            _to = 'size'
 
         try:
             cost_summary = getCostModelSummary(m, r)
-            result = {
-                    'success': True,
-                    'data': {
-                      'cost_summary': cost_summary.dict(),
-                      'currency_base': base,
-                      'currency_year': year
-                    }
-                }
-        except:
+            result = {'success': True,
+                      'data': {'cost_summary': _convert_key(cost_summary.dict(fmt=fmt),
+                                                            _from, _to),
+                               'currency_base': base,
+                               'currency_year': year
+                               }
+                      }
+        except Exception, e:
             _logStacktrace()
             result = {'success': False,
-                      'data': '{}'}
+                      'data': '{}',
+                      'msg': str(e)}
 
         return result
 
     except Exception, e:
         _logStacktrace()
-        result = {'success':False, 'msg':str(e)}
+        result = {'success': False, 'msg': str(e)}
         return result
 
 
+@bottle.route('/json/results-cost-hierarchical-value')
+def jsonResultSummaryCostHierarchicalValue(db, uiSession):
+    return jsonResultSummaryCostHierarchical(db, uiSession, value_format='value',
+                                             fmt='cllc')
