@@ -1,6 +1,75 @@
 %rebase outer_wrapper title_slogan=_("Create {0}").format(name), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
+<script src="{{rootPath}}static/d3/d3.min.js"></script>
+<script src="{{rootPath}}static/tree-layout-diagram/tree-layout-diagram.js"></script>
+<link rel="stylesheet" href="{{rootPath}}static/tree-layout-diagram/tree-layout-diagram.css"/>
+<script>
 
-<h1>{{_('How are goods shipped from level to level?')}}</h1>
+function makeNetworkJson(i,levelInfo){
+	if (i == (Object.getOwnPropertyNames(levelInfo).length - 1)){
+		return {'name':levelInfo[i].n,'count':levelInfo[i].c,'focus':levelInfo[i].f};
+	}
+	else {
+		return {'name':levelInfo[i].n,'count':levelInfo[i].c,'focus':levelInfo[i].f,'children':[makeNetworkJson(i+1,levelInfo)]};
+	}
+}
+// This function updates the network diagram
+function updateNetworkDiagram(){
+	var levelInfo = {};
+	for(var i = 0; i < $("#model_create_nlevels_input").val(); ++i){
+		if (typeof $("#model_create_levelname_"+(i+1)).val() == "undefined")
+			break;
+		//levelNames.push($("#model_create_levelname_"+(i+1)).val());
+		var focus = false;
+		if($("#model_create_levelname_"+(i+1)).is(':focus')){
+				focus = true;
+				console.log("This has focus.... damnit");
+		}
+		levelInfo[i] = {'n':$("#model_create_levelname_"+(i+1)).val(),'c':0,'f':focus};
+		if (typeof $("#model_create_lcounts_"+(i+1)).val() == "undefined"){
+			levelInfo[i].c = 1;
+		}
+		else{
+			var focus = false;
+			if($("#model_create_lcounts_"+(i+1)).is(':focus'))
+				focus = true;
+			levelInfo[i].c = $("#model_create_lcounts_"+(i+1)).val();
+			levelInfo[i].f = focus;
+			//levelCount.push($("#model_create_lcounts_"+(i+1)).val());
+		}
+		
+	}
+	
+	console.log("Levels");
+	for(var level in levelInfo){
+		console.log(levelInfo[level].n);
+	}
+	if (Object.getOwnPropertyNames(levelInfo).length == 0){
+		nlevels = $("#model_create_nlevels_input").val();
+		for (var i=0;i<nlevels;i++){
+			levelInfo[i] = {'n':'Level '+i,'c':1,'f':false};
+		}
+	}
+	
+	jsonNet = makeNetworkJson(0,levelInfo);
+	$("#tree-layout-diagram").remove();
+	$("#model_create_diagram").append($("<div id='tree-layout-diagram' name='tree-layout-diagram'/>"));
+	$("#tree-layout-diagram").diagram({
+	        hasChildrenColor: "steelblue",
+	        noChildrenColor: "#ccc",
+	        jsonData:jsonNet,
+	        minWidth: 768,
+	        minHeight: 775,
+	        resizable: false,
+	        scrollable: true,
+	        trant: {
+	             "title": "{{_('Model')}}",
+	        }
+	});
+	
+	$("#tree-layout-diagram").diagram("zoomBy",0.25);
+}
+</script>
+<h1>{{_('How are goods shipped between levels?')}}</h1>
 
 <p>
 <form>
@@ -73,10 +142,10 @@
     </table>
     <table width=100%>
       <tr>
-        <td width 10%><input type="button" id="back_button" value={{_("Back")}}></td>
+        <td width 10%><input type="button" id="back_button" value={{_("Previous Screen")}}></td>
         <td></td>
-        <td width=10%><input type="button" id="expert_button" value={{_("Expert")}}></td>
-        <td width=10%><input type="button" id="next_button" value={{_("Next")}}></td>
+        <td width=10%><input type="button" id="expert_button" value={{_("Skip to Model Editor")}}></td>
+        <td width=10%><input type="button" id="next_button" value={{_("Next Screen")}}></td>
       </tr>
     </table>
 </form>

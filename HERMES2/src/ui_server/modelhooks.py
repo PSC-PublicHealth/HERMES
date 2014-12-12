@@ -1741,7 +1741,9 @@ def jsonCreateLevelsForm(db,uiSession):
         import htmlgenerator
         nLevels = _getOrThrowError(bottle.request.params, 'nLevels', isInt=True)
         
-        return {'htmlString':"<h4>"+_("What are the levels called?") + "</h4>" + htmlgenerator._buildNameLevelsForm("model_create", nLevels, None),
+        return {'htmlString':"<h5 style='margin-top:0.2px;margin-bottom:0.2px;'>"+_('What are the levels called?')+"</h5>" \
+                +"<h6 style='margin-top:0.2px;margin-bottom:1.5px;'>"+_('(e.g., Four level supply chains, the levels may be named Central, Region, District, Health Post)')+"</h6>" \
+                + htmlgenerator._buildNameLevelsForm("model_create", nLevels, None),
                 'success':True}
     except bottle.HTTPResponse:
         raise
@@ -1758,7 +1760,9 @@ def jsonCreatePlacesPerLevelForm(db,uiSession):
             levelNames[int(levelNum)] = levelName
 
         print "level " + str(levelNames)
-        return {'htmlString':"<h4>"+_("What are the total number of locations within each level?") + "</h4>" + htmlgenerator._buildNumberPlacesPerLevelsForm("model_create_", levelNames),'success':True}
+        return {'htmlString':"<h5 style='margin-top:0.2px;margin-bottom:0.2px;'>"+_("What are the total number of locations within each level?") + "</h5>"\
+                +"<h6 style='margin-top:0.2px;margin-bottom:1.5px;'>"+_('Include all storage, immunizating and outreach locations')+"</h6>" \
+                + htmlgenerator._buildNumberPlacesPerLevelsForm("model_create_", levelNames),'success':True}
     except bottle.HTTPResponse:
         raise
     except Exception,e:

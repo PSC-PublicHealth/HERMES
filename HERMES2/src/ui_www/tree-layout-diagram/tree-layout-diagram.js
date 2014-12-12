@@ -39,6 +39,11 @@
 			$("#loctext_"+levelNum).text(levelCount);
 		},
 
+		zoomBy: function(factor){
+			console.log("Zooming to " + factor);
+			$("#treeSVG").attr("transform","scale(" + factor + ")");
+		},
+
     	_create: function() {
     		trant = this.options.trant;
     		updateFixed = true;
@@ -71,15 +76,15 @@
             		left: 0
             };
             
-            var width = 800 - margin.right - margin.left;
-            var height = 800 - margin.top - margin.bottom;
+            var width = 300 - margin.right - margin.left;
+            var height = 500 - margin.top - margin.bottom;
 
             var i = 0;
             var duration = 750; 
-            var rectW = 200;
-            var rectH = 80;
+            var rectW = 100;
+            var rectH = 40;
             
-            var tree = d3.layout.tree().nodeSize([80,120]);
+            var tree = d3.layout.tree().nodeSize([10,10]);
            // 
             var diagonal = d3.svg.diagonal()
             		.projection(function (d) {
@@ -88,17 +93,20 @@
 	
             var root = this.options.jsonData;
 
-            var startX = (width-rectW)/2;
+            var startX = (width-rectW)/2;///3.75;
             var startY = rectH;
             var svg = d3.select("#"+this.svgContainerID).append("svg")
-            .attr("width", width).attr("height", height)
+            .attr("width", width)
+            .attr("height", height)
             .call(zm = d3.behavior.zoom().scaleExtent([0.1,3])
             .on("zoom", redraw))
+            .attr("id","treeSVG")
             .append("g")
-            .attr("transform", "translate(" + startX + "," + startY + ")");
+            .attr("transform", "translate(" + startX + "," + startY + ")");//" scale("+0.60+")");
 	
             //necessary so that zoom knows where to zoom and unzoom from
             zm.translate([startX,startY]);
+            //zm.scale(0.60)
             // necessary so that zoom knows where to zoom and unzoom from
             root.x0 = 0;
             root.y0 = height / 2;
@@ -157,7 +165,7 @@
 							
 				nodes.forEach(function (d) {
 					//d.x = d.depth*20.0;//d.depth * 40*4/(getDepth(root));
-				   d.y = d.depth * 160*4/(maxDepth);
+				   d.y = d.depth * 80*4/(maxDepth);
 				});
 				
 				// Update the nodes
@@ -307,7 +315,7 @@
 						//.attr('y',".01px")
 						.attr('text-anchor','middle')
 						.attr('font-weight','bold')
-						.attr('font-size','18px')
+						.attr('font-size','12px')
 						.text('Products Enter Here')
 						.attr("transform",function(d){
 							return "translate("+(root.x+rectW/2)+","+(root.y - rectH/2) +")";
@@ -317,7 +325,7 @@
 						//.attr('y',".01px")
 						.attr('text-anchor','middle')
 						.attr('font-weight','bold')
-						.attr('font-size','18px')
+						.attr('font-size','12px')
 						.text('Products End Here')
 						.attr("transform",function(d){
 							var depthHere = depthY[maxDepth-1];
@@ -330,7 +338,7 @@
 							//.attr('x',)
 							//.attr('y',".01px")
 							//.attr('text-anchor','middle')
-							.attr('font-size','18px')
+							.attr('font-size','11px')
 							.attr('id','levelname_'+i)
 							.text(levelNames[i])
 							.attr("transform",function(d){

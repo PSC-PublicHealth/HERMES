@@ -4,7 +4,7 @@
 <script src="{{rootPath}}static/tree-layout-diagram/tree-layout-diagram.js"></script>
 <link rel="stylesheet" href="{{rootPath}}static/tree-layout-diagram/tree-layout-diagram.css"/>
 <script>
-console.log('{{pagehelptag}}')
+
 function makeNetworkJson(i,levelInfo){
 	if (i == (Object.getOwnPropertyNames(levelInfo).length - 1)){
 		return {'name':levelInfo[i].n,'count':levelInfo[i].c,'focus':levelInfo[i].f};
@@ -66,6 +66,8 @@ function updateNetworkDiagram(){
 	             "title": "{{_('Model')}}",
 	        }
 	});
+	
+	$("#tree-layout-diagram").diagram("zoomBy",0.25);
 }
 </script>
 
@@ -77,25 +79,24 @@ function updateNetworkDiagram(){
 %end
 ></input>
 
-<div name="model_create_ui_holder" id="model_create_ui_holder" style="width:1320px;border-style:single;">
-<div name="model_create_holder" id="model_create_holder" style="position:relative; left:0; top:0; bottom:0; width:500px;float:left;border-style:double;">
+<div name="model_create_ui_holder" id="model_create_ui_holder" style="width:100%;max-width:750px;height:500px;">
+<div name="model_create_holder" id="model_create_holder" style="position:relative; left:0; top:0; bottom:0; width:50%;float:left;">
 	<div id="model_create_num_levels">
-		<h4>
 		  	<table>
 			  	<tr>
 		  			<td>
 		  				<label for="model_create_nlevels_input">
-		  					{{_('Please select the number of ')}}
+		  					<h5 style="margin-top:3px;margin-bottom:3px;">{{_('Please select the number of ')}}
 		  					<b>
 		  						<a href="#" 
 		  							title="{{_('The number of storage locations that a vaccine or health product passes through from entering the supply chain to location in which it is used.')}}">
 		  							{{_('levels')}}
 		  						</a>
 		  					</b> 
-		  					{{_('in the \"{0}\" supply chain.'.format(name))}}
+		  					{{_('in the \"{0}\" supply chain.'.format(name))}}</h5>
 		  				</label>
 		  			</td>
-		  			<td>
+		  			<td style="vertical-align:middle;">
 		  			<div id="sub-div-nlevels">
 		  				<select name="model_create_nlevels_input" id="model_create_nlevels_input">
 		  					
@@ -121,38 +122,29 @@ function updateNetworkDiagram(){
 %end
 		  				</select>
 					<!--<div style="position:absolute; left:0; right:0; top:0; bottom:0; cursor: pointer;display:none;" id="subsub"/>-->		
-				</div> <!-- sub-div-nlevels -->
+					</div> <!-- sub-div-nlevels -->
 					</td>
 		  		</tr>
 		    </table>
 		    </h4>
 	</div> <!-- model_create_num_levels -->
 
-	<div name="model_create_name_levels" id="model_create_name_levels" style="display:none;width:300px;">
+	<div name="model_create_name_levels" id="model_create_name_levels" style="display:none;width:450px;">
 		Replaced
 	</div>
 	<div name="model_create_number_places" id="model_create_number_places" style="display:none;">
 		Putting some stuff here to test
 	</div>
-	<div id="nextbackbuttons">
-		<table width=100%>
-			<tr>
-		    	<!--<td width 10%><input type="button" id="back_button" value={{_("Back")}}></td>-->
-		    	<td width 10%></td>
-		    	<td></td>
-		    	<td></td>
-		    	<td width=10%><input type="button" id="next_button" value={{_("Next")}}></td>
-		    </tr>
-		</table>
-	</div>
+	
 </div>
 	<!-- Hierarchical Charts for Cost Summaries -->
-<div id="model_create_diagram" name="model_create_diagram_container" style="position:relative; left:0; top:0; bottom:0; border-style:single;float:right;"/>
+<div id="model_create_diagram" name="model_create_diagram_container" style="position:relative; left:0; top:0; bottom:0;float:right;"/>
 	<div id="tree-layout-diagram" name="tree-layout-diagram"/>
 		<script>
 		    updateNetworkDiagram();
 		</script>
 	</div>
+	<div id="next_button" style="position:absolute;top:400px;right:10px;">{{_("Next")}}</div>
 </div>
 </div>
 
