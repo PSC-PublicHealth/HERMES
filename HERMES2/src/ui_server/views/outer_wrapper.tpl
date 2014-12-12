@@ -91,7 +91,12 @@ $(document).ready(function() {
 	$("#wrappage_help_dialog").dialog({autoOpen:false});
 	var btn = $("#wrappage_help_button");
 	btn.click( function() {
-		$.getJSON("{{rootPath}}json/page-help",{url:window.location.href})
+%if defined('pagehelptag'):
+		console.log("1 = {{pagehelptag}}");
+		$.getJSON("{{rootPath}}json/page-help",{url:"None",tag:"{{pagehelptag}}"})
+%else:
+		$.getJSON("{{rootPath}}json/page-help",{url:window.location.href,tag:"None"})
+%end
 		.done(function(data) {
 			if (data.success) {
 				if (data.value) {

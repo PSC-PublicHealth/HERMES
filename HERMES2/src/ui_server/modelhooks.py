@@ -845,7 +845,7 @@ def modelCreatePage(db,uiSession,step="unknown"):
         uiSession.changed()
   
         if screen in screenToTpl:
-            return bottle.template(screenToTpl[screen],formVals)
+            return bottle.template(screenToTpl[screen],formVals,pagehelptag=screen)
         elif screen=="models-top":
             if 'subCrumbTrack' not in newModelInfo:
                 # we're done, or we never started

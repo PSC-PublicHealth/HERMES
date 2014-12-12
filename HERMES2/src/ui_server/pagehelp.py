@@ -32,12 +32,19 @@ from ui_utils import _getOrThrowError, _logStacktrace
 
 pageHelpDir = 'pagehelp'
 
-def getPageHelp(url):
-    p = urlparse.urlparse(url)
-    path = p.path[len(serverconfig.rootPath):]
+def getPageHelp(url,tag=None):
     localeName = session_support.inlizer.currentLocaleName
-    helpTemplatePath = '%s/%s/help_%s'%(pageHelpDir,localeName,path)
+    
+    if tag is None:
+        p = urlparse.urlparse(url)
+        path = p.path[len(serverconfig.rootPath):]
+        helpTemplatePath = '%s/%s/help_%s'%(pageHelpDir,localeName,path)
+    else:
+        path = serverconfig.rootPath
+        helpTemplatePath = "%s/%s/help_%s"%(pageHelpDir,localeName,tag)
     if not helpTemplatePath.endswith('.tpl'): helpTemplatePath += '.tpl'
+    print "%s"%helpTemplatePath
+        
     try:
         return bottle.template(helpTemplatePath,{'pageurl':url, 'pagepath':path})
     except bottle.TemplateError:
@@ -47,8 +54,15 @@ def getPageHelp(url):
 def jsonPageHelp():
     try:
         url = _getOrThrowError(bottle.request.params, 'url')
-        
-        result = { 'success':True, 'value':getPageHelp(url) }
+        tag = _getOrThrowError(bottle.request.params, 'tag')
+        print "****** Tag = " + tag
+        if url=="None":
+            if tag =="None":
+                result = {'success':True,'value':getPageHelp("fake")}
+            else:
+                result = {'success':True,'value':getPageHelp(url=None,tag=tag)}
+        else:  
+            result = { 'success':True, 'value':getPageHelp(url) }
     except privs.PrivilegeException,e:
         _logStacktrace()
         result = { 'success':False, 'msg':'PrivilegeException: %s'%str(e)}

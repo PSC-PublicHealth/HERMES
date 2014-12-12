@@ -1,10 +1,10 @@
-%rebase outer_wrapper title_slogan=_("Create A Model"), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
+%rebase outer_wrapper title_slogan=_("Create A Model"), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,pagehelptag=pagehelptag
 
 <script src="{{rootPath}}static/d3/d3.min.js"></script>
 <script src="{{rootPath}}static/tree-layout-diagram/tree-layout-diagram.js"></script>
 <link rel="stylesheet" href="{{rootPath}}static/tree-layout-diagram/tree-layout-diagram.css"/>
 <script>
-
+console.log('{{pagehelptag}}')
 function makeNetworkJson(i,levelInfo){
 	if (i == (Object.getOwnPropertyNames(levelInfo).length - 1)){
 		return {'name':levelInfo[i].n,'count':levelInfo[i].c,'focus':levelInfo[i].f};
