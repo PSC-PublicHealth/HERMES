@@ -11,7 +11,7 @@ import typehelper
 import shadow_network
 import htmlgenerator
 import privs
-from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults
+from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults, b64D
 
 
 
@@ -24,15 +24,21 @@ def typeEditPage(db, uiSession, typeClass):
         uiSession.getPrivs().mayReadModelId(db, modelId)
         protoName = _getOrThrowError(bottle.request.params,'protoname')
         protoName = _smartStrip(protoName)
-        overwrite = False
         if 'overwrite' in bottle.request.params:
             overwrite = True
+        else:
+            overwrite = False
+        if 'backURL' in bottle.request.params:
+            backURL = b64D(bottle.request.params['backURL'])
+        else:
+            backURL = 'query'
         crumbTracks = uiSession.getCrumbs().push((bottle.request.path,_("Create Modified Version")))
         return bottle.template("type_edit.tpl",{"breadcrumbPairs":crumbTracks,
                                                 "protoname":protoName,
                                                 "modelId":modelId,
                                                 "typeClass":typeClass,
-                                                "overwrite":overwrite})
+                                                "overwrite":overwrite,
+                                                "backURL":backURL})
     except Exception,e:
         _logMessage(str(e))
         _logStacktrace()

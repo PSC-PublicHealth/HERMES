@@ -58,58 +58,65 @@
 </div>
 
 <script>
+var backURL = "{{backURL}}";
+%print backURL
 $(function() {
-	var protoname = "{{get('protoname')}}";
-	var modelId = {{get('modelId')}};
-	$.getJSON('{{rootPath}}{{attr["editForm"]}}',{
-	    protoname:protoname, 
-	    modelId:modelId,
-	    % if overwrite:
-	    overwrite:1
-	    % end
-	})
+    var protoname = "{{get('protoname')}}";
+    var modelId = {{get('modelId')}};
+    $.getJSON('{{rootPath}}{{attr["editForm"]}}',{
+	protoname:protoname, 
+	modelId:modelId,
+	% if overwrite:
+	overwrite:1
+	% end
+    })
 	.done(function(data) {
-		if (data.success) {
-			$("#edit_form_div").hrmWidget({
-				widget:'editFormManager',
-				html:data['htmlstring'],
-				modelId:modelId
-			});			
-		}
-		else {
-			alert('{{_("Failed: ")}}'+data.msg);
-		}
-
+	    if (data.success) {
+		$("#edit_form_div").hrmWidget({
+		    widget:'editFormManager',
+		    html:data['htmlstring'],
+		    modelId:modelId
+		});			
+	    }
+	    else {
+		alert('{{_("Failed: ")}}'+data.msg);
+	    }
+	    
 	})
 	.fail(function(jqxhr, textStatus, error) {
-		alert("Error: "+jqxhr.responseText);
+	    alert("Error: "+jqxhr.responseText);
 	});
 });
 
 $(function() {
-	var btn = $("#cancel_button");
-	btn.button();
-	btn.click( function() {
-		var dict = {modelId:{{get('modelId')}}}
-		$.getJSON("{{rootPath}}json/generic-edit-cancel",dict)
-		.done(function(data) {
-			if (data.success) {
-				if (data.value) {
-					window.location = data.goto;
-				}
-				else {
-					$("#dialog-modal").text(data['msg']);
-					$("#dialog-modal").dialog("open");
-				}
-			}
-			else {
-				alert('{{_("Failed: ")}}'+data.msg);
-			}
-    	})
-  		.fail(function(jqxhr, textStatus, error) {
-  			alert("Error: "+jqxhr.responseText);
-		});
-	})
+    var btn = $("#cancel_button");
+    btn.button();
+    btn.click( function() {
+	var dict = {modelId:{{get('modelId')}}}
+	$.getJSON("{{rootPath}}json/generic-edit-cancel",dict)
+	    .done(function(data) {
+		if (backURL != 'query') {
+		    window.location = backURL;
+		    return;
+		    alert("why am I here?");
+		}
+		if (data.success) {
+		    if (data.value) {
+			window.location = data.goto;
+		    }
+		    else {
+			$("#dialog-modal").text(data['msg']);
+			$("#dialog-modal").dialog("open");
+		    }
+		}
+		else {
+		    alert('{{_("Failed: ")}}'+data.msg);
+		}
+    	    })
+  	    .fail(function(jqxhr, textStatus, error) {
+  		alert("Error: "+jqxhr.responseText);
+	    });
+    })
 })
 
 $(function() {
@@ -135,6 +142,11 @@ $(function() {
 	$.getJSON("{{rootPath}}{{attr['commitForm']}}",dict)
 	    .done(function(data) {
 		if (data.success) {
+		    if (backURL != 'query') {
+			window.location = backURL;
+			return;
+			alert("why am I here2?");
+		    }
 		    if (data.value) {
 			window.location = data.goto;
 		    }

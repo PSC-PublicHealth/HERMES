@@ -94,7 +94,7 @@ function jId(i) {
 
 var modelId = {{modelId}};
 var modelName = "{{modelName}}";
-
+var myURL = "{{rootPath}}{{baseURL}}?id={{modelId}}"
 
 var typesMap = {
 % for t in typesEntries:
@@ -105,7 +105,7 @@ var typesMap = {
 % end
 };
 
-var currentType = 'vaccines';
+var currentType = '{{startClass}}';
 
 function setCurrentType(t) {
 //    alert(t);
@@ -137,7 +137,7 @@ $(function() {
 	btn.click( setSetCurrentType(t) );
 //	btn.click( "setCurrentType('" + t + "')" );
     }
-    setCurrentType('vaccines');
+    setCurrentType('{{startClass}}');
 
     var btn = $('#copy_to_model_button')
     btn.button();
@@ -361,7 +361,11 @@ function editType(id) {
     var grid = upId.grid;
 
     var url = typesMap[currentType].editUrl;
-    window.location = url + '?modelId='+modelId+"&protoname='"+name+"'&overwrite=1";
+    var parms = '?modelId=' + modelId;
+    parms += "&protoname='" + name + "'";
+    parms += "&overwrite=1";
+    parms += "&backURL=" + B64.encode(myURL + "&startClass=" + currentType)
+    window.location = url + parms;
 }
 	    
 

@@ -56,6 +56,8 @@ def getParm(parm):
 def addCrumb(uiSession, label, noInlize=False):
     if not noInlize:
         label = _(label)
+    if uiSession.getCrumbs().currentLabel() == label:
+        return uiSession.getCrumbs()
     url = bottle.request.path + '?' + bottle.request.query_string
     crumb = (url, label)
     crumbTrack = uiSession.getCrumbs().push(crumb)
@@ -75,7 +77,7 @@ def modelsEditParams(db, uiSession):
 
     crumbTrack = addCrumb(uiSession, "Params")
     try:
-        modelId = int(bottle.request.params['id'])
+        modelId = int(getParm('id'))
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         uiSession['selectedModelId'] = modelId
         uiSession['modelIdBeingEdited'] = modelId
@@ -97,16 +99,22 @@ def modelsEditParams(db, uiSession):
 def modelsAddTypes(db, uiSession):
     crumbTrack = addCrumb(uiSession, 'Add Types')
     try:
-        modelId = int(bottle.request.params['id'])
+        modelId = int(getParm('id'))
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         model = shadow_network_db_api.ShdNetworkDB(db, modelId)
         uiSession['selectedModelId'] = modelId
         uiSession['modelIdBeingEdited'] = modelId
+        if 'startClass' in bottle.request.params:
+            startClass = getParm('startClass')
+        else:
+            startClass = 'vaccines'
     
         return bottle.template("types_top.tpl",
                                {"modelId":modelId,
                                 "modelName":model.name,
-                                "breadcrumbPairs": crumbTrack})
+                                "startClass":startClass,
+                                "breadcrumbPairs": crumbTrack,
+                                "baseURL":'model-add-types'})
 
     except Exception,e:
         return bottle.template("problem.tpl", {"comment": str(e),
@@ -910,11 +918,9 @@ def handleModelList(db, uiSession):
     ignoreModel = getParm('ignoreModel')
     try: 
         curModel = int(curModel)
-        print curModel
     except: pass
     try: 
         ignoreModel = int(ignoreModel)
-        print ignoreModel
     except: pass
 
     mList = db.query(shd.ShdNetwork)

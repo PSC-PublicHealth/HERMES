@@ -205,6 +205,16 @@ class StackCrumbTrail(CrumbTrail):
             if isinstance(thing, CrumbTrail): return thing.current()
             else: return thing[0]
 
+    def currentLabel(self):
+        """
+        Return the current tag or CrumbTrail, or None if the is no such element
+        """
+        if self.trail == []: return None
+        else: 
+            thing = self.trail[-1]
+            if isinstance(thing, CrumbTrail): return thing.currentLabel()
+            else: return thing[1]
+
     def currentPath(self):
         #self._dump()
         return self._buildPath(self.current())
@@ -335,6 +345,15 @@ class TrackCrumbTrail(CrumbTrail):
             return None
         else:
             return self.trail[self.currentOffset][0]
+
+    def currentLabel(self):
+        """
+        Return the current tag or CrumbTrail, or None if the is no such element
+        """
+        if self.currentOffset < 0 or self.currentOffset > len(self.trail) - 1:
+            return None
+        else:
+            return self.trail[self.currentOffset][1]
 
     def currentPath(self):
         #self._dump()
