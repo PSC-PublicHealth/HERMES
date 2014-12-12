@@ -19,6 +19,24 @@
 	color: #363636/*{fcHighlight}*/;
 }
 
+/* Tables of centered label-widget pairs */
+table.hrm_centered_pairs {
+	margin-left:auto;
+	margin-right:auto
+}
+
+table.hrm_centered_pairs td,th {
+	text-align:right;
+}
+
+table.hrm_centered_pairs td+td,th+th {
+	text-align:left;
+}
+
+table.hrm_centered_pairs button {
+	float:left;
+}
+
 /* A class for invisible buttons */
 .hrm_invisible {
 	outline: 1px solid transparent;
@@ -1625,11 +1643,13 @@ a img
    margin: 2px;
 }
 
+/*
 .art-article table, table.art-article
 {
    border-collapse: collapse;
    margin: 1px;
 }
+*/
 
 .art-post .art-content-layout-br
 {

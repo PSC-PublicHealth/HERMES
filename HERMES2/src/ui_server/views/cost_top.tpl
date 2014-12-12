@@ -3,20 +3,25 @@
 <table width=100%>
 	<tr>
 		<td colspan=2>
-			<div align='center' id='model_sel_widget'></div>
-
-			<div align='center' id='currency_sel_widget'></div>
-
-			<div align='center' id='cost_base_year_div'>
-			<label for="cost_base_year">{{_("Base Year")}}</label>
-			<input type="number" min="{{minYear}}" max="{{maxYear}}" name="cost_base_year" id="cost_base_year">
-			</div>
-
-			<div align='center' id='cost_inflation_div'>
-			<label for="cost_inflation">{{_("Inflation Rate")}}</label>
-			<input type="number" min="-1000" max="1000" name="cost_inflation" id="cost_inflation">
-			<label for="cost_inflation">{{_("Percent")}}</label>
-			</div>
+			<table class='hrm_centered_pairs'>
+			<tr>
+			<td><label for="model_sel_widget">{{_('Showing Costs for')}}</label></td>
+			<td><div align='center' id='model_sel_widget'></div></td>
+			</tr>
+			<tr>
+			<td><label for="currency_sel_widget">{{_('Base Currency')}}</label></td>
+			<td><div align='center' id='currency_sel_widget'></div></td>
+			</tr>
+			<tr>
+			<td><label for="cost_base_year">{{_("Base Year")}}</label></td>
+			<td><input type="number" min="{{minYear}}" max="{{maxYear}}" name="cost_base_year" id="cost_base_year"></td>
+			</tr>
+			<tr>
+			<td><label for="cost_inflation">{{_("Inflation Rate")}}</label></td>
+			<td><input type="number" min="-1000" max="1000" name="cost_inflation" id="cost_inflation">
+			<label for="cost_inflation">{{_("Percent")}}</label></td>
+			</tr>
+			</table>
 
 		</td>
 	</tr>
@@ -109,11 +114,11 @@ $(function() {
 	
 	$("#model_sel_widget").hrmWidget({
 		widget:'modelSelector',
-		label:'{{_("Showing costs for")}}',
+		label:'',
 		afterBuild:function(mysel,mydata) {
 			$("#currency_sel_widget").hrmWidget({
 				widget:'currencySelector',
-				label:'{{_("Base Currency")}}',
+				label:'',
 				modelId:getCurrentModelId,
 				afterBuild:function(mysel,mydata) { buildPage(); },
 				onChange:function(mysel,mydata) {
