@@ -81,7 +81,7 @@ def jsonTypeEditForm(db, uiSession):
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         tp = m.types[typeName]
         attrRec = {}
-        shadow_network._copyAttrsToRec(attrRec,tp)
+        shadow_network._copyAttrsToRec(attrRec, tp)
         if tp.shdType == 'fridges':
             htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,"fridge",modelId,typeName,
                                                               typehelper.elaborateFieldMap(typeName, attrRec,
@@ -93,8 +93,10 @@ def jsonTypeEditForm(db, uiSession):
                                                                                            truckhooks.fieldMap))
             result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
         elif tp.shdType == 'vaccines':
+            # Note that for this one we pass the type instance instead of attrRec.  This is because
+            # of the special handling of lifetimes, which have alternative units (days, weeks, etc).
             htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,"vaccine",modelId,typeName,
-                                                              typehelper.elaborateFieldMap(typeName, attrRec,
+                                                              typehelper.elaborateFieldMap(typeName, tp,
                                                                                            vaccinehooks.fieldMap))
             result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
         elif tp.shdType == 'people':
