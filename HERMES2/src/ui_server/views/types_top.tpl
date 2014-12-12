@@ -523,8 +523,16 @@ function copyType(name) {
 		 'srcModelId' : sel_model_id,
 		 'typeName' : name },
         success: function(data, textStatus, jqXHR) {
-	    reloadGrid(dest);
+        	if (data.success) {
+        	    reloadGrid(dest);        		
+        	}
+        	else {
+				alert('{{_("Failed: ")}}'+data.msg);        		
+        	}
         },
+        error: function(jqXHR, textStatus, errorThrown) {
+			alert('{{_("Error: ")}}'+jqxhr.responseText);
+        }
     });
 
 }

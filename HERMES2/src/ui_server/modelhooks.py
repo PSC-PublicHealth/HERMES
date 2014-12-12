@@ -108,8 +108,8 @@ def modelsAddTypes(db, uiSession):
                                 "modelName":model.name,
                                 "breadcrumbPairs": crumbTrack})
 
-    except:
-        return bottle.template("problem.tpl", {"comment":_("no model id specified"),
+    except Exception,e:
+        return bottle.template("problem.tpl", {"comment": str(e),
                                                "breadcrumbPairs":crumbTrack})
 
 
@@ -1241,11 +1241,12 @@ def jsonCopyTypeToModel(db, uiSession):
         dest = shadow_network_db_api.ShdNetworkDB(db, modelId)
         src = shadow_network_db_api.ShdNetworkDB(db, srcModelId)
 
-        typehelper.addTypeToModel(db, dest, typeName, src, True);
+        typehelper.addTypeToModel(db, dest, typeName, src, True)
     except Exception, e:
-        return {'success' : False }
+        return {'success': False,
+                'msg': str(e)}
 
-    return {'success':True}
+    return {'success': True}
 
 
 @bottle.route('/json/removeTypeFromModel')
