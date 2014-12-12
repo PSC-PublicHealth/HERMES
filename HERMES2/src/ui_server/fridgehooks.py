@@ -15,6 +15,7 @@ import htmlgenerator
 import typehelper
 from fridgetypes import energyTranslationDict
 from currencyhelper import getCurrencyDict
+import typehooks
 
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults
 
@@ -56,42 +57,42 @@ fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'stri
             {'row':6, 'label':_('SnoozeDays'), 'key':'SnoozeDays', 'id':'snoozedays', 'type':'float'},
             ]
 
+@bottle.route('/fridge-edit')
+def fridgeEditPage(db, uiSession):
+    return typehooks.typeEditPage(db, uiSession, 'fridges')
+
+@bottle.route('/edit/edit-fridge.json', method='POST')
+def editFridge(db, uiSession):
+    return typehooks.typeEditPage(db, uiSession, 'fridges')
+
+    
+def jsonFridgeEditFn(attrRec, m):
+    # PowerRateUnits is completely determined by energy type
+    if attrRec['Energy']:
+        attrRec['PowerRateUnits'] = energyTranslationDict[attrRec['Energy'].encode('utf-8')][2]
+    else:
+        attrRec['PowerRateUnits'] = None
+    return attrRec
+
+
+@bottle.route('/json/fridge-edit-verify-commit')
+def jsonFridgeEditVerifyAndCommit(db, uiSession):
+    return typehooks.jsonTypeEditVerifyAndCommit(db, uiSession, 'fridges', fieldMap,
+                                                 jsonFridgeEditFn)
+            
+@bottle.route('/json/fridge-info')
+def jsonFridgeInfo(db, uiSession):
+    return typehooks.jsonTypeInfo(db, uiSession, htmlgenerator.getFridgeInfoHTML)
+            
+@bottle.route('/json/fridge-edit-form')
+def jsonFridgeEditForm(db, uiSession):
+    return typehooks.jsonTypeEditForm(db, uiSession, 'fridges', fieldMap)
+
+
 @bottle.route('/fridge-top')
 def fridgeTopPage(uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Cold Storage")))
     return bottle.template("fridge_top.tpl",{"breadcrumbPairs":crumbTrack})
-
-@bottle.route('/fridge-edit')
-def fridgeEditPage(db, uiSession):
-    try:
-        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
-        uiSession.getPrivs().mayReadModelId(db, modelId)
-        protoName = _getOrThrowError(bottle.request.params,'protoname')
-        protoName = _smartStrip(protoName)
-        crumbTracks = uiSession.getCrumbs().push((bottle.request.path,_("Create Modified Version")))
-        return bottle.template("fridge_edit.tpl",{"breadcrumbPairs":crumbTracks,
-                               "protoname":protoName,"modelId":modelId})
-    except Exception,e:
-        return bottle.template("error.tpl",{"breadcrumbPairs":uiSession.getCrumbs(),
-                                "bugtext":str(e)})
-
-@bottle.route('/edit/edit-fridge.json', method='POST')
-def editFridge(db, uiSession):    
-    if bottle.request.params['oper']=='edit':
-        if 'modelId' not in bottle.request.params.keys():
-            return {}
-        modelId = int(bottle.request.params['modelId'])
-        uiSession.getPrivs().mayModifyModelId(db, modelId)
-        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-        name = bottle.request.params['name']
-        pT = m.fridges[name]
-        if 'dispnm' in bottle.request.params:
-            pT.DisplayName = bottle.request.params['dispnm']
-        return {}
-    elif bottle.request.params['oper']=='add':
-        raise bottle.BottleException(_('unsupported operation'))
-    elif bottle.request.params['oper']=='del':
-        raise bottle.BottleException(_('unsupported operation'))
 
 @bottle.route('/json/manage-fridge-table')
 def jsonManageFridgeTable(db, uiSession):
@@ -130,58 +131,3 @@ def jsonManageFridgeTable(db, uiSession):
     except Exception,e:
         return {'success':False, 'msg':str(e)}
         
-    
-@bottle.route('/json/fridge-edit-verify-commit')
-def jsonFridgeEditVerifyAndCommit(db, uiSession):
-    try:
-        m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, fieldMap) # @UnusedVariable
-        if badStr and badStr!="":
-            result = {'success':True, 'value':False, 'msg':badStr}
-        else:
-            # PowerRateUnits is completely determined by energy type
-            if attrRec['Energy']:
-                attrRec['PowerRateUnits'] = energyTranslationDict[attrRec['Energy'].encode('utf-8')][2]
-            else:
-                attrRec['PowerRateUnits'] = None
-            newFridge = shadow_network.ShdStorageType(attrRec.copy()) 
-            db.add(newFridge)
-            m.types[attrRec['Name']] = newFridge
-            crumbTrack = uiSession.getCrumbs().pop()
-            result = {'success':True, 'value':True, 'goto':crumbTrack.currentPath()}
-        return result
-    except Exception, e:
-        result = {'success':False, 'msg':str(e)}
-        return result
-            
-@bottle.route('/json/fridge-info')
-def jsonFridgeInfo(db, uiSession):
-    try:
-        modelId = int(bottle.request.params['modelId'])
-        name = bottle.request.params['name']
-        htmlStr, titleStr = htmlgenerator.getFridgeInfoHTML(db,uiSession,modelId,name)
-        result = {'success':True, "htmlstring":htmlStr, "title":titleStr}
-        return result
-    except Exception, e:
-        result = {'success':False, 'msg':str(e)}
-        return result
-            
-@bottle.route('/json/fridge-edit-form')
-def jsonFridgeEditForm(db, uiSession):
-    try:
-        modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
-        uiSession.getPrivs().mayModifyModelId(db, modelId)
-        protoname = _getOrThrowError(bottle.request.params, 'protoname')
-        proposedName = typehelper.getSuggestedName(db, modelId,"fridge", protoname, excludeATM=True)
-        canWrite,typeInstance = typehelper.getTypeWithFallback(db, modelId, protoname) # @UnusedVariable
-        attrRec = {}
-        shadow_network._copyAttrsToRec(attrRec,typeInstance)
-        htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,"fridge",modelId,protoname,
-                                                          typehelper.elaborateFieldMap(proposedName, attrRec,
-                                                                                       fieldMap))
-        result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
-    except privs.PrivilegeException:
-        result = { 'success':False, 'msg':_('User cannot read this model')}
-    except Exception,e:
-        _logStacktrace()
-        result = { 'success':False, 'msg':str(e)}
-    return result    

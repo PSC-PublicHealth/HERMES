@@ -359,7 +359,7 @@ function editType(id) {
     var grid = upId.grid;
 
     var url = typesMap[currentType].editUrl;
-    window.location = url + '?modelId='+modelId+"&protoname='"+name+"'";
+    window.location = url + '?modelId='+modelId+"&protoname='"+name+"'&overwrite=1";
 }
 	    
 

@@ -1,17 +1,49 @@
-%rebase outer_wrapper title_slogan=_("Modify Transport Type"), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
+% attrs = {
+%    'trucks' : { 
+%        'editForm'      : 'json/truck-edit-form',
+%        'commitForm'    : 'json/truck-edit-verify-commit',
+%        'slogan'        : _("Modify Transport Type"),
+% 	 'editHeader'    : _("Edit Your Transport Type"),
+%        'createHeader'  : _("Creating Your Transport Type"),
+%        },
+%    'fridges' : { 
+%        'editForm'      : 'json/fridge-edit-form',
+%        'commitForm'    : 'json/fridge-edit-verify-commit',
+%        'slogan'        : _("Modify Cold Storage Type"),
+% 	 'editHeader'    : _("Edit Your Cold Storage Type"),
+%        'createHeader'  : _("Creating Your Cold Storage Type"),
+%        },
+%    'vaccines' : { 
+%        'editForm'      : 'json/vaccine-edit-form',
+%        'commitForm'    : 'json/vaccine-edit-verify-commit',
+%        'slogan'        : _("Modify Vaccine Type"),
+% 	 'editHeader'    : _("Edit Your Vaccine Type"),
+%        'createHeader'  : _("Creating Your Vaccine Type"),
+%        },
+%    'people' : { 
+%        'editForm'      : 'json/people-edit-form',
+%        'commitForm'    : 'json/people-edit-verify-commit',
+%        'slogan'        : _("Modify Population Type"),
+% 	 'editHeader'    : _("Edit Your Population Type"),
+%        'createHeader'  : _("Creating Your Population Type"),
+%        },
+% }
+% attr = attrs[typeClass]
+
+%rebase outer_wrapper title_slogan=attr['slogan'], breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
 
 % if not overwrite: 
-<h1>{{_('Creating Your Transport Type')}}</h1>
-{{_("The fields have been filled out with values from the transport type you selected.  When you are finished, select the 'Done' button at the bottom right.")}}
+<h1>{{attr['createHeader']}}</h1>
+{{_("The fields have been filled out with values from the type you selected.  When you are finished, select the 'Done' button at the bottom right.")}}
 <p>
 {{_("Your prototype was named {0}").format(protoname)}}
 </p>
 % else:
-<h1>{{_('Edit Your Transport Type')}}</h1>
-{{_("You may create a new transport type by changing the name of this one or leave it the same to modify the current type.")}}
+<h1>{{attr['editHeader']}}</h1>
+{{_("You may create a new type by changing the name of this one or leave it the same to modify the current type.")}}
 % end
-<form id="_edit_form">
-    <div id="_edit_form_div"></div>
+<form id="edit_form">
+    <div id="edit_form_div"></div>
     <table width=100%>
       <tr>
         <td></td>
@@ -29,7 +61,7 @@
 $(function() {
 	var protoname = "{{get('protoname')}}";
 	var modelId = {{get('modelId')}};
-	$.getJSON('json/truck-edit-form',{
+	$.getJSON('{{rootPath}}{{attr["editForm"]}}',{
 	    protoname:protoname, 
 	    modelId:modelId,
 	    % if overwrite:
@@ -38,7 +70,7 @@ $(function() {
 	})
 	.done(function(data) {
 		if (data.success) {
-			$("#_edit_form_div").hrmWidget({
+			$("#edit_form_div").hrmWidget({
 				widget:'editFormManager',
 				html:data['htmlstring'],
 				modelId:modelId
@@ -95,12 +127,12 @@ $(function() {
     var btn = $("#done_button");
     btn.button();
     btn.click( function() {
-	var dict = $('#_edit_form_div').editFormManager('getEntries');
+	var dict = $('#edit_form_div').editFormManager('getEntries');
 	% if overwrite:
 	dict['overwrite'] = 1;
 	% end
 	
-	$.getJSON("{{rootPath}}json/truck-edit-verify-commit",dict)
+	$.getJSON("{{rootPath}}{{attr['commitForm']}}",dict)
 	    .done(function(data) {
 		if (data.success) {
 		    if (data.value) {

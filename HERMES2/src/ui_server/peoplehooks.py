@@ -18,6 +18,7 @@ from gridtools import orderAndChopPage
 import privs
 import htmlgenerator
 import typehelper
+import typehooks
 
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults
 
@@ -30,51 +31,31 @@ fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'stri
             {'row':1, 'label':_('SortOrder'), 'key':'SortOrder', 'id':'sortorder', 'type':'int'},                 
             ]
 
+@bottle.route('/people-edit')
+def peopleEditPage(db, uiSession):
+    return typehooks.typeEditPage(db, uiSession, 'people')
+
+@bottle.route('/edit/edit-people.json', method='POST')
+def editPeople(db,uiSession):    
+    return typehooks.editType(db, uiSession, 'people')
+
+@bottle.route('/json/people-edit-verify-commit')
+def jsonPeopleEditVerifyCommit(db,uiSession):
+    return typehooks.jsonTypeEditVerifyAndCommit(db, uiSession, 'people', fieldMap)
+            
+@bottle.route('/json/people-info')
+def jsonPeopleInfo(db,uiSession):
+    return typehooks.jsonTypeInfo(db, uiSession, htmlgenerator.getPeopleInfoHTML)
+    
+@bottle.route('/json/people-edit-form')
+def jsonPeopleEditForm(db, uiSession):
+    return typehooks.jsonTypeEditForm(db, uiSession, 'people', fieldMap)
+
 @bottle.route('/people-top')
 def peopleTopPage(uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Population")))
     return bottle.template("people_top.tpl",{"breadcrumbPairs":crumbTrack})
 
-@bottle.route('/people-edit')
-def peopleEditPage(db, uiSession):
-    try:
-        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
-        uiSession.getPrivs().mayReadModelId(db, modelId)
-        protoName = _getOrThrowError(bottle.request.params,'protoname')
-        protoName = _smartStrip(protoName)
-        crumbTracks = uiSession.getCrumbs().push((bottle.request.path,_("Create Modified Version")))
-        return bottle.template("people_edit.tpl",{"breadcrumbPairs":crumbTracks,
-                               "protoname":protoName,"modelId":modelId})
-    except Exception,e:
-        _logMessage(str(e))
-        _logStacktrace()
-        return bottle.template("error.tpl",{"breadcrumbPairs":uiSession.getCrumbs(),
-                               "bugtext":str(e)})
-
-@bottle.route('/edit/edit-people.json', method='POST')
-def editPeople(db,uiSession):    
-    if bottle.request.params['oper']=='edit':
-        if 'modelId' not in bottle.request.params.keys():
-            return {}
-        modelId = int(bottle.request.params['modelId'])
-        _logMessage("editing modelId: %d"%modelId)
-        uiSession.getPrivs().mayModifyModelId(db, modelId)
-        _logMessage("we have permission")
-        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-        _logMessage("we have a shadow Network")
-        name = bottle.request.params['name']
-        _logMessage("changed name")
-        pT = m.people[name]
-        if 'dispnm' in bottle.request.params:
-            _logMessage("Changing Display Name")
-            pT.DisplayName = bottle.request.params['dispnm']
-            _logMessage("Changed DisplayName")
-            
-        return {}
-    elif bottle.request.params['oper']=='add':
-        raise bottle.BottleException(_('unsupported operation'))
-    elif bottle.request.params['oper']=='del':
-        raise bottle.BottleException(_('unsupported operation'))
 
 @bottle.route('/json/manage-people-table')
 def jsonManagePeopleTable(db,uiSession):
@@ -97,58 +78,3 @@ def jsonManagePeopleTable(db,uiSession):
               }
     return result
     
-@bottle.route('/json/people-edit-verify-commit')
-def jsonPeopleEditVerifyCommit(db,uiSession):
-    m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, fieldMap) # @UnusedVariable
-    if badStr and badStr!="":
-        result = {'success':True, 'value':False, 'msg':badStr}
-    else:
-        newPeople = shadow_network.ShdPeopleType(attrRec.copy()) 
-        db.add(newPeople)
-        m.types[attrRec['Name']] = newPeople 
-        crumbTrack = uiSession.getCrumbs().pop()
-        result = {'success':True, 'value':True, 'goto':crumbTrack.currentPath()}
-    return result
-            
-@bottle.route('/json/generic-edit-cancel')
-def jsonGenericEditCancel(db,uiSession):
-    try:
-        crumbTrack = uiSession.getCrumbs().pop()
-        return {'success':True, 'value': True, 'goto':crumbTrack.currentPath()}
-    except Exception, e:
-        result = {'success':False, 'msg':str(e)}
-        return result    
-            
-@bottle.route('/json/people-info')
-def jsonPeopleInfo(db,uiSession):
-    try:
-        modelId = int(bottle.request.params['modelId'])
-        name = bottle.request.params['name']
-        htmlStr, titleStr = htmlgenerator.getPeopleInfoHTML(db,uiSession,modelId,name)
-        result = {'success':True, "htmlstring":htmlStr, "title":titleStr}
-        return result
-    except Exception, e:
-        result = {'success':False, 'msg':str(e)}
-        return result
-    
-@bottle.route('/json/people-edit-form')
-def jsonPeopleEditForm(db, uiSession):
-    try:
-        modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
-        uiSession.getPrivs().mayModifyModelId(db, modelId)
-        protoname = _getOrThrowError(bottle.request.params, 'protoname')
-        proposedName = typehelper.getSuggestedName(db,modelId,"people", protoname, excludeATM=True)
-        canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, protoname) # @UnusedVariable
-        attrRec = {}
-        shadow_network._copyAttrsToRec(attrRec,typeInstance)
-        htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,"people",modelId,protoname,
-                                                          typehelper.elaborateFieldMap(proposedName, attrRec,
-                                                                                       fieldMap))
-        result = {'success':True, "htmlstring":htmlStr, "title":titleStr}
-    except privs.PrivilegeException:
-        result = { 'success':False, 'msg':_('User cannot read this model')}
-    except Exception,e:
-        _logMessage(str(e))
-        _logStacktrace()
-        result = { 'success':False, 'msg':str(e)}       
-    return result

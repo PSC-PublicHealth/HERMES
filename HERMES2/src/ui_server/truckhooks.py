@@ -19,6 +19,7 @@ import privs
 import htmlgenerator
 import typehelper
 from trucktypes import fuelTranslationDict
+import typehooks
 
 from ui_utils import _logMessage, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults
 
@@ -40,48 +41,42 @@ fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'stri
             {'row':4, 'label':_('Units'), 'key':'FuelRateUnits', 'id':'fuelunits', 'type':'hide'},
             ]
 
+@bottle.route('/truck-edit')
+def truckEditPage(db, uiSession):
+    return typehooks.typeEditPage(db, uiSession, 'trucks')
+
+@bottle.route('/edit/edit-truck.json', method='POST')
+def editTruck(db,uiSession):  
+    return typehooks.editType(db, uiSession, 'trucks')
+        
+
+def jsonTruckEditFn(attrRec, m):
+# FuelRateUnits is completely determined by energy type
+    if attrRec['Fuel']:
+        attrRec['FuelRateUnits'] = fuelTranslationDict[attrRec['Fuel'].encode('utf-8')][2]
+    else:
+        attrRec['FuelRateUnits'] = None
+    return attrRec
+    
+@bottle.route('/json/truck-edit-verify-commit')
+def jsonTruckEditVerifyCommit(db, uiSession):
+    return typehooks.jsonTypeEditVerifyAndCommit(db, uiSession, 'trucks', fieldMap,
+                                                 jsonTruckEditFn)
+            
+@bottle.route('/json/truck-info')
+def jsonTruckInfo(db, uiSession):
+    return typehooks.jsonTypeInfo(db, uiSession, htmlgenerator.getTruckInfoHTML)
+    
+@bottle.route('/json/truck-edit-form')
+def jsonTruckEditForm(db, uiSession):
+    return typehooks.jsonTypeEditForm(db, uiSession, 'trucks', fieldMap)
+
+
 @bottle.route('/truck-top')
 def truckTopPage(uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Transport")))
     return bottle.template("truck_top.tpl",{"breadcrumbPairs":crumbTrack})
 
-@bottle.route('/truck-edit')
-def truckEditPage(db, uiSession):
-    try:
-        paramList = ['%s:%s'%(str(k),str(v)) for k,v in bottle.request.params.items()]
-        _logMessage("Hit truck-edit; params=%s"%paramList)
-        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
-        uiSession.getPrivs().mayReadModelId(db, modelId)
-        protoName = _getOrThrowError(bottle.request.params,'protoname')
-        protoName = _smartStrip(protoName)
-        crumbTracks = uiSession.getCrumbs().push((bottle.request.path,_("Create Modified Version")))
-        return bottle.template("truck_edit.tpl",{"breadcrumbPairs":crumbTracks,
-                               "protoname":protoName,"modelId":modelId})
-    except Exception,e:
-        return bottle.template("error.tpl",{"breadcrumbPairs":uiSession.getCrumbs(),
-                               "bugtext":str(e)})
-
-@bottle.route('/edit/edit-truck.json', method='POST')
-def editTruck(db,uiSession):  
-    if bottle.request.params['oper']=='edit':
-        if 'modelId' not in bottle.request.params.keys():
-            return {}
-        modelId = int(bottle.request.params['modelId'])
-        uiSession.getPrivs().mayModifyModelId(db, modelId)
-        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
-        name = bottle.request.params['name']
-        _logMessage("Name = %s"%name)
-        pT = m.trucks[name]
-        if 'dispnm' in bottle.request.params:
-            _logMessage("New Display Name = %s"%bottle.request.params['dispnm'])
-            pT.DisplayName = bottle.request.params['dispnm']
-        return {}
-    elif bottle.request.params['oper']=='add':
-        raise bottle.BottleException(_('unsupported operation'))
-    elif bottle.request.params['oper']=='del':
-        raise bottle.BottleException(_('unsupported operation'))
-
-        
 @bottle.route('/json/manage-truck-table')
 def jsonManageTruckTable(db, uiSession):
     modelId = int(bottle.request.params['modelId'])
@@ -103,54 +98,3 @@ def jsonManageTruckTable(db, uiSession):
                        for t in tList ]
               }
     return result
-    
-@bottle.route('/json/truck-edit-verify-commit')
-def jsonTruckEditVerifyCommit(db, uiSession):
-    m,attrRec,badParms,badStr = _mergeFormResults(bottle.request, db, uiSession, fieldMap) # @UnusedVariable
-            # FuelRateUnits is completely determined by energy type
-    if attrRec['Fuel']:
-        attrRec['FuelRateUnits'] = fuelTranslationDict[attrRec['Fuel'].encode('utf-8')][2]
-    else:
-        attrRec['FuelRateUnits'] = None
-    if badStr and badStr!="":
-        result = {'success':True, 'value':False, 'msg':badStr}
-    else:
-        newTruck = shadow_network.ShdTruckType(attrRec.copy()) 
-        db.add(newTruck)
-        m.types[attrRec['Name']] = newTruck
-        crumbTrack = uiSession.getCrumbs().pop()
-        result = {'success':True, 'value':True, 'goto':crumbTrack.currentPath()}
-    return result
-            
-@bottle.route('/json/truck-info')
-def jsonTruckInfo(db, uiSession):
-    try:
-        modelId = int(bottle.request.params['modelId'])
-        name = bottle.request.params['name']
-        htmlStr, titleStr = htmlgenerator.getTruckInfoHTML(db,uiSession,modelId,name)
-        result = {'success':True, "htmlstring":htmlStr, "title":titleStr}
-        return result
-    except Exception, e:
-        result = {'success':False, 'msg':str(e)}
-        return result
-    
-@bottle.route('/json/truck-edit-form')
-def jsonTruckEditForm(db, uiSession):
-    try:
-        modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
-        uiSession.getPrivs().mayModifyModelId(db, modelId)
-        protoname = _getOrThrowError(bottle.request.params, 'protoname')
-        proposedName = typehelper.getSuggestedName(db,modelId,"truck", protoname, excludeATM=True)
-        canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, protoname) # @UnusedVariable
-        attrRec = {}
-        shadow_network._copyAttrsToRec(attrRec,typeInstance)
-        htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,"truck",modelId,protoname,
-                                                          typehelper.elaborateFieldMap(proposedName, attrRec,
-                                                                                       fieldMap))
-        result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
-    except privs.PrivilegeException:
-        result = {'success':False, 'msg':_('User cannot read this model')}
-    except Exception,e:
-        result = {'success':False, 'msg':str(e)}
-    return result  
-
