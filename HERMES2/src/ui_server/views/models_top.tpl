@@ -1,6 +1,6 @@
 %rebase outer_wrapper title_slogan=_('Available Models'),breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
 <table>
-<tr><td style="float:left;width:110px">
+<tr><td style="float:left;">
 <h2 style="display:none">{{_('Task:')}}</h2>
 % buttonList = [
 % # [ title, label, acts on row, confirm, function ]
