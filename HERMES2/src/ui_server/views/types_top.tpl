@@ -71,6 +71,7 @@
 	</td></tr>
       </table>
     </td>
+% if 0: # until this button has functionality, hide it
     <td>
       <table>
       <tr><td style='height:60px'></td></tr>
@@ -80,6 +81,7 @@
       <tr><td></td></tr>
       </table>
     </td>
+% end
   </tr>
 </table>
 
