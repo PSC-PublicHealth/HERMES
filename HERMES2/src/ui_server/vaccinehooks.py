@@ -96,7 +96,7 @@ def jsonVaccineInfo(db, uiSession):
     
 @bottle.route('/json/vaccine-edit-form')
 def jsonVaccineEditForm(db, uiSession):
-    return typehooks.jsonTypeEditForm(db, uiSession, 'vaccines', fieldMap)
+    return typehooks.jsonTypeEditForm(db, uiSession, 'vaccines', fieldMap, useInstance=True)
 
 @bottle.route('/vaccines-top')
 def vaccineTopPage(uiSession):

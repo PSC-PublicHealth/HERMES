@@ -63,7 +63,7 @@ def editType(db, uiSession, typeClass):
     
 
 
-def jsonTypeEditForm(db, uiSession, typeClass, fieldMap):
+def jsonTypeEditForm(db, uiSession, typeClass, fieldMap, useInstance=False):
     try:
         modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
         uiSession.getPrivs().mayModifyModelId(db, modelId)
@@ -73,8 +73,11 @@ def jsonTypeEditForm(db, uiSession, typeClass, fieldMap):
         else:
             proposedName = typehelper.getSuggestedName(db,modelId,typeClass, protoname, excludeATM=True)
         canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, protoname) # @UnusedVariable
-        attrRec = {}
-        shadow_network._copyAttrsToRec(attrRec,typeInstance)
+        if not useInstance:
+            attrRec = {}
+            shadow_network._copyAttrsToRec(attrRec,typeInstance)
+        else:
+            attrRec = typeInstance
         htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,
                                                           typeClass,
                                                           modelId,
