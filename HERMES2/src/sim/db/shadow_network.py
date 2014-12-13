@@ -3008,8 +3008,8 @@ class ShdVaccineType(ShdType, ShdCopyable):
         key = 'Lifetime'+preface+TimeUnitsEnums.eStr[unitsChar].capitalize()
         rec = {key:val}
         return rec
-    
-    def lifetimeFromRec(self,rec,preface,delete=True):
+
+    def lifetimeFromRec(self, rec, preface, delete=True):
         """
         This is a 'recdecode' method, which will be used like self.thisMethodName(rec) to convert
         record information for this attribute to database form.  If delete is True, this method
@@ -3018,24 +3018,45 @@ class ShdVaccineType(ShdType, ShdCopyable):
         if preface.lower()+'LifetimeUnits' in rec:
             key = preface.lower()+'Lifetime'
             uKey = preface.lower()+'LifetimeUnits'
-            assert key in rec, _("Missing or invalid time value in record for {0} lifetime").format(preface)
+            assert key in rec, \
+                _("Missing or invalid time value in record for {0} lifetime").format(preface)
             tvChar = rec[uKey]
-            assert tvChar in TimeUnitsEnums.eStr.keys(), _("Invalid time unit identifier {0} in record for {1} lifetime").format(tvChar,preface)
+            assert tvChar in TimeUnitsEnums.eStr.keys(), \
+                (_("Invalid time unit identifier {0} in record for {1} lifetime")
+                 .format(tvChar, preface))
             setattr(self, uKey, tvChar)
-            setattr(self, key, castValue(rec[key], (castTypes.EMPTY_IS_ZERO,castTypes.FLOAT), key))
-            if delete: 
+            setattr(self, key, castValue(rec[key],
+                                         (castTypes.EMPTY_IS_ZERO, castTypes.FLOAT), key))
+            if delete:
                 del rec[key]
                 del rec[uKey]
+        elif preface.lower()+'Lifetime' in rec and isinstance(rec[preface.lower()+'Lifetime'],
+                                                              types.TupleType):
+            key = preface.lower()+'Lifetime'
+            uKey = preface.lower()+'LifetimeUnits'
+            val = rec[key][0]
+            tvChar = rec[key][1]
+            assert tvChar in TimeUnitsEnums.eStr.keys(), \
+                (_("Invalid time unit identifier {0} in record for {1} lifetime")
+                 .format(tvChar, preface))
+            setattr(self, uKey, tvChar)
+            setattr(self, key, castValue(val,
+                                         (castTypes.EMPTY_IS_ZERO, castTypes.FLOAT), key))
+            if delete:
+                del rec[key]
         else:
-            for k,v in TimeUnitsEnums.eStr.items():
-                key = 'Lifetime' +preface + v.capitalize()
+            for k, v in TimeUnitsEnums.eStr.items():
+                key = 'Lifetime' + preface + v.capitalize()
                 if key in rec.keys():
-                    setattr(self, preface.lower()+'LifetimeUnits', k)
-                    setattr(self, preface.lower()+'Lifetime', castValue(rec[key], (castTypes.EMPTY_IS_ZERO,castTypes.FLOAT), key))
-                    if delete: del rec[key]
+                    setattr(self, preface.lower() + 'LifetimeUnits', k)
+                    setattr(self, preface.lower() + 'Lifetime',
+                            castValue(rec[key], (castTypes.EMPTY_IS_ZERO, castTypes.FLOAT), key))
+                    if delete:
+                        del rec[key]
                     break
             else:
-                raise RuntimeError('No %s lifetime info available in %s'%(preface,rec))
+                raise RuntimeError('No %s lifetime info available in %s' % (preface, rec))
+
     def frzLifetimeToRec(arg):
         """
         This is a 'recencode' method, which will be used like rec.update(self.demandToRec())
