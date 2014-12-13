@@ -82,10 +82,6 @@ def costEditBuilding(db, uiSession):
                                                        "title_slogan": _("Building Costs")})
 
 
-@bottle.route('/cost-edit-misc')
-def costUnimplemented(db, uiSession):
-    bottle.redirect('%snotimpl'%rootPath)
-
 @bottle.route('/list/select-currency')
 def handleListCurrency(db,uiSession):
     try:
@@ -122,33 +118,53 @@ def handleListCurrency(db,uiSession):
 @bottle.route('/json/set-currency-base-year')
 def jsonSetCurrencyBaseYear(db, uiSession):
     try:
+        m = None  # in case of exception
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayWriteModelId(db, modelId)
         baseYear = _getOrThrowError(bottle.request.params, 'baseYear', isInt=True)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         m.addParm(shadow_network.ShdParameter('currencybaseyear',str(baseYear)))
-
         result = { 'baseYear':baseYear, 'success':True }
         return result
     except Exception,e:
         _logStacktrace()
-        return {"success":False, "msg":str(e)} 
+        if m:
+            return {"success":False, "msg":str(e), "value": m.getParameterValue('currencybaseyear')} 
+        else:
+            return {"success":False, "msg":str(e)} 
+
+def setModelParamPercent(db, uiSession, key, paramName):
+    try:
+        m = None  # in case of exception
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        uiSession.getPrivs().mayWriteModelId(db, modelId)
+        inflation = _getOrThrowError(bottle.request.params, key, isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        m.addParm(shadow_network.ShdParameter(paramName, str(0.01 * inflation)))
+        result = {key: inflation, 'success': True}
+        return result
+    except Exception, e:
+        _logStacktrace()
+        if m:
+            return {"success": False, "msg": str(e),
+                    "value": int(round(100.0*m.getParameterValue(paramName)))}
+        else:
+            return {"success": False, "msg": str(e)}
 
 
 @bottle.route('/json/set-cost-inflation-percent')
 def jsonSetCostInflationPercent(db, uiSession):
-    try:
-        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
-        uiSession.getPrivs().mayWriteModelId(db, modelId)
-        inflation = _getOrThrowError(bottle.request.params, 'inflation', isInt=True)
-        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-        m.addParm(shadow_network.ShdParameter('priceinflation', str(0.01 * inflation)))
+    return setModelParamPercent(db, uiSession, 'inflation', 'priceinflation')
 
-        result = {'inflation': inflation, 'success': True}
-        return result
-    except Exception, e:
-        _logStacktrace()
-        return {"success": False, "msg": str(e)}
+
+@bottle.route('/json/set-cost-storage-maint-percent')
+def jsonSetCostStorageMaintPercent(db, uiSession):
+    return setModelParamPercent(db, uiSession, 'storage-maint', 'storagemaintcostfraction')
+
+
+@bottle.route('/json/set-cost-vehicle-maint-percent')
+def jsonSetCostVehicleMaintPercent(db, uiSession):
+    return setModelParamPercent(db, uiSession, 'vehicle-maint', 'vehiclemaintcostfraction')
 
 
 @bottle.route('/json/get-currency-info')
@@ -160,10 +176,16 @@ def jsonGetCurrencyInfo(db, uiSession):
         baseCurrencyId = m.getParameterValue('currencybase')
         currencyBaseYear = m.getParameterValue('currencybaseyear')
         priceInflation = int(round(100*m.getParameterValue('priceinflation')))
+        storagemaint = int(round(100*m.getParameterValue('storagemaintcostfraction')))
+        truckmaint = int(round(100*m.getParameterValue('vehiclemaintcostfraction')))
         microCostingEnabled = (m.getParameterValue('costmodel') == 'micro1')
+            
         result = {'success': True,
-                  'baseCurrencyId': baseCurrencyId, 'currencyBaseYear': currencyBaseYear,
-                  'priceInflation': priceInflation,
+                  'baseCurrencyId': baseCurrencyId,
+                  'baseYear': currencyBaseYear,
+                  'inflation': priceInflation,
+                  'storage_maint': storagemaint,
+                  'vehicle_maint': truckmaint,
                   'microCostingEnabled': microCostingEnabled,
                   'fuelLabel': getFuelButtonLabel(db, uiSession, m),
                   'truckLabel': getTruckButtonLabel(db, uiSession, m),
@@ -171,8 +193,7 @@ def jsonGetCurrencyInfo(db, uiSession):
                   'vaccineLabel': getVaccineButtonLabel(db, uiSession, m),
                   'salaryLabel': getSalaryButtonLabel(db, uiSession, m),
                   'perdiemLabel': getPerDiemButtonLabel(db, uiSession, m),
-                  'buildingLabel': getBuildingButtonLabel(db, uiSession, m),
-                  'miscLabel': getMiscButtonLabel(db, uiSession, m)
+                  'buildingLabel': getBuildingButtonLabel(db, uiSession, m)
                   }
         return result
     except Exception, e:
@@ -268,9 +289,9 @@ def jsonGetBaseCurrency(db, uiSession):
         return result
     except Exception,e:
         _logStacktrace()
-        return {"success":False, "msg":str(e)} 
-        
-        
+        return {"success": False, "msg": str(e)} 
+
+
 @bottle.route('/json/set-base-currency')
 def jsonSetBaseCurrency(db, uiSession):
     try:
@@ -370,10 +391,6 @@ def getBuildingButtonLabel(db, uiSession, m):
         return _("Revisit")
     else:
         return _("Continue")
-
-
-def getMiscButtonLabel(db, uiSession, m):
-    return _("Unimplemented")
 
 
 def _getCurrencyConverter(db, uiSession, m):

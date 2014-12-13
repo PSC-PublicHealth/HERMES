@@ -82,14 +82,14 @@ def modelsEditParams(db, uiSession):
         uiSession['selectedModelId'] = modelId
         uiSession['modelIdBeingEdited'] = modelId
     
-        return bottle.template("model_edit_parms.tpl",
+        return bottle.template("run_edit_parms.tpl",
                                {"modelId":modelId,
                                 "breadcrumbPairs" : crumbTrack})
 #                                "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
 #                                                  ("model-edit-params",_("Edit parameters"))]})
     
-    except:
-        return bottle.template("problem.tpl", {"comment":_("no model id specified"),
+    except Exception, e:
+        return bottle.template("problem.tpl", {"comment":str(e),
                                                "breadcrumbPairs" : crumbTrack})
 #                                               "breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
 #                                                                  ("model-edit-params",_("Edit parameters"))]})

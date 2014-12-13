@@ -362,6 +362,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         runCur = self.sim.userInput['currencybase']
         runCurYear = self.sim.userInput['currencybaseyear']
         inflation = self.sim.userInput['priceinflation']
+        maintFrac = self.sim.userInput['vehiclemaintcostfraction']
         if costPattern == 'distance':
             priceKeyInfo = priceKeyTable[fuel]
             if (priceKeyInfo is not None
@@ -383,16 +384,19 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                 #
                 fuelCost = (totKm/fuelRate)*fuelPrice
                 fare = 0.0
+                maintCost = maintFrac * fuelCost
             else:
                 # Fuel is free
                 fuelCost = 0.0
                 fare = 0.0
+                maintCost = 0.0
         elif costPattern == 'pertrip':
             rawFare = truckType.recDict['FuelRate']
             fare = self.currencyConverter.convertTo(rawFare, tCur, runCur,
                                                     tYear, runCurYear,
                                                     inflation)
             fuelCost = 0.0
+            maintCost = 0.0
         else:
             raise RuntimeError(u'Transport type %s has an unexpected costing pattern' %
                                truckType.name)
@@ -416,7 +420,8 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         for k, v in [("m1C_%s" % fuel, fuelCost),
                      ("m1C_TruckAmort", amortCost),
                      ("m1C_TransitFareCost", fare),
-                     ("m1C_PerDiem", perDiemCost)]:
+                     ("m1C_PerDiem", perDiemCost),
+                     ("m1C_TruckMaint", maintCost)]:
             if v != 0.0:
                 if k in result:
                     result[k] += v
@@ -541,13 +546,17 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
             fuel = eTpl[4]
             costPattern = eTpl[5]
             priceKeyInfo = priceKeyTable[fuel]
+            solarMaintPriceRaw = 0.0
             if costPattern == 'charge':
                 fuelPrice = 0.0  # handled elsewhere
             elif isinstance(priceKeyInfo, types.TupleType):
+                assert fuel == 'solar', \
+                    'Per instance fuel maintenance but the fuel %s is not a solar panel' % fuel
                 assert costPattern == 'instance', \
                     u"Fuel type %s has amortization but is not by-instance" % \
                     fridge.name
                 basePrice = self.sim.userInput[priceKeyInfo[0]]
+                solarMaintPriceRaw = self.sim.userInput['storagemaintcostfraction'] * basePrice
                 fuelAmortPeriod = self.sim.userInput[priceKeyInfo[1]]
                 assert basePrice is not None, \
                     u"Cost information for power type %s is missing" % fuel
@@ -568,10 +577,17 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
             runCurYear = self.sim.userInput['currencybaseyear']
             rawAmortCost = baseCost*(self.intervalEndTime
                                      - self.intervalStartTime)/amortPeriod
+            rawMaintCost = baseCost*self.sim.userInput['storagemaintcostfraction']
             # print 'handling %s'%fridge.recDict['Name']
             amortCost = self.currencyConverter.convertTo(rawAmortCost, fCur,
                                                          runCur, fYear,
                                                          runCurYear, inflation)
+            maintCost = self.currencyConverter.convertTo(rawMaintCost, fCur,
+                                                         runCur, fYear,
+                                                         runCurYear, inflation)
+            solarMaintCost = self.currencyConverter.convertTo(solarMaintPriceRaw, fCur,
+                                                              runCur, fYear,
+                                                              runCurYear, inflation)
             if fuelPrice == 0.0:
                 fuelCost = 0.0  # fuel handled elsewhere; save some math
             else:
@@ -582,7 +598,8 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                 #
                 fuelCost = powerRate*fuelPrice*(self.intervalEndTime
                                                 - self.intervalStartTime)
-            return {"m1C_%s" % fuel: fuelCost, "m1C_FridgeAmort": amortCost}
+            return {"m1C_%s" % fuel: fuelCost, "m1C_FridgeAmort": amortCost,
+                    "m1C_FridgeMaint": maintCost, "m1C_SolarMaint": solarMaintCost}
 
     def _generateStaffCostNotes(self, level, conditions, startTime, endTime,
                                 costable, inflation):
@@ -781,7 +798,9 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
         print '####### beginning checks'
         # Check all the fuel price entries from parms
         for v in priceKeyTable.values() + ['priceinflation',
-                                           'amortizationstorageyears']:
+                                           'amortizationstorageyears',
+                                           'vehiclemaintcostfraction',
+                                           'storagemaintcostfraction']:
             if v is None:
                 continue  # 'free' fuel
             if isinstance(v, types.TupleType):

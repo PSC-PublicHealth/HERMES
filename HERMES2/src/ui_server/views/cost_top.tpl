@@ -21,6 +21,16 @@
 			<td><input type="number" min="-1000" max="1000" name="cost_inflation" id="cost_inflation">
 			<label for="cost_inflation">{{_("Percent")}}</label></td>
 			</tr>
+			<tr>
+			<td><label for="cost_storage_maint">{{_("Storage Maintenance")}}</label></td>
+			<td><input type="number" min="0" max="100" name="cost_storage_maint" id="cost_storage_maint">
+			<label for="cost_storage_maint">{{_("Percent")}}</label></td>
+			</tr>
+			<tr>
+			<td><label for="cost_vehicle_maint">{{_("Vehicle Maintenance")}}</label></td>
+			<td><input type="number" min="0" max="100" name="cost_vehicle_maint" id="cost_vehicle_maint">
+			<label for="cost_vehicle_maint">{{_("Percent")}}</label></td>
+			</tr>
 			</table>
 
 		</td>
@@ -54,9 +64,6 @@
 				<tr>
 					<td>{{_("Buildings")}}</td><td><button id="cost_building_btn">{{_("Start")}}</button></td>
 				</tr>
-				<tr>
-					<td>{{_("Miscellaneous")}}</td><td><button id="cost_misc_btn">{{_("Start")}}</button></td>
-				</tr>
 			</table>
 		</td>
 		<td>
@@ -81,7 +88,13 @@
 
 { // local scope
 
-var buttonNames = ['fuel', 'truck', 'fridge', 'vaccine', 'salary', 'perdiem', 'building', 'misc'];
+var buttonNames = ['fuel', 'truck', 'fridge', 'vaccine', 'salary', 'perdiem', 'building'];
+
+var scalarFields = [['cost_inflation', '{{rootPath}}json/set-cost-inflation-percent', 'inflation'],
+                    ['cost_storage_maint', '{{rootPath}}json/set-cost-storage-maint-percent', 'storage_maint'],
+     	            ['cost_vehicle_maint', '{{rootPath}}json/set-cost-vehicle-maint-percent', 'vehicle_maint'],
+                    ['cost_base_year', '{{rootPath}}json/set-currency-base-year', 'baseYear'],
+                   ];
 
 var getCurrentModelId = function(){ return $('#model_sel_widget').modelSelector('selId'); };
 var getCurrentModelName = function(){ return $('#model_sel_widget').modelSelector('selName'); };
@@ -91,9 +104,13 @@ function buildPage() {
 	.done(function(data) {
 		if (data.success) {
 			$("#currency_sel_widget").currencySelector('selId',data.baseCurrencyId);
-			$("#cost_base_year").val(data.currencyBaseYear);
-			$('#cost_inflation').val(data.priceInflation);
 			$('#microcosting_enable_cbx').prop('checked', data.microCostingEnabled);
+			for ( var i = 0; i<scalarFields.length; i++) {
+				var fieldId = scalarFields[i][0];
+				var fieldUrl = scalarFields[i][1];
+				var key =  scalarFields[i][2];
+				$('#'+fieldId).val( data[key] );
+			}
 			for ( var i = 0; i<buttonNames.length; i++ ) {
 				var lbl = data[buttonNames[i]+'Label'];
 				if (lbl) $('#cost_'+buttonNames[i]+'_btn').button('option','label',lbl);
@@ -147,41 +164,33 @@ $(function() {
 		},
 	});
 
-	$('#cost_base_year').blur( function(evt) {
-		$.getJSON('{{rootPath}}json/set-currency-base-year',
-			{modelId:$('#model_sel_widget').modelSelector('selId'),
-			baseYear:$('#cost_base_year').val()
-		})
-		.done(function(data) {
-			if (data.success) {
-				// do nothing
-			}
-    		else {
-    			alert('{{_("Failed: ")}}'+data.msg);
-    		}
-		})
-		.fail(function(jqxhr, textStatus, error) {
-    		alert('{{_("Error: ")}}'+jqxhr.responseText);
-		});
-	})
-
-	$('#cost_inflation').blur( function(evt) {
-		$.getJSON('{{rootPath}}json/set-cost-inflation-percent',
-				{modelId:$('#model_sel_widget').modelSelector('selId'),
-				inflation:$('#cost_inflation').val()
-		})
-		.done(function(data) {
-			if (data.success) {
-				// do nothing
-			}
-    		else {
-    			alert('{{_("Failed: ")}}'+data.msg);
-    		}
-		})
-		.fail(function(jqxhr, textStatus, error) {
-    		alert('{{_("Error: ")}}'+jqxhr.responseText);
-		});
-	})
+	function setterScalarField(url, fieldId, key) {
+		return function(evt) {
+			var parms = {modelId:$('#model_sel_widget').modelSelector('selId')};
+			parms[key] = $('#'+fieldId).val();
+			$.getJSON(url, parms)
+			.done(function(data) {
+				if (data.success) {
+					// do nothing
+				}
+				else {
+					alert('{{_("Failed: ")}}'+data.msg);
+					if (data.value != undefined)
+						$('#'+fieldId).val(data.value);
+				}
+			})
+			.fail(function(jqxhr, textStatus, error) {
+				alert('{{_("Error: ")}}'+jqxhr.responseText);
+			});
+		}
+	};
+	
+	for ( var i = 0; i<scalarFields.length; i++) {
+		var fieldId = scalarFields[i][0];
+		var fieldUrl = scalarFields[i][1];
+		var key =  scalarFields[i][2];
+		$('#'+fieldId).blur( setterScalarField(fieldUrl, fieldId, key) );		
+	}
 
 	for ( var i = 0; i<buttonNames.length; i++ ) {
 		$('#cost_'+buttonNames[i]+'_btn').button().click( function(evt) {
@@ -189,7 +198,7 @@ $(function() {
 			window.location = "{{rootPath}}cost-edit-"+btnName;
 			evt.preventDefault();
 		});
-	}
+	};
 	
 	$('#cost_check_completeness_btn').button().click( function(evt) {
 		$.getJSON('{{rootPath}}json/cost-check-completeness',

@@ -599,6 +599,7 @@ def _parseRunParms(db, uiSession, model, postParms = None):
     #print 'deltas: %s'%deltas
     return badParms,deltas
 
+@bottle.route('/json/run-parms-levels-to-show')
 @bottle.route('/model-run/json/run-parms-levels-to-show')
 def jsonRunParmsLevelsToShow(db, uiSession):
     level = _getOrThrowError(bottle.request.params, 'level', isInt=True)

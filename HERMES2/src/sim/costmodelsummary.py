@@ -249,7 +249,10 @@ class Micro1CostModelHierarchicalSummary(CostModelHierarchicalSummary):
                   'Vaccines': 'cargo',
                   'BuildingCost': 'equipment',
                   'FridgeAmort': 'equipment',
-                  'TruckAmort': 'equipment'
+                  'TruckAmort': 'equipment',
+                  'TruckMaint': 'equipment',
+                  'FridgeMaint': 'equipment',
+                  'SolarMaint': 'equipment'
                   }
 
     class PrefixFakeSet(object):
