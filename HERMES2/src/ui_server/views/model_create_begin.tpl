@@ -66,8 +66,6 @@ function updateNetworkDiagram(){
 	             "title": "{{_('Model')}}",
 	        }
 	});
-	
-	$("#tree-layout-diagram").diagram("zoomBy",0.25);
 }
 </script>
 
