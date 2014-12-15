@@ -236,6 +236,7 @@ $(function() {
 	$("#model_sel_widget").hrmWidget({
 		widget:'modelSelector',
 		label:'{{_("Showing building costs for")}}',
+		writeable:true,
 		afterBuild:function(mysel,mydata) {
 			buildPage( mydata.selid );
 		},

@@ -290,6 +290,7 @@ $(function() {
 	$("#model_sel_widget").hrmWidget({
 		widget:'modelSelector',
 		label:'{{_("Showing vaccine costs for")}}',
+		writeable:true,
 		afterBuild:function(mysel,mydata) {
 			buildPage( mydata.selid );
 		},
