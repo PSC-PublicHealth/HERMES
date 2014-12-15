@@ -296,7 +296,7 @@ $(function() {
 		     								<div class="art-content-layout-row">
 		     								
 
-												<div id="wrappage_help_dialog" title="Quick Help">
+												<div id="wrappage_help_dialog" title="Quick Help" class="hrm_quickhelp">
 												<p>{{_("This text will be replaced.")}}
 												</div>
 

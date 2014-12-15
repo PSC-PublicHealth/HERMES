@@ -19,6 +19,12 @@
 	color: #363636/*{fcHighlight}*/;
 }
 
+/* Contents of quick help dialogs */
+div.hrm_quickhelp ul {
+	list-style-type:circle;
+	list-style-position:inside;
+}
+
 /* Tables of centered label-widget pairs */
 table.hrm_centered_pairs {
 	margin-left:auto;

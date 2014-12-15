@@ -1051,7 +1051,10 @@ class CalendarStringScaleDemandModel(TabularCalendarScaleDemandModel):
                (self.demandFname,self.calStr,repr(self.sampler))
 
     def _stringToCalGenerator(self,calString):
-        assert len(re.sub('[01:]', '', calString))==0, \
+        for c in ["'", '"', "'"]:
+            if calString.startswith(c) and calString.endswith(c):
+                calString = calString.strip(c)
+        assert len(re.sub(u'[01:]', '', calString))==0, \
             "Bad characters in calendar string {0}".format(calString)    
         parts = calString.split(':')
         assert len(parts)==3 and len(parts[0])==7 and len(parts[1])==4 and len(parts[2])==12, \
@@ -1126,7 +1129,7 @@ def main(myargv=None):
         d = {'dayspermonth':28,
              'mdvp':False
              }
-        def getValue(self,k): return _mockUserInput.d[k]
+        def getValue(self,k): return main._mockUserInput.d[k]
 
     class _mockSim:
         """

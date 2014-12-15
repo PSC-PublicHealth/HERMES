@@ -295,7 +295,9 @@ function addToggleExpansionButton($grid) {
 					});
 				});
 
-				$.getJSON('{{rootPath}}list/select-model')
+				var wrFlag = false;
+				if (settings.writeable) wrFlag = true;
+				$.getJSON('{{rootPath}}list/select-model',{writeable:wrFlag})
 				.done(function(data) {
     				sel.append(data['menustr']);
     				sel.data('modelName',data['selname']);

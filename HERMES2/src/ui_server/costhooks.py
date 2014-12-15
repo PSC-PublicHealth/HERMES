@@ -424,7 +424,8 @@ def jsonGetFuelPriceInfo(db, uiSession):
             if fuelParamName is None: continue  # this fuel is free
             fuelCurString = '%sCurrency'%fuel
             fuelValueString = '%sValue'%fuel
-            if fuelCurString not in uiSession: uiSession[fuelCurString] = currencyBase
+            if fuelCurString not in uiSession:
+                uiSession[fuelCurString] = currencyBase
             result[fuelCurString] = uiSession[fuelCurString]
             if isinstance(fuelParamName, types.TupleType):
                 fuelAmortName = fuelParamName[1]
@@ -485,8 +486,9 @@ def jsonSetFuelPrice(db, uiSession, fuelName):
                 priceInBaseCurrency = _getCurrencyConverter(db, uiSession, m).convertTo(price, currencyId,
                                                                                         m.getParameterValue('currencybase'))
                 m.addParm(shadow_network.ShdParameter(currencyParamName, priceInBaseCurrency))
+            fuelCurString = '%sCurrency' % fuelName
+            uiSession[fuelCurString] = currencyId
             result = {'success':True, 'price':price, 'id':currencyId}
-        print result
         return result
     except Exception,e:
         _logStacktrace()

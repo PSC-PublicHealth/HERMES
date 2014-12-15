@@ -132,6 +132,7 @@ $(function() {
 	$("#model_sel_widget").hrmWidget({
 		widget:'modelSelector',
 		label:'',
+		writeable:true,
 		afterBuild:function(mysel,mydata) {
 			$("#currency_sel_widget").hrmWidget({
 				widget:'currencySelector',

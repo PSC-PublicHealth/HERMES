@@ -880,6 +880,7 @@ def handleListModel(db,uiSession):
         selectedModelId = int(uiSession['selectedModelId']) # should be int already, but just in case
     else:
         selectedModelId = None
+    writeableOnly = _safeGetReqParam(bottle.request.params, 'writeable', isBool=True)
     mList = db.query(shd.ShdNetwork).filter(shd.ShdNetwork.refOnly != True)
     pairs = [(p.modelId,p.name) for p in mList]
     pairs.sort()
@@ -889,6 +890,8 @@ def handleListModel(db,uiSession):
     for thisId,name in pairs: 
         try:
             prv.mayReadModelId(db, thisId) # Exclude models for which we don't have read access
+            if writeableOnly:
+                prv.mayModifyModelId(db, thisId) # Exclude models for which we don't have read access
             allowedPairs.append((thisId,name))
             if selectedModelId is None:
                 selectedModelId = thisId

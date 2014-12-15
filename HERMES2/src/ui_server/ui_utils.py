@@ -149,11 +149,16 @@ def _safeGetReqParam(reqParam,paramStr,isInt=False,isFloat=False,isTimeUnit=Fals
             if v in ['hour','day','week','month','year']: return v
             else: return myDefault;
         elif isBool:
-            v = int(reqParam[paramStr])
-            if v == 0:
-                return False
+            rP = reqParam[paramStr]
+            if isinstance(rP, types.StringTypes):
+                if rP.lower() in ['t','true']: return True
+                else: return False
             else:
-                return True
+                v = int(rP)
+                if v == 0:
+                    return False
+                else:
+                    return True
         else:
             return reqParam.getunicode(paramStr)
     else:
@@ -168,7 +173,17 @@ def _getOrThrowError(reqParam,paramStr,isInt=False,isBool=False,isFloat=False,is
     if paramStr in reqParam:
         if isInt: return int(reqParam[paramStr])
         elif isFloat: return float(reqParam[paramStr])
-        elif isBool: return (reqParam[paramStr].lower()!='false')
+        elif isBool:
+            rP = reqParam[paramStr]
+            if isinstance(rP, types.StringTypes):
+                if rP.lower() in ['t','true']: return True
+                else: return False
+            else:
+                v = int(rP)
+                if v == 0:
+                    return False
+                else:
+                    return True
         elif isTimeUnit:
             v = reqParam[paramStr]
             if v not in ['hour','day','week','month','year']:

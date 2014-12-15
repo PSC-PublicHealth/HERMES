@@ -105,7 +105,7 @@ function buildPage(modelId) {
 							units = $('#price_'+currentRowName+'_units').currencySelector('selId');
 						$.getJSON( '{{rootPath}}json/set-fuel-price/'+currentRowName, { 
 							modelId:modelId,
-							price:$('#price_'+currentRowName).val(),
+							price:$('#price_'+currentRowName).val().unformatMoney(),
 							id: units
 						 })
 						.done( function(data) {
@@ -132,7 +132,7 @@ function buildPage(modelId) {
 						$.getJSON('{{rootPath}}json/set-fuel-price-currency/'+currentRowName, {
 							modelId:modelId,
 							id:currencyId,
-							price:$('#price_'+currentRowName).val()
+							price:$('#price_'+currentRowName).val().unformatMoney()
 						})
 						.done(function(data) {
 							if ( data.success ) {
@@ -211,6 +211,7 @@ $(function() {
 	$("#model_sel_widget").hrmWidget({
 		widget:'modelSelector',
 		label:'{{_("Showing fuel costs for")}}',
+		writeable:true,
 		afterBuild:function(mysel,mydata) {
 			buildPage( mydata.selid );
 		},
