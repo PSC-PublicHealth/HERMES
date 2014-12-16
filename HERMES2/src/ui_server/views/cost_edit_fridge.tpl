@@ -76,6 +76,24 @@ function nonNegCheck(value) {
 
 function priceCheck(value) { return nonNegCheck(value); }
 
+function updateEditDlgTitle(btnStr, $form, rowid, gridId, prefix) {
+	var $mySpan = $form.parents('.ui-jqdialog').children('.ui-jqdialog-titlebar').children('span');
+	var $g = $('#'+gridId);
+	var ids = $g.jqGrid('getDataIDs');
+	var idx = ids.indexOf(rowid);
+	if (btnStr == 'next') {
+		idx += 1;
+		if (idx > ids.length) idx = 0;
+	}
+	else {
+		// prev
+		idx -= 1;
+		if (idx<0) idx = ids.length - 1;
+	}
+	var newDisplayName = $g.jqGrid('getCell', ids[idx], 'displayname');
+	$mySpan.html(prefix + newDisplayName);
+}
+
 function buildPage(modelId) {
 	updateAllButGrid(modelId);
 	$("#fridge_cost_grid").jqGrid({
@@ -235,14 +253,16 @@ function buildPage(modelId) {
 	                  	savekey:[true,13],
 	                  	afterSubmit:function(response,postData){
 	                  		var data = $.parseJSON(response.responseText);
-	                  		console.log(data);
 	                  		if (data.success) return [true];
 	                  		else return [false,data.msg];
 	                  	},
 	            		beforeShowForm:function($form) {
 	            			var $elt = $form.find('#tr_ongoing').find('td').first();
 	            			$elt.html(units + ' ' + fuel);
-	            		},	                  	
+	            		},
+	            		onclickPgButtons:function( btnStr, $form, rowid) {
+	            			updateEditDlgTitle(btnStr, $form, rowid, 'fridge_cost_grid', '{{_("Edit Cost Information for ")}}');
+	            		}
 					});
 				}
 			});

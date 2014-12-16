@@ -73,6 +73,24 @@ function priceCheck(value) {
 	}
 }
 
+function updateEditDlgTitle(btnStr, $form, rowid, gridId, prefix) {
+	var $mySpan = $form.parents('.ui-jqdialog').children('.ui-jqdialog-titlebar').children('span');
+	var $g = $('#'+gridId);
+	var ids = $g.jqGrid('getDataIDs');
+	var idx = ids.indexOf(rowid);
+	if (btnStr == 'next') {
+		idx += 1;
+		if (idx > ids.length) idx = 0;
+	}
+	else {
+		// prev
+		idx -= 1;
+		if (idx<0) idx = ids.length - 1;
+	}
+	var newDisplayName = $g.jqGrid('getCell', ids[idx], 'displayname');
+	$mySpan.html(prefix + newDisplayName);
+}
+
 function buildPage(modelId) {
 	updateAllButGrid(modelId);
 
@@ -219,7 +237,7 @@ function buildPage(modelId) {
 						closeAfterEdit:true,
 						closeOnEscape:true,
 	                  	jqModal:true,
-	                  	viewPagerButtons:false,
+	                  	viewPagerButtons:true,
 	                  	mType:"POST",
 	                  	modal:true,
 	                  	editData: {
@@ -239,56 +257,12 @@ function buildPage(modelId) {
 	            			var $elt = $form.find('#tr_fuelrate').find('td').first();
 	            			$elt.html(units + ' ' + fuel);
 	            		},
-	                  	
+	            		onclickPgButtons:function( btnStr, $form, rowid) {
+	            			updateEditDlgTitle(btnStr, $form, rowid, 'truck_cost_grid', '{{_("Edit Cost Information for ")}}');
+	            		}
 					});
 				}
 			});
-			/*
-			$(".hermes_info_button").click(function(event) {
-				$.getJSON('{{rootPath}}json/truck-info',{name:unescape($(this).attr('id')), modelId:$('#model_sel_widget').modelSelector('selId')})
-				.done(function(data) {
-					if (data.success) {									
-						$("#truck_info_dialog").html(data['htmlstring']);
-						$("#truck_info_dialog").dialog('option','title',data['title']);
-						$("#truck_info_dialog").dialog("open");
-					}
-					else {
-	    				alert('{{_("Failed: ")}}'+data.msg);
-					}
-					
-				})
-					.fail(function(jqxhr, textStatus, error) {
-						alert("Error: "+jqxhr.responseText);
-				});
-				event.stopPropagation();
-			});
-			*/
-			/*
-			$(".this_edit_button").click(function(event){
-				//var gr = $("#truck_cost_grid").jqGrid('getGridParam','selRow');
-				//console.log(gr);
-				if(true) {
-					console.log("ID :"+ $(this).attr("id"));
-					var devName = $("#truck_cost_grid").jqGrid('getCell',$(this).attr("id"),"displayname");
-					$("#truck_cost_grid").jqGrid('editGridRow',$(this).attr("id"),{
-                  	  closeAfterEdit:true,
-                  	  closeOnEscape:true,
-                  	  jqModal:true,
-                  	  viewPagerButtons:false,
-                  	  mType:"POST",
-                  	  modal:true,
-                  	  editData: {
-        					modelId: function() { 
-        						return $('#model_sel_widget').modelSelector('selId'); 
-        					}
-                  	  },
-                  	  editCaption:"Edit Cost Information for " + devName,
-                  	  savekey:[true,13]             
-					});
-				}
-				else alert("Please Slect Row");
-			});
-			*/
 		},
 		loadError: function(xhr,status,error){
 	    	alert('{{_("Error: ")}}'+status);
@@ -299,12 +273,6 @@ function buildPage(modelId) {
 			}
 		},
 		grouping:false,
-//		groupingView:{
-//			groupField:['category'],
-//			groupDataSorted:true,
-//			groupText:['<b>{0} - {1} '+"{{_('Item(s)')}}"+'</b>'],
-//			groupColumnShow:[false]
-//		},
 	    caption:"{{_("Vehicle Costs")}}"
 	})
 	.jqGrid('navGrid','#truck_cost_pager',

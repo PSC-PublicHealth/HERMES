@@ -69,6 +69,24 @@ function priceCheck(value) {
 	}
 }
 
+function updateEditDlgTitle(btnStr, $form, rowid, gridId, prefix) {
+	var $mySpan = $form.parents('.ui-jqdialog').children('.ui-jqdialog-titlebar').children('span');
+	var $g = $('#'+gridId);
+	var ids = $g.jqGrid('getDataIDs');
+	var idx = ids.indexOf(rowid);
+	if (btnStr == 'next') {
+		idx += 1;
+		if (idx > ids.length) idx = 0;
+	}
+	else {
+		// prev
+		idx -= 1;
+		if (idx<0) idx = ids.length - 1;
+	}
+	var newDisplayName = $g.jqGrid('getCell', ids[idx], 'displayname');
+	$mySpan.html(prefix + newDisplayName);
+}
+
 function buildPage(modelId) {
 	updateAllButGrid(modelId);
 
@@ -195,7 +213,7 @@ function buildPage(modelId) {
 						closeAfterEdit:true,
 						closeOnEscape:true,
 	                  	jqModal:true,
-	                  	viewPagerButtons:false,
+	                  	viewPagerButtons:true,
 	                  	mType:"POST",
 	                  	modal:true,
 	                  	editData: {
@@ -211,6 +229,9 @@ function buildPage(modelId) {
 	                  		if (data.success) return [true];
 	                  		else return [false,data.msg];
 	                  	},
+	            		onclickPgButtons:function( btnStr, $form, rowid) {
+	            			updateEditDlgTitle(btnStr, $form, rowid, 'staff_cost_grid', '{{_("Edit Salary Information for ")}}');
+	            		}
 					});
 				}
 			});
