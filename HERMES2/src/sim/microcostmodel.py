@@ -899,18 +899,21 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
             if not self._verifyRoute(route, net):
                 probSet.add("Route %s has missing costing entries" % routeName)
             pDTName = route.PerDiemType
-            pDT = net.perdiems[pDTName]
-            if pDTName in alreadyChecked:
-                continue
+            if pDTName is None or pDTName == u'':
+                probSet.add("Route %s has no PerDiem policy" % routeName)
             else:
-                alreadyChecked.add(pDTName)
-                if not self._verifyPerDiem(pDT):
-                    probSet.add("PerDiem type %s has missing costing entries" % pDTName)
-                if not self._verifyCostConversion(pDT.BaseAmountCurCode,
-                                                  pDT.BaseAmountYear):
-                    probSet.add("No currency conversion value is available for the"
-                                " currency %s in %s" % (pDT.BaseAmountCurCode,
-                                                        pDT.BaseAmountYear))
+                pDT = net.perdiems[pDTName]
+                if pDTName in alreadyChecked:
+                    continue
+                else:
+                    alreadyChecked.add(pDTName)
+                    if not self._verifyPerDiem(pDT):
+                        probSet.add("PerDiem type %s has missing costing entries" % pDTName)
+                    if not self._verifyCostConversion(pDT.BaseAmountCurCode,
+                                                      pDT.BaseAmountYear):
+                        probSet.add("No currency conversion value is available for the"
+                                    " currency %s in %s" % (pDT.BaseAmountCurCode,
+                                                            pDT.BaseAmountYear))
 
         for v in [net.vaccines[dmnd.vaccineStr]
                   for dmnd in (net.unifiedDemands

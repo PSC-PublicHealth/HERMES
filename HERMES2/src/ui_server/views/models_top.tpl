@@ -11,7 +11,7 @@
 %    [ 'upload', _('Upload'), False, False, 'uploadModel' ],
 %    [ 'delete', _('Delete'), True, True, 'deleteModel' ],
 %    [ 'parameters', _('Parameters'), True, False, 'editParams' ],
-%    [ 'types', _('types'), True, False, 'addTypes' ],
+%    [ 'types', _('Types'), True, False, 'addTypes' ],
 %    [ 'run', _('Run'), True, False, 'runHermes' ],
 %    [ 'results', _('Results'), False, False, 'showResults' ],
 % ]

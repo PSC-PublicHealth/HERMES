@@ -183,6 +183,8 @@ $(function() {
 	    	}
 		}
 	});
+
+	{{!setupToolTips()}}
 });
 
 

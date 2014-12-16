@@ -281,6 +281,7 @@ function addToggleExpansionButton($grid) {
  				$elem.html('<label>'+settings['label']+'</label>');
  				var sel = $(document.createElement("select"));
  				$elem.append(sel);
+ 				$(sel).addClass('hrm_widget_modelSelector');
  				var myThis = this;
 				sel.change( function(evt) {
 					$.getJSON('{{rootPath}}json/set-selected-model', {id:sel.val()})
@@ -304,6 +305,7 @@ function addToggleExpansionButton($grid) {
     				if ('afterBuild' in settings && settings.afterBuild != null) {
     					settings.afterBuild.bind($elem)(sel,data);
     				}
+					if ($(document).tooltips) $(document).tooltips('applyTips');
     			})
   				.fail(function(jqxhr, textStatus, error) {
   					alert("Error: "+jqxhr.responseText);
@@ -543,6 +545,7 @@ function addToggleExpansionButton($grid) {
     				if ('afterBuild' in settings  && settings.afterBuild != null) {
     					settings.afterBuild.bind($btn.parent())($btn);
     				}
+					if ($(document).tooltips) $(document).tooltips('applyTips');
 				}
 				else if (arg=='save') {
 					$btn.data('prev_value', $btn.data('code'));
@@ -561,6 +564,7 @@ function addToggleExpansionButton($grid) {
  				var $elem = $(elem);
  				$elem.html('<label>'+settings['label'].htmlEscape()+'</label>');
 				var $btn = $(document.createElement('button'));
+ 				$btn.addClass('hrm_widget_currencySelector');
 				var selected;
 				if (settings.selected) {
 					if (settings.selected instanceof Function)
@@ -654,6 +658,7 @@ function addToggleExpansionButton($grid) {
     					if ('afterBuild' in settings  && settings.afterBuild != null) {
     						settings.afterBuild.bind(sel.parent())(sel,data);
     					}
+    					if ($(document).tooltips) $(document).tooltips('applyTips');
     				})
   					.fail(function(jqxhr, textStatus, error) {
   						alert("Error: "+jqxhr.responseText);
@@ -733,6 +738,7 @@ function addToggleExpansionButton($grid) {
     					if ('afterBuild' in settings  && settings.afterBuild != null) {
     						settings.afterBuild.bind(sel.parent())(sel,data);
     					}
+    					if ($(document).tooltips) $(document).tooltips('applyTips');
     				})
   					.fail(function(jqxhr, textStatus, error) {
   						alert("Error: "+jqxhr.responseText);
@@ -751,6 +757,18 @@ function addToggleExpansionButton($grid) {
  				$elem.html('<label>'+settings['label']+'</label>');
  				var sel = $(document.createElement("select"));
  				$elem.append(sel);
+ 				var invTpStr = null;
+ 				if (settings.invtype) {
+ 					if (settings.invtype instanceof Function) {
+ 						$(sel).addClass("hrm_widget_typeSelector_"+settings.invtype.bind($(sel))(sel));
+ 					}
+ 					else {
+ 	 					$(sel).addClass("hrm_widget_typeSelector_"+settings.invtype);
+ 					}
+ 				}
+ 				else {
+ 					$(sel).addClass("hrm_widget_typeSelector"); 					
+ 				}
  				var myThis = this;
 				sel.change( function(evt) {
 					if ('onChange' in settings && settings.onChange != null) {
@@ -794,6 +812,7 @@ function addToggleExpansionButton($grid) {
     					if ('afterBuild' in settings && settings.afterBuild != null) {
     						settings.afterBuild.bind(sel.parent())(sel,data);
     					}
+    					if ($(document).tooltips) $(document).tooltips('applyTips');
     				})
   					.fail(function(jqxhr, textStatus, error) {
   						alert("Error: "+jqxhr.responseText);
@@ -963,7 +982,7 @@ function addToggleExpansionButton($grid) {
     			if ('afterBuild' in settings && settings.afterBuild != null) {
     				settings.afterBuild.bind($elem)($tbl);
     			};
-
+				if ($(document).tooltips) $(document).tooltips('applyTips');
  			});
  		}
  		else if (settings['widget']=='floatTextBox') {
@@ -1001,6 +1020,7 @@ function addToggleExpansionButton($grid) {
     			if ('afterBuild' in settings && settings.afterBuild != null) {
     				settings.afterBuild.bind($elem)($elem);
     			};
+				if ($(document).tooltips) $(document).tooltips('applyTips');
  			});
  		}
  		else if (settings['widget']=='tooltips') {
@@ -1130,6 +1150,7 @@ function addToggleExpansionButton($grid) {
 	    			if ('afterBuild' in settings && settings.afterBuild != null) {
 	 	    			settings.afterBuild.bind($elem)($elem);
 	 	    		};
+					if ($(document).tooltips) $(document).tooltips('applyTips');
  				})
 
  			});
@@ -1171,6 +1192,7 @@ function addToggleExpansionButton($grid) {
  						$elem.find("."+cl).prop("disabled",true);
  				}
  				$elem.data('map',map);
+				if ($(document).tooltips) $(document).tooltips('applyTips');
  			});
  		}
  		else {

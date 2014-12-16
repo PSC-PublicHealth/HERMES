@@ -159,12 +159,12 @@ def jsonSetCostInflationPercent(db, uiSession):
 
 @bottle.route('/json/set-cost-storage-maint-percent')
 def jsonSetCostStorageMaintPercent(db, uiSession):
-    return setModelParamPercent(db, uiSession, 'storage-maint', 'storagemaintcostfraction')
+    return setModelParamPercent(db, uiSession, 'storage_maint', 'storagemaintcostfraction')
 
 
 @bottle.route('/json/set-cost-vehicle-maint-percent')
 def jsonSetCostVehicleMaintPercent(db, uiSession):
-    return setModelParamPercent(db, uiSession, 'vehicle-maint', 'vehiclemaintcostfraction')
+    return setModelParamPercent(db, uiSession, 'vehicle_maint', 'vehiclemaintcostfraction')
 
 
 @bottle.route('/json/get-currency-info')
