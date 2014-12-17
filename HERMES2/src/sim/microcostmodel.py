@@ -116,9 +116,10 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
             try:
                 tp = self.sim.typeManager.getTypeByName(tpName)
                 if isinstance(tp, vaccinetypes.VaccineType):
-                    baseCost = tp.recDict['Vaccine price/vial']
-                    baseCostCurCode = tp.recDict['Price Units']
-                    baseCostYear = tp.recDict['Price Year']
+                    if self.sim.userInput['vaccinecostsincluded']:
+                        baseCost = tp.recDict['Vaccine price/vial']
+                        baseCostCurCode = tp.recDict['Price Units']
+                        baseCostYear = tp.recDict['Price Year']
                 elif (isinstance(tp, fridgetypes.FridgeType)
                       or isinstance(tp, trucktypes.TruckType)):
                     baseCost = tp.recDict['BaseCost']
@@ -915,21 +916,23 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
                                     " currency %s in %s" % (pDT.BaseAmountCurCode,
                                                             pDT.BaseAmountYear))
 
-        for v in [net.vaccines[dmnd.vaccineStr]
-                  for dmnd in (net.unifiedDemands
-                               + net.shippingDemands
-                               + net.consumptionDemands)
-                  if dmnd.vaccineStr in net.vaccines]:
-            if v.Name in alreadyChecked:
-                continue
-            else:
-                alreadyChecked.add(v.Name)
-            if not self._verifyVaccine(v):
-                probSet.add("Vaccine type %s has missing costing entries" %
-                            v.Name)
-            if not self._verifyCostConversion(v.priceUnits, v.priceBaseYear):
-                probSet.add("No currency conversion value is available for the currency %s in %s" %
-                            (v.priceUnits, v.priceBaseYear))
+        if net.getParameterValue('vaccinecostsincluded'):
+            for v in [net.vaccines[dmnd.vaccineStr]
+                      for dmnd in (net.unifiedDemands
+                                   + net.shippingDemands
+                                   + net.consumptionDemands)
+                      if dmnd.vaccineStr in net.vaccines]:
+                if v.Name in alreadyChecked:
+                    continue
+                else:
+                    alreadyChecked.add(v.Name)
+                if not self._verifyVaccine(v):
+                    probSet.add("Vaccine type %s has missing costing entries" %
+                                v.Name)
+                if not self._verifyCostConversion(v.priceUnits, v.priceBaseYear):
+                    probSet.add("No currency conversion value is available for the"
+                                " currency %s in %s" %
+                                (v.priceUnits, v.priceBaseYear))
         print '##### Done checking'
 
         return list(probSet)

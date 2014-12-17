@@ -179,7 +179,8 @@ def jsonGetCurrencyInfo(db, uiSession):
         storagemaint = int(round(100*m.getParameterValue('storagemaintcostfraction')))
         truckmaint = int(round(100*m.getParameterValue('vehiclemaintcostfraction')))
         microCostingEnabled = (m.getParameterValue('costmodel') == 'micro1')
-            
+        vaccineCostsEnabled = m.getParameterValue('vaccinecostsincluded')
+
         result = {'success': True,
                   'baseCurrencyId': baseCurrencyId,
                   'baseYear': currencyBaseYear,
@@ -187,6 +188,7 @@ def jsonGetCurrencyInfo(db, uiSession):
                   'storage_maint': storagemaint,
                   'vehicle_maint': truckmaint,
                   'microCostingEnabled': microCostingEnabled,
+                  'vaccineCostsEnabled': vaccineCostsEnabled,
                   'fuelLabel': getFuelButtonLabel(db, uiSession, m),
                   'truckLabel': getTruckButtonLabel(db, uiSession, m),
                   'fridgeLabel': getFridgeButtonLabel(db, uiSession, m),
@@ -198,7 +200,8 @@ def jsonGetCurrencyInfo(db, uiSession):
         return result
     except Exception, e:
         _logStacktrace()
-        return {"success": False, "msg": str(e)} 
+        return {"success": False, "msg": str(e)}
+
 
 @bottle.route('/json/get-default-currency')
 def jsonGetDefaultCurrency(db, uiSession):
@@ -207,7 +210,7 @@ def jsonGetDefaultCurrency(db, uiSession):
         uiSession.getPrivs().mayReadModelId(db, modelId)
         if 'defaultCurrencyId' in uiSession:
             currencyId = uiSession['defaultCurrencyId']
-            result = { 'id':currencyId, 
+            result = {'id':currencyId,
                       'name':currencyhelper.getCurrencyDict(db,modelId)[currencyId],
                       'success':True }
         else:
@@ -223,7 +226,7 @@ def jsonSetMicroCostingEnabled(db, uiSession):
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayWriteModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-        enableFlag = _getOrThrowError(bottle.request.params, 'enabled', isBool=True)
+        enableFlag = _getOrThrowError(bottle.request.params, 'microCostingEnabled', isBool=True)
         if enableFlag:
             m.addParm(shadow_network.ShdParameter('costmodel','micro1'))
         else:
@@ -234,7 +237,27 @@ def jsonSetMicroCostingEnabled(db, uiSession):
     except Exception,e:
         _logStacktrace()
         return {"success":False, "msg":str(e)} 
-    
+
+
+@bottle.route('/json/set-vaccine-costs-included')
+def jsonSetVaccineCostsIncluded(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        uiSession.getPrivs().mayWriteModelId(db, modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        enableFlag = _getOrThrowError(bottle.request.params, 'vaccineCostsIncluded', isBool=True)
+        if enableFlag:
+            m.addParm(shadow_network.ShdParameter('vaccinecostsincluded', True))
+        else:
+            m.addParm(shadow_network.ShdParameter('vaccinecostsincluded', False))
+        return {'success': True,
+                'vaccineCostsIncluded': m.getParameterValue('vaccinecostsincluded')
+                }
+    except Exception, e:
+        _logStacktrace()
+        return {"success": False, "msg": str(e)}
+
+
 @bottle.route('/json/cost-check-completeness')
 def jsonCostCheckCompleteness(db, uiSession):
     try:

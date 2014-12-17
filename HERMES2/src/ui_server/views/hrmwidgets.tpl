@@ -677,6 +677,7 @@ function addToggleExpansionButton($grid) {
  				$elem.html('<label>'+settings['label']+'</label>');
  				var sel = $(document.createElement("select"));
  				sel.data('requested',false);
+				$(sel).addClass("hrm_widget_energySelector"); 					
  				$elem.append(sel);
  				var myThis = this;
 				sel.change( function(evt) {
@@ -831,6 +832,7 @@ function addToggleExpansionButton($grid) {
  				$elem.html('<label>'+settings['label']+'</label>');
  				var sel = $(document.createElement("select"));
  				$elem.append(sel);
+				$(sel).addClass("hrm_widget_routeTypeSelector"); 					
  				var myThis = this;
 				sel.change( function(evt) {
 					if ('onChange' in settings && settings.onChange != null) {
@@ -1063,6 +1065,9 @@ function addToggleExpansionButton($grid) {
  						}
  						else if (tj.is(':checkbox')) {
  							dict[tj.attr('id')] = tj.is(':checked')
+ 						}
+ 						else if (tj.is('select')) {
+ 	 						dict[tj.attr('id')] = tj.val(); 							
  						}
  						else {
  	 						dict[tj.attr('id')] = tj.val();

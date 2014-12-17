@@ -72,10 +72,11 @@ $(function() {
 		},
 	});
 	
-	function loadForm() {
+	function loadForm(tpName) {
+		var typeName = tpName;
+		if (!typeName) typeName = $('#type_sel_div').typeSelector('selValue');
 		$('#edit_form_div').empty();
 		var modelId = $('#model_sel_widget').modelSelector('selId');
-		var typeName = $('#type_sel_div').typeSelector('selValue');
 		$.getJSON('json/type-edit-form',{
 			typename:typeName, 
 			modelId:modelId
@@ -152,7 +153,7 @@ $(function() {
 							})
 							.done(function(data) {
 								if (data.success) {
-									loadForm();
+									loadForm(newNm);
 								}
 								else {
 									alert('{{_("Failed: ")}}'+data.msg);								

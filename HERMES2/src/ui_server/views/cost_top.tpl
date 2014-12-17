@@ -53,9 +53,6 @@
 					<td>{{_("Vehicles")}}</td><td><button id="cost_truck_btn">{{_("Start")}}</button></td>
 				</tr>
 				<tr>
-					<td>{{_("Vaccines")}}</td><td><button id="cost_vaccine_btn">{{_("Start")}}</button></td>
-				</tr>
-				<tr>
 					<td>{{_("Salaries")}}</td><td><button id="cost_salary_btn">{{_("Start")}}</button></td>
 				</tr>
 				<tr>
@@ -63,6 +60,17 @@
 				</tr>
 				<tr>
 					<td>{{_("Buildings")}}</td><td><button id="cost_building_btn">{{_("Start")}}</button></td>
+				</tr>
+				<tr>
+					<td>
+						<label for='calc_vaccine_costs_cbx'>{{_("Calculate vaccine costs?")}}</label>
+					</td>
+					<td>
+						<input type='checkbox' id='calc_vaccine_costs_cbx'>
+					</td>
+				</tr>
+				<tr>
+					<td>{{_("Vaccines")}}</td><td><button id="cost_vaccine_btn">{{_("Start")}}</button></td>
 				</tr>
 			</table>
 		</td>
@@ -105,6 +113,7 @@ function buildPage() {
 		if (data.success) {
 			$("#currency_sel_widget").currencySelector('selId',data.baseCurrencyId);
 			$('#microcosting_enable_cbx').prop('checked', data.microCostingEnabled);
+			$('#calc_vaccine_costs_cbx').prop('checked', data.vaccineCostsEnabled);
 			for ( var i = 0; i<scalarFields.length; i++) {
 				var fieldId = scalarFields[i][0];
 				var fieldUrl = scalarFields[i][1];
@@ -252,24 +261,37 @@ $(function() {
 		});		
 	})
 	
-	$('#microcosting_enable_cbx').change( function(evt){
-		$.getJSON('{{rootPath}}json/set-microcosting-enabled',
-				{modelId:$('#model_sel_widget').modelSelector('selId'),
-				 enabled:$(this).prop('checked')
-		})
-		.done(function(data){
-			if (data.success) {
-				$('#microcosting_enable_cbx').prop('checked', data.microCostingEnabled);			
-			}
-			else {
-    			alert('{{_("Failed: ")}}'+data.msg);				
-			}
-		})
-		.fail(function(jqxhr, textStatus, error) {
-    		alert('{{_("Error: ")}}'+jqxhr.responseText);
-		});		
-	})
-		
+	function setterBoolOnChange(cbxId, url, key) {
+		return function(evt) {
+			var args = {modelId:$('#model_sel_widget').modelSelector('selId')};
+			args[key] = $(this).prop('checked');
+			$.getJSON(url, args)
+			.done(function(data){
+				if (data.success) {
+					$('#'+cbxId).prop('checked', data[key]);			
+				}
+				else {
+	    			alert('{{_("Failed: ")}}'+data.msg);				
+				}
+			})
+			.fail(function(jqxhr, textStatus, error) {
+	    		alert('{{_("Error: ")}}'+jqxhr.responseText);
+			});					
+		};
+	}
+	
+	$('#microcosting_enable_cbx').change( 
+			setterBoolOnChange('microcosting_enable_cbx',
+					'{{rootPath}}json/set-microcosting-enabled',
+					'microCostingEnabled'));
+
+	$('#calc_vaccine_costs_cbx').change( 
+			setterBoolOnChange('calc_vaccine_costs_cbx',
+					'{{rootPath}}json/set-vaccine-costs-included',
+					'vaccineCostsIncluded'));
+
+
+	
 });
 
 } // end local scope

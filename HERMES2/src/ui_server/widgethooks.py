@@ -224,7 +224,7 @@ def jsonStoreEditManageTable(db, uiSession):
         elif invtype=='fridges':
             for s in [store]+attachedClinics:
                 for thing in s.inventory:
-                    if thing.invType.shdType=='fridges' and thing.count>0:
+                    if thing.invType and thing.invType.shdType=='fridges' and thing.count>0:
                         if thing.invName in tDictDict:
                             d = tDictDict[thing.invName]
                             d['count'] += s.countInventory(thing)
@@ -269,7 +269,7 @@ def jsonStoreEditManageTable(db, uiSession):
         elif invtype=='trucks':
             for s in [store]+attachedClinics:
                 for thing in s.inventory:
-                    if thing.invType.shdType=='trucks' and thing.count>0:
+                    if thing.invType and thing.invType.shdType=='trucks' and thing.count>0:
                         if thing.invName in tDictDict:
                             d = tDictDict[thing.invName]
                             d['count'] += s.countInventory(thing)
@@ -309,7 +309,7 @@ def jsonStoreEditManageTable(db, uiSession):
         elif invtype=='vaccines':
             for s in [store]+attachedClinics:
                 for thing in s.inventory:
-                    if thing.invType.shdType=='vaccines' and thing.count>0:
+                    if thing.invType and thing.invType.shdType=='vaccines' and thing.count>0:
                         if thing.invName in tDictDict:
                             d = tDictDict[thing.invName]
                             d['count'] += s.countInventory(thing)
@@ -347,7 +347,7 @@ def jsonStoreEditManageTable(db, uiSession):
         elif invtype=='people':
             for s in [store]+attachedClinics:
                 for thing in s.demand:
-                    if thing.invType.shdType=='people' and thing.count>0:
+                    if thing.invType and thing.invType.shdType=='people' and thing.count>0:
                         if thing.invName in tDictDict:
                             tDictDict[thing.invName]['count'] += s.countDemand(thing)
                         else:
@@ -379,7 +379,7 @@ def jsonStoreEditManageTable(db, uiSession):
         elif invtype=='staff':
             for s in [store]+attachedClinics:
                 for thing in s.inventory:
-                    if thing.invType.shdType=='staff' and thing.count>0:
+                    if thing.invType and thing.invType.shdType=='staff' and thing.count>0:
                         if thing.invName in tDictDict:
                             d = tDictDict[thing.invName]
                             d['count'] += s.countInventory(thing)
@@ -521,31 +521,27 @@ def handleListType(db, uiSession):
             typestring = None
         typeList = typehelper.getTypeList(db, modelId, invtype, fallback=False)
         sio = StringIO()
-        if len(typeList) > 0:
-            for t in typeList:
+        for t in typeList:
 
-                if escapeFlag:
-                    eName = urllib.quote(t['Name'].encode('utf8'))
-                else:
-                    eName = t['Name']
+            if escapeFlag:
+                eName = urllib.quote(t['Name'].encode('utf8'))
+            else:
+                eName = t['Name']
 
-                if typestring and typestring == t['Name']:
-                    sio.write("  <option value='%s' selected >%s</option>\n" % (eName,
-                                                                                t['Name']))
-                else:
-                    sio.write("  <option value='%s'>%s</option>\n" % (eName, t['Name']))
+            if typestring and typestring == t['Name']:
+                sio.write("  <option value='%s' selected >%s</option>\n" % (eName,
+                                                                            t['Name']))
+            else:
+                sio.write("  <option value='%s'>%s</option>\n" % (eName, t['Name']))
 
-            return {"success": True,
-                    "menustr": sio.getvalue(),
-                    "selected": (typestring if typestring is not None else typeList[0])
-                    }
+        if typeList:
+            defaultSelected = typeList[0]
         else:
-            sio.write("  <option value='noneavailable' disabled>%s</option>\n" %
-                      _("None Available"))
-            return {"success": True,
-                    "menustr": sio.getvalue(),
-                    "selected": ""
-                    }
+            defaultSelected = None
+        return {"success": True,
+                "menustr": sio.getvalue(),
+                "selected": (typestring if typestring is not None else defaultSelected)
+                }
 
     except Exception, e:
         _logMessage(str(e))
