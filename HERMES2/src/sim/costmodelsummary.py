@@ -274,7 +274,7 @@ class Micro1CostModelHierarchicalSummary(CostModelHierarchicalSummary):
 
     def dict(self, fmt=None):
         """
-        Return a tree of costs.  'fmt' must be None, 'mixed', or a string between 1 and 3
+        Return a tree of costs.  'fmt' must be None, 'mixed', or a string between 1 and 4
         characters long containing up to two 'c' characters and up to two 'l' characters.
         The rightmost 'c' if present denotes cost item name; the next left 'c' if present
         denotes cost item category.  The rightmost 'l' if present denotes location; the
