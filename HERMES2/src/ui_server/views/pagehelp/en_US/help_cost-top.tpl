@@ -32,4 +32,8 @@ and power.
 <li>The other <b>Cost Components</b> buttons lead to screens where costs associated with specific aspects of the model can
 be specified.  As each section is completed its label will change from 'Begin' to 'Continue', and then finally to 'Revisit'
 when all necessary information has been specified.
+
+<li>Vaccine purchase costs are normally excluded from cost calculations, but they can be included by selecting the 
+<b>Calculate vaccine costs?</b> checkbox.  If this option is set, the model will need to have complete costing information
+		for its vaccines.
 </ul>
