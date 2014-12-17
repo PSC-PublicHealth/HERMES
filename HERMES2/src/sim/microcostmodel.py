@@ -120,6 +120,8 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                         baseCost = tp.recDict['Vaccine price/vial']
                         baseCostCurCode = tp.recDict['Price Units']
                         baseCostYear = tp.recDict['Price Year']
+                    else:
+                        continue
                 elif (isinstance(tp, fridgetypes.FridgeType)
                       or isinstance(tp, trucktypes.TruckType)):
                     baseCost = tp.recDict['BaseCost']

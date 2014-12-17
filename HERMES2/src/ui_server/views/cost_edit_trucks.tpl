@@ -234,7 +234,7 @@ function buildPage(modelId) {
 					var units = $("#truck_cost_grid").jqGrid('getCell',id,"fuelrateunits");
 					var fuel = $("#truck_cost_grid").jqGrid('getCell',id,"fuel");
 					$("#truck_cost_grid").jqGrid('editGridRow',id,{
-						closeAfterEdit:true,
+						closeAfterEdit:false,
 						closeOnEscape:true,
 	                  	jqModal:true,
 	                  	viewPagerButtons:true,

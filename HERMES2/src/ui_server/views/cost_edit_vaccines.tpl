@@ -200,7 +200,7 @@ function buildPage(modelId) {
 					console.log("ID :"+id);
 					var devName = $("#vaccine_cost_grid").jqGrid('getCell',id,"displayname");
 					$("#vaccine_cost_grid").jqGrid('editGridRow',id,{
-						closeAfterEdit:true,
+						closeAfterEdit:false,
 						closeOnEscape:true,
 	                  	jqModal:true,
 	                  	viewPagerButtons:true,

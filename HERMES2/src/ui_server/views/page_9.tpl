@@ -13,7 +13,7 @@
 </tr>
 </table>
 
-<button id="testbutton">{{_('Do it!')}}</button>
+<button id="testbutton2">{{_('Do it!')}}</button>
 
 <div id='test_route_edit_div'></div>
 <script>
@@ -36,9 +36,10 @@ $(function() {
 
 $(function() {
 	$('#test_route_edit_div').data('kidcount',0);
-	var btn = $("#testbutton");
+	var btn = $("#testbutton2");
 	btn.button();
-	btn.click( function() {
+	
+	btn.click( function(evt) {
 		var count = $('#test_route_edit_div').data('kidcount');
 		count += 1;
 		$('#test_route_edit_div').data('kidcount',count);

@@ -242,7 +242,7 @@ function buildPage(modelId) {
 					var id = unescape($(this).parent().attr("id"));
 					var devName = $("#perdiem_cost_grid").jqGrid('getCell',id,"displayname");
 					$("#perdiem_cost_grid").jqGrid('editGridRow',id,{
-						closeAfterEdit:true,
+						closeAfterEdit:false,
 						closeOnEscape:true,
 	                  	jqModal:true,
 	                  	viewPagerButtons:true,
@@ -389,7 +389,7 @@ function buildPage(modelId) {
 					var id = unescape($(this).parent().attr("id"));
 					var routeName = $("#route_perdiem_grid").jqGrid('getCell',id,"routename");
 					$("#route_perdiem_grid").jqGrid('editGridRow',id,{
-						closeAfterEdit:true,
+						closeAfterEdit:false,
 						closeOnEscape:true,
 	                  	jqModal:true,
 	                  	viewPagerButtons:true,

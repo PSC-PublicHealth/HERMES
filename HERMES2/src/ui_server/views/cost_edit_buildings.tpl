@@ -195,7 +195,7 @@ function buildPage(modelId) {
 					var id = unescape($(this).parent().attr("id"));
 					var storeName = $("#store_cost_grid").jqGrid('getCell',id,"name");
 					$("#store_cost_grid").jqGrid('editGridRow',id,{
-						closeAfterEdit:true,
+						closeAfterEdit:false,
 						closeOnEscape:true,
 	                  	jqModal:true,
 	                  	viewPagerButtons:true,

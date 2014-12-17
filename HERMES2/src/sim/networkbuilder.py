@@ -787,7 +787,8 @@ def buildNetwork(storeKeys, storeRecList,
     def _wrapWFR(wFR):
         def wrappedFun(subSim, subRec, **kwargs):
             result = wFR(subSim, subRec, **kwargs)
-            result.recDict = subRec.copy()
+            if result is not None:
+                result.recDict = subRec.copy()
             return result
         return wrappedFun
     warehouseFromRec = _wrapWFR(warehouseFromRec)
@@ -972,7 +973,7 @@ The use of implied links is DEPRECATED and unreliable, and will not be supported
             else:
                 # Something is downstream, so this must be a Warehouse.
                 expectedType= warehouse.Warehouse
-    
+
             if idcode in storeDict:
                 wh= storeDict[idcode]
                 assert wh is None or isinstance(wh,expectedType), \
@@ -1001,12 +1002,12 @@ The use of implied links is DEPRECATED and unreliable, and will not be supported
         km = startRec.safeGetFloat('DistanceKM',None)
         for routeStopRec in [csv_tools.CSVDict(r) for r in l[1:]]:
             wh = storeDict[long(routeStopRec['idcode'])]
-            if km is not None:
+            if km is not None and wh is not None and lastWh is not None:
                 sim.geo.setKmBetween( lastWh, wh, km, lastWh.category, conditions )
             conditions = _conditionsFromRec(routeStopRec)
             km = routeStopRec.safeGetFloat('DistanceKM',None)
             lastWh = wh
-        if km is not None:
+        if km is not None and lastWh is not None and startWh is not None:
             sim.geo.setKmBetween( lastWh, startWh, km, lastWh.category, conditions )
 
         # All the nodes in this route are now guaranteed to exist

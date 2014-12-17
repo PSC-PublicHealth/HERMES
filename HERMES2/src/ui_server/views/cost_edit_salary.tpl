@@ -210,7 +210,7 @@ function buildPage(modelId) {
 					var id = unescape($(this).parent().attr("id"));
 					var devName = $("#staff_cost_grid").jqGrid('getCell',id,"displayname");
 					$("#staff_cost_grid").jqGrid('editGridRow',id,{
-						closeAfterEdit:true,
+						closeAfterEdit:false,
 						closeOnEscape:true,
 	                  	jqModal:true,
 	                  	viewPagerButtons:true,
