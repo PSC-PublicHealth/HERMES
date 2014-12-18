@@ -329,5 +329,5 @@ class Micro1CostModelHierarchicalSummary(CostModelHierarchicalSummary):
                                                           kidDicts)}
                 self._rekeySubTree(treeD, lvlList[-1], 'name')
                 self._cleanSubTree(treeD)
-                self._printSubTree(treeD)
+                # self._printSubTree(treeD)
                 return treeD
