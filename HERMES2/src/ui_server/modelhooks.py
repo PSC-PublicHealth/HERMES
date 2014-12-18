@@ -306,14 +306,18 @@ def _createModel(db,uiSession):
     shdNetwork.addParm(shd.ShdParameter('model','model_generic'))
     shdNetwork.addParm(shd.ShdParameter('demandfile','demand_from_db'))
 
-    # All models have a copy of the OUTDOORS fridge type
+    # All models have copies of a few standard types from AllTypesModel
     aM = typehelper._getAllTypesModel(db)
-    attrRec = {'_inmodel':False, 'modelId':aM.modelId}
-    shd._copyAttrsToRec(attrRec, aM.fridges['OUTDOORS'])
-    newFridge = shd.ShdStorageType(attrRec.copy()) 
-    db.add(newFridge)
-    shdNetwork.types[attrRec['Name']] = newFridge
-    
+    for tpName, tp in [(u'OUTDOORS', shd.ShdStorageType),
+                       (u'Std_PerDiem_None', shd.ShdPerDiemType),
+                       (u'Std_WarehouseStaff', shd.ShdStaffType),
+                       (u'Std_Driver', shd.ShdStaffType)]:
+        attrRec = {'_inmodel': False, 'modelId': aM.modelId}
+        shd._copyAttrsToRec(attrRec, aM.types[tpName])
+        newTp = tp(attrRec.copy())
+        db.add(newTp)
+        shdNetwork.types[tpName] = newTp
+
     # All models need a copy of the currencyConversion table- grab it from the AllTypesModel
     shdNetwork.addCurrencyTable( aM.getCurrencyTableRecs()[1] )
     
@@ -501,7 +505,7 @@ def _copyStoreProvisions(fromStore, toStore):
 def _copyRouteProvisions(fromRoute, toRoute, backwards=False):
     if fromRoute==toRoute: return
     assert len(fromRoute.stops)==len(toRoute.stops), _("Route {0} has the wrong number of stops for provisioning").format(toRoute.RouteName)
-    for key in ['TruckType','ShipIntervalDays','ShipLatencyDays','Conditions']:
+    for key in ['TruckType','ShipIntervalDays','ShipLatencyDays','Conditions','PerDiemType']:
         setattr(toRoute, key, getattr(fromRoute, key))
     updateDBRouteType(toRoute, fromRoute.Type)
     if backwards:
@@ -1407,7 +1411,7 @@ def jsonTypeCheckTypeDependencies(db, uiSession):
         return { 'success':False, 'msg':str(e)}
 
 @bottle.route('/json/remove-type-from-model')
-def jsonRemoveTypeFromModel(db, uiSession):
+def jsonRemoveTypeFromModelV2(db, uiSession):
     modelId = int(bottle.request.params['modelId'])
     typeName = bottle.request.params['name']
     try:
