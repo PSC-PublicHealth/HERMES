@@ -799,7 +799,7 @@ def jsonManageTruckCostTable(db, uiSession):
                             "currency": t['BaseCostCur'],
                             "basecostyear": t['BaseCostYear'],
                             "fuelrate": t['FuelRate'],
-                            "fuelrateunits": t['FuelRateUnits'],
+                            "fuelrateunits": fuelTranslationDict[t['Fuel']][2],
                             "fuel": fuelTranslationDict[t['Fuel']][1],
                             "amortizationkm": t['AmortizationKm']
                             }
