@@ -1173,6 +1173,11 @@ def jsonGetCostInfoBuildings(db, uiSession):
         return {"success": False, "msg": str(e)}
 
 
+def _getLevelNameToNumDict(m):
+    lvlNames = m.getParameterValue('levellist')
+    return {nm: ind for ind, nm in enumerate(lvlNames)}
+
+
 @bottle.route('/json/manage-cost-buildings-table')
 def jsonManageCostBuildingsTable(db, uiSession):
     try:
@@ -1185,10 +1190,13 @@ def jsonManageCostBuildingsTable(db, uiSession):
                                          modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         tList = []
+
+        lvlMap = _getLevelNameToNumDict(m)
         for s in m.stores.values():
             tList.append({'id': s.idcode,
                           'name': s.NAME,
                           'level': s.CATEGORY,
+                          'levelnum': lvlMap[s.CATEGORY],
                           'cost': s.SiteCost,
                           'costcur': s.SiteCostCurCode,
                           'costyear': s.SiteCostYear
@@ -1198,6 +1206,7 @@ def jsonManageCostBuildingsTable(db, uiSession):
                              {'id': 'id',
                               'name': 'name',
                               'level': 'level',
+                              'levelnum': 'levelnum',
                               'cost': 'cost',
                               'costcur': 'costcur',
                               'costyear': 'costyear'
@@ -1210,11 +1219,12 @@ def jsonManageCostBuildingsTable(db, uiSession):
                   "records": totRecs,  # total records
                   "rows": [{"id": t['id'],
                             "name": t['name'],
-                            "level": t['level'],
+                            "level": "%d_%s" % (lvlMap[t['level']], t['level']),
                             "cost": t['cost'],
                             "costcur": t['costcur'],
                             "costyear": t['costyear'],
-                            "detail": t['id']
+                            "detail": t['id'],
+                            "levelnum": "%02d%s" % (t['levelnum'], t['level'])
                             }
                            for t in tList]
                   }

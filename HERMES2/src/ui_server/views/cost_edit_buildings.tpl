@@ -53,6 +53,11 @@ function storeInfoButtonFormatter(cellvalue, options, rowObject)
 	return "<div class=\"hermes_button_triple\" id=\""+escape(cellvalue)+"\"></div>";
 };
 
+function levelnumFormatter(cellval, opts, rowObject)
+{
+	return cellval.substring(2);
+};
+
 function priceCheck(value) {
 	if ((value=='') || (!isNaN(parseFloat(value)) && isFinite(value)))
 		return true;
@@ -106,7 +111,8 @@ function buildPage(modelId) {
 		          "{{_('Cost Per Year')}}",
 		          "{{_('Cost Currency')}}",
 		          "{{_('Cost Base Year')}}",
-		          "{{_('Details')}}"		          
+		          "{{_('Details')}}",
+		          ""
 		], //define column names
 		colModel:[
 		          {name:'id', jsonmap:'id', index:'id', key:true},
@@ -156,12 +162,13 @@ function buildPage(modelId) {
 		        	  editable:true, edittype:'text', editrules:{integer:true, minValue:2000, maxValue:3000}
 		          },
 		          {name:'info', jsonmap: 'detail', index:'info', width:140, align:'center', sortable:false, 
-		        	  formatter:storeInfoButtonFormatter}
+		        	  formatter:storeInfoButtonFormatter},
+		          {name:'levelnum', jsonmap: 'levelnum', index:'levelnum', formatter:levelnumFormatter}
 		          ], //define column models
 		pager: 'store_cost_pager', //set your pager div id
 		pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
 		pginput: false, //ditto
-		sortname: 'name', //the column according to which data is to be sorted; optional
+		sortname: 'level', //the column according to which data is to be sorted; optional
 		viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Z” optional
 		sortorder: "asc", //sort order; optional
 		gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
@@ -231,13 +238,13 @@ function buildPage(modelId) {
 		},
 		grouping: true,
 		groupingView:{
-			groupField:['level'],
+			groupField:['levelnum'],
 			groupDataSorted:true,
 			groupText:['<b>{0} - {1} '+"{{_('Item(s)')}}"+'</b>'],
 			groupColumnShow:[false],
 			groupCollapse: true
 		},
-	    caption:"{{_("Route Per Diem Rules")}}"
+	    caption:"{{_("Building Costs")}}"
 	})
 	.jqGrid('navGrid','#store_cost_pager',
 			{edit:false,add:false,del:false,search:false},

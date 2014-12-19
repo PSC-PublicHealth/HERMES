@@ -754,8 +754,9 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
 
     def _verifyRoute(self, shdRoute, shdNet):
         try:
-            return ((shdRoute.PerDiemType is not None and shdRoute.PerDiemType != '')
-                    and shdRoute.PerDiemType in shdNet.perdiems)
+            return (((shdRoute.PerDiemType is not None and shdRoute.PerDiemType != '')
+                     and shdRoute.PerDiemType in shdNet.perdiems)
+                    or shdRoute.Type == 'attached')
         except:
             return False
 
@@ -847,6 +848,9 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
             if not self._verifyStore(store, net):
                 probSet.add("The location %s (%d) has missing cost entries" %
                             (store.NAME, storeId))
+            if not self._verifyCostConversion(store.SiteCostCurCode, store.SiteCostYear):
+                probSet.add("No currency conversion value is available for the"
+                            " currency %s in %s" % (store.SiteCostCurCode, store.SiteCostYear))
 
             for shdInv in store.inventory:
                 invTp = shdInv.invType
