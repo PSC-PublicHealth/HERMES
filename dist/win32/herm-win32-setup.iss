@@ -5,7 +5,7 @@
 #define MyAppPublisher "HERMES Team"
 #define MyAppURL "http://hermes.psc.edu"
 #define BaseVersion "0.9.1"
-#define BaseFilename "hermes-setup-w32"
+#define BaseFilename "hermes-setup"
 
 #ifdef SvnRevision
 #	define MyAppVersion BaseVersion + "." + SvnRevision
@@ -32,10 +32,12 @@ DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputDir=build
 OutputBaseFilename={#MySetupName}
-Compression=lzma
+Compression=lzma2/ultra64
 SolidCompression=yes
 PrivilegesRequired=poweruser
 AppMutex=HERMES: Highly Extensible Resource for Modeling Event-driven Supply chains; {{D82029AE-9A89-4A58-AD00-3E5C5CE68400},Global\HERMES: Highly Extensible Resource for Modeling Event-driven Supply chains; {{D82029AE-9A89-4A58-AD00-3E5C5CE68400}
+ArchitecturesInstallIn64BitMode=x64
+UninstallDisplayIcon={app}\hermes-tray.exe
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -85,9 +87,12 @@ Type: files; Name: "{app}\unins*.exe"
 
 [Files]
 Source: "..\..\HERMES2\*"; Excludes: "*.pyc,*.pyo,alembic.ini,install_hermes.log,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\demos\*,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\tests\*,..\..\HERMES2\master_data\*\regression-output\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "requirements\*"; Excludes: "*.pyc,*.pyo"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
+;Source: "requirements\*"; Excludes: "*.pyc,*.pyo"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "misc\hermes-tray.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "misc\log_install_hermes.bat"; DestDir: "{app}\src\tools"; Flags: ignoreversion
+Source: "reqall\*"; Excludes: "*.pyc,*.pyo"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "req32\*"; Excludes: "*.pyc,*.pyo"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: not Is64BitInstallMode
+Source: "req64\*"; Excludes: "*.pyc,*.pyo"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: Is64BitInstallMode
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
@@ -98,7 +103,6 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\hermes-tray.exe"; Tasks: 
 
 
 [Run]
-; StatusMsg: "Compiling Python libraries"
 Filename: "{app}\python\pythonw.exe"; Parameters: "-m compileall ""{app}"""
 Filename: "{cmd}"; Parameters: "/C ""{app}\src\tools\log_install_hermes.bat"""; StatusMsg: "{cm:InstallingDB}"; Flags: runhidden
 Filename: "{app}\hermes-tray.exe"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
