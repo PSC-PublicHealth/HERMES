@@ -210,7 +210,7 @@ def _createModel(db,uiSession):
         raise bottle.BottleException(_("The currently selected model {0} has no data in session".format(uiSession['newModelInfo']['currentModelName'])))
     if not all([key in uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]
         for key in ['name','levelnames','pottable','potrecdict',
-            'shippatterns_transittimes','shippatterns_transitunits']]):
+            'shiptransittimes','shiptransitunits']]):
         raise bottle.BottleException(_("Model creation data table is missing or corrupted"))
     newModelInfoCN = uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]
     shdTypes = shd.ShdTypes()
@@ -268,8 +268,8 @@ def _createModel(db,uiSession):
                                              'ShipIntervalDays':shipIntervalDays, 'PullOrderAmountDays':shipIntervalDays,
                                              'ShipLatencyDays':shipLatencyDays}, noStops=True)
                 ignoredNumber = 17
-                transitUnits = newModelInfoCN['shippatterns_transitunits'][len(storeStack)-2]
-                transitTimeRaw = newModelInfoCN['shippatterns_transittimes'][len(storeStack)-2]
+                transitUnits = newModelInfoCN['shiptransitunits'][len(storeStack)-2]
+                transitTimeRaw = newModelInfoCN['shiptransittimes'][len(storeStack)-2]
                 
                 transitHours = {'hour':1.0, 'day':24.0, 'week':168.0, 'month':4704.0, 'year':56448.0}[transitUnits] * transitTimeRaw
                 if rec['isfetch']:
@@ -328,7 +328,8 @@ def _addLevel(pot, recDict, ngList, countsList, otherList, parent, recBuilder):
     #print '##### _addlevel %s %s %s %s #######'%(ngList,countsList,otherList,parent)
     countsThisLevel = countsList[0]
     baseCountsList = [c/countsThisLevel for c in countsList[1:]]
-    leftovers = countsList[1:][:] # copy of the slice
+    leftovers = countsList[1:][:]# copy of the slice
+    print countsList[0]
     for i in xrange(countsThisLevel):
         name,index = ngList[0].get()
         pot.add(index, parent)
@@ -365,13 +366,14 @@ class NumberedNameGenerator:
 
 def _buildTreeRec(name, nKids, other):
     if other == (): # true at top level of tree
+        isfixedam = False
         isfetch = False
         issched = True
         howoften = 0
         ymw = "year"
     else:
-        isfetch,issched,howoften,ymw = other
-    return { 'name':name, 'isfetch':isfetch, 'issched':issched, 'howoften':howoften, 'ymw':ymw }
+        isfixedam,isfetch,issched,howoften,ymw = other
+    return { 'name':name, 'isfixedam':isfixedam,'isfetch':isfetch, 'issched':issched, 'howoften':howoften, 'ymw':ymw }
 
 def _buildPreOrderTree(info,pot_in=None,recDict_in=None,parent_in=None,baseLvl=0):
     if pot_in is None:
@@ -391,6 +393,10 @@ def _buildPreOrderTree(info,pot_in=None,recDict_in=None,parent_in=None,baseLvl=0
     #print recDict
     return (pot,recDict)
 
+
+'''
+STB To Do, I think many of these have been deprecated
+'''
 def _checkDefAndNewDict(reqParams,defDict,name1):
     """ This function takes a parameters of name1 to the bottle request and 
         creates an dictionary entry with the name1 parameter inside it.
@@ -400,103 +406,11 @@ def _checkDefAndNewDict(reqParams,defDict,name1):
     if name1 in reqParams:
         if reqParams[name1] not in defDict.keys():
             defDict[reqParams[name1]] = {name1:reqParams[name1]}
-        
+         
         return reqParams[name1]
     else:
         return None
 
-    
-    
-def _checkDefAndInvalidate(reqParams,defDict,name1,name2,invalidateName=None):
-    #print '###### check and invalidate <%s> <%s> <%s>'%(name1,name2,invalidateName)
-    if name1 in reqParams:
-        if name2 in defDict:
-            if reqParams[name1]!=defDict[name2]:
-                defDict[name2] = reqParams[name1]
-                if invalidateName is not None and invalidateName in defDict:
-                    del defDict[invalidateName]
-        else:
-            defDict[name2] = reqParams[name1]
-            if invalidateName is not None and invalidateName in defDict:
-                del defDict[invalidateName]
-
-def _intCheckDefAndInvalidate(reqParams,defDict,name1,name2,invalidateName=None):
-    #print '###### int check and invalidate <%s> <%s> <%s>'%(name1,name2,invalidateName)
-    if name1 in reqParams:
-        if name2 in defDict:
-            if int(reqParams[name1])!=defDict[name2]:
-                defDict[name2] = int(reqParams[name1])
-                if invalidateName is not None and invalidateName in defDict:
-                    del defDict[invalidateName]
-        else:
-            defDict[name2] = int(reqParams[name1])
-            if invalidateName is not None and invalidateName in defDict:
-                del defDict[invalidateName]
-
-def _getAscendingList(reqParams,baseName,baseCount=1):
-    l = []
-    for _ in xrange(baseCount-1): l.append(())
-    i = baseCount
-    while True:
-        s = baseName%i
-        if s in reqParams:
-            l.append(reqParams[s])
-            i += 1
-        else:
-            break
-    return l
-        
-def _checkAscendingListAndInvalidate(reqParams,defDict,baseName,name2,invalidateName=None,baseCount=1):
-    newList = _getAscendingList(reqParams,baseName,baseCount)
-    if newList != [] and newList != [()]:
-        if name2 in defDict:
-            if newList != defDict[name2]:
-                defDict[name2] = newList
-                if invalidateName is not None and invalidateName in defDict:
-                    del defDict[invalidateName]
-        else:
-            defDict[name2] = newList
-            if invalidateName is not None and invalidateName in defDict:
-                del defDict[invalidateName]
-                
-def _intCheckAscendingListAndInvalidate(reqParams,defDict,baseName,name2,invalidateName=None,baseCount=1):
-    newList = _getAscendingList(reqParams,baseName,baseCount)
-    if newList != [] and newList != [()]:
-        l = []
-        for term in newList:
-            if isinstance(term,types.StringTypes): l.append(int(term))
-            else: l.append(term)
-        newList = l
-        if name2 in defDict:
-            if newList != defDict[name2]:
-                defDict[name2] = newList
-                if invalidateName is not None and invalidateName in defDict:
-                    del defDict[invalidateName]
-        else:
-            defDict[name2] = newList
-            if invalidateName is not None and invalidateName in defDict:
-                del defDict[invalidateName]
-
-def _boolCheckAscendingListAndInvalidate(reqParams,defDict,baseName,name2,invalidateName=None,baseCount=1):
-    newList = _getAscendingList(reqParams,baseName,baseCount)
-    if newList != [] and newList != [()]:
-        l = []
-        for term in newList:
-            if isinstance(term,types.StringTypes): 
-                if term.lower()=='true': l.append(True)
-                elif term.lower()=='false': l.append(False)
-                else: raise bottle.BottleException(_('Client returned invalid boolean string {0}').format(term))
-            else: l.append(term)
-        newList = l
-        if name2 in defDict:
-            if newList != defDict[name2]:
-                defDict[name2] = newList
-                if invalidateName is not None and invalidateName in defDict:
-                    del defDict[invalidateName]
-        else:
-            defDict[name2] = newList
-            if invalidateName is not None and invalidateName in defDict:
-                del defDict[invalidateName]
 
 def _copyStoreProvisions(fromStore, toStore):
     #toStore.copyAttrsFromInstance(fromStore,excludeThese=['NAME','idcode','modelId'])
@@ -628,19 +542,20 @@ def modelCreateBack(db,uiSession,step="unknown"):
 
 @bottle.route('/model-create')
 @bottle.route('/model-create/<step>')
-def modelCreatePage(db,uiSession,step="unknown"):
-    #paramList = ['%s:%s'%(str(k),str(v)) for k,v in bottle.request.params.items()]
-    #_logMessage("Hit model_create; step=%s, params=%s"%(step,paramList))
+def modelCreatePageNew(db,uiSession,step="unknown"):
+    ''' Not sure why this is needed '''
     formVals = { 'breadcrumbPairs':uiSession.getCrumbs() }
     try:
+        '''
+        -------------------------------------------------------------------------------
+        Step 1: Setup the crumbtracks for the overall page
+        --------------------------------------------------------------------------------
+        '''
         crumbTrack = uiSession.getCrumbs()
-        print "Crumb Track 1:" + str(crumbTrack)
         stepPairs = [('nlevels',_('Edit Supply Chain Structure')),
-                    # ('levelnames',_('Edit Level Names')),                 
-                    # ('countsbylevel',_('Counts')),                 
                      ('interlevel',_('Edit Shipping Policy')),                 
                      ('interleveltimes',_('Edit Shipping Times')),                 
-                     ('done',_('Adjust')),                 
+                     ('done',_('Make Adjustments')),                 
                      ('people',_('Population')),                 
                      ('vaccines',_('Vaccines')),                 
                      ('fridges',_('Storage')),                 
@@ -650,12 +565,18 @@ def modelCreatePage(db,uiSession,step="unknown"):
                      ('provisionroutes',_('Logistics')),    
                      ]
         namedStepList = [a for a,b in stepPairs] # @UnusedVariable
+        '''
+        -------------------------------------------------------------------------------
+        Step 2: Imitialize and setup the modelInfo for session updating
+        --------------------------------------------------------------------------------
+        '''
+        ### come in cold with no screen defined for below
         screen = None
-
-        ### Setup the session information
+        
+        ### If there is no new model info in ui session create it
         if 'newModelInfo' not in uiSession:
             uiSession['newModelInfo'] = {}
-            
+        
         newModelInfo = uiSession['newModelInfo']
         reqParams = bottle.request.params
         
@@ -676,7 +597,43 @@ def modelCreatePage(db,uiSession,step="unknown"):
         if newModelInfo['currentModelName'] == "none":
             raise RuntimeError(_("Entered into here without a model set, so new model Info cannot work."))
         
+        ### Finally, we need the new ModelInfo for the current name
+        ### This should be updated from the page that this was created on,
+        ### eliminating almost all of the logic from before
         newModelInfoCN = newModelInfo[newModelInfo['currentModelName']]
+        if not newModelInfoCN.has_key('firstTime'): newModelInfoCN['firstTime'] = 'T'
+        print '-0-0-0-0-0-0-0-0-0-'
+        print newModelInfoCN
+        ''' Translation from screen name to tpl to use '''
+        screenToTpl = {"nlevels":"model_create_begin.tpl",
+                       "interlevel":"model_create_interlevel.tpl",
+                       "interleveltimes":"model_create_interlevel_timings.tpl",
+                       "done":"model_create_done.tpl",
+                       ### Want to get to here first
+                       "provision":"model_create_provision.tpl",
+                       "provisionroutes":"model_create_provision_routes.tpl",
+                       'people':'people_top.tpl',
+                       'vaccines':'vaccine_top.tpl',
+                       'fridges':'fridge_top.tpl',
+                       'trucks':'truck_top.tpl',
+                       'setdemand':'demand_top.tpl'
+                       }
+        
+        ''' What variables are actually required to be at this level '''
+        screenRequires = {"countsbylevel":["levelnames"],
+                          "provision":["modelId"],
+                          "provisionroutes":["modelId"],
+                          "people":["modelId"],
+                          "vaccines":["modelId"],
+                          "fridges":["modelId"],
+                          "trucks":["modelId"],
+                          "setdemand":["modelId"],
+                          }
+        '''
+        -------------------------------------------------------------------------------
+        Step 3: Update the crumb track information
+        --------------------------------------------------------------------------------
+        '''
         
         if "subCrumbTrack" in newModelInfoCN:
             subCrumbTrack = newModelInfoCN['subCrumbTrack']
@@ -684,27 +641,34 @@ def modelCreatePage(db,uiSession,step="unknown"):
                 crumbTrack.push(subCrumbTrack)
         else:
             subCrumbTrack = None
-
-        if "subCrumbTrack" in newModelInfoCN:
-            subCrumbTrack = newModelInfoCN['subCrumbTrack']
-            
-            if crumbTrack.trail[-1] != subCrumbTrack:
-                crumbTrack.push(subCrumbTrack)
-        else:
-            subCrumbTrack = None
-  
+        
+        #### Begin processing based on the step that comes from the 
+        #### url
+        #### unknown means we are entering the pipeline from outside
+        #### next means we are moving from one page inside the chain to the next
+        #### back means we are moving from one page inside the chaing to the previous
+        
         if step=="unknown":
-            print "Step is unknown"
+            '''
+            Step: unknown
+            This means we are coming from outside, so we need to check the 
+            crumbtrack to see if we are already inside the chain.  If there
+            is no crumb tracks, we are entring the thing from the beginning
+            '''
             if subCrumbTrack is None:
-                subCrumbTrack = crumbtracks.TrackCrumbTrail(bottle.request.path, "Create Model")
+                subCrumbTrack = crumbtracks.TrackCrumbTrail(bottle.request.path, 
+                                                            "Create Model")
                 for a,b in stepPairs: subCrumbTrack.append((a,b))
                 newModelInfoCN['subCrumbTrack'] = subCrumbTrack
                 crumbTrack.push(subCrumbTrack)
-                ## we assume a new model is being born
-            #uiSession['newModelInfo'] = {}
+            ## we assume a new model is being born
             step = screen = subCrumbTrack.current()
-
+        
         elif step=='next':
+            '''
+            Step: next
+            This means we have a crumb track and are moving on, so update accordingly
+            '''
             screen = subCrumbTrack.next()
             if screen is None:
                 # We just finished the track
@@ -718,43 +682,30 @@ def modelCreatePage(db,uiSession,step="unknown"):
                 crumbTrack.pop()
                 screen = 'models-top'
         else:
+            print crumbTrack._toJSON()
             if not crumbTrack.jump(step):
                 raise bottle.BottleException("Invalid step %s in model create"%step)
             screen = crumbTrack.current()
-    
-        
-        _intCheckDefAndInvalidate(reqParams, newModelInfoCN,'nlevels','nlevels','pottable')
-        _checkAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_levelname_%d','levelnames','pottable')
-        _intCheckAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_lcounts_%d','levelcounts','pottable')
-        _boolCheckAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_interl_isfetch_%d','shippatterns_isfetch','pottable',2)
-        _boolCheckAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_interl_issched_%d','shippatterns_issched','pottable',2)
-        _intCheckAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_interl_howoften_%d','shippatterns_howoften','pottable',2)
-        _checkAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_interl_ymw_%d','shippatterns_ymw','pottable',2)
-        
-        if all([k in newModelInfoCN for k in ['shippatterns_isfetch','shippatterns_issched','shippatterns_howoften','shippatterns_ymw']]):
-            shipPatternList = [()] + zip(newModelInfoCN['shippatterns_isfetch'],newModelInfoCN['shippatterns_issched'],
-                                         newModelInfoCN['shippatterns_howoften'],newModelInfoCN['shippatterns_ymw'])[1:]
-            newModelInfoCN['shippatterns'] = shipPatternList
-            for k in ['shippatterns_isfetch','shippatterns_issched','shippatterns_howoften','shippatterns_ymw']:
-                del newModelInfoCN[k]
-           
-        ### STB NEED to Figure out what to do here
-        print "Before" + str(uiSession.getDictSummary())
+            
+        '''
+        -------------------------------------------------------------------------------
+        Step 4: Handle model creation, jumping to expert, or provisioning of the model
+        --------------------------------------------------------------------------------
+        '''
         if 'create' in bottle.request.params and bottle.request.params['create'] == 'true':
-            print "In Create"
+            ''' 
+            HERE We actually create a model in the database
+            '''
             if 'modelId' in newModelInfoCN:
                 # the user is messing around with the back/next buttons
+                #  we can add some logic here to allow the user to delete the previous model
                 pass
             else:
                 nameTmp,modelIdTmp = _createModel(db,uiSession)
                 newModelInfoCN['name2'] = nameTmp
                 newModelInfoCN['modelId'] = modelIdTmp
-                #newModelInfoCN['name2'],newModelInfoCN['modelId'] = _createModel(db,uiSession)
-                print "New Info " + str(newModelInfoCN['name']) + " " + str(newModelInfoCN['modelId'])
-                print 'After ' + str(uiSession.getDictSummary())           
-                print "modelID for god sake" + str(newModelInfoCN['modelId'])
-                #print 'is it in uisession ' +  str(uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]['modelId'])
-        #### STB NEED to fix this
+        
+        ''' STB TODO This part needs to be fixed '''
         if 'expert' in bottle.request.params and bottle.request.params['expert'] == 'true':
                 if 'modelId' in newModelInfoCN:
                     # the user is messing around with the back/next buttons
@@ -762,9 +713,11 @@ def modelCreatePage(db,uiSession,step="unknown"):
                 else:
                     # fake the remaining unfilled pages so the PreOrderTree can get created
                     if 'levelcounts' not in newModelInfoCN: newModelInfoCN['levelcounts'] = [1 for x in xrange(newModelInfo['nlevels'])]
-                    if 'shippatterns_transitunits' not in newModelInfoCN: newModelInfoCN['shippatterns_transitunits'] = ['hour' for x in xrange(newModelInfoCN['nlevels']-1)]
-                    if 'shippatterns_transittimes' not in newModelInfoCN: newModelInfoCN['shippatterns_transittimes'] = [1.0 for x in xrange(newModelInfoCN['nlevels']-1)]
-                    if 'shippatterns' not in newModelInfoCN: newModelInfoCN['shippatterns'] = [() if x==0 else (False, True, 1, 'year') for x in xrange(newModelInfoCN['nlevels'])]
+                    if 'shiptransitunits' not in newModelInfoCN: newModelInfoCN['shiptransitunits'] = ['hour' for x in xrange(newModelInfoCN['nlevels']-1)]
+                    if 'shiptransittimes' not in newModelInfoCN: newModelInfoCN['shiptransittimes'] = [1.0 for x in xrange(newModelInfoCN['nlevels']-1)]
+                    if 'shippatterns' not in newModelInfoCN: newModelInfoCN['shippatterns'] = [() if x==0 else (False,False, True, 1, 'year') for x in xrange(newModelInfoCN['nlevels'])]
+                    else: newModelInfoCN['shippatterns'].insert(0,())
+                    
                     if 'pottable' not in newModelInfoCN:
                         pot,recDict = _buildPreOrderTree(newModelInfoCN)
                         newModelInfoCN['pottable'] = pot.table
@@ -782,10 +735,11 @@ def modelCreatePage(db,uiSession,step="unknown"):
                     fp = bottle.request.fullpath
                     offset = fp.find(p)
                     rootPath = fp[:offset+1] # to include slash                    
-                    bottle.redirect('{}model-edit-structure?id={}'.format(rootPath,createdModelId))
+                    bottle.redirect('{}model-edit-structure?id={}'.format(rootPath,createdModelId))        
+        
+        ''' STB TODO Make this throw more meaningful and easier to parse errors'''
         if 'provision' in bottle.request.params and bottle.request.params['provision'] == 'true':
-            if 'modelId' in newModelInfoCN:
-                print "provisioning model"
+            if 'modelId' in newModelInfoCN:   
                 _provisionModel(db, newModelInfoCN['modelId'])
             else:
                 raise RuntimeError(_("The model is not ready for provisioning"))
@@ -793,51 +747,31 @@ def modelCreatePage(db,uiSession,step="unknown"):
             if 'modelId' in newModelInfoCN:
                 _provisionModelRoutes(db, newModelInfoCN['modelId'])
             else:
-                raise RuntimeError(_("The routes are not ready for provisioning"))
-                    
-        formVals = {"breadcrumbPairs":crumbTrack}
-        for k in ['name','nlevels','levelnames','levelcounts','shippatterns','modelId']:
-            if k in newModelInfoCN: 
-                formVals[k] = newModelInfoCN[k]
+                raise RuntimeError(_("The routes are not ready for provisioning"))    
         
-        screenToTpl = {"nlevels":"model_create_begin.tpl",
-                       #"levelnames":"model_create_levelnames.tpl",
-                       #"countsbylevel":"model_create_countsbylevel.tpl",
-                       "interlevel":"model_create_interlevel.tpl",
-                       "interleveltimes":"model_create_interlevel_timings.tpl",
-                       "done":"model_create_done.tpl",
-                       ### Want to get to here first
-                       "provision":"model_create_provision.tpl",
-                       "provisionroutes":"model_create_provision_routes.tpl",
-                       'people':'people_top.tpl',
-                       'vaccines':'vaccine_top.tpl',
-                       'fridges':'fridge_top.tpl',
-                       'trucks':'truck_top.tpl',
-                       'setdemand':'demand_top.tpl'
-                       }
+        '''
+        -------------------------------------------------------------------------------
+        Step 5: Setup session variables that are needed for the screens
+        --------------------------------------------------------------------------------
+        '''
+        formVals = {"breadcrumbPairs":crumbTrack,'name':newModelInfoCN['name']}
         
-        screenRequires = {"countsbylevel":["levelnames"],
-                          "provision":["modelId"],
-                          "provisionroutes":["modelId"],
-                          "people":["modelId"],
-                          "vaccines":["modelId"],
-                          "fridges":["modelId"],
-                          "trucks":["modelId"],
-                          "setdemand":["modelId"],
-                          }
+        ''' Check if we have the required variables in the modelInfo session structure '''
         
         if screen in screenRequires:
             for req in screenRequires[screen]:
-                if req not in formVals:
+                if req not in newModelInfoCN.keys():
                     raise RuntimeError(_("Expected to know the value of {0} by now").format(req))
-                
+        
+        ''' Handle the special cases '''
+        
         if screen=="provision":
-            formVals['canonicalStoresDict'] = _findCanonicalStores(shadow_network_db_api.ShdNetworkDB(db, formVals['modelId']))
+            newModelInfoCN['canonicalStoresDict'] = _findCanonicalStores(shadow_network_db_api.ShdNetworkDB(db, formVals['modelId']))
         elif screen=="provisionroutes":
-            formVals['canonicalRoutesDict'] = _findCanonicalRoutes(shadow_network_db_api.ShdNetworkDB(db, formVals['modelId']))
+            newModelInfoCN['canonicalRoutesDict'] = _findCanonicalRoutes(shadow_network_db_api.ShdNetworkDB(db, formVals['modelId']))
         elif screen in ["people","vaccines","fridges","trucks","setdemand"]:
-            uiSession['selectedModelId'] = formVals['modelId']
-            formVals.update({'backNextButtons':True,
+            uiSession['selectedModelId'] = newModelInfoCN['modelId']
+            newModelInfoCN.update({'backNextButtons':True,
                              'title_slogan':_("Create A Model"),
                              'topCaption':{'people':_("Select population types to be used in your model."),
                                            'vaccines':_("Select vaccine types to be used in your model."),
@@ -847,21 +781,38 @@ def modelCreatePage(db,uiSession,step="unknown"):
                                            }[screen]
                              })
         elif screen=="done":
+            ### add a tuple to make sure that Joels stuff works
+            newModelInfoCN['shippatterns'].insert(0,())
             if 'pottable' not in newModelInfoCN:
                 pot,recDict = _buildPreOrderTree(newModelInfoCN)
                 newModelInfoCN['pottable'] = pot.table
                 newModelInfoCN['potrecdict'] = recDict
                 newModelInfoCN['maxidcode'] = NumberedNameGenerator.totCount
-            
+        
+        ''' Make sure that we have updated the session so that all of this groovy work is saved '''
         uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']] = newModelInfoCN
         uiSession.changed()
-  
+        
+        '''
+        -------------------------------------------------------------------------------
+        Step 6: finally, call the bottle template for the appropriate screen
+        --------------------------------------------------------------------------------
+        '''
         if screen in screenToTpl:
-            return bottle.template(screenToTpl[screen],formVals,pagehelptag=screen)
+            import json,copy
+            newModelJsonNCT = copy.copy(newModelInfoCN)
+            ### Need to remove crumbs, as they will not serialize and are not necessary
+            if newModelJsonNCT.has_key('subCrumbTrack'):
+                del newModelJsonNCT['subCrumbTrack']
+            newModelJson = json.dumps(newModelJsonNCT)
+            return bottle.template(screenToTpl[screen],formVals,pagehelptag=screen,modJson = newModelJson)
         elif screen=="models-top":
-            if 'subCrumbTrack' not in newModelInfo:
+            ''' If we have no subcrumbtrack, then we can't do anything with this and 
+                we should delete it. '''
+            if 'subCrumbTrack' not in newModelInfoCN:
                 # we're done, or we never started
-                if 'newModelInfo' in uiSession: del uiSession['newModelInfo']
+                if newModelInfoCN['name'] in uiSession['newModelInfo']: 
+                    del uiSession['newModelInfo'][newModelInfoCN['name']]
             p = bottle.request.path
             fp = bottle.request.fullpath
             offset = fp.find(p)
@@ -876,6 +827,8 @@ def modelCreatePage(db,uiSession,step="unknown"):
         _logStacktrace()
         formVals['comment'] = _("An error occurred while provisioning your model: {0}".format(str(e)))
         return bottle.template("problem.tpl",formVals)
+        
+
             
 @bottle.route('/list/select-model')
 def handleListModel(db,uiSession):
@@ -1620,7 +1573,9 @@ def downloadModel(db,uiSession):
     return bottle.static_file(zipFileName,os.path.dirname(fullZipFileName),
                               mimetype='application/zip',download=zipFileName)
 
-
+''' 
+Returns a json that gives the names of all of the models in the database
+'''
 @bottle.route('/json/get-existing-model-names')
 def jsonGetExistingModelNames(db,uiSession):
     try:
@@ -1640,7 +1595,11 @@ def jsonGetExistingModelNames(db,uiSession):
     except Exception as e:
         result = {'success':False, 'msg':str(e)}
         return result  
-    
+
+'''
+Returns a json that gives both the models being created in the UISession
+and in the database
+'''    
 @bottle.route('/json/get-existing-models-creating')
 def jsonGetModelsBeingCreated(db,uiSession):
     try:
@@ -1658,7 +1617,7 @@ def jsonGetModelsBeingCreated(db,uiSession):
     except bottle.HTTPResponse:
         raise
     except Exception as e:
-        result = {'success':False, 'msg':str(e)}
+        result = {'success':False, 'type':'error', 'msg':str(e)}
         return result 
 
 @bottle.route('/json/get-model-name')
@@ -1674,49 +1633,6 @@ def jsonGetModelName(db,uiSession):
     except Exception,e:
         result = {'success':False, 'msg':str(e)}
         return result    
-
-@bottle.route('/json/get-newmodelinfo-from-session')
-def jsonGetModelInfoFromSession(db,uiSession):
-    try:
-        newModelDict = {}
-        if 'newModelInfo' in uiSession:
-            newModelDict = uiSession.getDictSummary()['newModelInfo']
-        
-        return {'data':newModelDict,'success':True}
-    except bottle.HTTPResponse:
-        raise # bottle will handle this
-    except Exception,e:
-        result = {'success':False, 'msg':str(e)}
-        return result    
-
-@bottle.route('/json/delete-model-from-newmodelinfo-session')   
-def jsonDeleteModelFromNewModelInfo(db,uiSession):
-    try:
-        modelName = _getOrThrowError(bottle.request.params,'name',isInt=False)
-        modelExists = False
-        if 'newModelInfo' in uiSession:
-            if modelName in uiSession['newModelInfo']:
-                del uiSession['newModelInfo'][modelName]
-                uiSession.changed()
-                mList = []
-                #prv = uiSession.getPrivs()
-                for m in db.query(shd.ShdNetwork).filter(shd.ShdNetwork.refOnly != True):
-                    try:
-                        #if m.name == userTypesModelName:
-                        #    continue
-                            #prv.mayReadModelId(db, m.name)
-                        mList.append(m.name)
-                
-                    except privs.PrivilegeException:
-                        pass
-                if modelName in mList:
-                    modelExists = True 
-        return {'success':True,'modelExists':modelExists}
-    except bottle.HTTPResponse:
-        raise # bottle will handle this
-    except Exception,e:
-        result = {'success':False, 'msg':str(e)}
-        return result
      
 @bottle.route('/json/model-parms-edit')
 @bottle.route('/json/model-parms-edit', method='POST')
@@ -1747,83 +1663,909 @@ def jsonRunParmsEdit(db, uiSession):
 
         result = {'success':True, 'value':True}
     return result
+
+'''
+----------------------------------------------------------------------------
+These functions create forms for the model creation pipline 
+either from a json or from a session dictionary
+
+Currently only the json ones are used, but the session ones are provided for
+completeness
+----------------------------------------------------------------------------
+'''            
+@bottle.route('/json/model-create-name-levels-form-from-session')
+def jsonCreateLevelsFormFromSession(db,uiSession):
+    try:
+        name = _getOrThrowError(bottle.request.params,'name',isInt=False)
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'type':'error', 'msg':_("Parameter name not given in this request: ")+str(e)}  
     
-@bottle.route('/json/model-create-name-levels-form')
-def jsonCreateLevelsForm(db,uiSession):
+    try:
+        newModelInfo = jsonGetModelInfoFromSession(db,uiSession)['data']
+        newModelInfoCN = newModelInfo[name]
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'type':'noname','msg':_("Model Name {0} not in the session: ".format(name))+str(e)}
+    
     try:
         import htmlgenerator
-        nLevels = _getOrThrowError(bottle.request.params, 'nLevels', isInt=True)
-        
         return {'htmlString':"<h5 style='margin-top:0.2px;margin-bottom:0.2px;'>"+_('What are the levels called?')+"</h5>" \
                 +"<h6 style='margin-top:0.2px;margin-bottom:1.5px;'>"+_('(e.g., Four level supply chains, the levels may be named Central, Region, District, Health Post)')+"</h6>" \
-                + htmlgenerator._buildNameLevelsForm("model_create", nLevels, None),
+                + htmlgenerator._buildNameLevelsFormFromSession("model_create", levelInfo = newModelInfoCN),
                 'success':True}
     except bottle.HTTPResponse:
         raise
     except Exception,e:
-        return {'success':False,'msg':str(e)}
+        return {'success':False,'type':'error','msg':str(e)}
         
-@bottle.route('/json/model-create-number-places-per-level-form', method='POST')
-def jsonCreatePlacesPerLevelForm(db,uiSession):
+@bottle.route('/json/model-create-name-levels-form-from-json',method='post')
+def jsonCreateLevelsFromFromJson(db,uiSession):
+    try:
+        import json
+        modelInfoJson = json.load(bottle.request.body)
+        
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error', 'msg':_("Problem Updating Session Model parsing json: ") + str(e)}
+        return result  
     try:
         import htmlgenerator
-        levelNamesDict = bottle.request.params
-        levelNames = ["" for x in range(0,len(levelNamesDict))]
-        for levelNum,levelName in levelNamesDict.items():
-            levelNames[int(levelNum)] = levelName
-
-        print "level " + str(levelNames)
-        return {'htmlString':"<h5 style='margin-top:0.2px;margin-bottom:0.2px;'>"+_("What are the total number of locations within each level?") + "</h5>"\
-                +"<h6 style='margin-top:0.2px;margin-bottom:1.5px;'>"+_('Include all storage, immunizating and outreach locations')+"</h6>" \
-                + htmlgenerator._buildNumberPlacesPerLevelsForm("model_create_", levelNames),'success':True}
+        return {'success':True,
+                'htmlString':'<span class="levelnames-head">'+ _('What are the levels to be called?') + '</span>'\
+                +'<span class="levelnames-note"><br>'+_('(e.g., Four level supply chains, the levels may be named Central, Region, District, Health Post)')+'</span>' \
+                + htmlgenerator._buildNameLevelsFormFromSession("model_create", levelInfo=modelInfoJson)}
+    
     except bottle.HTTPResponse:
         raise
     except Exception,e:
-        return {'success':False,'msg':str(e)}
-        
-def nameGen(baseName, count):
-    if count == 1:
-        yield "%s"%(baseName)
-    else:
-        for i in xrange(count):
-            yield "%s_%d" % (baseName, i)
-
-
-def treeGen(lvlNames, counts):
-    myCount = counts[0]
-    myNameGen = nameGen(lvlNames[0], myCount)
-    if len(counts) == 1:
-        for nm in myNameGen:
-            yield {'name': nm}
-    else:
-        subGen = treeGen(lvlNames[1:], counts[1:])
-        block = int(counts[1]/myCount)
-        for i in xrange(myCount-1):  # @UnusedVariable
-            yield({'name': myNameGen.next(),
-                   'children': [subGen.next() for j in xrange(block)]})  # @UnusedVariable
-        yield({'name': myNameGen.next(), 'children': [k for k in subGen]})
-
-@bottle.route('/json/model-create-tree-json',method='POST')
-def jsonCreateTree(db,uiSession):
+        return {'success':False,'type':'error','msg':str(e)}
+    
+@bottle.route('/json/model-create-number-places-per-level-form-from-session')
+def jsonCreatePlacesPerLevelFormFromSession(db,uiSession):
     try:
-        levelInfoDict = bottle.request.params
-        print "Dict" + str(bottle.request.params.keys())
-        levelNames = ["" for x in xrange(len(levelInfoDict)/2)]
-        levelCount = ["" for x in xrange(len(levelInfoDict)/2)]
-        for i in xrange(len(levelInfoDict)/2):
-            print "i = " + str(i)
-            levelNames[i] = levelInfoDict["%d[n]"%i]
-            levelCount[i] = int(levelInfoDict["%d[c]"%i])
-
-        print "Entering Tree"
-        tG = treeGen(levelNames,levelCount)
-        print "Exiting Tree"
-        tree = [x for x in tG]
-        print "TRee = " + str(tree)
-        tree[0]['levelnames'] = levelNames
-        tree[0]['levelcounts'] = levelCount
-        return {'net':tree[0],'success':True}
+        name = _getOrThrowError(bottle.request.params,'name',isInt=False)
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'msg':_("Parameter name not given in this request: ")+str(e)}  
+    
+    try:
+        newModelInfo = jsonGetModelInfoFromSession(db,uiSession)['data']
+        newModelInfoCN = newModelInfo[name]
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'msg':_("Model Name {0} not in the session: ".format(name))+str(e)}
+    
+    try:
+        import htmlgenerator
+        
+        return {'htmlString':'<span class="levelcount-head">'+_("What are the total number of locations within each level?") + "</span>"\
+                    +"<span class='levelcount-note'><br>"+_('Include all storage, immunizating and outreach locations')+"</span>" \
+                    + htmlgenerator._buildNumberPlacesPerLevelsFormFromSession("model_create_", modelInfoCN),'success':True}
     except bottle.HTTPResponse:
         raise
     except Exception,e:
         return {'success':False,'msg':str(e)}
+
+@bottle.route('/json/model-create-number-places-per-level-form-from-json',method='POST')
+def jsonCreatePlacesPerLevelFromFromJson(db,uiSession):
+    try:
+        import json
+        modelInfoJson = json.load(bottle.request.body)
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error', 'msg':_("Problem Updating Session Model parsing json: ") + str(e)}
+        return result  
+    try:
+        import htmlgenerator
+        return {'htmlString':'<span class="levelcount-head">'+_("What are the total number of locations within each level?") + "</span>"\
+                    +"<span class='levelcount-note'><br>"+_('Include all storage, immunizating and outreach locations')+"</span>" \
+                    + htmlgenerator._buildNumberPlacesPerLevelsFormFromSession("model_create_", modelInfoJson),'success':True}
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'msg':str(e)}    
+
+@bottle.route('/json/model-create-interl-info-form-from-session')
+def jsonCreateInterlInfoFormFromSession(db,uiSession):
+    try:
+        name = _getOrThrowError(bottle.request.params,'name',isInt=False)
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'msg':_("Parameter name not given in this request: ")+str(e)}  
+    
+    try:
+        newModelInfo = jsonGetModelInfoFromSession(db,uiSession)['data']
+        print newModelInfo.keys()
+        newModelInfoCN = newModelInfo[name]
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'msg':_("Model Name {0} not in the session: ".format(name))+str(e)}
+    
+    try:
+        ### This is here to check if these things exist as prerequisites to building this table
+        levelnames = newModelInfoCN['levelnames']
+        levelcounts = newModelInfoCN['levelcounts']
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'msg':_("Model Name {0} prerequisites levelnames and levelcounts not in the session: ".format(name))+str(e)}
+    
+    try:
+        import htmlgenerator
+        print "Going there"
+        return{'htmlString':htmlgenerator._buildInterLevelInfoFormFromSession("model_create_",newModelInfoCN),
+               'success':True}
+        
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'msg':_("Model Name {0} problem creating the interlevelinfo table: ".format(name))+ str(e)} 
+
+@bottle.route('/json/model-create-interl-info-form-from-json',method='POST')
+def jsonCreateInterlInfoFormFromJson(db,uiSession):
+    try:
+        import json
+        modelInfoJson = json.load(bottle.request.body)
+        name = modelInfoJson['name']
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error', 'msg':_("Problem Updating Session Model parsing json: ") + str(e)}
+        return result 
+     
+    try:
+        ### This is here to check if these things exist as prerequisites to building this table
+        levelnames = modelInfoJson['levelnames']
+        levelcounts = modelInfoJson['levelcounts']
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'type':'error','msg':_("Model Name {0} prerequisites levelnames and levelcounts not in the session: ".format(name))+str(e)}
+    
+    try:
+        import htmlgenerator
+        return{'htmlString':htmlgenerator._buildInterLevelInfoFormFromSession("model_create_",modelInfoJson),
+               'success':True}
+        
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'type':'error','msg':_("Model Name {0} problem creating the interlevelinfo table: ".format(name))+ str(e)} 
+    
+@bottle.route('/json/model-create-interl-timing-form-from-session')
+def jsonCreateInterlTimingFormFromSession(db,uiSession):
+    try:
+        name = _getOrThrowError(bottle.request.params,'name',isInt=False)
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'msg':_("Parameter name not given in this request: ")+str(e)}  
+    
+    try:
+        newModelInfo = jsonGetModelInfoFromSession(db,uiSession)['data']
+        print newModelInfo.keys()
+        newModelInfoCN = newModelInfo[name]
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'msg':_("Model Name {0} not in the session: ".format(name))+str(e)}
+    
+    try:
+        ### This is here to check if these things exist as prerequisites to building this table
+        levelnames = newModelInfoCN['levelnames']
+        levelcounts = newModelInfoCN['levelcounts']
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'msg':_("Model Name {0} prerequisites levelnames and levelcounts not in the session: ".format(name))+str(e)}
+    
+    try:
+        import htmlgenerator
+        print "Going there"
+        return{'htmlString':htmlgenerator._buildInterLevelTimingFormFromSession("model_create_",newModeInfoCN),
+               'success':True}
+        
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'msg':_("Model Name {0} problem creating the inter level timings table: ".format(name))+ str(e)} 
+    
+@bottle.route('/json/model-create-interl-timing-form-from-json',method='POST')
+def jsonCreateInterlTimingFormFromJson(db,uiSession):
+    try:
+        import json
+        modelInfoJson = json.load(bottle.request.body)
+        name = modelInfoJson['name']
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error', 'msg':_("Problem Updating Session Model parsing json: ") + str(e)}
+        return result 
+     
+    try:
+        ### This is here to check if these things exist as prerequisites to building this table
+        levelnames = modelInfoJson['levelnames']
+        levelcounts = modelInfoJson['levelcounts']
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'type':'error','msg':_("Model Name {0} prerequisites levelnames and levelcounts not in the session: ".format(name))+str(e)}
+    
+    try:
+        import htmlgenerator
+        print "going there"
+        return{'htmlString':htmlgenerator._buildInterLevelTimingFormFromSession("model_create_",modelInfoJson),
+               'success':True}
+        
+    except bottle.HTTPResponse:
+        raise
+    except Exception,e:
+        return {'success':False,'type':'error','msg':_("Model Name {0} problem creating the inter level timings table: ".format(name))+ str(e)} 
+    
+'''
+----------------------------------------------------------------------------
+Call to update the session from a json
+----------------------------------------------------------------------------
+'''
+@bottle.route('/json/update-uisession-modelInfo',method='post')
+def jsonUpdateUISessionModelInfo(db,uiSession):
+    try:
+        import json
+        newModelInfo = json.load(bottle.request.body)
+        name = newModelInfo['name']
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error', 'msg':_("Problem Updating Session Model parsing json: ") + str(e)}
+        return result     
+    
+    ### Now get the current Session that exists
+    try:
+        newModelDict = uiSession['newModelInfo']
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error', 'msg':_("Problem getting newModelInfo from Session: ") + str(e)}
+        return result 
+    
+    try:
+        newModelDictCN = newModelDict[name]
+        
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error','msg':_("Updating modelInfo: Session has no model named {0}: ".format(name)) + str(e)}
+        return result  
+    
+    for key in newModelInfo.keys():
+        newModelDictCN[key] = newModelInfo[key]
+    
+    uiSession['newModelInfo'][name] = newModelDictCN
+    uiSession.changed()
+    
+    return {'success':True}
+      
+'''
+---------------------------------------------------------------------------
+Utility Function that allow one to get a json of the model UISession
+---------------------------------------------------------------------------
+'''
+@bottle.route('/json/get-uisession-modelInfo')
+def jsonGetUISessionModelInfo(db,uiSession):
+    try:
+        newModelDict = uiSession.getDictSummary()['newModelInfo']
+            
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error', 'msg':_("Problem getting newModelInfo from Session: ") + str(e)}
+        return result 
+    
+    try:
+        name = _getOrThrowError(bottle.request.params,'name',isInt=False)
+        newModelDictCN = newModelDict[name]
+        return {'success':True,'data':newModelDictCN}
+     
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'noname','msg':_("Problem getting {0} model in newModelInfo from Session: ".format(name)) + str(e)}
+        return result 
+
+'''
+Utility Function that will get a ModelInfo structure form the uiSession
+'''
+
+@bottle.route('/json/get-newmodelinfo-from-session')
+def jsonGetModelInfoFromSession(db,uiSession):
+    try:
+        newModelDict = {}
+        if 'newModelInfo' in uiSession:
+            newModelDict = uiSession.getDictSummary()['newModelInfo']
+        
+        return {'data':newModelDict,'success':True}
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result    
+
+'''
+Utility that deletes a model from the database,
+note a model creation has to have begun to use this function
+or it will not delete anything
+'''
+@bottle.route('/json/delete-model-from-newmodelinfo-session')   
+def jsonDeleteModelFromNewModelInfo(db,uiSession):
+    try:
+        modelName = _getOrThrowError(bottle.request.params,'name',isInt=False)
+        modelExists = False
+        if 'newModelInfo' in uiSession:
+            if modelName in uiSession['newModelInfo']:
+                del uiSession['newModelInfo'][modelName]
+                uiSession.changed()
+                mList = []
+                #prv = uiSession.getPrivs()
+                for m in db.query(shd.ShdNetwork).filter(shd.ShdNetwork.refOnly != True):
+                    try:
+                        #if m.name == userTypesModelName:
+                        #    continue
+                            #prv.mayReadModelId(db, m.name)
+                        mList.append(m.name)
+                
+                    except privs.PrivilegeException:
+                        pass
+                if modelName in mList:
+                    modelExists = True 
+        return {'success':True,'modelExists':modelExists}
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+'''
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+STB deprecated
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+'''
+#     @bottle.route('/json/model-create-name-levels-form')
+# def jsonCreateLevelsForm(db,uiSession):
+#     try:
+#         import htmlgenerator
+#         nLevels = _getOrThrowError(bottle.request.params, 'nLevels', isInt=True)
+#         
+#         return {'htmlString':"<h5 style='margin-top:0.2px;margin-bottom:0.2px;'>"+_('What are the levels called?')+"</h5>" \
+#                 +"<h6 style='margin-top:0.2px;margin-bottom:1.5px;'>"+_('(e.g., Four level supply chains, the levels may be named Central, Region, District, Health Post)')+"</h6>" \
+#                 + htmlgenerator._buildNameLevelsFormFromSession("model_create", numberOfLevels_=nLevels),
+#                 'success':True}
+#     except bottle.HTTPResponse:
+#         raise
+#     except Exception,e:
+#         return {'success':False,'msg':str(e)}
+# @bottle.route('/json/model-create-number-places-per-level-form', method='POST')
+# def jsonCreatePlacesPerLevelForm(db,uiSession):
+#     try:
+#         import htmlgenerator
+#         levelNamesDict = bottle.request.params
+#         levelNames = ["" for x in range(0,len(levelNamesDict))]
+#         for levelNum,levelName in levelNamesDict.items():
+#             levelNames[int(levelNum)] = levelName
+# 
+#         print "level " + str(levelNames)
+#         return {'htmlString':"<h5 style='margin-top:0.2px;margin-bottom:0.2px;'>"+_("What are the total number of locations within each level?") + "</h5>"\
+#                 +"<h6 style='margin-top:0.2px;margin-bottom:1.5px;'>"+_('Include all storage, immunizating and outreach locations')+"</h6>" \
+#                 + htmlgenerator._buildNumberPlacesPerLevelsFormFromSession("model_create_", levelNames_=levelNames),'success':True}
+#     except bottle.HTTPResponse:
+#         raise
+#     except Exception,e:
+#         return {'success':False,'msg':str(e)}
+
+
+# def addJsonNetwork(i,levelInfo):
+#     print "---------------------I = " + str(i)
+#     returnJson = {}
+#     if levelInfo.has_key('levelnames'):
+#         returnJson['name'] = levelInfo['levelnames'][i]
+#     if levelInfo.has_key('levelcounts'):
+#         returnJson['count'] = levelInfo['levelcounts'][i]
+#     
+#     if i!=len(levelInfo['levelnames'])-1:
+#         returnJson['children'] = [addJsonNetwork(i+1,levelInfo)]
+#         
+#         if levelInfo.has_key('shippatterns'):
+#             returnJson['isfixedam'] = levelInfo['shippatterns'][i+1][0]
+#             returnJson['isfetch'] = levelInfo['shippatterns'][i+1][1]
+#             returnJson['issched'] = levelInfo['shippatterns'][i+1][2]
+#             returnJson['interv'] = levelInfo['shippatterns'][i+1][3]
+#             returnJson['ymw'] = levelInfo['shippatterns'][i+1][4]  
+#         else:
+#             returnJson['isfixedam'] = "false"
+#             returnJson['isfetch'] = "false"
+#             returnJson['issched'] = "true"
+#             returnJson['interv'] = 12.0
+#             returnJson['ymw'] = 'year'   
+#     return returnJson     
+# @bottle.route('/json/model-create-network-from-session')
+# def jsonCreateNetworkJsonFromSession(db,uiSession):
+#     try:
+#         newModelDict = uiSession.getDictSummary()['newModelInfo']
+#     
+#     except bottle.HTTPResponse:
+#         raise # bottle will handle this
+#     except Exception,e:
+#         result = {'success':False, 'type':'error', 'msg':_("Problem getting newModelInfo from Session: ") + str(e)}
+#         return result 
+#     
+#     try:
+#         name = _getOrThrowError(bottle.request.params,'name',isInt=False)
+#         changeLev = _getOrThrowError(bottle.request.params,'changelev',isInt=True)
+#         thisModelDict = newModelDict[name]
+#     
+#     except bottle.HTTPResponse:
+#         raise # bottle will handle this
+#     except Exception,e:
+#         result = {'success':False, 'type':'noname','msg':_("Problem getting {0} model in newModelInfo from Session: ".format(name)) + str(e)}
+#         return result 
+#     
+#     try:
+#         levelNames = thisModelDict['levelnames']
+#     except bottle.HTTPResponse:
+#         raise # bottle will handle this
+#     except Exception,e:
+#         result = {'success':False, 'type':'noname','msg':_("Problem getting {0} model in newModelInfo from Session: ".format(name)) + str(e)}
+#         return result 
+#     
+#     try:
+#         ### Do we need to alter the dict before creating the networkJson
+#         if changeLev > 0:
+#             for i in range(0,changeLev):
+#                 thisModelDict['levelnames'].append(_('Level {0}'.format(i+len(levelNames)+1)))
+#                 if thisModelDict.has_key('levelcounts'):
+#                     thisModelDict['levelcounts'].append(1)
+#                 if thisModelDict.has_key('shippatterns'):
+#                     thisModelDict['shippatterns'].append(['false','false','true',12.0,'year'])
+#         
+#         if changeLev < 0:
+#             for i in range(0,-changeLev):
+#                 del thisModelDict['levelnames'][-1]
+#                 if thisModelDict.has_key('levelcounts'):
+#                     del thisModelDict['levelcounts'][-1]
+#                 if thisModelDict.has_key('shippatterns'):
+#                     del thisModelDict['shippatterns'][-1]
+#                 
+#             thisModelDict['nlevels'] = thisModelDict['nlevels'] + changeLev
+#         newJsonDict = addJsonNetwork(0,thisModelDict)
+#         
+#         return {'success':True, 'net':newJsonDict}
+#     
+#     except bottle.HTTPResponse:
+#         raise # bottle will handle this
+#     except Exception,e:
+#         return {'success':False,'type':'error','msg':str(e)}
+#         
+
+# def nameGen(baseName, count):
+#     if count == 1:
+#         yield "%s"%(baseName)
+#     else:
+#         for i in xrange(count):
+#             yield "%s_%d" % (baseName, i)
+# 
+# 
+# def treeGen(lvlNames, counts):
+#     myCount = counts[0]
+#     myNameGen = nameGen(lvlNames[0], myCount)
+#     if len(counts) == 1:
+#         for nm in myNameGen:
+#             yield {'name': nm}
+#     else:
+#         subGen = treeGen(lvlNames[1:], counts[1:])
+#         block = int(counts[1]/myCount)
+#         for i in xrange(myCount-1):  # @UnusedVariable
+#             yield({'name': myNameGen.next(),
+#                    'children': [subGen.next() for j in xrange(block)]})  # @UnusedVariable
+#         yield({'name': myNameGen.next(), 'children': [k for k in subGen]})
+# 
+# @bottle.route('/json/model-create-tree-json',method='POST')
+# def jsonCreateTree(db,uiSession):
+#     try:
+#         levelInfoDict = bottle.request.params
+#         print "Dict" + str(bottle.request.params.keys())
+#         levelNames = ["" for x in xrange(len(levelInfoDict)/2)]
+#         levelCount = ["" for x in xrange(len(levelInfoDict)/2)]
+#         for i in xrange(len(levelInfoDict)/2):
+#             print "i = " + str(i)
+#             levelNames[i] = levelInfoDict["%d[n]"%i]
+#             levelCount[i] = int(levelInfoDict["%d[c]"%i])
+# 
+#         print "Entering Tree"
+#         tG = treeGen(levelNames,levelCount)
+#         print "Exiting Tree"
+#         tree = [x for x in tG]
+#         print "TRee = " + str(tree)
+#         tree[0]['levelnames'] = levelNames
+#         tree[0]['levelcounts'] = levelCount
+#         return {'net':tree[0],'success':True}
+#     except bottle.HTTPResponse:
+#         raise
+#     except Exception,e:
+#         return {'success':False,'msg':str(e)}
+#     
+#     
+
+# @bottle.route('/model-create-old')
+# @bottle.route('/model-create-old/<step>')
+# def modelCreatePage(db,uiSession,step="unknown"):
+#     #paramList = ['%s:%s'%(str(k),str(v)) for k,v in bottle.request.params.items()]
+#     #_logMessage("Hit model_create; step=%s, params=%s"%(step,paramList))
+#     ''' STB To Do: not sure why this is needed at the beginning'''
+#     formVals = { 'breadcrumbPairs':uiSession.getCrumbs() }
+#     try:
+#         crumbTrack = uiSession.getCrumbs()
+#         print "Crumb Track 1:" + str(crumbTrack)
+#         stepPairs = [('nlevels',_('Edit Supply Chain Structure')),
+#                     # ('levelnames',_('Edit Level Names')),                 
+#                     # ('countsbylevel',_('Counts')),                 
+#                      ('interlevel',_('Edit Shipping Policy')),                 
+#                      ('interleveltimes',_('Edit Shipping Times')),                 
+#                      ('done',_('Adjust')),                 
+#                      ('people',_('Population')),                 
+#                      ('vaccines',_('Vaccines')),                 
+#                      ('fridges',_('Storage')),                 
+#                      ('trucks',_('Transport')),                 
+#                      ('setdemand',_('Consumption')),                 
+#                      ('provision',_('Equipment')),                 
+#                      ('provisionroutes',_('Logistics')),    
+#                      ]
+#         namedStepList = [a for a,b in stepPairs] # @UnusedVariable
+#         screen = None
+# 
+#         ### Setup the session information
+#         if 'newModelInfo' not in uiSession:
+#             uiSession['newModelInfo'] = {}
+#             
+#         newModelInfo = uiSession['newModelInfo']
+#         reqParams = bottle.request.params
+#         
+#         ### new names specific dict
+#         ### There needs to be a current model, otherwise, there is no way to comeback from this.
+#         if 'currentModelName' not in newModelInfo.keys():
+#             newModelInfo['currentModelName'] = "none"
+#         
+#         cName = _checkDefAndNewDict(reqParams,newModelInfo,'name')
+# 
+#         if cName:
+#             newModelInfo['currentModelName'] = cName
+#             
+#         curName = newModelInfo['currentModelName']
+#         ### Else current name stays the same
+#         
+#         ### Catch this, if we are running through this and there is no current name, then bad
+#         if newModelInfo['currentModelName'] == "none":
+#             raise RuntimeError(_("Entered into here without a model set, so new model Info cannot work."))
+#         
+#         newModelInfoCN = newModelInfo[newModelInfo['currentModelName']]
+#         
+#         if "subCrumbTrack" in newModelInfoCN:
+#             subCrumbTrack = newModelInfoCN['subCrumbTrack']
+#             if crumbTrack.trail[-1] != subCrumbTrack:
+#                 crumbTrack.push(subCrumbTrack)
+#         else:
+#             subCrumbTrack = None
+# 
+#         if step=="unknown":
+#             print "Step is unknown"
+#             if subCrumbTrack is None:
+#                 subCrumbTrack = crumbtracks.TrackCrumbTrail(bottle.request.path, 
+#                                                             "Create Model")
+#                 for a,b in stepPairs: subCrumbTrack.append((a,b))
+#                 newModelInfoCN['subCrumbTrack'] = subCrumbTrack
+#                 crumbTrack.push(subCrumbTrack)
+#                 ## we assume a new model is being born
+#             #uiSession['newModelInfo'] = {}
+#             step = screen = subCrumbTrack.current()
+# 
+#         elif step=='next':
+#             screen = subCrumbTrack.next()
+#             if screen is None:
+#                 # We just finished the track
+#                 del newModelInfoCN['subCrumbTrack']
+#                 crumbTrack.pop()
+#                 screen = 'models-top'
+#         elif step=='back':
+#             screen = subCrumbTrack.back()
+#             if screen is None:
+#                 # We just backed off the start of the track
+#                 crumbTrack.pop()
+#                 screen = 'models-top'
+#         else:
+#             if not crumbTrack.jump(step):
+#                 raise bottle.BottleException("Invalid step %s in model create"%step)
+#             screen = crumbTrack.current()
+#     
+#         
+#         _intCheckDefAndInvalidate(reqParams, newModelInfoCN,'nlevels','nlevels','pottable')
+#         _checkAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_levelname_%d','levelnames','pottable')
+#         _intCheckAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_lcounts_%d','levelcounts','pottable')
+#         _boolCheckAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_interl_isfixedam_%d','shippatterns_isfixedam','pottable',1)
+#         _boolCheckAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_interl_isfetch_%d','shippatterns_isfetch','pottable',1)
+#         _boolCheckAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_interl_issched_%d','shippatterns_issched','pottable',1)
+#         _floatCheckAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_interl_howoften_%d','shippatterns_howoften','pottable',1)
+#         _checkAscendingListAndInvalidate(reqParams,newModelInfoCN,'model_create_interl_ymw_%d','shippatterns_ymw','pottable',1)
+#         
+#         if all([k in newModelInfoCN for k in ['shippatterns_isfixedam','shippatterns_isfetch','shippatterns_issched','shippatterns_howoften','shippatterns_ymw']]):
+#             shipPatternList = [()] + zip(newModelInfoCN['shippatterns_isfixedam'],newModelInfoCN['shippatterns_isfetch'],newModelInfoCN['shippatterns_issched'],
+#                                          newModelInfoCN['shippatterns_howoften'],newModelInfoCN['shippatterns_ymw'])[:]
+#             newModelInfoCN['shippatterns'] = shipPatternList
+#             for k in ['shippatterns_isfixedam','shippatterns_isfetch','shippatterns_issched','shippatterns_howoften','shippatterns_ymw']:
+#                 del newModelInfoCN[k]
+#            
+#         ### STB NEED to Figure out what to do here
+#         print "Before" + str(uiSession.getDictSummary())
+#         if 'create' in bottle.request.params and bottle.request.params['create'] == 'true':
+#             print "In Create"
+#             if 'modelId' in newModelInfoCN:
+#                 # the user is messing around with the back/next buttons
+#                 pass
+#             else:
+#                 nameTmp,modelIdTmp = _createModel(db,uiSession)
+#                 newModelInfoCN['name2'] = nameTmp
+#                 newModelInfoCN['modelId'] = modelIdTmp
+#                 #newModelInfoCN['name2'],newModelInfoCN['modelId'] = _createModel(db,uiSession)
+#                 print "New Info " + str(newModelInfoCN['name']) + " " + str(newModelInfoCN['modelId'])
+#                 print 'After ' + str(uiSession.getDictSummary())           
+#                 print "modelID for god sake" + str(newModelInfoCN['modelId'])
+#                 #print 'is it in uisession ' +  str(uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]['modelId'])
+#         #### STB NEED to fix this
+#         if 'expert' in bottle.request.params and bottle.request.params['expert'] == 'true':
+#                 if 'modelId' in newModelInfoCN:
+#                     # the user is messing around with the back/next buttons
+#                     pass
+#                 else:
+#                     # fake the remaining unfilled pages so the PreOrderTree can get created
+#                     if 'levelcounts' not in newModelInfoCN: newModelInfoCN['levelcounts'] = [1 for x in xrange(newModelInfo['nlevels'])]
+#                     if 'shippatterns_transitunits' not in newModelInfoCN: newModelInfoCN['shippatterns_transitunits'] = ['hour' for x in xrange(newModelInfoCN['nlevels']-1)]
+#                     if 'shippatterns_transittimes' not in newModelInfoCN: newModelInfoCN['shippatterns_transittimes'] = [1.0 for x in xrange(newModelInfoCN['nlevels']-1)]
+#                     if 'shippatterns' not in newModelInfoCN: newModelInfoCN['shippatterns'] = [() if x==0 else (False, True, 1, 'year') for x in xrange(newModelInfoCN['nlevels'])]
+#                     if 'pottable' not in newModelInfoCN:
+#                         pot,recDict = _buildPreOrderTree(newModelInfoCN)
+#                         newModelInfoCN['pottable'] = pot.table
+#                         newModelInfoCN['potrecdict'] = recDict
+#                         newModelInfoCN['maxidcode'] = NumberedNameGenerator.totCount
+#                     newModelInfoCN['name'],newModelInfoCN['modelId'] = _createModel(db,uiSession)
+#                     # clean up current model creation session
+#                     createdModelId = newModelInfoCN['modelId']
+#                     del uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]['subCrumbTrack']
+#                     crumbTrack.pop()
+#                     del uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]
+#                     uiSession.changed()
+#                     # open the model editor
+#                     p = bottle.request.path
+#                     fp = bottle.request.fullpath
+#                     offset = fp.find(p)
+#                     rootPath = fp[:offset+1] # to include slash                    
+#                     bottle.redirect('{}model-edit-structure?id={}'.format(rootPath,createdModelId))
+#         if 'provision' in bottle.request.params and bottle.request.params['provision'] == 'true':
+#             if 'modelId' in newModelInfoCN:
+#                 print "provisioning model"
+#                 _provisionModel(db, newModelInfoCN['modelId'])
+#             else:
+#                 raise RuntimeError(_("The model is not ready for provisioning"))
+#         if 'provisionroutes' in bottle.request.params and bottle.request.params['provisionroutes'] == 'true':
+#             if 'modelId' in newModelInfoCN:
+#                 _provisionModelRoutes(db, newModelInfoCN['modelId'])
+#             else:
+#                 raise RuntimeError(_("The routes are not ready for provisioning"))
+#                     
+#         formVals = {"breadcrumbPairs":crumbTrack}
+#         for k in ['name','nlevels','levelnames','levelcounts','shippatterns','modelId']:
+#             if k in newModelInfoCN: 
+#                 formVals[k] = newModelInfoCN[k]
+#         
+#         screenToTpl = {"nlevels":"model_create_begin.tpl",
+#                        "interlevel":"model_create_interlevel.tpl",
+#                        "interleveltimes":"model_create_interlevel_timings.tpl",
+#                        "done":"model_create_done.tpl",
+#                        ### Want to get to here first
+#                        "provision":"model_create_provision.tpl",
+#                        "provisionroutes":"model_create_provision_routes.tpl",
+#                        'people':'people_top.tpl',
+#                        'vaccines':'vaccine_top.tpl',
+#                        'fridges':'fridge_top.tpl',
+#                        'trucks':'truck_top.tpl',
+#                        'setdemand':'demand_top.tpl'
+#                        }
+#         
+#         screenRequires = {"countsbylevel":["levelnames"],
+#                           "provision":["modelId"],
+#                           "provisionroutes":["modelId"],
+#                           "people":["modelId"],
+#                           "vaccines":["modelId"],
+#                           "fridges":["modelId"],
+#                           "trucks":["modelId"],
+#                           "setdemand":["modelId"],
+#                           }
+#         
+#         if screen in screenRequires:
+#             for req in screenRequires[screen]:
+#                 if req not in formVals:
+#                     raise RuntimeError(_("Expected to know the value of {0} by now").format(req))
+#                 
+#         if screen=="provision":
+#             formVals['canonicalStoresDict'] = _findCanonicalStores(shadow_network_db_api.ShdNetworkDB(db, formVals['modelId']))
+#         elif screen=="provisionroutes":
+#             formVals['canonicalRoutesDict'] = _findCanonicalRoutes(shadow_network_db_api.ShdNetworkDB(db, formVals['modelId']))
+#         elif screen in ["people","vaccines","fridges","trucks","setdemand"]:
+#             uiSession['selectedModelId'] = formVals['modelId']
+#             formVals.update({'backNextButtons':True,
+#                              'title_slogan':_("Create A Model"),
+#                              'topCaption':{'people':_("Select population types to be used in your model."),
+#                                            'vaccines':_("Select vaccine types to be used in your model."),
+#                                            'fridges':_("Select cold storage equipment types to be used in your model."),
+#                                            'trucks':_("Select trucks and other transport equipment types to be used in your model."),
+#                                            'setdemand':_("What are the vaccine requirements of each population type?")
+#                                            }[screen]
+#                              })
+#         elif screen=="done":
+#             newModelInfoCN['shippatterns'].insert(0,[])
+#             if 'pottable' not in newModelInfoCN:
+#                 pot,recDict = _buildPreOrderTree(newModelInfoCN)
+#                 newModelInfoCN['pottable'] = pot.table
+#                 newModelInfoCN['potrecdict'] = recDict
+#                 newModelInfoCN['maxidcode'] = NumberedNameGenerator.totCount
+#             
+#         uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']] = newModelInfoCN
+#         uiSession.changed()
+#   
+#         if screen in screenToTpl:
+#             import json,copy
+#             firstTime = "F"
+#             if not newModelInfoCN.has_key('levelnames'): firstTime = "T"
+#             newModelJsonNCT = copy.copy(newModelInfoCN)
+#             ### Need to remove crumbs, as they will not serialize and are not necessary
+#             if newModelJsonNCT.has_key('subCrumbTrack'):
+#                 del newModelJsonNCT['subCrumbTrack']
+#             newModelJson = json.dumps(newModelJsonNCT)
+#             print "!!!_!_!_!_!_!_!_!______!!____!!!___!!!_"
+#             print newModelJson
+#             return bottle.template(screenToTpl[screen],formVals,pagehelptag=screen,firstTime=firstTime)#, modJson = newModelJson)
+#         elif screen=="models-top":
+#             if 'subCrumbTrack' not in newModelInfo:
+#                 # we're done, or we never started
+#                 if 'newModelInfo' in uiSession: del uiSession['newModelInfo']
+#             p = bottle.request.path
+#             offset = fp.find(p)
+#             rootPath = fp[:offset+1] # to include slash
+#             bottle.redirect("%smodels-top"%rootPath)
+#         else:
+#             raise RuntimeError(_("Lost track of which step we are on"))
+#     except bottle.HTTPResponse:
+#         raise # bottle will handle this
+#     except Exception,e:
+#         _logMessage(str(e))
+#         _logStacktrace()
+#         formVals['comment'] = _("An error occurred while provisioning your model: {0}".format(str(e)))
+#         return bottle.template("problem.tpl",formVals)
+#     
+#     
+#     
+# def _checkDefAndInvalidate(reqParams,defDict,name1,name2,invalidateName=None):
+#     #print '###### check and invalidate <%s> <%s> <%s>'%(name1,name2,invalidateName)
+#     if name1 in reqParams:
+#         if name2 in defDict:
+#             if reqParams[name1]!=defDict[name2]:
+#                 defDict[name2] = reqParams[name1]
+#                 if invalidateName is not None and invalidateName in defDict:
+#                     del defDict[invalidateName]
+#         else:
+#             defDict[name2] = reqParams[name1]
+#             if invalidateName is not None and invalidateName in defDict:
+#                 del defDict[invalidateName]
+# 
+# def _intCheckDefAndInvalidate(reqParams,defDict,name1,name2,invalidateName=None):
+#     #print '###### int check and invalidate <%s> <%s> <%s>'%(name1,name2,invalidateName)
+#     if name1 in reqParams:
+#         if name2 in defDict:
+#             if int(reqParams[name1])!=defDict[name2]:
+#                 defDict[name2] = int(reqParams[name1])
+#                 if invalidateName is not None and invalidateName in defDict:
+#                     del defDict[invalidateName]
+#         else:
+#             defDict[name2] = int(reqParams[name1])
+#             if invalidateName is not None and invalidateName in defDict:
+#                 del defDict[invalidateName]
+# 
+# def _getAscendingList(reqParams,baseName,baseCount=1):
+#     l = []
+#     for _ in xrange(baseCount-1): l.append(())
+#     i = baseCount
+#     while True:
+#         s = baseName%i
+#         if s in reqParams:
+#             l.append(reqParams[s])
+#             i += 1
+#         else:
+#             break
+#     return l
+#         
+# def _checkAscendingListAndInvalidate(reqParams,defDict,baseName,name2,invalidateName=None,baseCount=1):
+#     newList = _getAscendingList(reqParams,baseName,baseCount)
+#     if newList != [] and newList != [()]:
+#         if name2 in defDict:
+#             if newList != defDict[name2]:
+#                 defDict[name2] = newList
+#                 if invalidateName is not None and invalidateName in defDict:
+#                     del defDict[invalidateName]
+#         else:
+#             defDict[name2] = newList
+#             if invalidateName is not None and invalidateName in defDict:
+#                 del defDict[invalidateName]
+#                 
+# def _intCheckAscendingListAndInvalidate(reqParams,defDict,baseName,name2,invalidateName=None,baseCount=1):
+#     newList = _getAscendingList(reqParams,baseName,baseCount)
+#     if newList != [] and newList != [()]:
+#         l = []
+#         for term in newList:
+#             if isinstance(term,types.StringTypes): l.append(int(term))
+#             else: l.append(term)
+#         newList = l
+#         if name2 in defDict:
+#             if newList != defDict[name2]:
+#                 defDict[name2] = newList
+#                 if invalidateName is not None and invalidateName in defDict:
+#                     del defDict[invalidateName]
+#         else:
+#             defDict[name2] = newList
+#             if invalidateName is not None and invalidateName in defDict:
+#                 del defDict[invalidateName]
+# 
+# def _floatCheckAscendingListAndInvalidate(reqParams,defDict,baseName,name2,invalidateName=None,baseCount=1):
+#     newList = _getAscendingList(reqParams,baseName,baseCount)
+#     if newList != [] and newList != [()]:
+#         l = []
+#         for term in newList:
+#             if isinstance(term,types.StringTypes): l.append(float(term))
+#             else: l.append(term)
+#         newList = l
+#         if name2 in defDict:
+#             if newList != defDict[name2]:
+#                 defDict[name2] = newList
+#                 if invalidateName is not None and invalidateName in defDict:
+#                     del defDict[invalidateName]
+#         else:
+#             defDict[name2] = newList
+#             if invalidateName is not None and invalidateName in defDict:
+#                 del defDict[invalidateName]
+# 
+# def _boolCheckAscendingListAndInvalidate(reqParams,defDict,baseName,name2,invalidateName=None,baseCount=1):
+#     newList = _getAscendingList(reqParams,baseName,baseCount)
+#     print "New List: " + str(newList)
+#     if newList != [] and newList != [()]:
+#         l = []
+#         for term in newList:
+#             if isinstance(term,types.StringTypes): 
+#                 if term.lower()=='true': l.append(True)
+#                 elif term.lower()=='false': l.append(False)
+#                 else: raise bottle.BottleException(_('Client returned invalid boolean string {0}').format(term))
+#             else: l.append(term)
+#         newList = l
+#         if name2 in defDict:
+#             if newList != defDict[name2]:
+#                 defDict[name2] = newList
+#                 if invalidateName is not None and invalidateName in defDict:
+#                     del defDict[invalidateName]
+#         else:
+#             defDict[name2] = newList
+#             if invalidateName is not None and invalidateName in defDict:
+#                 del defDict[invalidateName]

@@ -29,7 +29,7 @@ rect.child {
   
 fill: none;
   
-stroke: "black";
+stroke: "#fff";
 
 }
 
@@ -39,7 +39,7 @@ rect.parent,
 .grandparent rect {
 
   stroke-width: 2px;
-  fill:none;
+  #fill:none;
 }
 
 

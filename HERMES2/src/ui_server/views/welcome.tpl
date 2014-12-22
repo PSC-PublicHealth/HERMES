@@ -26,7 +26,7 @@
 			<table width = "100%" border = 0>
 				<tr>
 					<td rowspan=2 width=90><a href="{{rootPath}}model-create" ><img src='{{rootPath}}static/icons/pencil.png' width=80></a></td>
-					<td><h2 style="margin-bottom:0px;"><a href="{{rootPath}}model-create" >{{_("Create a New Model")}}</a></h2></td>
+					<td><h2 style="margin-bottom:0px;"><a id='create_model_link' href='#'>{{_("Create a New Model")}}</a></h2></td>
 				</tr>
 				<tr>
 					<td><h3 style="margin-top:0px;">{{_("Walk through and enter data through designated steps to create a set of inputs that can create a simulated supply chain.")}}</h3></td>
@@ -71,6 +71,168 @@
 		</div>
 	</div>
 </div>
+<!--- STB Recreating this from the models_top form to give the functionality here too.-->
+<div id="model_create_dialog_form" title={{_("Give a Name to the New Model")}}>
+	<form>
+		<fieldset>
+			<table>
+				<tr>
+					<td>{{_('New Model Name')}}</td>
+					<td>
+						<input type="text" name="model_create_dlg_new_name" 
+							id="model_create_dlg_new_name" class="text ui-widget-content ui-corner-all" />
+					</td>
+				</tr>
+			</table>
+		</fieldset>
+	</form>
+</div>
+
+<div id="model_confirm_delete" title='{{_("Delete Model")}}'>
+</div>
+
+<div id="model_create_existing_dialog" title='{{_("Model Creation Started")}}'>
+
+<p>{{_('You have already started creating this model, would you like to continue or start over?')}}; </div>
+
+<script>
+$(function(){
+	
+	$("#create_model_link").click(function(e){
+		e.preventDefault();
+		$("#model_create_dialog_form").dialog('open');
+	});
+	
+	$("#model_create_dialog_form").dialog({
+		resizable: false,
+	  	modal: true,
+		autoOpen:false,
+	 	buttons: {
+	    	'{{_("Create")}}': function() {
+	    		$.ajax({
+	    			url:'{{rootPath}}json/get-existing-models-creating',
+	    			async:false,
+					dataType:'json',
+					success: function(json){
+						if (json.names.indexOf($("#model_create_dlg_new_name").val())>-1){
+							$('#model_create_dialog_form').dialog("close");
+							$('#model_create_existing_dialog').dialog("open");
+						}
+						else if (!$("#model_create_dlg_new_name").val()){
+				    		alert("{{_('The New Model Name fields must be set to proceed.')}}");
+				    	}
+				    	else if (json.dbnames.indexOf($("#model_create_dlg_new_name").val()) >-1){
+				    		alert("{{_('Model name already exists in the database, please use another name.')}}");
+				    	}
+				    	else{
+				    		$("#model_create_dialog_form").dialog('close');
+				    		window.location="model-create?name="+$("#model_create_dlg_new_name").val();
+				    	}
+					}
+	    		});
+			},
+	    	'{{_("Cancel")}}': function() {
+	      		$( this ).dialog( "close" );
+	    	}
+	 	},
+	 	open: function(e,ui) {
+			$(this)[0].onkeypress = function(e) {
+				if (e.keyCode == $.ui.keyCode.ENTER) {
+					e.preventDefault();
+					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+					}
+			    };
+		}
+	});
+	
+	$("#model_create_existing_dialog").dialog({
+		resizable: false,
+		model: true,
+		autoOpen:false,
+		buttons:{
+			'{{_("Continue")}}': function() {
+				$(this).dialog("close");
+				window.location="model-create?name="+$("#model_create_dlg_new_name").val();
+			},
+			'{{_("Restart")}}': function(){
+				$(this).dialog("close");
+				$.ajax({
+					url:'{{rootPath}}json/get-newmodelinfo-from-session',
+					async:false,
+					dataType:'json',
+					success: function(json){
+						if ($("#model_create_dlg_new_name").val() in json.data){
+							thisModelJSon = json.data[$("#model_create_dlg_new_name").val()];
+							$.ajax({
+								url:'{{rootPath}}json/delete-model-from-newmodelinfo-session?name='+$("#model_create_dlg_new_name").val(),
+			    				async:false,
+								dataType:'json',
+								success:function(data){
+									if ('modelId' in thisModelJSon){
+										if(json.modelExists){
+										/// must delete this model first
+											deleteModel(thisModelJSon.modelId,$("#model_create_dlg_new_name").val());
+										}
+									}
+									window.location='{{rootPath}}model-create?name='+$("#model_create_dlg_new_name").val()
+								}
+							});
+						}
+					}
+				});
+				
+			},
+			'{{_("Cancel")}}': function(){
+				$(this).dialog("close");
+			}
+		},
+	    open: function(e,ui) {
+			$(this)[0].onkeypress = function(e) {
+				if (e.keyCode == $.ui.keyCode.ENTER) {
+					e.preventDefault();
+					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+					}
+			    };
+		}
+	});
+	$("#model_confirm_delete").dialog({
+		autoOpen:false, 
+		height:"auto", 
+		width:"auto",
+		buttons: {
+			'{{_("Delete")}}': function() {
+				$( this ).dialog( "close" );
+				$.getJSON('edit/edit-models.json',
+					{id: $("#model_confirm_delete").data('modelId'), 
+					    oper:'del'})
+			    	    .done(function(data) {
+			    	    		if (data.success) {
+					    $("#manage_models_grid").trigger("reloadGrid");
+			        	}
+			        	else {
+			        	    alert('{{_("Failed: ")}}'+data.msg);
+			        	}
+			    	    })
+			    	    .fail(function(jqxhr, textStatus, error) {
+			    		alert('{{_("Error: ")}}'+jqxhr.responseText);
+			    	    });
+				lastsel_models=null;
+				
+		            },
+		            '{{_("Cancel")}}': function() {
+		          	$( this ).dialog( "close" );
+		            }
+		     	}
+	});
+});
+
+function deleteModel(modelId, modelName) {
+    var msg = '{{_("Really delete the model ")}}' + modelName + " ( " + modelId + " ) ?";
+    $("#model_confirm_delete").html(msg);
+    $("#model_confirm_delete").data('modelId', modelId);
+    $("#model_confirm_delete").dialog("open");
+}
+</script>
 <!--<div class="art-postcontent art-postcontent-0 clearfix">
   <div class="art-content-layout">
 	<div class="art-content-layout-row">

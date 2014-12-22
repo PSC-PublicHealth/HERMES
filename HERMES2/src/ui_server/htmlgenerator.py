@@ -451,33 +451,198 @@ def _buildNameLevelsForm(prefix="",numberOfLevels=4,currentLevelNames=None):
     
     return htmlString
 
-def _buildNumberPlacesPerLevelsForm(prefix="",levelNames=[],currentLevelNumbers=None):
+def _buildNameLevelsFormFromSession(prefix="",levelInfo={},numberOfLevels_=4):
     
-    htmlDoc = HTMLDocument("levalplacenumbersform",None,standAlone_=False)
-    htmlForm = HTMLForm("Level_Place_Numbers")
+    numberOfLevels = numberOfLevels_;
+    if levelInfo.has_key('nlevels'):
+        numberOfLevels = levelInfo['nlevels']
     
-    fillTableNums = []
-    numberOfLevels = len(levelNames)
-    if currentLevelNumbers:
-        if len(currentLevelNumbers) != numberOfLevels:
-            return '<p> There was a problem creating the Levels Form</p>'
+    levelNames = [_("Level {0}".format(x+1)) for x in range(0,numberOfLevels)]
+    if levelInfo.has_key('levelnames'):
+        levelNames = levelInfo['levelnames']
+            
+    htmlDoc = HTMLDocument("levalnameform",None,standAlone_=False)
+    htmlForm = HTMLForm("Level_Names")
     
-        fillTableNums = currentLevelNumbers
-    else:
-        fillTableNums = [1 for x in range(0,numberOfLevels)]
+    print "Number of Levels = " + str(numberOfLevels)
     
     for i in range(0,numberOfLevels):
-        htmlForm.addElement(HTMLFormInputBox('model_create_lcounts_{0}'.format(i+1),
-                                             'Number of Locations in {0} level'.format(levelNames[i]),
-                                             fillTableNums[i],
+        htmlForm.addElement(HTMLFormInputBox('model_create_levelname_{0}'.format(i+1),
+                                             'Name for Level <span class="levelnames-em">{0}</span>'.format(i+1),
+                                             levelNames[i],
                                              'string',
                                              True))
                             
     htmlDoc.addConstruct(htmlForm)
     htmlString = htmlDoc.htmlString()
     
+    return htmlString
+
+### Deprecated
+# def _buildNumberPlacesPerLevelsForm(prefix="",levelNames=[],currentLevelNumbers=None):
+#     
+#     htmlDoc = HTMLDocument("levalplacenumbersform",None,standAlone_=False)
+#     htmlForm = HTMLForm("Level_Place_Numbers")
+#     
+#     fillTableNums = []
+#     numberOfLevels = len(levelNames)
+#     if currentLevelNumbers:
+#         if len(currentLevelNumbers) != numberOfLevels:
+#             return '<p> There was a problem creating the Levels Form</p>'
+#     
+#         fillTableNums = currentLevelNumbers
+#     else:
+#         fillTableNums = [1 for x in range(0,numberOfLevels)]
+#     
+#     for i in range(0,numberOfLevels):
+#         htmlForm.addElement(HTMLFormInputBox('model_create_lcounts_{0}'.format(i+1),
+#                                              'Number of Locations in {0} level'.format(levelNames[i]),
+#                                              fillTableNums[i],
+#                                              'int',
+#                                              True))
+#                             
+#     htmlDoc.addConstruct(htmlForm)
+#     htmlString = htmlDoc.htmlString()
+#     
+#     return htmlString 
+
+def _buildNumberPlacesPerLevelsFormFromSession(prefix="",levelInfo={},levelNames_=None):
+    ### check if I have some prerequisites
+    levelNames = []
+    if (not levelInfo.has_key('levelnames')):
+        if levelNames_ is None:
+            return "<p> Building Number of Places Model Create Form: The prerequisites of levelnames and levelcounts are not in the current session.</p>"
+        else:
+            levelNames = levelNames_
+    else:
+        levelNames = levelInfo['levelnames']
+    
+    ### Default is one
+    levelCounts = [1 for x in levelNames]
+    
+    ### if there is info in the info, put it in
+    if levelInfo.has_key('levelcounts'):
+        levelCounts = [x for x in levelInfo['levelcounts']]
+    
+    htmlDoc = HTMLDocument("levalplacenumbersform",None,standAlone_=False)
+    htmlForm = HTMLForm("Level_Place_Numbers")
+        
+    for i in range(0,len(levelNames)):
+        htmlForm.addElement(HTMLFormInputBox('model_create_lcounts_{0}'.format(i+1),
+                                             'Number of Locations in <span class="levelcount-em">{0}</span> level'.format(levelNames[i]),
+                                             levelCounts[i],
+                                             'int',
+                                             True))
+                            
+    htmlDoc.addConstruct(htmlForm)
+    htmlString = htmlDoc.htmlString()
+    
     return htmlString 
-   
+
+def _buildInterLevelInfoFormFromSession(prefix="",levelInfo={}):
+    ### check if I have some prerequisites
+    if (not levelInfo.has_key('levelnames')) or (not levelInfo.has_key('levelcounts')):
+        return "<p> Building Interlevel Model Create Form: The prerequisites of levelnames and levelcounts are not in the current session.</p>"
+    
+    levelNames = levelInfo['levelnames']
+    
+    
+    htmlDoc = HTMLDocument("interlevelinfoform",None,standAlone_=False)
+    htmlForm = HTMLForm("Iter_Level_Info_Form",cssclass='interleveltable')
+
+    numberEntries = len(levelNames)-1
+    amtEntries = [(_("based on demand"),"false"),(_("the same each shipment"),"true")]
+    fetchEntries = [(_("delivered by the supplier"),"false"),(_("picked up by the receiver"),"true")]
+    schedEntries = [(_('at a fixed interval'),"true"),(_('when products are needed'),"false")]
+    timeEntries = [(_('year'),'year'),(_('month'),'month'),(_('week'),'week')]
+    
+    sio = StringIO()
+    for i in range(0,numberEntries):
+        defaultsList = ["false","false","true",12.0,"year"]
+        print "------ I = %d---------"%i
+        ### lets see if there is existing data in the levelInfo
+        if levelInfo.has_key('shippatterns'):
+            defaultsList = levelInfo['shippatterns'][i]
+        
+        print defaultsList
+        htmlForm.addRow(['<span class="interleveltablehead">' \
+                         +_("For routes from the <span class='interleveltableem'>{0}</span> to <span class='interleveltableem'>{1}</span> levels:<br><br class='smallbr'>".format(levelNames[i],levelNames[i+1])) \
+                         + "</span>"],['N',2])
+        htmlForm.addElement(HTMLFormSelectBox('model_create_interl_isfetch_{0}'.format(i+1),
+                                              _('Products are'),
+                                              fetchEntries, str(defaultsList[1]).lower(),
+                                              cssclass="interleveltable"))
+        htmlForm.addElement(HTMLFormSelectBox('model_create_interl_isfixedam_{0}'.format(i+1),
+                                              _('for an amount that is'),
+                                              amtEntries,str(defaultsList[0]).lower(),
+                                              cssclass="interleveltable"))
+        htmlForm.addElement(HTMLFormSelectBox('model_create_interl_issched_{0}'.format(i+1),
+                                              _('on a frequency that occurs'),
+                                              schedEntries,str(defaultsList[2]).lower(),
+                                              cssclass="interleveltable"))
+        if defaultsList[2]:
+            thisHead = _("on a frequency that")
+        else:
+            thisHead = _("up to a frequency of")
+        htmlForm.addElement(HTMLFormInputBox('model_create_interl_howoften_{0}'.format(i+1),
+                                              thisHead,
+                                              defaultsList[3],
+                                              'float'
+                                              ,cssclass="interleveltable"))
+        htmlForm.addElement(HTMLFormSelectBox('model_create_interl_ymw_{0}'.format(i+1),
+                                              _('time(s) per'),
+                                              timeEntries, defaultsList[4],
+                                              cssclass="interleveltable"))
+        htmlForm.addRow(["<hr>"] ,['N',2])
+        
+    htmlDoc.addConstruct(htmlForm)
+    sio.write('{0}'.format(htmlDoc.htmlString()))
+    
+    return sio.getvalue()
+
+def _buildInterLevelTimingFormFromSession(prefix="",levelInfo={}):
+    if (not levelInfo.has_key('levelnames')) or (not levelInfo.has_key('levelcounts')):
+        return "<p> Building Interlevel Model Create Form: The prerequisites of levelnames and levelcounts are not in the current session.</p>"
+    
+    levelNames = levelInfo['levelnames']
+    
+    
+    htmlDoc = HTMLDocument("interltimingform",None,standAlone_=False)
+    htmlForm = HTMLForm("Iter_Level_Timing_Form",cssclass='interltimingtable')
+    
+    numberEntries = len(levelNames) - 1
+    timeEntries = [(_("year(s)"),'year'),(_("month(s)"),'month'),(_("week(s)"),'week'),
+                   (_("day(s)"),'day'),(_("hour(s)"),'hour')]
+    
+    sio = StringIO()
+    for i in range(0,numberEntries):
+        defaultList = [1.0,'hour']
+        if levelInfo.has_key('shiptransittimes'):
+            defaultList[0] = levelInfo['shiptransittimes'][i]
+        if levelInfo.has_key('shiptransitunits'):
+            defaultList[1] = levelInfo['shiptransitunits'][i]
+        
+        htmlForm.addRow(['<span class="interleveltablehead">' \
+                         +_("For routes from the <span class='interleveltableem'>{0}</span> to <span class='interleveltableem'>{1}</span> levels:<br><br>".format(levelNames[i],levelNames[i+1])) \
+                         + "</span>"],['N',3])
+        
+        htmlForm.addRow([_('Trips take on average'),
+                        HTMLFormInputBox('model_create_timing_time_{0}'.format(i+1),
+                                          '',
+                                          defaultList[0],
+                                        'float',
+                                        cssclass="interleveltable").htmlString(),
+                         HTMLFormSelectBox('model_create_timing_units_{0}'.format(i+1),
+                                              '',
+                                              timeEntries,defaultList[1],
+                                              cssclass="interleveltable").htmlString()],
+                        ['N',1,1,1])    
+        htmlForm.addRow(["<hr>"] ,['N',3])
+    
+    htmlDoc.addConstruct(htmlForm)
+    sio.write('{0}'.format(htmlDoc.htmlString()))
+    
+    return sio.getvalue()
 def _buildEditFieldTable(fieldMap):
     """
     fieldMap defines the layout of form fields on a page.  It is a 

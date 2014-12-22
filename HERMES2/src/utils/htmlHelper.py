@@ -27,7 +27,8 @@ import types
 class HTMLPrimitive:
     _allowedStyleElements = ['width','height','visibility',
                              'display','table-layout','border',
-                             'background','color','fontweight','fontsize']
+                             'background','color','fontweight','fontsize',
+                             '']
     def __init__(self,name_,**kwargs):
         self.name = name_
         self.classString = ''
@@ -37,6 +38,7 @@ class HTMLPrimitive:
             if self.styleString == '':
                 self.styleString = ' style="'
             if arg == 'cssclass':
+                print 'Setting Class to ' + str(value)
                 self.classString = ' class = "%s" '%value
             if arg in self._allowedStyleElements:
                 if arg == 'fontsize':
@@ -172,7 +174,7 @@ class HTMLTable(HTMLConstruct):
         self.minorColor = minorColor_
         
         self.data = []
-        self.possibleFormats = ["m","n","b","c"] #Major, Minor, Clear
+        self.possibleFormats = ["m","n","b","c","N"] #Major, Minor, Clear
         self.rowFormats = []
         self.rows = []
         
@@ -216,8 +218,13 @@ class HTMLTable(HTMLConstruct):
                 row = HTMLTableRow("%s_row_%d"%(self.name,i),self.pretty,background=self.minorColor,color="black",fontweight='bold',fontsize='14px')
             elif rowStyle == 'b':
                 row = HTMLTableRow("%s_row_%d"%(self.name,i),self.pretty,background="white",color="black",fontweight='bold',fontsize='12px')
-            else:
+            elif rowStyle == 'c':
                 row = HTMLTableRow("%s_row_%d"%(self.name,i),self.pretty,background="white",color="black",fontsize='12px')
+            elif rowStyle =='U':
+                row = HTMLTableRow("%s_row_%d"%(self.name,i),self.pretty,styleStrin)
+            else:
+                row = HTMLTableRow("%s_row_%d"%(self.name,i),self.pretty)
+                
             for j in range(0,len(rowData)):
                 row.addColumn(HTMLTableColumn("%s_col_%d"%(row.name,j),rowData[j],rowFormat.pop(0),False,self.pretty))
             
@@ -258,9 +265,9 @@ class HTMLForm(HTMLTable):
             print "hidden"
             self.addRow([htmlElement_.title,htmlElement_.htmlString()],["h",1,1])
         elif hasattr(htmlElement_,'title') and htmlElement_.title is not None:
-            self.addRow([htmlElement_.title,htmlElement_.htmlString()], ["b",1,1])
+            self.addRow([htmlElement_.title,htmlElement_.htmlString()], ["N",1,1])
         else:
-            self.addRow([" ",htmlElement_.htmlString()],["b",1,1])
+            self.addRow([" ",htmlElement_.htmlString()],["N",1,1])
         
 class HTMLFormSelectBox(HTMLElement):
     def __init__(self,name_,title_,options_=[],default_=None,
@@ -276,7 +283,7 @@ class HTMLFormSelectBox(HTMLElement):
                     raise Exception("HTMLFormSelectBox %s Option List not defined correctly: Should be list of 2D tuples (name,value)"%self.name)
         
         if default_ is not None:
-            if default_ not in [x[0] for x in self.options]:
+            if default_ not in [x[1] for x in self.options]:
                 raise Exception("Default value not in list of options for HTMLFormSelectBox: %s"%self.name)
         
         self.default = default_
@@ -296,9 +303,9 @@ class HTMLFormSelectBox(HTMLElement):
 
     def htmlString(self):        
         htmlList = []
-        htmlList.append('<select id="%s" %s>'%(self.name,self.styleString))
+        htmlList.append('<select id="%s" %s %s>'%(self.name,self.classString,self.styleString))
         for option in self.options:
-            if option[0] == self.default:
+            if option[1] == self.default:
                 htmlList.append('<option value="%s" selected>%s</option>'%(option[1],option[0]))
             else:
                 htmlList.append('<option value="%s">%s</option>'%(option[1],option[0]))
@@ -347,11 +354,11 @@ class HTMLFormInputBox(HTMLElement):
     def htmlString(self):
         parsedType = self._acceptableTypes[self.type]
         if self.default is not None:
-            return '<input id=%s type=%s value="%s" %s>'%(self.name,parsedType,self.default,
-                                                          self.styleString)
+            return '<input id=%s type=%s value="%s" %s %s>'%(self.name,parsedType,self.default,
+                                                             self.classString,self.styleString)
         else:
-            return '<input id=%s type=%s %s>'%(self.name,parsedType,
-                                               self.styleString)
+            return '<input id=%s type=%s %s %s>'%(self.name,parsedType,
+                                                  self.classString,self.styleString)
 
 class HTMLFormCheckBox(HTMLElement):
     def __init__(self,name_,title_,default_=False,pretty_=True,**kwargs):
@@ -371,7 +378,8 @@ class HTMLFormCheckBox(HTMLElement):
             self.default = ""
 
     def htmlString(self):
-        return '<input id=%s type="checkbox" %s %s>'%(self.name,self.default,self.styleString)
+        return '<input id=%s type="checkbox" %s %s %s>'%(self.name,self.default,
+                                                         self.classString, self.styleString)
             
 def main():
     htmlDoc = HTMLDocument(name_="test_doc",title_="Test HTML Document",standAlone_=True)

@@ -2,61 +2,38 @@
 <script src="{{rootPath}}static/d3/d3.min.js"></script>
 <script src="{{rootPath}}static/tree-layout-diagram/tree-layout-diagram.js"></script>
 <link rel="stylesheet" href="{{rootPath}}static/tree-layout-diagram/tree-layout-diagram.css"/>
+<script src="{{rootPath}}static/uisession.js"></script>
+
+<script>
+var modJson = JSON.parse('{{modJson}}'.replace(/&quot;/g,'"'));
+console.log(modJson);
+var modelInfo = ModelInfoFromJson(modJson);
+console.log(modelInfo);
+</script>
+
+<style>
+input.interleveltable {
+	width:200px;
+}
+select.interleveltable {
+	width:200px;
+}
+span.interleveltableem {
+	font-color:blue;
+	font-weight:bold;
+}
+</style>
 <script>
 
-function makeNetworkJson(i,levelInfo){
-	if (i == (Object.getOwnPropertyNames(levelInfo).length - 1)){
-		return {'name':levelInfo[i].n,'count':levelInfo[i].c,'focus':levelInfo[i].f};
-	}
-	else {
-		return {'name':levelInfo[i].n,'count':levelInfo[i].c,'focus':levelInfo[i].f,'children':[makeNetworkJson(i+1,levelInfo)]};
-	}
-}
+
 // This function updates the network diagram
 function updateNetworkDiagram(){
-	var levelInfo = {};
-	for(var i = 0; i < $("#model_create_nlevels_input").val(); ++i){
-		if (typeof $("#model_create_levelname_"+(i+1)).val() == "undefined")
-			break;
-		//levelNames.push($("#model_create_levelname_"+(i+1)).val());
-		var focus = false;
-		if($("#model_create_levelname_"+(i+1)).is(':focus')){
-				focus = true;
-				console.log("This has focus.... damnit");
-		}
-		levelInfo[i] = {'n':$("#model_create_levelname_"+(i+1)).val(),'c':0,'f':focus};
-		if (typeof $("#model_create_lcounts_"+(i+1)).val() == "undefined"){
-			levelInfo[i].c = 1;
-		}
-		else{
-			var focus = false;
-			if($("#model_create_lcounts_"+(i+1)).is(':focus'))
-				focus = true;
-			levelInfo[i].c = $("#model_create_lcounts_"+(i+1)).val();
-			levelInfo[i].f = focus;
-			//levelCount.push($("#model_create_lcounts_"+(i+1)).val());
-		}
-		
-	}
-	
-	console.log("Levels");
-	for(var level in levelInfo){
-		console.log(levelInfo[level].n);
-	}
-	if (Object.getOwnPropertyNames(levelInfo).length == 0){
-		nlevels = $("#model_create_nlevels_input").val();
-		for (var i=0;i<nlevels;i++){
-			levelInfo[i] = {'n':'Level '+i,'c':1,'f':false};
-		}
-	}
-	
-	jsonNet = makeNetworkJson(0,levelInfo);
 	$("#tree-layout-diagram").remove();
 	$("#model_create_diagram").append($("<div id='tree-layout-diagram' name='tree-layout-diagram'/>"));
 	$("#tree-layout-diagram").diagram({
 	        hasChildrenColor: "steelblue",
 	        noChildrenColor: "#ccc",
-	        jsonData:jsonNet,
+	        jsonData:modelInfo.toJsonNetwork(),
 	        minWidth: 768,
 	        minHeight: 775,
 	        resizable: false,
@@ -65,121 +42,81 @@ function updateNetworkDiagram(){
 	             "title": "{{_('Model')}}",
 	        }
 	});
-	
-	$("#tree-layout-diagram").diagram("zoomBy",0.25);
 }
 </script>
-<h1>{{_('How are goods shipped between levels?')}}</h1>
 
-<p>
-<form>
-  	<table>
-  	    <tr>
-  	    <th>{{_('Level')}}</th>
-  	    <th colspan=2>{{_('How are vaccines obtained?')}}</th>
-  	    <th colspan=3>{{_('How often?')}}</th>
-  	    </tr>
-%if defined('levelnames'):
-%    if  defined('shippatterns') and len(shippatterns) == len(levelnames):
-%        i = 2
-%        for lname,ptuple in zip(levelnames[1:],shippatterns[1:]):
-%            isfetch,issched,howoften,ymw = ptuple
-  	    <tr>
-  	    <td>{{lname}}</td>
-  	    <td><select id="model_create_interl_isfetch_{{i}}">
-%            if isfetch:
-  	        <option value="false">{{_('Receives Deliveries')}}</option><option value="true" selected>{{_('Picks Up Vaccines')}}</option>
-%            else:
-  	        <option value="false" selected>{{_('Receives Deliveries')}}</option><option value="true">{{_('Picks Up Vaccines')}}</option>
-%            end
-  	    </select></td>
-  	    <td><select id="model_create_interl_issched_{{i}}">
-%            if issched:
-  	        <option value="true" selected>{{_('On A Fixed Schedule')}}</option><option value="false">{{_('As Needed')}}</option></select></td>
-%            else:
-  	        <option value="true">{{_('On A Fixed Schedule')}}</option><option value="false" selected>{{_('As Needed')}}</option></select></td>
-%            end
-  	    <td><input type="number" id="model_create_interl_howoften_{{i}}" value={{howoften}} min=1></td>
-  	    <td>{{_("times per")}}</td>
-  	    <td><select id="model_create_interl_ymw_{{i}}">
-%            if ymw == 'year':
-  	        <option value="year" selected>{{_('Year')}}</option><option value="month">{{_('Month')}}</option><option value="week">{{_('Week')}}</option>
-%            elif ymw == 'month':
-  	        <option value="year">{{_('Year')}}</option><option value="month" selected>{{_('Month')}}</option><option value="week">{{_('Week')}}</option>
-%            else:
-  	        <option value="year">{{_('Year')}}</option><option value="month">{{_('Month')}}</option><option value="week" selected>{{_('Week')}}</option>
-%            end
-  	    </select></td>
-  	    </tr>
-%            i += 1
-%        end
-%    else:
-%        for i,lname in enumerate(levelnames[1:]):
-  	    <tr>
-  	    <td>{{lname}}</td>
-  	    <td><select id="model_create_interl_isfetch_{{i+2}}">
-  	        <option value="false">{{_('Receives Deliveries')}}</option><option value="true">{{_('Picks Up Vaccines')}}</option>
-  	    </select></td>
-  	    <td><select id="model_create_interl_issched_{{i+2}}">
-  	        <option value="true">{{_('On A Fixed Schedule')}}</option><option value="false">{{_('As Needed')}}</option></select></td>
-%           prepopval = {3: [4], 4: [2,4], 5: [2,4,6]}
-%           try:
-%               val = prepopval[nlevels][i]
-%           except:
-%               val = 1
-%           end
-%           if i==(nlevels-2): val = 12
-  	    <td><input type="number" id="model_create_interl_howoften_{{i+2}}" value="{{val}}" min=1></td>
-  	    <td>{{_("times per")}}</td>
-  	    <td><select id="model_create_interl_ymw_{{i+2}}">
-  	        <option value="year">{{_('Year')}}</option><option value="month">{{_('Month')}}</option><option value="week">{{_('Week')}}</option>
-  	    </select></td>
-  	    </tr>
-%        end
-%    end
-%end
-  		</tr>
-    </table>
-    <table width=100%>
-      <tr>
-        <td width 10%><input type="button" id="back_button" value={{_("Previous Screen")}}></td>
-        <td></td>
-        <td width=10%><input type="button" id="expert_button" value={{_("Skip to Model Editor")}}></td>
-        <td width=10%><input type="button" id="next_button" value={{_("Next Screen")}}></td>
-      </tr>
-    </table>
-</form>
+<style>
+#model_create_ui_holder{
+	width:100%;
+	max-width:825px;
+}
+#model_create_interlev_form_div{
+	width:400px;
+	float:left;
+}
+#model_create_diagram{
+	float:right;
+}
+#model_create_interlev_buttons{
+	height:150px;
+	width:100%;
+	float:left;
+}
+.interleveltablehead{
+	font-size:14px;
+}
+</style>
 
-<div id="dialog-modal" title={{_("Invalid Entry")}}>
-  <p>{{_('One or more of the values are blank; please fix this.')}}</p>
+<h1>{{_('How are goods shipped?')}}</h1>
+<div name="model_create_ui_holder" id="model_create_ui_holder">
+	<div id="model_create_interlev_form_div">A form needs to go here</div>
+	<div id="model_create_diagram" name="model_create_diagram_container" style="position:relative; left:0; top:0; bottom:0;float:right;">
+		<div id="tree-layout-diagram" name="tree-layout-diagram">
+			<script>
+			    updateNetworkDiagram();
+			</script>
+		</div>
+	</div>
+	<div name="model_create_interlev_buttons" id="model_create_interlev_buttons">
+    	<table width=100%>
+    		<tr>
+    			<td width 10%>
+    				<input type="button" id="back_button" value='{{_("Previous Screen")}}'>
+    			</td>
+    			<td>
+    			</td>
+    			<td width=10%>
+    				<input type="button" id="expert_button" value='{{_("Skip to Model Editor")}}'>
+    			</td>
+    			<td width=10%>
+    				<input type="button" id="next_button" value='{{_("Next Screen")}}'>
+    			</td>
+    		</tr>
+    	</table>
+    </div>	
+</div>
+
+<div id="dialog-modal" title='{{_("Invalid Entry")}}'>
+	<div id="dialog-modal-text"/>
+</div>
+<div id="dialog-save-confirm-modal" title='{{_("Confirm Changes?")}}'>
+	<p>{{_('Would you like to save the changes made on this page?')}}</p>
 </div>
 
 <script>
-$(':input[type=number]').bind('mousewheel DOMMouseScroll', function(event){
-  var val = parseInt(this.value);
-  var maxattr = $(this).attr("max");
-  var minattr = $(this).attr("min");
-  if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
-    if (typeof maxattr == typeof undefined || maxattr == false || val < maxattr) {
-      this.value = val + 1;
-    }
-  }
-  else {
-    if (typeof minattr == typeof undefined || minattr == false || val > minattr) {
-      this.value = val - 1;
-    }
-  }
-  event.preventDefault(); //to prevent the window from scrolling
-});
-
-$(function() {
-	var btn = $("#back_button");
-	btn.button();
-	btn.click( function() {
-		window.location = "{{rootPath}}model-create/back"
+$(function(){
+	updateInterLevelShipTable().done(function(result){
+		if(!result.success){
+			if(result.type == "error")
+				alert(result.msg);
+		}
+		else {
+			$("#model_create_interlev_form_div").html(result.htmlString);
+			add_interlevelship_listeners();
+		}
 	});
-});
-$(function() {
+	
+
 	$("#dialog-modal").dialog({
 		resizable: false,
       	modal: true,
@@ -190,79 +127,161 @@ $(function() {
         	}
         }
 	});
-
-  function validate_inputs() {
-		var parms = "";
-		var valsOK = true;
-		var first = true;
-		for (var i=0; i<{{nlevels-1}}; i++) {
-		    var s = "model_create_interl_isfetch_"+(i+2);
-		    var sval = $("#"+s).val();
- 		    if (sval) {
-		        if (first) {
-		            parms = parms + s + "=" + sval;
-		            first = false;
-		        }
-		        else {
-		            parms = parms + "&" + s + "=" + sval;
-		        }
-		    }
-		    else {
-		        valsOK = false;
-		    }
-		    s = "model_create_interl_issched_"+(i+2);
-		    sval = $("#"+s).val();
- 		    if (sval) {
-		        parms = parms + "&" + s + "=" + sval;
-		    }
-		    else {
-		        valsOK = false;
-		    }
-		    s = "model_create_interl_howoften_"+(i+2);
-		    sval = $("#"+s).val();
- 		    if (sval && parseInt(sval) > 0) {
-		        parms = parms + "&" + s + "=" + sval;
-		    }
-		    else {
-		        valsOK = false;
-		    }
-		    s = "model_create_interl_ymw_"+(i+2);
-		    sval = $("#"+s).val();
- 		    if (sval) {
-		        parms = parms + "&" + s + "=" + sval;
-		    }
-		    else {
-		        valsOK = false;
-		    }
-		}
-		if (!valsOK) { parms = null; }
-		return parms;
-	}
-
+	
+	$("#dialog-save-confirm-modal").dialog({
+		resizable: false,
+      	modal: true,
+		autoOpen:false,
+     	buttons: {
+			'{{_("Yes")}}': function() {
+				$( this ).dialog( "close" );
+				modelInfo.updateSession('{{rootPath}}')
+					.done(function(result){
+						if(!result.success){
+							if(result.type == "error")
+								alert(result.msg);
+					}
+				window.location = "{{rootPath}}model-create/back";
+				});
+        	},
+        	'{{_("No")}}': function() {
+        		$( this ).dialog( "close" );
+        		window.location = "{{rootPath}}model-create/back";
+        	}
+        }
+	});
+	
+	var btn = $("#back_button");
+	btn.button();
+	btn.click( function() {
+		$("#dialog-save-confirm-modal").dialog("open");
+		//window.location = "{{rootPath}}model-create/back"
+	});
+	
 	var btn = $("#expert_button");
 	btn.button();
 	btn.click( function() {
-		var parms = validate_inputs();
-		if (parms != null) {
-			window.location = "{{rootPath}}model-create/next?"+parms+"&expert=true";
-		}
-		else {
-			$("#dialog-modal").dialog("open");
-		}
+		window.location = "{{rootPath}}model-create/next?expert=true";
 	});
 
 	var btn = $("#next_button");
 	btn.button();
 	btn.click( function() {
-		var parms = validate_inputs();
-		if (parms != null) {
-			window.location = "{{rootPath}}model-create/next?"+parms;
-		}
-		else {
-			$("#dialog-modal").dialog("open");
-		}
+		modelInfo.updateSession('{{rootPath}}')
+			.done(function(result){
+			if(!result.success){
+				if(result.type == "error")
+					alert(result.msg);
+			}
+			window.location = "{{rootPath}}model-create/next";
+		});
+	});	
+});	
+
+function updateInterLevelShipTable(){
+	return $.ajax({
+		url:'{{rootPath}}json/model-create-interl-info-form-from-json',
+		type:'post',
+		dataType:'json',
+		data:JSON.stringify(modelInfo)		
+	}).promise();
+};
+
+// listeners
+function add_interlevelship_listeners(){
+	
+	// Listeners for bolding the route info on focus
+	$("[id^=model_create_interl]").focusin(function(){
+		var thisLevNum = parseInt($(this).prop('id').match(/\d+/))-1;
+		$('#tree-layout-diagram').diagram("bold_link_arrow",thisLevNum);
+	});	
+	
+	// Listeners for unbolding the route info on focus
+	$("[id^=model_create_interl]").focusout(function(){
+		var thisLevNum = parseInt($(this).prop('id').match(/\d+/))-1;
+		$('#tree-layout-diagram').diagram("unbold_link_arrow",thisLevNum);
 	});
-});
+	
+	// Listeners for flipping arrow direction
+	$("[id^=model_create_interl_isfetch]").change(function(){
+		var thisLevNum = parseInt($(this).prop('id').match(/\d+/))-1;
+		modelInfo.shippatterns[thisLevNum][1] = $(this).val();
+		$('#tree-layout-diagram').diagram("flip_link_arrow",thisLevNum,$(this).val());
+	});
+	
+	// Listeners that changes the label of frequency based on value
+	$("[id^=model_create_interl_issched]").change(function(){
+		var thisLevNum = parseInt($(this).prop('id').match(/\d+/))-1;
+		if($(this).val() == "false"){
+			$("#Iter_Level_Info_Form_table_row_"+((thisLevNum)*7 + 4)+"_col_0").addClass('animated pulse');
+			setTimeout(function(){
+				$("#Iter_Level_Info_Form_table_row_"+((thisLevNum)*7 + 4)+"_col_0").removeClass('animated pulse');
+			},1000);
+			setTimeout(function(){
+				$("#Iter_Level_Info_Form_table_row_"+((thisLevNum)*7 + 4)+"_col_0").text("up to a frequency of");
+			},300);
+		}
+		else{
+			console.log("This is true");
+			$("#Iter_Level_Info_Form_table_row_"+((thisLevNum)*7 + 4)+"_col_0")
+				.addClass('animated pulse');
+			setTimeout(function(){
+				$("#Iter_Level_Info_Form_table_row_"+((thisLevNum)*7 + 4)+"_col_0").removeClass('animated pulse');
+			},1000);
+			setTimeout(function(){
+				$("#Iter_Level_Info_Form_table_row_"+((thisLevNum)*7 + 4)+"_col_0").text("at a frequency of");
+			},300);
+		}
+		modelInfo.shippatterns[thisLevNum][2] = $(this).val() == "true" ? true : false;
+		$("#tree-layout-diagram").diagram('change_route_freq',thisLevNum,$(this).val());
+	});
+	
+	// Listeners for changing fixed tag on diagram
+	$("[id^=model_create_interl_isfixedam]").change(function(){
+		var thisLevNum = parseInt($(this).prop('id').match(/\d+/))-1;
+		modelInfo.shippatterns[thisLevNum][0] = $(this).val();
+		$("#tree-layout-diagram").diagram('change_route_amt',thisLevNum,$(this).val());
+	});
+	
+	$("[id^=model_create_interl_howoften]").each(function(){
+		$(this).data('oldVal',$(this).val());
+	});
+	
+	// Listener for changing the interval on diagram
+	$("[id^=model_create_interl_howoften]").change(function(){
+		var thisLevNum = parseInt($(this).prop('id').match(/\d+/))-1;
+		$(this).val(validate_interval($(this).val(),$("#model_create_interl_ymw_"+(thisLevNum+1)).val(),$(this).data('oldVal')));
+		modelInfo.shippatterns[thisLevNum][3] = parseFloat($(this).val());
+		$(this).data('oldVal',$(this).val());
+		console.log($("#model_create_interl_ymw_"+(thisLevNum+1)).val());
+		$("#tree-layout-diagram").diagram('change_route_interv',thisLevNum,$(this).val(),$("#model_create_interl_ymw_"+(thisLevNum+1)).val());
+	});
+	
+	//Listener for changing time unit on diagram
+	$("[id^=model_create_interl_ymw]").change(function(){
+		var thisLevNum = parseInt($(this).prop('id').match(/\d+/))-1;
+		modelInfo.shippatterns[thisLevNum][4] = $(this).val();
+		console.log(thisLevNum  + " " + $('#model_create_interl_howoften_'+(thisLevNum+1)).val());
+		$("#tree-layout-diagram").diagram('change_route_interv',thisLevNum,$('#model_create_interl_howoften_'+(thisLevNum+1)).val(),$(this).val());
+	});
+};
+
+// Validation functions
+function validate_interval(value,unit,origValue){
+	var limits = {'year':336,'month':28,'week':7};
+	
+	if(value <= 0){
+		$("dialog-modal-text").text("{{_('The frequency of shipments cannot be less than or equal to 0. Please select a positive number.')}}");
+		$('#dialog-modal').dialog("open");
+		return origValue;
+	}
+//	if(value > limits[unit]){
+//		$("dialog-modal-text").text("{{_('The frequency of shipments be specifed at more than one trip per day. Please select a positive number.')}}");
+//		$('#dialog-modal').dialog("open");
+//		return origValue;
+//	}
+	return value;
+}
 
 </script>
  

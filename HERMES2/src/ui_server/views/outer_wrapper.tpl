@@ -9,7 +9,7 @@
 
 <link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/themes/base/jquery.ui.all.css" />
 <link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/demos/demos.css" />
-
+<link rel="stylesheet" href="{{rootPath}}static/animate.css"/>
 <link rel="stylesheet" type="text/css" media="screen" href="{{rootPath}}static/jqGrid-4.4.4/css/ui.jqgrid.css" />
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-svg-1.4.5/jquery.svg.css" />
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/hermes_custom.css" />
