@@ -1,6 +1,5 @@
 %rebase outer_wrapper title_slogan=_("Run A Model Simulation"), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
 <h3>{{_('Verify and Start the Run')}}</h3>
-Summary of Inputs (as per skeleton)
 <br>
 {{_('Do you want to start the run?')}}
 

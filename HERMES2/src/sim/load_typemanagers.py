@@ -99,9 +99,9 @@ class TypeManagerLoader(object):
         # truck that serves the same function.
         sourceList = [({'Name': peopletypes.genericPeopleTypeName},
                        None, peopletypes.PeopleType),
-                      ({"Name": "default", "CoolVolumeCC": 1.0e9,
-                        "Note": "default truck type"},
-                       None, trucktypes.TruckType)
+#                       ({"Name": "default", "CoolVolumeCC": 1.0e9,
+#                         "Note": "default truck type"},
+#                        None, trucktypes.TruckType)
                       ]
 
         # Order is important in these imports, since some type definitions

@@ -731,15 +731,21 @@ function addToggleExpansionButton($grid) {
 						modelId: modelId,
 						invtype: invtype,
 						encode: true,
-						typestring: selected
+						typestring: selected,
+						allowblank: (!!settings.canBeBlank)
 					})
 					.done(function(data) {
-    					sel.html(data['menustr']);
-						sel.data('prev_value',sel.val());
-    					if ('afterBuild' in settings  && settings.afterBuild != null) {
-    						settings.afterBuild.bind(sel.parent())(sel,data);
-    					}
-    					if ($(document).tooltips) $(document).tooltips('applyTips');
+						if (data.success) {
+	    					sel.html(data['menustr']);
+							sel.data('prev_value',sel.val());
+	    					if ('afterBuild' in settings  && settings.afterBuild != null) {
+	    						settings.afterBuild.bind(sel.parent())(sel,data);
+	    					}
+	    					if ($(document).tooltips) $(document).tooltips('applyTips');							
+						}
+						else {
+							alert('{{_("Failed: ")}}'+data.msg);
+						}
     				})
   					.fail(function(jqxhr, textStatus, error) {
   						alert("Error: "+jqxhr.responseText);

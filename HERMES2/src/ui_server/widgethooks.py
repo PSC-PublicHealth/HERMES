@@ -516,11 +516,18 @@ def handleListType(db, uiSession):
         uiSession.getPrivs().mayReadModelId(db, modelId)
         invtype = _getOrThrowError(bottle.request.params, 'invtype')
         typestring = _safeGetReqParam(bottle.request.params, 'typestring')
-        escapeFlag = _safeGetReqParam(bottle.request.params, 'encode')
+        escapeFlag = _safeGetReqParam(bottle.request.params, 'encode', isBool=True)
+        blankFlag = _safeGetReqParam(bottle.request.params, 'allowblank', isBool=True)
         if typestring == 'null' or typestring == '':
             typestring = None
         typeList = typehelper.getTypeList(db, modelId, invtype, fallback=False)
         sio = StringIO()
+        foundType = False
+        if blankFlag:
+            if not typestring:
+                sio.write("  <option value='' selected>%s</option>\n" % _('--No Selection--'))
+            else:
+                sio.write("  <option value=''>%s</option>\n" % _('--No Selection--'))
         for t in typeList:
 
             if escapeFlag:
@@ -528,25 +535,51 @@ def handleListType(db, uiSession):
             else:
                 eName = t['Name']
 
-            if typestring and typestring == t['Name']:
-                sio.write("  <option value='%s' selected >%s</option>\n" % (eName,
-                                                                            t['Name']))
+            if t['DisplayName'] and t['DisplayName'] != '':
+                dispName = t['DisplayName']
             else:
-                sio.write("  <option value='%s'>%s</option>\n" % (eName, t['Name']))
+                dispName = t['Name']
+            if typestring and typestring == t['Name']:
+                sio.write("  <option value='%s' selected >%s</option>\n" % (eName, dispName))
+                foundType = True
+            else:
+                sio.write("  <option value='%s'>%s</option>\n" % (eName, dispName))
+        if typestring and not foundType:
+            raise RuntimeError(_("The selected type {0} is not a known type").format(typestring))
 
-        if typeList:
-            defaultSelected = typeList[0]
+        if typestring:
+            selected = typestring
+        elif blankFlag:
+            selected = ''
         else:
-            defaultSelected = None
+            selected = typeList[0]['Name']
         return {"success": True,
                 "menustr": sio.getvalue(),
-                "selected": (typestring if typestring is not None else defaultSelected)
+                "selected": selected
                 }
 
     except Exception, e:
         _logMessage(str(e))
         _logStacktrace()
         return {"success": False, "msg": str(e)}
+
+
+def getTypeFromRequest(m, key, expectedTp=None):
+    """
+    This is intended to a partner to handleListType, translating the type selection
+    from the client-side widget.  m is the model, key the request parameter provided
+    by the type selector
+    """
+    tpName = _getOrThrowError(bottle.request.params, key)
+    if tpName is None or tpName == '':
+        return None
+    assert tpName in m.types, _("This model has no type {0}").format(tpName)
+    tp = m.types[tpName]
+    if expectedTp is not None:
+        assert isinstance(tp, expectedTp), \
+            _("Type {0} is not a {1}").format(tpName, expectedTp.name)
+    return tp
+
 
 @bottle.route('/list/select-energy')
 def handleListEnergy(db,uiSession):

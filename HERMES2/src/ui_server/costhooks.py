@@ -19,6 +19,7 @@ import typehelper
 from fridgetypes import energyTranslationDict
 from trucktypes import fuelTranslationDict
 import currencyhelper
+from widgethooks import getTypeFromRequest
 
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _safeGetReqParam, _mergeFormResults
 
@@ -1136,11 +1137,8 @@ def editCostRoutePerDiem(db, uiSession):
             m = shadow_network_db_api.ShdNetworkDB(db, modelId)
             pdTypeName = _getOrThrowError(bRQ, 'pdtype')
             routeName = _getOrThrowError(bRQ, 'id')
-            assert pdTypeName in m.types, _("This model has no type {0}").format(pdTypeName)
             assert routeName in m.routes, _("This model has no route {0}").format(routeName)
-            tp = m.types[pdTypeName]
-            assert isinstance(tp, shadow_network.ShdPerDiemType), \
-                _("Type {0} is not a PerDiem rule").format(pdTypeName)
+            tp = getTypeFromRequest(m, 'pdtype', expectedTp=shadow_network.ShdPerDiemType)
             for opt in ['routename', 'level', 'supplier', 'info']:
                 if opt in bRQ:
                     raise RuntimeError(_('Editing of {0} is not supported').format(opt))

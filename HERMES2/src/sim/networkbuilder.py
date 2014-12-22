@@ -869,6 +869,8 @@ def buildNetwork(storeKeys, storeRecList,
         if typeList[0] in ['pull','attached','demandfetch','persistentpull','persistentdemandfetch'] and len(l)!=2:
             raise RuntimeError('Route %s is of type %s and so must have exactly two stops'%\
                                (routeName,typeList[0]))
+        if all([r['TruckType'] == 'default' for r in l]) and typeList[0] != 'attached':
+            raise RuntimeError('No record actually specifies a truck type for route %s' % routeName)
             
     # But wait!  Store records for which no route was defined may get a default routing.  Find those
     # records and check.  We will only try to do this backwards-compatible deprecated feature if

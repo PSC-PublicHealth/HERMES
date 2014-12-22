@@ -83,7 +83,8 @@ $(function() {
 		label:'',
 		invtype:'trucks',
 		modelId:{{modelId}},
-		selected:'{{truckType}}'
+		selected:'{{truckType}}',
+		canBeBlank:true
 	});
 
 	$('#perdiem_select_div_{{unique}}').hrmWidget({
@@ -91,7 +92,8 @@ $(function() {
 		label:'',
 		invtype:'perdiems',
 		modelId:{{modelId}},
-		selected:'{{perdiemType}}'
+		selected:'{{perdiemType}}',
+		canBeBlank:true
 	});
 
 	$('#route_edit_wgt_stops_tbl_{{unique}}').jqGrid({
