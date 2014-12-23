@@ -23,7 +23,8 @@
             });
             this.svgContainerID = this.containerID+"svgContainer";
             d3.select("#"+this.containerID).append("svgContainer")
-                .attr("id", this.svgContainerID);
+                .attr("id", this.svgContainerID)
+                .attr("height", 200);
    
             var jsonDataURL = this.options.jsonDataURLBase + "?"
                             + this.options.jsonDataURLParameters.join("&");
@@ -62,13 +63,16 @@
                 .attr("text-align", "center")
                 .text(trant['title']);
 
+            // TODO the addition of 2001 to the height of the svg is an awful
+            // hack that allows scrolling of very large charts.  it needs to be fixed
+            // as soon as possible.
             var svg = d3.select("#"+this.svgContainerID).append("svg")
                 .attr("class", "hierarchicalBarchart")
                 .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
+                .attr("height", 2001 + height + margin.top + margin.bottom)
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        
+
             svg.append("rect")
                 .attr("class", "background")
                 .attr("width", width)
@@ -87,13 +91,13 @@
                 // jquery
                 $("#"+this.svgContainerID).css("padding","10px");
                 $("#"+this.svgContainerID).css("margin","5px");
-                $("#"+this.svgContainerID).resizable();
             }
-    
+   
             if (this.options.scrollable) {
                 // jquery
-                $("#"+this.svgContainerID).css({
-                    overflow: "scroll"
+                $("#"+this.containerID).css({
+                    overflow: "scroll",
+                    height: "" + this.options.minHeight + "px"
                 });
             }
 
@@ -111,7 +115,7 @@
                 down(root, 0);
             });
 
-            svg.append("text")
+            svgTitle.append("div").append("text")
                 .attr("class", "x label")
                 .attr("text-anchor", "end")
                 .attr("x", width)
@@ -179,7 +183,7 @@
                     .datum(d)
                     .transition()
                     .duration(end);
-        
+      
                 d.index = i;
             };
         

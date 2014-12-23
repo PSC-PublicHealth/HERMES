@@ -319,10 +319,10 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
 </script>
 
 <!-- Hierarchical Charts for Cost Summaries -->
-<div id="costcharts" name="costcharts"/>
+<div id="costcharts" name="costcharts">
 
 <!-- Hierarchical Barchart -->
-<div id="hierarchicalBarchart" name "hierarchicalBarchart"/>
+<div id="hierarchicalBarchart" name="hierarchicalBarchart">
 <script src="{{rootPath}}static/d3/d3.min.js"></script>
 <script src="{{rootPath}}static/hierarchical-charts/hierarchical-barcharts.js"></script>
 <script>
@@ -334,7 +334,7 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
             "modelId={{modelId}}",
             "resultsId={{resultsId}}"],
         minWidth: 768,
-        minHeight: 775,
+        minHeight: 300,
         resizable: false,
         scrollable: true,
         trant: {
@@ -345,9 +345,10 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
 
     });
 </script>
+</div>
 
 <!-- Zoomable Treemap -->
-<div id="zoomableTreemap" name="zoomableTreemap"/>
+<div id="zoomableTreemap" name="zoomableTreemap">
 <script src="{{rootPath}}static/d3/d3.min.js"></script>
 <script src="{{rootPath}}static/hierarchical-charts/zoomable-treemap.js"></script>
 <script>
@@ -370,9 +371,9 @@ $.getJSON('json/result-transport-utilization-by-route-by-level-hist?modelId={{mo
 
     });
 </script>
+</div>
 
-
-
+</div>
 
 
 

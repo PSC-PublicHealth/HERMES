@@ -22,9 +22,11 @@
                 float: "left"
             });
             this.svgContainerID = this.containerID+"svgContainer";
+        
             d3.select("#"+this.containerID).append("svgContainer")
                 .attr("id", this.svgContainerID);
-   
+            console.log(this.containerID);
+            console.log(this.svgContainerID);
             var jsonDataURL = this.options.jsonDataURLBase + "?"
                             + this.options.jsonDataURLParameters.join("&");
     
