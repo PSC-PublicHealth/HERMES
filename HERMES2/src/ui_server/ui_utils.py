@@ -151,7 +151,7 @@ def _safeGetReqParam(reqParam,paramStr,isInt=False,isFloat=False,isTimeUnit=Fals
         elif isBool:
             rP = reqParam[paramStr]
             if isinstance(rP, types.StringTypes):
-                if rP.lower() in ['t','true']: return True
+                if rP.lower() in ['t','true',1,'1']: return True
                 else: return False
             else:
                 v = int(rP)
