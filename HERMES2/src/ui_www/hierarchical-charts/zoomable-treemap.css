@@ -1,80 +1,47 @@
 #chart {
-  
-width: 960px;
-  
-height: 500px;
-  
-background: #ddd;
-
+    width: 960px;
+    height: 500px;
+    background: #ddd;
 }
-
 
 text {
-  
-pointer-events: none;
-
+    pointer-events: none;
 }
-
-
 
 .grandparent text {
-  
-font-weight: bold;
-
+    font-weight: bold;
 }
-
-
 
 rect.child {
-  
-fill: none;
-  
-stroke: "#fff";
-
+    fill: none;
+    stroke: "#fff";
 }
-
-
 
 rect.parent,
 .grandparent rect {
-
-  stroke-width: 2px;
-  #fill:none;
+    stroke-width: 2px;
+    #fill:none;
 }
-
 
 .grandparent rect {
-  
-fill: orange;
-
+    fill: orange;
 }
-
 
 .grandparent:hover rect {
-  
-fill: #ee9700;
-
+    fill: #ee9700;
 }
-
 
 .children rect.parent,
 .grandparent rect {
-  
-cursor: pointer;
-
+    cursor: pointer;
 }
-
 
 .children rect.parent {
-
-  fill: #bbb;
-  
-fill-opacity: .5;
-
+    fill: #bbb;
+    fill-opacity: .5;
 }
 
-
 .children:hover rect.child {
-  fill: #bbb;
+    fill: #bbb;
 }
 
