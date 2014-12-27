@@ -85,6 +85,9 @@ function updateEditDlgTitle(btnStr, $form, rowid, gridId, prefix) {
 		idx += 1;
 		if (idx > ids.length) idx = 0;
 	}
+	else if (btnStr == 'same') {
+		// do nothing
+	}
 	else {
 		// prev
 		idx -= 1;
@@ -92,6 +95,11 @@ function updateEditDlgTitle(btnStr, $form, rowid, gridId, prefix) {
 	}
 	var newDisplayName = $g.jqGrid('getCell', ids[idx], 'displayname');
 	$mySpan.html(prefix + newDisplayName);
+
+	var units = $g.jqGrid('getCell',ids[idx],"ongoingunits");
+	var fuel = $g.jqGrid('getCell',ids[idx],"ongoingwhat");
+	var $elt = $form.find('#tr_ongoing').find('td').first();
+	$elt.text(units + ' ' + fuel);
 }
 
 function buildPage(modelId) {
@@ -117,6 +125,7 @@ function buildPage(modelId) {
 		          "{{_('Currency')}}",
 		          "{{_('Base Cost Year')}}",
 		          "{{_('Years to Amortize')}}",
+		          "{{_('Energy Type')}}",		          
 		          "{{_('Ongoing')}}",
 		          "{{_('Units')}}",
 		          "{{_('Of')}}",
@@ -146,7 +155,6 @@ function buildPage(modelId) {
 		        		  custom_element:function(value, options){
 		  					  var $divElem = $($.parseHTML("<div class='hermes_currency_selector'>"+value+"</div>"));
 		  					  var sel = $divElem.text();
-		  					  if (sel=='') sel='EUR';
 		  					  var args = {
 		  							  widget:'currencySelector',
 		  							  modelId:function() { return $('#model_sel_widget').modelSelector('selId'); },
@@ -154,6 +162,7 @@ function buildPage(modelId) {
 		  							  recreate:true
 		  					  }
 		  					  if (sel) args['selected'] = sel;
+		  					  if (sel=='') sel='???';
 		  					  $divElem.hrmWidget(args);
 		        			  return $divElem;
 		        		  },
@@ -180,6 +189,33 @@ function buildPage(modelId) {
 			        				  return [false,'{{_("Please enter a valid value for Years to Amortize")}}'];
 			        		  }
 			        	  }},
+			       {name:'energycode', jsonmap:'energycode', index:'energycode', hidden:true, editable:true,
+			        	editrules:{edithidden:true},
+				        edittype: 'custom',
+				        editoptions: {
+				        	custom_element:function(value, options){
+				  				var $divElem = $($.parseHTML("<div class='hermes_energy_selector'>"+value+"</div>"));
+				  				var sel = $divElem.text();
+				  				var args = {
+				  						widget:'energySelector',
+				  						modelId:function() { return $('#model_sel_widget').modelSelector('selId'); },
+				  						label:'',
+				  						canBeBlank:true
+				  				}
+				  				if (sel) args['selected'] = sel;
+				  				$divElem.hrmWidget(args);
+				        		return $divElem;
+				        	},
+				        	custom_value:function(elem, op, value){
+				        		if (op=='get') {
+				        			return $(elem).energySelector('selId');
+				        		}
+				        		else if (op=='set') {
+				        			$(elem).energySelector('selId',value);
+				        		}
+				        	}
+				        }
+			      },
 		          {name:'ongoing', jsonmap: 'powerrate', index:'ongoing', editable:true, edittype:'text', width:100, align:'center', 
 			        	  formatter:'number', formatoptions:{defaultValue:''},
 			        	  editable:true, editrules:{ 
@@ -193,10 +229,9 @@ function buildPage(modelId) {
 			        	  }
 		          },
 		          {name:'ongoingunits', jsonmap: 'powerrateunits', index:'ongoingunits', width:100, align:'center'},
-		          {name:'ongoingwhat', jsonmap: 'energy', index:'ongoingwhat', align:'center'},
+		          {name:'ongoingwhat', jsonmap: 'energy', index:'ongoingwhat', align:'center', editable:false},
 		          {name:'info', jsonmap: 'detail', index:'info', width:140, align:'center', sortable:false, 
-		        	  formatter:fridgeInfoButtonFormatter}
-		          
+		        	  formatter:fridgeInfoButtonFormatter},
 		], //define column models
 		pager: 'fridge_cost_pager', //set your pager div id
 		pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
@@ -258,7 +293,10 @@ function buildPage(modelId) {
 	                  	},
 	            		beforeShowForm:function($form) {
 	            			var $elt = $form.find('#tr_ongoing').find('td').first();
-	            			$elt.html(units + ' ' + fuel);
+	            			$elt.text(units + ' ' + fuel);
+	            		},
+	            		afterComplete:function(response, postData, $form) {
+	            			updateEditDlgTitle('same', $form, postData.id, 'fridge_cost_grid', '{{_("Edit Cost Information for ")}}');
 	            		},
 	            		onclickPgButtons:function( btnStr, $form, rowid) {
 	            			updateEditDlgTitle(btnStr, $form, rowid, 'fridge_cost_grid', '{{_("Edit Cost Information for ")}}');

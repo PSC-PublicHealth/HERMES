@@ -82,6 +82,9 @@ function updateEditDlgTitle(btnStr, $form, rowid, gridId, prefix) {
 		idx += 1;
 		if (idx > ids.length) idx = 0;
 	}
+	else if (btnStr == 'same') {
+		// do nothing
+	}
 	else {
 		// prev
 		idx -= 1;
@@ -89,6 +92,11 @@ function updateEditDlgTitle(btnStr, $form, rowid, gridId, prefix) {
 	}
 	var newDisplayName = $g.jqGrid('getCell', ids[idx], 'displayname');
 	$mySpan.html(prefix + newDisplayName);
+
+	var units = $g.jqGrid('getCell',ids[idx],"fuelrateunits");
+	var fuel = $g.jqGrid('getCell',ids[idx],"fuel");
+	var $elt = $form.find('#tr_fuelrate').find('td').first();
+	$elt.text(units + ' ' + fuel);
 }
 
 function buildPage(modelId) {
@@ -114,6 +122,7 @@ function buildPage(modelId) {
 		          "{{_('Currency')}}",
 		          "{{_('Base Cost Year')}}",
 		          "{{_('Km To Amortize')}}",
+		          "{{_('Fuel Type')}}",		          
 		          "{{_('Fuel Consumption')}}",
 		          "{{_('Units')}}",
 		          "{{_('Of')}}",
@@ -141,7 +150,6 @@ function buildPage(modelId) {
 		        		  custom_element:function(value, options){
 		  					  var $divElem = $($.parseHTML("<div class='hermes_currency_selector'>"+value+"</div>"));
 		  					  var sel = $divElem.text();
-		  					  if (sel=='') sel='EUR';
 		  					  var args = {
 		  							  widget:'currencySelector',
 		  							  modelId:function() { return $('#model_sel_widget').modelSelector('selId'); },
@@ -149,6 +157,7 @@ function buildPage(modelId) {
 		  							  recreate:true
 		  					  }
 		  					  if (sel) args['selected'] = sel;
+		  					  if (sel=='') sel='???';
 		  					  $divElem.hrmWidget(args);
 		        			  return $divElem;
 		        		  },
@@ -177,6 +186,34 @@ function buildPage(modelId) {
 		        		  }
 		        	  }
 		          },
+		          {name:'fuelcode', jsonmap:'fuelcode', index:'fuelcode', hidden:true, editable:true,
+			        	editrules:{edithidden:true},
+				        edittype: 'custom',
+				        editoptions: {
+				        	custom_element:function(value, options){
+				  				var $divElem = $($.parseHTML("<div class='hermes_energy_selector'>"+value+"</div>"));
+				  				var sel = $divElem.text();
+				  				var args = {
+				  						widget:'energySelector',
+				  						modelId:function() { return $('#model_sel_widget').modelSelector('selId'); },
+				  						OptionURL:'{{rootPath}}list/select-fuel',
+				  						label:'',
+				  						canBeBlank:true
+				  				}
+				  				if (sel) args['selected'] = sel;
+				  				$divElem.hrmWidget(args);
+				        		return $divElem;
+				        	},
+				        	custom_value:function(elem, op, value){
+				        		if (op=='get') {
+				        			return $(elem).energySelector('selId');
+				        		}
+				        		else if (op=='set') {
+				        			$(elem).energySelector('selId',value);
+				        		}
+				        	}
+				        }
+			      },
 		          {name:'fuelrate', jsonmap: 'fuelrate', index:'fuelrate', editable:true, edittype:'text', width:100, align:'center', 
 		        	  formatter:'currency', formatoptions:{defaultValue:''},
 		        	  editable:true, 
@@ -191,7 +228,7 @@ function buildPage(modelId) {
 				      	}
 		          },
 		          {name:'fuelrateunits', jsonmap: 'fuelrateunits', index:'fuelrateunits', width:100, align:'center'},
-		          {name:'fuel', jsonmap: 'fuel', index:'fuel', align:'center'},
+		          {name:'fuel', jsonmap: 'fuel', index:'fuel', align:'center', editable:false},
 		          {name:'info', jsonmap: 'detail', index:'info', width:140, align:'center', sortable:false, 
 		        	  formatter:truckInfoButtonFormatter}
 		          
@@ -249,13 +286,17 @@ function buildPage(modelId) {
 	                  	savekey:[true,13],
 	                  	afterSubmit:function(response,postData){
 	                  		var data = $.parseJSON(response.responseText);
-	                  		console.log(data);
-	                  		if (data.success) return [true];
+	                  		if (data.success) {
+	                  			return [true];
+	                  		}
 	                  		else return [false,data.msg];
 	                  	},
 	            		beforeShowForm:function($form) {
 	            			var $elt = $form.find('#tr_fuelrate').find('td').first();
-	            			$elt.html(units + ' ' + fuel);
+	            			$elt.text(units + ' ' + fuel);
+	            		},
+	            		afterComplete:function(response, postData, $form) {
+	            			updateEditDlgTitle('same', $form, postData.id, 'truck_cost_grid', '{{_("Edit Cost Information for ")}}');
 	            		},
 	            		onclickPgButtons:function( btnStr, $form, rowid) {
 	            			updateEditDlgTitle(btnStr, $form, rowid, 'truck_cost_grid', '{{_("Edit Cost Information for ")}}');

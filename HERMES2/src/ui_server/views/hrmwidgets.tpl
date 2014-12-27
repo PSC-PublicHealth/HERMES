@@ -620,10 +620,8 @@ function addToggleExpansionButton($grid) {
  				var myThis = this;
 				if (arg=='selId') {
 					if (arg2) {
-						var target = $(arg2).first().text();
-						var phrase = $(arg2).eq(1).text();
-						sel.val(target);
-						sel.data('requested',target); // in case the select contents are still in flight
+						sel.val(arg2);
+						sel.data('requested', arg2);
 						return arg2;
 					}
 					else {
@@ -646,19 +644,25 @@ function addToggleExpansionButton($grid) {
 					var url = settings.OptionURL || '{{rootPath}}list/select-energy';
 					$.getJSON(url, { 
 						encode: true,
-						selected: selected
+						selected: selected,
+						allowblank: (!!settings.canBeBlank)
 					})
 					.done(function(data) {
-						sel.html(data['menustr']);
-    					if (sel.data('requested')) {
-    						sel.val(sel.data('requested'));
-    						sel.data('requested',false);
-    					}
-						sel.data('prev_value',sel.val());
-    					if ('afterBuild' in settings  && settings.afterBuild != null) {
-    						settings.afterBuild.bind(sel.parent())(sel,data);
-    					}
-    					if ($(document).tooltips) $(document).tooltips('applyTips');
+						if (data.success) {
+							sel.html(data['menustr']);
+							if (sel.data('requested')) {
+								sel.val(sel.data('requested'));
+								sel.data('requested',false);
+							}
+							sel.data('prev_value',sel.val());
+							if ('afterBuild' in settings  && settings.afterBuild != null) {
+								settings.afterBuild.bind(sel.parent())(sel,data);
+							}
+							if ($(document).tooltips) $(document).tooltips('applyTips');
+						}
+						else {
+							alert('{{_("Failed: ")}}'+data.msg);
+						}
     				})
   					.fail(function(jqxhr, textStatus, error) {
   						alert("Error: "+jqxhr.responseText);

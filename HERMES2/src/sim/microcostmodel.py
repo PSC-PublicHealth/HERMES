@@ -700,7 +700,8 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
                     and (isinstance(invTp.AmortYears, types.FloatType)
                          and invTp.AmortYears >= 0.0)
                     and (isinstance(invTp.PowerRate, types.FloatType)
-                         and invTp.PowerRate >= 0.0))
+                         and invTp.PowerRate >= 0.0)
+                    and (invTp.Energy in fridgetypes.energyTranslationDict))
         except:
             return False
 

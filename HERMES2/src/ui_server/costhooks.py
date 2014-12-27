@@ -19,7 +19,7 @@ import typehelper
 from fridgetypes import energyTranslationDict
 from trucktypes import fuelTranslationDict
 import currencyhelper
-from widgethooks import getTypeFromRequest
+from widgethooks import getTypeFromRequest, getEnergyFromRequest, getFuelFromRequest
 
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _safeGetReqParam, _mergeFormResults
 
@@ -546,7 +546,8 @@ def jsonManageFridgeCostTable(db, uiSession):
                                                                 'basecostyear': 'BaseCostYear',
                                                                 'amortyears': 'AmortYears',
                                                                 'ongoing': 'PowerRate',
-                                                                'ongoingunits': 'PowerRateUnits'
+                                                                'ongoingunits': 'PowerRateUnits',
+                                                                'energycode': 'Energy'
                                                                 },
                                                                bottle.request)
         for t in tList:
@@ -573,7 +574,8 @@ def jsonManageFridgeCostTable(db, uiSession):
                             'amortyears': t['AmortYears'],
                             "powerrate": t['PowerRate'],
                             "powerrateunits":t['PowerRateUnits'],
-                            "energy":energyTranslationDict[t['Energy']][1]
+                            "energy":energyTranslationDict[t['Energy']][1],
+                            "energycode":t['Energy']
                             }
                            for t in tList if t['Name'] not in typehelper.hiddenTypesSet]
                   }
@@ -622,6 +624,9 @@ def editCostFridge(db, uiSession):
                 if 'amortyears' in bottle.request.params:
                     tp.AmortYears = _safeGetReqParam(bottle.request.params, 'amortyears',
                                                      isFloat=True)
+                if 'energycode' in bottle.request.params:
+                    tp.Energy = getEnergyFromRequest(bottle.request.params, 'energycode')
+                    tp.PowerRateUnits = energyTranslationDict[tp.Energy][2]
                 return {'success': True}
             else:
                 raise RuntimeError(_('Model {0} does not contain type {1}')
@@ -776,7 +781,8 @@ def jsonManageTruckCostTable(db, uiSession):
                                                                 'basecostyear': 'BaseCostYear',
                                                                 'fuel': 'Fuel',
                                                                 'fuelrate': 'FuelRate',
-                                                                'fuelrateunits': 'FuelRateUnits'
+                                                                'fuelrateunits': 'FuelRateUnits',
+                                                                'fuelcode': 'Fuel'
                                                                 },
                                                                bottle.request)
         for t in tList:
@@ -802,6 +808,7 @@ def jsonManageTruckCostTable(db, uiSession):
                             "fuelrate": t['FuelRate'],
                             "fuelrateunits": fuelTranslationDict[t['Fuel']][2],
                             "fuel": fuelTranslationDict[t['Fuel']][1],
+                            'fuelcode':t['Fuel'],
                             "amortizationkm": t['AmortizationKm']
                             }
                            for t in tList if t['Name'] not in typehelper.hiddenTypesSet]
@@ -840,6 +847,9 @@ def editCostTruck(db, uiSession):
                                                          isFloat=True)
                 if 'fuelrate' in bottle.request.params:
                     tp.FuelRate = _safeGetReqParam(bottle.request.params, 'fuelrate', isFloat=True)
+                if 'fuelcode' in bottle.request.params:
+                    tp.Fuel = getFuelFromRequest(bottle.request.params, 'fuelcode')
+                    tp.FuelRateUnits = fuelTranslationDict[tp.Fuel][2]
                 return {'success': True}
             else:
                 raise RuntimeError(_('Model {0} does not contain type {1}')

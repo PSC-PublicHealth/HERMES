@@ -109,8 +109,6 @@ function updateEditDlgTitle(btnStr, $form, rowid, gridId, prefix) {
 		newDisplayName = $g.jqGrid('getCell', ids[idx], 'routename');
 	}
 	$mySpan.html(prefix + newDisplayName);
-	
-	var $mySel = $form.find('.hermes_type_selector').typeSelector('set',$g.jqGrid('getCell', ids[idx], 'pdtype'));
 }
 
 function buildPage(modelId) {
@@ -347,7 +345,7 @@ function buildPage(modelId) {
 		        				  return $(elem).typeSelector('selValue');
 		        			  }
 		        			  else if (op=='set') {
-		        				  $(elem).typeSelector('selValue',value);
+		        				  $(elem).typeSelector('set',value);
 		        			  }
 		        		  }
 		        	  }

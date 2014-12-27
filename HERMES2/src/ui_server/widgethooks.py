@@ -581,80 +581,101 @@ def getTypeFromRequest(m, key, expectedTp=None):
     return tp
 
 
-@bottle.route('/list/select-energy')
-def handleListEnergy(db,uiSession):
+def _handleListThing(db, uiSession, thingName, thingDict):
     try:
+        # print 'handleListThing: %s' % [(k,v) for k,v in bottle.request.params.items()]
         sel = _safeGetReqParam(bottle.request.params, 'selected')
-        if sel=='null' or sel=='': sel = None
-        pairList = [(k,"%s %s"%(v[2],v[1])) for k,v in energyTranslationDict.items()
-                    if k is not None and k!='']
+        blankFlag = _safeGetReqParam(bottle.request.params, 'allowblank', isBool=True)
+        if sel == 'null' or sel == '':
+            sel = None
+#         pairList = [(k, "%s %s" % (v[2], v[1])) for k, v in thingDict.items()
+#                     if k is not None and k != '']
+        pairList = [(k, "%s" % v[1]) for k, v in thingDict.items()
+                    if k is not None and k != '']
         if sel is None and pairList[0][0] is not None:
             sel = htmlEscape(pairList[0][0].encode('utf-8'))
         sio = StringIO()
-        for k,v in pairList:
-            
+        foundSel = False
+        if blankFlag:
+            if not sel:
+                sio.write("  <option value='' selected>%s</option>\n" % _('--No Selection--'))
+            else:
+                sio.write("  <option value=''>%s</option>\n" % _('--No Selection--'))
+        for k, v in pairList:
+
             k = htmlEscape(k)
             v = htmlEscape(v)
-            
-            if sel and sel==k:
-                sio.write("  <option value='%s' selected >%s</option>\n"%(k,v))
+
+            if sel and sel == k:
+                sio.write("  <option value='%s' selected >%s</option>\n" % (k, v))
+                foundSel = True
             else:
-                sio.write("  <option value='%s'>%s</option>\n"%(k,v))
-        
-        return {"success":True,
-                "menustr":sio.getvalue(),
-                "selected":sel
+                sio.write("  <option value='%s'>%s</option>\n" % (k, v))
+        if sel and not foundSel:
+            raise RuntimeError(_("The selected {0} type {1} is not a known type").format(thingName,
+                                                                                         sel))
+        # print 'handleListThing produced %s' % sio.getvalue()
+
+        return {"success": True,
+                "menustr": sio.getvalue(),
+                "selected": sel
                 }
-    except Exception,e:
+    except Exception, e:
         _logMessage(str(e))
         _logStacktrace()
-        return {"success":False, "msg":str(e)}
+        return {"success": False, "msg": str(e)}
+
+
+def _getThingFromRequest(m, key, thingName, thingDict):
+    """
+    This is intended to a partner to handleListEnergy, translating the type selection
+    from the client-side widget.  key is the request parameter provided by the type selector
+    """
+    tpName = _getOrThrowError(bottle.request.params, key)
+    if tpName is None or tpName == '':
+        return None
+    assert tpName in thingDict, _("There is no {0} type {1}").format(thingName, tpName)
+    return tpName
+
+
+@bottle.route('/list/select-energy')
+def handleListEnergy(db, uiSession):
+    return _handleListThing(db, uiSession, _('energy'), energyTranslationDict)
+
+
+def getEnergyFromRequest(m, key):
+    return _getThingFromRequest(m, key,  _('energy'), energyTranslationDict)
+
 
 @bottle.route('/list/select-fuel')
-def handleListFuel(db,uiSession):
-    try:
-        sel = _safeGetReqParam(bottle.request.params, 'selected')
-        if sel=='null' or sel=='': sel = None
-        pairList = [(k,"%s %s"%(v[2],v[1])) for k,v in fuelTranslationDict.items()
-                    if k is not None and k!='']
-        if sel is None and pairList[0][0] is not None:
-            sel = htmlEscape(pairList[0][0].encode('utf-8'))
-        sio = StringIO()
-        for k,v in pairList:
-            
-            k = htmlEscape(k)
-            v = htmlEscape(v)
-            
-            if sel and sel==k:
-                sio.write("  <option value='%s' selected >%s</option>\n"%(k,v))
-            else:
-                sio.write("  <option value='%s'>%s</option>\n"%(k,v))
-        # print sio.getvalue()
-        return {"success":True,
-                "menustr":sio.getvalue(),
-                "selected":sel
-                }
-    except Exception,e:
-        _logMessage(str(e))
-        _logStacktrace()
-        return {"success":False, "msg":str(e)}
+def handleListFuel(db, uiSession):
+    return _handleListThing(db, uiSession, _('fuel'), fuelTranslationDict)
+
+
+def getFuelFromRequest(m, key):
+    return _getThingFromRequest(m, key,  _('fuel'), fuelTranslationDict)
+
 
 @bottle.route('/list/select-type-full')
 def listSelectTypeFull(db, uiSession):
     """
-    Return a pure HTML string for a <select> element, as per jgGrid edittype="select" editoptions dataURL
+    Return a pure HTML string for a <select> element, as per jgGrid edittype="select"
+    editoptions dataURL
     """
     try:
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayReadModelId(db, modelId)
-        invtype = _getOrThrowError(bottle.request.params, 'invtype')
         typestring = _safeGetReqParam(bottle.request.params, 'typestring')
-        if typestring=='null': typestring = None
-        typeList = typehelper.getTypeList(db,modelId,invtype,fallback=False)
+        if typestring == 'null':
+            typestring = None
         optionInfo = handleListType(db, uiSession)
-        return "<select>\n"+optionInfo['menustr']+"</select>\n"
-    except Exception,e:
+        if 'menustr' in optionInfo:
+            return "<select>\n"+optionInfo['menustr']+"</select>\n"
+        else:
+            raise bottle.BottleException(optionInfo['msg'])
+    except Exception, e:
         raise bottle.BottleException(str(e))
+
 
 @bottle.route('/edit/store-edit-edit',method='POST')
 def editStoreEditEdit(db, uiSession):
