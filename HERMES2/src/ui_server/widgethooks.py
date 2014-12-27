@@ -26,6 +26,7 @@ from model_edit_hooks import updateDBRouteType, jsonRecursiveStoreEditCreate
 from fridgetypes import energyTranslationDict
 from trucktypes import fuelTranslationDict
 import session_support_wrapper as session_support
+import currencyhelper
 
 inlizer=session_support.inlizer
 _=session_support.translateString
@@ -509,6 +510,58 @@ def handleListRouteType(db,uiSession):
         return {"success":False, "msg":str(e)}
 
 
+@bottle.route('/list/select-currency')
+def handleListCurrency(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        selectedCurrencyId = _safeGetReqParam(bottle.request.params, 'idstring')
+        if 'defaultCurrencyId' not in uiSession:
+            uiSession['defaultCurrencyId'] = None
+        if ((selectedCurrencyId is None or selectedCurrencyId == '')
+                and 'defaultCurrencyId' in uiSession):
+            selectedCurrencyId = uiSession['defaultCurrencyId']
+        selectedCurrencyName = ''
+        orderedPairs = [(b, a) for a, b in currencyhelper.getCurrencyDict(db, modelId).items()]
+        orderedPairs.sort()
+        orderedPairs = [(_('--No Selection--'), '???')] + orderedPairs
+        s = ""
+        for name, thisId in orderedPairs:
+            if selectedCurrencyId is None:
+                # print thisId
+                uiSession['defaultCurrencyId'] = selectedCurrencyId = thisId
+                s += "<option value=%s selected>%s</option>\n" % (thisId, name)
+                selectedCurrencyName = name
+            elif thisId == selectedCurrencyId:
+                s += "<option value=%s selected>%s</option>\n" % (thisId, name)
+                selectedCurrencyName = name
+            else:
+                s += '<option value="%s">"%s"</option>\n' % (thisId, name)
+        quotedPairs = [(a, b) for a, b in orderedPairs]
+        return {"menustr": s,
+                "pairs": quotedPairs,
+                "selid": selectedCurrencyId,
+                "defaultid": uiSession['defaultCurrencyId'],
+                "selname": selectedCurrencyName, "success": True}
+    except Exception, e:
+        _logStacktrace()
+        return {"success": False, "msg": str(e)}
+
+
+def getCurrencyFromRequest(db, m, key):
+    """
+    This is intended to a partner to handleListCurrency, translating the currency selection
+    from the client-side widget.  m is the model, key the request parameter provided
+    by the currency selector
+    """
+    curCode = _getOrThrowError(bottle.request.params, key)
+    if curCode is None or curCode == '' or curCode == '???':
+        return None
+    assert curCode in currencyhelper.getCurrencyDict(db, m.modelId), \
+        _("No such currency code {0}").format(curCode)
+    return curCode
+
+
 @bottle.route('/list/select-type')
 def handleListType(db, uiSession):
     try:
@@ -791,7 +844,6 @@ def jsonStoreUpdate(db, uiSession):
                                                    ('longitude','Longitude',False,True,None,(-180.0,180.0)),
                                                    ('latitude','Latitude',False,True,None,(-90.0,90.0)),
                                                    ('cost','SiteCost',False,True,None,(0.0,float('inf'))),
-                                                   ('costcur','SiteCostCurCode',False,False,None,None),
                                                    ('costyear','SiteCostYear',True,False,None,(2000,3000))
                                                    ]:
             v = _safeGetReqParam(bottle.request.params, key)
@@ -804,6 +856,13 @@ def jsonStoreUpdate(db, uiSession):
                     badParms.append(_("{0} must be in the range {1} to {2}".format(key,range[0],range[1])))
                 else:
                     goodPairs.append((name,v))
+        key, name = ('costcur','SiteCostCurCode')
+        try:
+            v = getCurrencyFromRequest(db, m, key)
+            goodPairs.append((name, v))
+        except Exception, e:
+            badParms.append(_("{0} is not a valid currency code").format(v))
+
         if badParms==[]:
             for name,v in goodPairs:
                 print 'setattr %s %s %s'%(name,v,type(v))

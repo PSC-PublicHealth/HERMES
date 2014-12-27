@@ -528,12 +528,15 @@ function addToggleExpansionButton($grid) {
  				var myThis = this;
  				var $btn = this.find("button").first();
 				if (arg=='selId') {
-					if (! arg2) {
+					if (arg2 == undefined) {
 						return $btn.data('code');
 					}
 					else {
 						$btn.data('code',arg2);
-						$btn.button('option','label',arg2.htmlEscape());						
+						if (arg2 == '' || arg2 == null)
+							$btn.button('option', 'label', '???');
+						else
+							$btn.button('option','label',arg2.htmlEscape());						
 						return $btn.data('code');
 					}
 				}

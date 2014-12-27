@@ -19,7 +19,8 @@ import typehelper
 from fridgetypes import energyTranslationDict
 from trucktypes import fuelTranslationDict
 import currencyhelper
-from widgethooks import getTypeFromRequest, getEnergyFromRequest, getFuelFromRequest
+from widgethooks import getTypeFromRequest, getEnergyFromRequest, getFuelFromRequest, \
+    getCurrencyFromRequest
 
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _safeGetReqParam, _mergeFormResults
 
@@ -82,39 +83,6 @@ def costEditBuilding(db, uiSession):
     return bottle.template("cost_edit_buildings.tpl", {"breadcrumbPairs": crumbTrack,
                                                        "title_slogan": _("Building Costs")})
 
-
-@bottle.route('/list/select-currency')
-def handleListCurrency(db,uiSession):
-    try:
-        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
-        uiSession.getPrivs().mayReadModelId(db, modelId)
-        selectedCurrencyId = _safeGetReqParam(bottle.request.params, 'idstring')
-        if 'defaultCurrencyId' not in uiSession: uiSession['defaultCurrencyId'] = 'EUR'
-        if (selectedCurrencyId is None or selectedCurrencyId=='') and 'defaultCurrencyId' in uiSession:
-            selectedCurrencyId = uiSession['defaultCurrencyId']
-        selectedCurrencyName = ''
-        orderedPairs = [(b,a) for a,b in currencyhelper.getCurrencyDict(db, modelId).items()]
-        orderedPairs.sort()
-        s = ""
-        for name, thisId in orderedPairs: 
-            if selectedCurrencyId is None:
-                #print thisId
-                uiSession['defaultCurrencyId'] = selectedCurrencyId = thisId
-                s += "<option value=%s selected>%s</option>\n"%(thisId,name)
-                selectedCurrencyName = name
-            elif thisId == selectedCurrencyId:
-                s += "<option value=%s selected>%s</option>\n"%(thisId,name)
-                selectedCurrencyName = name
-            else:
-                s += '<option value="%s">"%s"</option>\n'%(thisId,name)
-        quotedPairs = [(a, b) for a,b in orderedPairs]
-        return {"menustr":s, "pairs":quotedPairs, 
-                "selid":selectedCurrencyId, 
-                "defaultid":uiSession['defaultCurrencyId'],
-                "selname":selectedCurrencyName, "success":True}
-    except Exception,e:
-        _logStacktrace()
-        return {"success":False, "msg":str(e)}
 
 @bottle.route('/json/set-currency-base-year')
 def jsonSetCurrencyBaseYear(db, uiSession):
@@ -290,7 +258,8 @@ def jsonSetDefaultCurrency(db, uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayWriteModelId(db, modelId)
-        currencyId = _getOrThrowError(bottle.request.params, 'id') # Note that this is a string!
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        currencyId = getCurrencyFromRequest(db, m, 'id')  # Note that this is a string!
         uiSession['defaultCurrencyId'] = currencyId
         result = { 'id':currencyId, 
                   'name':currencyhelper.getCurrencyDict(db,modelId)[currencyId], 
@@ -321,8 +290,8 @@ def jsonSetBaseCurrency(db, uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayWriteModelId(db, modelId)
-        currencyId = _getOrThrowError(bottle.request.params, 'id') # Note that this is a string!
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        currencyId = getCurrencyFromRequest(db, m, 'id')  # Note that this is a string!
         m.addParm(shadow_network.ShdParameter('currencybase',currencyId))
         uiSession['defaultCurrencyId'] = currencyId
         result = { 'id':currencyId, 
@@ -488,7 +457,7 @@ def jsonSetFuelPrice(db, uiSession, fuelName):
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayReadModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-        currencyId = _getOrThrowError(bottle.request.params, 'id')
+        currencyId = getCurrencyFromRequest(db, m, 'id')
         if fuelName.endswith('amort'):
             fuelName = fuelName[:-len('amort')]
             assert fuelName in _fuelNames.keys(), _("{0} is not a valid fuel type").format(fuelName)
@@ -615,7 +584,7 @@ def editCostFridge(db, uiSession):
                 if 'basecost' in bottle.request.params:
                     tp.BaseCost = _safeGetReqParam(bottle.request.params, 'basecost', isFloat=True)
                 if 'currency' in bottle.request.params:
-                    tp.BaseCostCurCode = _safeGetReqParam(bottle.request.params, 'currency')
+                    tp.BaseCostCurCode = getCurrencyFromRequest(db, m, 'currency')
                 if 'basecostyear' in bottle.request.params:
                     tp.BaseCostYear = _safeGetReqParam(bottle.request.params, 'basecostyear',
                                                        isInt=True)
@@ -727,7 +696,7 @@ def editCostVaccine(db, uiSession):
                     tp.pricePerVial = _safeGetReqParam(bottle.request.params, 'basecost',
                                                        isFloat=True)
                 if 'currency' in bottle.request.params:
-                    tp.priceUnits = _safeGetReqParam(bottle.request.params, 'currency')
+                    tp.priceUnits = getCurrencyFromRequest(db, m, 'currency')
                 if 'basecostyear' in bottle.request.params:
                     tp.priceBaseYear = _safeGetReqParam(bottle.request.params, 'basecostyear',
                                                         isInt=True)
@@ -838,7 +807,7 @@ def editCostTruck(db, uiSession):
                 if 'basecost' in bottle.request.params:
                     tp.BaseCost = _safeGetReqParam(bottle.request.params, 'basecost', isFloat=True)
                 if 'currency' in bottle.request.params:
-                    tp.BaseCostCurCode = _safeGetReqParam(bottle.request.params, 'currency')
+                    tp.BaseCostCurCode = getCurrencyFromRequest(db, m, 'currency')
                 if 'basecostyear' in bottle.request.params:
                     tp.BaseCostYear = _safeGetReqParam(bottle.request.params, 'basecostyear',
                                                        isInt=True)
@@ -955,7 +924,7 @@ def editCostStaff(db, uiSession):
                     tp.BaseSalary = _safeGetReqParam(bRQ, 'basesalary',
                                                      isFloat=True)
                 if 'currency' in bRQ:
-                    tp.BaseSalaryCurCode = _safeGetReqParam(bRQ, 'currency')
+                    tp.BaseSalaryCurCode = getCurrencyFromRequest(db, m, 'currency')
                 if 'basesalaryyear' in bRQ:
                     tp.BaseSalaryYear = _safeGetReqParam(bRQ, 'basesalaryyear',
                                                          isInt=True)
@@ -1065,7 +1034,7 @@ def editCostPerDiem(db, uiSession):
                 if 'baseamount' in bRQ:
                     tp.BaseSalary = _safeGetReqParam(bRQ, 'baseamount', isFloat=True)
                 if 'currency' in bRQ:
-                    tp.BaseAmountCurCode = _safeGetReqParam(bRQ, 'currency')
+                    tp.BaseAmountCurCode = getCurrencyFromRequest(db, m, 'currency')
                 if 'baseamountyear' in bRQ:
                     tp.BaseAmountYear = _safeGetReqParam(bRQ, 'baseamountyear', isInt=True)
                 if 'minkmhome' in bRQ:
@@ -1258,7 +1227,7 @@ def editCostBuildings(db, uiSession):
                     raise RuntimeError(_('Editing of {0} is not supported').format(opt))
             s = m.stores[idcode]
             s.SiteCost = _getOrThrowError(bRQ, 'cost', isFloat=True)
-            s.SiteCostCurCode = _getOrThrowError(bRQ, 'costcur')
+            s.SiteCostCurCode = getCurrencyFromRequest(db, m, 'costcur')
             s.SiteCostYear = _getOrThrowError(bRQ, 'costyear')
             return {'success': True}
         else:

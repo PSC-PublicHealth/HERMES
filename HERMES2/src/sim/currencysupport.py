@@ -103,7 +103,11 @@ class CurrencyConverter:
         day 308 of the simulation, startYear = 2011 + 56/336 = 2011.166667 and similarly
         endYear = 2011.916667 .
         """
+        if curCode is None:
+            raise RuntimeError("Input currency code is not set")
         curCode = unicode(curCode.strip('"').strip("'"))
+        if curCode is None:
+            raise RuntimeError("Output currency code is not set")
         newCurCode = unicode(newCurCode.strip('"').strip("'"))
         if startYear is None: 
             startYear = float(self.getBaseYear())

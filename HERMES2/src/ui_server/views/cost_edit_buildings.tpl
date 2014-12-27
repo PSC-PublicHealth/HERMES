@@ -137,7 +137,6 @@ function buildPage(modelId) {
 		        		  custom_element:function(value, options){
 		  					  var $divElem = $($.parseHTML("<div class='hermes_currency_selector'>"+value+"</div>"));
 		  					  var sel = $divElem.text();
-		  					  if (sel=='') sel='EUR';
 		  					  var args = {
 		  							  widget:'currencySelector',
 		  							  modelId:function() { return $('#model_sel_widget').modelSelector('selId'); },
@@ -217,7 +216,6 @@ function buildPage(modelId) {
 	                  	savekey:[true,13],
 	                  	afterSubmit:function(response,postData){
 	                  		var data = $.parseJSON(response.responseText);
-	                  		console.log(data);
 	                  		if (data.success) return [true];
 	                  		else return [false,data.msg];
 	                  	},
