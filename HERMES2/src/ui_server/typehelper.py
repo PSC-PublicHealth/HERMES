@@ -5,8 +5,8 @@ fallback to the AllTypesModel.
 """
 _hermes_svn_id_="$Id$"
 
-import sys,os,types
-from StringIO import StringIO
+import types
+from collections import defaultdict
 import ipath
 import shadow_network_db_api
 from typeholdermodel import allTypesModelName
@@ -15,67 +15,80 @@ from HermesServiceException import HermesServiceException
 
 from ui_utils import _logMessage, _logStacktrace
 
-import db_routines
 import shadow_network
-import util
 import i18n
-import gettext
-import privs
 from model import parseInventoryString
 
 inlizer = i18n.i18n('locale')
-_=inlizer.translateString
+_ = inlizer.translateString
 
 hiddenTypesSet = set(['OUTDOORS'])
 
+alwaysPresentTypes = defaultdict(lambda: [],
+                                 {'staff': ['Std_WarehouseStaff', 'Std_Driver', 'foo'],
+                                  'perdiems': ['Std_PerDiem_None'],
+                                  'types': ['Std_WarehouseStaff', 'Std_Driver', 'Std_PerDiem_None']
+                                  })
+
+
 def _getAllTypesModel(db):
-    return db.query(shadow_network.ShdNetwork).filter(shadow_network.ShdNetwork.name==allTypesModelName).one()
+    return (db.query(shadow_network.ShdNetwork)
+            .filter(shadow_network.ShdNetwork.name == allTypesModelName).one())
+
 
 def getAllTypesModel(db):
     return _getAllTypesModel(db)
 
-def getTypeList(db,modelId,typeClass,fallback=True):
+
+def getTypeList(db, modelId, typeClass, fallback=True):
     """
     typeClass must be a valid entry in the types.typeClass polymorphic database table.
     """
+
+    m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+    # Insert some special case types if absent
+    for nm in alwaysPresentTypes[typeClass]:
+        if nm not in getattr(m, typeClass):
+            addTypeToModel(db, m, nm, srcModel=None, force=True)
     names = set()
-    m = shadow_network_db_api.ShdNetworkDB(db,modelId)
     tList = []
-    for k,v in getattr(m,typeClass).items():
+    for k, v in getattr(m, typeClass).items():
         names.add(k)
-        attrRec = {'_inmodel':True, 'modelId':modelId}
-        shadow_network._copyAttrsToRec(attrRec,v)
+        attrRec = {'_inmodel': True, 'modelId': modelId}
+        shadow_network._copyAttrsToRec(attrRec, v)
         tList.append(attrRec)
     if fallback:
         aM = _getAllTypesModel(db)
-        for k,v in getattr(aM,typeClass).items():
-            if not k in names:
+        for k, v in getattr(aM, typeClass).items():
+            if k not in names:
                 names.add(k)
-                attrRec = {'_inmodel':False, 'modelId':aM.modelId}
-                shadow_network._copyAttrsToRec(attrRec,v)
+                attrRec = {'_inmodel': False, 'modelId': aM.modelId}
+                shadow_network._copyAttrsToRec(attrRec, v)
                 tList.append(attrRec)
     return tList
+
 
 def checkTypeDependencies(db, oldModelOrModelId, newModelOrModelId, typeName):
     if oldModelOrModelId is None:
         oM = _getAllTypesModel(db)
     elif isinstance(oldModelOrModelId, types.IntType):
-        oM = shadow_network_db_api.ShdNetworkDB(db,oldModelOrModelId)
+        oM = shadow_network_db_api.ShdNetworkDB(db, oldModelOrModelId)
     else:
         oM = oldModelOrModelId
     if isinstance(newModelOrModelId, types.IntType):
-        nM = shadow_network_db_api.ShdNetworkDB(db,newModelOrModelId)
+        nM = shadow_network_db_api.ShdNetworkDB(db, newModelOrModelId)
     else:
         nM = newModelOrModelId
     if typeName not in oM.types:
-        raise RuntimeError(_("Type {0} is not present in model {1}").format(typeName,oM.name))
+        raise RuntimeError(_("Type {0} is not present in model {1}").format(typeName, oM.name))
 
     instance = oM.types[typeName]
     needed = []
-    for attr in ['Storage','Inventory']:
-        if hasattr(instance,attr):
-            for count,tpStr in parseInventoryString(getattr(instance,attr)):
-                if tpStr not in nM.types: needed.append(tpStr)
+    for attr in ['Storage', 'Inventory']:
+        if hasattr(instance, attr):
+            for count, tpStr in parseInventoryString(getattr(instance, attr)):  # @UnusedVariable
+                if tpStr not in nM.types:
+                    needed.append(tpStr)
     return needed
 
 def checkDependentTypes(db, modelOrModelId, typeName):
