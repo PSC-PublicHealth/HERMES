@@ -863,6 +863,9 @@ def getRouteDialogHTML(db,uiSession,name="model_route_dialog",genInfo=True,util=
         sio.write("    $('#%s_RUtilInfo').jqGrid('GridUnload');"%name)
     if tripMan:
         sio.write("   $('#%s_RTripMan').jqGrid('GridUnload');"%name)
+    sio.write("$(this).remove();")
+    sio.write("var script = document.getElementById('{0}_script');".format(name))
+    sio.write("script.parentElement.removeChild(script);")
     sio.write("}")
     sio.write("});")
     
@@ -945,7 +948,7 @@ def getStoreDialogHTML(db,uiSession,name="model_store_dialog",buttonName=None,ge
     stringList.append("</div>")
     stringList.append("</div>")
     ### Now add the javascript to load the dialog box
-    stringList.append("<script>")
+    stringList.append("<script id='{0}_script'>".format(name))
     stringList.append("$('#%s_dialog').dialog({"%name)
     stringList.append("autoOpen:false,") 
     stringList.append("height:'auto',")
@@ -967,6 +970,9 @@ def getStoreDialogHTML(db,uiSession,name="model_store_dialog",buttonName=None,ge
         stringList.append("   $('#%s_TransDevInfo').jqGrid('GridUnload');"%name)
     if vaccAvail:
         stringList.append("   $('#%s_Availability').jqGrid('GridUnload');"%name)
+    stringList.append("$(this).remove();")
+    stringList.append("var script = document.getElementById('{0}_script');".format(name))
+    stringList.append("script.parentElement.removeChild(script);")
     stringList.append("}")
     stringList.append("});")
     
