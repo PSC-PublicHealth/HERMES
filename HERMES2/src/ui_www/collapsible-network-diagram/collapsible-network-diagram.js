@@ -33,50 +33,7 @@
 	    e.dispatchEvent(evt);
 	  });
 	};
-	
-	function open_store_info_box(rootPath,modelId,storeId,storeName){
-		var divIDName = "storeInfo_" + Math.random().toString(36).replace(/[^a-z]+/g,'');
-		$.ajax({
-			url: rootPath+'json/dialoghtmlforstore',
-			dataType:'json',
-			data:{name:divIDName,geninfo:1,utilinfo:0,popinfo:1,storedev:1,transdev:1,vacavail:0,fillratio:0,invent:0,availplot:0}
-		})
-		.done(function(result){
-			if(!result.success){
-				alert(result.msg);
-			}
-			else{
-				$(document.body).append(result.htmlString);
-				var meta_data = eval(divIDName + "_meta");
-				populateStoreInfoDialog(rootPath,divIDName,meta_data,modelId,storeId,-1);
-				$("#"+divIDName+"_dialog").dialog("option","title","Information for Location "+ storeName + "("+ storeId+")");
-				$("#"+divIDName+"_dialog").dialog("open");
-			}
-		});
-	}
-	
-	function open_route_info_box(rootPath,modelId,routeId){
-		var divIDName = 'route_info_' + Math.random().toString(36).replace(/[^a-z]+/g,'');
-		$.ajax({
-			url: rootPath+'json/dialoghtmlforroute',
-			dataType:'json',
-			data:{name:divIDName,geninfo:1,utilinfo:0,tripman:0},
-			success:function(result){
-				if(!result.success){
-					alert(result.msg);
-				}
-				else{
-					$(document.body).append(result.htmlString);
-					var meta_data = eval(divIDName + '_meta');
-					populateRouteInfoDialog(rootPath,divIDName,meta_data,modelId,routeId,-1);
-					$("#"+divIDName+"_dialog").dialog("option","title","Information for Route "+ routeId);
-					$("#"+divIDName+"_dialog").dialog("open");
-				}
-			}	
-		});
-	};
-	
-	
+		
 	function toggleAllHere(d){
 		if(d._children){
 			$("#node_"+d.idcode).d3Click();
@@ -97,6 +54,7 @@
 			storeDialogDivID:'',
 			rootPath:'',
 			modelId:'',
+			resultsId:'',
 			minWidth:500,
 			minHeight:300,
 			scrollable:false,
@@ -142,14 +100,21 @@
 		},
 
 		expandAll: function(){
+			//This doesn't work at the moment
 			treeData.children.forEach(toggleAllHere);
 		},
 
 		_create: function(){
 			trant = this.option.trant;
 			
+			if(typeof(open_store_info_box)!='function'){
+				alert("Prerequisites not met, hermes_info_dialog.js needs to be included");
+				return;
+			}
+			
 			var storeDialogID = this.options.storeDialogDivID;
 			var modelId = this.options.modelId;
+			var resultsId = this.options.resultsId;
 			var rootPath = this.options.rootPath;
 			
 			treeData = this.options.jsonData;
@@ -506,7 +471,6 @@
 		        y = -source.x0;
 		        x = x * scale + parseInt(baseSvg.style('width')) / 4;
 		        y = y * scale + parseInt(baseSvg.style('height')) / 2;
-		        if (y < 120) y = 120;
 		        d3.select('g').transition()
 		            .duration(duration)
 		            .attr("transform", "translate(" + x + "," + y + ")scale(" + scale + ")");
@@ -539,21 +503,23 @@
 	
 		    function rightClickStore(d) {
 	    	   d3.event.preventDefault();
-	    	   open_store_info_box(rootPath,modelId,d.idcode,d.name);   
+	    	   rId = resultsId != "" ? resultsId: -1;
+	    	   open_store_info_box(rootPath,modelId,d.idcode,d.name,rId);   
 		    }
 		   function rightClickLink(d){
 			   d3.event.preventDefault();
+			   rId = resultsId != "" ? resultsId: -1;
 			   if(d.hasOwnProperty('target')){
 				   if(d.target.supRouteId == 'none'){
-					   open_route_info_box(rootPath,modelId,d.source.supRouteId);
+					   open_route_info_box(rootPath,modelId,d.source.supRouteId,rId);
 				   }   
 				   else{
-					   open_route_info_box(rootPath,modelId,d.target.supRouteId);
+					   open_route_info_box(rootPath,modelId,d.target.supRouteId,rId);
 				   }
 			   }
 			   else{
 				   loopName = d.name.replace(" Loop","")
-				   open_route_info_box(rootPath,modelId,loopName);
+				   open_route_info_box(rootPath,modelId,loopName,-1);
 			   }
 				   
 			};

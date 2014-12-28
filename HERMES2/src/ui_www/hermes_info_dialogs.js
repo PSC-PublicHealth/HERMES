@@ -1,5 +1,54 @@
 // Dialog box functions
 
+function open_store_info_box(rootPath,modelId,storeId,storeName,resultId){
+	iShowRes = 0;
+	if(resultId > 0) iShowRes = 1;
+
+	var divIDName = "storeInfo_" + Math.random().toString(36).replace(/[^a-z]+/g,'');
+	$.ajax({
+		url: rootPath+'json/dialoghtmlforstore',
+		dataType:'json',
+		data:{name:divIDName,geninfo:1,utilinfo:iShowRes,popinfo:1,storedev:1,transdev:1,
+			  vacavail:iShowRes,fillratio:iShowRes,invent:iShowRes,availplot:iShowRes}
+	})
+	.done(function(result){
+		if(!result.success){
+			alert(result.msg);
+		}
+		else{
+			$(document.body).append(result.htmlString);
+			var meta_data = eval(divIDName + "_meta");
+			populateStoreInfoDialog(rootPath,divIDName,meta_data,modelId,storeId,resultId);
+			$("#"+divIDName+"_dialog").dialog("option","title","Information for Location "+ storeName + "("+ storeId+")");
+			$("#"+divIDName+"_dialog").dialog("open");
+		}
+	});
+}
+
+function open_route_info_box(rootPath,modelId,routeId,resultId){
+	iShowRes = 0;
+	if(resultId > 0) iShowRes = 1;
+	
+	var divIDName = 'route_info_' + Math.random().toString(36).replace(/[^a-z]+/g,'');
+	$.ajax({
+		url: rootPath+'json/dialoghtmlforroute',
+		dataType:'json',
+		data:{name:divIDName,geninfo:1,utilinfo:iShowRes,tripman:iShowRes},
+		success:function(result){
+			if(!result.success){
+				alert(result.msg);
+			}
+			else{
+				$(document.body).append(result.htmlString);
+				var meta_data = eval(divIDName + '_meta');
+				populateRouteInfoDialog(rootPath,divIDName,meta_data,modelId,routeId,resultId);
+				$("#"+divIDName+"_dialog").dialog("option","title","Information for Route "+ routeId);
+				$("#"+divIDName+"_dialog").dialog("open");
+			}
+		}	
+	});
+};
+	
 function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 	//console.log("creating for div "+divName+ " modelID = " + modId + " storeID = " + storId);
 	$("#" + divName+"_content").tabs();
@@ -17,22 +66,23 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 			},
 			sortable:false,
 			captions:'General Info',
-			width: 300,
+			width: 'auto',
 			height:'auto',
 			colNames: ['Feature','Value'],
 			colModel : [{
 				name : 'feature',
 				index : 'feature',
-				width : '30%',
+				width : 100,
 				sortable : false
 			}, {
 				name : 'value',
 				id : 'value',
-				width : '70%',
+				width : 200,
 				sortable : false
 			}],
 		});
 		$("#"+divName+"_GenInfo").parents("div.ui-jqgrid-view").children("div.ui-jqgrid-hdiv").hide();
+		
 	}
 	
 	if (meta['utilInfo']){

@@ -139,8 +139,9 @@ $("#vaccine_summary_results_grid").jqGrid({ //set your grid id
 	},
 	sortable:true,
     caption:"{{_('Vaccine Results')}}",
-	width: 900, //specify width; optional
-	height:175,
+	width: 'auto', //specify width; optional
+	height:'auto',
+	autowidth:'true',
 	colNames:[
 		"{{_('ID')}}",
 	  	"{{_('Vaccine')}}",

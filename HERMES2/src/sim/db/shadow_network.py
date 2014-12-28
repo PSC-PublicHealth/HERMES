@@ -4314,7 +4314,7 @@ class ShdNetwork(Base):
         thisClientList = [x for x in thisStore.clients() if (x[1].Type != "attached" and x not in thisLoopList)]
         if len(thisClientList) > 0:
             clientDict = {'name':thisStore.NAME,'level':levels.index(thisStore.CATEGORY),
-                          'depth':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode,
+                          'depth':levels.index(thisStore.CATEGORY),'supRouteId':"none",'idcode':thisStore.idcode,
                           'latlong':[thisStore.Latitude,thisStore.Longitude],'children':[]}
             for client in thisClientList:
                 if client[1].Type != "attached":
@@ -4322,7 +4322,11 @@ class ShdNetwork(Base):
         else:
             clientDict = {'name':thisStore.NAME,'level':levels.index(thisStore.CATEGORY),
                           'depth':levels.index(thisStore.CATEGORY),'idcode':thisStore.idcode,
-                          'latlong':[thisStore.Latitude,thisStore.Longitude]}
+                          'latlong':[thisStore.Latitude,thisStore.Longitude],'supRouteId':'none'}
+        if thisStore.supplierRoute():
+            ### check if this is a loop, and if so, do not print anything
+                if len(thisStore.supplierRoute().stops) <= 2:
+                    clientDict['supRouteId'] = thisStore.supplierRoute().RouteName
         ### Handle a Transport Loop
         if len(thisLoopList) > 0:
             loopNameList =[]
@@ -4336,7 +4340,7 @@ class ShdNetwork(Base):
             loopNameClientDict = {}
             for name in loopNameList:
                 loopNameClientDict[name] = {'name':'{0} Loop'.format(name),'level':9999,
-                                            'idcode':9999,
+                                            'idcode':name,'supRouteId':name,
                                             'children':[]}
             
            

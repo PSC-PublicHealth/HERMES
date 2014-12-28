@@ -8,7 +8,6 @@
 <script type="text/javascript" src='{{rootPath}}static/Highcharts-3.0.5/js/highcharts.js'></script>
 
 <script>
-var dialogRouteResName = "routeDialog";
 
 function getRandomColor() {
     var letters = '0123456789ABCDEF'.split('');
@@ -18,29 +17,6 @@ function getRandomColor() {
     }
     return color;
 }
-$(function() {
-	$.ajax({
-		url: '{{rootPath}}json/dialoghtmlforstore',
-		dataType:'json',
-		data:{name:'model_store_info',geninfo:1,utilinfo:1,popinfo:1,storedev:1,transdev:1,vacavail:1,fillratio:1,invent:1,availplot:1},
-		success:function(data){
-			console.log(data.htmlString);
-			$(document.body).append(data.htmlString);
-		}
-	})
-});
-
-$(function() {
-	$.ajax({
-		url: '{{rootPath}}json/dialoghtmlforroute',
-		dataType:'json',
-		data:{name:dialogRouteResName,geninfo:1,utilinfo:1,tripman:1},
-		success:function(data){
-			console.log(data.htmlString);
-			$(document.body).append(data.htmlString);
-		}
-	})
-});
 
 </script>
 <div id="geo_map3d">
@@ -96,17 +72,17 @@ $(function() {
 			</tr>
 		</table>
 	</div>
-	<div id="poplegend" style="float:right;position:relative;bottom:35%;width:0px;right:50px;background:white;">
-		<img height="200px" src="{{rootPath}}static/images/PopLegend.PNG">
+	<div id="poplegend" style="float:right;position:relative;bottom:43%;right:50px;background:white;">
+		<img height="300px" src="{{rootPath}}static/images/PopLegend.PNG">
 	</div>
-	<div id="storelegend" style="float:right;position:relative;bottom:35%;width:0px;right:50px;background:white;">
-		<img height="200px" src="{{rootPath}}static/images/StoreLegend.PNG">
+	<div id="storelegend" style="float:right;position:relative;bottom:43%;right:50px;background:white;">
+		<img height="300px" src="{{rootPath}}static/images/StoreLegend.PNG">
 	</div>
-	<div id="valegend" style="float:right;position:relative;bottom:35%;width:0px;right:50px;background:white;">
-		<img height="200px" src="{{rootPath}}static/images/VALegend.PNG">
+	<div id="valegend" style="float:right;position:relative;bottom:43%;right:50px;background:white;">
+		<img height="300px" src="{{rootPath}}static/images/VALegend.PNG">
 	</div>
-	<div id="translegend" style="float:right;position:relative;bottom:35%;width:0px;right:50px;background:white;">
-		<img height="200px" src="{{rootPath}}static/images/TransLegend.PNG">
+	<div id="translegend" style="float:right;position:relative;bottom:43%;right:50px;background:white;">
+		<img height="300px" src="{{rootPath}}static/images/TransLegend.PNG">
 	</div>
 </div>
 
@@ -630,6 +606,7 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 		.style("stroke-width",0.010+"px")
 		.on("click",clickStoreDialog);
 	zoomToCollection(storeJSON.geoFC);
+	doneLoading();
 }
 
 // Turn on and off the elements
@@ -710,33 +687,14 @@ $("#show_utilization").click(function(){
 
 function clickStoreDialog(d) {
 	d3.event.preventDefault();
-	if($("#model_store_info_dialog").length > 0){
-		if ($("#model_store_info_dialog").is(':ui-dialog')) {
-			$("#model_store_info_dialog").dialog('close');
-		}
-		var meta_data = eval(dialogBoxName+"_meta");
-		var resId = -1;
-		if (meta_data['getResults'] == true){ resId = {{resultsId}};}
-		populateStoreInfoDialog("{{rootPath}}","model_store_info",meta_data,"{{modelId}}",d.id,resId);
-		$("#model_store_info_dialog").dialog("option","title","Information for Location " + d.id);
-		$("#model_store_info_dialog").dialog("open");
-	}
+	open_store_info_box('{{rootPath}}',{{modelId}},d.id,d.name,{{resultsId}});
 }
 
 function clickRouteDialog(d) { 
 	d3.event.preventDefault();
-	if($("#"+dialogRouteResName+"_dialog").length > 0){
-		if ($("#"+dialogRouteResName+"_dialog").is(':ui-dialog')) {
-			$("#"+dialogRouteResName+"_dialog").dialog('close');
-		}
-		var meta_data = eval(dialogRouteResName+"_meta");
-		var resId = -1;
-		if (meta_data['getResults'] == true){ resId = {{resultsId}};}
-		populateRouteInfoDialog("{{rootPath}}",dialogRouteResName,meta_data,"{{modelId}}",d.id,resId);
-		$("#"+dialogRouteResName+"_dialog").dialog("option","title","Information for Route " + d.id);
-		$("#"+dialogRouteResName+"_dialog").dialog("open");
-	}
+	open_route_info_box('{{rootPath}}',{{modelId}},d.id,{{resultsId}});
 }
+
 function zoomToCollection(d) {
 	
 	var b = path.bounds(d),
