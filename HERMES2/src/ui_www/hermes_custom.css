@@ -2382,4 +2382,25 @@ img.art-lightbox-image.active
 .art-blockheader .t, .art-vmenublockheader .t {white-space: nowrap;}
 /* End Additional CSS Styles */
 
-
+div.ui-jqgrid-view table.ui-jqgrid-btable
+{
+    border-style:none;
+    border-top-style:none;
+    border-collapse:separate;
+    table-layout:auto;
+}
+div.ui-jqgrid-view table.ui-jqgrid-btable td
+{
+    border-left-style:none
+}
+div.ui-jqgrid-view table.ui-jqgrid-htable
+{
+    border-style:none;
+    border-top-style:none;
+    border-collapse:separate;
+    table-layout:auto;
+}
+div.ui-jqgrid-view table.ui-jqgrid-btable th
+{
+    border-left-style:none
+}
