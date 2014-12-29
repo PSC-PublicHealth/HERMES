@@ -1890,6 +1890,7 @@ def jsonModelUpdate(db, uiSession):
     handle simple field updates.  Pass the update off to a function based on
     the field part of the inputId (as referenced in updateFn
     """
+    # print 'parms: %s' % {k:v for k,v in bottle.request.params.items()}
     try:
         inputId = getParm('inputId')
         inputs = unpackInputId(inputId)
@@ -1928,6 +1929,7 @@ def jsonModelUpdate(db, uiSession):
 
         ret['updateList'] = ul.updateList()
         ret['errorString'] = e.string
+        # print ret
         return ret
 
     except Exception as e:
@@ -2801,10 +2803,23 @@ def rseDispCosts(store, field, category, unique):
     ret.append('<p>' + _('Set cost information:'))
     ret.append('<div class="rse_cost_set_input" id="rseInput_set_%s">'%unique)
     ret.append('<input type="text" class="rse_cost1_set_input" id="rseInput_set_cost_%s" />'%unique)
-    ret.append('<input type="text" class="rse_cost2_set_input" id="rseInput_set_costcur_%s" />'%unique)
+    ret.append('<div id="rseInput_set_costcur_%s" class="hrm_widget_become_currencySelector"></div>' % unique)
     ret.append('<input type="text" class="rse_cost3_set_input" id="rseInput_set_costyear_%s" />'%unique)
     ret.append('</div>\n')
     ret.append('<button type="button" class="rse_cost_set_button" onclick="updateRSECostValue(%s,%s,\'%s\',\'set\');">%s</button>'%(unique, store.idcode, currentTree, _('Ok')))
+    ret.append('</p>')
+    ret = string.join(ret, '\n')
+    ULCM.addUpdate(divId, ret, 'html')
+
+def rseDispPerDiem(store, field, category, unique):
+    global currentTree
+    divId = 'rse_content_%s'%unique
+    ret = []
+    ret.append('<p>' + _('Set route per diem information:'))
+    ret.append('<div class="rse_cost_set_input" id="rseInput_set_%s">'%unique)
+    ret.append('<div id="rseInput_set_perdiem_%s" class="hrm_widget_become_perDiemSelector"></div>' % unique)
+    ret.append('</div>\n')
+    ret.append('<button type="button" class="rse_cost_set_button" onclick="updateRSERoutePerDiemValue(%s,%s,\'%s\',\'set\');">%s</button>'%(unique, store.idcode, currentTree, _('Ok')))
     ret.append('</p>')
     ret = string.join(ret, '\n')
     ULCM.addUpdate(divId, ret, 'html')
@@ -2813,8 +2828,9 @@ def rseUpdateCosts(store, field, category, unique, action, value, secondary, ter
     try:
         cost = value.strip()
         cost = float(cost)
+        assert cost >= 0.0
     except:
-        raise InvalidRecursiveUpdate(_('Site cost must be 0.0 or greater'))
+        raise InvalidRecursiveUpdate(_('Site cost must be a number greater than or equal to zero'))
     try:
         costcur = secondary.strip()
     except:
@@ -2837,8 +2853,36 @@ def rseUpdateCosts(store, field, category, unique, action, value, secondary, ter
             client.SiteCost = cost
             client.SiteCostCurCode = costcur
             client.SiteCostYear = costyear
-        inputId = packInputId(store.modelId, client, 'storeCost')
+        inputId = packInputId(store.modelId, client, 'storeSiteCost')
         ULCM.addUpdate(inputId, unicode(client.SiteCost))
+        inputId = packInputId(store.modelId, client, 'storeSiteCostCurCode')
+        ULCM.addUpdate(inputId, unicode(client.SiteCostCurCode))
+        inputId = packInputId(store.modelId, client, 'storeSiteCostYear')
+        ULCM.addUpdate(inputId, unicode(client.SiteCostYear))
+
+def rseUpdatePerDiem(store, field, category, unique, action, value, secondary, tertiary):
+    # print 'rseUpdatePerDiem parms: store=%s field=%s category=%s unique=%s action=%s value=%s secondary=%s tertiary=%s' % \
+    #     (store, field, category, unique, action, value, secondary, tertiary)
+    try:
+        pdType = store.model.perdiems[value]
+    except:
+        raise InvalidRecursiveUpdate(_('Invalid per diem type {0}').format(value))
+
+    if action not in ['set']:
+        raise InvalidRecursiveUpdate(_('invalid action {0}').format(action))
+
+    clients = store.recursiveClients()
+    doneSet = set()
+    for client, cRoute in clients:
+        if client.CATEGORY != category:
+            continue
+        if cRoute in doneSet:
+            continue
+        doneSet.add(cRoute)
+        if action == 'set':
+            cRoute.PerDiemType = pdType.Name
+            inputId = packInputId(store.modelId, cRoute, 'routePerDiemType')
+            ULCM.addUpdate(inputId, unicode(pdType.DisplayName))
 
 def rseDispStorage(store, field, category, unique):
     rseDispInventory('fridges', store, field, category, unique)
@@ -3070,13 +3114,14 @@ def rseUpdateInventory(iType, store, field, category, unique, action, value, sec
     
 
 rseFields = {
-    'None' : ['choose a field', rseDispNone, rseUpdateNone],
-    'utilizationRate' : ['utilizationRate', rseDispUtilization, rseUpdateUtilization],
-    'storage' : ['storage', rseDispStorage, rseUpdateStorage],
-    'transport' : ['transport', rseDispTransport, rseUpdateTransport],
-    'population' : ['population', rseDispDemand, rseUpdateDemand],
-    'staff' : ['staff', rseDispStaff, rseUpdateStaff],
-    'costs' : ['costs', rseDispCosts, rseUpdateCosts]
+    'None' : ['choose a field', rseDispNone, rseUpdateNone, 0],
+    'utilizationRate' : ['utilizationRate', rseDispUtilization, rseUpdateUtilization, 1],
+    'storage' : ['storage', rseDispStorage, rseUpdateStorage, 2],
+    'transport' : ['transport', rseDispTransport, rseUpdateTransport, 3],
+    'population' : ['population', rseDispDemand, rseUpdateDemand, 4],
+    'staff' : ['staff', rseDispStaff, rseUpdateStaff, 5],
+    'costs' : ['costs', rseDispCosts, rseUpdateCosts, 6],
+    'perdiems' : ['route perdiems', rseDispPerDiem, rseUpdatePerDiem, 7]
     }
     
 def rseRenderAvailableFields(unique, store):
@@ -3084,7 +3129,11 @@ def rseRenderAvailableFields(unique, store):
     global currentTree
     ret.append('<select class="rse_field_select" id="rse_field_%d" onchange="updateRSEDialog(%d,%d,\'%s\');">'%\
                    (unique, unique, store.idcode, currentTree))
+    sortMe = []
     for field, fDef in rseFields.items():
+        sortMe.append((fDef[-1], field, fDef))
+    sortMe.sort()
+    for field, fDef in [(b,c) for a,b,c in sortMe]:
         ret.append('<option value="%s">%s</option>'%(field, fDef[0]))
     ret.append('</select>')
                    
@@ -3144,7 +3193,7 @@ def jsonUpdateRSEDialog(db, uiSession):
         
 
 
-        title, dispFn, updateFn = rseFields[field]
+        title, dispFn, updateFn, order = rseFields[field]
         with selectTree(tree):
             with ULCM():
                 dispFn(store, field, category, unique)
@@ -3180,7 +3229,7 @@ def jsonUpdateRSEValue(db, uiSession):
         secondary = getParm('secondary')
         tertiary = getParm('tertiary')
 
-        title, dispFn, updateFn = rseFields[field]
+        title, dispFn, updateFn, order = rseFields[field]
         with ULCM():
             with selectTree(tree):
                 success = True

@@ -270,6 +270,21 @@ function doUpdate(u) {
     	var element = document.getElementById(u.inputId);
 	if (element)
 	    element.innerHTML = u.value;
+		var transformations = [['hrm_widget_become_currencySelector', 
+		                        {widget:'currencySelector', label:''}],
+		                       ['hrm_widget_become_perDiemSelector',
+		                        {widget:'typeSelector', label:'', invtype:'perdiems', canBeBlank:false, modelId:modelId}]
+							  ];
+		for (var i = 0; i<transformations.length; ++i) {
+			var cl = transformations[i][0];
+			var args = transformations[i][1];
+			$(element).find('.'+cl).each( function() {
+				var $div = $(this);
+				$div.removeClass(cl);
+				$div.hrmWidget(args);
+			});
+		}
+
     } else if (u.updateType == 'widget') {
     	var widgetOpts = u.value;
     	var widgetType = widgetOpts.widget;
@@ -279,6 +294,7 @@ function doUpdate(u) {
         $(elt).hrmWidget(widgetOpts);
         $(elt).addClass('hrm_widget');
         $(elt).addClass('hrm_widget_'+widgetType);
+        fieldChanges[u.inputId] = u.value.selected;
     } else if (u.updateType == 'savedValue') {
         fieldChanges[u.inputId] = u.value;
     } else if (u.updateType == 'focus') {
@@ -893,11 +909,10 @@ function updateRSEValue(unique, storeId, tree, action) {
 }
 
 function updateRSECostValue(unique, storeId, tree, action) {
-	alert('made it!');
     var category = getSelectValue('rse_category_' + unique);
     var field = getSelectValue('rse_field_' + unique);
     var cost = document.getElementById('rseInput_set_cost_' + unique).value;
-    var costcur = document.getElementById('rseInput_set_costcur_' + unique).value;
+    var costcur = $('#rseInput_set_costcur_' + unique).currencySelector('selId');
     var costyear = document.getElementById('rseInput_set_costyear_' + unique).value;
     
     var div = document.getElementById('rse_content_' + unique);
@@ -916,6 +931,34 @@ function updateRSECostValue(unique, storeId, tree, action) {
 	    'value' : cost,
 	    'secondary' : costcur,
 	    'tertiary' : costyear
+	},
+	success: function(data, textStatus, jqXHR) {
+	    changeStringSuccess(data, textStatus, jqXHR);
+	}
+    });
+}
+
+function updateRSERoutePerDiemValue(unique, storeId, tree, action) {
+    var category = getSelectValue('rse_category_' + unique);
+    var field = getSelectValue('rse_field_' + unique);
+    var perDiemType = $('#rseInput_set_perdiem_' + unique).typeSelector('selValue');
+    
+    var div = document.getElementById('rse_content_' + unique);
+    div.innerHTML = '<p>Updating.  This may take a moment...</p>';
+
+    var request = $.ajax({
+	url:'json/meUpdateRSEValue',
+	data: {
+	    'modelId' : modelId,
+	    'idcode' : storeId,
+	    'tree' : tree,
+	    'category' : category,
+	    'field' : field,
+	    'unique' : unique,
+	    'action' : action,
+	    'value' : perDiemType,
+	    'secondary' : null,
+	    'tertiary' : null
 	},
 	success: function(data, textStatus, jqXHR) {
 	    changeStringSuccess(data, textStatus, jqXHR);
