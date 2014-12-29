@@ -321,6 +321,17 @@ def jsonToggleDevelMode(uiSession):
         uiSession['developerMode'] = True
     result = {'success':True}
     return result
+@bottle.route('/json/check-devel-mode')
+def jsonCheckDevelMode(uiSession):
+    try:
+        if 'developerMode' in uiSession and uiSession['developerMode']:
+            return {'success':True,'mode':True}
+        return {'success':True,'mode':False}
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result    
 
 @bottle.route('/json/become-system')
 def jsonBecomeSystem(uiSession):

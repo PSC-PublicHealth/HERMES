@@ -1,9 +1,9 @@
-%rebase outer_wrapper _=_,title_slogan=_('HERMES Graphical User Inferface Start'),inlizer=inlizer
+%rebase outer_wrapper _=_,title_slogan=_('Supply Chain Modeling Tool'),inlizer=inlizer
 
 <style>
 #sp_top_div{
 	position: relative;
-	width:"100%";
+	min-width:600px;
 	top: 0px;
 	left: 0px;
 	border-style: none;
@@ -16,68 +16,90 @@
 	float:none;
 	margin: 0 auto;
 }
+.big_title{
+	font-size:32px;
+	opacity:0;
+}
+.second_title{
+	font-size:18px;
+	opacity:0;
+}
+#welcome_options{
+	padding-top:30px;
+	opacity:0;
+}
+.welcome_item{
+	font-size:18px;
+}
+#wrappage_help_button{
+	opacity:0;
+}
+#dev_page_hidden{
+	position:fixed;
+	top:150px;
+	left:50px;
+	width:50px;
+}
 
 </style>
 
 <div id="sp_top_div" class="sp_top_div">
 	<div id="sp_content_div" class="content_div">
 		<div class = "options_div">
-			<p><h1 style="text-align:left">{{_("Choose Your Desired Action")}}</h1></p>
-			<table width = "100%" border = 0>
-				<tr>
-					<td rowspan=2 width=90><a href="{{rootPath}}model-create" ><img src='{{rootPath}}static/icons/pencil.png' width=80></a></td>
-					<td><h2 style="margin-bottom:0px;"><a id='create_model_link' href='#'>{{_("Create a New Model")}}</a></h2></td>
-				</tr>
-				<tr>
-					<td><h3 style="margin-top:0px;">{{_("Walk through and enter data through designated steps to create a set of inputs that can create a simulated supply chain.")}}</h3></td>
-				</tr>
-				<tr height=20><td></td></tr>
-				<tr>
-					<td rowspan=2 width=90><a href="{{rootPath}}models-top"><img src='{{rootPath}}static/icons/network.png' width=80></a></td>
-					<td><h2 style="margin-bottom:0px;"><a href="{{rootPath}}models-top">{{_("Work with a Previously Created Model")}}</a></h2></td>
-				</tr>
-				<tr>
-					<td><h3 style="margin-top:0px;">{{_("Edit, Create Scenarios, and/or Run a previously saved model.")}}</h3></td>
-				</tr>
-				<tr height=20><td></td></tr>
-				<tr>
-					<td rowspan=2 width=90><img src='{{rootPath}}static/icons/users.png' width=80></td>
-					<td><h2 style="margin-bottom:0px;"><a href="{{rootPath}}tutorial" target=_blank>{{_("HERMES Tutorials")}}</a></h2></td>
-					</tr>
-				<tr>
-					<td><h3 style="margin-top:0px;">{{_("Learn how to use HERMES")}}</h3></td>
-				</tr>
-				<tr height=20><td></td></tr>
-				<tr>
-					<td rowspan=2 width=90><a href="{{rootPath}}results-top"><img src='{{rootPath}}static/icons/stats.png' width=80></a></td>
-					<td><h2 style="margin-bottom:0px;"><a href="{{rootPath}}results-top">{{_("Compare Results from Previous Models")}}</a></h2></td>
-				</tr>
-				<tr>
-					<td><h3 style="margin-top:0px;">{{_("View and compare results. <Need better wording>")}}</h3></td>
-				</tr>
-				<tr height=20><td></td></tr>
-				<tr>
-					<td rowspan=2 width=90><img src='{{rootPath}}static/icons/folders.png' width=80></td>
-					<td><h2 style="margin-bottom:0px;">{{_("Explore Information Databases")}}</h2></td>
-				</tr>
-				<tr>
-					<td><h3 style="margin-top:0px;">{{_("Browse through HERMES database of vaccines, refrigerators, freezers, cold boxes and transport vehicles.")}}</h3></td>
-				</tr>
-				<tr>
-					<td><span class='hrm_invisible'><a href='tabs'>Open Developer Page</a></span></td><td></td>
-				</tr>
-				<tr height=20><td></td></tr>
-			</table>
+			<div id="welcome_title">
+				<span class="big_title">
+					{{_("Welcome to HERMES")}}
+				</span>
+				<br>
+				<span class="second_title">
+					{{_("What would you like to do?")}}
+				</span>
+			</div>
+			
+			<div id="welcome_options">
+				<p>
+					<span class="welcome_item">
+						<a id='create_model_link' href="#" 
+							title='{{_("Create a new model from scratch")}}'>{{_("Create a New Model")}}</a>
+					</span>
+				</p>
+				<p>
+					<span class="welcome_item">
+						<a href="{{rootPath}}models-top"
+							title='{{_("Open and modify an existing model")}}'>{{_("Open and Modify a Model")}}</a>
+					</span>
+				</p>
+				<p>
+					<span class="welcome_item">
+						<a href="{{rootPath}}results-top"
+							title='{{_("View and compare results for models that have already been run")}}'>{{_("View and Compare Results")}}</a>
+					</span>
+				</p>
+				<p>
+					<span class="welcome_item">
+						<a href="#"
+							title='{{_("View and modify vaccine, population, vehicle and storage device databases")}}'>{{_("View and Modify Databases")}}</a>
+					</span>
+				</p>
+				<p>
+					<span class="welcome_item">
+						<a href="{{rootPath}}tutorial" target=_blank
+							title='{{_("Demonstration of the HERMES platform")}}'>{{_("HERMES Demo")}}</a>
+					</span>
+				</p>
+			</div>
+			<div id="dev_page_hidden"><span class="hrm_invisible"><a id="toggle_dev_mode" href="#">Toggle Dev Mode</a></span></div>
 		</div>
 	</div>
 </div>
 <!--- STB Recreating this from the models_top form to give the functionality here too.-->
-<div id="model_create_dialog_form" title={{_("Give a Name to the New Model")}}>
+<div id="model_create_dialog_form" title='{{_("Create a New Model")}}'>
 	<form>
 		<fieldset>
 			<table>
 				<tr>
-					<td>{{_('New Model Name')}}</td>
+					<td><span title='{{_("The name of the model is entered here and can be anything you would like (e.g. the name of a country, state, province, etc...).")}}'>
+						{{_('Please provide a name for the the new model.')}}</span></td>
 					<td>
 						<input type="text" name="model_create_dlg_new_name" 
 							id="model_create_dlg_new_name" class="text ui-widget-content ui-corner-all" />
@@ -97,16 +119,32 @@
 
 <script>
 $(function(){
+	//$(".big_title").addClass('animated fadeIn');
+	$(".big_title").fadeTo(2000,1.0);
+	setTimeout(function(){
+		$(".second_title").fadeTo(2000,1.0);
+	},500);
+	setTimeout(function(){
+		$('#welcome_options').fadeTo(2000,1.0);
+	},1000);
 	
 	$("#create_model_link").click(function(e){
 		e.preventDefault();
 		$("#model_create_dialog_form").dialog('open');
 	});
 	
+	$("#toggle_dev_mode").click(function() {
+	    $.getJSON("{{rootPath}}json/toggle-devel-mode",{})
+        .done(function(json) { console.log("developer mode toggled"); })
+        .fail(function(jqxhdr,textStatus,error) { alert(jqxhdr.responseText); })
+        location.reload();
+	});
+	
 	$("#model_create_dialog_form").dialog({
 		resizable: false,
 	  	modal: true,
 		autoOpen:false,
+		width:500,
 	 	buttons: {
 	    	'{{_("Create")}}': function() {
 	    		$.ajax({
