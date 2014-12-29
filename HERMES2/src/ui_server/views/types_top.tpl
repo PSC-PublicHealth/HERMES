@@ -8,6 +8,8 @@
 %    ['trucks',   _('Transport'),   'json/truck-info',   'truck-edit'],
 %    ['fridges',  _('Storage'),     'json/fridge-info',  'fridge-edit'],
 %    ['people', _('Population'),    'json/people-info',  'people-edit'],
+%    ['perdiems', _('PerDiem Rules'),    'json/perdiem-info',  'perdiem-edit'],
+%    ['staff', _('Staff'),    'json/staff-info',  'staff-edit'],
 % ]
 
 % def unpackTypesEntry(te):

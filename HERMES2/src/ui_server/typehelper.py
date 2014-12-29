@@ -194,7 +194,8 @@ def getSuggestedName(db, modelId, target, proposedName, excludeATM=False):
     if target == 'runName':
         matchfun = lambda nm : (db.query(shadow_network.HermesResultsGroup) \
                 .filter_by(modelId=modelId).filter_by(name=nm).count() > 0)
-    elif target in frozenset(['typeName','people','vaccine','fridge','truck']):
+    elif (target == 'typeName' or target in shadow_network.ShdTypes.typesMap
+          or (target+'s') in shadow_network.ShdTypes.typesMap):
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         if excludeATM:
             # exclude the AllTypesModel too
