@@ -1,0 +1,35 @@
+.rs_chart{
+	float:left;
+}
+
+.rs_tabs{
+	width:100%;
+	font-size:10px;
+}
+.rs_button{
+	width:100px;
+	height:50px;
+	margin:10px;
+	display:inline-block;
+	#border:"#fffff";
+	#border-width:10px;
+}
+
+.rs_summary .ui-jqgrid {font-size:x-small}
+.rs_summary .ui-jqgrid tr.jqgrow td {font-size:x-small}
+.rs_summary .ui-jqgrid tr.jqgroup td {
+	font-size:x-small;
+	background-color: rgb(88,88,88);
+	color: white;
+}
+.rs_summary th.ui-th-column div {
+	word-wrap: break-word;
+	white-space: pre-wrap; /* CSS3 */
+    	white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    	white-space: -pre-wrap; /* Opera 4-6 */
+    	white-space: -o-pre-wrap; /* Opera 7 */
+    	overflow: hidden;
+    	height: auto !important;
+    	vertical-align: middle;
+	font-size:x-small;
+}
