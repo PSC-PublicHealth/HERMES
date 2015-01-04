@@ -1,7 +1,9 @@
 %rebase outer_wrapper title_slogan=slogan, breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
 
+<script type="text/javascript" src="{{rootPath}}static/jstree-v.pre1.0/jquery.jstree.js"></script>
 <script src="{{rootPath}}static/base64v1_0.js"></script>
 <script src="{{rootPath}}static/model_edit.js"></script>
+
 
 % Attrs = [
 %    { 'field' : "Name",         'type' : 'store', 'title' : _('names') },
