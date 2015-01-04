@@ -1194,6 +1194,7 @@ function addToggleExpansionButton($grid) {
 				if (divId == undefined) $.error('wrapper div has no id');
 				buttonList = [
 				              ['{{_("Open")}}', 'hermes_edit_button', 'onOpen'],
+				              ['{{_("Copy")}}', 'hermes_copy_button', 'onCopy'],
 				              ['{{_("Info")}}', 'hermes_info_button', 'onInfo'],
 				              ['{{_("Del")}}', 'hermes_del_button', 'onDel']
 				              ];

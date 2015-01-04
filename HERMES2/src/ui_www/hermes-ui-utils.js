@@ -29,3 +29,17 @@ function translate_phrases(phrases){
 			}).promise();
 }
 	
+function get_existing_model_names(){
+	return $.ajax({
+		url:'json/get-existing-model-names',
+		dataType:'json'
+	}).promise();
+}
+
+function get_model_name_from_id(id){
+	return $.ajax({
+		url:'json/get-model-name?modelId='+id,
+		dataType:'json'
+	}).promise();
+};
+	

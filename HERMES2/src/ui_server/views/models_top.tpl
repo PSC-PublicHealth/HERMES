@@ -1,54 +1,10 @@
 %rebase outer_wrapper title_slogan=_('Available Models'),breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
-<table>
-<tr><td style="float:left;">
-<h2 style="display:none">{{_('Task:')}}</h2>
-% buttonList = [
-% # [ title, label, acts on row, confirm, function ]
-%    [ 'create', _('Create'), False, False, 'createModel' ],
-%    [ 'edit', _('Modify'), True, False, 'editModel' ],
-%    [ 'show', _('Show'), True, False, 'showModel' ],
-%    [ 'copy', _('Copy'), True, False, 'copyModel' ],
-%    [ 'upload', _('Upload'), False, False, 'uploadModel' ],
-%    [ 'delete', _('Delete'), True, True, 'deleteModel' ],
-%    [ 'parameters', _('Parameters'), True, False, 'editParams' ],
-%    [ 'types', _('Types'), True, False, 'addTypes' ],
-%    [ 'run', _('Run'), True, False, 'runHermes' ],
-%    [ 'results', _('Results'), False, False, 'showResults' ],
-% ]
-
-<table>
-% for b in buttonList:
-<tr><td><button id="{{b[0]}}_button" style="width:100%">{{b[1]}}</button></td></tr>
-% end
-</table>
-</td>
-
-<td>
 <h3 style="display:none">{{_('Select A Model')}}</h3>
 <table id="manage_models_grid"></table>
 <div id="manage_models_pager"> </div>
 </td>
 </tr>
 </table>
-
-<input id="zipmodelupload" type="file" name="files[]" 
-	data-url="{{rootPath}}upload-model" style="display:none">
-<div id="progress">
-    <div class="bar" style="width: 0%;"></div>
-</div>
-
-<div id="model_create_dialog_form" title="{{_('Give a Name to the New Model')}}">
-	<form>
-		<fieldset>
-			<table>
-				<tr>
-					<td>{{_('New Model Name')}}</td>
-					<td><input type="text" name="model_create_dlg_new_name" id="model_create_dlg_new_name" class="text ui-widget-content ui-corner-all" /></td>
-				</tr>
-			</table>
-		</fieldset>
-	</form>
-</div>
 
 <div id="model_copy_dialog_form" title={{_("Copy A Model")}}>
   <form>
@@ -67,41 +23,12 @@
   </form>
 </div>
 
-
-<div id="zipupload-dialog-form" title={{_("Upload a Model in Zip Form")}}>
-  <p class="validateTips">{{_('What name should the new model have?')}}</p>
-  <form>
-  	<fieldset>
-  		<table>
-  			<tr>
-  				<td>
-  					<label for="shortname">{{_('Name')}}</label>
-  				</td>
-  				<td>
-  					<input type="text" name="shortname" id="shortname" class="text ui-widget-content ui-corner-all" />
-  				</td>
-  			</tr>
-  			<tr>
-  				<td>
-  					<label for="filename">{{_('File')}}</label>
-  				</td>
-  				<td>
-  					<input id="zipfilename" type="file" name="files[]" accept="application/zip">
-  				</td>
-  			</tr>
-  		</table>
-  </fieldset>
-  </form>
-</div>
-
 <div id="model_info_dialog" title="This should get replaced">
 </div>
 
 <div id="model_confirm_delete" title='{{_("Delete Model")}}'>
 </div>
 
-<div id="model_create_existing_dialog" title='{{_("Model Creation Started")}}'>
-<p>{{_('You have already started creating this model, would you like to continue or start over?')}}; </div>
 <script>
 {{!setupToolTips()}}
 
@@ -117,7 +44,6 @@ function getModelInfo(modelId){
 		dataType:'json'
 	}).promise();
 };
-
 
 var lastsel_models = null;
 var lastsel_name = null;
@@ -182,7 +108,13 @@ $("#manage_models_grid").jqGrid({ //set your grid id
     		onOpen: function(event){
     			var id = unescape($(this).parent().attr('id'));
     			window.location = "{{rootPath}}model-open?modelId="+id;
+    		},
+    		onCopy: function(event){
+    			var id = unescape($(this).parent().attr('id'));
+    			var mName = unescape($(this).parent().attr('name'));
+    			copyModel(id,mName);
     		}
+    		
     	});
 //	$(".hermes_info_button").click(function(event) {
 //	   // $.getJSON('json/model-info',{modelId:$(this).attr('id')})
@@ -198,17 +130,6 @@ $("#manage_models_grid").jqGrid('navGrid','#manage_models_pager',{edit:false,add
 // setup grid print capability. Add print button to navigation bar and bind to click.
 setPrintGrid('manage_models_grid','manage_models_pager','{{_("Select a Model")}}');
 
-var buttonsBottom;
-$(window).load(function(){
-	$('.ui-button').each(function(i, obj) {
-	if ( (buttonsBottom === undefined) || ($(this).offset().top + $(this).height() > buttonsBottom) ) {
-	  buttonsBottom = $(this).offset().top + $(this).height();
-	}
-	});
-	var scrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop
-	buttonsBottom = buttonsBottom + scrollTop + 65
-	$("#manage_models_grid").jqGrid('setGridHeight', buttonsBottom-$("#manage_models_grid").offset().top-scrollTop-100);
-});
 // resize jqGrid according to window size
 function resize_grid() {
   var idGrid = "#manage_models_grid"
@@ -219,9 +140,9 @@ function resize_grid() {
     $(idGrid).jqGrid('setGridWidth', $(window).width()-offset.left-50);
   }
   //minimum height to correspond to original unresized table, in order to line up with side buttons
-  if ( $(window).height() > buttonsBottom ) {
-    $(idGrid).jqGrid('setGridHeight', $(window).height()-offset.top-scrollTop-100);
-  }
+  //if ( $(window).height() > buttonsBottom ) {
+  $(idGrid).jqGrid('setGridHeight', $(window).height()-offset.top-scrollTop-100);
+  //}
 }
 $(window).load(resize_grid); //necessary to trigger resize_grid onload due to loading breadcrumbs changing grid offset
 $(window).resize(resize_grid);  //bind resize_grid to window resize
@@ -242,224 +163,21 @@ $(function () {
 			names = json.names;
 		}
 	});
-	
-    $( "#zipupload-dialog-form" ).dialog({
-    	autoOpen: false,
-     	height: 300,
-    	width: 400,
-    	modal: true,
-    	buttons: {
-        	'OK': {
-        		text: "Upload model",
-        		click: function() {
-          			$("#shortname").removeClass( "ui-state-error" );
-          			// Error Checking
-          			if(names.indexOf($("#shortname").val()) > -1){
-          				alert("The Model Name "+$('#shortname').val()+" already exists. Please choose another.");
-          			}
-          			else if(!$('#shortname').val()) {
-          				alert("The Model Name field must be set to proceed.");
-          			}
-          			else if(!$('#zipfilename').val()){
-          				alert("You must choose a file to be uploaded.");
-          			}
-          			else {
-          				var files = $("#zipfilename").prop("files");
-          				$('#zipmodelupload').fileupload('add',{files:files,formData:[{name:'shortname',value:$("#shortname").val()}]});
-          				console.log("done submitting");
-          				$("#ajax_busy").show();
-          				$(this).dialog("close");
-          			}
-        		}
-          	},
-          	"CANCEL": {
-        		text: "Cancel",
-       			click: function() {
-          			$( this ).dialog( "close" );
-          		}
-			}
-		},
-      	close: function() {
-        	$("#shortname").val( "" ).removeClass( "ui-state-error" );
-        	$("#zipfilename").val('');
-		},
-		open: function(e,ui) {
-			$(this)[0].onkeypress = function(e) {
-				if (e.keyCode == $.ui.keyCode.ENTER) {
-					e.preventDefault();
-					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
- 				}
- 		    };
+});	
+   
+function copyModel(modelId) {
+	get_model_name_from_id(modelId)
+	.done(function(result){
+		if(!result.success){
+			alert("Problem getting model name: " + result.msg);
 		}
-    });
-    
-    
-    $('#zipfilename').change( function () {
-    	$("#shortname").val($(this).val().split('\\').pop().replace(/\.[^/.]+$/,""));
-    });
-    
-    $("#model_create_existing_dialog").dialog({
-    	resizable: false,
-    	modal: true,
-    	autoOpen:false,
-    	buttons:{
-    		'{{_("Continue")}}': function() {
-    			$(this).dialog("close");
-    			lastsel_models=null;
-    			window.location="model-create?name="+$("#model_create_dlg_new_name").val();
-    		},
-    		'{{_("Restart")}}': function(){
-    			$(this).dialog("close");
-    			$.ajax({
-    				url:'{{rootPath}}json/get-newmodelinfo-from-session',
-    				async:false,
-					dataType:'json',
-					success: function(json){
-						if ($("#model_create_dlg_new_name").val() in json.data){
-							thisModelJSon = json.data[$("#model_create_dlg_new_name").val()];
-							$.ajax({
-								url:'{{rootPath}}json/delete-model-from-newmodelinfo-session?name='+$("#model_create_dlg_new_name").val(),
-			    				async:false,
-								dataType:'json',
-								success:function(data){
-									if ('modelId' in thisModelJSon){
-										if(json.modelExists){
-										/// must delete this model first
-											deleteModel(thisModelJSon.modelId,$("#model_create_dlg_new_name").val());
-										}
-									}
-									window.location='{{rootPath}}model-create?name='+$("#model_create_dlg_new_name").val()
-								}
-							});
-						}
-					}
-    			});
-    			
-    		},
-    		'{{_("Cancel")}}': function(){
-    			$(this).dialog("close");
-    		}
-    	},
-	    open: function(e,ui) {
-			$(this)[0].onkeypress = function(e) {
-				if (e.keyCode == $.ui.keyCode.ENTER) {
-					e.preventDefault();
-					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
-					}
-			    };
-		}
-    });
-    
-    $("#model_create_dialog_form").dialog({
-		resizable: false,
-      	modal: true,
-		autoOpen:false,
-     	buttons: {
-	    	'{{_("Create")}}': function() {
-	    		$.ajax({
-	    			url:'{{rootPath}}json/get-existing-models-creating',
-	    			async:false,
-					dataType:'json',
-					success: function(json){
-						if (json.names.indexOf($("#model_create_dlg_new_name").val())>-1){
-							$('#model_create_dialog_form').dialog("close");
-							$('#model_create_existing_dialog').dialog("open");
-						}
-						else if (!$("#model_create_dlg_new_name").val()){
-				    		alert("{{_('The New Model Name fields must be set to proceed.')}}");
-				    	}
-				    	else if (names.indexOf($("#model_create_dlg_new_name").val()) >-1){
-				    		alert("{{_('Model name already exists, please select another.')}}");
-				    	}
-				    	else{
-				    		$("#model_create_dialog_form").dialog('close');
-				    		lastsel_models=null;
-				    		window.location="model-create?name="+$("#model_create_dlg_new_name").val();
-				    	}
-					}
-	    		});
-			},
-        	'{{_("Cancel")}}': function() {
-          		$( this ).dialog( "close" );
-        	}
-     	},
-     	open: function(e,ui) {
-			$(this)[0].onkeypress = function(e) {
-				if (e.keyCode == $.ui.keyCode.ENTER) {
-					e.preventDefault();
-					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
- 				}
- 		    };
+		else{
+			$("#model_copy_dlg_from_name").text(""+result.name);
+			$("#model_copy_dlg_new_name").val(new_model_copy_name(result.name));
+			$("#model_copy_dlg_from_name").data('modelId', modelId);
+			$("#model_copy_dialog_form").dialog("open");
 		}
 	});
-    
-    
-    
-    $('#zipmodelupload').fileupload({
-        dataType: 'json',
-        formData: [],
-        autoUpload: true,
-        url: "{{rootPath}}upload-model",
-        // Add is overriden by the programatic call in the dialog box
-        done: function (e, data) {
-        	if (typeof data.result.files == 'undefined') {
-        		alert(data.result.message);
-        	}
-        	else {
-        		$.each(data.result.files, function (index, file) {
-        			alert( 'got '+file.name+' '+file.size+' bytes');
-        		});
-        		$("#ajax_busy").hide()
-				$("#manage_models_grid").trigger("reloadGrid"); // so the grid reflects the presence of the new model
-        	}
-		},
-	    progressall: function (e, data) {
-  			var progress = parseInt(data.loaded / data.total * 100, 10);
-        	$('#progress .bar').css('width',progress + '%');
-        }
-    });
-});
-
-% for b in buttonList:
-% (title, label, needRow, confirm, fn) = b
-$(function() {
-    var btn = $("#{{b[0]}}_button");
-    btn.button();
-    btn.click( function() {
-	% if needRow:
-        $("#manage_models_grid").jqGrid('restoreRow', lastsel_models);
-	if (lastsel_models == null) {
-	    alert('{{_("No Selection")}}');
-	    return;
-	}
-	{{fn}}(lastsel_models, lastsel_name);
-	% else:
-	{{fn}}();
-	%end
-    })
-});
-%end
-
-function createModel() {
-	$("#model_create_dialog_form").dialog("open");
-}
-
-function editModel(modelId) {
-    window.location = "model-edit-structure?id="+modelId;
-}
-
-function showModel(modelId) {
-    window.location = "model-show-structure?id="+modelId;
-}
-
-function copyModel(modelId, modelName) {
-    $("#model_copy_dlg_from_name").text(""+modelName);
-    $("#model_copy_dlg_from_name").data('modelId', modelId);
-    $("#model_copy_dialog_form").dialog("open");
-}
-
-function uploadModel() {
-    $("#zipupload-dialog-form").dialog("open");
 }
 
 function deleteModel(modelId, modelName) {
@@ -468,23 +186,6 @@ function deleteModel(modelId, modelName) {
     $("#model_confirm_delete").data('modelId', modelId);
     $("#model_confirm_delete").dialog("open");
 }
-
-function editParams(modelId) {
-    window.location = "model-edit-params?id="+modelId;
-}
-
-function addTypes(modelId) {
-    window.location = "model-add-types?id="+modelId;
-}
-
-function runHermes(modelId) {
-    window.location = "model-run?modelId="+modelId;
-}
-
-function results(modelId) {
-    window.location = "results-top";
-}
-
 
 $(function() {		
     $("#model_copy_dialog_form").dialog({
@@ -560,7 +261,6 @@ $(function() {
             }
      	}
     });
-    
 });
 
 </script>

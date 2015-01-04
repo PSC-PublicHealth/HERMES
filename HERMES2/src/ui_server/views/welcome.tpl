@@ -24,6 +24,14 @@
 	font-size:18px;
 	opacity:0;
 }
+.large_dialog_font{
+	font-size:16px;
+	font-family:'Century Gothic', Arial, 'Arial Unicode MS', Helvetica, Sans-Serif;
+}
+.large_dialog_font p{
+	padding:10px;
+	text-align:center;
+}
 #welcome_options{
 	padding-top:30px;
 	opacity:0;
@@ -42,6 +50,11 @@
 }
 
 </style>
+<input id="zipmodelupload" type="file" name="files[]" 
+	data-url="{{rootPath}}upload-model" style="display:none">
+<div id="progress">
+    <div class="bar" style="width: 0%;"></div>
+</div>
 
 <div id="sp_top_div" class="sp_top_div">
 	<div id="sp_content_div" class="content_div">
@@ -60,31 +73,41 @@
 				<p>
 					<span class="welcome_item">
 						<a id='create_model_link' href="#" 
-							title='{{_("Create a new model from scratch")}}'>{{_("Create a New Model")}}</a>
+							title='{{_("Create a new model from scratch via the Model Creation Guided Workflow. This will walk users step-by-step through the model creation process.")}}'>
+							{{_("Create or Upload a New Model")}}
+						</a>
 					</span>
 				</p>
 				<p>
 					<span class="welcome_item">
 						<a href="{{rootPath}}models-top"
-							title='{{_("Open and modify an existing model")}}'>{{_("Open and Modify a Model")}}</a>
+							title='{{_("Open and modify an existing model. This will allow users to modify an existing model via step-by-step guided workflow or the Advanced Model Editor.")}}'>
+							{{_("Open, Modify and Run an Existing Model")}}
+						</a>
 					</span>
 				</p>
 				<p>
 					<span class="welcome_item">
 						<a href="{{rootPath}}results-top"
-							title='{{_("View and compare results for models that have already been run")}}'>{{_("View and Compare Results")}}</a>
+							title='{{_("View and compare results for models that have already been run. This will allow users to select and view results.")}}'>
+							{{_("View and Compare Results")}}
+						</a>
 					</span>
 				</p>
 				<p>
 					<span class="welcome_item">
 						<a href="#"
-							title='{{_("View and modify vaccine, population, vehicle and storage device databases")}}'>{{_("View and Modify Databases")}}</a>
+							title='{{_("View and modify supply chain component databases. Databases include vaccines, population, vehicles and storage devices. This will allow users to add or change supply chain components available for use in HERMES models.")}}'>
+							{{_("View and Modify Databases")}}
+						</a>
 					</span>
 				</p>
 				<p>
 					<span class="welcome_item">
 						<a href="{{rootPath}}tutorial" target=_blank
-							title='{{_("Demonstration of the HERMES platform")}}'>{{_("HERMES Demo")}}</a>
+							title='{{_("See a demonstration of the HERMES platform.")}}'>
+							{{_("HERMES Demo")}}
+						</a>
 					</span>
 				</p>
 			</div>
@@ -93,13 +116,35 @@
 	</div>
 </div>
 <!--- STB Recreating this from the models_top form to give the functionality here too.-->
+<div id="model_create_or_upload_start" title='{{_("Create or Upload a New Model")}}'>
+	<span class="large_dialog_font">
+	<p> 
+		{{_('Would you like to')}} 
+	</p>
+	<p style="margin-left:10px;">
+		<a href="#" id="create_choice">{{_("Create a New Model")}}</a>
+	</p>
+	<p>	
+		{{_('or')}}
+	</p>
+	<p style="margin-left:10px;">
+		<a href="#" id="upload_choice">{{_("Upload an Existing Model from a HERMES Zip File")}} ? </a>
+	</p>
+	</span>
+</div>
+
 <div id="model_create_dialog_form" title='{{_("Create a New Model")}}'>
 	<form>
 		<fieldset>
 			<table>
 				<tr>
+					<td colspan=2>
+						{{_("Please create a name for the new model - the new name must be unique from all existing models.")}}
+					</td>
+				</tr>
+				<tr>
 					<td><span title='{{_("The name of the model is entered here and can be anything you would like (e.g. the name of a country, state, province, etc...).")}}'>
-						{{_('Please provide a name for the the new model.')}}</span></td>
+						{{_('New Model Name.')}}</span></td>
 					<td>
 						<input type="text" name="model_create_dlg_new_name" 
 							id="model_create_dlg_new_name" class="text ui-widget-content ui-corner-all" />
@@ -110,12 +155,37 @@
 	</form>
 </div>
 
-<div id="model_confirm_delete" title='{{_("Delete Model")}}'>
+<div id="zipupload-dialog-form" title={{_("Upload a Model in Zip Form")}}>
+	<p class="validateTips">{{_('What name should the new model have?')}}</p>
+	<form>
+		<fieldset>
+			<table>
+				<tr>
+					<td>
+						<label for="shortname">{{_('Name')}}</label>
+					</td>
+					<td>
+						<input type="text" name="shortname" id="shortname" class="text ui-widget-content ui-corner-all" />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label for="filename">{{_('File')}}</label>
+					</td>
+					<td>
+						<input id="zipfilename" type="file" name="files[]" accept="application/zip">
+					</td>
+				</tr>
+			</table>
+		</fieldset>
+	</form>
 </div>
+	
+<div id="model_confirm_delete" title='{{_("Delete Model")}}'></div>
 
 <div id="model_create_existing_dialog" title='{{_("Model Creation Started")}}'>
-
-<p>{{_('You have already started creating this model, would you like to continue or start over?')}}; </div>
+	<p>{{_('You have already started creating this model, would you like to continue or start over?')}}; 
+</div>
 
 <script>
 $(function(){
@@ -130,7 +200,7 @@ $(function(){
 	
 	$("#create_model_link").click(function(e){
 		e.preventDefault();
-		$("#model_create_dialog_form").dialog('open');
+		$("#model_create_or_upload_start").dialog('open');
 	});
 	
 	$("#toggle_dev_mode").click(function() {
@@ -138,6 +208,28 @@ $(function(){
         .done(function(json) { console.log("developer mode toggled"); })
         .fail(function(jqxhdr,textStatus,error) { alert(jqxhdr.responseText); })
         location.reload();
+	});
+	
+	$("#model_create_or_upload_start").dialog({
+		resizable: false,
+		modal: true,
+		autoOpen: false,
+		width:500,
+		buttons:{
+			'{{_("Cancel")}}':function(){
+				$(this).dialog("close");
+			}
+		}
+	});
+	
+	$("#create_choice").click(function(){
+		$("#model_create_or_upload_start").dialog("close");
+		$("#model_create_dialog_form").dialog("open");
+	});
+
+	$("#upload_choice").click(function(){
+		$("#model_create_or_upload_start").dialog("close");
+		$("#zipupload-dialog-form").dialog("open");
 	});
 	
 	$("#model_create_dialog_form").dialog({
@@ -233,6 +325,87 @@ $(function(){
 			    };
 		}
 	});
+	
+	$( "#zipupload-dialog-form" ).dialog({
+    	autoOpen: false,
+     	height: 300,
+    	width: 400,
+    	modal: true,
+    	buttons: {
+        	'OK': {
+        		text: "Upload model",
+        		click: function() {
+        			get_existing_model_names().done(function(results){
+        				var names = results.names;
+	          			$("#shortname").removeClass( "ui-state-error" );
+	          			// Error Checking
+	          			if(names.indexOf($("#shortname").val()) > -1){
+	          				alert("The Model Name "+$('#shortname').val()+" already exists. Please choose another.");
+	          			}
+	          			else if(!$('#shortname').val()) {
+	          				alert("The Model Name field must be set to proceed.");
+	          			}
+	          			else if(!$('#zipfilename').val()){
+	          				alert("You must choose a file to be uploaded.");
+	          			}
+	          			else {
+	          				var files = $("#zipfilename").prop("files");
+	          				$('#zipmodelupload').fileupload('add',{files:files,formData:[{name:'shortname',value:$("#shortname").val()}]});
+	          				console.log("done submitting");
+	          				$("#ajax_busy").show();
+	          				$('#zipupload-dialog-form').dialog("close");
+	          			}
+        			});
+        		}
+          	},
+          	"CANCEL": {
+        		text: "Cancel",
+       			click: function() {
+          			$( this ).dialog( "close" );
+          		}
+			}
+		},
+      	close: function() {
+        	$("#shortname").val( "" ).removeClass( "ui-state-error" );
+        	$("#zipfilename").val('');
+		},
+		open: function(e,ui) {
+			$(this)[0].onkeypress = function(e) {
+				if (e.keyCode == $.ui.keyCode.ENTER) {
+					e.preventDefault();
+					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+ 				}
+ 		    };
+		}
+    });
+	
+    $('#zipfilename').change( function () {
+    	$("#shortname").val($(this).val().split('\\').pop().replace(/\.[^/.]+$/,""));
+    });
+    
+    $('#zipmodelupload').fileupload({
+        dataType: 'json',
+        formData: [],
+        autoUpload: true,
+        url: "{{rootPath}}upload-model",
+        // Add is overriden by the programatic call in the dialog box
+        done: function (e, data) {
+        	if (typeof data.result.files == 'undefined') {
+        		alert(data.result.message);
+        	}
+        	else {
+        		$.each(data.result.files, function (index, file) {
+        			alert( 'got '+file.name+' '+file.size+' bytes');
+        		});
+        		$("#ajax_busy").hide()
+				$("#manage_models_grid").trigger("reloadGrid"); // so the grid reflects the presence of the new model
+        	}
+		},
+	    progressall: function (e, data) {
+  			var progress = parseInt(data.loaded / data.total * 100, 10);
+        	$('#progress .bar').css('width',progress + '%');
+        }
+    });
 	$("#model_confirm_delete").dialog({
 		autoOpen:false, 
 		height:"auto", 
@@ -271,35 +444,3 @@ function deleteModel(modelId, modelName) {
     $("#model_confirm_delete").dialog("open");
 }
 </script>
-<!--<div class="art-postcontent art-postcontent-0 clearfix">
-  <div class="art-content-layout">
-	<div class="art-content-layout-row">
-	  <div class="art-layout-cell layout-item-0" style="width: 33%" >
-	    <p style="text-align: center; font-size: 16px; font-weight: bold; color: #FB8B13;"><span style="color: #303269;">{{_('Vision')}}</span></p>
-	    <p style="text-align: center;"><img width="166" height="127" alt="" class="art-lightbox" src="static/images/tmpF14D.png"><br></p>
-	    <p style="text-align: center;"><a href="http://hermes.psc.edu/vision.html" class="art-button">{{_('Read more')}}</a></p>
-	  </div>
-	  <div class="art-layout-cell layout-item-0" style="width: 34%" >
-        <p style="text-align: center; font-size: 16px; font-weight: bold; color: #1864C9;"><span style="color: #303269;">{{_('Team')}}</span></p>
-        <p style="text-align: center;"><img width="185" height="63" alt="" class="art-lightbox" src="static/images/HERMESTeam.png" style="margin-top: 38px; margin-bottom: 39px;"><br></p>
-        <p style="text-align: center;"><a href="http://hermes.psc.edu/team.html" class="art-button">{{_('Read more')}}</a></p>
-      </div>
-      <div class="art-layout-cell layout-item-0" style="width: 33%" >
-	    <p style="font-size: 16px; font-weight: bold; text-align: center; color: #878787;"><span style="color: #303269;">{{_('Publications')}}</span></p>
-	    <p style="text-align: center;"><img width="180" height="124" alt="" class="art-lightbox" src="static/images/Benin_ZS_Rota_Util_sm.jpg"><br></p>
-	    <p style="text-align: center;"><a href="http://hermes.psc.edu/publications.html" class="art-button">{{_('Read more')}}</a></p>
-	  </div>
-    </div>
-  </div>
-  <div class="art-content-layout">
-    <div class="art-content-layout-row">
-	  <div class="art-layout-cell layout-item-1" style="width: 100%" >
-	    <h3><span style="vertical-align: sub; color: #303269;">{{_('A Computational Tool to Design, Plan and Improve Supply Chains')}}</span></h3>
-	    <p>{{_('Supply chains are the series of steps involved in transporting vaccines from manufacturers all the way to patients.&nbsp; Distributing vaccines (and other health care products) can be a complex process, integrating many steps, locations, personnel, and equipment.&nbsp; HERMES (Highly Extensible Resource for Modeling Supply-chains) is a computational framework for modeling and optimizing supply chains.')}}</p>
-	    <p style="text-align: center;">{{_('The HERMES Project is a collaboration involving...')}}<br></p>
-	    <p style="text-align: center;"><img width="79" height="79" alt="" class="art-lightbox" src="static/images/pitt_bluegold_seal1.gif">&nbsp; &nbsp;&nbsp;<img width="211" height="79" alt="" class="art-lightbox" src="static/images/PSClogo_secondary.png"><br></p>
-	    <p style="text-align: center;">{{_('Funded through grants from the Bill and Melinda Gates Foundation and the National Institutes of Health.')}}</p>
-	  </div>
-    </div>
-  </div>
-</div>-->
