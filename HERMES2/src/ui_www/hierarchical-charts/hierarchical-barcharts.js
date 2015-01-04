@@ -16,7 +16,7 @@
         _create: function() {
     
             trant = this.options.trant;
-
+            console.log("I AM HERE");
             this.containerID = $(this.element).attr('id');
             $(this.element).css({
                 float: "left"

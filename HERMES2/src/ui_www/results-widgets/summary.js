@@ -94,9 +94,13 @@
 			               8:'Save',
 			               9:'Must define a name to give the file.',
 			               10:'A problem has occured in the creation of the report.',
-			               11:'Cancel'
+			               11:'Cancel',
+			               12:'Total Costs By Supply Chain Level',
+			               13:'Currency',
+			               14:'Year'
 			               };
 			
+			// Handle everything that needs to be translated
 			translate_phrases(phrases)
 				.done(function(tphrases){
 					var tp = tphrases.translated_phrases;
@@ -164,6 +168,48 @@
 							});
 						}	
 					});
+					
+					var heirBarID = containerID + "_cost_heirBarChart";
+					$("#"+containerID).append("<div id='"+heirBarID+"' name='"+heirBarID+"'></div>");
+				    $("#"+heirBarID).barchart({
+				        hasChildrenColor: "steelblue",
+				        noChildrenColor: "#ccc",
+				        jsonDataURLBase: "json/results-cost-hierarchical",
+				        jsonDataURLParameters: [
+				            "modelId="+modelId,
+				            "resultsId="+resultsId],
+				        minWidth: 768,
+				        minHeight: 300,
+				        resizable: false,
+				        scrollable: true,
+				        trant: {
+				             "title": tp[12], 
+				             "currency_label": tp[13],
+				             "year_label": tp[14]
+				        }
+
+				    });
+					<!-- Zoomable Treemap -->
+					var zoomID = containerID + "_cost_zoomableTreemap";
+					$("#"+containerID).append("<div id='"+zoomID+"' name='" + zoomID + "'></div>");
+					$("#"+zoomID).treemap({
+				        hasChildrenColor: "steelblue",
+				        noChildrenColor: "#ccc",
+				        jsonDataURLBase: "json/results-cost-hierarchical-value",
+				        jsonDataURLParameters: [
+				            "modelId="+modelId,
+				            "resultsId="+resultsId],
+				        minWidth: 768,
+				        minHeight: 775,
+				        resizable: false,
+				        scrollable: true,
+				        trant: {
+				             "title": tp[12], 
+				             "currency_label": tp[13],
+				             "year_label": tp[14]
+				        }
+				
+				    });
 				});
 				
 	

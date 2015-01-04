@@ -1174,6 +1174,45 @@ function addToggleExpansionButton($grid) {
  			});
  			
  		}
+ 		else if (settings['widget']=='openbuttontriple') {
+ 			$.fn.buttontriple = function( arg, arg2, arg3 ) {
+				if (arg=='set') {
+					var $btn = this.find('.'+this.data('map')[arg2]);
+					$btn.unbind('click');
+					$btn.click(arg3);
+					if (arg3) $btn.attr('disabled',false);
+					else $btn.attr('disabled',true);
+				}
+				else {
+					$.error('Unknown operation '+arg.toString());
+				}
+ 			}
+
+			return this.each(function(index,elem) {
+				$elem = $(elem);
+				var divId = $elem.attr('id');
+				if (divId == undefined) $.error('wrapper div has no id');
+				buttonList = [
+				              ['{{_("Open")}}', 'hermes_edit_button', 'onOpen'],
+				              ['{{_("Info")}}', 'hermes_info_button', 'onInfo'],
+				              ['{{_("Del")}}', 'hermes_del_button', 'onDel']
+				              ];
+				var map = {}
+				for (x in buttonList) {
+					var lbl = buttonList[x][0];
+					var cl = buttonList[x][1];
+					var cbName = buttonList[x][2];
+					map[cbName] = cl;
+					$elem.append("<button type=\"button\" class=\""+cl+"\"> "+lbl+" </button>");
+					if (settings[cbName])
+						$elem.find("."+cl).click(settings[cbName]);
+					else
+						$elem.find("."+cl).prop("disabled",true);
+				}
+				$elem.data('map',map);
+			if ($(document).tooltips) $(document).tooltips('applyTips');
+			});
+		}
  		else if (settings['widget']=='buttontriple') {
 			$.fn.buttontriple = function( arg, arg2, arg3 ) {
  				if (arg=='set') {

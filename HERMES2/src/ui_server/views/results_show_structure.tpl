@@ -19,14 +19,15 @@ function updateNetworkDiagram(){
 			alert(result.msg);
 		}
 		else{
-			$("#collapsible-network-diagram").remove();
-			$("#model_show_diagram").append("<div id='collapsible-network-diagram'/>");
+			//$("#collapsible-network-diagram").remove();
+			//$("#model_show_diagram").append("<div id='collapsible-network-diagram'/>");
 			$("#collapsible-network-diagram").diagram({
 				jsonData:result,
 				storeDialogDivID:'model_store_info',
 				rootPath:'{{rootPath}}',
 				modelId:'{{modelId}}',
 				resultsId:'{{resultsId}}',
+				resizeOn:true
 				//jsonUrl:'{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}'
 			});
 			$("#tooldiv").show();
@@ -61,18 +62,18 @@ function getModelJson(){
 }
 
 #model_show_ui_holder{
-	min-height:600px;
-	min-width:300px;
+	min-height:100%;
+	min-width:100%;
 }
 #model_show_diagram{
-	min-height:400px;
-	min-width:300px;
+	min-height:100%;
+	min-width:100%;
 }
 #collapsible-network-diagram{
-	position:relative;
-	top:0px;
-	float:left;
-	
+	max-height:100%;
+	min-height:100%
+	max-width:100%;
+	min-width:100%;
 }
 .toolbox-head{
 	color:#ffffff;
@@ -126,13 +127,10 @@ function getModelJson(){
 </div>
 
 <div id="model_show_ui_holder">
-<div id="model_show_diagram">
 	<div id="collapsible-network-diagram">
 		<script>
-			updateNetworkDiagram();
 		</script>
 	</div>
-</div>
 </div>
 
 <div id="log"></div>
@@ -161,15 +159,16 @@ $(function(){
 			$("#collapsible-network-diagram").diagram("hideRouteNames");
 	});
 	
-	$.ajax({
-		url: '{{rootPath}}json/dialoghtmlforstore',
-		dataType:'json',
-		data:{name:dialogBoxName,geninfo:1,utilinfo:0,popinfo:1,storedev:1,transdev:1,vacavail:0,fillratio:0,invent:0,availplot:0},
-		success:function(data){
-			//console.log(data.htmlString);
-			$(document.body).append(data.htmlString);
-		}
-	});
+	updateNetworkDiagram();
+//	$.ajax({
+//		url: '{{rootPath}}json/dialoghtmlforstore',
+//		dataType:'json',
+//		data:{name:dialogBoxName,geninfo:1,utilinfo:0,popinfo:1,storedev:1,transdev:1,vacavail:0,fillratio:0,invent:0,availplot:0},
+//		success:function(data){
+//			//console.log(data.htmlString);
+//			$(document.body).append(data.htmlString);
+//		}
+//	});
 	
 });	
 </script>

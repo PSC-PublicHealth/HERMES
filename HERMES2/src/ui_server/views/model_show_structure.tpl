@@ -19,8 +19,8 @@ function updateNetworkDiagram(){
 			alert(result.msg);
 		}
 		else{
-			$("#collapsible-network-diagram").remove();
-			$("#model_show_diagram").append("<div id='collapsible-network-diagram'/>");
+			//$("#collapsible-network-diagram").remove();
+			//$("#model_show_diagram").append("<div id='collapsible-network-diagram' style='height:100%;min-height:100%;' />");
 			$("#collapsible-network-diagram").diagram({
 				jsonData:result,
 				storeDialogDivID:'model_store_info',
@@ -61,17 +61,27 @@ function getModelJson(){
 }
 
 #model_show_ui_holder{
+	height:100%;
+	width:100%;
 	min-height:600px;
 	min-width:300px;
 }
 #model_show_diagram{
-	min-height:400px;
-	min-width:300px;
+	#min-height:400px;
+	#max-height:800px;
+	#min-width:300px;
+	#max-height:600px;
+	height:100%;
+	width:100%;
 }
+
 #collapsible-network-diagram{
-	position:relative;
+	#position:relative;
 	top:0px;
 	float:left;
+	min-height:600px;
+	width:100%;
+	height:100%;
 	
 }
 .toolbox-head{
@@ -133,13 +143,11 @@ function getModelJson(){
 <input type="hidden" id="data" name="data" value="">
 </form>
 
-<div id="model_show_ui_holder">
-	<div id="model_show_diagram">
-		<div id="collapsible-network-diagram">
-			<script>
-				updateNetworkDiagram();
-			</script>
-		</div>
+<div id="model_show_diagram">
+	<div id="collapsible-network-diagram">
+		<script>
+			updateNetworkDiagram();
+		</script>
 	</div>
 </div>
 

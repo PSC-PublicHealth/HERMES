@@ -7,7 +7,7 @@
 	var svgGroup;
 	var diagonal;
 	
-	var margin = 100;
+	var margin = 50;
 	var currentNode = null;
     // Calculate total nodes, max label length
     var totalNodes = 0;
@@ -58,12 +58,13 @@
 			minWidth:500,
 			minHeight:300,
 			scrollable:false,
-			resizable:false,
+			resizable:true,
 			hideRouteNames:false,
 			hidePlaceNames:false,
 			selectedNode: -1,
 			hasChildrenColor:"steelblue",
 			noChildrenColor:"#adf",
+			resizeOn:true,
 			trant: {
 				title:'Collapsible Zoom Pan Network Diagram'
 			}			
@@ -116,12 +117,15 @@
 			var modelId = this.options.modelId;
 			var resultsId = this.options.resultsId;
 			var rootPath = this.options.rootPath;
+			var resizeOn = this.options.resizeOn;
 			
 			treeData = this.options.jsonData;
 			
 			this.containerID = $(this.element).attr('id');
+			thiscontainerID = this.containerID;
+			//$(this.element).css("height",this.options.minHeight);
 			this.svgContainerID = this.containerID+"svgContainer";
-			
+			thissvgContainerID = this.svgContainerID
 			d3.select("#"+this.containerID).append("svgContainer")
 				.attr("id",this.svgContainerID);
 			
@@ -159,13 +163,20 @@
 		            return [d.y, d.x];
 		        });
 		
+//		    if(!resizeOn){
+//		    	var thisWidth = $("#"+this.containerID).width();
+//		    }
+		    
 		    // define the zoomListener which calls the zoom function on the "zoom" event constrained within the scaleExtents
 		    var zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
 		        // define the baseSvg, attaching a class for styling and the zoomListener
+		    console.log($("#"+this.containerID).attr("height"));
+		    var initHeight = this.options.resizeOn ? window.innerHeight - 300 : this.options.minHeight;
+		    var initWidth = this.options.resizeOn ? window.innerWidth - margin*3 : this.options.minWidth;
 		    baseSvg = d3.select("#"+this.svgContainerID).append("svg")
 		    		.attr("id","netSVG")
-		    		.attr("width", viewerWidth)
-		    		.attr("height", viewerHeight)
+		    		.attr("width", initWidth)
+		    		.attr("height",initHeight)
 		    		.attr("class", "overlay")
 		    		.call(zoomListener)
 		    		.on('contextmenu',function(){
@@ -497,7 +508,36 @@
 		        //if (d3.event.defaultPrevented) return; // click suppressed // Causes Chrome to stop responding after a while and is not necessary
 		        d = toggleChildren(d);
 		        update(d);
-		        centerNode(d)
+		        
+		        if(d.children) {
+		        	centerNode(d);
+		        }	
+		        else{ 
+		        	// check if others in the level have children
+		        	var haveChildren=false;
+		        	if(d.parent){
+			        	for(var i=0;i<d.parent.children.length;i++){
+			        		if(d.parent.children[i].children){
+			        			haveChildren = true;
+			        			break;
+			        		}
+			        	}
+			        	if(haveChildren){
+			        		centerNode(d);
+			        	}
+			        	else{
+			        		centerNode(d.parent);
+			        	}
+			        }
+			        else{
+			        	centerNode(d);
+			        }
+			        
+			        	
+		        	//currentNode = d.parent;
+		        }
+	
+		        //centerNode(d)
 		        currentNode = d;
 		    };
 	
@@ -518,7 +558,7 @@
 				   }
 			   }
 			   else{
-				   loopName = d.name.replace(" Loop","")
+				   loopName = d.name.replace(" Loop","");
 				   open_route_info_box(rootPath,modelId,loopName,-1);
 			   }
 				   
@@ -913,22 +953,23 @@
 		    centerNode(root);
 		    currentNode = root;
 		    
-		    
-			window.addEventListener('resize',function(event){
-		    	var wH = window.innerHeight-300;
-		    	var wW = window.innerWidth - margin*2;
-		    	var bH = parseInt(baseSvg.style("height"));
-		    	var bW = parseInt(baseSvg.style("width"));
-		    	
-		    	//console.log(wH);
-		    	//console.log(bH);
-		    	
-		    	baseSvg.attr("width",wW).attr("height",wH);
-		    	console.log("resizing");
-		    	centerNode(currentNode);
-	    	
-	    
-			});
+		    if(resizeOn){
+				window.addEventListener('resize',function(event){
+			    	//var wH = window.innerHeight-300;
+			    	//var wW = window.innerWidth - margin*2;
+			    	var wH = $("#"+thiscontainerID).height();
+			    	var wW = $("#"+thiscontainerID).width();
+			    	var bH = parseInt(baseSvg.style("height"));
+			    	var bW = parseInt(baseSvg.style("width"));
+			    	
+			    	//console.log(wH);
+			    	//console.log(bH);
+			    	
+			    	baseSvg.attr("width",wW).attr("height",wH);
+			    	console.log("resizing");
+			    	centerNode(currentNode);	
+				});
+			}
 		
 		//Toggle children
 	}

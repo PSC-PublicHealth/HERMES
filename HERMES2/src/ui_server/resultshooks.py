@@ -29,11 +29,29 @@ inlizer=session_support.inlizer
 _=session_support.translateString
 
 @bottle.route('/results-top')
-def resultsTopPage(uiSession):
+def resultsTopPage(db,uiSession):
+    #modelId = _safeGetReqParam(bottle.request.path,"modelId");
+    modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
+    print "ModelID 1 {0}".format(modelId) 
+    if modelId is None:
+        modelId = -1;
+    print "FSDFADFAFAEFDSAFAEFADFAFAEFAFSADFASEFAESFASDFAWEFASEF"
+    print "ModelID = {0}".format(modelId)
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Results")))
-    return bottle.template("results_top.tpl",{"breadcrumbPairs":crumbTrack})
+    return bottle.template("results_top.tpl",{"breadcrumbPairs":crumbTrack},modelId=modelId)
 
-
+@bottle.route('/json/has-results')
+def doesModelHaveResult(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId')
+        rGps = db.query(s_n.HermesResultsGroup).filter(s_n.HermesResultsGroup.modelId==modelId)
+        if rGps is not None:
+            return {'success':True,'hasResults':True}
+        else:
+            return {'success':True,'hasResults':False}
+    except Exception as e:
+        return {'success':False,'type':'error','msg':str(e)}
+    
 @bottle.route('/results-fireworks')
 def resultsFireworksPage(db, uiSession):
     resultsId = _getOrThrowError(bottle.request.params,'runId',isInt=True)
@@ -104,7 +122,101 @@ def editResults(db, uiSession):
     else:
         raise bottle.BottleException(_("Bad parameters to {0}").format(bottle.request.path))
 
+def getResultsTreeForModel(mId,db):
+    m = shadow_network_db_api.ShdNetworkDB(db,mId)
+    resultsJson = {'text':'{0}'.format(m.name),'type':'disabled','id':"m_{0}".format(mId),'children':[]}
+    rGPs = db.query(s_n.HermesResultsGroup).filter(s_n.HermesResultsGroup.modelId==mId)
+    for rG in rGPs:
+        resultsJson['children'].append(getResultsGroupTree(rG,m,db))
+    
+    return resultsJson
+    
+def getResultsGroupTree(rG,m,db):
+    
+    rGDict = {'text':'{0}'.format(rG.name),'state':{'opened':True},
+              'id':'rG_{0}_{1}'.format(rG.modelId,rG.resultsGroupId),
+              'children':[]}
+    ### get the results from this 
+    rsltcount=0
+    for r in rG.results:
+        if r.resultsType != "average":
+            rsltcount+=1
+    
+    for r in rG.results:
+        print "Does this have costs? {0}".format(len(r.costSummaryRecs) != 0) 
+        if rsltcount == 1:
+            if r.resultsType == "average":
+                continue
+            else:
+                pass
+        rName = "Run: {0}".format(r.runNumber)
+        tText = "Model:{0}, Result:{1}, ".format(m.name,rG.name)
+        if r.resultsType == "average":
+            rName = "Average Result"
+            tText += "Ave"
+        else:
+            tText += "Run {0}".format(r.runNumber)
+        
+        #linkName = "<a href={0}results-summary?modelId={1}&resultsId={2}>Open</a>".format("",
+        #                                                                                  modelId,
+        #                                                                                  r.resultsId)    
+        rGDict['children'].append({'text':rName,'tabText':tText,
+                                   'id':"r_{0}_{1}".format(rG.modelId,r.resultsId)})
+    return rGDict
 
+    
+@bottle.route('/json/results-tree-for-all-models')
+def resultsTreeForAllModels(db,uiSession):
+    ### go from Results Groups, as if there is no results, there is no reason
+    try:
+        rGrps = db.query(s_n.HermesResultsGroup)
+        mIdsParsed = []
+        returnJson = []
+        for rGp in rGrps:
+            if rGp.modelId in mIdsParsed:
+                continue
+            mIdsParsed.append(rGp.modelId)
+            returnJson.append(getResultsTreeForModel(rGp.modelId,db))
+    
+        return {'success':True,'treeData':returnJson}
+    except Exception as e:
+        return {'success':False,'type':'error','msg':str(e)}
+
+@bottle.route('/json/results-tree-for-one-model')
+def resultsTreeForAllModels(db,uiSession):
+    ### go from Results Groups, as if there is no results, there is no reason
+    try:
+        modelId=_getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        
+        rGrps = db.query(s_n.HermesResultsGroup).filter(s_n.HermesResultsGroup.modelId==modelId)
+        mIdsParsed = []
+        returnJson = []
+        for rGp in rGrps:
+            if rGp.modelId in mIdsParsed:
+                continue
+            mIdsParsed.append(rGp.modelId)
+            returnJson.append(getResultsTreeForModel(rGp.modelId,db))
+    
+        return {'success':True,'treeData':returnJson}
+    except Exception as e:
+        return {'success':False,'type':'error','msg':str(e)}
+
+@bottle.route('/json/results-tree-for-model')
+def resultsTreeForModel(db,uiSession):
+    try:
+        modelId=_getOrThrowError(bottle.request.params,'modelId',isInt=True)
+#         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+#         ## get Results Group (note s_n is shadow_network)
+#         rsltGrps = db.query(s_n.HermesResultsGroup).filter(s_n.HermesResultsGroup.modelId==modelId)
+#         resultsJson = []
+#         for rG in rsltGrps:
+#             resultsJson.append(getResultsGroupTree(rG,m,db))
+        
+        return {'success':True,'rgnames':getResultsTreeForModel(modelId, db)}
+    
+    except Exception as e:
+        return {'success':False,'type':'error','msg':str(e)}
+        
 @bottle.route('/json/manage-results-table')
 def jsonManageResultsTable(db, uiSession):
     rList = []
@@ -171,9 +283,10 @@ def jsonManageResultsTable(db, uiSession):
 @bottle.route('/results-summary')
 def createResultsSummary(db, uiSession):
     global _gvAvailable
-    modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
+    #modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
     resultsId = _safeGetReqParam(bottle.request.params,'resultsId',isInt=True)
     hRG = db.query(s_n.HermesResults).filter(s_n.HermesResults.resultsId==resultsId).one().resultsGroup
+    modelId = hRG.modelId
     m = shadow_network_db_api.ShdNetworkDB(db,hRG.modelId)
 
     if modelId is None:

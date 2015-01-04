@@ -143,7 +143,7 @@ def modelShowStructurePage(db,uiSession):
                             "breadcrumbPairs":crumbTrack})
     
 def _doModelEditPage(db, uiSession):
-    crumbTrack = addCrumb(uiSession, 'Edit')
+    crumbTrack = addCrumb(uiSession, 'Advanced Model Editor')
     if "id" in bottle.request.params:
         modelId = int(bottle.request.params['id'])
         uiSession['selectedModelId'] = modelId
@@ -189,7 +189,7 @@ def _doModelEditPage(db, uiSession):
     m = shadow_network_db_api.ShdNetworkDB(db,modelId)
     template = 'model_edit_structure.tpl'
 
-    return bottle.template(template, {"slogan":_("Editing")+" %s"%m.name,
+    return bottle.template(template, {"slogan":_("Advanced Model Editor: ")+" %s"%m.name,
                                       "modelId":m.modelId,
                                       "nr":nr,
                                       "breadcrumbPairs":crumbTrack
@@ -1016,7 +1016,41 @@ def editCreateModel(db,uiSession):
             raise bottle.BottleException("Bad parameters to %s"%bottle.request.path)
     else:
         raise bottle.BottleException("Bad parameters to %s"%bottle.request.path)
+
+@bottle.route('/model-open')
+def openModel(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        mincrumb = _safeGetReqParam(bottle.request.params,'mincrumb',isBool=True)
+        if not mincrumb:
+            mincrumb = False
+        try:
+            uiSession.getPrivs().mayReadModelId(db, modelId)
+        except privs.PrivilegeException:
+            raise bottle.BottleException('User may not read model %d' % modelId)
         
+        uiSession['selectModelId'] = modelId
+        if mincrumb:
+            uiSession.getCrumbs().pop()
+        uiSession.save()
+        
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        name = m.name
+        
+        ## Get whether this model may be modified
+        modify = False
+        try:
+            uiSession.getPrivs().mayModifyModelId(db,modelId)
+            modify = True
+        except:
+            pass
+        
+        crumbTrack = uiSession.getCrumbs().push(("{0}?modelId={1}".format(bottle.request.path,modelId),name))
+        return bottle.template("model_open.tpl",
+                               {"breadcrumbPairs":crumbTrack},modelId=modelId,maymodify=modify,name=name,_=_,inlizer=inlizer)
+    except Exception as e:
+        raise bottle.BottleException(_("Unable to load Open Models Page: {0}".format(str(e))))
+    
 def _getStoreJITJSON(store):
     return { 'data' : { 'leaf':(store.clients() == []), 'isstore':True },
             'id' : 'store_%d'%store.idcode,
@@ -1125,6 +1159,7 @@ def jsonManageModelsTable(db, uiSession):
                                                         {'modelid':'modelId', 'name':'name', 'notes':'note',
                                                          'id':'modelId'},
                                                         bottle.request)
+  
     result = {
               "total":nPages,    # total pages
               "page":thisPageNum,     # which page is this
@@ -1137,6 +1172,7 @@ def jsonManageModelsTable(db, uiSession):
                        for m in mList ]
               }
     return result
+
 
 @bottle.route('/json/types-manage-grid')
 def jsonGetTypesGrid(db, uiSession):
@@ -1553,25 +1589,73 @@ def uploadModel(db,uiSession):
         db.rollback()
         mdata = { 'code': 1, 'message': str(e) }            
         return json.dumps(mdata)
+
+@bottle.route('/json/prepare-download-model')
+def prepareDownloadModel(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'model',isInt=True)
+        filename = _safeGetReqParam(bottle.request.params,'fname',isInt=False)
+        form = _safeGetReqParam(bottle.request.params,'form',isInt=False)
+    
+        if not form:
+            form = "zip"
+        
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        
+        print "Filename = " + str(filename)
+        if not filename:
+            filename = "{0}_{1}".format(m.name,modelId)
+    
+        zipFileName = "{0}.zip".format(filename)
+        with uiSession.getLockedState() as state:
+            (fileKey, fullZipFileName) = \
+                state.fs().makeNewFileInfo(shortName = zipFileName,
+                                           fileType = 'application/zip',
+                                           deleteIfPresent = True)
+
+        oldHDO = util.redirectOutput(fullZipFileName)
+        m.writeCSVRepresentation()
+        util.redirectOutput(None,oldHDO)
+        return {'success':True,'filename':fullZipFileName,'zipname':zipFileName}
+    except Exception as e:
+        return {'success':False,'type':'error','msg':str(e)}
     
 @bottle.route('/download-model')
 def downloadModel(db,uiSession):
-    modelId = int(bottle.request.params['model'])
-    uiSession.getPrivs().mayReadModelId(db, modelId)
-    m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-    zipFileName = "%s_%d.zip"%(m.name,modelId)
-    with uiSession.getLockedState() as state:
-        (fileKey, fullZipFileName) = \
-            state.fs().makeNewFileInfo(shortName = zipFileName,
-                                       fileType = 'application/zip',
-                                       deleteIfPresent = True)
-
-    oldHDO = util.redirectOutput(fullZipFileName)
-    m.writeCSVRepresentation()
-    util.redirectOutput(None,oldHDO)
+    try:
+        #modelId = _getOrThrowError(bottle.request.params,'model',isInt=True)
+        filename = _getOrThrowError(bottle.request.params,'filename',isInt=False)
+        zipFileName = _getOrThrowError(bottle.request.params,'zipfilename',isInt=False)
+        #form = _safeGetReqParam(bottle.request.params,'form',isInt=False)
     
-    return bottle.static_file(zipFileName,os.path.dirname(fullZipFileName),
-                              mimetype='application/zip',download=zipFileName)
+#         if not form:
+#             form = "zip"
+#         
+#         uiSession.getPrivs().mayReadModelId(db, modelId)
+#         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+#         
+#         if not filename:
+#             filename = "{0}_{1}".format(m.name,modelId)
+#     
+#         zipFileName = "{0}.zip".format(filename)
+#         with uiSession.getLockedState() as state:
+#             (fileKey, fullZipFileName) = \
+#                 state.fs().makeNewFileInfo(shortName = zipFileName,
+#                                            fileType = 'application/zip',
+#                                            deleteIfPresent = True)
+# 
+#         oldHDO = util.redirectOutput(fullZipFileName)
+#         m.writeCSVRepresentation()
+#         util.redirectOutput(None,oldHDO)
+        #bottle.response.set_cookie('fileDownload',"true",path=rootPath)
+        #value = bottle.request.get_cookie('fileDownload')
+        #print "value = " + str(value)
+        return bottle.static_file(zipFileName,os.path.dirname(filename),
+                                  mimetype='application/zip',download=zipFileName)
+    except Exception as e:
+        raise bottle.BottleException(e)
+        
 
 ''' 
 Returns a json that gives the names of all of the models in the database

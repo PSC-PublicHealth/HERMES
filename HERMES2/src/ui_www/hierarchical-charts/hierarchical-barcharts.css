@@ -1,18 +1,30 @@
 text {
-  font: 10px sans-serif;
+  
+	font: 10px sans-serif;
+
 }
+
 
 rect.background {
-  fill: white;
+  
+	fill: white;
+
 }
 
+
 .axis {
-  shape-rendering: crispEdges;
+  
+	shape-rendering: crispEdges;
+
 }
+
+
 
 .axis path,
 .axis line {
+
   fill: none;
   stroke: #000;
+
 }
 

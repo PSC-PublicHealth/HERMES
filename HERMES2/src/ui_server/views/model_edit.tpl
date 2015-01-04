@@ -1,5 +1,5 @@
 %rebase outer_wrapper title_slogan=slogan, breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
-
+<script type="text/javascript" src="{{rootPath}}static/jstree-v.pre1.0/jquery.jstree.js"></script>
 <script src="{{rootPath}}static/model_edit.js"></script>
 
 <div id="model_edit_info_dialog" title="This should get replaced"></div>

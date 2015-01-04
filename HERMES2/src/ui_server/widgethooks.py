@@ -574,6 +574,8 @@ def handleListType(db, uiSession):
         if typestring == 'null' or typestring == '':
             typestring = None
         typeList = typehelper.getTypeList(db, modelId, invtype, fallback=False)
+        print "#$#$#$#$#$#$#$#$#$#$#$#$#$#$"
+        print typeList
         sio = StringIO()
         foundType = False
         if blankFlag:

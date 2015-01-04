@@ -13,6 +13,7 @@
 <link rel="stylesheet" type="text/css" media="screen" href="{{rootPath}}static/jqGrid-4.4.4/css/ui.jqgrid.css" />
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-svg-1.4.5/jquery.svg.css" />
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/hermes_custom.css" />
+
 <!-- 
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-rcrumbs-3234d9e/jquery.rcrumbs.min.css" />
  -->
@@ -31,7 +32,7 @@
 	<script src="{{rootPath}}static/jquery-ui-1.10.2/ui/jquery.ui.menu.js"></script>
 -->
 
-<script type="text/javascript" src="{{rootPath}}static/jstree-v.pre1.0/jquery.jstree.js"></script>
+
 <script type="text/javascript" src="{{rootPath}}static/jqGrid-4.4.4/js/i18n/grid.locale-en.js"></script>
 <!--
 <script type="text/javascript" src="{{rootPath}}static/jqGrid-4.4.4/js/jquery.jqGrid.min.js"></script>
@@ -47,6 +48,7 @@
 <script type="text/javascript" src="{{rootPath}}static/jquery.printElement.min.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/Jit-2.0.1/jit.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/hermes-ui-utils.js"></script>
+<script src="{{rootPath}}static/jquery.corner.js"></script>
 
 <!--
 	<link rel="stylesheet" href="../../themes/base/jquery.ui.all.css">
