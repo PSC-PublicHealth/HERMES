@@ -25,7 +25,7 @@ _ = inlizer.translateString
 hiddenTypesSet = set(['OUTDOORS'])
 
 alwaysPresentTypes = defaultdict(lambda: [],
-                                 {'staff': ['Std_WarehouseStaff', 'Std_Driver', 'foo'],
+                                 {'staff': ['Std_WarehouseStaff', 'Std_Driver'],
                                   'perdiems': ['Std_PerDiem_None'],
                                   'types': ['Std_WarehouseStaff', 'Std_Driver', 'Std_PerDiem_None']
                                   })
