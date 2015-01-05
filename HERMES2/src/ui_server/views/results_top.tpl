@@ -36,11 +36,16 @@
 	min-width:500px;
 	max-width:70%;
 }
+#results_before{
+	font-size:18px;
+	margin:20px 20px;
+}
 </style>
 
 <div id="result_holder">
 	<div id="results_tree">Loading Results Tree</div>
 	<div id="results_summary_tabs">
+		<p id="results_before">{{_("Please select a result from the menu on the left to display.")}}</p>
 		<ul>
 		</ul>
 	</div>
@@ -52,10 +57,8 @@
 
 //$(function(){
 	//$("#results_summary_tabs").tabs();
-	$("#results_summary_tabs").results_tabs({
-		rootPath:'{{rootPath}}'
-	});
 	
+	//$("#results_summary_tabs").css("opacity",0);
 	getResultsTree({{modelId}})
 	.done(function(result){
 		if(!result.success){
@@ -74,6 +77,11 @@
 					node_select = data.selected[0];
 					node_instance = data.instance.get_node(node_select);
 					if(node_instance.id.search('r_')>-1){
+						$("#results_before").hide();
+						$("#results_summary_tabs").results_tabs({
+							rootPath:'{{rootPath}}'
+						});
+						$("#results_summary_tabs").fadeTo(500,1.0);
 						var resultsMon = node_instance.id.replace('r_','');
 						var modelId = parseInt(resultsMon.split("_")[0]);
 						var resultsId = parseInt(resultsMon.split("_")[1]);
