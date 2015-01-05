@@ -574,8 +574,8 @@ def handleListType(db, uiSession):
         if typestring == 'null' or typestring == '':
             typestring = None
         typeList = typehelper.getTypeList(db, modelId, invtype, fallback=False)
-        print "#$#$#$#$#$#$#$#$#$#$#$#$#$#$"
-        print typeList
+        # print "#$#$#$#$#$#$#$#$#$#$#$#$#$#$"
+        # print typeList
         sio = StringIO()
         foundType = False
         if blankFlag:
@@ -590,15 +590,11 @@ def handleListType(db, uiSession):
             else:
                 eName = t['Name']
 
-            if t['DisplayName'] and t['DisplayName'] != '':
-                dispName = t['DisplayName']
-            else:
-                dispName = t['Name']
             if typestring and typestring == t['Name']:
-                sio.write("  <option value='%s' selected >%s</option>\n" % (eName, dispName))
+                sio.write("  <option value='%s' selected >%s</option>\n" % (eName, eName))
                 foundType = True
             else:
-                sio.write("  <option value='%s'>%s</option>\n" % (eName, dispName))
+                sio.write("  <option value='%s'>%s</option>\n" % (eName, eName))
         if typestring and not foundType:
             raise RuntimeError(_("The selected type {0} is not a known type").format(typestring))
 

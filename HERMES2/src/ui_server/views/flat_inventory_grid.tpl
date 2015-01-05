@@ -12,7 +12,10 @@ $("#store_edit_wgt_{{invtype}}_tbl_{{unique}}").jqGrid({ //set your grid id
 			modelId:{{modelId}}, 
 			idcode:{{idcode}},
 			invtype:'{{invtype}}',
-			typestring: function () { return $("#store_edit_wgt_{{invtype}}_tbl_{{unique}}").getGridParam('selrow'); }
+			typestring: function () { 
+				var rowId = $("#store_edit_wgt_{{invtype}}_tbl_{{unique}}").getGridParam('selrow');
+				return $("#store_edit_wgt_{{invtype}}_tbl_{{unique}}").getGridParam('getCell', rowId, 'visibletypestring'); 
+			}
 		}
 	},
 	% if defined('loadonce') and loadonce:
@@ -51,7 +54,7 @@ $("#store_edit_wgt_{{invtype}}_tbl_{{unique}}").jqGrid({ //set your grid id
 		 				fn: function(e) {
     						$.getJSON('{{rootPath}}json/type-dict', {
     							modelId:{{modelId}}, 
-    							typestring:this.value
+    							typestring:$(this).val()
     						})
     						.done(function(data) {
         						if (data.success) {
