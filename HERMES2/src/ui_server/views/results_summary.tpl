@@ -44,7 +44,8 @@
 	</form>
 </div>
 
-
+<!-- The code that generates and populates the summary widgets and divs for
+each tab can be found in static/results-widgets/summary.js -->
 
 
 

@@ -168,7 +168,7 @@
 							});
 						}	
 					});
-					
+					// Hierarchical Barchart Widget
 					var heirBarID = containerID + "_cost_heirBarChart";
 					$("#"+containerID).append("<div id='"+heirBarID+"' name='"+heirBarID+"'></div>");
 				    $("#"+heirBarID).barchart({
@@ -189,7 +189,7 @@
 				        }
 
 				    });
-					<!-- Zoomable Treemap -->
+					// Zoomable Treemap Widget
 					var zoomID = containerID + "_cost_zoomableTreemap";
 					$("#"+containerID).append("<div id='"+zoomID+"' name='" + zoomID + "'></div>");
 					$("#"+zoomID).treemap({
@@ -208,7 +208,6 @@
 				             "currency_label": tp[13],
 				             "year_label": tp[14]
 				        }
-				
 				    });
 				});
 				
