@@ -93,13 +93,13 @@ def generateGeneralStoreInfoJson(db, uiSession):
     
         features = [_("Name"),"ID",_("Level")]
         values = [store.NAME,str(store.idcode),store.CATEGORY]
-        
-        if math.fabs(store.Latitude) > 0.0:
-            features.append(_("Latitude"))
-            values.append(str(store.Latitude))
-            features.append(_("Longitude"))
-            values.append(str(store.Longitude))
-        
+       
+        if store.Latitude is not None and store.Longitude is not None:
+            if math.fabs(store.Latitude) > 0.0:
+                features.append(_("Latitude"))
+                values.append(str(store.Latitude))
+                features.append(_("Longitude"))
+                values.append(str(store.Longitude))
         ### put 
         rows = []
         for feature in features:
