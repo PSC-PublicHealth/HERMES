@@ -4,7 +4,7 @@
 			resultsId:-1,
 			modelId:-1,
 			scrollable:false,
-			resizable:false,
+			resizable:true,
 			trant:{
 				title:"Vaccine Summary Grid"
 			}
@@ -174,7 +174,7 @@
 				 		          }
 				 		], //define column runs
 				 		gridview: true // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
-			 	});
+			 	}).jqGrid('hermify',{debug:true, resizable_hz:true});
 			 });
 		}
 	});

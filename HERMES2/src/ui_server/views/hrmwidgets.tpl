@@ -156,7 +156,7 @@ function addToggleExpansionButton($grid) {
 				if (opts.debug) console.log('loadError, beforeProcessing, and autoencode set');
 				if (opts.resizable) {
 					function resize_grid() {
-						var offset = $grid.offset() //position of grid on page
+						var offset = $grid.offset(); //position of grid on page
 						//hardcoded minimum width
 						if ( $(window).width() > 710 ) {
                             // the maximum width should be set as a freaction of the available
@@ -180,13 +180,17 @@ function addToggleExpansionButton($grid) {
 				}
 				if (opts.resizable_hz) {
 					function resize_grid_hz() {
-						var offset = $grid.offset() //position of grid on page
+						var offset = $grid.offset(); //position of grid on page
 						//hardcoded minimum width
 						if ( $(window).width() > 710 ) {
                             // the maximum width should be set as a freaction of the available
                             // space, rather than subtracting a fixed amount.
                             if (!opts.subgrid) {
-							    $grid.jqGrid('setGridWidth', $(window).width()-offset.left-50);
+							    if ($grid.parent().parent().parent().parent().parent().prop("tagName").toLowerCase()=='td') {
+                                    $grid.jqGrid('setGridWidth', $(window).width()-offset.left-50);
+                                } else {
+                                    $grid.jqGrid('setGridWidth', $grid.parent().parent().parent().parent().parent().width()-2);
+                                }
                             }
                             else {
                                 $grid.jqGrid('setGridWidth', $(window).width()-offset.left-70);
