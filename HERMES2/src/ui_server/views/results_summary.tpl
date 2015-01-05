@@ -9,27 +9,6 @@
 <script type="text/javascript" src="{{rootPath}}static/results-widgets/vaccine_summary_grid.js"></script>
 
 <link rel="stylesheet" href='{{rootPath}}static/results-widgets/results-widgets.css'/> 
-<style type="text/css">
-/* for jqGrid tables */
-//.ui-jqgrid {font-size:x-small}
-//.ui-jqgrid tr.jqgrow td {font-size:x-small}
-//.ui-jqgrid tr.jqgroup td {
-//	font-size:small;
-//	background-color: rgb(88,88,88);
-//	color: white;
-//}
-//th.ui-th-column div {
-//	word-wrap: break-word;
-//	white-space: pre-wrap; /* CSS3 */
-//    	white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
-//    	white-space: -pre-wrap; /* Opera 4-6 */
-//    	white-space: -o-pre-wrap; /* Opera 7 */
-//    	overflow: hidden;
-//    	height: auto !important;
-//    	vertical-align: middle;
-//	font-size:x-small;
-//}
-</style>
 
 <h1>{{modelName}}</h1>
 <h4>Results: {{resultsGroupName}}</h4>
@@ -73,40 +52,6 @@ $("#summary_test_div").results_summary_page({
 	rootPath:'{{rootPath}}'
 });
 
-//$('#vaccine_summary_results_grid').vsgrid({
-//	resultsId:'{{resultsId}}',
-//	modelId:'{{modelId}}'
-//});
-
-//$.ajax({
-//	url:'{{rootPath}}json/results-vaccine-by-place-by-size-hist?modelId={{modelId}}&resultsId={{resultsId}}',
-//	dataType:'json',
-//	success:function(result){
-//		$('#vaccine-availability-by-cohort').vachart({
-//			jsonData:result
-//		});
-//	}
-//});
-//
-//$.ajax({
-//	url:'{{rootPath}}json/result-storage-utilization-by-place-by-levelhist?modelId={{modelId}}&resultsId={{resultsId}}',
-//	dataType:'json',
-//	success:function(result){
-//		$("#storage-utilization-by-level").suchart({
-//			jsonData:result
-//		});
-//	}
-//});
-//
-//$.ajax({
-//	url:'{{rootPath}}json/result-transport-utilization-by-route-by-level-hist?modelId={{modelId}}&resultsId={{resultsId}}',
-//	dataType:'json',
-//	success:function(result){
-//		$('#transUtil_by_route_graph').tuchart({
-//			jsonData:result
-//		});
-//	}
-//});
 
 $(function(){
 	window.addEventListener('resize',function(event){
@@ -246,57 +191,6 @@ $("#results_download_xls_button").click( function (){
 </div>
 
 </div>
-
-<script>
-//$("#vaccine_summary_results_grid").jqGrid({ //set your grid id
-//url:'json/results-summary?modelId={{modelId}}&resultsId={{resultsId}}&resultType=vaccines',
-//datatype: "json",
-//jsonReader: {
-//root:'rows',
-//repeatitems: false,
-//id:'vaccid'
-//},
-//sortable:true,
-//caption:"{{_('Vaccine Results')}}",
-//width: 'auto', //specify width; optional
-//height:'auto',
-//autowidth:'true',
-//colNames:[
-//"{{_('ID')}}",
-//	"{{_('Vaccine')}}",
-//"{{_('Availability')}}",
-//"{{_('Vials Used')}}",
-//"{{_('Doses Per Vial')}}",
-//"{{_('Doses Needed')}}",
-//"{{_('Doses Received')}}",
-//"{{_('Open Vial Waste')}}",
-//"{{_('Percent Stored 2 to 8 C')}}",
-//"{{_('Percent Store Below 2C')}}",
-//"{{_('Vials Spoiled')}}"
-//], //define column names
-//colModel:[	
-//{name:'vaccid',index:'vaccid',jsonmap:'vaccid',hidden:true, key:true},
-//{name:'name',index:'name',jsonmap:'DisplayName',width:150,sortable:true,sorttype:'text'},
-//{name:'availability',index:'availability',jsonmap:'SupplyRatio',width:75,
-//formatter: function(cellvalue,options,rowObject){value = cellvalue*100.0; if(value < 0.0){ value=0.0;}; return value.toFixed(2) + "%"},
-//align:'right'},
-//{name:'vialsused',index:'vialsused',jsonmap:'VialsUsed',width:75,formatter:'number',align:'right',formatoptions:{decimalPlaces:0}},
-//{name:'dosespervial',index:'dosespervial',jsonmap:'DosesPerVial',width:50,formatter:'number',align:'right',formatoptions:{decimalPlaces:0}},
-//{name:'dosesrequested',index:'dosesrequested',jsonmap:'Applied',width:75,formatter:'number',align:'right',formatoptions:{decimalPlaces:0}},
-//{name:'dosesadmin',index:'dosesadmin',jsonmap:'Treated',width:85,formatter:'number',align:'right',formatoptions:{decimalPlaces:0}},
-//{name:'ovw',index:'ovw',jsonmap:'OpenVialWasteFrac',width:75,
-//formatter: function(cellvalue,options,rowObject){value = cellvalue*100.0; if(value < 0.0){ value=0.0;}; return value.toFixed(2) + "%"},
-//align:'right'},
-//{name:'percooler',index:'percooler',jsonmap:'coolerStorageFrac',width:75,formatter: function(cellvalue,options,rowObject){value = cellvalue*100.0; return value.toFixed(2) + "%"},align:'right'},
-//{name:'perfreezer',index:'perfreezer',jsonmap:'freezerStorageFrac',width:75,formatter: function(cellvalue,options,rowObject){value = cellvalue*100.0; return value.toFixed(2) + "%"},align:'right'},
-//{name:'vialspoiled',index:'vialsspoiled',jsonmap:'VialsExpired',width:75,formatter:'number',align:'right',formatoptions:{decimalPlaces:0}}
-//], //define column runs
-//gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
-//
-//});
-</script>
-
-
 
 
 
