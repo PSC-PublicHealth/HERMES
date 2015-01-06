@@ -90,7 +90,7 @@
 					<span class="welcome_item">
 						<a href="{{rootPath}}results-top"
 							title='{{_("View and compare results for models that have already been run. This will allow users to select and view results.")}}'>
-							{{_("View and Compare Results")}}
+							{{_("View and Compare Results from Previous Model Runs")}}
 						</a>
 					</span>
 				</p>
@@ -204,10 +204,21 @@ $(function(){
 	});
 	
 	$("#toggle_dev_mode").click(function() {
-	    $.getJSON("{{rootPath}}json/toggle-devel-mode",{})
-        .done(function(json) { console.log("developer mode toggled"); })
-        .fail(function(jqxhdr,textStatus,error) { alert(jqxhdr.responseText); })
-        location.reload();
+	   // $.getJSON("{{rootPath}}json/toggle-devel-mode",{})
+	    $.ajax({
+	    	url:"{{rootPath}}json/toggle-devel-mode",
+	    	data:'json'
+	    })
+        .done(function(json) { 
+        	if(!json.success){
+        		alert(json.msg);
+        	}
+        	else{
+        	console.log("developer mode toggled"); 
+        	}
+        //.fail(function(jqxhdr,textStatus,error) { alert(jqxhdr.responseText); })
+        	location.reload();
+        });
 	});
 	
 	$("#model_create_or_upload_start").dialog({
@@ -256,7 +267,7 @@ $(function(){
 				    	}
 				    	else{
 				    		$("#model_create_dialog_form").dialog('close');
-				    		window.location="model-create?name="+$("#model_create_dlg_new_name").val();
+				    		window.location="model-create?name="+$("#model_create_dlg_new_name").val()+"&crmb=clear";
 				    	}
 					}
 	    		});
@@ -282,7 +293,7 @@ $(function(){
 		buttons:{
 			'{{_("Continue")}}': function() {
 				$(this).dialog("close");
-				window.location="model-create?name="+$("#model_create_dlg_new_name").val();
+				window.location="model-create?name="+$("#model_create_dlg_new_name").val()+"&crmb=clear";
 			},
 			'{{_("Restart")}}': function(){
 				$(this).dialog("close");
@@ -294,7 +305,7 @@ $(function(){
 						if ($("#model_create_dlg_new_name").val() in json.data){
 							thisModelJSon = json.data[$("#model_create_dlg_new_name").val()];
 							$.ajax({
-								url:'{{rootPath}}json/delete-model-from-newmodelinfo-session?name='+$("#model_create_dlg_new_name").val(),
+								url:'{{rootPath}}json/delete-model-from-newmodelinfo-session?name='+$("#model_create_dlg_new_name").val()+"&crmb=clear",
 			    				async:false,
 								dataType:'json',
 								success:function(data){
@@ -304,7 +315,7 @@ $(function(){
 											deleteModel(thisModelJSon.modelId,$("#model_create_dlg_new_name").val());
 										}
 									}
-									window.location='{{rootPath}}model-create?name='+$("#model_create_dlg_new_name").val()
+									window.location='{{rootPath}}model-create?name='+$("#model_create_dlg_new_name").val()+"&crmb=clear"
 								}
 							});
 						}
@@ -414,7 +425,7 @@ $(function(){
 			'{{_("Delete")}}': function() {
 				$( this ).dialog( "close" );
 				$.getJSON('edit/edit-models.json',
-					{id: $("#model_confirm_delete").data('modelId'), 
+					{id: modelInfo.modelId, 
 					    oper:'del'})
 			    	    .done(function(data) {
 			    	    		if (data.success) {
