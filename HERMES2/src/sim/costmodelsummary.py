@@ -29,6 +29,8 @@ import json, types
 from itertools import product
 from abc import ABCMeta, abstractproperty
 from collections import defaultdict
+import ipath
+from util import logWarning
 
 class CostModelHierarchicalSummary(object):
     __metaclass__ = ABCMeta
@@ -217,15 +219,18 @@ class LegacyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
                 # 'PerDiemCost', 'PerKmCost', 'PerTripCost',
                 'LaborCost', 'BuildingCost', 'StorageCost', 'TransportCost'
                 )
+        if fmt not in ['mixed', None]:
+            logWarning('invalid legacy cost hierarchy format %s ignored' % fmt)
+            fmt = None
         if fmt == 'mixed':
             return self._doByContainer(groups, set(costs))
-        elif format is None:
+        elif fmt is None:
             treeD = self._doByContainer(groups, set(costs))
             self._cullTree(treeD, set(costs))
             # self._printSubTree(treeD)
             return treeD
         else:
-            raise RuntimeError("Unrecognized hierarchy format %s" % format)
+            raise RuntimeError("Unrecognized hierarchy format %s" % fmt)
 
 
 class DummyCostModelHierarchicalSummary(CostModelHierarchicalSummary):

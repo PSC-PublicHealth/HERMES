@@ -77,7 +77,7 @@ class PerDiemType(abstractbaseclasses.ManagedType,
         return s
 
     def getSummaryDict(self):
-        return {'Type': 'PerDiemType', 'Name': self.name}
+        return {'Type': 'perdiemtype', 'Name': self.name}
 
     @classmethod
     def getColumnTypeDict(cls):

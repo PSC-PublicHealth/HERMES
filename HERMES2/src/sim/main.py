@@ -103,7 +103,6 @@ def _retrieveOptions(opts, gblDict, parserArgs):
         argName =  parserArg['argName']
         gblDict[argName] = getattr(opts, argName)
 
-
 def parseCommandLine(parserArgs=None, cmdLineArgs=None):
     """
     This routine takes command line input and builds a list of UserInput data structures
@@ -408,7 +407,7 @@ def main():
     outputList = []                # this is our list of HermesOutput()s.  Instantiated early
                                    # because we might need to pull it from a zip file.
 
-    if simCount <= 1:
+    if simCount <= 1 and not gblInputs['average']:
         finalizeOutputs = False
     else:
         doGraphics = False
@@ -464,7 +463,8 @@ def main():
             for regex in gblInputs["grep"]:
                 sys.stdout= util.FileWithGrep(sys.stdout,regex)
 
-        ValidatePostSimInputs(userInputList[0])
+        if len(userInputList):
+            ValidatePostSimInputs(userInputList[0])
 
         if nWorkers==1:
             for runNumber, userInput in enumerate(userInputList):
@@ -546,7 +546,8 @@ def main():
             if gblInputs['average'] == True:
                 if gblInputs['use_dbmodel'] == True:
                     from shadow_db_routines import averageResultsGroup
-                    averageResultsGroup(userInputList[0].definitionFileName,userInputList[0]['resultsGroupId'])
+                    if len(userInputList):
+                        averageResultsGroup(userInputList[0].definitionFileName,userInputList[0]['resultsGroupId'])
                 else:
                     outputFileRoot = userInputList[0]['outputfile']
                     create_average_summary_CSV('./'+outputFileRoot+'.ave_summary.csv',userInputList) 

@@ -759,7 +759,7 @@ class ShdStore(Base, ShdCopyable):
         """
         set inventory or demand level for a specific type in a store
         """
-        print '######## updateInventory %s %s %s'%(invType,count,useDemandList)
+        # print '######## updateInventory %s %s %s'%(invType,count,useDemandList)
         if useDemandList:
             invList = self.demand
         else:
@@ -783,7 +783,7 @@ class ShdStore(Base, ShdCopyable):
             return
 
         item.count = count
-        print '######## updateInventory main exist'
+        # print '######## updateInventory main exist'
 
     def countInventory(self, invType, useDemandList=False):
         """
@@ -1960,83 +1960,111 @@ class HermesResultsGroup(Base):
             return self._cached_inputDefault.processKeywordValue(token, self.parms[token].getValue())
         else:
             return self._cached_inputDefault.processKeywordValue(token,None)
-        
-    def _mergeResults(self,net):
-        
-        resultsToParse = [x for x in self.results if x.resultsType == 'single']      
+
+    def _mergeResults(self, net):
+
+        resultsToParse = [x for x in self.results if x.resultsType == 'single']
         firstResult = resultsToParse[0]
-        aveResult = self.getAverageResult()
-        
+
         if not self.hasAverageResult():
-            ### for now, raise runtime error, later, we can catch this exception
-            raiseRuntimeError("Cannot Merge Results into an average without and average")
-        
+            # for now, raise runtime error, later, we can catch this exception
+            raiseRuntimeError("Cannot Merge Results into an average without an average")
+        aveResult = self.getAverageResult()
+
         if not self.isAverageResultFilled():
-            ### first the storeRpts
-            for storeId,storeRpt in firstResult.storesRpts.items():
+            # first the storeRpts
+            for storeId, storeRpt in firstResult.storesRpts.items():
                 aveStrRpt = StoresRpt(storeRpt.createRecord())
                 aveStrRpt.modelId = storeRpt.modelId
                 aveResult.storesRpts[storeId] = aveStrRpt
-            for routeId,routeRpt in firstResult.routesRpts.items():
+            for routeId, routeRpt in firstResult.routesRpts.items():
                 aveRtRpt = RoutesRpt(routeRpt.createRecord())
                 aveRtRpt.modelId = routeRpt.modelId
                 aveResult.routesRpts[routeId] = aveRtRpt
-            
-            for summaryId,summaryRec in firstResult.summaryRecs.items():
+
+            for summaryId, summaryRec in firstResult.summaryRecs.items():
                 aveSumRec = ShdTypeSummary.initSummaryFromRec(summaryRec.createRecord())
                 aveSumRec.resultsId = aveResult.resultsId
                 aveResult.summaryRecs[aveSumRec.Name] = aveSumRec
-                #print "Creating %s"%str(aveSumRec)
-                
-                
-            ### Need to zero out what we got
-        for storeId,storeRpt in aveResult.storesRpts.items():
+                # print "Creating %s with name %s" % (str(aveSumRec), aveSumRec.Name)
+
+        # Need to zero out what we got
+        for storeId, storeRpt in aveResult.storesRpts.items():
             storeRpt.resetToZero()
-        for routeId,routeRpt in aveResult.routesRpts.items():
+        for routeId, routeRpt in aveResult.routesRpts.items():
             routeRpt.resetToZero()
-        for summaryId,summaryRec in aveResult.summaryRecs.items():
+        for summaryId, summaryRec in aveResult.summaryRecs.items():
             summaryRec.resetToZero()
-        
-        ### for now, setting these to the first result, as we really don't have an average for them yet
-        #print "Summing stores"
-        for storeId,storeRpt in firstResult.storesRpts.items():
+
+        # for now, set these to the first result, as we really don't have an average for them yet
+        # print "Summing stores"
+        for storeId, storeRpt in firstResult.storesRpts.items():
             aveResult.storesRpts[storeId].storeVialCount_multival = storeRpt.storeVialCount_multival
             aveResult.storesRpts[storeId].storageRatio_multival = storeRpt.storageRatio_multival
-        
-        #print "Summing Routes"
-        for routeId,routeRpt in firstResult.routesRpts.items():
+
+        # print "Summing Routes"
+        for routeId, routeRpt in firstResult.routesRpts.items():
             aveResult.routesRpts[routeId].triptimes_multival = routeRpt.triptimes_multival
-        #print "Sum Stores"
-        for storeId,storeRpt in aveResult.storesRpts.items():
-            print storeId
+        # print "Sum Stores"
+        for storeId, storeRpt in aveResult.storesRpts.items():
+            # print storeId
             for result in resultsToParse:
-                print result.storesRpts.has_key(storeId)
+                # print result.storesRpts.has_key(storeId)
                 storeRptR = result.storesRpts[storeId]
-         #       print "adding"
+                # print "adding"
                 storeRpt += storeRptR
-        #print "Sum routes"
-        for routeId,routeRpt in aveResult.routesRpts.items():
+        # print "Sum routes"
+        for routeId, routeRpt in aveResult.routesRpts.items():
             for result in resultsToParse:
                 routeRptR = result.routesRpts[routeId]
                 routeRpt += routeRptR
-                
-        #print "Sum Sumarrya"
-        for summaryId,summaryRec in aveResult.summaryRecs.items():
+
+        # print "Sum Sumarrya"
+        for summaryId, summaryRec in aveResult.summaryRecs.items():
             for result in resultsToParse:
                 summaryRecR = result.summaryRecs[summaryId]
                 summaryRec += summaryRecR
-             
-        for storeId,storeRpt in aveResult.storesRpts.items():
+
+        for storeId, storeRpt in aveResult.storesRpts.items():
             storeRpt /= float(len(resultsToParse))
-        
-        for routeId,routeRpt in aveResult.routesRpts.items():
+
+        for routeId, routeRpt in aveResult.routesRpts.items():
             routeRpt /= float(len(resultsToParse))
-            
-        for summaryId,summaryRec in aveResult.summaryRecs.items():
+
+        for summaryId, summaryRec in aveResult.summaryRecs.items():
             summaryRec /= float(len(resultsToParse))
-            
+
         aveResult.addHistograms(net)
-        
+
+        costSummaryRecList = aveResult.costSummaryRecs
+        for rslt in resultsToParse:
+            costSummaryRecList.extend(rslt.costSummaryRecs)
+        mergedCostSummaries = {}  # entries will be (summedCostSummary, count)
+        for costSummaryRec in costSummaryRecList:
+            recDict = costSummaryRec.createRecord()
+
+            # We need to merge only matching recs
+            key = (recDict['ReportingLevel'], recDict['ReportingBranch'],
+                   recDict['ReportingIntervalDays'], recDict['DaysPerYear'],
+                   recDict['Currency'], recDict['BaseYear'])
+            if key in mergedCostSummaries:
+                oldSummary, ct = mergedCostSummaries[key]
+                oldSummary += costSummaryRec
+                ct += 1
+                mergedCostSummaries[key] = (oldSummary, ct)
+            else:
+                copyOfSummary = ShdCostSummary.initSummaryFromRec(costSummaryRec.createRecord())
+                mergedCostSummaries[key] = (copyOfSummary, 1)
+
+        aveCostSummaryRecs = []
+        for v in mergedCostSummaries.values():
+            oldSummary, ct = v
+            oldSummary /= ct
+            aveCostSummaryRecs.append(oldSummary)
+
+        aveResult.costSummaryRecs = aveCostSummaryRecs
+
+
 _makeColumns(HermesResultsGroup)
 
 def resultsGroupLoadListener(HermesResultsGroup, context):
@@ -2440,7 +2468,6 @@ class HermesResults(Base):
         return histDict
 
     def getCostSummaryRecs(self):
-        "summaryRecDicts is a list of dicts"
         return self.costSummaryRecs
          
 _makeColumns(HermesResults)
@@ -2547,13 +2574,13 @@ class ShdCosts(Base):
     def __init__(self, *args, **kwargs):
         _initBasic(self, args, kwargs)
 
-
     def createRecord(self):
         rec = CSVDict()
         _copyAttrsToRec(rec, self)
         return rec
-        
+
 _makeColumns(ShdCosts)
+
 
 class ShdCostSummary(Base, ShdCopyable):
     __tablename__ = 'costSummary'
@@ -2567,60 +2594,61 @@ class ShdCostSummary(Base, ShdCopyable):
              ]
 
     __mapper_args__ = {
-        'polymorphic_identity':'costSummary',
-        'polymorphic_on':costClass
+        'polymorphic_identity': 'costSummary',
+        'polymorphic_on': costClass
         }
-
-
 
     def __init__(self, name, type_):
         raiseRuntimeError("Can't create base class of cost summary")
-        
 
     @staticmethod
     def initSummaryFromRec(rec):
         if 'Type' not in rec:
-            raise RuntimeError('No "Type" (class type) in cost summary record to be converted')
+            raiseRuntimeError('No "Type" (class type) in cost summary record to be converted')
         t = rec['Type']
         if t not in ShdCostSummary.typesMap:
-            raise RuntimeError('Unknown cost summary type %s in summary record to be converted'%t)
+            raiseRuntimeError('Unknown cost summary type %s in summary record to be converted'
+                              % t)
 
         result = ShdCostSummary.typesMap[t](rec)
-        
+
         return result
 
-    def __iadd__(self,summary_):
-        print "Trying to Add this"
-        if summary_.typeClass != self.typeClass:
-            raiseRuntimeError("no, no, no")
-        
+    def __iadd__(self, summary_):
+        if summary_.costClass != self.costClass:
+            raiseRuntimeError("Mixed summary types during __iadd__: %s vs %s"
+                              % (summary_.summaryType, self.summaryType))
+
         for attr in self.__dict__.keys():
             if attr[-2:] != "Id":
-                if isinstance(getattr(self,attr),float) or isinstance(getattr(self,attr),int):
-                    value = getattr(self,attr) + getattr(summary_,attr)
-                    setattr(self,attr,value)               
-        
+                if isinstance(getattr(self, attr), float) or isinstance(getattr(self, attr), int):
+                    value = getattr(self, attr) + getattr(summary_, attr)
+                    setattr(self, attr, value)
+
         return self
 
-    def __idiv__(self,factor_):
+    def __idiv__(self, factor_):
         facFloat = None
         try:
             facFloat = float(factor_)
         except:
             raiseRuntimeError("Factor must be able to be cast as a float when idiv RouteRpt")
-        
+
         for attr in self.__dict__.keys():
             if attr[-2:] != "Id":
-                if isinstance(getattr(self,attr),float) or isinstance(getattr(self,attr),int):
-                    value = getattr(self,attr)/facFloat
-                    setattr(self,attr,value)
-        
+                if isinstance(getattr(self, attr), float) or isinstance(getattr(self, attr), int):
+                    value = getattr(self, attr) / facFloat
+                    setattr(self, attr, value)
+
         return self
-            
+
     def createRecord(self):
-        return self.createRec()
+        rec = self.createRec()
+        rec['Type'] = type(self).summaryType
+        return rec
 
 _makeColumns(ShdCostSummary)
+
 
 class ShdLegacyCostSummary(ShdCostSummary):
     __tablename__ = "legacyCostSummary"
@@ -2630,8 +2658,7 @@ class ShdLegacyCostSummary(ShdCostSummary):
     legacySummaryId = Column(Integer, ForeignKey('costSummary.summaryId'), primary_key=True)
 
     # apparently there's nothing in this summary dict!
-    attrs = [
-             ('ReportingLevel', STRING),
+    attrs = [('ReportingLevel', STRING),
              ('ReportingBranch', STRING),
              ('ReportingIntervalDays', FLOAT_NONE),
              ('DaysPerYear', FLOAT_NONE),
@@ -2648,11 +2675,12 @@ class ShdLegacyCostSummary(ShdCostSummary):
              ('StorageCost', FLOAT_NONE),
              ('BuildingCost', FLOAT_NONE)
              ]
-    
+
     def __init__(self, *args, **kwargs):
         _initShdType(self, args, kwargs)
 
 _makeColumns(ShdLegacyCostSummary)
+
 
 class ShdMicro1CostSummaryGrp(ShdCostSummary):
     __tablename__ = "microCostSummary"
@@ -2661,32 +2689,62 @@ class ShdMicro1CostSummaryGrp(ShdCostSummary):
 
     micro1CostSummaryId = Column(Integer, ForeignKey('costSummary.summaryId'), primary_key=True)
 
-    attrs = [
-             ('ReportingLevel', STRING),
+    attrs = [('ReportingLevel', STRING),
              ('ReportingBranch', STRING),
              ('ReportingIntervalDays', FLOAT_NONE),
              ('DaysPerYear', FLOAT_NONE),
              ('Currency', STRING_NONE),
              ('BaseYear', INTEGER),
              ]
-    
+
     attrKeySet = set([t[0] for t in attrs] + ['Type'])
-    
-    costEntries = relationship('ShdMicro1CostSummaryEntry',backref='costSummaryGroup')
-    
+
+    costEntries = relationship('ShdMicro1CostSummaryEntry', backref='costSummaryGroup')
+
     def __init__(self, *args, **kwargs):
         _initShdType(self, args, kwargs)
-        self.costEntries = [ShdMicro1CostSummaryEntry(costCategory=k, cost=v) for k,v in args[0].items()
-                            if k not in self.attrKeySet]
+        self.costEntries = [ShdMicro1CostSummaryEntry(costCategory=k, cost=v)
+                            for k, v in args[0].items() if k not in self.attrKeySet]
 
     def createRecord(self):
-        rec = self.createRec()
+        rec = ShdCostSummary.createRecord(self)
         for cE in self.costEntries:
             rec[cE.costCategory] = cE.cost
         return rec
-        
+
+    def __iadd__(self, summary_):
+        if summary_.costClass != self.costClass:
+            raiseRuntimeError("Mixed summary types during __iadd__: %s vs %s"
+                              % (summary_.summaryType, self.summaryType))
+        sumDict = {}
+
+        for cE in self.costEntries + summary_.costEntries:
+            if cE.costCategory in sumDict:
+                sumDict[cE.costCategory] += cE.cost
+            else:
+                sumDict[cE.costCategory] = cE.cost
+        self.costEntries = [ShdMicro1CostSummaryEntry(costCategory=k, cost=v)
+                            for k, v in sumDict.items()]
+
+        return self
+
+    def __idiv__(self, factor_):
+        facFloat = None
+        try:
+            facFloat = float(factor_)
+        except:
+            raiseRuntimeError("Factor cannot be cast to float")
+
+        newEntries = []
+        for cE in self.costEntries:
+            newEntries.append(ShdMicro1CostSummaryEntry(costCategory=cE.costCategory,
+                                                        cost=cE.cost/facFloat))
+        self.costEntries = newEntries
+
+        return self
 
 _makeColumns(ShdMicro1CostSummaryGrp)
+
 
 class ShdMicro1CostSummaryEntry(Base, ShdCopyable):
     __tablename__ = "microCostSummaryEntry"
@@ -2694,23 +2752,24 @@ class ShdMicro1CostSummaryEntry(Base, ShdCopyable):
     micro1SummaryEntryId = Column(Integer, primary_key=True)
 
     # apparently there's nothing in this summary dict!
-    attrs = [
-             ('costSummaryGrpId', DataType(INTEGER, foreignKey = 'microCostSummary.micro1CostSummaryId'),
+    attrs = [('costSummaryGrpId', DataType(INTEGER,
+                                           foreignKey='microCostSummary.micro1CostSummaryId'),
               'noInputRec', True,
               'relationship', 'manytoone'),
              ('costCategory', STRING),
              ('cost', FLOAT)
              ]
-    
+
     def __init__(self, *args, **kwargs):
         _initShdType(self, args, kwargs)
 
 _makeColumns(ShdMicro1CostSummaryEntry)
 
-ShdCostSummary.typesMap = {'legacy':ShdLegacyCostSummary,
-                           'micro1':ShdMicro1CostSummaryGrp,
+
+ShdCostSummary.typesMap = {'legacy': ShdLegacyCostSummary,
+                           'micro1': ShdMicro1CostSummaryGrp,
                            }
-    
+
 
 ###
 ###
@@ -3223,15 +3282,15 @@ class ShdTypeSummary(Base):
 
 
     def __init__(self, name, type_):
-        raiseRuntimeError("Can't create base class of summary type")
+        raise RuntimeError("Can't create base class of summary type")
         
 
     @staticmethod
     def initSummaryFromRec(rec):
         if 'Name' not in rec:
-            raiseRuntimeError('No "Name" (type name) in summary record to be converted')
+            raise RuntimeError('No "Name" (type name) in summary record to be converted')
         if 'Type' not in rec:
-            raiseRuntimeError('No "Type" (class type) in summary record to be converted')
+            raise RuntimeError('No "Type" (class type) in summary record to be converted')
         t = rec['Type']
         if t not in ShdTypeSummary.typesMap:
             logWarning("summary record type not in ShdTypeSummary.typesMap")
@@ -3242,7 +3301,7 @@ class ShdTypeSummary(Base):
     def __iadd__(self,summary_):
         
         if summary_.typeClass != self.typeClass:
-            raiseRuntimeError("no, no, no")
+            raise RuntimeError("no, no, no")
         
         for attr in self.__dict__.keys():
             if attr[-2:] != "Id":
@@ -4335,8 +4394,8 @@ class ShdNetwork(Base):
                     loopNameList.append(lclient[1].RouteName)
             if 'children' not in clientDict.keys():
                 clientDict['children'] = []
-            print "LoopNameList"    
-            print loopNameList
+            # print "LoopNameList"    
+            # print loopNameList
             loopNameClientDict = {}
             for name in loopNameList:
                 loopNameClientDict[name] = {'name':'{0} Loop'.format(name),'level':9999,
