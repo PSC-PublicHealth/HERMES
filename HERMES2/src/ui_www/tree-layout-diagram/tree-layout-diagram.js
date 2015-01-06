@@ -61,6 +61,7 @@
 			$("#link_freq_"+levelNum).css('font-weight','bold');
 			$("#link_interv_"+levelNum).css('font-weight','bold');
 			$("#link_transit_"+levelNum).css('font-weight','bold');
+			$("#link_distance_"+levelNum).css('font-weight','bold');
 		},
 
 		unbold_link_arrow: function(levelNum){
@@ -73,6 +74,7 @@
 			$("#link_freq_"+levelNum).css('font-weight','normal');
 			$("#link_interv_"+levelNum).css('font-weight','normal');
 			$("#link_transit_"+levelNum).css('font-weight','normal');
+			$("#link_distance_"+levelNum).css('font-weight','normal');
 		},
 
 
@@ -129,6 +131,14 @@
 			
 		},
 
+		change_route_distance: function(levelNum, distance){
+			var intervInt = parseInt(distance);
+			var intervFloat = parseFloat(distance);
+			if(intervInt == intervFloat)
+				$("#link_distance_"+levelNum).text("distance: "+ intervInt + " km");
+			else
+				$("#link_distance_"+levelNum).text("distance: "+ intervFloat + " km");	
+		},
 
     	_create: function() {
     		trant = this.options.trant;
@@ -426,7 +436,8 @@
 				    .attr("y", rectH / 2)
 				    .attr("d", function (d) {
 				    	linkY[d.source.depth]=((d.source.y+d.target.y)/2);
-				    	linkBools[d.source.depth] = [d.source.isfixedam,d.source.issched,d.source.interv,d.source.ymw,d.source.time,d.source.timeunit];
+				    	linkBools[d.source.depth] = [d.source.isfixedam,d.source.issched,d.source.interv,
+				    	                             d.source.ymw,d.source.time,d.source.timeunit,d.source.distance];
 				    	console.log(d.source);
 					    var o = {
 					        x: source.x0,
@@ -530,7 +541,7 @@
 								})
 							.attr("dy",".35em")
 							.attr("transform",function(d){
-								return "translate("+(root.x + width/2-rectW/2-35)+","+(linkY[i] + rectH/2-20) +")";
+								return "translate("+(root.x + width/2-rectW/2-35)+","+(linkY[i] + rectH/2-22) +")";
 							});
 							svg.append("text")
 							.attr('font-size','11px')
@@ -544,7 +555,7 @@
 							})
 							.attr("dy",".35em")
 							.attr("transform",function(d){
-								return "translate("+(root.x + width/2-rectW/2-35)+","+(linkY[i] + rectH/2 - 7)+")";
+								return "translate("+(root.x + width/2-rectW/2-35)+","+(linkY[i] + rectH/2 - 11)+")";
 							});
 							svg.append("text")
 							.attr('font-size','11px')
@@ -563,7 +574,7 @@
 							})
 							.attr("dy",".35em")
 							.attr("transform",function(d){
-								return "translate("+(root.x + width/2-rectW/2-35)+","+(linkY[i]+rectH/2+7)+")";
+								return "translate("+(root.x + width/2-rectW/2-35)+","+(linkY[i]+rectH/2)+")";
 							});
 							
 							svg.append("text")
@@ -586,7 +597,27 @@
 							})
 							.attr("dy",".35em")
 							.attr("transform",function(d){
-								return "translate("+(root.x + width/2-rectW/2-35)+","+(linkY[i]+rectH/2+20)+")";
+								return "translate("+(root.x + width/2-rectW/2-35)+","+(linkY[i]+rectH/2+11)+")";
+							});
+							
+							svg.append("text")
+							.attr('font-size','11px')
+							.attr('id','link_distance_'+i)
+							.attr('class','link_routeinfo')
+							.text(function(){
+								var intervInt = parseInt(linkBools[i][6]);
+								var intervFloat = parseFloat(linkBools[i][6]);
+								console.log(intervInt + " " + linkBools[i][6] + " " + intervFloat);
+								//STB TO DO, this will not translate yet...
+								if (intervInt == intervFloat)
+									return "distance: "+ intervInt + " km";
+								else
+									return "distance: " +intervFloat + " km";
+								
+							})
+							.attr("dy",".35em")
+							.attr("transform",function(d){
+								return "translate("+(root.x + width/2-rectW/2-35)+","+(linkY[i]+rectH/2+22)+")";
 							});
 						}
 

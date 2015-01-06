@@ -290,23 +290,23 @@ def _createModel(db,uiSession):
                 ignoredNumber = 17
                 transitUnits = newModelInfoCN['shiptransitunits'][len(storeStack)-2]
                 transitTimeRaw = newModelInfoCN['shiptransittimes'][len(storeStack)-2]
-                
+                transitDistance = newModelInfoCN['shiptransitdist'][len(storeStack)-2]
                 transitHours = {'hour':1.0, 'day':24.0, 'week':168.0, 'month':4704.0, 'year':56448.0}[transitUnits] * transitTimeRaw
                 if rec['isfetch']=='true':
                     #print "fetching"
                     route.addStop({'idcode':idcode, 'RouteName':routeName, 'RouteOrder':0,
-                                   'TransitHours':transitHours},
+                                   'TransitHours':transitHours,'DistanceKM':transitDistance},
                                   storeDict)
                     route.addStop({'idcode':supplierId, 'RouteName':routeName, 'RouteOrder':1,
-                                   'TransitHours':transitHours},
+                                   'TransitHours':transitHours,'DistanceKM':transitDistance},
                                   storeDict)
                 else:
                     #print "not fetching"
                     route.addStop({'idcode':supplierId, 'RouteName':routeName, 'RouteOrder':0,
-                                   'TransitHours':transitHours},
+                                   'TransitHours':transitHours,'DistanceKM':transitDistance},
                                   storeDict)
                     route.addStop({'idcode':idcode, 'RouteName':routeName, 'RouteOrder':1,
-                                   'TransitHours':transitHours},
+                                   'TransitHours':transitHours,'DistanceKM':transitDistance},
                                   storeDict)
                 route.linkRoute()
                 #shdNetwork.addRoute(route.createRecords())

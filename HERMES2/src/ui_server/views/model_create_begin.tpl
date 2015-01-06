@@ -405,10 +405,15 @@ $(function() {
 	};
 	
 	function add_level_name_handlers(){
+		$("#model_create_name_levels :input").each(function(){
+			$(this).data('oldVal',$(this).val());
+		});
+		
 		$("#model_create_name_levels :input").change(function(){
 			thisLevNum = parseInt($(this).prop('id').replace("model_create_levelname_","")) - 1;
 			// Error handling
-			$(this).val(validate_levelName($(this).val(), thisLevNum));
+			$(this).val(validate_levelName($(this).val(), thisLevNum,$(this).data('oldVal')));
+			$(this.data('oldVal',$(this.val())));
 			//update session
 			modelInfo.levelnames[thisLevNum] = $(this).val();
 			//update diagram widget
@@ -425,12 +430,17 @@ $(function() {
 	};
 	
 	function add_level_count_handlers(){
+		$("#model_create_number_places :input").each(function(){
+			$(this).data('oldVal',$(this).val());
+		});
+		
 		$("#model_create_number_places :input").change(function(){
 			thisLevNum = parseInt($(this).prop('id').replace("model_create_lcounts_","")) - 1;
 			var locString = "Location";
 			if($(this).val() > 1) locString = "Locations";
 			//Error handling
-			$(this).val(validate_levelcount($(this).val(),thisLevNum));
+			$(this).val(validate_levelcount($(this).val(),thisLevNum,$(this).data('oldVal')));
+			$(this).data('oldVal',$(this).val());
 			//Update session
 			modelInfo.levelcounts[thisLevNum] = parseInt($(this).val());
 			//Update diagram widget
@@ -447,27 +457,32 @@ $(function() {
 	};
 	
 	/// Validatation functions
-	function validate_levelName(levelname,levelnum){
+	function validate_levelName(levelname,levelnum,origValue){
 		if(levelname.length == 0){
 			$("#dialog-modal-text").text("{{_('The name of a level cannot be blank')}}");
 			$("#dialog-modal").dialog("open");
-			return "Level " + (levelnum+1);
+			return origValue;
 		}
 		return levelname;
 	}
 	
-	function validate_levelcount(levelcount,levelnum){
+	function validate_levelcount(levelcount,levelnum,origValue){
+		if(isNaN(levelcount) || levelcount == ""){
+			$("#dialog-modal-text").text("{{_('The number of location per level must be a positive number.')}}");
+			$('#dialog-modal').dialog("open");
+			return origValue;
+		}
 		if(levelnum == 0){
 			if (levelcount > 1) {
 				$("#dialog-modal-text").text("{{_('The first level of the supply chain can only have one location')}}");
 				$("#dialog-modal").dialog("open");
-				return 1
+				return origValue;
 			}
 		}
 		if (levelcount < 1) {
 			$("#dialog-modal-text").text("{{_('The number of locations cannot be negative or 0')}}");
 			$("#dialog-modal").dialog("open");
-			return 1
+			return origValue;
 		}
 		return levelcount;
 	}

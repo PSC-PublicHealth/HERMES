@@ -219,12 +219,39 @@ function add_event_handlers(){
 		$("#tree-layout-diagram").diagram('change_route_time',thisLevNum,$('#model_create_timing_time_'+(thisLevNum+1)).val(),$(this).val());
 	});
 	
+	$('[id^=model_create_timing_dist]').change(function(){
+		var thisLevNum = parseInt($(this).prop('id').match(/\d+/))-1;
+		$(this).val(validate_distance($(this).val(),$(this).data('oldval')));
+		modelInfo.shiptransitdist[thisLevNum] = parseFloat($(this).val());
+		$(this).data('oldval',$(this).val());
+		$("#tree-layout-diagram").diagram('change_route_distance',thisLevNum,$(this).val())
+	})
+	
 };
 
 //Validation Functions
 function validate_timing(value,origValue){
+	if(isNaN(value) || value == ""){
+		$("#dialog-modal-text").text("{{_('The trip time to be a positive number.')}}");
+		$('#dialog-modal').dialog("open");
+		return origValue;
+	}
 	if(value <= 0){
 		$("#dialog-modal-text").text("{{_('The trip time cannot be less than or equal to 0. Please select a positive number.')}}");
+		$('#dialog-modal').dialog("open");
+		return origValue;
+	}
+	return value;
+};
+
+function validate_distance(value,origValue){
+	if(value < 0){
+		$("#dialog-modal-text").text("{{_('The trip can not have a distance less than 0. Please select a positive number.')}}");
+		$('#dialog-modal').dialog("open");
+		return origValue;
+	}
+	if(isNaN(value) || value == ""){
+		$("#dialog-modal-text").text("{{_('The trip distance has to be a positive number.')}}");
 		$('#dialog-modal').dialog("open");
 		return origValue;
 	}

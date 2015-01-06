@@ -269,12 +269,17 @@ function add_interlevelship_listeners(){
 // Validation functions
 function validate_interval(value,unit,origValue){
 	var limits = {'year':336,'month':28,'week':7};
-	
+	if(isNaN(value) || value == ""){
+		$("#dialog-modal-text").text("{{_('The frequency of shipments must be a positive number.')}}");
+		$('#dialog-modal').dialog("open");
+		return origValue;
+	}
 	if(value <= 0){
 		$("dialog-modal-text").text("{{_('The frequency of shipments cannot be less than or equal to 0. Please select a positive number.')}}");
 		$('#dialog-modal').dialog("open");
 		return origValue;
 	}
+	
 //	if(value > limits[unit]){
 //		$("dialog-modal-text").text("{{_('The frequency of shipments be specifed at more than one trip per day. Please select a positive number.')}}");
 //		$('#dialog-modal').dialog("open");

@@ -3,6 +3,7 @@ var defaultShippattern = ["false","false","true",12,'year'];
 var defaultLevelCount = 1;
 var defaultTransitTimes = 1;
 var defaultTransitUnits = 'hour';
+var defaultTransitDist = 5.0;
 
 function defaultLevelName(i){
 	return "Level " + i;
@@ -46,7 +47,17 @@ function defaultShipTransitUnits(n){
 	return shiptimeunits;
 };
 
-function ModelInfo(name_,nLevels_,levelNames_,levelCounts_,shippatterns_,shiptimings_,canonicalstoresdict_, canonicalroutesdict_, firstTime_){
+function defaultShipTransitDist(n){
+	shiptimedist = [];
+	for(var i=0;i<n;i++)
+		shiptimedist.push(defaultTransitDist);
+	
+	return shiptimedist;
+}
+
+
+function ModelInfo(name_,nLevels_,levelNames_,levelCounts_,shippatterns_,shiptransittimes_,
+                   shiptransitunits_,shiptransitdist_,canonicalstoresdict_, canonicalroutesdict_, firstTime_){
 	this.name = name_;
 	this.firstTime = typeof firstTime_ !== 'undefined' ? firstTime_ : false;
 	this.nlevels = typeof nLevels_ !== 'undefined' ? nLevels_ : defaultNLevels;
@@ -55,6 +66,7 @@ function ModelInfo(name_,nLevels_,levelNames_,levelCounts_,shippatterns_,shiptim
 	this.shippatterns = typeof shippatterns_ !== 'undefined' ? shippatterns_ : defaultShippatterns(this.nlevels-1);
 	this.shiptransittimes = typeof shipttransittimes_ !== 'undefined' ? shiptransittimes_ : defaultShipTransitTimes(this.nlevels-1);
 	this.shiptransitunits = typeof shiptranistunits_ !== 'undefined' ? shiptransitunits_ : defaultShipTransitUnits(this.nlevels-1);
+	this.shiptransitdist = typeof shiptransitdist_ !== 'undefined' ? shiptransitdist_ : defaultShipTransitDist(this.nlevels-1);
 	this.canonicalstoresdict =typeof canonicalstoresdict_ != 'undefined'? canonicalstoresdict_ :{};
 	this.canonicalroutesdict = typeof canonicalroutesdict_ != 'undefined' ? canonicalroutesdict_ : {};
 	
@@ -82,6 +94,7 @@ function ModelInfo(name_,nLevels_,levelNames_,levelCounts_,shippatterns_,shiptim
 			this.shippatterns.push(defaultShippattern);
 			this.shiptransittimes.push(defaultTransitTimes);
 			this.shiptransitunits.push(defaultTransitUnits);
+			this.shiptransitdist.push(defaultTransitDist);
 		}
 		this.nlevels += n;
 	};
@@ -93,6 +106,7 @@ function ModelInfo(name_,nLevels_,levelNames_,levelCounts_,shippatterns_,shiptim
 			this.shippatterns.pop();
 			this.shiptransittimes.pop();
 			this.shiptransitunits.pop();
+			this.shiptransitdist.pop();
 		}
 		this.nlevels -= n;	
 	};	
@@ -148,6 +162,9 @@ function ModelInfoFromJson(json){
 	
 	if ( json.hasOwnProperty('shiptransitunits'))
 		modelInfo.shiptransitunits = json.shiptransitunits;
+		
+	if ( json.hasOwnProperty('shiptransitdist'))
+		modelInfo.shiptransitdist = json.shiptransitdist;
 	//else 
 	//	delete modelInfo.shiptransitunits;
 
@@ -173,7 +190,7 @@ function makeNetworkJson(i,modelInfo){
 		return {'name': modelInfo.levelnames[i],'count':modelInfo.levelcounts[i],
 				'isfixedam':modelInfo.shippatterns[i][0],'isfetch':modelInfo.shippatterns[i][1],
 				"issched":modelInfo.shippatterns[i][2],"interv":modelInfo.shippatterns[i][3],"ymw":modelInfo.shippatterns[i][4],
-				"time":modelInfo.shiptransittimes[i],'timeunit':modelInfo.shiptransitunits[i],
+				"time":modelInfo.shiptransittimes[i],'timeunit':modelInfo.shiptransitunits[i],'distance':modelInfo.shiptransitdist[i],
 				'children':[makeNetworkJson(i+1,modelInfo)]};
 	}
 }

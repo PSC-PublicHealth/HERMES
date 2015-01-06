@@ -616,11 +616,13 @@ def _buildInterLevelTimingFormFromSession(prefix="",levelInfo={}):
     
     sio = StringIO()
     for i in range(0,numberEntries):
-        defaultList = [1.0,'hour']
+        defaultList = [1.0,'hour',5.0]
         if levelInfo.has_key('shiptransittimes'):
             defaultList[0] = levelInfo['shiptransittimes'][i]
         if levelInfo.has_key('shiptransitunits'):
             defaultList[1] = levelInfo['shiptransitunits'][i]
+        if levelInfo.has_key('shiptransitdist'):
+            defaultList[2] = levelInfo['shiptransitdist'][i] 
         
         htmlForm.addRow(['<span class="interleveltablehead">' \
                          +_("For routes from the <span class='interleveltableem'>{0}</span> to <span class='interleveltableem'>{1}</span> levels:<br><br>".format(levelNames[i],levelNames[i+1])) \
@@ -636,7 +638,15 @@ def _buildInterLevelTimingFormFromSession(prefix="",levelInfo={}):
                                               '',
                                               timeEntries,defaultList[1],
                                               cssclass="interleveltable").htmlString()],
-                        ['N',1,1,1])    
+                        ['N',1,1,1]) 
+        htmlForm.addRow([_('and have a one way distance of'),
+                         HTMLFormInputBox('model_create_timing_distance_{0}'.format(i+1),
+                                        '',
+                                        defaultList[2],
+                                        'float',
+                                        cssclass="interleveltable").htmlString(),
+                        _('Kilometers')],
+                        ['N',1,1,1])  
         htmlForm.addRow(["<hr>"] ,['N',3])
     
     htmlDoc.addConstruct(htmlForm)
