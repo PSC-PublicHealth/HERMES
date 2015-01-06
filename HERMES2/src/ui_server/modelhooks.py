@@ -689,19 +689,26 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
         -------------------------------------------------------------------------------
         Step 3: Update the crumb track information
         --------------------------------------------------------------------------------
-        '''
+#         '''
         if "subCrumbTrack" in newModelInfoCN:
+            #print "SubCrumb----------------------------------------------------------------------"
+            
             subCrumbTrack = newModelInfoCN['subCrumbTrack']
+            #print str(subCrumbTrack._toJSON())
+            #print crumbTrack._toJSON()
             if crumbTrack.trail[-1] != subCrumbTrack:
+                del crumbTrack.trail[-1]
                 crumbTrack.push(subCrumbTrack)
+            #print crumbTrack._toJSON()
         else:
             subCrumbTrack = None
-        
+        #subCrumbTrack = None
         #### Begin processing based on the step that comes from the 
         #### url
         #### unknown means we are entering the pipeline from outside
         #### next means we are moving from one page inside the chain to the next
         #### back means we are moving from one page inside the chaing to the previous
+        print "Step = " + str(step)
         if step=="unknown":
             '''
             Step: unknown
@@ -736,10 +743,12 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
                 crumbTrack.pop()
                 screen = 'models-top'
         else:
-            print crumbTrack._toJSON()
+            #print "HERE------------"
+            #print crumbTrack._toJSON()
             if not crumbTrack.jump(step):
                 raise bottle.BottleException("Invalid step %s in model create"%step)
             screen = crumbTrack.current()
+            #print "This is our screen = " + str(screen)
             
         '''
         -------------------------------------------------------------------------------
