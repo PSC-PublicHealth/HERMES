@@ -767,38 +767,43 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
             nameTmp,modelIdTmp = _createModel(db,uiSession)
             newModelInfoCN['name2'] = nameTmp
             newModelInfoCN['modelId'] = modelIdTmp
-        
         ''' STB TODO This part needs to be fixed '''
         if 'expert' in bottle.request.params and bottle.request.params['expert'] == 'true':
-                if 'modelId' in newModelInfoCN:
-                    # the user is messing around with the back/next buttons
-                    pass
-                else:
-                    # fake the remaining unfilled pages so the PreOrderTree can get created
-                    if 'levelcounts' not in newModelInfoCN: newModelInfoCN['levelcounts'] = [1 for x in xrange(newModelInfo['nlevels'])]
-                    if 'shiptransitunits' not in newModelInfoCN: newModelInfoCN['shiptransitunits'] = ['hour' for x in xrange(newModelInfoCN['nlevels']-1)]
-                    if 'shiptransittimes' not in newModelInfoCN: newModelInfoCN['shiptransittimes'] = [1.0 for x in xrange(newModelInfoCN['nlevels']-1)]
-                    if 'shippatterns' not in newModelInfoCN: newModelInfoCN['shippatterns'] = [() if x==0 else (False,False, True, 1, 'year') for x in xrange(newModelInfoCN['nlevels'])]
-                    else: newModelInfoCN['shippatterns'].insert(0,())
-                    
-                    if 'pottable' not in newModelInfoCN:
-                        pot,recDict = _buildPreOrderTree(newModelInfoCN)
-                        newModelInfoCN['pottable'] = pot.table
-                        newModelInfoCN['potrecdict'] = recDict
-                        newModelInfoCN['maxidcode'] = NumberedNameGenerator.totCount
-                    newModelInfoCN['name'],newModelInfoCN['modelId'] = _createModel(db,uiSession)
-                    # clean up current model creation session
-                    createdModelId = newModelInfoCN['modelId']
-                    del uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]['subCrumbTrack']
-                    crumbTrack.pop()
-                    del uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]
-                    uiSession.changed()
-                    # open the model editor
-                    p = bottle.request.path
-                    fp = bottle.request.fullpath
-                    offset = fp.find(p)
-                    rootPath = fp[:offset+1] # to include slash                    
-                    bottle.redirect('{}model-edit-structure?id={}'.format(rootPath,createdModelId))        
+            from serverconfig import rootPath
+            if 'modelId' in newModelInfoCN and newModelInfoCN['modelId'] != -1:
+                # the user is messing around with the back/next buttons
+                del crumbtrack.trail[-1]
+                bottle.redirect('{0}model-edit-structure?id={1}&crmb=clear'.format(rootPath,newModelInfoCN['modelId'])) 
+            else:
+                # fake the remaining unfilled pages so the PreOrderTree can get created
+                if 'levelcounts' not in newModelInfoCN: newModelInfoCN['levelcounts'] = [1 for x in xrange(newModelInfo['nlevels'])]
+                if 'shiptransitunits' not in newModelInfoCN: newModelInfoCN['shiptransitunits'] = ['hour' for x in xrange(newModelInfoCN['nlevels']-1)]
+                if 'shiptransittimes' not in newModelInfoCN: newModelInfoCN['shiptransittimes'] = [1.0 for x in xrange(newModelInfoCN['nlevels']-1)]
+                if 'shippatterns' not in newModelInfoCN: newModelInfoCN['shippatterns'] = [() if x==0 else (False,False, True, 1, 'year') for x in xrange(newModelInfoCN['nlevels'])]
+                else: 
+                    if len(newModelInfoCN['shippatterns'][0]) > 0:
+                        newModelInfoCN['shippatterns'].insert(0,())
+                
+                if not newModelInfoCN.has_key('modelId') or newModelInfoCN['modelId'] == -1 or len(newModelInfoCN['pottable']) == 0:
+                #if 'pottable' not in newModelInfoCN:
+                    pot,recDict = _buildPreOrderTree(newModelInfoCN)
+                    newModelInfoCN['pottable'] = pot.table
+                    newModelInfoCN['potrecdict'] = recDict
+                    newModelInfoCN['maxidcode'] = NumberedNameGenerator.totCount
+                newModelInfoCN['name'],newModelInfoCN['modelId'] = _createModel(db,uiSession)
+                # clean up current model creation session
+                createdModelId = newModelInfoCN['modelId']
+                del uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]['subCrumbTrack']
+                #crumbTrack.pop()
+                del uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']]
+                uiSession.changed()
+                # open the model editor
+                p = bottle.request.path
+                fp = bottle.request.fullpath
+                offset = fp.find(p)
+                rootPath = fp[:offset+1] # to include slash      
+                del crumbTrack.trail[-1]             
+                bottle.redirect('{}model-edit-structure?id={}&crmb=clear'.format(rootPath,createdModelId))        
         
         ''' STB TODO Make this throw more meaningful and easier to parse errors'''
         if 'provision' in bottle.request.params and bottle.request.params['provision'] == 'true':
