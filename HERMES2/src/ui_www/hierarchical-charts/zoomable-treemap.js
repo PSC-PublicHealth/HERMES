@@ -28,7 +28,8 @@
             d3.select("#"+this.containerID).append("svgContainer")
                 .attr("id", this.svgContainerID)
                 .attr("width","100%")
-                .attr("height","100%");
+                .attr("height","100%")
+                .attr("class","ztm");
             console.log(this.containerID);
             console.log(this.svgContainerID);
             this.jsonDataURL = this.options.jsonDataURLBase + "?"

@@ -33,7 +33,7 @@ rect.parent,
     stroke-width: 2px;
 }
 
-.grandparent:hover text {
+.ztm .grandparent:hover text {
     fill: #356ca7;
 }
 
