@@ -179,6 +179,9 @@ function updateNetworkDiagram(){
 	<p>'{{_("You are changing the number of levels in the system, this will result in the names of your levels and counts per level needing to be updated")}}'</p>
 </div>
 
+<div id="big-modal" title='{{_("Warning: Large number of locations")}}'>
+	<p>{{_("You are creating a model with a large number of locations.  Please note that this will require much time to create the model for simulation and if you would like to proceed, you will need patience when waiting between screens.")}}</p>
+</div>
 <script>
 
 var page_step = 0;
@@ -229,6 +232,33 @@ $(function() {
 			OK: function() {
 				$( this ).dialog( "close" );
         	}
+        },
+        open: function(e,ui) {
+    	    $(this)[0].onkeypress = function(e) {
+    		if (e.keyCode == $.ui.keyCode.ENTER) {
+    		    e.preventDefault();
+    		    $(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+    		}
+    	    };
+        }
+	});
+
+	$("#big-modal").dialog({
+		resizable: false,
+      	modal: true,
+		autoOpen:false,
+     	buttons: {
+			'{{_("OK")}}': function() {
+				$( this ).dialog( "close" );
+        	}
+        },
+        open: function(e,ui) {
+    	    $(this)[0].onkeypress = function(e) {
+    		if (e.keyCode == $.ui.keyCode.ENTER) {
+    		    e.preventDefault();
+    		    $(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+    		}
+    	    };
         }
 	});
 
@@ -443,6 +473,11 @@ $(function() {
 			//Error handling
 			$(this).val(validate_levelcount($(this).val(),thisLevNum,$(this).data('oldVal')));
 			$(this).data('oldVal',$(this).val());
+			// Check to see if this is large
+			if($(this).val() > 5000){
+				$("#big-modal").dialog("open");
+				$(this).focus().select();
+			}
 			//Update session
 			modelInfo.levelcounts[thisLevNum] = parseInt($(this).val());
 			modelInfo.changed = true;
