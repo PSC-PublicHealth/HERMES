@@ -208,6 +208,7 @@ function add_event_handlers(){
 		$(this).val(validate_timing($(this).val(),$(this).data('oldval')));
 		modelInfo.shiptransittimes[thisLevNum] = parseFloat($(this).val());
 		$(this).data('oldval',$(this).val());
+		modelInfo.changed = true;
 		//Change network diagram
 		$("#tree-layout-diagram").diagram('change_route_time',thisLevNum,$(this).val(),$('#model_create_timing_units_'+(thisLevNum+1)).val());
 	});
@@ -215,6 +216,7 @@ function add_event_handlers(){
 	$('[id^=model_create_timing_units]').change(function(){
 		var thisLevNum = parseInt($(this).prop('id').match(/\d+/))-1;
 		modelInfo.shiptransitunits[thisLevNum] = $(this).val();
+		modelInfo.changed = true;
 		//Change network diagram
 		$("#tree-layout-diagram").diagram('change_route_time',thisLevNum,$('#model_create_timing_time_'+(thisLevNum+1)).val(),$(this).val());
 	});
@@ -224,6 +226,7 @@ function add_event_handlers(){
 		$(this).val(validate_distance($(this).val(),$(this).data('oldval')));
 		modelInfo.shiptransitdist[thisLevNum] = parseFloat($(this).val());
 		$(this).data('oldval',$(this).val());
+		modelInfo.changed = true;
 		$("#tree-layout-diagram").diagram('change_route_distance',thisLevNum,$(this).val())
 	})
 	

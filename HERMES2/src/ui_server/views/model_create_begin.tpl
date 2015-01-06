@@ -397,6 +397,7 @@ $(function() {
 			if (modelInfo.firstTime){
 				modelInfo.changeNumberOfLevels($(this).val());
 				updateNetworkDiagram();
+				modelInfo.changed = true;
 			}
 			else{
 				$("#level-change-dialog").dialog("open");
@@ -413,9 +414,10 @@ $(function() {
 			thisLevNum = parseInt($(this).prop('id').replace("model_create_levelname_","")) - 1;
 			// Error handling
 			$(this).val(validate_levelName($(this).val(), thisLevNum,$(this).data('oldVal')));
-			$(this.data('oldVal',$(this.val())));
+			$(this).data('oldVal',$(this.val()));
 			//update session
 			modelInfo.levelnames[thisLevNum] = $(this).val();
+			modelInfo.changed = true;
 			//update diagram widget
 			$("#tree-layout-diagram").diagram("change_level_name",thisLevNum,$(this).val());
 		});
@@ -443,6 +445,7 @@ $(function() {
 			$(this).data('oldVal',$(this).val());
 			//Update session
 			modelInfo.levelcounts[thisLevNum] = parseInt($(this).val());
+			modelInfo.changed = true;
 			//Update diagram widget
 			$("#tree-layout-diagram").diagram("change_location_text",thisLevNum,$(this).val() + " " +locString);
 		});

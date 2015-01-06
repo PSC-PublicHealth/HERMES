@@ -365,6 +365,8 @@ def _addLevel(pot, recDict, ngList, countsList, otherList, parent, recBuilder):
                 nKids = baseCountsList[0]
         else:
             nKids = 0
+        print "MDFADTGAERTGARGAEGAEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+        print otherList[0]
         recDict[index] = recBuilder(name, nKids, otherList[0])
     #print '##### _addlevel exit %s %s %s %s #######'%(ngList,countsList,otherList,parent)
 
@@ -395,7 +397,7 @@ def _buildTreeRec(name, nKids, other):
         ymw = "year"
     else:
         isfixedam,isfetch,issched,howoften,ymw = other
-    return { 'name':name, 'isfixedam':isfixedam,'isfetch':isfetch, 'issched':issched, 'howoften':howoften, 'ymw':ymw }
+    return { 'name':name, 'isfixedam':isfixedam,'isfetch':isfetch, 'issched':issched, 'howoften':howoften, 'ymw':ymw}
 
 def _buildPreOrderTree(info,pot_in=None,recDict_in=None,parent_in=None,baseLvl=0):
     if pot_in is None:
@@ -748,14 +750,14 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
             ''' 
             HERE We actually create a model in the database
             '''
-            if 'modelId' in newModelInfoCN:
-                # the user is messing around with the back/next buttons
-                #  we can add some logic here to allow the user to delete the previous model
-                pass
-            else:
-                nameTmp,modelIdTmp = _createModel(db,uiSession)
-                newModelInfoCN['name2'] = nameTmp
-                newModelInfoCN['modelId'] = modelIdTmp
+#             if 'modelId' in newModelInfoCN:
+#                 # the user is messing around with the back/next buttons
+#                 #  we can add some logic here to allow the user to delete the previous model
+#                 pass
+#             else:
+            nameTmp,modelIdTmp = _createModel(db,uiSession)
+            newModelInfoCN['name2'] = nameTmp
+            newModelInfoCN['modelId'] = modelIdTmp
         
         ''' STB TODO This part needs to be fixed '''
         if 'expert' in bottle.request.params and bottle.request.params['expert'] == 'true':
@@ -836,12 +838,22 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
                              })
         elif screen=="done":
             ### add a tuple to make sure that Joels stuff works
-            newModelInfoCN['shippatterns'].insert(0,())
-            if 'pottable' not in newModelInfoCN:
-                pot,recDict = _buildPreOrderTree(newModelInfoCN)
-                newModelInfoCN['pottable'] = pot.table
-                newModelInfoCN['potrecdict'] = recDict
-                newModelInfoCN['maxidcode'] = NumberedNameGenerator.totCount
+            if len(newModelInfoCN['shippatterns'][0]) > 0:
+                newModelInfoCN['shippatterns'].insert(0,())
+            print newModelInfoCN.keys()
+            print "MOTHERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            #if 'pottable' in newModelInfoCN.keys():
+#             if 'pottable' not in newModelInfoCN.keys():
+#                 print "------------------------------------------------------------------resetting"
+#                 newModelInfoCN[u'pottable'] = None
+#                 newModelIntoCN[u'potrecdict'] = None
+            
+            if not newModelInfoCN.has_key('modelId') or newModelInfoCN['modelId'] == -1 or len(newModelInfoCN['pottable']) == 0:
+                    print "--------------------------------------------------------------------going home"
+                    pot,recDict = _buildPreOrderTree(newModelInfoCN)
+                    newModelInfoCN['pottable'] = pot.table
+                    newModelInfoCN['potrecdict'] = recDict
+                    newModelInfoCN['maxidcode'] = NumberedNameGenerator.totCount
         
         ''' Make sure that we have updated the session so that all of this groovy work is saved '''
         uiSession['newModelInfo'][uiSession['newModelInfo']['currentModelName']] = newModelInfoCN
@@ -1375,6 +1387,7 @@ def jsonAdjustModelsTable(db,uiSession):
                     mList.append(r)
     else: # Initial request for root
         lkey, rkey, lvl, idcode = pot.getRoot(returnAll=True)
+        print "Lek: " + str(idcode)
         r = {'levelname':newModelInfoCN['levelnames'][lvl], 'idcode':idcode, 
              'level':lvl, 'lft':lkey, 'rgt':rkey, 'isLeaf':(rkey==lkey+1),'expanded':(lvl<2),
              'kids':pot.nKids(idcode,tpl=(lkey,rkey,lvl))}
@@ -1392,7 +1405,7 @@ def jsonAdjustModelsTable(db,uiSession):
               "total":nPages,    # total pages
               "page":thisPageNum,     # which page is this
               "records":totRecs,  # total records
-              "rows": [ {"idcode":m['idcode'], "cell":[m['levelname'], m['name'], m['idcode'], m['isfetch'], m['issched'],
+              "rows": [ {"idcode":m['idcode'], "cell":[m['levelname'], m['name'], m['idcode'], m['isfetch'], m['isfixedam'],m['issched'],
                                                    m['howoften'],m['ymw'],m['kids'],
                                                    m['level'],m['lft'],m['rgt'],m['isLeaf']]} 
                        for m in mList ]
@@ -1739,15 +1752,17 @@ Returns a json that gives the names of all of the models in the database
 def jsonGetExistingModelNames(db,uiSession):
     try:
         mList = []
+        idList = []
         #prv = uiSession.getPrivs()
 
         for m in db.query(shd.ShdNetwork).filter(shd.ShdNetwork.refOnly != True):
             try:
                 #prv.mayReadModelId(db, m.name)
                 mList.append(m.name)
+                idList.append(m.modelId)
             except privs.PrivilegeException:
                 pass
-        result = {'names':mList,'success':True}
+        result = {'names':mList,'ids':idList,'success':True}
         return result
     except bottle.HTTPResponse:
         raise
@@ -2108,7 +2123,17 @@ def jsonUpdateUISessionModelInfo(db,uiSession):
         return result  
     
     for key in newModelInfo.keys():
-        newModelDictCN[key] = newModelInfo[key]
+        if key == 'modelId':
+            if newModelInfo[key] == -1:
+                continue
+        if key == 'potrecdict':
+            ### we have to make sure that the keys are integers as they seem to come through as string
+            newPotRecDict = {}
+            for pkey,value in newModelInfo['potrecdict'].items():
+                newPotRecDict[int(pkey)] = value
+            newModelDictCN['potrecdict'] = newPotRecDict
+        else:
+            newModelDictCN[key] = newModelInfo[key]
     
     uiSession['newModelInfo'][name] = newModelDictCN
     uiSession.changed()

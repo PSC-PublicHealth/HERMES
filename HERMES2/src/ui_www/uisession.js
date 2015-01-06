@@ -57,8 +57,10 @@ function defaultShipTransitDist(n){
 
 
 function ModelInfo(name_,nLevels_,levelNames_,levelCounts_,shippatterns_,shiptransittimes_,
-                   shiptransitunits_,shiptransitdist_,canonicalstoresdict_, canonicalroutesdict_, firstTime_){
+                   shiptransitunits_,shiptransitdist_,canonicalstoresdict_, canonicalroutesdict_, 
+                   potrecdict_, pottable_, modelId_, firstTime_){
 	this.name = name_;
+	this.changed = false;
 	this.firstTime = typeof firstTime_ !== 'undefined' ? firstTime_ : false;
 	this.nlevels = typeof nLevels_ !== 'undefined' ? nLevels_ : defaultNLevels;
 	this.levelnames = typeof levelNames_ !== 'undefined' ? levelNames_: defaultLevelNames(this.nlevels);
@@ -69,11 +71,19 @@ function ModelInfo(name_,nLevels_,levelNames_,levelCounts_,shippatterns_,shiptra
 	this.shiptransitdist = typeof shiptransitdist_ !== 'undefined' ? shiptransitdist_ : defaultShipTransitDist(this.nlevels-1);
 	this.canonicalstoresdict =typeof canonicalstoresdict_ != 'undefined'? canonicalstoresdict_ :{};
 	this.canonicalroutesdict = typeof canonicalroutesdict_ != 'undefined' ? canonicalroutesdict_ : {};
-	
+	this.potrectdict = typeof potrecdict_ != 'undefined' ? potrecdict_ : {};
+	this.pottable = typeof pottable_ != 'undefined' ? pottable_ : [];
+ 	this.modelId = typeof modelId_ != 'undefined' ? modelId_ : -1;
 	this.toJsonNetwork = function(){
 		return makeNetworkJson(0,this);
 	};
 	
+//	this.toJsonGrid = function(){
+//		var json = {'total':1,'page':1,'records':this.nlevels,'rows':[]};
+//		for(var i = 0; i < this.)
+//		                                                             
+//	}
+//	
 	this.changeNumberOfLevels = function(newNLevels){
 		var difference = newNLevels - this.nlevels;
 		console.log("Difference = " + difference);
@@ -112,6 +122,12 @@ function ModelInfo(name_,nLevels_,levelNames_,levelCounts_,shippatterns_,shiptra
 	};	
 	
 	this.updateSession = function(rootPath){
+		if(this.changed){
+			this.potrectdict = {};
+			this.pottable = {};
+			console.log("changed");
+		}
+		console.log(this);
 		return $.ajax({
 					url:rootPath + 'json/update-uisession-modelInfo',
 					datatype:'json',
@@ -174,6 +190,14 @@ function ModelInfoFromJson(json){
 	if ( json.hasOwnProperty('canonicalRoutesDict'))
 		modelInfo.canonicalroutesdict = json.canonicalRoutesDict;
 	
+	if ( json.hasOwnProperty('potrecdict'))
+		modelInfo.potrecdict = json.potrecdict;
+		
+	if ( json.hasOwnProperty('pottable'))
+		modelInfo.pottable = json.pottable;
+	
+	if ( json.hasOwnProperty('modelId'))
+		modelInfo.modelId = json.modelId;
 	return modelInfo;
 };
 

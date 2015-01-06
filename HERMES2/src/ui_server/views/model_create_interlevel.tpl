@@ -206,6 +206,7 @@ function add_interlevelship_listeners(){
 	$("[id^=model_create_interl_isfetch]").change(function(){
 		var thisLevNum = parseInt($(this).prop('id').match(/\d+/))-1;
 		modelInfo.shippatterns[thisLevNum][1] = $(this).val();
+		modelInfo.changed = true;
 		$('#tree-layout-diagram').diagram("flip_link_arrow",thisLevNum,$(this).val());
 	});
 	
@@ -233,6 +234,7 @@ function add_interlevelship_listeners(){
 			},300);
 		}
 		modelInfo.shippatterns[thisLevNum][2] = $(this).val() == "true" ? true : false;
+		modelInfo.changed = true;
 		$("#tree-layout-diagram").diagram('change_route_freq',thisLevNum,$(this).val());
 	});
 	
@@ -240,6 +242,7 @@ function add_interlevelship_listeners(){
 	$("[id^=model_create_interl_isfixedam]").change(function(){
 		var thisLevNum = parseInt($(this).prop('id').match(/\d+/))-1;
 		modelInfo.shippatterns[thisLevNum][0] = $(this).val();
+		modelInfo.changed = true;
 		$("#tree-layout-diagram").diagram('change_route_amt',thisLevNum,$(this).val());
 	});
 	
@@ -254,6 +257,7 @@ function add_interlevelship_listeners(){
 		modelInfo.shippatterns[thisLevNum][3] = parseFloat($(this).val());
 		$(this).data('oldVal',$(this).val());
 		console.log($("#model_create_interl_ymw_"+(thisLevNum+1)).val());
+		modelInfo.changed = true;
 		$("#tree-layout-diagram").diagram('change_route_interv',thisLevNum,$(this).val(),$("#model_create_interl_ymw_"+(thisLevNum+1)).val());
 	});
 	
@@ -262,6 +266,7 @@ function add_interlevelship_listeners(){
 		var thisLevNum = parseInt($(this).prop('id').match(/\d+/))-1;
 		modelInfo.shippatterns[thisLevNum][4] = $(this).val();
 		console.log(thisLevNum  + " " + $('#model_create_interl_howoften_'+(thisLevNum+1)).val());
+		modelInfo.changed = true;
 		$("#tree-layout-diagram").diagram('change_route_interv',thisLevNum,$('#model_create_interl_howoften_'+(thisLevNum+1)).val(),$(this).val());
 	});
 };

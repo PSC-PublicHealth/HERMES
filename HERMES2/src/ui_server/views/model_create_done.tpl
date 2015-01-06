@@ -1,8 +1,15 @@
 %rebase outer_wrapper title_slogan=_("Create A Model"), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
 
-<h1>{{_('Optionally Make Adjustments')}}</h1>
-This table gives you a chance to adjust the values you've entered.  When you are satisfied with
-the values, select 'Create The Model' to add your model to the list of available models.
+<script src="{{rootPath}}static/uisession.js"></script>
+<script>
+var modJson = JSON.parse('{{modJson}}'.replace(/&quot;/g,'"'));
+console.log(modJson);
+var modelInfo = ModelInfoFromJson(modJson);
+console.log(modelInfo);
+</script>
+
+<h1>{{_('Make Adjustments')}}</h1>
+{{_("Make adjustments to the model by clicking the cell to be modified and then hitting the enter key when finished.  You can expand or collapase levels by click the triangle next to the location name.")}}
 <p>
 
 <table id="model_create_adjust_grid"></table>
@@ -18,7 +25,17 @@ the values, select 'Create The Model' to add your model to the list of available
     </table>
 </form>
 
-<div id="dialog-modal" title={{_("Invalid Entry")}}>
+<div id="model_confirm_delete" title='{{_("Delete Model")}}'></div>
+
+<div id="model_create_existing_dialog" title='{{_("Model Creation Started")}}'>
+	<p>{{_('This model has already been saved to the HERMES database, proceeding will overwrite the previous model.  Would you like to continue?')}}; 
+</div>
+
+<div id="back-modal" title = '{{_("Warning")}}'>
+	<p>{{_('Going back and changing any items will result in resetting changes made in this page. Would you like to continue?')}}</p>
+</div>
+
+<div id="dialog-modal" title='{{_("Invalid Entry")}}'>
   <p>{{_('The name of the model must not be blank.')}}</p>
 </div>
 
@@ -27,7 +44,8 @@ $(function() {
 	var btn = $("#back_button");
 	btn.button();
 	btn.click( function() {
-		window.location = "{{rootPath}}model-create/back"
+		$("#back-modal").dialog("open");
+		//window.location = "{{rootPath}}model-create/back"
 	});
 });
 
@@ -40,21 +58,98 @@ $(function() {
 			OK: function() {
 				$( this ).dialog( "close" );
         	}
+        },
+        open: function(e,ui) {
+    	    $(this)[0].onkeypress = function(e) {
+    		if (e.keyCode == $.ui.keyCode.ENTER) {
+    		    e.preventDefault();
+    		    $(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+    		}
+    	    };
         }
 	});
 
+	$("#back-modal").dialog({
+		resizable: false,
+		modal:true,
+		autoOpen:false,
+		buttons:{
+			'{{_("Yes")}}':function(){
+				$(this).dialog("close");
+				window.location = "{{rootPath}}model-create/back";
+			},
+			'{{_("No")}}':function(){
+				$(this).dialog("close");
+			}
+		},
+		open: function(e,ui) {
+		    $(this)[0].onkeypress = function(e) {
+			if (e.keyCode == $.ui.keyCode.ENTER) {
+			    e.preventDefault();
+			    $(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+			}
+		    };
+		}
+	});
+	
 	var btn = $("#next_button");
 	btn.button();
 	btn.click( function() {
 		var valsOK = true;
 		if (valsOK) {
-			window.location = "{{rootPath}}model-create/next?create=true";
+			if(modelInfo.modelId > -1){
+				$("#model_create_existing_dialog").dialog("open");
+			}
+			else{
+				window.location = "{{rootPath}}model-create/next?create=true";
+			}
 		}
 		else {
 			$("#dialog-modal").dialog("open");
 		}
 	});
+	
+	$("#model_create_existing_dialog").dialog({
+		resizable: false,
+		model: true,
+		autoOpen:false,
+		buttons:{
+			'{{_("Continue")}}': function() {
+				$(this).dialog("close");
+				$.getJSON('{{rootPath}}edit/edit-models.json',
+					{
+					id: modelInfo.modelId, 
+					oper:'del'
+					}
+				)
+				.done(function(data) {
+					if (data.success) {
+						modelInfo.modelId = -1;
+						window.location = "{{rootPath}}model-create/next?create=true";
+				    }
+				    else {
+				    	alert('{{_("Failed: ")}}'+data.msg);
+				    }
+				})
+	    	    .fail(function(jqxhr, textStatus, error) {
+	    	    	alert('{{_("Error: ")}}'+jqxhr.responseText);
+	    	    });
+			},
+			'{{_("Cancel")}}': function(){
+				$(this).dialog("close");
+			}
+		},
+	    open: function(e,ui) {
+			$(this)[0].onkeypress = function(e) {
+				if (e.keyCode == $.ui.keyCode.ENTER) {
+					e.preventDefault();
+					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+					}
+			    };
+		}
+	});
 });
+
 
 $(function() {
 
@@ -63,13 +158,17 @@ $(function() {
    	    url:'{{rootPath}}json/adjust-models-table',
 	    datatype: "json",
         treeGrid: true,
-	    width: 600, //specify width; optional
-	    colNames:['level','Location','idcode','Fetch','Scheduled','Shipments','per','Clients'], //define column names
+	    width: 1000, //specify width; optional
+	    colNames:['Level','Location Name','idcode','Pick Up or Receive Shipments? ',
+	              'Scheduled or On-Demand Shipments to this Level?','Amount of Shipment to this Level Fixed or Demand Based',
+	              'Freqency of Shipments to this Level?',
+	              'per','Number of Locations Supplied by this Location'], //define column names
 	    colModel:[
 	        {name:'levelname', index:'level', width:100},
 	        {name:'name', index:'name', width:100, editable:true, edittype:'text'},
-	        {name:'idcode', index:'idcode', width:50, key:true, sorttype:'int'},
+	        {name:'idcode', index:'idcode', width:30, key:true, sorttype:'int'},
 	        {name:'fetch',index:'fetch',width:50,editable:true,edittype:'select',editoptions: {value:"fetch:true; deliver:false"}},
+	        {name:'fixedam',index:'fixedam',width:50,editable:true,edittype:'select',editoptions: {value:"fixed:true; variable:false"}},
 	        {name:'sched',index:'sched',width:50,editable:true,edittype:'select',editoptions: {value:"sched:true; demand:false"}},
 	        {name:'howoften',index:'howoften',width:60, sorttype:'int',editable:true,editrules:{integer:true}},
 	        {name:'ymw',index:'ymw',width:50,editable:true,edittype:'select',editoptions: {value:"year:year; month:month; week:week"}},
@@ -86,10 +185,11 @@ $(function() {
 			    //jQuery('#model_create_adjust_grid').jqGrid('editRow',id,true);
 			    jQuery('#model_create_adjust_grid').jqGrid('editRow',id,{
 			    	"keys":true,
-			    	"aftersavefunc": function(rowid,response) {
-			    		$("#model_create_adjust_grid").trigger('reloadGrid');
-					}});
-			    lastsel_models=id;
+//			    	"aftersavefunc": function(rowid,response) {
+//			    		$("#model_create_adjust_grid").trigger('reloadGrid');
+//					}
+			    });
+			    //lastsel_models=id;
 		    }
 	    },
         editurl:'{{rootPath}}edit/edit-create-model.json',
@@ -100,5 +200,11 @@ $(function() {
     $("#model_create_adjust_grid").jqGrid('navGrid','#model_create_adjust_pager',{edit:false,add:false,del:false});
 });
 
+function deleteModel(modelId, modelName) {
+    var msg = '{{_("Really delete the model ")}}' + modelName + " ( " + modelId + " ) ?";
+    $("#model_confirm_delete").html(msg);
+    $("#model_confirm_delete").data('modelId', modelId);
+    $("#model_confirm_delete").dialog("open");
+}
 </script>
  
