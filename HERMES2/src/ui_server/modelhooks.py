@@ -877,13 +877,13 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
                                                         'startClass':'vaccines',
                                                         'breadcrumbPairs':crumbTrack,
                                                         'baseURL':'model-add-types'},
-                                                        formVals,pagehelptag=screen,create=True)
+                                                        formVals,pagehelptag=screen,createpipe=True)
             else:
                 if newModelInfoCN.has_key('modelId'):
                     formVals['modelId']=newModelInfoCN['modelId']
                 #for key,item in formVals.items():
                 #    print "-------------------------------------------{0} = {1}".format(key,item)
-                return bottle.template(screenToTpl[screen],formVals,pagehelptag=screen,create=True,modJson = newModelJson)
+                return bottle.template(screenToTpl[screen],formVals,pagehelptag=screen,createpipe=True,modJson = newModelJson)
         elif screen=="models-top":
             ''' If we have no subcrumbtrack, then we can't do anything with this and 
                 we should delete it. '''

@@ -3,7 +3,7 @@
 
 <script src="{{rootPath}}static/base64v1_0.js"></script>
 <script>
-%if defined('create'):
+%if defined('createpipe'):
 	var createOn = true;
 %else:
 	var createOn = false;
@@ -180,7 +180,7 @@ if(createOn){
 	var btn = $("#next_button");
 	btn.button();
 	btn.click( function() {
-		window.location = "{{rootPath}}model-create/next?create=true";
+		window.location = "{{rootPath}}model-create/next";
 	});
 	
 	var btn = $("#expert_button");

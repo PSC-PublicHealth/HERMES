@@ -2,7 +2,7 @@
 %rebase outer_wrapper **locals()
 
 <script>
-%if defined('create'):
+%if defined('createpipe'):
 	var createOn = true;
 %else:
 	var createOn = false;
@@ -203,7 +203,7 @@ $(function() {
 			var btn = $("#next_button");
 			btn.button();
 			btn.click( function() {
-				window.location = "{{rootPath}}model-create/next?create=true";
+				window.location = "{{rootPath}}model-create/next";
 			});
 			
 			var btn = $("#expert_button");
