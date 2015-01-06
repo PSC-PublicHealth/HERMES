@@ -27,11 +27,11 @@ var modelInfo = ModelInfoFromJson(modJson);
 <script>
 for (var i = 0; i < modelInfo.nlevels; i++){
 	var levelN1 = modelInfo.levelnames[i];
-	for (j = i+1; j < modelInfo.nlevels; j++){
+	for (j = 0; j < modelInfo.nlevels; j++){
 		var levelN2 = modelInfo.levelnames[j];
-		if(modelInfo.canonicalroutesdict[levelN2][levelN1]){
+		if(modelInfo.canonicalroutesdict[levelN1][levelN2]){
 			$("#provision_route_levels").append("<tr><td>{{_('For routes between levels')}}</td>" +
-					"<td><div id='model_create_provroute_b_"+j+"_"+i+"'>"+levelN1+ " {{_('and')}} " + levelN2 + "</div></td></tr>");
+					"<td><div id='model_create_provroute_b_"+i+"_"+j+"'>"+levelN1+ " {{_('and')}} " + levelN2 + "</div></td></tr>");
 		}
 	}
 }

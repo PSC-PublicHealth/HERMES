@@ -70,7 +70,7 @@ $(function () {
 				}
 			}
 		});
-		$("#model_store_add_dialog").append("<div id='model_store_add_div'>Fuck Me</div>");
+		$("#model_store_add_dialog").append("<div id='model_store_add_div'>NewDiv</div>");
 		//alert("modelInfo.canonicalstoresdict[modelInfo.levelnames[thisLevNum]]");
 		$("#model_store_add_div").hrmWidget({
 			widget:'storeEditor',

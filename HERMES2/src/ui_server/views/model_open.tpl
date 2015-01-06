@@ -493,7 +493,7 @@ function editTypes(modelId){
 		$('#model_dowantcopy_dialog').dialog("open");
 	}
 	else{
-		window.location = 'model-add-types?id=' + modelId;
+		window.location = 'model-add-types?id=' + modelId + '&create=false';
 	}
 };
 

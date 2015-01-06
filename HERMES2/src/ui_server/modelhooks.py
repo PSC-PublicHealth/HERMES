@@ -217,12 +217,14 @@ def _createModel(db,uiSession):
     shdNetwork = shd.ShdNetwork(None, None, None,shdTypes, newModelInfoCN['name'] )
     pot = PreOrderTree(newModelInfoCN['pottable'])
     potRecDict = newModelInfoCN['potrecdict']
+    #print "---------------------------------------------------------------HERE"
     storeStack = []
     storeDict = {}
     prevLevel = -1
     prevId = None
     pot.table.sort() # Sort to depth-first
     for lkey,rkey,lvl,idcode in pot.table:
+        #print "lstuff: {0} {1} {2} {3}".format(lkey,rkey,lvl,idcode)
         rec = potRecDict[idcode]
         category = newModelInfoCN['levelnames'][lvl]
         isLeaf = (rkey==lkey+1)
@@ -243,19 +245,36 @@ def _createModel(db,uiSession):
             storeStack.append(prevId)
         elif lvl<prevLevel:
             storeStack = storeStack[:-(prevLevel-lvl)]
+        #print "storeStack"
+        print storeStack
         if storeStack != []:
             supplierId = storeStack[-1]
             if supplierId is not None:
-                if rec['issched']:
-                    if rec['isfetch']:
-                        routeType = 'schedvarfetch'
+                #print "idcode = " + str(idcode)
+                #print 'supplierId = ' + str(supplierId)
+                print rec
+                if rec['issched'] == 'true':
+                    if rec['isfetch'] == 'true':
+                        if rec['isfixedam'] == 'true':
+                            routeType = "schedfetch"
+                        else:
+                            routeType = 'schedvarfetch'
                     else:
-                        routeType = 'varpush'
+                        if rec['isfixedam'] == 'true':
+                            routeType = 'push'
+                        else:
+                            routeType = 'varpush'
                 else:
-                    if rec['isfetch']:
-                        routeType = 'demandfetch'
+                    if rec['isfetch'] == 'true':
+                        if rec['isfixedam']:
+                            routeType = 'demandfetch'
+                        else:
+                            routeType = 'demandfetch'
                     else:
-                        routeType = 'pull'
+                        if rec['isfixedam'] == 'true':
+                            routeType = 'pull'
+                        else:
+                            routeType = 'pull'
                 routeName = 'r%d'%idcode
                 if rec['ymw'] == 'year':
                     shipIntervalDays = math.floor((12.*28.)/rec['howoften'])
@@ -264,6 +283,7 @@ def _createModel(db,uiSession):
                 else:
                     shipIntervalDays = math.floor(7./rec['howoften'])
                 shipLatencyDays = 0.0
+                #print "RouteType = " + routeType
                 route = shdNetwork.addRoute({'RouteName':routeName, 'Type':routeType,
                                              'ShipIntervalDays':shipIntervalDays, 'PullOrderAmountDays':shipIntervalDays,
                                              'ShipLatencyDays':shipLatencyDays}, noStops=True)
@@ -272,18 +292,20 @@ def _createModel(db,uiSession):
                 transitTimeRaw = newModelInfoCN['shiptransittimes'][len(storeStack)-2]
                 
                 transitHours = {'hour':1.0, 'day':24.0, 'week':168.0, 'month':4704.0, 'year':56448.0}[transitUnits] * transitTimeRaw
-                if rec['isfetch']:
-                    route.addStop({'idcode':idcode, 'RouteName':routeName, 'RouteOrder':ignoredNumber,
+                if rec['isfetch']=='true':
+                    #print "fetching"
+                    route.addStop({'idcode':idcode, 'RouteName':routeName, 'RouteOrder':0,
                                    'TransitHours':transitHours},
                                   storeDict)
-                    route.addStop({'idcode':supplierId, 'RouteName':routeName, 'RouteOrder':ignoredNumber,
+                    route.addStop({'idcode':supplierId, 'RouteName':routeName, 'RouteOrder':1,
                                    'TransitHours':transitHours},
                                   storeDict)
                 else:
-                    route.addStop({'idcode':supplierId, 'RouteName':routeName, 'RouteOrder':ignoredNumber,
+                    #print "not fetching"
+                    route.addStop({'idcode':supplierId, 'RouteName':routeName, 'RouteOrder':0,
                                    'TransitHours':transitHours},
                                   storeDict)
-                    route.addStop({'idcode':idcode, 'RouteName':routeName, 'RouteOrder':ignoredNumber,
+                    route.addStop({'idcode':idcode, 'RouteName':routeName, 'RouteOrder':1,
                                    'TransitHours':transitHours},
                                   storeDict)
                 route.linkRoute()
