@@ -503,12 +503,12 @@ function resize_grid() {
   var idGrid = "#demand_edit_grid"
   var idGrid2 = "#demand_vac_grid"
   var offset = $(idGrid).offset() //position of grid on page
-  $(idGrid2).jqGrid('setGridHeight', $(window).height()-offset.top-130);
+  $(idGrid2).jqGrid('setGridHeight', $(window).height()-offset.top-250);
   //hardcoded minimum width
   if ( $(window).width() > 710 ) {
     $(idGrid).jqGrid('setGridWidth', $(window).width()-offset.left-50);
   }
-  $(idGrid).jqGrid('setGridHeight', $(window).height()-offset.top-130);
+  $(idGrid).jqGrid('setGridHeight', $(window).height()-offset.top-250);
 }
 $(window).load(resize_grid); //necessary to trigger resize_grid onload due to loading breadcrumbs changing grid offset
 $(window).resize(resize_grid);  //bind resize_grid to window resize
