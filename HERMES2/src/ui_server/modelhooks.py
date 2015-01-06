@@ -114,7 +114,7 @@ def modelsAddTypes(db, uiSession):
                                 "modelName":model.name,
                                 "startClass":startClass,
                                 "breadcrumbPairs": crumbTrack,
-                                "baseURL":'model-add-types'})
+                                "baseURL":'model-add-types'},create=False)
 
     except Exception,e:
         return bottle.template("problem.tpl", {"comment": str(e),
@@ -461,14 +461,28 @@ def _provisionModelRoutes(db, modelId):
     for rt in model.routes.values():
         l0 = rt.stops[0].store.CATEGORY
         l1 = rt.stops[1].store.CATEGORY
-        if (l0,l1) in canonicalRouteDict:
-            srcRoute = canonicalRouteDict[(l0,l1)]
-            assert srcRoute is not None, _("There is no canonical route matching {0}".format(rt.RouteName))
-            _copyRouteProvisions(srcRoute, rt)
-        elif (l1,l0) in canonicalRouteDict:
-            srcRoute = canonicalRouteDict[(l1,l0)]
-            assert srcRoute is not None, _("There is no canonical route matching {0} backwards".format(rt.RouteName))
-            _copyRouteProvisions(srcRoute, rt, backwards=True)
+        processed = False
+        #if (l0,l1) in canonicalRouteDict:
+        if l0 in canonicalRouteDict.keys():
+            if l1 in canonicalRouteDict[l1].keys():
+                srcRouteId = canonicalRouteDict[l0][l1]
+                if srcRouteId is None:
+                    continue
+                srcRoute=model.routes[srcRouteId]
+                processed = True
+                #assert srcRoute is not None, _("There is no canonical route matching {0}".format(rt.RouteName))
+                _copyRouteProvisions(srcRoute, rt)
+        #elif (l1,l0) in canonicalRouteDict:
+        if l1 in canonicalRouteDict.keys():
+            if l0 in canonicalRouteDict[l1].keys():
+                srcRouteId = canonicalRouteDict[l1][l0]
+                if srcRouteId is None: continue
+                srcRoute = model.routes[srcRouteId]
+                process = True
+                #assert srcRoute is not None, _("There is no canonical route matching {0} backwards".format(rt.RouteName))
+                _copyRouteProvisions(srcRoute, rt, backwards=True)
+        if process is False:
+            raise bottle.BottleException(_("There is no route for these level {0} {1}".format(l0,l1)))
         else:
             raise bottle.BottleException(_("Route {0} unexpectedly spans categories {1} and {2}").format(rt.RouteName,l0,l1))
         
@@ -501,6 +515,7 @@ def _findCanonicalStores(model):
         else:
             badNames = [ nm for nm,v in d.items() if v is None ]
             raise bottle.BottleException(_("Found no stores of level(s) {0}").format(str(badNames)))
+    print d
     return d
 
 def _findCanonicalRoutes(model):
@@ -517,19 +532,33 @@ def _findCanonicalRoutes(model):
     levelNames = _smartStrip(model.getParameterValue('levellist'))
     d = {}
     for i in xrange(len(levelNames)):
-        for j in xrange(i,len(levelNames)):
-            d[(levelNames[i],levelNames[j])] = None
+        d[levelNames[i]] = {}
+        for j in xrange(0,len(levelNames)):
+            d[levelNames[i]][levelNames[j]] = None
 
     for rt in model.routes.values():
         assert len(rt.stops)==2, _("Route {0} unexpectedly has more than two stops").format(rt.RouteName)
         l0 = rt.stops[0].store.CATEGORY
         l1 = rt.stops[1].store.CATEGORY
-        if (l0,l1) in d:
-            if d[(l0,l1)] is None: d[(l0,l1)] = rt
-        elif (l1,l0) in d:
-            if d[(l1,l0)] is None: d[(l1,l0)] = rt
+        #if (l0,l1) in d:
+        #print "------------------------------------------------------------------"
+        #print "L0: " + str(l0)
+        #print "Keys" + str(d[l0].keys())
+        if l0 in d.keys():
+            #print "L1: " + str(l1)
+            if l1 in d[l0].keys():
+                #print "Adding " + rt.RouteName
+                if d[l0][l1] is None: d[l0][l1] = rt.RouteName
+        #elif (l1,l0) in d:
+        elif l1 in d.keys():
+            #print "L1: " + str(l1)
+            #print "l1 Keys" + str(d[l1].keys())
+            if l0 in d[l1].keys():
+                #print "Adding " + rt.RouteName
+                if d[l1][l0] is None: d[l1][l0] = rt.RouteName
         else:
             raise bottle.BottleException(_("Route {0} unexpectedly spans categories {1} and {2}").format(rt.RouteName,l0,l1))
+        
     return d
 
 @bottle.route('/model-create/<step>/next')
@@ -556,13 +585,14 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
                      ('interlevel',_('Edit Shipping Policy')),                 
                      ('interleveltimes',_('Edit Shipping Times')),                 
                      ('done',_('Make Adjustments')),                 
-                     ('people',_('Population')),                 
-                     ('vaccines',_('Vaccines')),                 
-                     ('fridges',_('Storage')),                 
-                     ('trucks',_('Transport')),                 
-                     ('setdemand',_('Consumption')),                 
-                     ('provision',_('Equipment')),                 
-                     ('provisionroutes',_('Logistics')),    
+                     #('people',_('Population')),                 
+                     #('vaccines',_('Vaccines')),                 
+                     #('fridges',_('Storage')),                 
+                     #('trucks',_('Transport')),                 
+                     ('types',_('Add/Remove Components')),
+                     ('setdemand',_('Vaccine Dose Schedule')),                 
+                     ('provision',_('Assign Equipment')),                 
+                     ('provisionroutes',_('Assign Route Policy')),    
                      ]
         namedStepList = [a for a,b in stepPairs] # @UnusedVariable
         '''
@@ -612,10 +642,11 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
                        ### Want to get to here first
                        "provision":"model_create_provision.tpl",
                        "provisionroutes":"model_create_provision_routes.tpl",
-                       'people':'people_top.tpl',
-                       'vaccines':'vaccine_top.tpl',
-                       'fridges':'fridge_top.tpl',
-                       'trucks':'truck_top.tpl',
+                       'types':'type_top.tpl',
+                       #'people':'people_top.tpl',
+                       #'vaccines':'vaccine_top.tpl',
+                       #'fridges':'fridge_top.tpl',
+                       #'trucks':'truck_top.tpl',
                        'setdemand':'demand_top.tpl'
                        }
         
@@ -623,10 +654,11 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
         screenRequires = {"countsbylevel":["levelnames"],
                           "provision":["modelId"],
                           "provisionroutes":["modelId"],
-                          "people":["modelId"],
-                          "vaccines":["modelId"],
-                          "fridges":["modelId"],
-                          "trucks":["modelId"],
+                          "types":['modelId'],
+                          #"people":["modelId"],
+                          #"vaccines":["modelId"],
+                          #"fridges":["modelId"],
+                          #"trucks":["modelId"],
                           "setdemand":["modelId"],
                           }
         '''
@@ -634,7 +666,6 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
         Step 3: Update the crumb track information
         --------------------------------------------------------------------------------
         '''
-        
         if "subCrumbTrack" in newModelInfoCN:
             subCrumbTrack = newModelInfoCN['subCrumbTrack']
             if crumbTrack.trail[-1] != subCrumbTrack:
@@ -647,7 +678,6 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
         #### unknown means we are entering the pipeline from outside
         #### next means we are moving from one page inside the chain to the next
         #### back means we are moving from one page inside the chaing to the previous
-        
         if step=="unknown":
             '''
             Step: unknown
@@ -766,19 +796,21 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
         ''' Handle the special cases '''
         
         if screen=="provision":
-            newModelInfoCN['canonicalStoresDict'] = _findCanonicalStores(shadow_network_db_api.ShdNetworkDB(db, formVals['modelId']))
+            newModelInfoCN['canonicalStoresDict'] = _findCanonicalStores(shadow_network_db_api.ShdNetworkDB(db, newModelInfoCN['modelId']))
         elif screen=="provisionroutes":
-            newModelInfoCN['canonicalRoutesDict'] = _findCanonicalRoutes(shadow_network_db_api.ShdNetworkDB(db, formVals['modelId']))
+            
+            newModelInfoCN['canonicalRoutesDict']  = _findCanonicalRoutes(shadow_network_db_api.ShdNetworkDB(db, newModelInfoCN['modelId']))
+            print newModelInfoCN['canonicalRoutesDict']
         elif screen in ["people","vaccines","fridges","trucks","setdemand"]:
             uiSession['selectedModelId'] = newModelInfoCN['modelId']
             newModelInfoCN.update({'backNextButtons':True,
                              'title_slogan':_("Create A Model"),
-                             'topCaption':{'people':_("Select population types to be used in your model."),
-                                           'vaccines':_("Select vaccine types to be used in your model."),
-                                           'fridges':_("Select cold storage equipment types to be used in your model."),
-                                           'trucks':_("Select trucks and other transport equipment types to be used in your model."),
-                                           'setdemand':_("What are the vaccine requirements of each population type?")
-                                           }[screen]
+                             'topCaption':{'setdemand':_("What are the vaccine requirements of each population type?")}[screen]#'people':_("Select population types to be used in your model."),
+                                           #'vaccines':_("Select vaccine types to be used in your model."),
+                                           #'fridges':_("Select cold storage equipment types to be used in your model."),
+                                           #'trucks':_("Select trucks and other transport equipment types to be used in your model."),
+                                           #'setdemand':_("What are the vaccine requirements of each population type?")
+                                           #}[screen]
                              })
         elif screen=="done":
             ### add a tuple to make sure that Joels stuff works
@@ -805,7 +837,19 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
             if newModelJsonNCT.has_key('subCrumbTrack'):
                 del newModelJsonNCT['subCrumbTrack']
             newModelJson = json.dumps(newModelJsonNCT)
-            return bottle.template(screenToTpl[screen],formVals,pagehelptag=screen,modJson = newModelJson)
+            if screen == "types":
+                return bottle.template('types_top.tpl',{'modelId':newModelInfoCN['modelId'],
+                                                        'modelName':newModelInfoCN['name'],
+                                                        'startClass':'vaccines',
+                                                        'breadcrumbPairs':crumbTrack,
+                                                        'baseURL':'model-add-types'},
+                                                        formVals,pagehelptag=screen,create=True)
+            else:
+                if newModelInfoCN.has_key('modelId'):
+                    formVals['modelId']=newModelInfoCN['modelId']
+                #for key,item in formVals.items():
+                #    print "-------------------------------------------{0} = {1}".format(key,item)
+                return bottle.template(screenToTpl[screen],formVals,pagehelptag=screen,create=True,modJson = newModelJson)
         elif screen=="models-top":
             ''' If we have no subcrumbtrack, then we can't do anything with this and 
                 we should delete it. '''
@@ -883,7 +927,13 @@ def handleModelList(db, uiSession):
         ignoreModel = int(ignoreModel)
     except: pass
 
+   
     mList = db.query(shd.ShdNetwork)
+     ### Make it so that the all types model is the default to appear
+    if not curModel:
+         atm = db.query(shd.ShdNetwork).filter(shd.ShdNetwork.name=="AllTypesModel").one()
+         curModel = atm.modelId
+         
     # query objects aren't subclasses of lists so do a shallow copy
     mList = mList[:]
     mList.sort(key=lambda m: m.modelId)
@@ -904,12 +954,15 @@ def handleModelList(db, uiSession):
                 continue
             
             allowedPairs.append((m.modelId,m.name))
+            thisName = m.name
+            if m.name == "AllTypesModel":
+                thisName = "HERMES Database"
             if curModel == m.modelId:
                 selModelId = m.modelId
                 selModelName = m.name
-                s += "<option value=%d selected>%s</option>\n"%(m.modelId,m.name)
+                s += "<option value=%d selected>%s</option>\n"%(m.modelId,thisName)
             else:
-                s += "<option value=%d>%s</option>\n"%(m.modelId,m.name)
+                s += "<option value=%d>%s</option>\n"%(m.modelId,thisName)
         except privs.PrivilegeException:
             pass
 

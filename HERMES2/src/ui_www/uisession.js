@@ -46,7 +46,7 @@ function defaultShipTransitUnits(n){
 	return shiptimeunits;
 };
 
-function ModelInfo(name_,nLevels_,levelNames_,levelCounts_,shippatterns_,shiptimings_,firstTime_){
+function ModelInfo(name_,nLevels_,levelNames_,levelCounts_,shippatterns_,shiptimings_,canonicalstoresdict_, canonicalroutesdict_, firstTime_){
 	this.name = name_;
 	this.firstTime = typeof firstTime_ !== 'undefined' ? firstTime_ : false;
 	this.nlevels = typeof nLevels_ !== 'undefined' ? nLevels_ : defaultNLevels;
@@ -55,6 +55,8 @@ function ModelInfo(name_,nLevels_,levelNames_,levelCounts_,shippatterns_,shiptim
 	this.shippatterns = typeof shippatterns_ !== 'undefined' ? shippatterns_ : defaultShippatterns(this.nlevels-1);
 	this.shiptransittimes = typeof shipttransittimes_ !== 'undefined' ? shiptransittimes_ : defaultShipTransitTimes(this.nlevels-1);
 	this.shiptransitunits = typeof shiptranistunits_ !== 'undefined' ? shiptransitunits_ : defaultShipTransitUnits(this.nlevels-1);
+	this.canonicalstoresdict =typeof canonicalstoresdict_ != 'undefined'? canonicalstoresdict_ :{};
+	this.canonicalroutesdict = typeof canonicalroutesdict_ != 'undefined' ? canonicalroutesdict_ : {};
 	
 	this.toJsonNetwork = function(){
 		return makeNetworkJson(0,this);
@@ -149,6 +151,12 @@ function ModelInfoFromJson(json){
 	//else 
 	//	delete modelInfo.shiptransitunits;
 
+	if ( json.hasOwnProperty('canonicalStoresDict'))
+		modelInfo.canonicalstoresdict = json.canonicalStoresDict;
+		
+	if ( json.hasOwnProperty('canonicalRoutesDict'))
+		modelInfo.canonicalroutesdict = json.canonicalRoutesDict;
+	
 	return modelInfo;
 };
 

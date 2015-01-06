@@ -2,6 +2,13 @@
 % rebase outer_wrapper **locals()
 
 <script src="{{rootPath}}static/base64v1_0.js"></script>
+<script>
+%if defined('create'):
+	var createOn = true;
+%else:
+	var createOn = false;
+%end
+</script>
 
 % typesEntries = [
 %    ['vaccines', _('Vaccines'),    'json/vaccine-info', 'vaccine-edit'],
@@ -20,7 +27,6 @@
 %    ret['editUrl'] = te[3]
 %    return ret
 % end
-
 
 <h2 style="text-align:center;">{{_('Choose Types For Model')}}</h2>
 <table>
@@ -86,6 +92,22 @@
 % end
   </tr>
 </table>
+<table id="nextback" width=100%>
+	<tr>
+		<td width=10%>
+			<input type="button" id="back_button" value='{{_("Previous Screen")}}'>
+		</td>
+		<td width=70%>
+		</td>
+		<td width=10%>
+			<input type="button" id="expert_button" value='{{_("Skip to Model Editor")}}'>
+		</td>
+		<td width=10%>
+			<input type="button" id="next_button" value='{{_("Next Screen")}}'>
+		</td>
+	</tr>
+</table>
+
 
 <div id="info_dialog" title='replace me'></div>
 <script>
@@ -147,6 +169,30 @@ $(function() {
 
     // info dialog
     $("#info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
+    
+if(createOn){
+	var btn = $("#back_button");
+	btn.button();
+	btn.click( function() {
+		window.location = "{{rootPath}}model-create/back"
+	});
+	
+	var btn = $("#next_button");
+	btn.button();
+	btn.click( function() {
+		window.location = "{{rootPath}}model-create/next?create=true";
+	});
+	
+	var btn = $("#expert_button");
+	btn.button();
+	btn.click( function() {
+		window.location = "{{rootPath}}model-create/next?expert=true";
+	});
+}
+else{
+	$("#nextback").remove();
+};
+
 });
 
 // dest and src jqGrids
@@ -199,10 +245,10 @@ var columnNames = [
 ];
 
 var columnModelSrc = [
-    {name: 'dispName', index: 'dispName'},
+    {name: 'dispName', width:250, index: 'dispName'},
     {name: 'name', index: 'name', hidden: true},
     {name: 'modelId', index: 'modelId', hidden: true},
-    {name: 'flags', index: 'flags', formatter:infoFormatter},
+    {name: 'flags', index: 'flags', align:'center', formatter:infoFormatter},
 ];
 
 var columnModelDest = clone(columnModelSrc);
@@ -317,7 +363,7 @@ function delType(id) {
 	})
 	.then( function() {
 	    var request = $.ajax( {
-		url:'json/removeTypeFromModel',
+		url:'{{rootPath}}json/removeTypeFromModel',
 		data : { 'modelId' : modelId,
 			 'typeName' : name },
 		success: function(data, textStatus, jqXHR) {
@@ -455,6 +501,7 @@ $("#src_grid").jqGrid({
 	modelId : function() { return sel_model_id; },
 	type : function() { return currentType; },
     },
+    height:400,
     colNames : columnNames,
     colModel : columnModelSrc,
     pager: '#src_pager',
@@ -485,18 +532,18 @@ var sel_model_id = null;
 $(function() {
     var sel = $("#src_model_select");
     sel.change( function() {
-	sel_model_id = $("#src_model_select").val();
-	src.modelId = sel_model_id;
-//	alert(sel_model_id);
-	$.getJSON('{{rootPath}}json/set-selected-model', {id : sel_model_id})
-	    .done(function(data) {
-		sel_model_name = data['name'];
-		$("#src_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
-		reloadGrid(src);
-	    })
-	    .fail(function(jqxhr, textStatus, error) {
-		alert("Error: "+jqxhr.responseText);
-	    });
+    	sel_model_id = $("#src_model_select").val();
+    	src.modelId = sel_model_id;
+//		alert(sel_model_id);
+    	$.getJSON('{{rootPath}}json/set-selected-model', {id : sel_model_id})
+	    	.done(function(data) {
+	    		sel_model_name = data['name'];
+	    		$("#src_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
+	    		reloadGrid(src);
+	    	})
+	    	.fail(function(jqxhr, textStatus, error) {
+	    		alert("Error: "+jqxhr.responseText);
+	    	});
     });
     populateSrcModelSelect();
 });
@@ -506,18 +553,18 @@ function populateSrcModelSelect() {
 	      {'curType' : currentType, 
 	       'curModel' : sel_model_id,
 	       'ignoreModel' : {{modelId}}})
-	.done(function(data) {
-	    var sel = $("#src_model_select");
-    	    sel.html(data['menustr']);
-	    sel_model_id = data['selid']
-	    src.modelId = sel_model_id;
-    	    sel_model_name = data['selname']
-	    $("#src_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
-	    reloadGrid(src);
-	})
-	.fail(function(jqxhr, textStatus, error) {
-  	    alert("Error: "+jqxhr.responseText);
-	});
+		.done(function(data) {
+		    var sel = $("#src_model_select");
+		    sel.html(data['menustr']);
+		    sel_model_id = data['selid']
+		    src.modelId = sel_model_id;
+	    	sel_model_name = data['selname']
+		    $("#src_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
+		    reloadGrid(src);
+		})
+		.fail(function(jqxhr, textStatus, error) {
+	  	    alert("Error: "+jqxhr.responseText);
+		});
 }
 
 function copySelected() {
@@ -526,10 +573,10 @@ function copySelected() {
 
 function copyType(name) {
     var request = $.ajax( {
-	url:'json/copyTypeToModel',
+	url:'{{rootPath}}json/copyTypeToModel',
 	data : { 'modelId' : {{modelId}},
-		 'srcModelId' : sel_model_id,
-		 'typeName' : name },
+		 	'srcModelId' : sel_model_id,
+		 	'typeName' : name },
         success: function(data, textStatus, jqXHR) {
         	if (data.success) {
         	    reloadGrid(dest);        		
@@ -538,7 +585,7 @@ function copyType(name) {
 				alert('{{_("Failed: ")}}'+data.msg);        		
         	}
         },
-        error: function(jqXHR, textStatus, errorThrown) {
+        error: function(jqxhr, textStatus, errorThrown) {
 			alert('{{_("Error: ")}}'+jqxhr.responseText);
         }
     });

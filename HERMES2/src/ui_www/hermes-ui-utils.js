@@ -43,3 +43,10 @@ function get_model_name_from_id(id){
 	}).promise();
 };
 	
+function get_alltypesmodelId(){
+	return $.ajax({
+		url:'json/get-alltypesmodel-id',
+		data:'json'
+	}).promise();
+}
+

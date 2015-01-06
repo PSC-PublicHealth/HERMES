@@ -151,4 +151,11 @@ def jsonGenericEditCancel(db,uiSession):
         _logMessage(str(e))
         _logStacktrace()
         return result    
-            
+        
+@bottle.route('/json/get-alltypesmodel-id')
+def jsonGetAllTypesModelID(db,uiSession):
+    try:    
+        m = db.query(shadow_network.ShdNetwork).filter(shadow_network.ShdNetwork.name=="AllTypesModel").one()
+        return {'success':True,'id':m.modelId}
+    except Exception, e:
+        result = {'success':False, 'msg':str(e)}

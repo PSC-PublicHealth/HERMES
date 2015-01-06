@@ -1,6 +1,13 @@
 % title_slogan=_("Specify Vaccine Demand")
 %rebase outer_wrapper **locals()
 
+<script>
+%if defined('create'):
+	var createOn = true;
+%else:
+	var createOn = false;
+%end
+</script>
 <h2 style="display:none">{{_('Vaccine Demand By Population Type')}}</h2>
 <table>
 <tr>
@@ -79,7 +86,21 @@
 		</td>
 	</tr>
 </table>
-
+<table id="nextback" width=100%>
+	<tr>
+		<td width=10%>
+			<input type="button" id="back_button" value='{{_("Previous Screen")}}'>
+		</td>
+		<td width=70%>
+		</td>
+		<td width=10%>
+			<input type="button" id="expert_button" value='{{_("Skip to Model Editor")}}'>
+		</td>
+		<td width=10%>
+			<input type="button" id="next_button" value='{{_("Next Screen")}}'>
+		</td>
+	</tr>
+</table>
 <script>
 {{!setupToolTips()}}
 
@@ -171,6 +192,29 @@ $(function() {
 	$("#set_rel_scale_text").blur(function(evt) {
 		scalarScaleTextBlur(evt,'{{rootPath}}json/set-demand-scalar-relscale');
 	});
+	
+	if(createOn){
+			var btn = $("#back_button");
+			btn.button();
+			btn.click( function() {
+				window.location = "{{rootPath}}model-create/back"
+			});
+			
+			var btn = $("#next_button");
+			btn.button();
+			btn.click( function() {
+				window.location = "{{rootPath}}model-create/next?create=true";
+			});
+			
+			var btn = $("#expert_button");
+			btn.button();
+			btn.click( function() {
+				window.location = "{{rootPath}}model-create/next?expert=true";
+			});
+	}
+	else{
+		$("#nextback").remove();
+	}
 });
 
 
@@ -314,7 +358,7 @@ function buildSideTable(modelId, modelName) {
 		scroll: true,
 		rowNum: 9999,
 		sortname: 'name', //the column according to which data is to be sorted; optional
-		viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Z” optional
+		viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� optional
 		gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
 	    caption:'{{_("Include in the dose table?")}}',
 	}).jqGrid('hermify',{debug:true});
@@ -338,7 +382,7 @@ function buildPage(modelId, modelName) {
 					sortname:data.sortname,
 					scroll: true,
 					rowNum: 9999,
-					viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Z” optional
+					viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� optional
 					gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
     				caption:'{{_("How many doses of each vaccine per person per year?")}}',
 					onSelectRow: function(resultsid, status){
@@ -492,7 +536,7 @@ function buildScaleTable(modelId, modelName) {
 		scroll: true,
 		rowNum: 100,
 		sortname: 'vaccine', //the column according to which data is to be sorted; optional
-		viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Z” optional
+		viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� optional
 		gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
     	caption:'{{_("Increase the demand used to predict shipment sizes by what factor?")}}',
 		onSelectRow: function(resultsid){
@@ -565,7 +609,7 @@ function buildCalendarTable(modelId, modelName) {
 		width: 600,
 		rowNum: 100,
 		sortname: 'people', //the column according to which data is to be sorted; optional
-		viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Z” optional
+		viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� optional
 		gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
     	caption:'{{_("What is the treatment schedule for each population type?")}}',
 		gridComplete: function(){
