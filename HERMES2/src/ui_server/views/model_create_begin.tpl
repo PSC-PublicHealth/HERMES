@@ -242,7 +242,7 @@ $(function() {
     	    };
         }
 	});
-
+	
 	$("#big-modal").dialog({
 		resizable: false,
       	modal: true,
@@ -444,7 +444,7 @@ $(function() {
 			thisLevNum = parseInt($(this).prop('id').replace("model_create_levelname_","")) - 1;
 			// Error handling
 			$(this).val(validate_levelName($(this).val(), thisLevNum,$(this).data('oldVal')));
-			$(this).data('oldVal',$(this.val()));
+			$(this).data('oldVal',$(this).val());
 			//update session
 			modelInfo.levelnames[thisLevNum] = $(this).val();
 			modelInfo.changed = true;
