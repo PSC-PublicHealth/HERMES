@@ -192,7 +192,7 @@
 					// Zoomable Treemap Widget
 					var zoomID = containerID + "_cost_zoomableTreemap";
 					$("#"+containerID).append("<div id='"+zoomID+"' name='" + zoomID + "'></div>");
-					$("#"+zoomID).treemap({
+					var zoom_treemap = $("#"+zoomID).treemap({
 				        hasChildrenColor: "steelblue",
 				        noChildrenColor: "#ccc",
 				        jsonDataURLBase: "json/results-cost-hierarchical-value",

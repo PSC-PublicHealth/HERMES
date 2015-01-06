@@ -26,7 +26,9 @@
             this.svgContainerID = this.containerID+"svgContainer";
         
             d3.select("#"+this.containerID).append("svgContainer")
-                .attr("id", this.svgContainerID);
+                .attr("id", this.svgContainerID)
+                .attr("width","100%")
+                .attr("height","100%");
             console.log(this.containerID);
             console.log(this.svgContainerID);
             this.jsonDataURL = this.options.jsonDataURLBase + "?"
@@ -38,24 +40,30 @@
                href: "static/hierarchical-charts/zoomable-treemap.css"
             }).appendTo("head");
 
-            this.width = null;
-            this._refresh();
+            var _this = this;
+            // bind this instance's refresh method to the window resize event
+            // wrap in function closure
+            window.addEventListener('resize', function(e) {
+                _this.refresh();
+            });
+
+            this.refresh();
         },
 
 ////////////////////////////////////////////////////////////////////////////
 
-        _refresh: function() {
-            var width = $(this.element).parent().parent().innerWidth() * .97;
-            if (this.width == null || this.width != width) {
-                this.width = width;
-                this._redraw();
-            }
+        refresh: function() {
+            $("#"+this.svgContainerID).empty();
+            this.draw();
         },
 
-        _redraw: function() {
-
+        draw: function() {
+            console.log("refreshing treemap");
+            // calculation of width should actually take margins & padding into account.
+            // the scaling factor used below is a temporary solution simply because I've
+            // endured enough tedious box model arithmetic for one day
             var margin = {top: 20, right: 0, bottom: 0, left: 0},
-                width = this.width,
+                width = $(this.element).parent().parent().innerWidth() * .97,
                 height = 500 - margin.top - margin.bottom,
                 formatNumber = d3.format(",d"),
                 transitioning;
@@ -155,7 +163,7 @@
               grandparent
                   .datum(d.parent)
                   .on("click", transition)
-                .select("text")
+                  .select("text")
                   .text(name(d));
           
               var g1 = svg.insert("g", ".grandparent")
@@ -164,7 +172,7 @@
           
               var g = g1.selectAll("g")
                   .data(d._children)
-                .enter().append("g");
+                  .enter().append("g");
           
               g.filter(function(d) { return d._children; })
                   .classed("children", true)
@@ -172,24 +180,32 @@
           
               g.selectAll(".child")
                   .data(function(d) { return d._children || [d]; })
-                .enter().append("rect")
+                  .enter().append("rect")
                   .attr("class", "child")
                   .call(rect);
           
               g.append("rect")
                   .attr("class", "parent")
                   .call(rect)
-                .append("title")
+                  .append("title")
                   .text(function(d) { return formatNumber(d.value); });
           
               g.append("text")
                   .attr("dy", ".75em")
                   .text(function(d) { return d.name; })
                   .call(text);
-          
+         
+
+
+
               function transition(d) {
-                if (transitioning || !d) return;
-                transitioning = true;
+                
+                if (transitioning || !d) {
+                    return;
+                }
+                else {
+                    transitioning = true;
+                }
           
                 var g2 = display(d),
                     t1 = g1.transition().duration(750),
