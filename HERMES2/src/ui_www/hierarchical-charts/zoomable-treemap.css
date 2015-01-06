@@ -14,21 +14,27 @@ text {
 
 rect.child {
     fill: none;
-    stroke: "#fff";
+    stroke: #ffffff;
 }
 
 rect.parent,
 .grandparent rect {
     stroke-width: 2px;
-    #fill:none;
+    fill: #356ca7;
 }
 
-.grandparent rect {
-    fill: orange;
+.grandparent text {
+    fill: white;
 }
 
 .grandparent:hover rect {
-    fill: #ee9700;
+    fill: white;
+    stroke: #356ca7;
+    stroke-width: 2px;
+}
+
+.grandparent:hover text {
+    fill: #356ca7;
 }
 
 .children rect.parent,
