@@ -28,7 +28,12 @@
 %    return ret
 % end
 
-<h2 style="text-align:center;">{{_('Choose Types For Model')}}</h2>
+<h2>
+	{{_('Edit Compnents')}}
+</h2>
+<h4>
+	{{_('Use the Source dropdown to select the source from which components can be selected.  Select which component to add to the {0} model and click the arrow button to add it. To remove existing components, click delete.'.format(modelName))}}
+</h4>
 <table>
   <tr>
     <td>
@@ -107,6 +112,16 @@
 		</td>
 	</tr>
 </table>
+<table id="doneback" width=100%>
+<tr>
+	<td width=90%>
+	</td>
+	<td width=10%>
+		<input type="button" id="done_button" value='{{_("Done")}}'>
+	</td>
+	
+</tr>
+</table>
 
 
 <div id="info_dialog" title='replace me'></div>
@@ -170,29 +185,35 @@ $(function() {
     // info dialog
     $("#info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
     
-if(createOn){
-	var btn = $("#back_button");
-	btn.button();
-	btn.click( function() {
-		window.location = "{{rootPath}}model-create/back"
-	});
-	
-	var btn = $("#next_button");
-	btn.button();
-	btn.click( function() {
-		window.location = "{{rootPath}}model-create/next";
-	});
-	
-	var btn = $("#expert_button");
-	btn.button();
-	btn.click( function() {
-		window.location = "{{rootPath}}model-create/next?expert=true";
-	});
-}
-else{
-	$("#nextback").remove();
-};
-
+    if(createOn){
+		var btn = $("#back_button");
+		btn.button();
+		btn.click( function() {
+			window.location = "{{rootPath}}model-create/back"
+		});
+		
+		var btn = $("#next_button");
+		btn.button();
+		btn.click( function() {
+			window.location = "{{rootPath}}model-create/next";
+		});
+		
+		var btn = $("#expert_button");
+		btn.button();
+		btn.click( function() {
+			window.location = "{{rootPath}}model-create/next?expert=true";
+		});
+		$("#doneback").remove();
+    }
+    else{
+		var btn = $("#done_button");
+		btn.button();
+		btn.click( function() {
+			window.location = "javascript:history.back()";
+		})
+		
+		$("#nextback").remove();
+	}
 });
 
 // dest and src jqGrids
@@ -466,6 +487,7 @@ $("#dest_grid").jqGrid({
     url : '{{rootPath}}json/types-manage-grid',
     datatype : 'json',
     rowNum:9999,
+    height:300,
     postData : {
 	modelId : {{modelId}},
 	type : function() { return currentType; },
@@ -504,7 +526,7 @@ $("#src_grid").jqGrid({
 	modelId : function() { return sel_model_id; },
 	type : function() { return currentType; },
     },
-    height:400,
+    height:300,
     colNames : columnNames,
     colModel : columnModelSrc,
     pager: '#src_pager',

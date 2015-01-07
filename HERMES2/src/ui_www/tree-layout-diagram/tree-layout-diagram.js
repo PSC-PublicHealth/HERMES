@@ -499,7 +499,7 @@
 						.attr('font-weight','bold')
 						.attr('font-size','12px')
 						.attr("dy",".35em")
-						.text('Products Enter Here')
+						.text('Products Begin Here')
 						.attr("transform",function(d){
 							return "translate("+(root.x+rectW/2)+","+(root.y - rectH/2) +")";
 						});
@@ -508,7 +508,7 @@
 						.attr('font-weight','bold')
 						.attr('font-size','12px')
 						.attr("dy",".35em")
-						.text('Products End Here')
+						.text('Products Terminate Here')
 						.attr("transform",function(d){
 							var depthHere = depthY[maxDepth-1];
 							console.log("DY = " + depthHere);

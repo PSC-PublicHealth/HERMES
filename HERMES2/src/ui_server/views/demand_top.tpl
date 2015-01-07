@@ -111,11 +111,12 @@ var peopleLoaded = false;
 </table>
 <table id="doneback" width=100%>
 	<tr>
+		<td width=90%>
+		</td>
 		<td width=10%>
 			<input type="button" id="done_button" value='{{_("Done")}}'>
 		</td>
-		<td width=90%>
-		</td>
+		
 	</tr>
 </table>
 

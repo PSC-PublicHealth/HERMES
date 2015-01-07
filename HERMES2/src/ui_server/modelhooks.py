@@ -68,7 +68,8 @@ def modelsTopPage(uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Models")))
     return bottle.template("models_top.tpl",
                            {
-                            "breadcrumbPairs":crumbTrack
+                            #"breadcrumbPairs":crumbTrack
+                            "breadcrumbPairs":[('top','HERMES'),('models-top',_('Models'))]
                             })
 
 @bottle.route('/model-edit-params')
@@ -97,7 +98,7 @@ def modelsEditParams(db, uiSession):
 
 @bottle.route('/model-add-types')
 def modelsAddTypes(db, uiSession):
-    crumbTrack = addCrumb(uiSession, 'Add Types')
+    crumbTrack = addCrumb(uiSession, 'Edit Model Components')
     try:
         modelId = int(getParm('id'))
         uiSession.getPrivs().mayModifyModelId(db, modelId)
@@ -1148,7 +1149,8 @@ def openModel(db,uiSession):
         
         crumbTrack = uiSession.getCrumbs().push(("{0}?modelId={1}".format(bottle.request.path,modelId),name))
         return bottle.template("model_open.tpl",
-                               {"breadcrumbPairs":crumbTrack},modelId=modelId,maymodify=modify,name=name,_=_,inlizer=inlizer)
+                               {"breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
+                                                   ("model-open?modelId={0}".format(modelId),name)]},modelId=modelId,maymodify=modify,name=name,_=_,inlizer=inlizer)
     except Exception as e:
         raise bottle.BottleException(_("Unable to load Open Models Page: {0}".format(str(e))))
     
@@ -1240,11 +1242,14 @@ def jsonGetSelectedModel(db, uiSession):
 
 @bottle.route('/json/set-selected-model')
 def jsonSetSelectedModel(db, uiSession):
-    modelId = int(bottle.request.params['id'])
-    uiSession['selectedModelId'] = modelId
-    m = shadow_network_db_api.ShdNetworkDB(db,modelId)
-    result = { 'id':modelId, 'name':m.name }
-    return result
+    try:
+        modelId = int(bottle.request.params['id'])
+        uiSession['selectedModelId'] = modelId
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        result = { 'success':True,'id':modelId, 'name':m.name }
+        return result
+    except Exception,e:
+        return {'success':False, 'msg':str(e)}
         
 @bottle.route('/json/manage-models-table')
 def jsonManageModelsTable(db, uiSession):
@@ -1903,8 +1908,8 @@ def jsonCreateLevelsFromFromJson(db,uiSession):
     try:
         import htmlgenerator
         return {'success':True,
-                'htmlString':'<span class="levelnames-head">'+ _('What are the levels to be called?') + '</span>'\
-                +'<span class="levelnames-note"><br>'+_('(e.g., Four level supply chains, the levels may be named Central, Region, District, Health Post)')+'</span>' \
+                'htmlString':'<span class="levelnames-head">'+ _('Please give each of the levels a name') + '</span>'\
+                +'<span class="levelnames-note"><br>'+_('(e.g., Level 1 could be called Central, Level 2 called Regional, etc.)')+'</span>' \
                 + htmlgenerator._buildNameLevelsFormFromSession("model_create", levelInfo=modelInfoJson)}
     
     except bottle.HTTPResponse:
@@ -1952,8 +1957,7 @@ def jsonCreatePlacesPerLevelFromFromJson(db,uiSession):
         return result  
     try:
         import htmlgenerator
-        return {'htmlString':'<span class="levelcount-head">'+_("What are the total number of locations within each level?") + "</span>"\
-                    +"<span class='levelcount-note'><br>"+_('Include all storage, immunizating and outreach locations')+"</span>" \
+        return {'htmlString':'<span class="levelcount-head">'+_("Please enter the total number of locations (e.g., storage, immunization, and outreach) for each level.") + "</span>"\
                     + htmlgenerator._buildNumberPlacesPerLevelsFormFromSession("model_create_", modelInfoJson),'success':True}
     except bottle.HTTPResponse:
         raise

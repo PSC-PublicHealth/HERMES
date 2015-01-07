@@ -59,11 +59,16 @@ $("#manage_models_grid").jqGrid({ //set your grid id
 	"{{_('Actions')}}"
     ], //define column names
     colModel:[
-	{name:'name', index:'name', width:100, editable:true, edittype:'text'},
-	{name:'id', index:'id',width:50, key:true, sorttype:'int',hidden:true},
-	{name:'note', index:'note', width:200, editable:true, edittype:'textarea'},
+//	{name:'name', index:'name', width:100, editable:true, edittype:'text'},
+//	{name:'id', index:'id',width:50, key:true, sorttype:'int',hidden:false},
+//	{name:'note', index:'note', width:200, editable:true, edittype:'textarea'},
+//	{name:'download zip', index:'downloadzip',hidden:true},
+//	{name:'statinfo', index:'statinfo', width:110, align:'center', formatter:modelsInfoButtonFormatter}
+	{name:'name', index:'name', editable:true, edittype:'text'},
+	{name:'id', index:'id',key:true, sorttype:'int',hidden:false},
+	{name:'note', index:'note', editable:true, edittype:'textarea'},
 	{name:'download zip', index:'downloadzip',hidden:true},
-	{name:'statinfo', index:'statinfo', width:110, align:'center', formatter:modelsInfoButtonFormatter}
+	{name:'statinfo', index:'statinfo', align:'center', formatter:modelsInfoButtonFormatter}
     ], //define column models
     pager: '#manage_models_pager', //set your pager div id
     pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
@@ -71,6 +76,7 @@ $("#manage_models_grid").jqGrid({ //set your grid id
     sortname: 'name', //the column according to which data is to be sorted; optional
     viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� "optional
     sortorder: "asc", //sort order; optional
+    shrinkToFit: true,
     gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
 //    onSelectRow: function(id){
 //		if(id && id!==lastsel_models){
@@ -107,7 +113,7 @@ $("#manage_models_grid").jqGrid({ //set your grid id
     		},
     		onOpen: function(event){
     			var id = unescape($(this).parent().attr('id'));
-    			window.location = "{{rootPath}}model-open?modelId="+id;
+    			window.location = "{{rootPath}}model-open?modelId="+id+"&crmb=clear";
     		},
     		onCopy: function(event){
     			var id = unescape($(this).parent().attr('id'));
@@ -142,6 +148,15 @@ function resize_grid() {
   //minimum height to correspond to original unresized table, in order to line up with side buttons
   //if ( $(window).height() > buttonsBottom ) {
   $(idGrid).jqGrid('setGridHeight', $(window).height()-offset.top-scrollTop-100);
+//  $(idGrid).jqGrid('setGroupHeaders',{
+//	  useColSpanStyle:false,
+//	  groupHeaders:[
+//	               {startColumnName:"{{_('Name')}}",numberOfColumns:1,title
+//	            		"{{_('Model ID')}}",
+//	            		"{{_('Note')}}",
+//	            		"{{_('Download')}}",
+//	            		"{{_('Actions')}}"'}
+//  })
   //}
 }
 $(window).load(resize_grid); //necessary to trigger resize_grid onload due to loading breadcrumbs changing grid offset

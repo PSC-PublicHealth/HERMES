@@ -102,6 +102,9 @@ function updateNetworkDiagram(){
 <div id="dialog-save-confirm-modal" title='{{_("Confirm Changes?")}}'>
 	<p>{{_('Would you like to save the changes made on this page?')}}</p>
 </div>
+<div id="expert-modal" title='{{_("Entering Advanced Model Editor")}}'>
+	<p>{{_("By entering the advanced model editor, you will be leaving the Model Creation Workflow, and not be able to re-enter.  Would you like to continue?")}}</p>
+</div>
 
 <script>
 $(function(){
@@ -126,6 +129,21 @@ $(function(){
 				$( this ).dialog( "close" );
         	}
         }
+	});
+	
+	$("#expert-modal").dialog({
+		resizable: false,
+		modal: true,
+		autoOpen:false,
+		buttons: {
+			'{{_("Yes")}}': function(){
+				$(this).dialog("close");
+				window.location = "{{rootPath}}model-create/next?expert=true&crmb=clear";
+			},
+			'{{_("No")}}': function(){
+				$(this).dialog("close");
+			}
+		}
 	});
 	
 	$("#dialog-save-confirm-modal").dialog({
@@ -161,7 +179,7 @@ $(function(){
 	var btn = $("#expert_button");
 	btn.button();
 	btn.click( function() {
-		window.location = "{{rootPath}}model-create/next?expert=true";
+		$("#expert-modal").dialog("open");
 	});
 
 	var btn = $("#next_button");

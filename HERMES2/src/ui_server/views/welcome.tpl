@@ -293,7 +293,7 @@ $(function(){
 		buttons:{
 			'{{_("Continue")}}': function() {
 				$(this).dialog("close");
-				window.location="model-create?name="+$("#model_create_dlg_new_name").val()+"&crmb=clear";
+				window.location="model-create?name="+$("#model_create_dlg_new_name").val();
 			},
 			'{{_("Restart")}}': function(){
 				$(this).dialog("close");
@@ -305,7 +305,7 @@ $(function(){
 						if ($("#model_create_dlg_new_name").val() in json.data){
 							thisModelJSon = json.data[$("#model_create_dlg_new_name").val()];
 							$.ajax({
-								url:'{{rootPath}}json/delete-model-from-newmodelinfo-session?name='+$("#model_create_dlg_new_name").val()+"&crmb=clear",
+								url:'{{rootPath}}json/delete-model-from-newmodelinfo-session?name='+$("#model_create_dlg_new_name").val(),
 			    				async:false,
 								dataType:'json',
 								success:function(data){
@@ -315,7 +315,7 @@ $(function(){
 											deleteModel(thisModelJSon.modelId,$("#model_create_dlg_new_name").val());
 										}
 									}
-									window.location='{{rootPath}}model-create?name='+$("#model_create_dlg_new_name").val()+"&crmb=clear"
+									window.location='{{rootPath}}model-create?name='+$("#model_create_dlg_new_name").val()
 								}
 							});
 						}

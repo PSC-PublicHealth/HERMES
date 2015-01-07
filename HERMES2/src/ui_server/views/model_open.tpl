@@ -149,8 +149,8 @@ ul.option-list-inner li{
 
 <div id="model_holder">
 	<div id="model_operations_holder">
-		<p><span class="model-operation-title">{{_("{0} Model Operations".format(name))}}</span><p>
-		<p><span class="model-operation-second">{{_("Below is a list of operations that you can perform on the model you currently have selected.")}}</span></p>
+		<h2>{{_("{0} Model".format(name))}}</h2>
+		<!--<p><span class="model-operation-second">{{_("Below is a list of operations that you can perform on the model you currently have selected.")}}</span></p>-->
 		<br>
 		<p><span class="model-operation-title">{{_("Please select what you would like to do with this model:")}}</span></p>
 		<ul class="option-list">
@@ -163,8 +163,8 @@ ul.option-list-inner li{
 					</span>-->
 				<li>
 					<span class="model-operation-item">
-						<a class="model-operation-item" href="#" title='{{_("Edit the model using an advanced interface that will give the ability to change any aspect of the supply chain model.")}}'
-							id="edit_adv_model_link">{{_("Modify Structure with the Advanced Model Editor")}}</a>
+						<a class="model-operation-item" href="#" title='{{_("Edit the model via the Advanced Model Editor. This will allow users to edit detailed model parameters, including individual route and location characteristics.")}}'
+							id="edit_adv_model_link">{{_("Modify structure with the Advanced Model Editor")}}</a>
 					</span>
 				<li>
 				<span class="model-operation-item">
@@ -173,30 +173,27 @@ ul.option-list-inner li{
 				</span>	
 				<li>
 				<span class="model-operation-item">
-					<a class="model-operation-item" href="#" title='{{_("Populate the model with different components that can then be placed at different locations in the supply chain model.")}}'
+					<a class="model-operation-item" href="#" title='{{_("Specify the vaccine dosage schedule for all population categories throughout the year.")}}'
 						id="dose_sched_link">{{_("Modify the Vaccine Dose Schedule")}}</a>
 				</span>	
 				<li>
 				<span class="model-operation-item">
-					<a class="model-operation-item" href="#" title='{{_("Populate the model with different components that can then be placed at different locations in the supply chain model.")}}'
+					<a class="model-operation-item" href="#" title='{{_("Define the details needed to implement the HERMES microcosting model, including storage, building, labor, transportation and vaccine costs.")}}'
 						id="costs_model_link">{{_("Add and modify costs")}}</a>
 				</span>	
 			</ul>
-		<li>
-			<span class="model-operation-item">
-				<a class="model-operation-item" href="#" title='{{_("Populate the model with different components that can then be placed at different locations in the supply chain model.")}}'
-					id="types_model_link">{{_("Add or remove model components (e.g. vaccines, storage devices, vehicles, and population categories)")}}</a>
-			</span>	
 		<li><span class="model-operation-item">
-			<a class="model-operation-item" href="#" title='{{_("Take the model and run a simulation experiment with it")}}'
+			<a class="model-operation-item" href="#" title='{{_("Run a simulation experiment using the existing model. This allows users to run HERMES in order to simulate a the healthcare supply chain over a specified period of time. Users can then view the results of the run(s) via the results page.")}}'
 				id="run_model_link">{{_("Run a Simulation Experiment with this Model")}}</a>
 		</span>
 		<li><span class="model-operation-item">
-			<a class="model-operation-item" href="#" id="result_model_link">{{_("View results from previously saved Simulation Experiments")}}</a>
+			<a class="model-operation-item" href="#" title='{{_("Access a wide array of visualizations and data from the results of all simulation experiments run with this model")}}'
+				id="result_model_link">{{_("View results from previously saved Simulation Experiments")}}</a>
 		</span>
 		<li>
 		<span class="model-operation-item">
-			<a class="model-operation-item" href="#" id="download_model_link">{{_("Export Model as a HERMES Zip File")}}</a>
+			<a class="model-operation-item" href="#" title='{{_("Export the current model as a .zip file, in order to save, send and view the model and its results on any other HERMES-installed computer.")}}' 
+				id="download_model_link">{{_("Export Model as a HERMES Zip File")}}</a>
 		</span>
 		</ul>
 	</div>
@@ -273,6 +270,16 @@ ul.option-list-inner li{
 
 <script>
 $(document).ready(function(){
+	$.ajax({
+		url:'{{rootPath}}json/set-selected-model?id={{modelId}}',
+		dataType:'json',
+		success:function(result){
+			if(!result.success){
+				alert(result.msg);
+			}
+		}
+	});
+	
 	$("#model_diagram_holder").corner();
 	$(".notification").corner();
 	updateNetworkDiagram();
@@ -359,6 +366,9 @@ $(document).ready(function(){
 		$("#download_model_dialog").dialog("open");
 	});
 	
+	$("#costs_model_link").click(function(){
+		editCosts({{modelId}});
+	})
 	$("#result_model_link").click(function(){
 		openResults({{modelId}});
 		//$("#result_dialog").dialog("open");
@@ -479,9 +489,8 @@ $(document).ready(function(){
 				    			$("#model_copy_dialog_form").dialog("close");
 							    $.getJSON('json/copy-model',{srcModelId:srcModelId,dstName:dstName})
 								.done(function(data) {
-									console.log("fuck!!!!");
 								    if (data.success) {
-								    	window.location = '{{rootPath}}model-open?modelId='+data.value + "&mincrumb=true";
+								    	window.location = '{{rootPath}}model-open?modelId='+data.value;
 								    }
 								    else {
 								    	alert('{{_("Model Copy Failed: ")}}'+data.msg);
@@ -544,6 +553,14 @@ function editDoseSched(modelId){
 	}
 	else{
 		window.location = '{{rootPath}}demand-top?modelId='+modelId;
+	}
+}
+function editCosts(modelId){
+	if(!mayModify){
+		$("#model_dowantcopy_dialog").dialog("open");
+	}
+	else{
+		window.location = '{{rootPath}}cost-top?modelId='+modelId;
 	}
 }
 function runHermes(modelId){
