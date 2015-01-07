@@ -235,7 +235,7 @@ class LegacyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
 
 class DummyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
 
-    def dict(self):
+    def dict(self, fmt=None):
         return {}
 
 

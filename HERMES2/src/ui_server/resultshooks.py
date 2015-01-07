@@ -183,7 +183,7 @@ def resultsTreeForAllModels(db,uiSession):
         return {'success':False,'type':'error','msg':str(e)}
 
 @bottle.route('/json/results-tree-for-one-model')
-def resultsTreeForAllModels(db,uiSession):
+def resultsTreeForOneModels(db,uiSession):
     ### go from Results Groups, as if there is no results, there is no reason
     try:
         modelId=_getOrThrowError(bottle.request.params,'modelId',isInt=True)
