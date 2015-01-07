@@ -6,6 +6,14 @@
 * Hermes-specific mods follow
 */
 
+.ui-tabs-anchor:focus {
+    outline: 0;
+}
+.ui-icon-close {
+    float: left;
+    margin-top: 3px;
+}
+
 .ui-state-highlight,
 .ui-widget-content .ui-state-highlight,
 .ui-widget-header .ui-state-highlight {
