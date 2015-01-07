@@ -1,33 +1,39 @@
-#chart {
-    width: 960px;
-    height: 500px;
-    background: #ddd;
-}
+/* Zoomable Tree Map (ztm) css */
 
-text {
+.ztm text {
     pointer-events: none;
 }
 
-.grandparent text {
+.ztm .grandparent text {
     font-weight: bold;
 }
 
-rect.child {
-    fill: none;
-    stroke: #ffffff;
-}
-
-rect.parent,
-.grandparent rect {
+.ztm .grandparent rect {
     stroke-width: 2px;
     fill: #356ca7;
 }
 
-.grandparent text {
+
+.ztm rect.child {
+    fill: none;
+    stroke: #ffffff;
+}
+
+.ztm rect.parent:hover {
+    fill: #558cc7;    
+}
+
+.ztm rect.parent {
+    fill: #659cd7;    
+    stroke-width: 1px;
+    stroke: white;
+}
+
+.ztm .grandparent text {
     fill: white;
 }
 
-.grandparent:hover rect {
+.ztm .grandparent:hover rect {
     fill: white;
     stroke: #356ca7;
     stroke-width: 2px;
@@ -37,17 +43,17 @@ rect.parent,
     fill: #356ca7;
 }
 
-.children rect.parent,
-.grandparent rect {
+.ztm .children rect.parent,
+.ztm .grandparent rect {
     cursor: pointer;
 }
 
-.children rect.parent {
+.ztm .children rect.parent {
     fill: #bbb;
     fill-opacity: .5;
 }
 
-.children:hover rect.child {
+.ztm .children:hover rect.child {
     fill: #bbb;
 }
 

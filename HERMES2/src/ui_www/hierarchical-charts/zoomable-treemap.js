@@ -27,8 +27,6 @@
         
             d3.select("#"+this.containerID).append("svgContainer")
                 .attr("id", this.svgContainerID)
-                .attr("width","100%")
-                .attr("height","100%")
                 .attr("class","ztm");
             console.log(this.containerID);
             console.log(this.svgContainerID);
@@ -62,7 +60,7 @@
             // the scaling factor used below is a temporary solution simply because I've
             // endured enough tedious box model arithmetic for one day
             var margin = {top: 20, right: 0, bottom: 0, left: 0},
-                width = $(this.element).parent().parent().innerWidth() * .97,
+                width = $(this.element).parent().parent().width() * .97,
                 height = 500 - margin.top - margin.bottom,
                 formatNumber = d3.format(",d"),
                 transitioning;
@@ -102,14 +100,14 @@
                 .attr("y", -margin.top)
                 .attr("width", width)
                 .attr("height", margin.top);
-            
+
             grandparent.append("text")
                 .attr("x", 6)
                 .attr("y", 6 - margin.top)
                 .attr("dy", ".75em");
-            
+
             d3.json(this.jsonDataURL, function(error, ret) {
-                console.log(ret.error);
+                if (error) {console.log(ret.error);}
                 console.log(ret.data.cost_summary);
                 var root = ret.data.cost_summary;
                 currency = ret.data.currency_base;
@@ -133,7 +131,8 @@
             // TODO parseInt should really be parseFloat
             function accumulate(d) {
               return (d._children = d.children)
-                  ? d.value = d.children.reduce(function(p, v) { return parseInt(p) + accumulate(v); }, 0)
+                  ? d.value = d.children.reduce(function(p, v) {
+                      return parseInt(p) + accumulate(v); }, 0)
                   : d.value;
             }
           
@@ -187,13 +186,15 @@
                   .attr("class", "parent")
                   .call(rect)
                   .append("title")
-                  .text(function(d) { return formatNumber(d.value); });
-          
+                  .text(function(d) {
+                      return "Name: \""+d.name+"\"\nCost: "+d.value;
+                      //return formatNumber(d.value);
+                  });
+
               g.append("text")
                   .attr("dy", ".75em")
                   .text(function(d) { return d.name; })
                   .call(text);
-         
 
 
 
@@ -226,6 +227,28 @@
                 // Transition to the new view.
                 t1.selectAll("text").call(text).style("fill-opacity", 0);
                 t2.selectAll("text").call(text).style("fill-opacity", 1);
+               
+                // check each text element and find the longest substring where the
+                // computed bounding box is smaller than the rect that the text will
+                // be placed into.  
+                t2.selectAll("text").call(text).each(function(d) {
+                    var fudge_factor = 15;
+                    var text_width = this.getBBox().width;
+                    var rect_width = (x(d.x + d.dx) - x(d.x)) - fudge_factor;
+                    if (text_width <= rect_width) {
+                        return;
+                    }
+                    else {
+                        for (var i = text_width-3; i > 0; i -= 3) {
+                            if (this.getSubStringLength(0,i) <= rect_width) {
+                                this.textContent = d.name.substring(0, i) + "...";
+                                return;
+                            }
+                        }
+                        this.textContent = "...";
+                    }
+                });
+
                 t1.selectAll("rect").call(rect);
                 t2.selectAll("rect").call(rect);
           
