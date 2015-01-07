@@ -348,8 +348,8 @@ function getRemoveConfirm(data, name) {
 }
 
 function delType(id) {
-    event.stopPropagation();
-
+    //event.stopPropagation();
+    
     upId = unpackId(id);
     var modelId = upId.modelId;
     var name = upId.name;
@@ -374,7 +374,7 @@ function delType(id) {
 }
 
 function infoType(id) {
-    event.stopPropagation();
+    //event.stopPropagation();
 
     upId = unpackId(id);
     var modelId = upId.modelId;
@@ -401,7 +401,7 @@ function infoType(id) {
 }
 
 function editType(id) {
-    event.stopPropagation();
+    
 
     upId = unpackId(id);
     var modelId = upId.modelId;
@@ -423,16 +423,19 @@ function setupButtonTriples() {
     $('.new_hermes_button_triple_RW').hrmWidget({
 	widget:'buttontriple',
 	onDel:function(event) {
+		event.stopPropagation();
 	    var id = $(this).parent().attr("id");
 	    id = id.slice(3);  // remove 'bt_'
 	    delType(id);
 	},
 	onInfo:function(event) {
+		event.stopPropagation();
 	    var id = $(this).parent().attr("id");
 	    id = id.slice(3);  // remove 'bt_'
 	    infoType(id);
 	},
 	onEdit:function(event){
+		event.stopPropagation();
 	    var id = $(this).parent().attr("id");
 	    id = id.slice(3);  // remove 'bt_'
 	    editType(id);
