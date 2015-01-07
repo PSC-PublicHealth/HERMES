@@ -96,7 +96,7 @@
 				</p>
 				<p>
 					<span class="welcome_item">
-						<a href="#"
+						<a href="{{rootPath}}vaccines-top?crmb=clear"
 							title='{{_("View and modify supply chain component databases. Databases include vaccines, population, vehicles and storage devices. This will allow users to add or change supply chain components available for use in HERMES models.")}}'>
 							{{_("View and Modify Databases")}}
 						</a>

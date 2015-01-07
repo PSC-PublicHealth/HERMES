@@ -1,5 +1,55 @@
-% title_slogan=_("Transport Types")
+% title_slogan=_("Database Types")
 %rebase outer_wrapper **locals()
+% currentType = 'trucks'
+% typesEntries = [
+%    ['vaccines', _('Vaccines'),        'vaccines-top'],
+%    ['trucks',   _('Transport'),       'truck-top'],
+%    ['fridges',  _('Storage'),         'fridge-top'],
+%    ['people',   _('Population'),      'people-top'],
+%    ['perdiems', _('PerDiems'),        'perdiem-top'],
+%    ['staff',    _('Staff'),           'staff-top'],
+% ]
+
+% def unpackTypesEntry(te):
+%    ret = {}
+%    ret['type'] = te[0]
+%    ret['name'] = te[1]
+%    ret['dbUrl'] = te[2]
+%    ret['fullDbURL'] = rootPath + ret['dbUrl'] + '?crmb=clear'
+%    return ret
+% end
+
+<table>
+  <tr>
+  %for te in typesEntries:
+  %   t = unpackTypesEntry(te)
+    <th style="width:120px">
+      <button id="{{t['type']}}_button" style="width:100%">{{t['name']}}</button>
+    </th>
+  %end
+  </tr>
+  <tr style="height:40px"></tr>
+</table>
+
+<script>
+$(function() {
+    // set up top row buttons
+    % for te in typesEntries:
+    %   t = unpackTypesEntry(te)
+    var btn = $('#{{t['type']}}_button');
+    btn.button();
+    % if t['type'] == currentType:
+    btn.button('disable');
+    % else:
+    btn.click( function() {
+	window.location = "{{t['fullDbURL']}}";
+    });
+    %end
+    %end
+});
+
+</script>
+
 
 <table>
 <tr><td style="float:left;width:80px">
@@ -497,6 +547,7 @@ $(function() {
 		$("#manage_truck_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
 		$("#manage_truck_grid").trigger("reloadGrid"); // to update checkboxes
     })
+
   	.fail(function(jqxhr, textStatus, error) {
   		alert("Error: "+jqxhr.responseText);
 	});

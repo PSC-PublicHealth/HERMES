@@ -1,7 +1,6 @@
 % title_slogan=_("Database Types")
 %rebase outer_wrapper **locals()
-
-% currentType = 'people'
+% currentType = 'staff'
 % typesEntries = [
 %    ['vaccines', _('Vaccines'),        'vaccines-top'],
 %    ['trucks',   _('Transport'),       'truck-top'],
@@ -52,29 +51,28 @@ $(function() {
 </script>
 
 
-
 <table>
 <tr><td style="float:left;width:80px">
 <h2 style="display:none">Task:</h2>
 <table>
-<tr><td><button id="create_people_from_proto_button" style="width:100%">{{!_('Create')}}</button></td></tr>
-<tr><td><button id="copy_people_button" style="width:100%">{{!_('Copy')}}</button></td></tr>
-<tr><td><button id="paste_people_button" style="width:100%">{{!_('Paste')}}</button></td></tr>
+<tr><td><button id="create_staff_from_proto_button" style="width:100%">{{!_('Create')}}</button></td></tr>
+<tr><td><button id="copy_staff_button" style="width:100%">{{!_('Copy')}}</button></td></tr>
+<tr><td><button id="paste_staff_button" style="width:100%">{{!_('Paste')}}</button></td></tr>
 </table>
 </td>
 
 <td>
-<h3 style="display:none">{{_('Known Population Types')}}</h3>
-<label for="people_top_model_select">{{_('Showing population types for')}}</label>
-<select name="people_top_model_select" id="people_top_model_select"></select>
-<table id="manage_people_grid"></table>
-<div id="manage_people_pager"> </div>
+<h3 style="display:none">{{_('Known Transport Types')}}</h3>
+<label for="staff_top_model_select">{{_('Showing transport types for')}}</label>
+<select name="staff_top_model_select" id="staff_top_model_select"></select>
+<table id="manage_staff_grid"></table>
+<div id="manage_staff_pager"> </div>
 
 </td>
 </tr>
 </table>
 
-<div id="people_info_dialog" title="This should get replaced"></div>
+<div id="staff_info_dialog" title="This should get replaced"></div>
 
 <div id="confirm_dialog" title='{{_("Confirm Removal")}}'></div>
 
@@ -96,42 +94,83 @@ $(function() {
 <script>
 {{!setupToolTips()}}
 
-var lastsel_people;
+var lastsel_staff;
 var sel_model_name = null;
-	
+
+function getImportConfirm(data, typeName) {
+	// Returns a promise
+	var defer = $.Deferred();
+	var markup;
+	if (data.value.length == 0) {
+		defer.resolve({success:true});
+	}
+	else {
+		if (data.value.length == 1) {
+			var s = data.value[0];
+			markup = '{{_("This transport type uses the storage type ")}}'+s+'{{_(". Do you want to include it as well?")}}';
+		}
+		else {
+			var s = '<ul><li>'+data.value.join('</li><li>')+'</li></ul>';
+			markup = '{{_("This uses the following storage types internally:")}}'+s+'{{_("Do you want to include them as well?")}}';
+		}
+		$('<div></div>').html(markup)
+		.append('<br>'+'{{_("The alternative is to create a modified version that does not use these types.")}}')
+		.dialog({
+			autoOpen: true,
+			modal: true,
+			title: '{{_("Confirm Additional Imports?")}}',
+			close: function() { $(this).dialog('destroy'); },
+			buttons: {
+				'{{_("Import")}}': function() {
+					$(this).dialog("close");
+					defer.resolve({success:true});
+				},
+				'{{_("Cancel")}}': function() { 
+					$(this).dialog("close");
+					defer.reject({success:false, msg:'Cancelled'});
+				}
+			}
+		});
+	}
+	return defer.promise();
+};
+
 function boxClick(cb,event) {
 	if (cb.checked) {
+	
 		// The item is being changed from not-in-model to in-model
 		event.stopPropagation();
-		$.getJSON('{{rootPath}}json/add-type-to-model',{name:cb.value, modelId:$("#people_top_model_select").val()})
-		.done(function(data) {
-			if (data.success) {
-				$("#manage_people_grid").trigger("reloadGrid"); // to update checkboxes
-			}
-			else {
-				alert('{{_("Failed: ")}}'+data.msg);
-	      		cb.checked = false;				
-			}
+		$.getJSON('{{rootPath}}json/type-check-type-dependencies',{name:cb.value, modelId:$("#staff_top_model_select").val()})
+		.then( function(data) {
+			if (data.success) return getImportConfirm(data, cb.value);
+			else return $.Deferred().reject(data).promise();
 		})
-		.fail(function(jqxhr, textStatus, error) {
-			alert('{{_("Error: ")}}'+jqxhr.responseText);
-      		cb.checked = false;				
-		});
+		.then( function(data) {
+			return $.getJSON('{{rootPath}}json/add-type-to-model',{name:cb.value, modelId:$("#staff_top_model_select").val()});
+		})
+		.then( function(data) {
+			if (data.success) return $.Deferred().resolve(data);
+			else return $.Deferred().reject(data);
+		})
+		.done ( function(data) { $("#manage_staff_grid").trigger("reloadGrid"); } ) // to update checkboxes
+		.fail( reportError )
+		.fail( function(data) { cb.checked = false; } );
+		
 	}
 	else { 
 		// The item is being removed from the model.
 		event.stopPropagation();
 		var dlg = $('#confirm_dialog')
 		dlg.html('{{_("Really remove all instances of ")}}' + cb.value 
-				+ '{{_("from model ")}}' + $("#people_top_model_select").val() + '{{_("?")}}');
+				+ '{{_("from model ")}}' + $("#staff_top_model_select").val() + '{{_("?")}}');
 		dlg.data('name',cb.value);
-		dlg.data('modelId',$("#people_top_model_select").val());
+		dlg.data('modelId',$("#staff_top_model_select").val());
 		dlg.data('cb',cb);
 		dlg.dialog('open');
 	};
 }
 
-function peopleInfoButtonFormatter(cellvalue, options, rowObject)
+function staffInfoButtonFormatter(cellvalue, options, rowObject)
 {
     // cellvalue will be the name string
 	return "<button type=\"button\" class=\"hermes_info_button\" id="+escape(cellvalue)+">Info</button>";
@@ -147,16 +186,16 @@ function checkboxFormatter(cellvalue, options, rowObject)
 	}
 };
 
-$("#manage_people_grid").jqGrid({ //set your grid id
-   	url:'{{rootPath}}json/manage-people-table',
-    editurl:'{{rootPath}}edit/edit-people.json',	
+$("#manage_staff_grid").jqGrid({ //set your grid id
+   	url:'{{rootPath}}json/manage-staff-table',
+    editurl:'{{rootPath}}edit/edit-staff.json',	
 	datatype: "json",
 	postData: {
-		modelId: function() { return $("#people_top_model_select").val(); }
+		modelId: function() { return $("#staff_top_model_select").val(); }
 	},
 	//width: 750, //deprecated with resize_grid
 	//height:'auto', //expand height according to number of records
-	rowNum:9999, // rowNum=-1 has bugs, suggested solution is absurdly large setting to show all on one page
+  rowNum:9999, // rowNum=-1 has bugs, suggested solution is absurdly large setting to show all on one page
 	colNames:[
 	          "{{_('Name')}}",
 	          "{{_('Used in ')}}"+sel_model_name,
@@ -168,9 +207,9 @@ $("#manage_people_grid").jqGrid({ //set your grid id
 	          {name:'usedin', index:'usedin', align:'center', formatter:checkboxFormatter},
 	          {name:'dispnm', index:'dispnm', width:200, editable:true, edittype:'text'},
 	          {name:'info', index:'info', width:110, align:'center', sortable:false,
-	        	  formatter:peopleInfoButtonFormatter}
+	        	  formatter:staffInfoButtonFormatter}
 	], //define column models
-	pager: '#manage_people_pager', //set your pager div id
+	pager: '#manage_staff_pager', //set your pager div id
 	pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
   pginput: false, //ditto
 	sortname: 'name', //the column according to which data is to be sorted; optional
@@ -181,30 +220,30 @@ $("#manage_people_grid").jqGrid({ //set your grid id
 		return (sel_model_name != null); // suppress update until selected model is known
 	},
    	onSelectRow: function(id){
-		if(id && id!==lastsel_people){
-			jQuery('#manage_people_grid').jqGrid('saveRow',lastsel_people);
-			jQuery('#manage_people_grid').jqGrid('editRow',id,{
+		if(id && id!==lastsel_staff){
+			jQuery('#manage_staff_grid').jqGrid('saveRow',lastsel_staff);
+			jQuery('#manage_staff_grid').jqGrid('editRow',id,{
 				keys:true,
-				extraparam: { modelId: function() { return $("#people_top_model_select").val(); }}
+				extraparam: { modelId: function() { return $("#staff_top_model_select").val(); }}
 			});
-			lastsel_people=id;
+			lastsel_staff=id;
 		}
 	},
 	gridComplete: function(){
 		$(".hermes_info_button").click(function(event) {
-			$.getJSON('{{rootPath}}json/people-info',{name:unescape($(this).attr('id')), modelId:$("#people_top_model_select").val()})
+			$.getJSON('{{rootPath}}json/staff-info',{name:unescape($(this).attr('id')), modelId:$("#staff_top_model_select").val()})
 			.done(function(data) {
 				if (data.success) {
-					$("#people_info_dialog").html(data['htmlstring']);
-					$("#people_info_dialog").dialog('option','title',data['title']);
-					$("#people_info_dialog").dialog("open");
+					$("#staff_info_dialog").html(data['htmlstring']);
+					$("#staff_info_dialog").dialog('option','title',data['title']);
+					$("#staff_info_dialog").dialog("open");	
 				}
 				else {
     				alert('{{_("Failed: ")}}'+data.msg);
 				}
 			})
-				.fail(function(jqxhr, textStatus, error) {
-					alert("Error: "+jqxhr.responseText);
+			.fail(function(jqxhr, textStatus, error) {
+				alert("Error: "+jqxhr.responseText);
 			});
 			event.stopPropagation();
 		});
@@ -212,13 +251,13 @@ $("#manage_people_grid").jqGrid({ //set your grid id
 	rowattr: function(rowdata){
 		if (!rowdata.usedin) return {"class":"not-editable-row"};
 	},
-    caption:"{{ _("Available Population Types") if not defined('smallCaption') else smallCaption }}"
+    caption:"{{ _("Available Transport Types") if not defined('smallCaption') else smallCaption }}"
 }).jqGrid('hermify',{debug:true});
-$("#manage_people_grid").jqGrid('navGrid','#manage_people_pager',{edit:false,add:false,del:false});
+$("#manage_staff_grid").jqGrid('navGrid','#manage_staff_pager',{edit:false,add:false,del:false});
 
 // resize jqGrid according to window size
 function resize_grid() {
-  var idGrid = "#manage_people_grid"
+  var idGrid = "#manage_staff_grid"
   var offset = $(idGrid).offset() //position of grid on page
   //hardcoded minimum width
   if ( $(window).width() > 710 ) {
@@ -230,7 +269,7 @@ $(window).load(resize_grid); //necessary to trigger resize_grid onload due to lo
 $(window).resize(resize_grid);  //bind resize_grid to window resize
 
 $(function() {
-	$("#people_info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
+	$("#staff_info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
 	$("#confirm_dialog").dialog({
 		autoOpen:false, height:"auto", width:"auto", modal:true,
 		buttons: {
@@ -240,7 +279,7 @@ $(function() {
 	    				{name:dlg.data('name'), modelId:dlg.data('modelId')})
 	    		.done(function(data) {
 	    			if (data.success) {
-	    				$("#manage_people_grid").trigger("reloadGrid"); // to update checkboxes
+	    				$("#manage_staff_grid").trigger("reloadGrid"); // to update checkboxes
 	    			}
 	    			else {
 	    				alert('{{_("Failed: ")}}'+data.msg);
@@ -269,17 +308,17 @@ $(function() {
 	    	Ok: function() {
 	    		var newNm = $("#get_paste_name_dlg_new_name").val();
 				$.getJSON('{{rootPath}}check-unique-hint',
-						{modelId:$("#people_top_model_select").val(),typeName:newNm})
+						{modelId:$("#staff_top_model_select").val(),typeName:newNm})
 				.done(function(data) {
 					if (data.success) {
 						if (data.value) {
 							$.getJSON('{{rootPath}}json/paste-clipboard-to-type', {
-								modelId:$("#people_top_model_select").val(), 
-								type:"people", name:newNm
+								modelId:$("#staff_top_model_select").val(), 
+								type:"staff", name:newNm
 							})
 							.done(function(data) {
 								if (data.success) {
-									$("#manage_people_grid").trigger("reloadGrid"); // to update checkboxes											
+									$("#manage_staff_grid").trigger("reloadGrid"); // to update checkboxes											
 								}
 								else {
 									alert('{{_("Failed: ")}}'+data.msg);								
@@ -315,16 +354,16 @@ $(function() {
 
 $(function() {
 
-	var btn = $("#create_people_from_proto_button");
+	var btn = $("#create_staff_from_proto_button");
 	btn.button();
 	btn.click( function() {
-		$("#manage_people_grid").jqGrid('restoreRow',lastsel_people);
-		var peopleName = null;
-		var modelId = $("#people_top_model_select").val()
-		if (lastsel_people) {
-			peopleName = $("#manage_people_grid").jqGrid('getCell',lastsel_people,'name');
+		$("#manage_staff_grid").jqGrid('restoreRow',lastsel_staff);
+		var staffName = null;
+		var modelId = $("#staff_top_model_select").val();
+		if (lastsel_staff) {
+			staffName = $("#manage_staff_grid").jqGrid('getCell',lastsel_staff,'name');
 		}
-		if (!peopleName || peopleName==false) {
+		if (!staffName || staffName==false) {
 			alert('{{_("No Selection")}}');
 		}
 		else {
@@ -332,7 +371,7 @@ $(function() {
 			.done(function(data) {
 				if (data.success) {
 					if (data.value) {
-						window.location = "{{rootPath}}people-edit?modelId="+modelId+"&protoname='"+peopleName+"'";			
+						window.location = "{{rootPath}}staff-edit?modelId="+modelId+"&protoname='"+staffName+"'";			
 					}
 					else {
 						alert('{{_("Simulation results have already been generated for this model.  If you change the model, those results will become invalid.  You must either delete those results or create a new copy of the model and modify it instead.")}}');
@@ -353,23 +392,23 @@ $(function() {
 
 $(function() {
 
-	var btn = $("#copy_people_button");
+	var btn = $("#copy_staff_button");
 	btn.button();
 	btn.click( function() {
-		$("#manage_people_grid").jqGrid('restoreRow',lastsel_people);
-		var peopleName = null;
-		if (lastsel_people) {
-			peopleName = $("#manage_people_grid").jqGrid('getCell',lastsel_people,'name');
+		$("#manage_staff_grid").jqGrid('restoreRow',lastsel_staff);
+		var staffName = null;
+		if (lastsel_staff) {
+			staffName = $("#manage_staff_grid").jqGrid('getCell',lastsel_staff,'name');
 		}
-		if (!peopleName || peopleName==false) {
+		if (!staffName || staffName==false) {
 			alert('{{_("No Selection")}}');
 		}
 		else {
 			$.getJSON('{{rootPath}}json/copy-type-to-clipboard',
-					{name:peopleName, modelId:$("#people_top_model_select").val()})
+					{name:staffName, modelId:$("#staff_top_model_select").val()})
 			.done(function(data) {
 				if (data.success) {
-					$("#paste_people_button").button("option","disabled",false);
+					$("#paste_staff_button").button("option","disabled",false);
 				}
 				else {
 					alert('{{_("Failed: ")}}'+data.msg);
@@ -387,14 +426,14 @@ $(function() {
 
 $(function() {
 
-	var btn = $("#paste_people_button");
+	var btn = $("#paste_staff_button");
 	btn.button({disabled:true});
 	btn.click( function() {
-		$.getJSON('{{rootPath}}check-may-modify?modelId='+$("#people_top_model_select").val())
+		$.getJSON('{{rootPath}}check-may-modify?modelId='+$("#staff_top_model_select").val())
 		.done(function(data) {
 			if (data.success) {
 				if (data.value) {
-					$.getJSON('{{rootPath}}json/test-clipboard-type',{type:'people'})
+					$.getJSON('{{rootPath}}json/test-clipboard-type',{type:'staff'})
 					.done(function(data) {
 						if (data.success) {
 							if (data.value) {
@@ -402,17 +441,17 @@ $(function() {
 								.done(function(data) {
 									var proposedName = data.value;
 									$.getJSON('{{rootPath}}check-unique-hint',
-											{modelId:$("#people_top_model_select").val(),typeName:proposedName})
+											{modelId:$("#staff_top_model_select").val(),typeName:proposedName})
 									.done(function(data) {
 										if (data.success) {
 											if (data.value) {
-												$.getJSON('json/paste-clipboard-to-type', {
-													modelId:$("#people_top_model_select").val(), 
-													type:"people", name:proposedName
+												$.getJSON('{{rootPath}}json/paste-clipboard-to-type', {
+													modelId:$("#staff_top_model_select").val(), 
+													type:"staff", name:proposedName
 												})
 												.done(function(data) {
 													if (data.success) {
-														$("#manage_people_grid").trigger("reloadGrid"); // to update checkboxes											
+														$("#manage_staff_grid").trigger("reloadGrid"); // to update checkboxes											
 													}
 													else {
 														alert('{{_("Failed: ")}}'+data.msg);								
@@ -420,13 +459,13 @@ $(function() {
 												})
 												.fail(function(jqxhr, textStatus, error) {
 								  					alert("Error: "+jqxhr.responseText);
-												});								
+												});							
 											}
 											else {
-						    					$("#get_paste_name_dialog").data('modelId',$("#people_top_model_select").val());
+						    					$("#get_paste_name_dialog").data('modelId',$("#staff_top_model_select").val());
 												$("#get_paste_name_dlg_new_name").val(data.hint);
 												$("#get_paste_name_dialog").dialog("open");
-											}
+											}	
 										}
 										else {
 											alert('{{_("Failed: ")}}'+data.msg);								
@@ -441,7 +480,7 @@ $(function() {
 								});
 							}
 							else {
-								alert('{{_("The data on the clipboard is not a Population Type.")}}')
+								alert('{{_("The data on the clipboard is not a Transport Type.")}}')
 							}
 						}
 						else {
@@ -465,14 +504,14 @@ $(function() {
 		});
 	});
 	
-	$.getJSON('{{rootPath}}json/test-clipboard-type',{type:'people'})
+	$.getJSON('{{rootPath}}json/test-clipboard-type',{type:'staff'})
 	.done(function(data) {
 		if (data.success) {
 			if (data.value) {
-				$("#paste_people_button").button("option","disabled",false);
+				$("#paste_staff_button").button("option","disabled",false);
 			}
 			else {
-				$("#paste_people_button").button("option","disabled",true);
+				$("#paste_staff_button").button("option","disabled",true);
 			}
 		}
 		else {
@@ -487,13 +526,13 @@ $(function() {
 });
 
 $(function() {
-	var sel = $("#people_top_model_select");
+	var sel = $("#staff_top_model_select");
 	sel.change( function() {
-		$.getJSON('{{rootPath}}json/set-selected-model', {id:$("#people_top_model_select").val()})
+		$.getJSON('{{rootPath}}json/set-selected-model', {id:$("#staff_top_model_select").val()})
 		.done(function(data) {
 			sel_model_name = data['name'];
-			$("#manage_people_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
-			$("#manage_people_grid").trigger("reloadGrid"); // to update checkboxes
+			$("#manage_staff_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
+			$("#manage_staff_grid").trigger("reloadGrid"); // to update checkboxes
 	    })
 	  	.fail(function(jqxhr, textStatus, error) {
 	  		alert("Error: "+jqxhr.responseText);
@@ -502,12 +541,13 @@ $(function() {
 
 	$.getJSON('{{rootPath}}list/select-model')
 	.done(function(data) {
-		var sel = $("#people_top_model_select");
+		var sel = $("#staff_top_model_select");
     	sel.append(data['menustr']);
     	sel_model_name = data['selname']
-		$("#manage_people_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
-		$("#manage_people_grid").trigger("reloadGrid"); // to update checkboxes
+		$("#manage_staff_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
+		$("#manage_staff_grid").trigger("reloadGrid"); // to update checkboxes
     })
+
   	.fail(function(jqxhr, textStatus, error) {
   		alert("Error: "+jqxhr.responseText);
 	});
