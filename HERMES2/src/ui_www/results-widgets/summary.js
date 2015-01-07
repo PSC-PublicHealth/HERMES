@@ -185,8 +185,8 @@
                     scrollable: true,
                     trant: {
                         "title": tp[12], 
-                    "currency_label": tp[13],
-                    "year_label": tp[14]
+                        "currency_label": tp[13],
+                        "year_label": tp[14]
                     }
                 });
 
@@ -206,8 +206,8 @@
                     scrollable: true,
                     trant: {
                         "title": tp[12], 
-                    "currency_label": tp[13],
-                    "year_label": tp[14]
+                        "currency_label": tp[13],
+                        "year_label": tp[14]
                     }
 
                 });
