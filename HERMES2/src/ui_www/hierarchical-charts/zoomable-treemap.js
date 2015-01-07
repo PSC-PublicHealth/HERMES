@@ -108,7 +108,7 @@
 
             d3.json(this.jsonDataURL, function(error, ret) {
                 if (error) {console.log(ret.error);}
-                console.log(ret.data.cost_summary);
+                //console.log(ret.data.cost_summary);
                 var root = ret.data.cost_summary;
                 currency = ret.data.currency_base;
                 currency_year = ret.data.currency_year; 
