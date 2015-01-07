@@ -58,7 +58,8 @@
 				 			repeatitems: false,
 				 			id:'vaccid'
 				 		},
-				 		sortable:true,
+                        // set sortable to false until either servier-side or client-side data model supports it
+				 		sortable: false, 
 				 	    caption:tp[10],
 				 		width: 'auto', //specify width; optional
 				 		height:'auto',
