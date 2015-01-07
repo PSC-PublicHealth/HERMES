@@ -1,4 +1,4 @@
-% title_slogan=_("Specify Vaccine Demand")
+% title_slogan=_("Specify Vaccine Dose Schedule")
 %rebase outer_wrapper **locals()
 
 <script>
@@ -7,8 +7,11 @@
 %else:
 	var createOn = false;
 %end
+var vaccLoaded = false;
+var peopleLoaded = false;
 </script>
-<h2 style="display:none">{{_('Vaccine Demand By Population Type')}}</h2>
+<h2>{{_('Edit Demand: Vaccine Dose Schedule')}}</h2>
+<h4>{{_('For "Include in the dose table?", select the components (vaccines and population types) you\'d like to include in the dose schedule. For "How many doses of each vaccine?" enter the number of doses per population type for each vaccine.')}}</h4>
 <table>
 <tr>
 	<td>
@@ -36,7 +39,7 @@
 	<tr>
 		<td><input type="checkbox" id="set_scale_cb"></td>
 		<td>
-			<label>{{_("Show scaling factors to demand?")}}</label><br>
+			<label>{{_("Show Advanced Options?")}}</label><br>
 			<div id="set_scale_div" 	style="display:none">
 				<table>
 					<tr id="demand_scale_separate_option"><td>
@@ -46,9 +49,14 @@
 						<label>{{_("Vaccines are scaled separately")}}</label>
 					</td></tr>
 					<tr id="set_scale_single_block"><td>
-						<label>{{_("Overall scaling factor:")}}</label>
+						<label title='{{_("Proportion of population getting vaccinated: The number of people who show up to be vaccinated divided by the total population; if this value is less than 1, only a proportion of the total population arrive at clinics during the simulation.")}}'>
+							{{_("Proportion of population getting vaccinated:")}}
+						</label>
 						<input type='text' id='set_scale_text' onkeypress="validateFloatOrReturn(event)"><br>
-						<label>{{_("Scale projected demand relative to actual demand:")}}</label>
+						<label title='{{_("Projected vs. actual: Indicates the number of products expected to be consumed divided by actual consumption; if this value is less than 1, more products are consumed than expected, while if the value is greater than 1 fewer products are consumed than expected.")}}'>
+							{{_("Projected vs. actual:")}}
+						</label>
+					
 						<input type='text' id='set_rel_scale_text'  onkeypress="validateFloatOrReturn(event)"><br>						
 					</td></tr>
 					<tr style="display:none" id="demand_scale_row"><td>
@@ -61,7 +69,7 @@
 	<tr id='cal_edit_row'>
 		<td><input type="checkbox" id="set_cal_cb"></td>
 		<td>
-			<label>{{_("Show treatment calendar pattern?")}}</label><br>
+			<label>{{_("Treament Calendar")}}</label><br>
 			<div id="set_cal_div" style="display:none">
 				<table>
 					<tr id="demand_cal_separate_option"><td>
@@ -101,6 +109,16 @@
 		</td>
 	</tr>
 </table>
+<table id="doneback" width=100%>
+	<tr>
+		<td width=10%>
+			<input type="button" id="done_button" value='{{_("Done")}}'>
+		</td>
+		<td width=90%>
+		</td>
+	</tr>
+</table>
+
 <script>
 {{!setupToolTips()}}
 
@@ -124,6 +142,10 @@ function validateFloatOrReturn(evt) {
 	}
 }
 
+$(function(){
+	// setup tool tips
+	
+});
 function setTextFieldValue( $fld, val ) {
 	$fld.attr('data-old',val);
 	$fld.val(val);
@@ -211,8 +233,15 @@ $(function() {
 			btn.click( function() {
 				window.location = "{{rootPath}}model-create/next?expert=true";
 			});
+			$("#doneback").remove();
 	}
 	else{
+		var btn = $("#done_button");
+		btn.button();
+		btn.click( function() {
+			window.location = "javascript:history.back()";
+		})
+		
 		$("#nextback").remove();
 	}
 });
@@ -280,6 +309,17 @@ $(function() {
 			buildScaleTable(modelId, modelName);
 			buildCalendarTable(modelId, modelName);
 			buildPage(modelId, modelName);
+%if defined('modelId'):
+			$("#model_sel_widget").modelSelector("setId",{{modelId}});
+			$("#model_sel_widget").modelSelector("deactivate");
+%end
+		//Set tooltips
+			$("#demand_scale_grid_scale").prop("title",'{{_("Proportion of population getting vaccinated: The number of people who show up to be vaccinated divided by the total population; if this value is less than 1, only a proportion of the total population arrive at clinics during the simulation.")}}');
+			$("#demand_scale_grid_relscale").prop("title",'{{_("Projected vs. actual: Indicates the number of products expected to be consumed divided by actual consumption; if this value is less than 1, more products are consumed than expected, while if the value is greater than 1 fewer products are consumed than expected.")}}');
+			$("#cal_edit_row").prop("title",'{{_("Treatment calendar: for simulations in which treatment does not occur every day, select the days per week, weeks per month, and months per year that treatment does occur.")}}');
+			$("#left_grid_form").prop("title",'{{_("Toggle these buttons to switch between the included vaccines and populations")}}');
+			$("#gview_demand_vac_grid").prop("title",'{{_("Use the checkboxes to add vaccines or population categories to the table on the right")}}');
+			
 		},
 		onChange:function(mysel,mydata) {
 			var modelId = this.modelSelector('selId');
@@ -291,6 +331,7 @@ $(function() {
 			buildPage(modelId, modelName);
 		},
 	});
+
 });
 
 function getShow() {
@@ -348,12 +389,14 @@ function buildSideTable(modelId, modelName) {
 		width: 300, //temporarily hardcoded
 		colNames:[
 		   "",
+		   "",
 		   "{{_('Name')}}"
 		], //define column names
 		colModel:[
 		          {name:'usedin', index:'usedin', align:'center', width:40, formatter:checkboxFormatter,
 		           editable:true},
-		          {name:'name', index:'name', width:150, key:true},
+		          {name:'name', index:'name', hidden:true, key:true},
+		          {name:'dname',index:'dname',width:150}
 		], //define column models
 		scroll: true,
 		rowNum: 9999,
@@ -361,6 +404,16 @@ function buildSideTable(modelId, modelName) {
 		viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� optional
 		gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
 	    caption:'{{_("Include in the dose table?")}}',
+	    gridComplete:function(){
+	    	if(!vaccLoaded){
+		    	$("#demand_vac_grid :checkbox").each(function(){
+		    		if(!$(this).is(':checked')){
+		    			$(this).click();
+		    		}
+	    		});
+		    	vaccLoaded = true;
+	    	}
+	    }
 	}).jqGrid('hermify',{debug:true});
 };
 
@@ -513,35 +566,47 @@ function resize_grid() {
 $(window).load(resize_grid); //necessary to trigger resize_grid onload due to loading breadcrumbs changing grid offset
 $(window).resize(resize_grid);  //bind resize_grid to window resize
 
+var lastSel;
 function buildScaleTable(modelId, modelName) {
 	$("#demand_scale_grid").jqGrid({ //set your grid id
    		url:'{{rootPath}}json/manage-demand-scale-table',
     	editurl:'{{rootPath}}edit/edit-demand-scale',	
 		datatype: "json",
+		width:600,
+		heigh:'auto',
 		postData: {
 			modelId: function() { return $("#model_sel_widget").modelSelector('selId') },
 		},
 		colNames:[
+		   "",
 		   "{{_('Vaccine')}}",
-		   "{{_('Overall Scale')}}",
+		   "{{_('Proportion of the Poplation Getting Vaccinated')}}",
 		   "{{_('Projected vs. Actual')}}",		   
 		], //define column names
 		colModel:[
-			{name:'vaccine', index:'usedin', editable:false, key:true},
-			{name:'scale', index:'scale', width:150, editable:true, edittype:'text', 
-			editrules:{number:true,minValue:0.0,maxValue:2.0}},
-			{name:'relscale', index:'relscale', width:150, editable:true, edittype:'text', 
-			editrules:{number:true,minValue:0.00001,maxValue:2.0}}
+			{name:'vaccine',index:'vaccine', hidden: true,editable:false, key:true},
+			{name:'dname',  index:'dname', width:400, editable:false},
+			{name:'scale', index:'scale', editable:true, edittype:'text', 
+				editrules:{number:true,minValue:0.0,maxValue:2.0}},
+			{name:'relscale', index:'relscale', editable:true, edittype:'text', 
+					editrules:{number:true,minValue:0.00001,maxValue:2.0}}
 		], //define column models
-		scroll: true,
+		scroll: false,
 		rowNum: 100,
-		sortname: 'vaccine', //the column according to which data is to be sorted; optional
+		sortname: 'dname', //the column according to which data is to be sorted; optional
 		viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� optional
 		gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
     	caption:'{{_("Increase the demand used to predict shipment sizes by what factor?")}}',
 		onSelectRow: function(resultsid){
    			if (resultsid) {
-				var $this = $(this);
+//   				console.log("resultsId " + resultsid)
+   				var $this = $(this);
+   				if(lastSel == undefined)
+   					lastSel = resultsid;
+			    if (resultsid !== lastSel) {
+			        $this.jqGrid('saveRow', lastSel);
+			        lastSel = resultsid;
+			    }
 				$this.jqGrid('editRow',resultsid,{
 					keys:true,
 					extraparam: { 
@@ -580,7 +645,7 @@ function buildScaleTable(modelId, modelName) {
 					},
 				});
    			}
-		},
+		}
 	}).jqGrid('hermify',{debug:true});
 }
 

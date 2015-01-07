@@ -22,8 +22,12 @@ _=session_support.translateString
 
 @bottle.route('/demand-top')
 def demandTopPage(uiSession):
+    modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Demand For Vaccines")))
-    return bottle.template("demand_top.tpl",{"breadcrumbPairs":crumbTrack})
+    if modelId:
+        return bottle.template("demand_top.tpl",{'breadcrumbPairs':crumbTrack},modelId=modelId)
+    else:
+        return bottle.template("demand_top.tpl",{"breadcrumbPairs":crumbTrack})
 
 def _interpretDemandModelStructure(model):
 
@@ -176,7 +180,14 @@ def jsonManageDemandVacTable(db, uiSession):
             for dmnd in m.unifiedDemands: entries[dmnd.peopleStr] = True
         else:
             raise bottle.BottleException('Missing or invalid "show" value')
-        tList = [{'name':nm, 'usedin':val} for nm,val in entries.items()]
+        print "--------------------------------------------------------------"
+        
+        if showWhich == 'vaccines':
+            tList = [{'name':nm, 'usedin':val, 'dname':m.vaccines[nm].DisplayName} for nm,val in entries.items()]
+        elif showWhich == 'people':
+             tList = [{'name':nm, 'usedin':val, 'dname':m.people[nm].DisplayName} for nm,val in entries.items()]
+            
+        print tList
         nPages,thisPageNum,totRecs,tList = orderAndChopPage(tList,
                                                             {'name':'name', 'usedin':'usedin'},
                                                             bottle.request)
@@ -185,7 +196,7 @@ def jsonManageDemandVacTable(db, uiSession):
                 "page":thisPageNum,     # which page is this
                 "records":totRecs,  # total records
                 "rows": [ {"name":t['name'], 
-                           "cell":[t['usedin'], t['name']]}
+                           "cell":[t['usedin'], t['name'], t['dname']]}
                          for t in tList ]
                 }
     except Exception,e:
@@ -327,8 +338,9 @@ def jsonGetDemandTable(db, uiSession):
                   "requireVectorCal":( summary['hasVectorCal'] and not allCalMatch ),
                   "scalarCalSetting":initialCal,
 
-                  "colNames":['Vaccine'] + [pStr for pStr in pList],
-                  "colModel":[{'name':'vaccine', 'index':'vaccine', 'sorttype':'text','editable':False, 'key':True}] \
+                  "colNames":["",_('Vaccine')] + [pStr for pStr in pList],
+                  "colModel":[{'name':'vaccine', 'index':'vaccine', 'hidden':True, 'sorttype':'text','editable':False, 'key':True},
+                              {'name':'dvaccine','index':'dname','sorttype':'text','editable':False}] \
                             + [{'name':pStr,'index':pStr, 'sorttype':'text',
                                 'editable':True, 'edittype':'text', 'editrules':{'integer':True}} 
                                for pStr in pList],
@@ -359,7 +371,7 @@ def jsonManageDemandTable(db, uiSession):
         vList = list(vSet)
         tList = []
         for vStr in vList:
-            d = {'vaccine':vStr}
+            d = {'vaccine':vStr,'dname':m.vaccines[vStr].DisplayName}
             for pStr in pList:
                 if (pStr,vStr) in counts: d[pStr] = counts[(pStr,vStr)]
                 else: d[pStr] = 0
@@ -372,7 +384,7 @@ def jsonManageDemandTable(db, uiSession):
                 "page":thisPageNum,     # which page is this
                 "records":totRecs,  # total records
                 "rows": [ {"vaccine":t['vaccine'], 
-                           "cell":[t['vaccine']]+[t[p] for p in pList]}
+                           "cell":[t['vaccine'],t['dname']]+[t[p] for p in pList]}
                          for t in tList ]
                 }
     except Exception,e:
@@ -423,20 +435,24 @@ def jsonManageDemandScaleTable(db, uiSession):
         scaleDict = _scaleVecDictFromParms(m)
         tList = []
         for k,tpl in scaleDict.items():
+            print "k = " +str(k)
             a,b = tpl
             if a==0.0: raise bottle.BottleException(_('actual demand scaled to zero?'))
             else:
-                tList.append({'vaccine':k, 'scale':a, 'relscale':b/a})
+                dName = 'All'
+                if k in m.vaccines.keys():
+                    dName = m.vaccines[k].DisplayName
+                tList.append({'vaccine':k, 'dname':dName, 'scale':a, 'relscale':b/a})
         nPages,thisPageNum,totRecs,tList = orderAndChopPage(tList,
-                                                            {'vaccine':'vaccine', 'scale':'scale', 
+                                                            {'vaccine':'vaccine','dname':'dname','scale':'scale', 
                                                              'relscale':'relscale'},
                                                             bottle.request)
         return {'success':True,
                 "total":nPages,    # total pages
                 "page":thisPageNum,     # which page is this
                 "records":totRecs,  # total records
-                "rows": [ {"name":t['vaccine'], 
-                           "cell":[t['vaccine'], t['scale'], t['relscale']]}
+                "rows": [ {"vaccine":t['vaccine'], 
+                           "cell":[t['vaccine'], t['dname'], t['scale'], t['relscale']]}
                          for t in tList ]
                 }
     except Exception,e:

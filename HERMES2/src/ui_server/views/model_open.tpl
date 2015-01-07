@@ -156,16 +156,31 @@ ul.option-list-inner li{
 		<ul class="option-list">
 		<li><span class="model-operation-item">{{_("Edit model and its current components:")}}</span>
 			<ul class="option-list-inner">
-				<li>
+				<!--<li>
 					<span class="model-operation-item">
 						<a class="model-operation-item" href="#" title='{{_("Edit the model using a simplified guided process that will give the ability to change important aspects of the supply chain model.")}}'
-							id="edit_model_link">{{_("Using the Basic Model Editor")}}</a>
-					</span>
+							id="edit_basic_model_link">{{_("Using the Basic Model Editor")}}</a>
+					</span>-->
 				<li>
 					<span class="model-operation-item">
 						<a class="model-operation-item" href="#" title='{{_("Edit the model using an advanced interface that will give the ability to change any aspect of the supply chain model.")}}'
-							id="edit_adv_model_link">{{_("Using the Advanced Model Editor")}}</a>
+							id="edit_adv_model_link">{{_("Modify Structure with the Advanced Model Editor")}}</a>
 					</span>
+				<li>
+				<span class="model-operation-item">
+					<a class="model-operation-item" href="#" title='{{_("Populate the model with different components that can then be placed at different locations in the supply chain model.")}}'
+						id="types_model_link">{{_("Add or remove model components (e.g. vaccines, storage devices, vehicles, and population categories)")}}</a>
+				</span>	
+				<li>
+				<span class="model-operation-item">
+					<a class="model-operation-item" href="#" title='{{_("Populate the model with different components that can then be placed at different locations in the supply chain model.")}}'
+						id="dose_sched_link">{{_("Modify the Vaccine Dose Schedule")}}</a>
+				</span>	
+				<li>
+				<span class="model-operation-item">
+					<a class="model-operation-item" href="#" title='{{_("Populate the model with different components that can then be placed at different locations in the supply chain model.")}}'
+						id="costs_model_link">{{_("Add and modify costs")}}</a>
+				</span>	
 			</ul>
 		<li>
 			<span class="model-operation-item">
@@ -252,6 +267,10 @@ ul.option-list-inner li{
 	<div id="dialog-modal-text"/>
 </div>
 
+<div id="not-implemented-modal" title='{{_("Feature is not yet implemented")}}'>
+	<p>   {{_('The Basic Model Editor is not yet implemented. We apologize for the inconvenience.  Please try editting the model with the advanced editor.')}} </p>
+</div>
+
 <script>
 $(document).ready(function(){
 	$("#model_diagram_holder").corner();
@@ -259,7 +278,24 @@ $(document).ready(function(){
 	updateNetworkDiagram();
 });
 	
-	
+	$("#not-implemented-modal").dialog({
+		resizable: false,
+      	modal: true,
+		autoOpen:false,
+     	buttons: {
+			'{{_("OK")}}': function() {
+				$( this ).dialog( "close" );
+        	}
+        },
+        open: function(e,ui) {
+		    $(this)[0].onkeypress = function(e) {
+				if (e.keyCode == $.ui.keyCode.ENTER) {
+				    e.preventDefault();
+				    $(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+				}
+		    };
+		}	
+	});
 	$("#result_dialog").dialog({
 		resizable: false,
       	modal: true,
@@ -300,7 +336,8 @@ $(document).ready(function(){
 	
 	//Link Actions
 	$("#edit_basic_model_link").click(function(){
-		editBasicModel({{modelId}});
+		//editBasicModel({{modelId}});
+		$("#not-implemented-modal").dialog("open");
 	});
 	$("#edit_adv_model_link").click(function(){
 		editAdvancedModel({{modelId}});
@@ -308,6 +345,10 @@ $(document).ready(function(){
 	
 	$("#types_model_link").click(function(){
 		editTypes({{modelId}});
+	});
+	
+	$("#dose_sched_link").click(function(){
+		editDoseSched({{modelId}});
 	});
 	
 	$("#run_model_link").click(function(){
@@ -484,7 +525,7 @@ function editAdvancedModel(modelId){
 		$('#model_dowantcopy_dialog').dialog("open");
 	}
 	else{
-		window.location = 'model-edit-structure?id=' + modelId;
+		window.location = '{{rootPath}}model-edit-structure?id=' + modelId;
 	}
 };
 
@@ -493,12 +534,20 @@ function editTypes(modelId){
 		$('#model_dowantcopy_dialog').dialog("open");
 	}
 	else{
-		window.location = 'model-add-types?id=' + modelId + '&create=false';
+		window.location = '{{rootPath}}model-add-types?id=' + modelId + '&create=false';
 	}
 };
 
+function editDoseSched(modelId){
+	if(!mayModify){
+		$("#model_dowantcopy_dialog").dialog("open");
+	}
+	else{
+		window.location = '{{rootPath}}demand-top?modelId='+modelId;
+	}
+}
 function runHermes(modelId){
-	window.location = "model-run?modelId="+modelId;
+	window.location = "{{rootPath}}model-run?modelId="+modelId;
 };
 
 function openResults(modelId){

@@ -267,7 +267,7 @@ function addToggleExpansionButton($grid) {
         var opFuncNames = ['afterBuild','onChange','onServerSuccess','onServerError','onServerFail','callbackData'];
         
  		if (settings['widget']=='modelSelector') {
-			$.fn.modelSelector = function( arg ) {
+			$.fn.modelSelector = function( arg, arg2 ) {
 				var sel = this.first().find("select");
 				if (arg=='selId') {
 					return sel.val();
@@ -275,6 +275,26 @@ function addToggleExpansionButton($grid) {
 				else if (arg=='selName') {
 					return sel.data('modelName');
 				}
+				else if (arg=='setId'){
+					if (arg2 == undefined) {
+						return;
+					}
+					else {
+						sel.val(arg2).change();
+					}
+				}
+				else if (arg=='activate'){
+					sel.prop('disabled',false);
+					//only works in Chrome
+					sel.css("-webkit-appearance","menulist");
+					
+				}
+				else if (arg=='deactivate'){
+					sel.prop('disabled',true);
+					//only works in Chrome
+					sel.css("-webkit-appearance","none");
+				}
+					
 				else {
 					$.error('Unknown operation '+arg.toString());
 				}
@@ -949,6 +969,30 @@ function addToggleExpansionButton($grid) {
 			}
 
  			return this.each(function(index,elem) {
+ 				var days = ['S','M','T','W','T','F','S'];
+ 				var daysLong = ['{{_("Sunday")}}',
+ 				                '{{_("Monday")}}',
+ 				                '{{_("Tuesday")}}',
+ 				                '{{_("Wednesday")}}',
+ 				                '{{_("Thursday")}}',
+ 				                '{{_("Friday")}}',
+ 				                '{{_("Saturday")}}'];
+ 				var months = ['J','F','M','A','M','J','J','A','S','O','N','D']
+ 				var monthsLong = ['{{_("January")}}',
+ 				                  '{{_("February")}}',
+ 				                  '{{_("March")}}',
+ 				                  '{{_("April")}}',
+ 				                  '{{_("May")}}',
+ 				                  '{{_("June")}}',
+ 				                  '{{_("July")}}',
+ 				                  '{{_("August")}}',
+ 				                  '{{_("September")}}',
+ 				                  '{{_("October")}}',
+ 				                  '{{_("November")}}',
+ 				                  '{{_("December")}}'
+ 				                  ];
+ 				                  
+ 				
  				$elem = $(elem);
  				var divId = $elem.attr('id');
  				if (divId == undefined) $.error('wrapper div has no id');
@@ -968,6 +1012,7 @@ function addToggleExpansionButton($grid) {
  				for (var i = 0; i<7; i++) {
  					var $td = $('<td />');
  					$td.addClass('hrm_boxcalendar');
+ 					$td.append("<span title='"+daysLong[i]+"' style'pointer:none;'>"+days[i]+"</span>");
  					$('<input />', { type: 'checkbox', id: divId+'_0_'+i}).appendTo( $td );
  					$td.appendTo($row);
  				}
@@ -977,6 +1022,7 @@ function addToggleExpansionButton($grid) {
  				for (var i = 0; i<4; i++) {
  					var $td = $('<td />');
  					$td.addClass('hrm_boxcalendar');
+ 					$td.append("<span title='Week "+(i+1)+"' style'pointer:none;'>W"+(i+1)+"</span>");
  					$('<input />', { type: 'checkbox', id: divId+'_1_'+i}).appendTo( $td );
  					$td.appendTo($row);
  				}
@@ -986,6 +1032,7 @@ function addToggleExpansionButton($grid) {
  				for (var i = 0; i<12; i++) {
  					var $td = $('<td />');
  					$td.addClass('hrm_boxcalendar');
+ 					$td.append("<span title='"+monthsLong[i]+"' style'pointer:none;'>"+months[i]+"</span>");
  					$('<input />', { type: 'checkbox', id: divId+'_2_'+i}).appendTo( $td );
  					$td.appendTo($row);
  				}
@@ -1064,7 +1111,7 @@ function addToggleExpansionButton($grid) {
 				}
 			}
 
-			$(document).tooltip({show:{effect:"slideDown", duration:70, delay:1300},
+			$(document).tooltip({show:{effect:"slideDown", duration:70, delay:800},
 								hide:{effect:"slideUp", duration:70, delay:200}});
 
  			return this.first().each(function(index,elem) {
