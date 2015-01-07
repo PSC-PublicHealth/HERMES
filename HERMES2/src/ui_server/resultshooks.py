@@ -379,6 +379,72 @@ def jsonResultsSummary(db, uiSession):
         result = {'success':False, 'msg':str(e)}
         return result
 
+def _checkSameAndDel(rec,key,val):
+    if val is None:
+        val = rec[key]
+        del rec[key]
+        return val
+    else:
+        assert rec[key] == val, _("Cost report {0} values do not match").format(key)
+        del rec[key]
+        return val
+
+@bottle.route('/json/costs-summary')
+def jsonCostsSummary(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        r = m.getResultById(resultsId)
+
+
+        results = {'total':1,
+                   'page':"1",
+                   'rows':[]}
+
+        workingRecs = []
+        for cSR in r.costSummaryRecs:
+            rec = cSR.createRecord()
+            if rec['ReportingLevel'] in ['-top-', 'all']:
+                workingRecs.append(rec)
+        baseYear = baseCur = intervalDays = daysPerYear = recType = None
+        for rec in workingRecs:
+            baseYear = _checkSameAndDel(rec, 'BaseYear', baseYear)
+            baseCur = _checkSameAndDel(rec, 'Currency', baseCur)
+            intervalDays = _checkSameAndDel(rec, 'ReportingIntervalDays', intervalDays)
+            daysPerYear = _checkSameAndDel(rec, 'DaysPerYear', daysPerYear)
+            recType = _checkSameAndDel(rec, 'Type', recType)
+            for entry in ['ReportingLevel']:
+                del rec[entry]
+
+        if recType == 'micro1':
+            # Clip the tags off the cost entries
+            newRecs = []
+            for rec in workingRecs:
+                nRec = {}
+                for k, v in rec.items():
+                    if k.startswith('m1C_'):
+                        k = k[4:]
+                    if v != 0.0:
+                        nRec[k] = v
+                newRecs.append(nRec)
+            workingRecs = newRecs
+
+        results['BaseYear'] = baseYear
+        results['Type'] = recType
+        results['Currency'] = baseCur
+        results['ReportingIntervalDays'] = intervalDays
+        results['DaysPerYear'] = daysPerYear
+        results['rows'] = workingRecs
+
+        results['success'] = True
+        return results
+
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+
 @bottle.route('/json/results-vaccine-by-place-hist')
 def jsonResultSummaryVaccineByPlace(db, uiSession):
     try:
