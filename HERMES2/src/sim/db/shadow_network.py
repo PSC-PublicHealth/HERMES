@@ -2035,14 +2035,13 @@ class HermesResultsGroup(Base):
             summaryRec /= float(len(resultsToParse))
 
         aveResult.addHistograms(net)
-
-        costSummaryRecList = aveResult.costSummaryRecs
+        costSummaryRecList = aveResult.costSummaryRecs[:]
         for rslt in resultsToParse:
-            costSummaryRecList.extend(rslt.costSummaryRecs)
+            costSummaryRecList.extend(rslt.costSummaryRecs[:])
         mergedCostSummaries = {}  # entries will be (summedCostSummary, count)
         for costSummaryRec in costSummaryRecList:
             recDict = costSummaryRec.createRecord()
-
+  
             # We need to merge only matching recs
             key = (recDict['ReportingLevel'], recDict['ReportingBranch'],
                    recDict['ReportingIntervalDays'], recDict['DaysPerYear'],
@@ -2055,15 +2054,14 @@ class HermesResultsGroup(Base):
             else:
                 copyOfSummary = ShdCostSummary.initSummaryFromRec(costSummaryRec.createRecord())
                 mergedCostSummaries[key] = (copyOfSummary, 1)
-
+ 
         aveCostSummaryRecs = []
         for v in mergedCostSummaries.values():
             oldSummary, ct = v
             oldSummary /= ct
             aveCostSummaryRecs.append(oldSummary)
-
+ 
         aveResult.costSummaryRecs = aveCostSummaryRecs
-
 
 _makeColumns(HermesResultsGroup)
 

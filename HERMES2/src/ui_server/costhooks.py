@@ -439,7 +439,7 @@ def jsonGetFuelPriceInfo(db, uiSession):
                     result[fuelValueString] = None
                 else:
                     result[fuelValueString] = currencyConverter.convertTo(fuelPrice, currencyBase, uiSession[fuelCurString])
-        print result
+        # print result
         result['success'] = True
         #print 'returning %s'%result
         return result
