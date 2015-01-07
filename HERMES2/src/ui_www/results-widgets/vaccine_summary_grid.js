@@ -98,7 +98,10 @@
 				 		        	  index:'availability',
 				 		        	  jsonmap:'SupplyRatio',
 				 		        	  width:75,
-				 		        	  formatter: function(cellvalue,options,rowObject){value = cellvalue*100.0; if(value < 0.0){ value=0.0;}; return value.toFixed(2) + "%"},
+				 		        	  formatter: function(cellvalue,options,rowObject) {
+                                          value = cellvalue*100.0;
+                                          if(value < 0.0) { value=0.0;};
+                                          return value.toFixed(2) + "%"},
 				 		        	  align:'right'
 				 		          },
 				 		          {
@@ -153,7 +156,8 @@
 				 		        	  index:'percooler',
 				 		        	  jsonmap:'coolerStorageFrac',
 				 		        	  width:75,
-				 		        	  formatter: function(cellvalue,options,rowObject){value = cellvalue*100.0; return value.toFixed(2) + "%";},
+				 		        	  formatter: function(cellvalue,options,rowObject) {
+                                          value = cellvalue*100.0; return value.toFixed(2) + "%";},
 				 		        	  align:'right'
 				 		          },
 				 		          {
@@ -161,7 +165,8 @@
 				 		        	  index:'perfreezer',
 				 		        	  jsonmap:'freezerStorageFrac',
 				 		        	  width:75,
-				 		        	  formatter: function(cellvalue,options,rowObject){value = cellvalue*100.0; return value.toFixed(2) + "%"},
+				 		        	  formatter: function(cellvalue,options,rowObject) {
+                                          value = cellvalue*100.0; return value.toFixed(2) + "%"},
 				 		        	  align:'right'
 				 		          },
 				 		          {
