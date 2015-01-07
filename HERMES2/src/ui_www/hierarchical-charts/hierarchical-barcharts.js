@@ -13,16 +13,21 @@
             }
         },
 
+        _resize_container: function(total_height) {
+            // sets the widgets svg height and the clickable background to the total
+            // height of all of the stacked bars
+            this.background.attr("height", total_height);
+            this.svg.attr("height", total_height); 
+        },
+
         _create: function() {
-    
             trant = this.options.trant;
-            console.log("I AM HERE");
             this.containerID = $(this.element).attr('id');
             $(this.element).css({
                 float: "left"
             });
             this.svgContainerID = this.containerID+"svgContainer";
-            d3.select("#"+this.containerID).append("svgContainer")
+            d3.select("#"+this.containerID).append("div")
                 .attr("id", this.svgContainerID)
                 .attr("height", 200);
    
@@ -69,20 +74,25 @@
             var svg = d3.select("#"+this.svgContainerID).append("svg")
                 .attr("class", "hierarchicalBarchart")
                 .attr("width", width + margin.left + margin.right)
-                .attr("height", 2001 + height + margin.top + margin.bottom)
-                .append("g")
+                .attr("height", height + margin.top + margin.bottom);
+ 
+            this.svg = svg;
+           
+            var svg_g = svg.append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-            svg.append("rect")
+            var bkg = svg_g.append("rect")
                 .attr("class", "background")
                 .attr("width", width)
                 .attr("height", height)
                 .on("click", up);
+
+            this.background = bkg;
         
-            svg.append("g")
+            svg_g.append("g")
                 .attr("class", "x axis");
         
-            svg.append("g")
+            svg_g.append("g")
                 .attr("class", "y axis")
                 .append("line")
                 .attr("y1", "100%");
@@ -105,7 +115,7 @@
             var currency_year = 2010;
 
             d3.json(jsonDataURL, function(error, ret) {
-                console.log(ret.error);
+                if (error) {console.log(ret.error);}
                 //console.log(ret.data);
                 var root = ret.data.cost_summary;
                 currency = ret.data.currency_base;
@@ -120,14 +130,18 @@
                 .attr("text-anchor", "end")
                 .attr("x", width)
                 .attr("y", height - 6)
-                .text(trant['currency_label'] + ': ' + currency + ", " + trant['year_label'] + ': ' + currency_year);
+                .text(trant['currency_label'] + ': ' + currency + ", " + 
+                        trant['year_label'] + ': ' + currency_year);
+          
+            var _widget = this;
 
+            // down function called to decend into a selected bar on click
             function down(d, i) {
                 if (!d.children || this.__transition__) return;
                 var end = duration + d.children.length * delay;
         
                 // Mark any currently-displayed bars as exiting.
-                var exit = svg.selectAll(".enter")
+                var exit = svg_g.selectAll(".enter")
                     .attr("class", "exit");
         
                 // Entering nodes immediately obscure the clicked-on bar, so hide it.
@@ -149,15 +163,23 @@
                 x.domain([0, d3.max(d.children, function(d) { return d.value; })]).nice();
         
                 // Update the x-axis.
-                svg.selectAll(".x.axis").transition()
+                svg_g.selectAll(".x.axis").transition()
                     .duration(duration)
                     .call(xAxis);
-        
+       
+                var total_height = (2 * (margin.top + margin.bottom)) + (barHeight * 1.2);
+
                 // Transition entering bars to their new position.
                 var enterTransition = enter.transition()
                     .duration(duration)
                     .delay(function(d, i) { return i * delay; })
-                    .attr("transform", function(d, i) { return "translate(0," + barHeight * i * 1.2 + ")"; });
+                    .attr("transform", function(d, i) {
+                        var this_bar_height = barHeight * i * 1.2;
+                        total_height += (1.2 * barHeight);
+                        return "translate(0," + barHeight * i * 1.2 + ")";
+                    });
+
+                _widget._resize_container(total_height);
         
                 // Transition entering text.
                 enterTransition.select("text")
@@ -179,26 +201,35 @@
                     .attr("width", function(d) { return x(d.value); });
         
                 // Rebind the current node to the background.
-                svg.select(".background")
+                svg_g.select(".background")
                     .datum(d)
                     .transition()
                     .duration(end);
-      
+
                 d.index = i;
             };
-        
+       
+            // up function called to pop back up a level when background
+            // is clicked
             function up(d) {
                 if (!d.parent || this.__transition__) return;
                 var end = duration + d.children.length * delay;
         
                 // Mark any currently-displayed bars as exiting.
-                var exit = svg.selectAll(".enter")
+                var exit = svg_g.selectAll(".enter")
                     .attr("class", "exit");
-        
+ 
+                var total_height = (2 * (margin.top + margin.bottom)) + (barHeight * 1.2);
+       
                 // Enter the new bars for the clicked-on data's parent.
                 var enter = bar(d.parent)
-                    .attr("transform", function(d, i) { return "translate(0," + barHeight * i * 1.2 + ")"; })
+                    .attr("transform", function(d, i) {
+                        total_height += (1.2 * barHeight);
+                        return "translate(0," + barHeight * i * 1.2 + ")";
+                    })
                     .style("opacity", 1e-6);
+ 
+                _widget._resize_container(total_height);
         
                 // Color the bars as appropriate.
                 // Exiting nodes will obscure the parent bar, so hide it.
@@ -208,10 +239,13 @@
                     .style("fill-opacity", 1e-6);
         
                 // Update the x-scale domain.
-                x.domain([0, d3.max(d.parent.children, function(d) { return d.value; })]).nice();
+                x.domain([0, d3.max(d.parent.children, function(d) {
+                        return d.value; 
+                    })])
+                    .nice();
         
                 // Update the x-axis.
-                svg.selectAll(".x.axis").transition()
+                svg_g.selectAll(".x.axis").transition()
                     .duration(duration)
                     .call(xAxis);
         
@@ -224,7 +258,11 @@
                 // When the entering parent rect is done, make it visible!
                 enterTransition.select("rect")
                     .attr("width", function(d) { return x(d.value); })
-                    .each("end", function(p) { if (p === d) d3.select(this).style("fill-opacity", null); });
+                    .each("end", function(p) {
+                        if (p === d) {
+                            d3.select(this).style("fill-opacity", null);
+                        }
+                    });
         
                 // Transition exiting bars to the parent's position.
                 var exitTransition = exit.selectAll("g").transition()
@@ -247,21 +285,24 @@
                     .remove();
         
                 // Rebind the current parent to the background.
-                svg.select(".background")
+                svg_g.select(".background")
                     .datum(d.parent)
                     .transition()
                     .duration(end);
+
             };
         
             // Creates a set of bars for the given data node, at the specified index.
             function bar(d) {
-                var bar = svg.insert("g", ".y.axis")
+                var bar = svg_g.insert("g", ".y.axis")
                     .attr("class", "enter")
                     .attr("transform", "translate(0,5)")
                     .selectAll("g")
                     .data(d.children)
                     .enter().append("g")
-                    .style("cursor", function(d) { return !d.children ? null : "pointer"; })
+                    .style("cursor", function(d) {
+                        return !d.children ? null : "pointer";
+                    })
                     .on("click", down);
         
                 bar.append("text")
