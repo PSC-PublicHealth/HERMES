@@ -14,14 +14,14 @@
         },
 
     shrink:function(){
-        $("#"+this.vaccGridContainerID).vsgrid("hideMinor");
+        //$("#"+this.vaccGridContainerID).vsgrid("hideMinor");
         $("#"+this.vaccAvailContainerID).vachart("shrink");
         $("#"+this.storeUtilContainerID).suchart("shrink");
         $("#"+this.transUtilContainerID).tuchart("shrink");
     },
 
     grow:function(){
-        $("#"+this.vaccGridContainerID).vsgrid("showMinor");
+        //$("#"+this.vaccGridContainerID).vsgrid("showMinor");
         $("#"+this.vaccAvailContainerID).vachart("grow");
         $("#"+this.storeUtilContainerID).suchart("grow");
         $("#"+this.transUtilContainerID).tuchart("grow");

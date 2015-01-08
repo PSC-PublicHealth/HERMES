@@ -6,6 +6,12 @@
 * Hermes-specific mods follow
 */
 
+#geo_layers table {
+    padding-left: 10px;
+    padding-bottom: 5px;
+    margin-top: -10px;
+}
+
 .ui-tabs-anchor:focus {
     outline: 0;
 }

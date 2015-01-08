@@ -82,7 +82,7 @@
 					<span class="welcome_item">
 						<a href="{{rootPath}}models-top"
 							title='{{_("Open and modify an existing model. This will allow users to modify an existing model via step-by-step guided workflow or the Advanced Model Editor.")}}'>
-							{{_("Open, Modify and Run an Existing Model")}}
+							{{_("Open, Modify, and Run an Existing Model")}}
 						</a>
 					</span>
 				</p>

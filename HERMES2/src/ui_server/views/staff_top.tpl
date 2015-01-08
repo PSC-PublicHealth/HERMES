@@ -62,8 +62,8 @@ $(function() {
 </td>
 
 <td>
-<h3 style="display:none">{{_('Known Transport Types')}}</h3>
-<label for="staff_top_model_select">{{_('Showing transport types for')}}</label>
+<h3 style="display:none">{{_('Known Staff Types')}}</h3>
+<label for="staff_top_model_select">{{_('Showing staff types for')}}</label>
 <select name="staff_top_model_select" id="staff_top_model_select"></select>
 <table id="manage_staff_grid"></table>
 <div id="manage_staff_pager"> </div>
@@ -251,7 +251,7 @@ $("#manage_staff_grid").jqGrid({ //set your grid id
 	rowattr: function(rowdata){
 		if (!rowdata.usedin) return {"class":"not-editable-row"};
 	},
-    caption:"{{ _("Available Transport Types") if not defined('smallCaption') else smallCaption }}"
+    caption:"{{ _("Available Staff Types") if not defined('smallCaption') else smallCaption }}"
 }).jqGrid('hermify',{debug:true});
 $("#manage_staff_grid").jqGrid('navGrid','#manage_staff_pager',{edit:false,add:false,del:false});
 

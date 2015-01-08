@@ -34,7 +34,7 @@ def getModelInfoHTML(db,uiSession,modelId):
     modelJSON = createModelSummaryWSCall(db,uiSession)
     
     titleStr = _("Model {0}").format(modelJSON['name'])
-    table = HTMLTable(name_="Model Summary",title_= _("Model Summary Statistics"),width='300px', 
+    table = HTMLTable(name_="Model Summary",title_= _("Model Summary Statistics"),width='100%',height='100%', 
                       border='1px solid black')
     table.addRow([_("Facility Statistics")],["m",3])
     table.addRow([_("Level"),_("Total"),_("Vaccinating")],["n",1,1,1])

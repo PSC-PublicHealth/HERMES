@@ -62,8 +62,8 @@ $(function() {
 </td>
 
 <td>
-<h3 style="display:none">{{_('Known Transport Types')}}</h3>
-<label for="perdiem_top_model_select">{{_('Showing transport types for')}}</label>
+<h3 style="display:none">{{_('Known PerDiem Types')}}</h3>
+<label for="perdiem_top_model_select">{{_('Showing PerDiem types for')}}</label>
 <select name="perdiem_top_model_select" id="perdiem_top_model_select"></select>
 <table id="manage_perdiem_grid"></table>
 <div id="manage_perdiem_pager"> </div>
@@ -251,7 +251,7 @@ $("#manage_perdiem_grid").jqGrid({ //set your grid id
 	rowattr: function(rowdata){
 		if (!rowdata.usedin) return {"class":"not-editable-row"};
 	},
-    caption:"{{ _("Available Transport Types") if not defined('smallCaption') else smallCaption }}"
+    caption:"{{ _("Available PerDiem Types") if not defined('smallCaption') else smallCaption }}"
 }).jqGrid('hermify',{debug:true});
 $("#manage_perdiem_grid").jqGrid('navGrid','#manage_perdiem_pager',{edit:false,add:false,del:false});
 
