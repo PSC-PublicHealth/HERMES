@@ -530,6 +530,21 @@ def jsonCostsSummaryLayout(db, uiSession):
         return result
 
 
+@bottle.route('/json/costs-summary-keypoints')
+def jsonCostsSummaryKeyPoints(db, uiSession):
+    try:
+        return {'success': True,
+                'mainTitle': _('Key Costing Points'),
+                'labels': [_('Cost per Dose'), _('Cost per Fully Vaccinated Child')],
+                'values': [123.4538, 67.89],
+                'fmts': ['money', 'money']  # valid formats are 'money', 'text', 'number'
+                }
+
+    except Exception, e:
+        _logStacktrace()
+        result = {'success': False, 'msg': str(e)}
+        return result
+    
 @bottle.route('/json/results-vaccine-by-place-hist')
 def jsonResultSummaryVaccineByPlace(db, uiSession):
     try:

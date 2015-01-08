@@ -38,6 +38,7 @@
         var containerID = this.containerID;
         this.vaccGridContainerID = this.containerID + "_vac_grid" + this.options.randMon;
         this.costGridContainerID = this.containerID + "_cost_grid" + this.options.randMon;
+        this.keypointsContainerID = this.containerID + "_keypoints" + this.options.randMon;
         this.vaccAvailContainerID = this.containerID + "_va_chart" + this.options.randMon;
         this.storeUtilContainerID = this.containerID + "_su_chart" + this.options.randMon;
         this.transUtilContainerID = this.containerID + "_tu_chart" + this.options.randMon;
@@ -63,8 +64,8 @@
         //            $("#"+this.containerID).append("<div id='"+ this.buttonContainerID + 
         //                                            "' class='rs_buttons'></div>");
 
-        $("#"+this.containerID).append("<table id = '"+ this.costGridContainerID + 
-        "' class='rs_costGrid'></table>");
+        $("#"+this.containerID).append("<table id = '"+ this.costGridContainerID + "' class='rs_costGrid'></table>");
+        $("#"+this.containerID).append("<table id = '"+ this.keypointsContainerID + "' class='rs_keypoints'></table>");
         $("#"+this.containerID).append("<div id='"+this.containerID+"_buttons' style='width:100%;'></div>");
         $("#"+this.containerID).append("<div id='"+this.containerID+"_buttons' style='width:100%;'></div>");
         $("#"+this.containerID + "_buttons").append("<div id='"+this.geobuttonContainerID+"' class='rs_button'></div>");
@@ -83,6 +84,11 @@
         });
 
         $("#"+this.costGridContainerID).csgrid({
+            resultsId: this.options.resultsId,
+            modelId: this.options.modelId
+        });
+
+        $("#"+this.keypointsContainerID).keypoints({
             resultsId: this.options.resultsId,
             modelId: this.options.modelId
         });
