@@ -142,7 +142,20 @@ def modelShowStructurePage(db,uiSession):
                            {"slogan":"Supply Chain Structure Of %s"%m.name,
                             "modelId":m.modelId,
                             "breadcrumbPairs":crumbTrack})
-    
+
+@bottle.route('/loops-top')
+def generateLoopsTop(db,uiSession):
+    try:
+        crumbTrack = addCrumb(uiSession,'Loop Generator')
+        modelId = _safeGetReqParam(bottle.request.path,'modelId',isInt=True)
+        if modelId is None:
+            modelId = uiSession['selectedModelId']
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        uiSession['modelIdBeingEdited'] = modelId
+        return bottle.template("loop_creation.tpl",{"breadcrumbPairs":crumbTrack},modelId=modelId)
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+       
 def _doModelEditPage(db, uiSession):
     crumbTrack = addCrumb(uiSession, 'Advanced Model Editor')
     if "id" in bottle.request.params:
@@ -1645,6 +1658,7 @@ def jsonModelStructureTree(db, uiSession):
                 result['children'].append(_getStoreJITJSON(store))
     return result
 
+        
 @bottle.post('/json/add-loops-to-model',method='POST')
 def makeLoopsForModel(db,uiSession):
     try:
@@ -2260,6 +2274,44 @@ def jsonDeleteModelFromNewModelInfo(db,uiSession):
                 if modelName in mList:
                     modelExists = True 
         return {'success':True,'modelExists':modelExists}
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+
+@bottle.route('/json/get-levels-in-model')
+def jsonGetModelLevels(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        levels = m.getLevelList()
+        
+        return {'success':True,'levels':levels}
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+
+### this is a last minute hack
+@bottle.route('/json/get-transport-type-names-in-model')
+def jsonGetTransportModelNames(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        nameList = []
+        valueList = []
+        for key,device in m.types.items():
+            if type(device) == shd.ShdTruckType:
+                nameList.append(device.getDisplayName())
+                valueList.append(device.Name)
+    
+        return {'success':True,'names':nameList,'values':valueList}
+    
     except bottle.HTTPResponse:
         raise # bottle will handle this
     except Exception,e:

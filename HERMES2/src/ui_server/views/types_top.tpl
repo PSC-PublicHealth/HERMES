@@ -29,7 +29,7 @@
 % end
 
 <h2>
-	{{_('Edit Compnents')}}
+	{{_('Edit Components')}}
 </h2>
 <h4>
 	{{_('Use the Source dropdown to select the source from which components can be selected.  Select which component to add to the {0} model and click the arrow button to add it. To remove existing components, click delete.'.format(modelName))}}
@@ -507,7 +507,7 @@ $("#dest_grid").jqGrid({
     gridComplete: function() { setupButtonTriples(); },
     
     // editurl:
-    caption: "{{_('used types')}}",
+    caption: "{{_('Used Types')}}",
 });
 
 $("#dest_grid").jqGrid('navGrid', '#dest_pager', {edit:false, add:false, del:false});
@@ -544,7 +544,7 @@ $("#src_grid").jqGrid({
 //	src.modelId = sel_model_id;
     },
     // editurl:
-    caption: "{{_('available types')}}",
+    caption: "{{_('Available Types')}}",
 });
 $("#src_grid").jqGrid('navGrid', '#src_pager', {edit:false, add:false, del:false});
 $("#src_grid").jqGrid('gridDnD', {connectWith : '#dest_grid', 

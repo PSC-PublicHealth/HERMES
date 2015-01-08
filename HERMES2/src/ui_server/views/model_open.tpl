@@ -181,6 +181,11 @@ ul.option-list-inner li{
 					<a class="model-operation-item" href="#" title='{{_("Define the details needed to implement the HERMES microcosting model, including storage, building, labor, transportation and vaccine costs.")}}'
 						id="costs_model_link">{{_("Add and modify costs")}}</a>
 				</span>	
+				<li>
+				<span class="model-operation-item">
+					<a class="model-operation-item" href="#" title='{{_("blah blah.")}}'
+						id="loop_model_link">{{_("Let's make some loops")}}</a>
+				</span>	
 			</ul>
 		<li><span class="model-operation-item">
 			<a class="model-operation-item" href="#" title='{{_("Run a simulation experiment using the existing model. This allows users to run HERMES in order to simulate a the healthcare supply chain over a specified period of time. Users can then view the results of the run(s) via the results page.")}}'
@@ -372,6 +377,10 @@ $(document).ready(function(){
 	$("#result_model_link").click(function(){
 		openResults({{modelId}});
 		//$("#result_dialog").dialog("open");
+	});
+	
+	$("#loop_model_link").click(function(){
+		window.location='{{rootPath}}loops-top?modelId={{modelId}}';
 	});
 	
 	//Dialog box code
