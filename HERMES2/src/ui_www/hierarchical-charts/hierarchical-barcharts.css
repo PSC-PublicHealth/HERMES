@@ -1,17 +1,17 @@
-text {
+.hbc text {
 	font: 10px sans-serif;
 }
 
-rect.background {
+.hbc rect.background {
 	fill: white;
 }
 
-.axis {
+.hbc .axis {
 	shape-rendering: crispEdges;
 }
 
-.axis path,
-.axis line {
+.hbc .axis path,
+.hbc .axis line {
   fill: none;
   stroke: #000;
 }

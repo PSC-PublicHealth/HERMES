@@ -23,14 +23,22 @@
         _create: function() {
             trant = this.options.trant;
 
-            this.containerID = $(this.element).attr('id');
-            $(this.element).css({
-                float: "left"
-            });
-            
-            this.svgContainerID = this.containerID+"svgContainer";
-            
+            this.containerID = this.element.attr("id");
+
+            $(this.element).css({float: "left"})
+                .addClass("hbc");
+                    
+            this.titleContainerID = this.containerID+"_titleContainer";
             d3.select("#"+this.containerID).append("div")
+                .attr("id", this.titleContainerID);
+
+            this.chartContainerID = this.containerID+"_chartContainer";
+            d3.select("#"+this.containerID).append("div")
+                .attr("id", this.chartContainerID);
+
+            this.svgContainerID = this.chartContainerID+"_svgContainer";
+            
+            d3.select("#"+this.chartContainerID).append("div")
                 .attr("id", this.svgContainerID)
                 .attr("height", 200);
    
@@ -66,7 +74,7 @@
                 .scale(x)
                 .orient("top");
         
-            var svgTitle = d3.select("#"+this.svgContainerID).append("div")
+            var svgTitle = d3.select("#"+this.titleContainerID).append("div")
                 .attr("id", "title")
                 .attr("text-align", "center")
                 .text(trant['title']);
@@ -105,10 +113,10 @@
    
             if (this.options.scrollable) {
                 // jquery
-                $("#"+this.containerID).css({
-                    overflow: "scroll",
-                    height: "" + this.options.minHeight + "px"
-                });
+                $("#"+this.chartContainerID)
+                    .css({overflow: "scroll"})
+                    .attr("height", "" + this.options.minHeight + "px")
+                    .attr("width", "100%");
             }
 
             var currency = "USD";
