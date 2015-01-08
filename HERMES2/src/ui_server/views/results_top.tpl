@@ -9,6 +9,7 @@
 <script type="text/javascript" src="{{rootPath}}static/results-widgets/storage_utilization_by_level.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/results-widgets/transport_utilization_by_route.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/results-widgets/vaccine_summary_grid.js"></script>
+<script type="text/javascript" src="{{rootPath}}static/results-widgets/cost_summary_grid.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/results-widgets/results_tabs.js"></script>
 <script src="{{rootPath}}static/d3/d3.min.js"></script>
 <script src="{{rootPath}}static/hierarchical-charts/zoomable-treemap.js"></script>

@@ -7,6 +7,7 @@
 <script type="text/javascript" src="{{rootPath}}static/results-widgets/storage_utilization_by_level.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/results-widgets/transport_utilization_by_route.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/results-widgets/vaccine_summary_grid.js"></script>
+<script type="text/javascript" src="{{rootPath}}static/results-widgets/cost_summary_grid.js"></script>
 
 <link rel="stylesheet" href='{{rootPath}}static/results-widgets/results-widgets.css'/> 
 
@@ -17,7 +18,8 @@
 <div id="summary_test_div" class='rs_summary' width="100%"/>
     
 <div id="summary_div" width="100%">
-    <table id="vaccine_summary_results_grid"></table>
+<table id="vaccine_summary_results_grid"></table>
+<table id="cost_summary_results_grid"></table>
     <div style="width:500;" id="results_summary_buttons_div">
         <button id="results_summary_show_ge_button" style="width:100px;">{{_('Show Geographic Viz')}}</button>
         <button id="results_summary_show_ne_button" style="width:100px;">{{_('Show Network Viz')}}</button>

@@ -373,6 +373,7 @@ def jsonResultsSummary(db, uiSession):
                     results['rows'].append(attrRec)
 
         results['success'] = True
+        print results
         return results
 
     except Exception,e:
@@ -398,15 +399,14 @@ def jsonCostsSummary(db, uiSession):
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         r = m.getResultById(resultsId)
 
-
-        results = {'total':1,
-                   'page':"1",
-                   'rows':[]}
+        results = {'total': 1,
+                   'page': "1"
+                   }
 
         workingRecs = []
         for cSR in r.costSummaryRecs:
             rec = cSR.createRecord()
-            if rec['ReportingLevel'] in ['-top-', 'all']:
+            if rec['ReportingLevel'] in ['all']:
                 workingRecs.append(rec)
         baseYear = baseCur = intervalDays = daysPerYear = recType = None
         for rec in workingRecs:
@@ -431,6 +431,12 @@ def jsonCostsSummary(db, uiSession):
                 newRecs.append(nRec)
             workingRecs = newRecs
 
+        lvlNames = m.getParameterValue('levellist')
+        lvlMap = {nm: ind for ind, nm in enumerate(lvlNames)}
+        sortMe = [(lvlMap[rec['ReportingBranch']], rec) for rec in workingRecs]
+        sortMe.sort()
+        workingRecs = [b for a, b in sortMe]  # @UnusedVariable
+
         results['BaseYear'] = baseYear
         results['Type'] = recType
         results['Currency'] = baseCur
@@ -444,6 +450,85 @@ def jsonCostsSummary(db, uiSession):
     except Exception,e:
         result = {'success':False, 'msg':str(e)}
         return result
+
+@bottle.route('/json/costs-summary-layout')
+def jsonCostsSummaryLayout(db, uiSession):
+    columnNameTranslations = {'BuildingCost': _('Buildings'),
+                              'PerTripCost': _('Per Trip'),
+                              'PerDiemCost': _('Per Diem'),
+                              'StorageCost': _('Refrigeration'),
+                              'LaborCost': _('Labor'),
+                              'PerKmCost': _('Per Km'),
+                              'TransportCost': _('Transport'),
+                              'FridgeAmort': _('Storage Amort'),
+                              'FridgeMaint': _('Storage Maint'),
+                              'TruckAmort': _('Vehicle Amort'),
+                              'TruckMaint': _('Vehicle Maint'),
+                              'PerDiem': _('Per Diem'),
+                              'StaffSalary': _('Staff Salary'),
+                              'solar': _('Solar Panel Amort'),
+                              'SolarMaint': _('Solar Panel Maint'),
+                              'gasoline': _('Gasoline'),
+                              'diesel': _('Diesel Fuel'),
+                              'propane': _('Liquid Propane'),
+                              'ice': _('Cost to Make Ice'),
+                              'electric': _('Electric Mains'),
+                              'TransitFareCost': _('Public Transit'),
+                              'Vaccines': _('Vaccines')
+                              }
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        r = m.getResultById(resultsId)
+        details = jsonCostsSummary(db, uiSession)
+        print 'jsonCostsSummary says:'
+        print details
+        costType = details['Type']
+        if costType == "dummy" or costType is None:
+            title = _("No costing calculations were done")
+            columns = []
+        elif costType == "legacy":
+            title = _("Legacy costing calculations in {0} {1}")
+            colSet = set()
+            for r in details['rows']:
+                for k,v in r.items():
+                    if k.lower().endswith('cost'):
+                        colSet.add(k)
+            columns = list(colSet)
+        elif costType == "micro1":
+            title = _("Microcosting calculations in {0} {1}")
+            colSet = set()
+            for r in details['rows']:
+                for k,v in r.items():
+                    if k != 'ReportingBranch':
+                        colSet.add(k)
+            columns = list(colSet)
+
+        title = title.format(details['BaseYear'], details['Currency'])
+        tColumns = []
+        for col in columns:
+            if col in columnNameTranslations:
+                tColumns.append(columnNameTranslations[col])
+            else:
+                tColumns.append(col)
+
+        result = {'success': True,
+                  'title': title,
+                  'columns': columns,
+                  'colHeadings': tColumns,
+                  'levelTitle': _('Levels'),
+                  'totalLabel': _('totals')
+                  }
+
+        print result
+        return result
+
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+
 
 @bottle.route('/json/results-vaccine-by-place-hist')
 def jsonResultSummaryVaccineByPlace(db, uiSession):

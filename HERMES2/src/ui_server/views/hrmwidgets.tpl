@@ -13,7 +13,7 @@ var n = this,
  String.prototype.unformatMoney = function(t) {
 	 var cStr = this, 
 	    t = t == undefined ? "," : t;
-	 var val = Number(cStr.replace(t,""));
+	 var val = Number(cStr.replace(t,"").replace(t,""));
 	 return val;
  };
 
