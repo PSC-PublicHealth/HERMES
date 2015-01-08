@@ -56,7 +56,7 @@ class CurrencyConverter:
             
         found = False
         for r in recs:
-            if r['Currency Code'] == u'USD' and r[yearKeys[self.year]] != '':
+            if r['Currency Code'] == u'USD' and yearKeys[self.year] in r and r[yearKeys[self.year]] != '':
                 found = True
                 if r[yearKeys[self.year]] != 1.0:
                     raise RuntimeError("The currency conversion table does not seem to be written in terms of USD")
