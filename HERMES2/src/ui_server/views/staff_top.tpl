@@ -52,7 +52,7 @@ $(function() {
 
 
 <table>
-<tr><td style="float:left;width:80px">
+<tr><td style="display:none;float:left;width:80px">
 <h2 style="display:none">Task:</h2>
 <table>
 <tr><td><button id="create_staff_from_proto_button" style="width:100%">{{!_('Create')}}</button></td></tr>
