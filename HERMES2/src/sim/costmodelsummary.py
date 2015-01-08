@@ -100,6 +100,12 @@ class CostModelHierarchicalSummary(object):
             else:
                 print '%s-empty-' % ('    '*depth)
 
+    def _blankToZero(self, v):
+        if v == '' or v == ' ':
+            return 0.0
+        else:
+            return v
+        
     def _doByContainer(self, groups, inSet, prefixLen=0):
         """
         groups is a sequence type or iterator
@@ -120,7 +126,7 @@ class CostModelHierarchicalSummary(object):
             assert brch not in treeD[lvl], \
                 ("Hierarchical cost summary has redundant entry for level %s branch %s"
                  % (lvl, brch))
-            treeD[lvl][brch] = {k: v for k, v in r.items() if k in costSet}
+            treeD[lvl][brch] = {k: self._blankToZero(v) for k, v in r.items() if k in costSet}
         # h = self._mkSubTree('all', treeD['all'], treeD, prefixLen)
         h = self._mkSubTree('-top-', treeD['-top-'], treeD, prefixLen)
         # self._printSubTree(h)
