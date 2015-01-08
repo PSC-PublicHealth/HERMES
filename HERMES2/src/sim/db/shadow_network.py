@@ -2620,7 +2620,10 @@ class ShdCostSummary(Base, ShdCopyable):
         for attr in self.__dict__.keys():
             if attr[-2:] != "Id":
                 if isinstance(getattr(self, attr), float) or isinstance(getattr(self, attr), int):
-                    value = getattr(self, attr) + getattr(summary_, attr)
+                    if getattr(summary_,attr) is None:
+                        value = getattr(self,attr)
+                    else:
+                        value = getattr(self, attr) + getattr(summary_, attr)
                     setattr(self, attr, value)
 
         return self
