@@ -267,14 +267,16 @@ $(function() {
 			<div class="art-nav-inner">
 	  			<ul class="art-hmenu">
 	    			<li><a href="{{rootPath}}top?crmb=clear">{{_('Welcome')}}</a></li>
+	    			<li><a href="{{rootPath}}top?createnew=1&crmb=clear">{{_('Create')}}</a></li>
 	    			<li><a href="{{rootPath}}models-top?crmb=clear">{{_('Models')}}</a></li>	    			
-	    			<li><a href="{{rootPath}}cost-top?crmb=clear">{{_('Costs')}}</a></li>
-	    			<li><a href="{{rootPath}}run-top?crmb=clear">{{_('Run Hermes')}}</a></li>
 	    			<li><a href="{{rootPath}}results-top?crmb=clear">{{_('Results')}}</a></li>
+	    			<li><a href="{{rootPath}}vaccines-top?crmb=clear">{{_('Database')}}</a></li>
 	    			<li><a href="{{rootPath}}show-help">{{_('Help')}}</a></li>
 	    			<script>
 	    			check_developer_mode('{{rootPath}}').done(function(result){
 	    				if(result.mode){
+	    					$('.art-hmenu').append("<li><a href='{{rootPath}}run-top?crmb=clear'>{{_('Run Hermes')}}</a></li>");
+	    					$('.art-hmenu').append("<li><a href='{{rootPath}}cost-top?crmb=clear'>{{_('Costs')}}</a></li>");
 		    				$('.art-hmenu').append("<li><a href='{{rootPath}}people-top?crmb=clear'>{{_('People')}}</a></li>");
 		    				$('.art-hmenu').append("<li><a href='{{rootPath}}vaccines-top?crmb=clear'>{{_('Vaccines')}}</a></li>");
 		    				$('.art-hmenu').append("<li><a href='{{rootPath}}fridge-top?crmb=clear'>{{_('ColdStorage')}}</a></li>");

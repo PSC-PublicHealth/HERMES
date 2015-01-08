@@ -446,6 +446,11 @@ $(function(){
 		            }
 		     	}
 	});
+%if defined('createnew'):
+%	if createnew == 1:
+	$("#create_model_link").click();
+%	end
+%end
 });
 
 function deleteModel(modelId, modelName) {

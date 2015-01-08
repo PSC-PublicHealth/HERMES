@@ -126,7 +126,12 @@ def server_static(filepath):
 
 @bottle.route('/%s'%serverconfig.topPath)
 def topPage(uiSession):
-    return bottle.template("welcome.tpl", title=_('This title is set in matcher'))
+    createnew = _safeGetReqParam(bottle.request.params,'createnew',isInt=True)
+    createPass = -1
+    if createnew:
+        createPass = createnew
+    
+    return bottle.template("welcome.tpl", title=_('This title is set in matcher'),createnew=createPass)
 
 @bottle.route('/notimpl')
 @bottle.view("notimplemented.tpl")
