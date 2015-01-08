@@ -1,4 +1,4 @@
-%rebase outer_wrapper title_slogan=_("Create A Model"), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
+%rebase outer_wrapper title_slogan=_("Create A Model"), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,pagehelptag=pagehelptag
 
 <script src="{{rootPath}}static/uisession.js"></script>
 <script>
@@ -167,9 +167,9 @@ $(function() {
 	        {name:'levelname', index:'level', width:100},
 	        {name:'name', index:'name', width:100, editable:true, edittype:'text'},
 	        {name:'idcode', index:'idcode', width:30, key:true, sorttype:'int'},
-	        {name:'fetch',index:'fetch',width:50,editable:true,edittype:'select',editoptions: {value:"fetch:true; deliver:false"}},
-	        {name:'fixedam',index:'fixedam',width:50,editable:true,edittype:'select',editoptions: {value:"fixed:true; variable:false"}},
-	        {name:'sched',index:'sched',width:50,editable:true,edittype:'select',editoptions: {value:"sched:true; demand:false"}},
+	        {name:'fetch',index:'fetch',width:50,editable:true,edittype:'select',editoptions: {value:"fetch:{{_('yes')}}; deliver:{{_('no')}}"}},
+	        {name:'fixedam',index:'fixedam',width:50,editable:true,edittype:'select',editoptions: {value:"fixed:{{_('yes')}}; variable:{{_('no')}}"}},
+	        {name:'sched',index:'sched',width:50,editable:true,edittype:'select',editoptions: {value:"sched:{{_('yes')}}; demand:{{_('no')}}"}},
 	        {name:'howoften',index:'howoften',width:60, sorttype:'int',editable:true,editrules:{integer:true}},
 	        {name:'ymw',index:'ymw',width:50,editable:true,edittype:'select',editoptions: {value:"year:year; month:month; week:week"}},
 	        {name:'kids', index:'kids', width:50, sorttype:'int',editable:true,edittype:'text',editrules:{integer:true}},	        

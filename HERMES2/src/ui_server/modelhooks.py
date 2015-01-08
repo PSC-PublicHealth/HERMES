@@ -1424,13 +1424,19 @@ def jsonAdjustModelsTable(db,uiSession):
               "total":nPages,    # total pages
               "page":thisPageNum,     # which page is this
               "records":totRecs,  # total records
-              "rows": [ {"idcode":m['idcode'], "cell":[m['levelname'], m['name'], m['idcode'], m['isfetch'], m['isfixedam'],m['issched'],
+              "rows": [ {"idcode":m['idcode'], "cell":[m['levelname'], m['name'], m['idcode'], yesNo(m['isfetch']), yesNo(m['isfixedam']),yesNo(m['issched']),
                                                    m['howoften'],m['ymw'],m['kids'],
                                                    m['level'],m['lft'],m['rgt'],m['isLeaf']]} 
                        for m in mList ]
               }
     return result
-    
+
+def yesNo(value):
+    if value == "true":
+        return _("yes")
+    else:
+        return _("no")
+
 @bottle.route('/json/copy-model')
 def jsonCopyModel(db,uiSession):
     try:
@@ -1639,6 +1645,29 @@ def jsonModelStructureTree(db, uiSession):
                 result['children'].append(_getStoreJITJSON(store))
     return result
 
+@bottle.post('/json/add-loops-to-model',method='POST')
+def makeLoopsForModel(db,uiSession):
+    try:
+        from transformation import makeLoopsOptimizedByDistanceBetweenLevels,setLatenciesByNetworkPosition
+        
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        levelFrom = _getOrThrowError(bottle.request.params,'levelFrom',isInt=False)
+        levelTo = _getOrThrowError(bottle.request.params,'levelTo',isInt=False)
+        numPerLoop = _getOrThrowError(bottle.request.params,'numperloop',isInt=True)
+        vehicleType = _getOrThrowError(bottle.request.params,'vehicleToAdd',isInt=False)
+        
+        print "VehicleType = " + vehicleType
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        model = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        makeLoopsOptimizedByDistanceBetweenLevels(model,levelFrom,levelTo,numPerLoop,
+                                                 vehicleType=vehicleType)
+        
+        setLatenciesByNetworkPosition(model,3,stagger=True)
+        
+        return {'success':True}
+    except Exception,e:
+        return {'success':False,'msg':str(e)}
 @bottle.post('/upload-model')
 def uploadModel(db,uiSession):
     _logMessage('Model file upload is happening')

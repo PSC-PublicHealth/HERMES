@@ -32,7 +32,9 @@ function updateNetworkDiagram(){
 
 </script>
 
-<h1>{{_('What is the supply chain structure of the \"{0}\" model?'.format(name))}}</h1>
+<h2>{{_('What is the supply chain structure of the \"{0}\" model?'.format(name))}}</h2>
+<h4>{{_('This dynamic diagram will automatically update as you change the characteristics of the supply chain structure (e.g., add/subtract levels, locations, etc.) or shipping policies/frequency/distance.')}}</h4>
+
 <style>
 #model_create_ui_holder{
 	width:100%;
@@ -150,7 +152,7 @@ function updateNetworkDiagram(){
 					<!--<input type="button" id="expert_button" value='{{_("Skip to Model Editor")}}'>-->
 				</td>
 				<td width=10%>
-					<input type="button" id="next_button" value='{{_("Next Screen")}}'>
+					<input type="button" id="next_button" value='{{_("Next Step")}}'>
 				</td>
 			</tr>
 		</table>
@@ -163,8 +165,7 @@ function updateNetworkDiagram(){
 <input id="selected-level-hidden" type="text" style="display:none"/>
 <div id="dialog-modal" title='{{_("Invalid Input Entry")}}'>
  	<div id="dialog-modal-text"/>
- </div>
- 
+ 	</div>
 </div>
 
 <div id="reactivate-nlevels-modal" title='{{_("Confirm Changing Number of Levels")}}'>
@@ -329,7 +330,7 @@ $(function() {
 					$("#model_create_number_places").fadeIn("slow");
 					$("#model_create_lcounts_2").focus();
 					$("#model_create_lcounts_2").select();
-					$('#next_button').prop('value','{{_("Next Stage")}}')
+					$('#next_button').prop('value','{{_("Next Screen")}}')
 				}
 			});
 			page_step = 2;

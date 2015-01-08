@@ -1,7 +1,7 @@
 %rebase outer_wrapper title_slogan='About HERMES',_=_,inlizer=inlizer,breadcrumbPairs=breadcrumbPairs
 
 <div id="help_accordion">
-<h3>External Resources</h3>
+<!--<h3>External Resources</h3>
 <div>
 These will open in new windows.
 <ul>
@@ -9,7 +9,7 @@ These will open in new windows.
 <li>Michelle Schmitz&#39;s <a href="https://hermes.psc.edu/hermes/documentation/tutorial/STARTHERE.html" target="new">
 Tutorial</a> on running HERMES from the command line. (requires DAV login)</li>
 </ul>
-</div>
+</div>-->
 <h3>Overview</h3>
 <div>
   <p>
@@ -80,7 +80,7 @@ Tutorial</a> on running HERMES from the command line. (requires DAV login)</li>
 
   <p>At each immunization location, virtual people arrive each day when they are ready to receive a particular vaccine or set of vaccines. The policy at that location determines when the health workers open vaccine vials and, if necessary, reconstitute the vaccines. (The user can specify policies for each immunization location). The client arrival rates can come from either actual demand data or census plus birth data. If the correct vaccine is available at the immunization location then the person is successfully immunized. If the vaccine is not available, then the person counts as a missed vaccination opportunity. Once an immunization occurs, the remaining vial and accessories count as medical waste. Unused doses in open vaccine vials count as open vial wastage.</p>
 </div>
-<h3>Notes: things not to forget</h3>
+<!--<h3>Notes: things not to forget</h3>
 <div>
 <ul>
 <li>We really need a better DB password mechanism.</li>
@@ -103,7 +103,7 @@ Tutorial</a> on running HERMES from the command line. (requires DAV login)</li>
 <li>There is currently no check-unique on the shortname for model zip upload (which becomes the model name)
 
 </ul>
-</div>
+</div>-->
 </div>
 
 <script>
