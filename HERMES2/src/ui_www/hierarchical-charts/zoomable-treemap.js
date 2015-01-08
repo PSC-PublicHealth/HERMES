@@ -13,6 +13,19 @@
             }
         },
 
+
+        _format_currency: function(d) {
+            var cost_string = "No Cost Data Availalble"
+            if ($.isNumeric(d.value) && d.value > 0.0) {
+                cost_string = parseFloat(d.value, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
+                cost_string += " (" + this.currency_year + " " + this.currency + ")";
+            }
+            else {
+                console.log("Error parsing cost for " + d.name + "!" + "  Value supplied is: " + d.value);
+            }
+            return cost_string;
+        },
+
         _create: function() {
             // TRAnslated Text
             this.trant = this.options.trant;
@@ -55,6 +68,9 @@
         },
 
         draw: function() {
+
+            var _widgit = this;
+
             console.log("refreshing treemap");
             // calculation of width should actually take margins & padding into account.
             // the scaling factor used below is a temporary solution simply because I've
@@ -110,8 +126,8 @@
                 if (error) {console.log(ret.error);}
                 //console.log(ret.data.cost_summary);
                 var root = ret.data.cost_summary;
-                currency = ret.data.currency_base;
-                currency_year = ret.data.currency_year; 
+                _widgit.currency = ret.data.currency_base;
+                _widgit.currency_year = ret.data.currency_year; 
                 initialize(root);
                 accumulate(root);
                 layout(root);
@@ -156,7 +172,7 @@
                 });
               }
             }
-          
+         
             function display(d) {
               grandparent
                   .datum(d.parent)
@@ -187,7 +203,8 @@
                   .call(rect)
                   .append("title")
                   .text(function(d) {
-                      return "Name: \""+d.name+"\"\nCost: "+d.value;
+                      var cost = _widgit._format_currency(d);
+                      return "Name: \"" + d.name + "\"\nCost: " + cost;
                       //return formatNumber(d.value);
                   });
 

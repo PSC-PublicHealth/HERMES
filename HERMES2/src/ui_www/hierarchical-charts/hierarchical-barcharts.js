@@ -22,11 +22,14 @@
 
         _create: function() {
             trant = this.options.trant;
+
             this.containerID = $(this.element).attr('id');
             $(this.element).css({
                 float: "left"
             });
+            
             this.svgContainerID = this.containerID+"svgContainer";
+            
             d3.select("#"+this.containerID).append("div")
                 .attr("id", this.svgContainerID)
                 .attr("height", 200);
@@ -68,9 +71,6 @@
                 .attr("text-align", "center")
                 .text(trant['title']);
 
-            // TODO the addition of 2001 to the height of the svg is an awful
-            // hack that allows scrolling of very large charts.  it needs to be fixed
-            // as soon as possible.
             var svg = d3.select("#"+this.svgContainerID).append("svg")
                 .attr("class", "hierarchicalBarchart")
                 .attr("width", width + margin.left + margin.right)
