@@ -483,8 +483,6 @@ def jsonCostsSummaryLayout(db, uiSession):
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         r = m.getResultById(resultsId)
         details = jsonCostsSummary(db, uiSession)
-        print 'jsonCostsSummary says:'
-        print details
         costType = details['Type']
         if costType == "dummy" or costType is None:
             title = _("No costing calculations were done")
@@ -522,22 +520,57 @@ def jsonCostsSummaryLayout(db, uiSession):
                   'totalLabel': _('totals')
                   }
 
-        print result
         return result
 
-    except Exception,e:
-        result = {'success':False, 'msg':str(e)}
+    except Exception, e:
+        result = {'success': False, 'msg': str(e)}
         return result
 
 
 @bottle.route('/json/costs-summary-keypoints')
 def jsonCostsSummaryKeyPoints(db, uiSession):
     try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        resultsId = _getOrThrowError(bottle.request.params, 'resultsId', isInt=True)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        r = m.getResultById(resultsId)
+        for rec in [csr.createRecord() for csr in r.costSummaryRecs]:
+            if rec['ReportingLevel'] == '-top-' and rec['ReportingBranch'] == 'all':
+                totalCost = 0.0
+                if rec['Type'] == 'micro1':
+                    for k, v in rec.items():
+                        if k.startswith('m1C_') and v is not None and v != '':
+                            totalCost += v
+                elif rec['Type'] == 'legacy':
+                    for k, v in rec.items():
+                        if k.lower().endswith('cost') and v is not None and v != '':
+                            totalCost += v
+
+                print 'total cost: %s' % totalCost
+                break
+
+        totDosesDelivered = 0
+        for rec in [sr.createRecord() for sr in r.summaryRecs.values()
+                    if sr.summaryType == 'vaccines']:
+            totDosesDelivered += rec['Treated']
+            
+        print 'total doses %s' % totDosesDelivered
+        if totDosesDelivered > 0:
+            costPerDose = totalCost / totDosesDelivered
+        else:
+            costPerDose = 0.0
         return {'success': True,
                 'mainTitle': _('Key Costing Points'),
-                'labels': [_('Cost per Dose'), _('Cost per Fully Vaccinated Child')],
-                'values': [123.4538, 67.89],
-                'fmts': ['money', 'money']  # valid formats are 'money', 'text', 'number'
+                'labels': [_('Cost per Dose'),
+#                            _('Cost per Fully Vaccinated Child')
+                           ],
+                'values': [costPerDose,
+#                            67.89
+                           ],
+                'fmts': ['money',
+#                          'money'
+                         ]  # valid formats are 'money', 'text', 'number'
                 }
 
     except Exception, e:
