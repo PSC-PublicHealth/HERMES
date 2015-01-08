@@ -83,6 +83,7 @@ th.ui-th-column div {
     height:auto;
     vertical-align:text-top;
     padding-top:2px;
+    word-wrap: break-word;
 }
 
 ul.hrm_cur_select {
@@ -2395,7 +2396,9 @@ div.ui-jqgrid-view table.ui-jqgrid-btable
     border-style:none;
     border-top-style:none;
     border-collapse:separate;
+/* caused misalignment between header row grid and rest of grid
     table-layout:auto;
+*/
 }
 div.ui-jqgrid-view table.ui-jqgrid-btable td
 {
@@ -2406,7 +2409,9 @@ div.ui-jqgrid-view table.ui-jqgrid-htable
     border-style:none;
     border-top-style:none;
     border-collapse:separate;
+/* was causing header row grid to misalign from rest of grid
     table-layout:auto;
+*/
 }
 div.ui-jqgrid-view table.ui-jqgrid-btable th
 {
