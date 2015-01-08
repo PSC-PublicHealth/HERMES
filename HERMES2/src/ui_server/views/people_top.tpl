@@ -486,27 +486,36 @@ $(function() {
 
 });
 
+function switchModel() {
+    $("#manage_people_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
+    if (sel_model_name == "HERMES Database")
+	$("#manage_people_grid").jqGrid('hideCol', 'usedin');
+    else
+	$("#manage_people_grid").jqGrid('showCol', 'usedin');
+    $("#manage_people_grid").trigger("reloadGrid"); // to update checkboxes
+    resize_grid()
+}
+
+
 $(function() {
 	var sel = $("#people_top_model_select");
 	sel.change( function() {
 		$.getJSON('{{rootPath}}json/set-selected-model', {id:$("#people_top_model_select").val()})
 		.done(function(data) {
 			sel_model_name = data['name'];
-			$("#manage_people_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
-			$("#manage_people_grid").trigger("reloadGrid"); // to update checkboxes
+			switchModel();
 	    })
 	  	.fail(function(jqxhr, textStatus, error) {
 	  		alert("Error: "+jqxhr.responseText);
 		});
 	});
 
-	$.getJSON('{{rootPath}}list/select-model')
+	$.getJSON('{{rootPath}}list/select-model', {'includeRef':1})
 	.done(function(data) {
 		var sel = $("#people_top_model_select");
     	sel.append(data['menustr']);
-    	sel_model_name = data['selname']
-		$("#manage_people_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
-		$("#manage_people_grid").trigger("reloadGrid"); // to update checkboxes
+    	sel_model_name = data['selname'];
+	switchModel();
     })
   	.fail(function(jqxhr, textStatus, error) {
   		alert("Error: "+jqxhr.responseText);

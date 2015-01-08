@@ -515,27 +515,37 @@ $(function() {
 
 });
 
+function switchModel() {
+    $("#manage_fridge_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
+    if (sel_model_name == "HERMES Database")
+	$("#manage_fridge_grid").jqGrid('hideCol', 'usedin');
+    else
+	$("#manage_fridge_grid").jqGrid('showCol', 'usedin');
+    $("#manage_fridge_grid").trigger("reloadGrid"); // to update checkboxes
+    resize_grid()
+}
+
+
 $(function() {
-	$("#model_select").hrmWidget({
-		widget:'modelSelector',
-		label:'{{_("Showing cold storage types for")}}',
-		afterBuild:function(mysel,mydata) {
-			var modelId = this.modelSelector('selId');
-			var modelName = this.modelSelector('selName');
-			sel_model_name = modelName;
-			$("#manage_fridge_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+modelName);
-			$("#manage_fridge_grid").trigger("reloadGrid"); // to update checkboxes
-		},
-		onChange:function(mysel,mydata) {
-			var modelId = this.modelSelector('selId');
-			var modelName = this.modelSelector('selName');
-			sel_model_name = modelName;
-			$("#manage_fridge_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+modelName);
-			$("#manage_fridge_grid").trigger("reloadGrid"); // to update checkboxes
-		},
-	});
+    $("#model_select").hrmWidget({
+	widget:'modelSelector',
+	label:'{{_("Showing cold storage types for")}}',
+	includeRef:1,
+	afterBuild:function(mysel,mydata) {
+	    var modelId = this.modelSelector('selId');
+	    var modelName = this.modelSelector('selName');
+	    sel_model_name = modelName;
+	    switchModel();
+	},
+	onChange:function(mysel,mydata) {
+	    var modelId = this.modelSelector('selId');
+	    var modelName = this.modelSelector('selName');
+	    sel_model_name = modelName;
+	    switchModel();
+	},
+    });
 });
-  
+
 
 
 

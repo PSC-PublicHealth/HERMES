@@ -525,33 +525,41 @@ $(function() {
 
 });
 
+function switchModel() {
+    $("#manage_staff_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
+    if (sel_model_name == "HERMES Database")
+	$("#manage_staff_grid").jqGrid('hideCol', 'usedin');
+    else
+	$("#manage_staff_grid").jqGrid('showCol', 'usedin');
+    $("#manage_staff_grid").trigger("reloadGrid"); // to update checkboxes
+    resize_grid()
+}
+
 $(function() {
-	var sel = $("#staff_top_model_select");
-	sel.change( function() {
-		$.getJSON('{{rootPath}}json/set-selected-model', {id:$("#staff_top_model_select").val()})
-		.done(function(data) {
-			sel_model_name = data['name'];
-			$("#manage_staff_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
-			$("#manage_staff_grid").trigger("reloadGrid"); // to update checkboxes
+    var sel = $("#staff_top_model_select");
+    sel.change( function() {
+	$.getJSON('{{rootPath}}json/set-selected-model', {id:$("#staff_top_model_select").val()})
+	    .done(function(data) {
+		sel_model_name = data['name'];
+		switchModel()
 	    })
-	  	.fail(function(jqxhr, textStatus, error) {
-	  		alert("Error: "+jqxhr.responseText);
-		});
-	});
-
-	$.getJSON('{{rootPath}}list/select-model')
+	    .fail(function(jqxhr, textStatus, error) {
+	  	alert("Error: "+jqxhr.responseText);
+	    });
+    });
+    
+    $.getJSON('{{rootPath}}list/select-model', {'includeRef':1})
 	.done(function(data) {
-		var sel = $("#staff_top_model_select");
-    	sel.append(data['menustr']);
-    	sel_model_name = data['selname']
-		$("#manage_staff_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
-		$("#manage_staff_grid").trigger("reloadGrid"); // to update checkboxes
-    })
-
+	    var sel = $("#staff_top_model_select");
+    	    sel.append(data['menustr']);
+    	    sel_model_name = data['selname']
+	    switchModel();
+	})
+    
   	.fail(function(jqxhr, textStatus, error) {
-  		alert("Error: "+jqxhr.responseText);
+  	    alert("Error: "+jqxhr.responseText);
 	});
 });
-  
+
 </script>
  

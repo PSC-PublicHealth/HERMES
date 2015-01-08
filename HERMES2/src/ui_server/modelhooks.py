@@ -943,8 +943,14 @@ def handleListModel(db,uiSession):
         selectedModelId = int(uiSession['selectedModelId']) # should be int already, but just in case
     else:
         selectedModelId = None
+    includeRef = False
+    if 'includeRef' in bottle.request.params:
+        includeRef = True
     writeableOnly = _safeGetReqParam(bottle.request.params, 'writeable', isBool=True)
-    mList = db.query(shd.ShdNetwork).filter(shd.ShdNetwork.refOnly != True)
+    if includeRef:
+        mList = db.query(shd.ShdNetwork)
+    else:
+        mList = db.query(shd.ShdNetwork).filter(shd.ShdNetwork.refOnly != True)
     pairs = [(p.modelId,p.name) for p in mList]
     pairs.sort()
     s = ""
@@ -955,6 +961,8 @@ def handleListModel(db,uiSession):
             prv.mayReadModelId(db, thisId) # Exclude models for which we don't have read access
             if writeableOnly:
                 prv.mayModifyModelId(db, thisId) # Exclude models for which we don't have read access
+            if name == "AllTypesModel":
+                name = "HERMES Database"
             allowedPairs.append((thisId,name))
             if selectedModelId is None:
                 selectedModelId = thisId
@@ -1259,7 +1267,10 @@ def jsonSetSelectedModel(db, uiSession):
         modelId = int(bottle.request.params['id'])
         uiSession['selectedModelId'] = modelId
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
-        result = { 'success':True,'id':modelId, 'name':m.name }
+        name = m.name
+        if name == "AllTypesModel":
+            name = "HERMES Database"
+        result = { 'success':True,'id':modelId, 'name':name }
         return result
     except Exception,e:
         return {'success':False, 'msg':str(e)}

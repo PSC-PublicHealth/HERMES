@@ -214,6 +214,9 @@ $("#manage_vaccine_grid").jqGrid({ //set your grid id
        //console.log('DEBUG subgrid_id ' + subgrid_id);
        //console.log('DEBUG subgrid_table_id ' + subgrid_table_id);
        //console.log('DEBUG row_id ' + row_id);
+	var hideUsedIn = false;
+	if (sel_model_name == 'HERMES Database')
+	    hideUsedIn = true;
 
        jQuery("#"+subgrid_id).html("<table id='"+subgrid_table_id+"' class='scroll'></table>");
        jQuery("#"+subgrid_table_id).jqGrid({
@@ -228,7 +231,7 @@ $("#manage_vaccine_grid").jqGrid({ //set your grid id
           ],
           colModel: [
 	          {name:'name', index:'name', width:200, key:true},
-	          {name:'usedin', index:'usedin', align:'center', formatter:checkboxFormatter},
+	          {name:'usedin', index:'usedin', align:'center', formatter:checkboxFormatter, hidden:hideUsedIn},
 	          {name:'dispnm', index:'dispnm', width:200, editable:true},
 	          {name:'info', index:'info', width:110, align:'center', sortable:false,
 	        	  formatter:vaccineInfoButtonFormatter}          
@@ -591,7 +594,7 @@ $(function() {
 		$.getJSON('{{rootPath}}json/set-selected-model', {id:$("#vaccine_top_model_select").val()})
 		.done(function(data) {
 			sel_model_name = data['name'];
-			$("#manage_vaccine_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
+//			$("#manage_vaccine_grid").jqGrid('setLabel','usedin',"{{_('Used In ')}}"+sel_model_name);
 			$("#manage_vaccine_grid").trigger("reloadGrid"); // to update checkboxes
 	    })
 	  	.fail(function(jqxhr, textStatus, error) {
@@ -604,7 +607,7 @@ $(function() {
 		$("#manage_vaccine_grid").trigger("reloadGrid");
 	});
 
-	$.getJSON('{{rootPath}}list/select-model')
+    $.getJSON('{{rootPath}}list/select-model', {'includeRef' : 1})
 	.done(function(data) {
 		var sel = $("#vaccine_top_model_select");
     	sel.append(data['menustr']);

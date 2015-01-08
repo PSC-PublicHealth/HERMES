@@ -320,9 +320,12 @@ function addToggleExpansionButton($grid) {
 					});
 				});
 
-				var wrFlag = false;
-				if (settings.writeable) wrFlag = true;
-				$.getJSON('{{rootPath}}list/select-model',{writeable:wrFlag})
+				var parms = {};
+				if (settings.writeable)
+				    parms.writeable = true;
+			        if (settings.includeRef)
+				    parms.includeRef = 1;
+				$.getJSON('{{rootPath}}list/select-model',parms)
 				.done(function(data) {
     				sel.append(data['menustr']);
     				sel.data('modelName',data['selname']);
