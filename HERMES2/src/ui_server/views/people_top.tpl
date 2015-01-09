@@ -510,7 +510,8 @@ $(function() {
 		});
 	});
 
-	$.getJSON('{{rootPath}}list/select-model', {'includeRef':1})
+	$.getJSON('{{rootPath}}list/select-model', 
+	        {'includeRef':1, 'selectModel':'AllTypesModel'})
 	.done(function(data) {
 		var sel = $("#people_top_model_select");
     	sel.append(data['menustr']);

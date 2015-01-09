@@ -607,7 +607,8 @@ $(function() {
 		$("#manage_vaccine_grid").trigger("reloadGrid");
 	});
 
-    $.getJSON('{{rootPath}}list/select-model', {'includeRef' : 1})
+    $.getJSON('{{rootPath}}list/select-model', 
+	      {'includeRef' : 1, 'selectModel':'AllTypesModel'})
 	.done(function(data) {
 		var sel = $("#vaccine_top_model_select");
     	sel.append(data['menustr']);

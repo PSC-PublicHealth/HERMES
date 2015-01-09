@@ -948,6 +948,13 @@ def handleListModel(db,uiSession):
         selectedModelId = int(uiSession['selectedModelId']) # should be int already, but just in case
     else:
         selectedModelId = None
+    if 'selectModel' in bottle.request.params:
+        selectedModelId = getParm('selectModel')
+        if selectedModelId == 'AllTypesModel':
+            selectedModelId = -1
+        else:
+            selectedModelId = int(selectedModelId)
+
     includeRef = False
     if 'includeRef' in bottle.request.params:
         includeRef = True
@@ -968,6 +975,8 @@ def handleListModel(db,uiSession):
                 prv.mayModifyModelId(db, thisId) # Exclude models for which we don't have read access
             if name == "AllTypesModel":
                 name = "HERMES Database"
+                if selectedModelId == -1:
+                    selectedModelId = thisId
             allowedPairs.append((thisId,name))
             if selectedModelId is None:
                 selectedModelId = thisId

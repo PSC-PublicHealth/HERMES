@@ -531,6 +531,7 @@ $(function() {
 	widget:'modelSelector',
 	label:'{{_("Showing cold storage types for")}}',
 	includeRef:1,
+	selectModel:'AllTypesModel',
 	afterBuild:function(mysel,mydata) {
 	    var modelId = this.modelSelector('selId');
 	    var modelName = this.modelSelector('selName');

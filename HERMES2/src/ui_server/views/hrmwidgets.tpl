@@ -321,10 +321,13 @@ function addToggleExpansionButton($grid) {
 				});
 
 				var parms = {};
-				if (settings.writeable)
-				    parms.writeable = true;
-			        if (settings.includeRef)
+			        if ('writable' in settings)
+				    if (settings.writeable)
+					parms.writeable = true;
+			        if ('includeRef' in settings)
 				    parms.includeRef = 1;
+			        if ('selectModel' in settings)
+				    parms.selectModel = settings.selectModel;
 				$.getJSON('{{rootPath}}list/select-model',parms)
 				.done(function(data) {
     				sel.append(data['menustr']);
