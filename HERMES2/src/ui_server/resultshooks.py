@@ -568,9 +568,13 @@ def jsonCostsSummaryKeyPoints(db, uiSession):
             totDosesDelivered += rec['Treated']
             print rec
             if rec['Name'] in dosesByVaccine:
-                nFT = float(rec['Treated'])/float(dosesByVaccine[rec['Name']])
-                if nFullyTreated is None or nFT < nFullyTreated:
-                    nFullyTreated = nFT
+                print "----f-df-df-d----df-d-dfd-----fd-fd-d"
+                print rec["Name"]
+                print dosesByVaccine[rec['Name']]
+                if float(dosesByVaccine[rec['Name']]) > 0:
+                    nFT = float(rec['Treated'])/float(dosesByVaccine[rec['Name']])
+                    if nFullyTreated is None or nFT < nFullyTreated:
+                        nFullyTreated = nFT
 
         if nFullyTreated > 0.0:
             costPerFIC = totalCost / nFullyTreated
