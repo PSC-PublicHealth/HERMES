@@ -544,8 +544,11 @@ def jsonCostsSummaryKeyPoints(db, uiSession):
                             totalCost += v
                 elif rec['Type'] == 'legacy':
                     for k, v in rec.items():
-                        if k.lower().endswith('cost') and v is not None and v != '':
-                            totalCost += v
+                        expectedTerms = ['BuildingCost', 'StorageCost',
+                                         'LaborCost', 'TransportCost']
+                        assert all([k in rec for k in expectedTerms]), \
+                            _("Some expected legacy cost entries are missing")
+                        totalCost = sum([rec[k] for k in expectedTerms])
 
                 print 'total cost: %s' % totalCost
                 break
