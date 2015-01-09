@@ -163,7 +163,7 @@ a.model-operation-item:hover{
 		<br>
 		<p><span class="model-operation-title">{{_("Please select what you would like to do with this model:")}}</span></p>
 		<ul class="option-list">
-		<li><span class="model-operation-item">{{_("Edit model and its current components:")}}</span>
+		<li><span class="model-operation-item">{{_("Edit model:")}}</span>
 			<ul class="option-list-inner">
 				<!--<li>
 					<span class="model-operation-item">
@@ -193,7 +193,7 @@ a.model-operation-item:hover{
 				<li>
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Open the HERMES Transport Loop Generator to explore the effects of implementing transport loops at various levels in your system.")}}'
-						id="loop_model_link">{{_("Transform the system with autmatically created transport loops.")}}</a>
+						id="loop_model_link">Transform the system with automatically created <span class="action-underline">transport loops</span></a>
 				</span>	
 			</ul>
 		<li><span class="model-operation-item">

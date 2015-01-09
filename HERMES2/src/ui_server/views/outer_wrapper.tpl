@@ -354,9 +354,9 @@ $(function() {
 <form>
     <table width=100%>
       <tr>
-        <td width 10%><input type="button" id="back_button" value={{_("Back")}}></td>
+        <td width 10%><input type="button" id="back_button" value={{_("Previous Screen")}}></td>
         <td></td>
-        <td width=10%><input type="button" id="next_button" value={{_("Next")}}></td>
+        <td width=10%><input type="button" id="next_button" value={{_("Next Screen")}}></td>
       </tr>
     </table>
 </form>
