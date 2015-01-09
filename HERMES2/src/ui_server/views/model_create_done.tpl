@@ -196,7 +196,7 @@ $(function() {
         height: 'auto',	
         caption:'{{_("Model Transport Network")}}',
         ExpandColumn : 'name'
-    });
+    }).jqGrid('hermify',{debug:true, resizable_hz:true});
     $("#model_create_adjust_grid").jqGrid('navGrid','#model_create_adjust_pager',{edit:false,add:false,del:false});
 });
 

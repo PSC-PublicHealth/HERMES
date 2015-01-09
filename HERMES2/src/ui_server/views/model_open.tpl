@@ -146,6 +146,14 @@ ul.option-list-inner li{
 	z-index:100;
 	display:none;
 }
+.action-underline{
+    border-bottom: 1px dashed;
+}
+a.model-operation-item:hover{
+    text-decoration: none;
+    /* border-bottom: none; */
+    border-bottom: thin solid;
+}
 </style>
 
 <div id="model_holder">
@@ -165,22 +173,22 @@ ul.option-list-inner li{
 				<li>
 					<span class="model-operation-item">
 						<a class="model-operation-item" href="#" title='{{_("Edit the model via the Advanced Model Editor. This will allow users to edit detailed model parameters, including individual route and location characteristics.")}}'
-							id="edit_adv_model_link">{{_("Modify structure with the Advanced Model Editor")}}</a>
+							id="edit_adv_model_link">Modify structure with the <span class="action-underline">Advanced Model Editor</span></a>
 					</span>
 				<li>
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Populate the model with different components that can then be placed at different locations in the supply chain model.")}}'
-						id="types_model_link">{{_("Add or remove model components (e.g. vaccines, storage devices, vehicles, and population categories)")}}</a>
+						id="types_model_link"><span class="action-underline">Add or remove model components</span> (e.g. vaccines, storage devices, vehicles, and population categories)</a>
 				</span>	
 				<li>
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Specify the vaccine dosage schedule for all population categories throughout the year.")}}'
-						id="dose_sched_link">{{_("Modify the Vaccine Dose Schedule")}}</a>
+						id="dose_sched_link">Modify the <span class="action-underline">Vaccine Dose Schedule</span></a>
 				</span>	
 				<li>
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Define the details needed to implement the HERMES microcosting model, including storage, building, labor, transportation and vaccine costs.")}}'
-						id="costs_model_link">{{_("Add and modify costs")}}</a>
+						id="costs_model_link">Add and modify <span class="action-underline">costs</span></a>
 				</span>	
 				<li>
 				<span class="model-operation-item">
@@ -190,16 +198,16 @@ ul.option-list-inner li{
 			</ul>
 		<li><span class="model-operation-item">
 			<a class="model-operation-item" href="#" title='{{_("Run a simulation experiment using the existing model. This allows users to run HERMES in order to simulate a the healthcare supply chain over a specified period of time. Users can then view the results of the run(s) via the results page.")}}'
-				id="run_model_link">{{_("Run a Simulation Experiment with this Model")}}</a>
+				id="run_model_link"><span class="action-underline">Run</span> a Simulation Experiment with this Model</a>
 		</span>
 		<li><span class="model-operation-item">
 			<a class="model-operation-item" href="#" title='{{_("Access a wide array of visualizations and data from the results of all simulation experiments run with this model")}}'
-				id="result_model_link">{{_("View results from previously saved Simulation Experiments")}}</a>
+				id="result_model_link"><span class="action-underline">View Results</span> from previously saved Simulation Experiments</a>
 		</span>
 		<li>
 		<span class="model-operation-item">
 			<a class="model-operation-item" href="#" title='{{_("Export the current model as a .zip file, in order to save, send and view the model and its results on any other HERMES-installed computer.")}}' 
-				id="download_model_link">{{_("Export Model as a HERMES Zip File")}}</a>
+				id="download_model_link"><span class="action-underline">Export Model</span> as a HERMES Zip File</a>
 		</span>
 		</ul>
 	</div>
