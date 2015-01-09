@@ -535,9 +535,9 @@ def jsonCostsSummaryKeyPoints(db, uiSession):
         uiSession.getPrivs().mayReadModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         r = m.getResultById(resultsId)
+        totalCost = 0.0
         for rec in [csr.createRecord() for csr in r.costSummaryRecs]:
             if rec['ReportingLevel'] == '-top-' and rec['ReportingBranch'] == 'all':
-                totalCost = 0.0
                 if rec['Type'] == 'micro1':
                     for k, v in rec.items():
                         if k.startswith('m1C_') and v is not None and v != '':
