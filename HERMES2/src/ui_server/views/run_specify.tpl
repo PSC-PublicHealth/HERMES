@@ -1,5 +1,5 @@
 %rebase outer_wrapper title_slogan=_("Run A Model Simulation"), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
-<h3>{{_('Beginning a Hermes Run')}}</h3>
+<h3>{{_('Beginning a HERMES Run')}}</h3>
 
 {{_("As you finish each page, select the 'Next' button at the bottom right.  Once you have finished this short set of pages, the execution of your model will begin.  You can continue to modify or other models while this model is running.  If you leave this sequence of screens too early, your model will not begin running but you will be able to return to the sequence where you left off by selecting 'Run HERMES' again.")}}
 <p>
