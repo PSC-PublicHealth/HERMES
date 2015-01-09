@@ -38,15 +38,21 @@ _=session_support.translateString
 def createNetworkResultsViz(db,uiSession):
     modelId= modelId= _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
     resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
-    return bottle.template('results_show_structure.tpl',{"breadcrumbPairs":[("top",_("Welcome"))],
+    hRG = db.query(shadow_network.HermesResults).filter(shadow_network.HermesResults.resultsId==resultsId).one().resultsGroup
+    m = shadow_network_db_api.ShdNetworkDB(db,hRG.modelId)
+    #temporary non-functional crumbtrack to display model and resultsgroup name
+    return bottle.template('results_show_structure.tpl',{"breadcrumbPairs":[("top",_("Network Visualization")),("top",_("Model: {0}, Result: {1}").format(m.name,hRG.name))],
                                             "pageHelpText":_("This is intended to show page-specific help")},
                                             _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId)
 
 @bottle.route('/geographic_visualization')
 def createGeographicViz(db,uiSession):
-    modelId= _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
+    modelId= modelId= _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
     resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
-    return bottle.template('results_geo_visualization.tpl',{"breadcrumbPairs":[("top",_("Welcome"))],
+    hRG = db.query(shadow_network.HermesResults).filter(shadow_network.HermesResults.resultsId==resultsId).one().resultsGroup
+    m = shadow_network_db_api.ShdNetworkDB(db,hRG.modelId)
+    #temporary non-functional crumbtrack to display model and resultsgroup name
+    return bottle.template('results_geo_visualization.tpl',{"breadcrumbPairs":[("top",_("Geographic Visualization")),("top",_("Model: {0}, Result: {1}").format(m.name,hRG.name))],
                                             "pageHelpText":_("This is intended to show page-specific help")},
                                             _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId)
 
