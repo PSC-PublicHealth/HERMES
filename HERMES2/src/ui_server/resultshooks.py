@@ -517,7 +517,7 @@ def jsonCostsSummaryLayout(db, uiSession):
                   'columns': columns,
                   'colHeadings': tColumns,
                   'levelTitle': _('Levels'),
-                  'totalLabel': _('totals')
+                  'totalLabel': _('Totals')
                   }
 
         return result

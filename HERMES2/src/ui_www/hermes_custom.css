@@ -6,6 +6,20 @@
 * Hermes-specific mods follow
 */
 
+.rs_keypoints {
+    border: 1px outset;
+    margin-top: 8px;
+}
+.rs_keypoints .ui-widget-header {
+    display: none;
+}
+.rs_keypoints .ui-widget-header {
+    display: none;
+}
+.art-article th.rs_kp_label {
+    padding: 0px;
+}
+
 #geo_layers table {
     padding-left: 10px;
     padding-bottom: 5px;
