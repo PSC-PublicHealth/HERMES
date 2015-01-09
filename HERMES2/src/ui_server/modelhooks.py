@@ -904,8 +904,13 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
                                                         'modelName':newModelInfoCN['name'],
                                                         'startClass':'vaccines',
                                                         'breadcrumbPairs':crumbTrack,
-                                                        'baseURL':'model-add-types'},
+                                                        'baseURL':'model-create/types'},
                                                         formVals,pagehelptag=screen,createpipe=True)
+                                                        #original baseURL was:
+                                                        #'baseURL':'model-add-types'},
+                                                        #hack fix above to manually route to the proper URL
+                                                        #because I didn't understand how it was being reached
+                                                        
             else:
                 if newModelInfoCN.has_key('modelId'):
                     formVals['modelId']=newModelInfoCN['modelId']
