@@ -553,12 +553,16 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
             if costPattern == 'charge':
                 fuelPrice = 0.0  # handled elsewhere
             elif isinstance(priceKeyInfo, types.TupleType):
+                # We now handle the special case of solar power, where we have to include the
+                # amortization and maintenance cost of the panels.  Remember that the needed
+                # installed kilowatts are stored in the 'PowerRate' field for solar fridges.
                 assert fuel == 'solar', \
                     'Per instance fuel maintenance but the fuel %s is not a solar panel' % fuel
                 assert costPattern == 'instance', \
                     u"Fuel type %s has amortization but is not by-instance" % \
                     fridge.name
-                basePrice = self.sim.userInput[priceKeyInfo[0]]
+                # base price is (price per installed kilowatt) * (installed kilowatts needed)
+                basePrice = self.sim.userInput[priceKeyInfo[0]] * fridge.recDict['PowerRate']
                 solarMaintPriceRaw = self.sim.userInput['storagemaintcostfraction'] * basePrice
                 fuelAmortPeriod = self.sim.userInput[priceKeyInfo[1]]
                 assert basePrice is not None, \
