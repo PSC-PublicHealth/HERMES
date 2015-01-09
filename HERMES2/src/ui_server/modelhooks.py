@@ -749,7 +749,8 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
                 # We just finished the track
                 del newModelInfoCN['subCrumbTrack']
                 crumbTrack.pop()
-                screen = 'models-top'
+                #screen = 'models-top'
+                screen = 'model-open'
         elif step=='back':
             screen = subCrumbTrack.back()
             if screen is None:
@@ -929,6 +930,20 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
             offset = fp.find(p)
             rootPath = fp[:offset+1] # to include slash
             bottle.redirect("%smodels-top"%rootPath)
+        elif screen=="model-open":
+            #modelId = int(bottle.request.params['id'])
+            #newModelInfoCN['modelId']
+            #uiSession['modelIdBeingEdited']
+            #uiSession['selectedModelId']
+            if 'subCrumbTrack' not in newModelInfoCN:
+                # we're done, or we never started
+                if newModelInfoCN['name'] in uiSession['newModelInfo']: 
+                    del uiSession['newModelInfo'][newModelInfoCN['name']]
+            p = bottle.request.path
+            fp = bottle.request.fullpath
+            offset = fp.find(p)
+            rootPath = fp[:offset+1] # to include slash
+            bottle.redirect("{0}model-open?modelId={1}&crmb=clear".format(rootPath,uiSession['selectedModelId']))
         else:
             raise RuntimeError(_("Lost track of which step we are on"))
     except bottle.HTTPResponse:
