@@ -144,6 +144,7 @@ ul.option-list-inner li{
 	font-weight:bold;
 	opacity:0;
 	z-index:100;
+	display:none;
 }
 </style>
 
@@ -183,8 +184,8 @@ ul.option-list-inner li{
 				</span>	
 				<li>
 				<span class="model-operation-item">
-					<a class="model-operation-item" href="#" title='{{_("blah blah.")}}'
-						id="loop_model_link">{{_("Let's make some loops")}}</a>
+					<a class="model-operation-item" href="#" title='{{_("Open the HERMES Transport Loop Generator to explore the effects of implementing transport loops at various levels in your system.")}}'
+						id="loop_model_link">{{_("Transform the system with autmatically created transport loops.")}}</a>
 				</span>	
 			</ul>
 		<li><span class="model-operation-item">
@@ -380,7 +381,7 @@ $(document).ready(function(){
 	});
 	
 	$("#loop_model_link").click(function(){
-		window.location='{{rootPath}}loops-top?modelId={{modelId}}';
+		createLoops({{modelId}});
 	});
 	
 	//Dialog box code
@@ -416,12 +417,15 @@ $(document).ready(function(){
 				}
 				else{
 					$(this).dialog('close');
+					$("#downloading_notify").show();
 					$("#downloading_notify").fadeTo(200,1.0);
 					$.ajax({
 						url:'{{rootPath}}json/prepare-download-model?model={{modelId}}&form=zip&fname='+$("#export_filename").val(),
 						dataType:'json',
 						success:function(result){
-							$("#downloading_notify").fadeTo(200,0.0);
+							$("#downloading_notify").fadeOut(200,function(){
+								$(this).remove();
+							});
 							window.location='{{rootPath}}download-model?filename='+result.filename+'&zipfilename='+ result.zipname;
 						}
 							
@@ -576,6 +580,14 @@ function runHermes(modelId){
 	window.location = "{{rootPath}}model-run?modelId="+modelId;
 };
 
+function createLoops(modelId){
+	if(!mayModify){
+		$("#model_dowantcopy_dialog").dialog("open");
+	}
+	else{
+		window.location='{{rootPath}}loops-top?modelId='+modelId;
+	}
+}
 function openResults(modelId){
 	$.ajax({
 		url:'{{rootPath}}json/has-results?modelId='+modelId,
