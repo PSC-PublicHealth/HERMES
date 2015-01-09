@@ -211,6 +211,8 @@ function buildPage(modelId) {
 					var devName = $("#staff_cost_grid").jqGrid('getCell',id,"displayname");
 					$("#staff_cost_grid").jqGrid('editGridRow',id,{
 						closeAfterEdit:false,
+						bSubmit: "Save",
+						bCancel: "Done",
 						closeOnEscape:true,
 	                  	jqModal:true,
 	                  	viewPagerButtons:true,

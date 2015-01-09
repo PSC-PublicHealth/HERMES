@@ -273,6 +273,8 @@ function buildPage(modelId) {
 					$("#fridge_cost_grid").jqGrid('editGridRow',id,{
 						//closeAfterEdit:true,
 						closeAfterEdit:false,
+						bSubmit: "Save",
+						bCancel: "Done",
 						closeOnEscape:true,
 	                  	jqModal:true,
 	                  	//viewPagerButtons:false,

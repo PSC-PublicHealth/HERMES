@@ -242,6 +242,8 @@ function buildPage(modelId) {
 					var devName = $("#perdiem_cost_grid").jqGrid('getCell',id,"displayname");
 					$("#perdiem_cost_grid").jqGrid('editGridRow',id,{
 						closeAfterEdit:false,
+						bSubmit: "Save",
+						bCancel: "Done",
 						closeOnEscape:true,
 	                  	jqModal:true,
 	                  	viewPagerButtons:true,
