@@ -550,15 +550,33 @@ def jsonCostsSummaryKeyPoints(db, uiSession):
                             _("Some expected legacy cost entries are missing")
                         totalCost = sum([rec[k] for k in expectedTerms])
 
-                print 'total cost: %s' % totalCost
+                # print 'total cost: %s' % totalCost
                 break
 
+        dosesByVaccine = {}
+        for dmnd in m.unifiedDemands:
+            if dmnd.peopleStr.lower() not in ['pregnant', 'service']:
+                dosesByVaccine[dmnd.vaccineStr] = dmnd.count
+        for dmnd in m.consumptionDemands:
+            if dmnd.peopleStr.lower() not in ['pregnant', 'service']:
+                dosesByVaccine[dmnd.vaccineStr] = dmnd.count
+
         totDosesDelivered = 0
+        nFullyTreated = None
         for rec in [sr.createRecord() for sr in r.summaryRecs.values()
                     if sr.summaryType == 'vaccines']:
             totDosesDelivered += rec['Treated']
-            
-        print 'total doses %s' % totDosesDelivered
+            print rec
+            if rec['Name'] in dosesByVaccine:
+                nFT = float(rec['Treated'])/float(dosesByVaccine[rec['Name']])
+                if nFullyTreated is None or nFT < nFullyTreated:
+                    nFullyTreated = nFT
+
+        if nFullyTreated > 0.0:
+            costPerFIC = totalCost / nFullyTreated
+        else:
+            costPerFIC = 0.0
+
         if totDosesDelivered > 0:
             costPerDose = totalCost / totDosesDelivered
         else:
@@ -566,13 +584,13 @@ def jsonCostsSummaryKeyPoints(db, uiSession):
         return {'success': True,
                 'mainTitle': _('Key Costing Points'),
                 'labels': [_('Cost per Dose'),
-#                            _('Cost per Fully Vaccinated Child')
+                           _('Cost per Fully Vaccinated Child')
                            ],
                 'values': [costPerDose,
-#                            67.89
+                           costPerFIC
                            ],
                 'fmts': ['money',
-#                          'money'
+                         'money'
                          ]  # valid formats are 'money', 'text', 'number'
                 }
 
@@ -580,7 +598,8 @@ def jsonCostsSummaryKeyPoints(db, uiSession):
         _logStacktrace()
         result = {'success': False, 'msg': str(e)}
         return result
-    
+
+
 @bottle.route('/json/results-vaccine-by-place-hist')
 def jsonResultSummaryVaccineByPlace(db, uiSession):
     try:
