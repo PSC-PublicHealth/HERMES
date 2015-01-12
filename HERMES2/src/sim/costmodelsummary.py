@@ -17,23 +17,23 @@
 #                                                                      #
 ########################################################################
 
-__doc__=""" costmodelsummary.py
+""" costmodelsummary.py
 This module holds classes used to provide hierarchical summaries of
 output from supported cost models.
 """
 
-_hermes_svn_id_="$Id: costmodelsummary.py 879 2014-09-17 12:47:47Z depasse $"
+_hermes_svn_id_ = "$Id: costmodelsummary.py 879 2014-09-17 12:47:47Z depasse $"
 
 
-import json, types
-from itertools import product
-from abc import ABCMeta, abstractproperty
-from collections import defaultdict
+import types
+from abc import ABCMeta
 import ipath
 from util import logWarning
 
+
 class CostModelHierarchicalSummary(object):
     __metaclass__ = ABCMeta
+
     def __init__(self, result):
         self.result = result
 
@@ -41,14 +41,14 @@ class CostModelHierarchicalSummary(object):
         recs = [r.createRecord() for r in self.result.getCostSummaryRecs()]
         d = {}
         for r in recs:
-            #print 'rec %s'%r
-#             if r['ReportingLevel'] == '-top-' or r['ReportingLevel'] == u'-top-':
-#                 continue
+            # print 'rec %s'%r
+            # if r['ReportingLevel'] == '-top-' or r['ReportingLevel'] == u'-top-':
+            #     continue
             for g in groups:
                 if g not in d:
                     d[g] = {}
                 g_attr = r[g]
-                #print 'g_attr: %s'%g_attr
+                # print 'g_attr: %s'%g_attr
                 if g_attr not in d[g]:
                     d[g][g_attr] = {}
                 for c in costs:
@@ -56,40 +56,103 @@ class CostModelHierarchicalSummary(object):
                         d[g][g_attr][c] = 0.0
                     if c in r:
                         c_attr = r[c]
-                        if c_attr=='': c_attr = None
+                        if c_attr == '':
+                            c_attr = None
                         c_attr = float(c_attr) if c_attr is not None else 0.0
                         d[g][g_attr][c] += c_attr
         # print d
-        h = {} 
+        h = {}
         for g in groups:
             h['name'] = g
             children = []
             for g_attr in d[g]:
-                children.append(
-                        {'name':g_attr,
-                         'children': [{
-                             'name':n, 'size':s
-                             } for n, s in d[g][g_attr].items()]})
+                children.append({'name': g_attr,
+                                 'children':  [{'name': n, 'size': s}
+                                               for n, s in d[g][g_attr].items()]})
             h['children'] = children
         return h
 
     def _mkSubTree(self, key, localD, treeD, prefixLen):
+        """
+        This routine converts a treeD to a recursive subTree.  The former has the format:
+
+        {
+            '-top-': {
+                'all': {'cost1':v, 'cost2':v, ...}
+            },
+            'all':   {
+                'Central':  {'cost1:v, 'cost2:v, ...},
+                'Region':   {'cost1:v, 'cost2:v, ...},
+                'District': {'cost1:v, 'cost2:v, ...},
+                'IHC':      {'cost1:v, 'cost2:v, ...},
+            },
+            'Central': {
+                'loc foo': {'cost1:v, 'cost2:v, ...}
+                'rt A': {'cost1:v, 'cost2:v, ...},
+                ...
+            },
+            'Region': {
+                'loc bar': {'cost1:v, 'cost2:v, ...},
+                'loc baz': {'cost1:v, 'cost2:v, ...},
+                'rt B':    {'cost1:v, 'cost2:v, ...},
+                ...
+            },
+            ...
+        }
+
+        where v is some scalar value.
+
+        A subTree is truly recursive, and has elements with keys 'name', 'size', and 'children'.
+        If 'size' is present it is a leaf node and 'size' is a scalar.  If 'children' is present
+        it is a list each entry of which is a subTree.  Every node has a 'name', and either a
+        'children' list or a 'size' value.  Calling _mkSubTree('-top-', treeD['-top-'], treeD) on
+        the treeD example above produces:
+
+        {
+            'name':     '-top-',
+            'children': [
+                {'name':'all',
+                 'children': [
+                     {'name': 'Central',
+                      'children': [
+                          {'name':'loc foo',
+                           'children: [
+                              {'name':'cost1', 'size':v}, <-- 'cost1' entry from treeD['Central']['loc foo']
+                              {'name':'cost2', 'size':v},
+                              ...
+                            ]},
+                          {'name':'rt A',
+                           'children: [
+                              {'name':'cost1', 'size':v}, <-- 'cost1' entry from treeD['Central']['rt A']
+                              {'name':'cost2', 'size':v},
+                              ...
+                            ]},
+                           },
+                          {'name':'cost1', 'size':v}, <-- 'cost1' entry from treeD['all']['Central']
+                          {'name':'cost2', 'size':v},
+                          ...
+                      ]},
+                {'name':'cost1', 'size':v}, <-- the 'cost1' entry from treeD['-top-']['all']
+                {'name':'cost2', 'size':v},
+                ...
+            ]}
+        """
         children = []
         if key in treeD:
-            for k,v in treeD[key].items():
-                children.append(self._mkSubTree(k,v,treeD, prefixLen))
+            for k, v in treeD[key].items():
+                children.append(self._mkSubTree(k, v, treeD, prefixLen))
         leaves = localD.items()
-        for lKey,lVal in leaves:
+        for lKey, lVal in leaves:
             if lKey not in treeD:
-                children.append({
-                                 'name':lKey[prefixLen:],
-                                 'size':lVal
+                children.append({'name': lKey[prefixLen:],
+                                 'size': lVal
                                  })
         return {'name': key,
                 'children': children
                 }
 
     def _printSubTree(self, tree, depth=0):
+        """This routine prints a subTree, with indenting."""
         if 'children' in tree:
             print '%s%s:' % ('    '*depth, tree['name'])
             for child in tree['children']:
@@ -105,7 +168,7 @@ class CostModelHierarchicalSummary(object):
             return 0.0
         else:
             return v
-        
+
     def _doByContainer(self, groups, inSet, prefixLen=0):
         """
         groups is a sequence type or iterator
@@ -133,52 +196,82 @@ class CostModelHierarchicalSummary(object):
         # return h
         return h['children'][0]
 
-    def _cullTree(self, treeD, testSet):
-        if 'children' in treeD:
+    def _cullTree(self, subTree, testSet):
+        """
+        This routine removes collective entries from upper levels of the tree, leaving
+        only the corresponding entries at the deepest levels.  For example, in the example
+        in _mkSubTree, fullTree{children:[{name:'cost1'...}]} and
+        fullTree{children:[{name:'Central',children:[{name:cost1...}]}]} would be removed.
+        """
+        if 'children' in subTree:
             newKids = []
-            nGrandKids = len([child for child in treeD['children']
-                             if 'children' in child])
-            for child in treeD['children']:
-                if child['name'] in testSet and nGrandKids > 0:
+            nKidsWithKids = len([child for child in subTree['children']
+                                 if 'children' in child])
+            for child in subTree['children']:
+                if child['name'] in testSet and nKidsWithKids > 0:
                     pass  # drop this one
                 else:
                     newKids.append(child)
                     self._cullTree(child, testSet)
-            treeD['children'] = newKids
+            subTree['children'] = newKids
 
     def _clipNames(self, treeD, testSet, clipLen=0):
+        """
+        Remove clipLen characters from names in testSet everywhere in the tree.
+
+        This is used to clip prefixes, for example 'm1C_', from cost entries.
+        """
         if 'children' in treeD:
             for child in treeD['children']:
                 self._clipNames(child, testSet, clipLen)
         if treeD['name'] in testSet:
             treeD['name'] = treeD['name'][clipLen:]
 
-    def _collectLeaves(self, treeD, labelList, parentInfo=None):
-        """Walk the tree depth first, collecting a list of dicts.  Each dict in the list
+    def _collectLeaves(self, subTree, labelList, parentInfo=None):
+        """
+        Walk the tree depth first, collecting a list of dicts.  Each dict in the list
         contains keys and values for all layers encountered in the walk.  Labellist is
-        a list of keys for successive labels, such as ['ignore','level','location']
+        a list of keys for successive labels, such as ['ignore','level','location'] .
+
+        For example, the call self._collectLeaves(subTree, ['ignore','level','location', 'key']) with
+        subTree as in the description of _mkSubTree would return:
+
+        [
+            {'ignore':'-top-', 'level':'cost1', 'size':v},
+            {'ignore':'-top-', 'level':'cost2', 'size':v},
+            {'ignore':'-top-', 'level':'all', 'location':'cost1', 'size':v},
+            {'ignore':'-top-', 'level':'all', 'location':'cost2', 'size':v},
+            {'ignore':'-top-', 'level':'Central', 'location':'loc foo', 'key':'cost1', 'size':v},
+            {'ignore':'-top-', 'level':'Central', 'location':'loc foo', 'key':'cost2', 'size':v},
+            {'ignore':'-top-', 'level':'Central', 'location':'rt A', 'key':'cost1', 'size':v},
+            {'ignore':'-top-', 'level':'Central', 'location':'rt A', 'key':'cost2', 'size':v},
+            ...
+        ]
         """
         if parentInfo is None:
             parentInfo = {}
         subPI = parentInfo.copy()
-        if 'children' in treeD:
+        if 'children' in subTree:
             assert labelList, 'we have run out of labels'
-            subPI[labelList[0]] = treeD['name']
+            subPI[labelList[0]] = subTree['name']
             kidDicts = []
-            for kid in treeD['children']:
+            for kid in subTree['children']:
                 kidDicts.extend(self._collectLeaves(kid, labelList[1:], subPI))
         else:
             d = subPI.copy()
-            d.update(treeD)
-            assert len(labelList) == 1, "ran out of labels at leaf"
+            d.update(subTree)
+            assert len(labelList) == 1, "%d labels at leaf" % len(labelList)
             d[labelList[0]] = d['name']
             del d['name']
             kidDicts = [d]
         return kidDicts
 
     def _listToTreeList(self, keyList, leafList, depth=0):
-        """Given a list of elaborated leaf nodes 'leafList' as produced by _collectLeaves,
-        reconstruct a list of trees with layers determined by the given 'keyList'.
+        """
+        Given a list of elaborated leaf nodes 'leafList' as produced by _collectLeaves,
+        reconstruct a list of trees with layers determined by the given 'keyList'.  This
+        essentially converts a leafList to a list of dicts suitable to be a new subTree's
+        'children' list, undoing the work of _collectLeaves.
         """
         if keyList:
             myKey = keyList[0]
@@ -197,20 +290,21 @@ class CostModelHierarchicalSummary(object):
             # print '%sleaf returning %s' % ('    '*depth, leafList)
             return leafList
 
-    def _cleanSubTree(self, treeD):
-        for k in treeD.keys()[:]:
+    def _cleanSubTree(self, subTree):
+        """Remove all entries which are not 'name', 'children', or 'size'. """
+        for k in subTree.keys()[:]:
             if k not in ['children', 'size', 'name']:
-                del treeD[k]
-        if 'children' in treeD:
-            for kid in treeD['children']:
+                del subTree[k]
+        if 'children' in subTree:
+            for kid in subTree['children']:
                 self._cleanSubTree(kid)
 
-    def _rekeySubTree(self, treeD, oldKey, newKey):
-        if oldKey in treeD:
-            treeD[newKey] = treeD[oldKey]
-            del treeD[oldKey]
-        if 'children' in treeD:
-            for kid in treeD['children']:
+    def _rekeySubTree(self, subTree, oldKey, newKey):
+        if oldKey in subTree:
+            subTree[newKey] = subTree[oldKey]
+            del subTree[oldKey]
+        if 'children' in subTree:
+            for kid in subTree['children']:
                 self._rekeySubTree(kid, oldKey, newKey)
 
 
@@ -222,19 +316,28 @@ class LegacyCostModelHierarchicalSummary(CostModelHierarchicalSummary):
         """
         groups = ('ReportingLevel',)
         costs = (
-                # 'PerDiemCost', 'PerKmCost', 'PerTripCost',
-                'LaborCost', 'BuildingCost', 'StorageCost', 'TransportCost'
-                )
+            # 'PerDiemCost', 'PerKmCost', 'PerTripCost',
+            'LaborCost', 'BuildingCost', 'StorageCost', 'TransportCost'
+        )
         if fmt not in ['mixed', None]:
             logWarning('invalid legacy cost hierarchy format %s ignored' % fmt)
             fmt = None
         if fmt == 'mixed':
             return self._doByContainer(groups, set(costs))
         elif fmt is None:
-            treeD = self._doByContainer(groups, set(costs))
-            self._cullTree(treeD, set(costs))
-            # self._printSubTree(treeD)
-            return treeD
+            fullTree = self._doByContainer(groups, set(costs))
+            self._cullTree(fullTree, set(costs))
+            leafDicts = [lD for lD in self._collectLeaves(fullTree,
+                                                          ['ignore', 'level', 'location', 'key'])
+                         if (lD['size'] != 0.0 and lD['size'] is not None and lD['size'] != '')]
+            for l in leafDicts:
+                del l['ignore']
+            fullTree = {'name': 'all',
+                        'children': self._listToTreeList(['level', 'location'],
+                                                         leafDicts)}
+            self._rekeySubTree(fullTree, 'key', 'name')
+            # self._printSubTree(fullTree)
+            return fullTree
         else:
             raise RuntimeError("Unrecognized hierarchy format %s" % fmt)
 
@@ -297,16 +400,30 @@ class Micro1CostModelHierarchicalSummary(CostModelHierarchicalSummary):
         if fmt == 'mixed':
             return self._doByContainer(groups, self.PrefixFakeSet(tag), len(tag))
         else:
-            treeD = self._doByContainer(groups, self.PrefixFakeSet(tag), 0)
-            self._cullTree(treeD, self.PrefixFakeSet(tag))
-            self._clipNames(treeD, self.PrefixFakeSet(tag), len(tag))
+            subTree = self._doByContainer(groups, self.PrefixFakeSet(tag), 0)
+            self._cullTree(subTree, self.PrefixFakeSet(tag))
+            self._clipNames(subTree, self.PrefixFakeSet(tag), len(tag))
             if fmt is None:
-                return treeD
+                kidDicts = [kD for kD in self._collectLeaves(subTree,
+                                                             ['ignore', 'level', 'location',
+                                                              'key'])
+                            if (kD['size'] != 0.0 and kD['size'] is not None and kD['size'] != '')]
+                for k in kidDicts:
+                    del k['ignore']
+                subTree = {'name': 'all',
+                           'children': self._listToTreeList(['level', 'location'],
+                                                            kidDicts)}
+                self._rekeySubTree(subTree, 'key', 'name')
+                # self._printSubTree(subTree)
+                return subTree
             else:
                 lvlList = self._parseFormat(fmt)
                 nC = lvlList.count('c')
                 nL = lvlList.count('l')
-                kidDicts = self._collectLeaves(treeD, ['ignore', 'level', 'location', 'key'])
+                kidDicts = [kD for kD in self._collectLeaves(subTree,
+                                                             ['ignore', 'level', 'location',
+                                                              'key'])
+                            if (kD['size'] != 0.0 and kD['size'] is not None and kD['size'] != '')]
                 for k in kidDicts:
                     del k['ignore']
                     if k['key'] in self.costGroups:
@@ -335,10 +452,10 @@ class Micro1CostModelHierarchicalSummary(CostModelHierarchicalSummary):
                 else:
                     raise RuntimeError("invalid format %s - only 2 l's allowed" % fmt)
 
-                treeD = {'name': 'all',
-                         'children': self._listToTreeList(lvlList[:-1],
-                                                          kidDicts)}
-                self._rekeySubTree(treeD, lvlList[-1], 'name')
-                self._cleanSubTree(treeD)
-                # self._printSubTree(treeD)
-                return treeD
+                subTree = {'name': 'all',
+                           'children': self._listToTreeList(lvlList[:-1],
+                                                            kidDicts)}
+                self._rekeySubTree(subTree, lvlList[-1], 'name')
+                self._cleanSubTree(subTree)
+                # self._printSubTree(subTree)
+                return subTree
