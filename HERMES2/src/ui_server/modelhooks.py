@@ -787,7 +787,7 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
             from serverconfig import rootPath
             if 'modelId' in newModelInfoCN and newModelInfoCN['modelId'] != -1:
                 # the user is messing around with the back/next buttons
-                del crumbtrack.trail[-1]
+                del crumbTrack.trail[-1]
                 bottle.redirect('{0}model-edit-structure?id={1}&crmb=clear'.format(rootPath,newModelInfoCN['modelId'])) 
             else:
                 # fake the remaining unfilled pages so the PreOrderTree can get created
@@ -2022,7 +2022,7 @@ def jsonCreatePlacesPerLevelFormFromSession(db,uiSession):
         
         return {'htmlString':'<span class="levelcount-head">'+_("What are the total number of locations within each level?") + "</span>"\
                     +"<span class='levelcount-note'><br>"+_('Include all storage, immunizating and outreach locations')+"</span>" \
-                    + htmlgenerator._buildNumberPlacesPerLevelsFormFromSession("model_create_", modelInfoCN),'success':True}
+                    + htmlgenerator._buildNumberPlacesPerLevelsFormFromSession("model_create_", newModelInfoCN),'success':True}
     except bottle.HTTPResponse:
         raise
     except Exception,e:
@@ -2146,7 +2146,7 @@ def jsonCreateInterlTimingFormFromSession(db,uiSession):
     try:
         import htmlgenerator
         print "Going there"
-        return{'htmlString':htmlgenerator._buildInterLevelTimingFormFromSession("model_create_",newModeInfoCN),
+        return{'htmlString':htmlgenerator._buildInterLevelTimingFormFromSession("model_create_",newModelInfoCN),
                'success':True}
         
     except bottle.HTTPResponse:

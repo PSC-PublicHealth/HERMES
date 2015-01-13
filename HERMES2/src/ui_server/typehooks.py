@@ -9,6 +9,7 @@ import ipath
 
 import typehelper
 import shadow_network
+import shadow_network_db_api
 import htmlgenerator
 import privs
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults, b64D

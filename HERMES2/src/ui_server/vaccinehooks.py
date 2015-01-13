@@ -67,7 +67,7 @@ def vaccineEditPage(db, uiSession):
 
 @bottle.route('/edit/edit-vaccine.json', method='POST')
 def editVaccine(db, uiSession):    
-    return typehooks.editType(db, uiSession, 'trucks')
+    return typehooks.editType(db, uiSession, 'vaccines')
 
 def jsonVaccineEditFn(attrRec, m):
     if attrRec['pricePerVial'] is None or attrRec['dosesPerVial'] is None:
