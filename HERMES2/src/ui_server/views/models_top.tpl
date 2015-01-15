@@ -195,12 +195,21 @@ function copyModel(modelId) {
 	});
 }
 
-function deleteModel(modelId, modelName) {
-    var msg = '{{_("Really delete the model ")}}' + modelName + " ( " + modelId + " ) ?";
-    $("#model_confirm_delete").html(msg);
-    $("#model_confirm_delete").data('modelId', modelId);
-    $("#model_confirm_delete").dialog("open");
+function deleteModel(modelId) {
+	get_model_name_from_id(modelId)
+	.done(function(result){
+		if(!result.success){
+			alert("Problem getting model name: " + result.msg);
+		}
+		else{
+            var msg = '{{_("Really delete the model ")}}' + result.name + " ( " + modelId + " ) ?";
+            $("#model_confirm_delete").html(msg);
+            $("#model_confirm_delete").data('modelId', modelId);
+            $("#model_confirm_delete").dialog("open");
+		}
+	});
 }
+
 
 $(function() {		
     $("#model_copy_dialog_form").dialog({
