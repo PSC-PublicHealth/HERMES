@@ -39,6 +39,19 @@
 .welcome_item{
 	font-size:18px;
 }
+
+.welcome_item a:visited{
+	color:#282A57;
+}
+.welcome_item a:active{
+	color:#282A57;
+}
+.welcome_item a:hover{
+	color:#282A57;
+}
+.welcome_item a:link{
+	color:#282A57;
+}
 #wrappage_help_button{
 	opacity:0;
 }
