@@ -57,6 +57,8 @@
 </div>
 
 <div id="delete_confirm_dialog">{{_('Are you sure that you would like to delete this result?')}}</div>
+<div id="delete_group_confirm_dialog">{{_('Are you sure that you would like to delete this entire group of results?')}}</div>
+
 <script>
 
 var show_result = true;
@@ -79,18 +81,7 @@ var show_result = true;
 				
 				$("#results_tree")
 				.on('after_open.jstree',function(e,data){
-					$("[id^=res_del_but]").button();
-					$("[id^=res_del_but]").click(function(e){
-						show_result= false;// this prevents the results from showing up when clicked
-						var resultsMon = $(this).prop("id").replace("res_del_but_",'');
-						var node_id = resultsMon;
-						var modelId = parseInt(resultsMon.split("_")[1]);
-						var resultsId = parseInt(resultsMon.split("_")[2]);
-						$("#delete_confirm_dialog").data('nodeId',node_id);
-						$("#delete_confirm_dialog").data('modelId',modelId);
-						$("#delete_confirm_dialog").data('resultsId',resultsId);
-						$("#delete_confirm_dialog").dialog("open");
-					});
+					setupButtons();
 				})
 				.on('changed.jstree',function(e,data){
 					node_select = data.selected[0];
@@ -160,23 +151,74 @@ $(function(){
 							$("#results_summary_tabs").results_tabs("remove",modelId,resId);
 							
 							//Must reset the buttons that are currently being displayed
-							$("[id^=res_del_but]").button();
-							$("[id^=res_del_but]").click(function(e){
-								show_result= false;// this prevents the results from showing up when clicked
-								var resultsMon = $(this).prop("id").replace("res_del_but_",'');
-								var node_id = resultsMon;
-								var modelId = parseInt(resultsMon.split("_")[1]);
-								var resultsId = parseInt(resultsMon.split("_")[2]);
-								$("#delete_confirm_dialog").data('nodeId',node_id);
-								$("#delete_confirm_dialog").data('resultsId',resultsId);
-								$("#delete_confirm_dialog").dialog("open");
-							});
+							setupButtons();
 						}
 					}
 				});
 			},
 			"{{_('No')}}":function(){
 				$(this).dialog("close");
+			}
+		},
+		open: function(e,ui) {
+			$(this)[0].onkeypress = function(e) {
+				if (e.keyCode == $.ui.keyCode.ENTER) {
+					e.preventDefault();
+					$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+					}
+			    };
+		}
+	});
+	$("#delete_group_confirm_dialog").dialog({
+		modal:true,
+		autoOpen:false,
+		buttons:{
+			"{{_('Yes')}}":function(){
+				$(this).dialog("close");
+				var rgId = $(this).data('rgId');
+				var modelId = $(this).data('modelId');
+				var nodeId = $(this).data('nodeId');
+				$.ajax({
+					url:'{{rootPath}}edit/delete-results-group.json?rgId='+rgId,
+					dataType:'json',
+					success: function(result){
+						if(!result.success){
+							alert(result.msg);
+						}
+						else{
+							var tree = $("#results_tree").jstree(true);
+							
+							//Get the appropriate node information
+							var nodeToDelete = tree.get_selected();
+							var modelNode = tree.get_node(tree.get_parent(nodeToDelete));
+							var nTD = tree.get_node(tree.get_node(nodeToDelete));
+							for(var i=0;i<nTD.children.length;i++){
+								var id = nTD.children[i];
+								var modelId = parseInt(id.split("_")[1]);
+								var resultsId = parseInt(id.split("_")[2]);
+								$("#results_summary_tabs").results_tabs("remove",modelId,resultsId);
+								//resultNode = tree.get_node(nTD.children[i]);
+								//tree.delete_node(resultNode);
+								//console.log(resultNode.id);
+							}
+							tree.delete_node(nodeToDelete);
+							// walk up the tree, in case there is nothing to show
+							
+							if(modelNode.children.length == 0){
+								tree.delete_node(modelNode);
+							}
+							//$("#results_summary_tabs").results_tabs("remove",modelId,resId);
+							
+							//Must reset the buttons that are currently being displayed
+							setupButtons();
+						}
+					}
+				});
+			},
+			"{{_('No')}}":function(){
+				$(this).dialog("close");
+				var tree=$("#results_tree").jstree(true);
+				tree.open_node(tree.get_selected());
 			}
 		},
 		open: function(e,ui) {
@@ -199,6 +241,31 @@ $(function(){
 	});
 });
 
+function setupButtons(){
+	$("[id^=rg_del_but]").button();
+	$("[id^=rg_del_but]").click(function(e){
+		var rgMon = $(this).prop("id").replace("rg_del_but_",'');
+		var node_id = rgMon;
+		var modelId = parseInt(rgMon.split("_")[1]);
+		var rGId = parseInt(rgMon.split("_")[2]);
+		$("#delete_group_confirm_dialog").data('nodeId',node_id);
+		$("#delete_group_confirm_dialog").data('modelId',modelId);
+		$("#delete_group_confirm_dialog").data('rgId',rGId);
+		$("#delete_group_confirm_dialog").dialog("open");
+	});
+	$("[id^=res_del_but]").button();
+	$("[id^=res_del_but]").click(function(e){
+		show_result= false;// this prevents the results from showing up when clicked
+		var resultsMon = $(this).prop("id").replace("res_del_but_",'');
+		var node_id = resultsMon;
+		var modelId = parseInt(resultsMon.split("_")[1]);
+		var resultsId = parseInt(resultsMon.split("_")[2]);
+		$("#delete_confirm_dialog").data('nodeId',node_id);
+		$("#delete_confirm_dialog").data('resultsId',resultsId);
+		$("#delete_confirm_dialog").data('modelId',modelId);
+		$("#delete_confirm_dialog").dialog("open");
+	});
+}
 function getResultsTree(modelId){
 	var thisURL = '{{rootPath}}json/results-tree-for-all-models'
 	if(modelId > -1){

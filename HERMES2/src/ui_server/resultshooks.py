@@ -119,6 +119,23 @@ def editResults(db, uiSession):
     else:
         raise bottle.BottleException(_("Bad parameters to {0}").format(bottle.request.path))
 
+@bottle.route("/edit/delete-results-group.json",method='POST')
+@bottle.route("/edit/delete-results-group.json")
+def editDeleteResultsGroup(db,uiSession):
+    try:
+        resultsGroupId = _getOrThrowError(bottle.request.params,'rgId',isInt=True)
+        hRG = db.query(s_n.HermesResultsGroup).filter(s_n.HermesResultsGroup.resultsGroupId==resultsGroupId).one()
+        uiSession.getPrivs().mayWriteModelId(db, hRG.modelId)
+        _logMessage("Deleting resultGroup {0}".format(resultsGroupId))
+        if len(hRG.results) != 0:
+            for i in range(len(hRG.results)):
+                db.delete(hRG.results[i])
+        
+        db.delete(hRG)
+        return{'success':True}
+    except Exception as e:
+        return {'success':False,'msg':str(e)}
+        
 def getResultsTreeForModel(mId,db):
     m = shadow_network_db_api.ShdNetworkDB(db,mId)
     resultsJson = {'text':'{0}'.format(m.name),'type':'disabled','id':"m_{0}".format(mId),'children':[]}
@@ -130,7 +147,11 @@ def getResultsTreeForModel(mId,db):
     
 def getResultsGroupTree(rG,m,db):
     
-    rGDict = {'text':'{0}'.format(rG.name),'state':{'opened':True},
+    rGName = "{0} <button id='rg_del_but_rG_{1}_{2}' class='res_del_button'>{3}</button>".format(rG.name,
+                                                                                                 rG.modelId,
+                                                                                                 rG.resultsGroupId,
+                                                                                                 _('delete'))
+    rGDict = {'text':'{0}'.format(rGName),'state':{'opened':True},
               'id':'rG_{0}_{1}'.format(rG.modelId,rG.resultsGroupId),
               'children':[]}
     ### get the results from this 

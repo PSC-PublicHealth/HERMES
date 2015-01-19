@@ -50,13 +50,15 @@
 				div.remove();
 				if(tabList.length>1){
 					if($("#"+this.containerID).tabs("option","active")==tabList.indexOf(thisID)){
-						$("#"+this.containerID).tabs("option", "active", tabList.indexOf(thisID)-1);
+						if(tabList.indexOf(thisID)==0){
+							$("#"+this.containerID).tabs("option", "active", tabList.indexOf(thisID)+1);
+						}
+						else{
+							$("#"+this.containerID).tabs("option", "active", tabList.indexOf(thisID)-1);
+						}
 					}
 				}	
 				tabList.splice(tabList.indexOf(thisID),1);
-				if(tabList.length == 1){
-					$("#"+this.containerID).tabs("option", "active", tabList[0]);
-				}
 			}
 		},
 			

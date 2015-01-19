@@ -67,6 +67,7 @@ class MinionFactory():
                 if len(line)>0:
                     sys.stderr.write(line+'\n')
                     if line.find('#finished#')>=0:
+                        print "I got this"
                         self.mutex.acquire()
                         self.statusString = "%s %s"%(_('finished at'),time.asctime())
                         self.done = True
@@ -76,7 +77,7 @@ class MinionFactory():
                         frac = float(line.split()[1])
                         self.mutex.acquire()
                         if self.nReps > 1:
-                            print "Frac = " + str(frac)
+                            #print "Frac = " + str(frac)
                             if frac == 0.0:
                                 self.currentRep += 1
                             self.statusString = '%s: rep: %d %d%% %s'%(_('running'),self.currentRep,int(100*frac),_('complete'))
