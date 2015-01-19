@@ -612,8 +612,8 @@ def jsonCostsSummaryKeyPoints(db, uiSession):
             costPerDose = 0.0
         return {'success': True,
                 'mainTitle': _('Key Costing Points'),
-                'labels': [_('Cost per Dose'),
-                           _('Cost per Fully Vaccinated Child')
+                'labels': [_('Logistics Cost per Dose Administered'),
+                           _('Logistics Cost per Fully Immunized Child (FIC)')
                            ],
                 'values': [costPerDose,
                            costPerFIC
