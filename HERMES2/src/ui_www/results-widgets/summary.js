@@ -135,8 +135,25 @@
                 	$("#noCostDiv").append("<p>"+tp[15]+"</p>");
                 }
                 
-                $("#"+geobuttonContainerID).button("option","label",tp[0]);
-                $("#"+geobuttonContainerID).prop("title",tp[3]);
+                $.ajax({
+                	url:rootPath+"json/does-model-have-coordinates?modelId="+modelId,
+                	data:'json',
+                	success:function(data){
+                		if(!data.success){
+                			alert(data.msg);
+                		}
+                		else{
+                			if(data.hascoord){
+                				$("#"+geobuttonContainerID).button("option","label",tp[0]);
+                                $("#"+geobuttonContainerID).prop("title",tp[3]);
+                			}
+                			else{
+                				$("#"+geobuttonContainerID).hide();
+                			}                      			
+                		}                		                		
+                	}                	
+                });
+                
                 $("#"+netbuttonContainerID).button("option","label",tp[1]);
                 $("#"+netbuttonContainerID).prop("title",tp[4]);
                 $("#"+xlsbuttonContainerID).button("option","label",tp[2]);

@@ -2357,6 +2357,20 @@ def jsonGetTransportModelNames(db,uiSession):
     except Exception,e:
         result = {'success':False, 'msg':str(e)}
         return result
+    
+@bottle.route('/json/does-model-have-coordinates')
+def jsonDoesModelHaveCoordinates(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        return {'success':True,'hascoord':m.hasGeoCoordinates()}
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
 '''
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 STB deprecated

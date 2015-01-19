@@ -4694,7 +4694,21 @@ class ShdNetwork(Base):
                     return result
                 
         return None
-           
+    
+    def hasGeoCoordinates(self):
+        hasCoords = False
+        for storeId,store in self.stores.items():
+            print "store Lat {0} Lon {1}".format(store.Latitude,store.Longitude)
+            if store.Latitude is not None:
+                if store.Longitude is not None:
+                    if store.Latitude != 0.0 and store.Longitude != 0.0:
+                        if store.Latitude != "" and store.Longitude != "":
+                            hasCoords = True
+            if hasCoords:
+                break
+        return hasCoords
+            
+            
     def writeCSVRepresentation(self):
         """
         This routine recreates the files which presumably were read by loadShdNetwork to create
