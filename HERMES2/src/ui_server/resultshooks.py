@@ -170,6 +170,9 @@ def getResultsGroupTree(rG,m,db):
         if not r.hasResults():
             continue
         rName = "Run: {0}".format(r.runNumber)
+        hasCosts = 0
+        if r.hasCostResults():
+            hasCosts = 1
         tText = "Model:{0}, Result:{1}, ".format(m.name,rG.name)
         if r.resultsType == "average":
             rName = "Average Result"
@@ -185,7 +188,7 @@ def getResultsGroupTree(rG,m,db):
                                                                                                  r.resultsId,
                                                                                                  _("delete"))
         rGDict['children'].append({'text':rName,'tabText':tText,
-                                   'id':"r_{0}_{1}".format(rG.modelId,r.resultsId)})
+                                   'id':"r_{0}_{1}_{2}".format(rG.modelId,r.resultsId,hasCosts)})
     return rGDict
 
     

@@ -3,14 +3,15 @@
     $.widget("results_widgets.results_summary_page",{
         options:{
             modelId:'',
-    resultsId:'',
-    randMon:'',
-    rootPath:'',
-    scrollable:true,
-    resizable:false,
-    trant:{
-        title:"Summary of Results"
-    }
+		    resultsId:'',
+		    showCosts:false,
+		    randMon:'',
+		    rootPath:'',
+		    scrollable:true,
+		    resizable:false,
+		    trant:{
+		        title:"Summary of Results"
+		    }
         },
 
     shrink:function(){
@@ -33,6 +34,7 @@
         var modelId = this.options.modelId;
         var resultsId = this.options.resultsId;
         var rootPath = this.options.rootPath;
+        var showCosts = this.options.showCosts;
 
         this.containerID = $(this.element).attr('id');
         var containerID = this.containerID;
@@ -64,8 +66,14 @@
         //            $("#"+this.containerID).append("<div id='"+ this.buttonContainerID + 
         //                                            "' class='rs_buttons'></div>");
 
-        $("#"+this.containerID).append("<table id = '"+ this.costGridContainerID + "' class='rs_costGrid'></table>");
-        $("#"+this.containerID).append("<table id = '"+ this.keypointsContainerID + "' class='rs_keypoints'></table>");
+        if(this.options.showCosts){
+	        $("#"+this.containerID).append("<table id = '"+ this.costGridContainerID + "' class='rs_costGrid'></table>");
+	        $("#"+this.containerID).append("<table id = '"+ this.keypointsContainerID + "' class='rs_keypoints'></table>");
+        }
+        else{
+        	$("#"+this.containerID).append("<div id = 'noCostDiv' style='padding:5px;font-size:12px;'></div>");
+        }
+        
         $("#"+this.containerID).append("<div id='"+this.containerID+"_buttons' style='width:100%;'></div>");
         $("#"+this.containerID).append("<div id='"+this.containerID+"_buttons' style='width:100%;'></div>");
         $("#"+this.containerID + "_buttons").append("<div id='"+this.geobuttonContainerID+"' class='rs_button'></div>");
@@ -83,16 +91,18 @@
             modelId: this.options.modelId
         });
 
-        $("#"+this.costGridContainerID).csgrid({
-            resultsId: this.options.resultsId,
-            modelId: this.options.modelId
-        });
-
-        $("#"+this.keypointsContainerID).keypoints({
-            resultsId: this.options.resultsId,
-            modelId: this.options.modelId
-        });
-
+        if(this.options.showCosts){
+	        $("#"+this.costGridContainerID).csgrid({
+	            resultsId: this.options.resultsId,
+	            modelId: this.options.modelId
+	        });
+	
+	        
+	        $("#"+this.keypointsContainerID).keypoints({
+	            resultsId: this.options.resultsId,
+	            modelId: this.options.modelId
+	        });
+	    }
         $("#"+geobuttonContainerID).button();
         $("#"+netbuttonContainerID).button();
         $("#"+xlsbuttonContainerID).button();
@@ -112,7 +122,8 @@
             11:'Cancel',
             12:'Total Costs By Supply Chain Level',
             13:'Currency',
-            14:'Year'
+            14:'Year',
+            15:'There are no costing results to display for this run'
         };
 
         // Handle everything that needs to be translated
@@ -120,6 +131,10 @@
             .done(function(tphrases){
                 var tp = tphrases.translated_phrases;
 
+                if(!showCosts){
+                	$("#noCostDiv").append("<p>"+tp[15]+"</p>");
+                }
+                
                 $("#"+geobuttonContainerID).button("option","label",tp[0]);
                 $("#"+geobuttonContainerID).prop("title",tp[3]);
                 $("#"+netbuttonContainerID).button("option","label",tp[1]);
@@ -184,48 +199,50 @@
                     }    
                 });
 
-                // Zoomable Treemap Widget
-                var zoomID = containerID + "_cost_zoomableTreemap";
-                $("#"+containerID).append("<div id='"+zoomID+"' name='" + zoomID + "'></div>");
-                var zoom_treemap = $("#"+zoomID).treemap({
-                    hasChildrenColor: "steelblue",
-                    noChildrenColor: "#ccc",
-                    jsonDataURLBase: "json/results-cost-hierarchical-value",
-                    jsonDataURLParameters: [
-                    "modelId="+modelId,
-                    "resultsId="+resultsId],
-                    minWidth: 768,
-                    minHeight: 775,
-                    resizable: false,
-                    scrollable: true,
-                    trant: {
-                        "title": tp[12], 
-                        "currency_label": tp[13],
-                        "year_label": tp[14]
-                    }
-                });
-
-                // Hierarchical Barchart Widget
-                var heirBarID = containerID + "_cost_heirBarChart";
-                $("#"+containerID).append("<div id='"+heirBarID+"' name='"+heirBarID+"'></div>");
-                $("#"+heirBarID).barchart({
-                    hasChildrenColor: "steelblue",
-                    noChildrenColor: "#ccc",
-                    jsonDataURLBase: "json/results-cost-hierarchical",
-                    jsonDataURLParameters: [
-                    "modelId="+modelId,
-                    "resultsId="+resultsId],
-                    minWidth: 768,
-                    minHeight: 300,
-                    resizable: false,
-                    scrollable: true,
-                    trant: {
-                        "title": tp[12], 
-                        "currency_label": tp[13],
-                        "year_label": tp[14]
-                    }
-
-                });
+                if(showCosts){
+	                // Zoomable Treemap Widget
+	                var zoomID = containerID + "_cost_zoomableTreemap";
+	                $("#"+containerID).append("<div id='"+zoomID+"' name='" + zoomID + "'></div>");
+	                var zoom_treemap = $("#"+zoomID).treemap({
+	                    hasChildrenColor: "steelblue",
+	                    noChildrenColor: "#ccc",
+	                    jsonDataURLBase: "json/results-cost-hierarchical-value",
+	                    jsonDataURLParameters: [
+	                    "modelId="+modelId,
+	                    "resultsId="+resultsId],
+	                    minWidth: 768,
+	                    minHeight: 775,
+	                    resizable: false,
+	                    scrollable: true,
+	                    trant: {
+	                        "title": tp[12], 
+	                        "currency_label": tp[13],
+	                        "year_label": tp[14]
+	                    }
+	                });
+	
+	                // Hierarchical Barchart Widget
+	                var heirBarID = containerID + "_cost_heirBarChart";
+	                $("#"+containerID).append("<div id='"+heirBarID+"' name='"+heirBarID+"'></div>");
+	                $("#"+heirBarID).barchart({
+	                    hasChildrenColor: "steelblue",
+	                    noChildrenColor: "#ccc",
+	                    jsonDataURLBase: "json/results-cost-hierarchical",
+	                    jsonDataURLParameters: [
+	                    "modelId="+modelId,
+	                    "resultsId="+resultsId],
+	                    minWidth: 768,
+	                    minHeight: 300,
+	                    resizable: false,
+	                    scrollable: true,
+	                    trant: {
+	                        "title": tp[12], 
+	                        "currency_label": tp[13],
+	                        "year_label": tp[14]
+	                    }
+	
+	                });
+	           }
             });
 
 

@@ -13,7 +13,7 @@
 			}
 		},
 		
-		add: function(modelId,resultsId,tabText){
+		add: function(modelId,resultsId,tabText,showCosts){
 			var thisID = modelId + "_" + resultsId;
 			var tabTitle = "Summary: Model"
 			if(tabList.indexOf(thisID) > -1){
@@ -30,6 +30,7 @@
 				$("div#"+tab_name).results_summary_page({
 					resultsId:resultsId,
 					modelId:modelId,
+					showCosts:showCosts,
 					rootPath:this.options.rootPath
 				});
 				// manage the tabs list

@@ -98,8 +98,11 @@ var show_result = true;
 								var resultsMon = node_instance.id.replace('r_','');
 								var modelId = parseInt(resultsMon.split("_")[0]);
 								var resultsId = parseInt(resultsMon.split("_")[1]);
+								var hasCosts = parseInt(resultsMon.split("_")[2]);
+								var boolCosts = hasCosts == 1 ? true : false;
 								$("#results_summary_tabs").results_tabs("add",modelId,resultsId,
-																		node_instance.original.tabText);
+																		node_instance.original.tabText,
+																		boolCosts);
 							}
 						}
 					}
