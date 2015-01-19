@@ -63,6 +63,7 @@
                     caption:tp[10],
                     width: 'auto', //specify width; optional
                     height:'auto',
+                    footerrow:true,
                     autowidth:'true',
                     colNames:[
                     "ID",
@@ -76,6 +77,7 @@
                     tp[7],
                     tp[8],
                     tp[9]
+                       
                         ], //define column names
                     colModel:[    
                     {
@@ -83,7 +85,7 @@
                         index:'vaccid',
                         jsonmap:'vaccid',
                         hidden:true, 
-                        key:true
+                        key:true,
                     },
                     {
                         name:'name',
@@ -102,7 +104,7 @@
                             value = cellvalue*100.0;
                             if(value < 0.0) { value=0.0;};
                             return value.toFixed(2) + "%"},
-                        align:'right'
+                        align:'right'                    
                     },
                     {
                         name:'vialsused',
@@ -111,7 +113,7 @@
                         width:75,
                         formatter:'number',
                         align:'right',
-                        formatoptions:{decimalPlaces:0}
+                        formatoptions:{decimalPlaces:0},
                     },
                     {
                         name:'dosespervial',
@@ -179,7 +181,64 @@
                         formatoptions:{decimalPlaces:0}
                     }
                 ], //define column runs
-                    gridview: true // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
+                   	gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
+                   	gridComplete: function(){
+                    	var $grid = $("#"+containerID).jqGrid();
+                    	var vals = {'vaccid':'total','name':'Overall Totals'};
+                    	
+                    	// Availability
+                    	var dosesDem = $grid.getCol('dosesrequested');
+                    	var dosesAdm = $grid.getCol('dosesadmin');
+                    	var vialsUsed = $grid.getCol('vialsused');
+                    	var dosesPerVial = $grid.getCol('dosespervial');
+                    	var ovw = $grid.getCol('ovw');
+                    	var percool = $grid.getCol('percooler');
+                    	var perfree = $grid.getCol('perfreezer');
+                    	var spoiled = $grid.getCol('vialspoiled');
+                    	
+                    	var dosesDemSum = 0.0;
+                    	var dosesAdmSum = 0.0;
+                    	var vialsUsedSum = 0.0;
+                    	var dpvSum = 0.0;
+                    	var spoiledSum = 0.0;
+                    	var ovwSum = 0.0;
+                    	var perCoolSum = 0.0;
+                    	var perFreeSum = 0.0;
+                    	
+                    	for (var i = 0;i < dosesDem.length;i++){
+                    		dosesDemSum += parseFloat(dosesDem[i]);
+                    		dosesAdmSum += parseFloat(dosesAdm[i]);
+                    		vialsUsedSum += parseFloat(vialsUsed[i]);
+                    		spoiledSum += parseFloat(spoiled[i]);
+                    		dpvSum += parseFloat(vialsUsed[i])*parseFloat(dosesPerVial[i]);
+                    		ovwSum += parseFloat(vialsUsed[i])*parseFloat(dosesPerVial[i])*parseFloat(ovw[i])/100.0;
+                    		perCoolSum += parseFloat(vialsUsed[i])*parseFloat(percool[i])/100.0;
+                    		perFreeSum += parseFloat(vialsUsed[i])*parseFloat(perfree[i])/100.0;
+                    		
+                    	}
+                    	var totalAvail = dosesAdmSum/dosesDemSum;
+                    	vals['availability'] = totalAvail;
+                    	vals['dosesrequested']=dosesDemSum;
+                    	vals['dosesadmin'] = dosesAdmSum;
+                    	vals['vialsused'] = vialsUsedSum;
+                    	vals['vialspoiled'] = spoiledSum;
+                    	vals['ovw'] = ovwSum/dpvSum;
+                    	vals['percooler'] = perCoolSum/vialsUsedSum;
+                    	vals['perfreezer'] = perFreeSum/vialsUsedSum;
+                    	
+                    	
+                    	
+//                    	for (var i=0;i<data.columns.length;i++){
+//                    		var colEntries = $grid.jqGrid('getCol',data.columns[i],false);
+//                    		var colSum = 0.0;
+//                    		for(var j=0;i<colEntries.length;j++)colSum += colEntries[j];
+//                    		vals[data.columns[i]] = colSum;
+//                    	}
+                    	$grid.jqGrid('footerData','set',vals);
+                    	
+                    }
+                
+                    
                 }).jqGrid('hermify',{debug:true, resizable_hz:true});
             });
     }

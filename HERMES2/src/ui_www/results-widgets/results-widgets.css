@@ -17,6 +17,10 @@
 
 .rs_summary .ui-jqgrid {font-size:x-small}
 .rs_summary .ui-jqgrid tr.jqgrow td {font-size:x-small}
+.rs_summary .ui-jqgrid tr.footrow td {
+	font-size:x-small;
+	background-color:rgb(230,230,230);
+	}
 .rs_summary .ui-jqgrid tr.jqgroup td {
 	font-size:x-small;
 	background-color: rgb(88,88,88);
@@ -32,4 +36,5 @@
     	height: auto !important;
     	vertical-align: middle;
 	font-size:x-small;
+	font-weight:bold;
 }
