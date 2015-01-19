@@ -32,11 +32,8 @@ _=session_support.translateString
 def resultsTopPage(db,uiSession):
     #modelId = _safeGetReqParam(bottle.request.path,"modelId");
     modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
-    print "ModelID 1 {0}".format(modelId) 
     if modelId is None:
         modelId = -1;
-    print "FSDFADFAFAEFDSAFAEFADFAFAEFAFSADFASEFAESFASDFAWEFASEF"
-    print "ModelID = {0}".format(modelId)
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Results")))
     return bottle.template("results_top.tpl",{"breadcrumbPairs":crumbTrack},modelId=modelId)
 
@@ -143,12 +140,14 @@ def getResultsGroupTree(rG,m,db):
             rsltcount+=1
     
     for r in rG.results:
-        print "Does this have costs? {0}".format(len(r.costSummaryRecs) != 0) 
-        if rsltcount == 1:
-            if r.resultsType == "average":
-                continue
-            else:
-                pass
+        #print "Does this have costs? {0}".format(len(r.costSummaryRecs) != 0) 
+#         if rsltcount == 1:
+#             if r.resultsType == "average":
+#                 continue
+#             else:
+#                 pass
+        if not r.hasResults():
+            continue
         rName = "Run: {0}".format(r.runNumber)
         tText = "Model:{0}, Result:{1}, ".format(m.name,rG.name)
         if r.resultsType == "average":
@@ -159,7 +158,11 @@ def getResultsGroupTree(rG,m,db):
         
         #linkName = "<a href={0}results-summary?modelId={1}&resultsId={2}>Open</a>".format("",
         #                                                                                  modelId,
-        #                                                                                  r.resultsId)    
+        #                   
+        #                                                               r.resultsId)    
+        rName += " <button id='res_del_but_r_{0}_{1}' class='res_del_button' >{2}</button>".format(rG.modelId,
+                                                                                                 r.resultsId,
+                                                                                                 _("delete"))
         rGDict['children'].append({'text':rName,'tabText':tText,
                                    'id':"r_{0}_{1}".format(rG.modelId,r.resultsId)})
     return rGDict

@@ -2467,7 +2467,13 @@ class HermesResults(Base):
 
     def getCostSummaryRecs(self):
         return self.costSummaryRecs
-         
+    
+    def hasResults(self):
+        return len(self.summaryRecs) > 0
+
+    def hasCostResults(self):
+        return len(self.costSummaryRecs) > 0
+    
 _makeColumns(HermesResults)
 
 def resultsLoadListener(HermesResults, context):

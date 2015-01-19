@@ -20,17 +20,12 @@
 				$("#"+this.containerID).tabs("option", "active", tabList.indexOf(thisID));
 			}
 			else{
-				//Not created yet
-			
 				var num_tabs = $("#"+this.containerID+" ul li").length + 1;
 				var tab_name = "tab_"+ thisID;
 				$("#"+this.containerID+" ul").append("<li><a href='#"+ tab_name + "'>"+
 						tabText + "</a>"+
 						"<span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>");
-				$("#results_summary_tabs").append("<div id='" + tab_name + "' class='rs_summary'></div>");
-				//var resultsMon = node_instance.id.replace('r_','');
-				//var modelId = parseInt(resultsMon.split("_")[0]);
-				//var resultsId = parseInt(resultsMon.split("_")[1]);
+				$("#"+this.containerID).append("<div id='" + tab_name + "' class='rs_summary'></div>");
 				$("#"+this.containerID).tabs("refresh");
 				$("div#"+tab_name).results_summary_page({
 					resultsId:resultsId,
@@ -39,10 +34,33 @@
 				});
 				// manage the tabs list
 				tabList.push(thisID);
-				$("#results_summary_tabs").tabs("option", "active", num_tabs-1);
-				
+				$("#"+this.containerID).tabs("option", "active", num_tabs-1);
 			}
 		},
+		
+		remove: function(modelId,resultsId){
+			var thisID = modelId + "_" + resultsId;
+			if(tabList.indexOf(thisID) > -1){
+				// This tab is actually open
+				var div = $("#tab_"+thisID);
+				var ariaLab = div.attr("aria-labelledBy");
+				var linkLi = $("#"+ariaLab).closest("li");
+				//Remove the elements
+				linkLi.remove();
+				div.remove();
+				if(tabList.length>1){
+					if($("#"+this.containerID).tabs("option","active")==tabList.indexOf(thisID)){
+						$("#"+this.containerID).tabs("option", "active", tabList.indexOf(thisID)-1);
+					}
+				}	
+				tabList.splice(tabList.indexOf(thisID),1);
+				if(tabList.length == 1){
+					$("#"+this.containerID).tabs("option", "active", tabList[0]);
+				}
+			}
+		},
+			
+
 
 		_create:function(){
 			trant = this.options.trant;
