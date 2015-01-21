@@ -2269,6 +2269,21 @@ def jsonGetUISessionModelInfo(db,uiSession):
         return result 
 
 '''
+Utility Function to get number of Results Groups for a given modelId (0 means no results available)
+'''
+@bottle.route('/json/get-results-avail')
+def jsonGetModelInfoFromSession(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
+        numberResultsGroups = db.query(shd.HermesResultsGroup).filter(shd.HermesResultsGroup.modelId==modelId).count()
+        return {'data':numberResultsGroups,'success':True}
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result   
+
+'''
 Utility Function that will get a ModelInfo structure form the uiSession
 '''
 

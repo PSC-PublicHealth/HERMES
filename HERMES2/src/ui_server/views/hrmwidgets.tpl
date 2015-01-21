@@ -1249,8 +1249,11 @@ function addToggleExpansionButton($grid) {
 				$elem = $(elem);
 				var divId = $elem.attr('id');
 				if (divId == undefined) $.error('wrapper div has no id');
+				//buttonList now takes optional 4th parameter: JSON call which, when passed a modelId, provides a true/false value to enable/disable the button
 				buttonList = [
 				              ['{{_("Open")}}', 'hermes_edit_button', 'onOpen'],
+				              ['{{_("Run")}}', 'hermes_run_button', 'onRun'],
+				              ['{{_("Results")}}', 'hermes_results_button', 'onResults','json/get-results-avail'],
 				              ['{{_("Copy")}}', 'hermes_copy_button', 'onCopy'],
 				              ['{{_("Info")}}', 'hermes_info_button', 'onInfo'],
 				              ['{{_("Del")}}', 'hermes_del_button', 'onDel']
@@ -1266,6 +1269,29 @@ function addToggleExpansionButton($grid) {
 						$elem.find("."+cl).click(settings[cbName]);
 					else
 						$elem.find("."+cl).prop("disabled",true);
+                    var modelId = divId;
+                    if(typeof buttonList[x][3] != 'undefined') {
+                        var enabledOn = buttonList[x][3];
+                        var cl_ = cl;   //necessary because otherwise in .done section below .getJSON, cl is set to next iterarated button's cl
+                        var x_ = x;
+                        $.getJSON('{{rootPath}}'+buttonList[x][3],{modelId:modelId})
+                        .done(function(data) {
+                            if (data.success) {
+                                if (data.data) {
+                                    $("div#" + divId + ".hermes_button_triple ." + cl_).removeAttr("disabled");
+                                } else {
+                                    $("div#" + divId + ".hermes_button_triple ." + cl_).attr("disabled","disabled");
+                                }
+                            }
+                            else {
+                            alert('{{_("Failed: ")}}'+data.msg);
+                            }
+                        })
+                        .fail(function(jqxhr, textStatus, error) {
+                            alert("Error: "+jqxhr.responseText);
+                        });
+                    }
+					
 				}
 				$elem.data('map',map);
 			if ($(document).tooltips) $(document).tooltips('applyTips');

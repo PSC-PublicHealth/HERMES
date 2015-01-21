@@ -119,8 +119,15 @@ $("#manage_models_grid").jqGrid({ //set your grid id
     			var id = unescape($(this).parent().attr('id'));
     			var mName = unescape($(this).parent().attr('name'));
     			copyModel(id,mName);
-    		}
-    		
+    		},
+            onRun: function(event){
+    			var id = unescape($(this).parent().attr('id'));
+    			window.location = "{{rootPath}}model-run?modelId="+id+"&crmb=clear";
+    		},
+            onResults: function(event){
+    			var id = unescape($(this).parent().attr('id'));
+    			window.location = "{{rootPath}}results-top?modelId="+id;
+    		}    		
     	});
 //	$(".hermes_info_button").click(function(event) {
 //	   // $.getJSON('json/model-info',{modelId:$(this).attr('id')})
