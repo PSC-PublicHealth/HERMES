@@ -17,6 +17,7 @@ from preordertree import PreOrderTree
 from upload import uploadAndStore, makeClientFileInfo
 import htmlgenerator
 import typehelper
+from typeholdermodel import allTypesModelName
 import shadow_network_db_api
 import privs
 import session_support_wrapper as session_support
@@ -62,6 +63,22 @@ def addCrumb(uiSession, label, noInlize=False):
     crumb = (url, label)
     crumbTrack = uiSession.getCrumbs().push(crumb)
     return crumbTrack
+
+def isSystemDBModel(model):
+    if model.name == allTypesModelName:
+        return True
+    return False
+
+def sortModelList(models):
+    pairs = []
+    for m in models:
+        if isSystemDBModel(m):
+            pairs.append((False, m))
+        else:
+            pairs.append((m.name, m))
+    pairs.sort()
+    keys, models = zip(*pairs)
+    return models
 
 @bottle.route('/models-top')
 def modelsTopPage(uiSession):
@@ -978,18 +995,23 @@ def handleListModel(db,uiSession):
         mList = db.query(shd.ShdNetwork)
     else:
         mList = db.query(shd.ShdNetwork).filter(shd.ShdNetwork.refOnly != True)
-    pairs = [(p.modelId,p.name) for p in mList]
-    pairs.sort()
+    mList = mList[:]
+    mList = sortModelList(mList)
+
     s = ""
     prv = uiSession.getPrivs()
     allowedPairs = []
-    for thisId,name in pairs: 
+
+    for m in mList:
+        thisId = m.modelId
+        name = m.name
+
         try:
             prv.mayReadModelId(db, thisId) # Exclude models for which we don't have read access
             if writeableOnly:
                 prv.mayModifyModelId(db, thisId) # Exclude models for which we don't have read access
-            if name == "AllTypesModel":
-                name = "HERMES Database"
+            if isSystemDBModel(m):
+                name = _("HERMES Database")
                 if selectedModelId == -1:
                     selectedModelId = thisId
             allowedPairs.append((thisId,name))
@@ -1030,12 +1052,12 @@ def handleModelList(db, uiSession):
     mList = db.query(shd.ShdNetwork)
      ### Make it so that the all types model is the default to appear
     if not curModel:
-         atm = db.query(shd.ShdNetwork).filter(shd.ShdNetwork.name=="AllTypesModel").one()
+         atm = db.query(shd.ShdNetwork).filter(shd.ShdNetwork.name==allTypesModelName).one()
          curModel = atm.modelId
          
     # query objects aren't subclasses of lists so do a shallow copy
     mList = mList[:]
-    mList.sort(key=lambda m: m.modelId)
+    mList = sortModelList(mList)
     s = ""
     prv = uiSession.getPrivs()
     allowedModels = []
@@ -1054,8 +1076,8 @@ def handleModelList(db, uiSession):
             
             allowedPairs.append((m.modelId,m.name))
             thisName = m.name
-            if m.name == "AllTypesModel":
-                thisName = "HERMES Database"
+            if isSystemDBModel(m):
+                thisName = _("HERMES Database")
             if curModel == m.modelId:
                 selModelId = m.modelId
                 selModelName = m.name
@@ -1297,7 +1319,7 @@ def jsonSetSelectedModel(db, uiSession):
         uiSession['selectedModelId'] = modelId
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         name = m.name
-        if name == "AllTypesModel":
+        if isSystemDBModel(m):
             name = "HERMES Database"
         result = { 'success':True,'id':modelId, 'name':name }
         return result
