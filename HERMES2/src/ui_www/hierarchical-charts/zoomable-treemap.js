@@ -192,14 +192,15 @@
                   .classed("children", true)
                   .on("click", transition);
           
+              g.append("rect")
+              .attr("class", "parent")
+              .call(rect)
+              .append("title");
+
               g.selectAll(".child")
                   .data(function(d) { return d._children || [d]; })
                   .enter().append("rect")
                   .attr("class", "child")
-                  .call(rect);
-          
-              g.append("rect")
-                  .attr("class", "parent")
                   .call(rect)
                   .append("title")
                   .text(function(d) {
@@ -207,7 +208,8 @@
                       return "Name: \"" + d.name + "\"\nCost: " + cost;
                       //return formatNumber(d.value);
                   });
-
+                  
+          
               g.append("text")
                   .attr("dy", ".75em")
                   .text(function(d) { return d.name; })
