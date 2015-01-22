@@ -2408,6 +2408,38 @@ def jsonDoesModelHaveCoordinates(db,uiSession):
     except Exception,e:
         result = {'success':False, 'msg':str(e)}
         return result
+@bottle.route('/edit/update-model-name-note',method="POST")
+def editUpdateModelNameAndNote(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        newName = _getOrThrowError(bottle.request.params,'newName',isInt=False)
+        newNote = _getOrThrowError(bottle.request.params,'newNote',isInt=False)
+        
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+         
+        if m.name != newName:
+            print "HERE"
+        ### Check if name exists
+            namesJson = jsonGetExistingModelNames(db, uiSession)
+            if newName in namesJson['names']:
+                return {'success':False,"type":'nameExists',
+                        'msg':_('Model Name {0} already exists in the database, please choose another'.format(newName))}
+           
+            else:
+                print "THERE"
+                m.name = newName
+        if m.note != newNote:
+            m.note = newNote
+   
+        db.commit()
+        return {'success':True}
+
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error','msg':str(e)}
+        return result    
+        
 '''
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 STB deprecated

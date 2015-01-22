@@ -1,6 +1,13 @@
 %rebase outer_wrapper title_slogan=_('Available Models'),breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
+<style>
+.ui-jqgrid tr.jqgrow td { 
+	white-space:nowrap !important; 
+	overflow:hidden; 
+	text-overflow: ellipsis; 
+}
+</style>
 <h3 style="display:none">{{_('Select A Model')}}</h3>
-<table id="manage_models_grid"></table>
+<table id="manage_models_grid" class="models_list_table"></table>
 <div id="manage_models_pager"> </div>
 </td>
 </tr>
@@ -29,6 +36,26 @@
 <div id="model_confirm_delete" title='{{_("Delete Model")}}'>
 </div>
 
+<div id="model_edit_note_dialog" title="{{_('Model Notes')}}">
+<table>
+	<tr>
+		<td>
+			{{_('Model Name')}}
+		</td>
+		<td>
+			<input type="text" id="model_dialog_name_edit"></input>
+		</td>
+	<tr>
+		<td style="vertical-align:top;">
+			{{_('Model Notes')}}
+		</td>
+		<td>
+			<textarea rows="30" cols="120" id="model_dialog_note_edit"></textarea>
+		</td>
+	</tr>
+</table>
+</div>
+
 <script>
 {{!setupToolTips()}}
 
@@ -36,6 +63,22 @@ function modelsInfoButtonFormatter(cellvalue, options, rowObject) {
 	// cellvalue will be an integer
 	//return "<button type=\"button\" class=\"hermes_info_button\" id="+escape(cellvalue)+">Info</button>";
 	return "<div class='hermes_button_triple' id='" + escape(cellvalue)+ "'/>";
+}
+
+function modelsNoteFormatter(cellvalue, options, rowObject){
+	if(cellvalue == null) return null;
+	if(cellvalue.length==0) return cellvalue;
+	
+	var splitVal = cellvalue.split(" ");
+	var newString = "";
+	for(var i =0; i<splitVal.length;i++){
+		newString += splitVal[i] + " ";
+		if(newString.length > 120){
+			newString += "...";
+			break;
+		}
+	}
+	return newString;
 }
 
 function getModelInfo(modelId){
@@ -65,8 +108,8 @@ $("#manage_models_grid").jqGrid({ //set your grid id
 //	{name:'download zip', index:'downloadzip',hidden:true},
 //	{name:'statinfo', index:'statinfo', width:110, align:'center', formatter:modelsInfoButtonFormatter}
 	{name:'name', index:'name', editable:true, edittype:'text'},
-	{name:'id', index:'id',key:true, sorttype:'int',hidden:false},
-	{name:'note', index:'note', editable:true, edittype:'textarea'},
+	{name:'id', index:'id',width:30,key:true, sorttype:'int',hidden:false},
+	{name:'note', width:200, index:'note'},
 	{name:'download zip', index:'downloadzip',hidden:true},
 	{name:'statinfo', index:'statinfo', align:'center', formatter:modelsInfoButtonFormatter}
     ], //define column models
@@ -78,6 +121,14 @@ $("#manage_models_grid").jqGrid({ //set your grid id
     sortorder: "asc", //sort order; optional
     shrinkToFit: true,
     gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
+    ondblClickRow: function(id){
+    	var row = $("#manage_models_grid").jqGrid().getRowData(id);
+    	$("#model_dialog_name_edit").val(row['name']);
+    	$("#model_dialog_note_edit").val(row['note']);
+    	$("#model_edit_note_dialog").data("modelId",id);
+    	$("#model_edit_note_dialog").dialog("open");
+    	
+    },
 //    onSelectRow: function(id){
 //		if(id && id!==lastsel_models){
 //		    jQuery('#manage_models_grid').jqGrid('saveRow',lastsel_models);
@@ -263,6 +314,51 @@ $(function() {
 
 
 $(function() {
+	$('#model_edit_note_dialog').dialog({
+		autoOpen:false,
+		modal:true,
+		height:"auto",
+		width:"auto",
+		buttons:{
+			'{{_("Save")}}': function(){
+				$.ajax({
+					url:'{{rootPath}}edit/update-model-name-note',
+					dataType:'json',
+					type:'POST',
+					data:{'modelId':$(this).data('modelId'),
+						  'newName':$('#model_dialog_name_edit').val(),
+						  'newNote':$('#model_dialog_note_edit').val()},
+					success:function(result){
+						if(!result.success){
+							if(result.type == "nameExists"){
+								alert('{{_("This model name already exists in the database.  Please choose another name")}}');	
+							}
+							else{
+								$("#model_edit_note_dialog").dialog("close");
+								alert(result.msg);
+							}
+						}
+						else{
+							$('#model_edit_note_dialog').dialog("close");
+							$("#manage_models_grid").trigger("reloadGrid");
+						}
+					}
+				});
+			},
+			'{{_("Cancel")}}':function(){
+				$(this).dialog("close");
+			}
+		},
+		open: function(e,ui) {
+		    $(this)[0].onkeypress = function(e) {
+			if (e.keyCode == $.ui.keyCode.ENTER) {
+			    e.preventDefault();
+			    $(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+			}
+		    };
+		}
+	});
+	
     $("#model_confirm_delete").dialog({
 	autoOpen:false, 
 	height:"auto", 
