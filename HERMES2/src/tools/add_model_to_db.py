@@ -29,6 +29,31 @@ import globals
 from main import parseCommandLine
 # more delayed imports below, so that values in globals can be changed before import
 
+def isModelNameUnique(modelName):
+    #too many imports
+    #todo: trim to only necessary
+    from alembic import op
+    import sqlalchemy as sa
+    import ipath
+    import shadow_network
+    import privs
+    from typeholdermodel import allTypesModelName, installUserTypeHolderModel
+    from db_routines import DbInterface
+    import shadow_network_db_api
+    import util
+    import site_info
+    import csv_tools
+    dbInterface = DbInterface()
+    conn = dbInterface.engine.connect()
+    meta = dbInterface.Base.metadata
+
+    models = sa.Table('models', meta, autoload=True, autoload_with=conn.engine)
+    unique = True
+    for row in conn.execute(sa.select([models]).where(models.c.name==modelName)):
+        unique = False
+        break
+    return unique
+
 def main():
     unifiedInput = input.UnifiedInput()  # pointers to 'unified' files
     userInputList,gblInputs= parseCommandLine()
@@ -57,6 +82,9 @@ def main():
             modelName = 'model_%d'%idx
         else:
             modelName = os.path.splitext(os.path.split(inputName)[1])[0]
+        
+        if ( gblInputs['no_overwrite_db'] and not isModelNameUnique(modelName) ):
+            raise Exception('Model-name "%s" already exists'%(modelName))
         
         shdTypes = shadow_network.ShdTypes()
         shdTypes.loadShdNetworkTypeManagers(userInput, unifiedInput)

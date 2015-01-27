@@ -69,25 +69,22 @@ Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
 Name: "ukrainian"; MessagesFile: "compiler:Languages\Ukrainian.isl"
 
 [CustomMessages]
-InstallingDB={code:GetFinishingStatusMsg}
 english.AskDelDB=Do you want to remove the {#MyAppName} database? This contains models you have created or modified while using {#MyAppName}.
 spanish.AskDelDB=¿Quiere eliminar la base de datos de {#MyAppName}? Este contiene los modelos que ha creado o modificado durante el uso de {#MyAppName}.
 russian.AskDelDB=Вы хотите удалить базу данных {#MyAppName}? Здесь находятся модели которые вы создали или модифицировали.
-english.InstallingDB=Installing {#MyAppName} database
-spanish.InstallingDB=Instalando de la base de datos de {#MyAppName}
-russian.InstallingDB=Установка базы данных {#MyAppName}
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
-[InstallDelete]
+;[InstallDelete]
 ;de-fang old faulty {pf}-deleting uninstaller
-Type: files; Name: "{app}\unins*.dat"
-Type: files; Name: "{app}\unins*.exe"
+;Type: files; Name: "{app}\unins*.dat"
+;Type: files; Name: "{app}\unins*.exe"
+;   commented out because it's been several months since the faulty installer was distributed
+;   and not deleting the uninstaller .dat allows upgrades to keep track of old installed files
 
 [Files]
 Source: "..\..\HERMES2\*"; Excludes: "*.pyc,*.pyo,alembic.ini,install_hermes.log,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\demos\*,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\tests\*,..\..\HERMES2\master_data\*\regression-output\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "requirements\*"; Excludes: "*.pyc,*.pyo"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "misc\hermes-tray.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "misc\log_install_hermes.bat"; DestDir: "{app}\src\tools"; Flags: ignoreversion
 Source: "reqall\*"; Excludes: "*.pyc,*.pyo"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -104,7 +101,8 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\hermes-tray.exe"; Tasks: 
 
 [Run]
 Filename: "{app}\python\pythonw.exe"; Parameters: "-m compileall ""{app}"""
-Filename: "{cmd}"; Parameters: "/C ""{app}\src\tools\log_install_hermes.bat"""; StatusMsg: "{cm:InstallingDB}"; Flags: runhidden
+Filename: "{cmd}"; Parameters: "/C ""{app}\src\tools\log_install_hermes.bat"""; Flags: runhidden
+Filename: "{cmd}"; Parameters: "/C ""{app}\src\tools\automodels.bat"""; Flags: runhidden
 Filename: "{app}\hermes-tray.exe"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
@@ -113,11 +111,6 @@ Type: dirifempty; Name: "{%appdata}\HERMES"
 Type: filesandordirs; Name: "{app}"
 
 [Code]
-function GetFinishingStatusMsg(Value: string): string;
-begin
-  Result := SetupMessage(msgStatusRunProgram);
-end;
-
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 var mRes : integer;
 begin

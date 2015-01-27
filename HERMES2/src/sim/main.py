@@ -148,6 +148,7 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None):
                       help="changes format of info written to stderr to make machine parsing easier")
     parser.add_option("--perfect", action="store_true", default=False,
                       help="makes all storage and transport infinite")
+    parser.add_option("--no_overwrite_db", action="store_true", default=False, help="do not overwrite the specified model in DB if its name already exists")
 
     # the next option "--merge_outputs" is really intended for server use after each sim has been
     # run individually using --run_number and --zip_outputs.  The usage requirements are:
@@ -171,6 +172,7 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None):
         gblDict['run_number'] = opts.run_number
         gblDict['zip_outputs'] = opts.zip_outputs
         gblDict['merge_outputs'] = None
+        gblDict['no_overwrite_db'] = opts.no_overwrite_db
         # retrieve any supplemental args
         _retrieveOptions(opts, gblDict, parserArgs)
         if opts.merge_outputs:
@@ -202,6 +204,7 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None):
     gblDict['merge_outputs'] = None
     gblDict['gap'] = opts.gap
     gblDict['perfect'] = opts.perfect
+    gblDict['no_overwrite_db'] = opts.no_overwrite_db
     gblDict['use_shadow'] = opts.use_shadow
     gblDict['use_dbmodel'] = opts.use_dbmodel
     if opts.use_dbmodel:
