@@ -6,6 +6,21 @@
 * Hermes-specific mods follow
 */
 
+
+.hermes_edit_button .ui-button-text,
+.hermes_info_button .ui-button-text,
+.hermes_del_button .ui-button-text,
+.new_hermes_info_button .ui-button-text,
+.hermes_run_button .ui-button-text,
+.hermes_results_button .ui-button-text,
+.hermes_copy_button .ui-button-text {
+    padding: 0 0.5em;
+}
+
+.ui-jqgrid .ui-state-disabled:hover {
+    padding: 0;
+}
+
 .rs_keypoints {
     border: 1px outset;
     margin-top: 8px;

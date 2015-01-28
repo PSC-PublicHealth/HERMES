@@ -240,6 +240,17 @@ function addToggleExpansionButton($grid) {
                 if (opts.has_subgrid) {
                     addToggleExpansionButton($grid);
                 }
+                
+                $grid.jqGrid("setGridParam", {
+                    afterInsertRow: function(rowid, rowdata, rowelem) {
+                        $grid.find("button").button();
+                    }
+                });
+                
+                //appends this function to already-defined gridComplete
+                $grid.bind('jqGridGridComplete.jqGrid',function(e) {
+                    $grid.find("button").button();
+                });
 
     		});
     		return this;
@@ -1269,7 +1280,8 @@ function addToggleExpansionButton($grid) {
 						$elem.find("."+cl).click(settings[cbName]);
 					else
 						$elem.find("."+cl).prop("disabled",true);
-                    var modelId = divId;
+                    $elem.find("."+cl).button();    //neccessary until models_top.tpl jqGrid calls hermify
+                    var modelId = divId;                   
                     if(typeof buttonList[x][3] != 'undefined') {
                         var enabledOn = buttonList[x][3];
                         var cl_ = cl;   //necessary because otherwise in .done section below .getJSON, cl is set to next iterarated button's cl
@@ -1280,7 +1292,9 @@ function addToggleExpansionButton($grid) {
                                 if (data.data) {
                                     $("div#" + divId + ".hermes_button_triple ." + cl_).removeAttr("disabled");
                                 } else {
-                                    $("div#" + divId + ".hermes_button_triple ." + cl_).attr("disabled","disabled");
+                                    $("div#" + divId + ".hermes_button_triple ." + cl_).attr("disabled","disabled"); 
+                                    $("div#" + divId + ".hermes_button_triple ." + cl_).addClass("ui-button-disabled");
+                                    $("div#" + divId + ".hermes_button_triple ." + cl_).addClass("ui-state-disabled");
                                 }
                             }
                             else {
@@ -1291,7 +1305,6 @@ function addToggleExpansionButton($grid) {
                             alert("Error: "+jqxhr.responseText);
                         });
                     }
-					
 				}
 				$elem.data('map',map);
 			if ($(document).tooltips) $(document).tooltips('applyTips');
@@ -1301,6 +1314,7 @@ function addToggleExpansionButton($grid) {
 			$.fn.buttontriple = function( arg, arg2, arg3 ) {
  				if (arg=='set') {
  					var $btn = this.find('.'+this.data('map')[arg2]);
+ 					$btn.button();
  					$btn.unbind('click');
  					$btn.click(arg3);
  					if (arg3) $btn.attr('disabled',false);
@@ -1331,6 +1345,7 @@ function addToggleExpansionButton($grid) {
  						$elem.find("."+cl).click(settings[cbName]);
  					else
  						$elem.find("."+cl).prop("disabled",true);
+                    $elem.find("."+cl).button();
  				}
  				$elem.data('map',map);
 				if ($(document).tooltips) $(document).tooltips('applyTips');

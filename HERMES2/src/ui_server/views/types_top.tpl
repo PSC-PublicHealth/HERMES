@@ -508,8 +508,8 @@ $("#dest_grid").jqGrid({
     
     // editurl:
     caption: "{{_('Used Types')}}",
-});
-
+}).jqGrid('hermify',{debug:true});
+	
 $("#dest_grid").jqGrid('navGrid', '#dest_pager', {edit:false, add:false, del:false});
 
 function catchNewType(event, ui, data, $source, $target) {
@@ -545,7 +545,7 @@ $("#src_grid").jqGrid({
     },
     // editurl:
     caption: "{{_('Available Types')}}",
-});
+}).jqGrid('hermify',{debug:true});
 $("#src_grid").jqGrid('navGrid', '#src_pager', {edit:false, add:false, del:false});
 $("#src_grid").jqGrid('gridDnD', {connectWith : '#dest_grid', 
 				  dragcopy : true, 
