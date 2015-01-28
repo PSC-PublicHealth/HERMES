@@ -181,7 +181,7 @@ $(function() {
 	    gridview: false, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
    	    onSelectRow: function(id){
 		    if(id && id!==lastsel_models){
-			    jQuery('#model_create_adjust_grid').jqGrid('saveRow',lastsel_models);
+			    //jQuery('#model_create_adjust_grid').jqGrid('saveRow',lastsel_models);
 			    //jQuery('#model_create_adjust_grid').jqGrid('editRow',id,true);
 			    jQuery('#model_create_adjust_grid').jqGrid('editRow',id,{
 			    	"keys":true,
@@ -190,6 +190,18 @@ $(function() {
 //					}
 			    });
 			    //lastsel_models=id;
+                var ids = $("#model_create_adjust_grid").jqGrid('getDataIDs');
+                for(var i=0; i<ids.length; i++) {
+                    $( document ).on( "blur", "input[id^='" + ids[i] + "_'], " + "select[id^='" + ids[i] + "_']", function() {
+                      var focusfrom = $(this).closest("tr").attr('id')
+                      setTimeout(function()
+                      {
+                          if ($(document.activeElement).closest("tr").attr('id')!=focusfrom) {
+                              $('#model_create_adjust_grid').jqGrid('saveRow',focusfrom);
+                          }
+                      }, 1);
+                    });
+                }
 		    }
 	    },
         editurl:'{{rootPath}}edit/edit-create-model.json',
