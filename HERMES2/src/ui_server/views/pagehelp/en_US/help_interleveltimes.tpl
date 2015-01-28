@@ -1,4 +1,4 @@
-<p>Specify the average travel time between levels in the (model name) supply chain. 
+<p>Specify the average travel time between levels in the supply chain. 
 </p>
 <br>
 <p>
@@ -7,8 +7,8 @@ For example, if travel times between locations are unknown but average distances
 users may assume a reasonable speed to determine the average travel times between levels.
 </p>
 <br>
-<p>HERMES Create-a-model assigns the same average travel time to all routes between adjacent levels.
-All of these settings can me modified after the basic model structure is created via the 
-<b>HERMES Advanced Model Editor</b>.</p>
+<p>HERMES assigns the same average travel time and distance to all routes between adjacent levels.
+After the basic model structure is created, these settings can me modified for individual routes in the next step using the <b>Make Adjustments</b> table or at a later time via the 
+<b>Advanced Model Editor</b>.</p>
 
 

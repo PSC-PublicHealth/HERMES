@@ -4,7 +4,7 @@
 <p>Most healthcare supply chains have a hierarchical structure. Products 
 originate at one high-level location, where they are stored for some time 
 before they are distributed sequentially to lower levels. 
-Eventually when the products reach the lower-most level of the supply chain -
+Eventually when the products reach the lower-most level of the supply chain --
 they are used or administered to patients (e.g. vaccines are often administered 
 at health clinics, which comprise the lowest level of vaccine supply chains). 
 The number of levels in a supply chain indicates the number of distinct groups of 
@@ -54,8 +54,8 @@ in the supply chain.  HERMES will attempt to automatically distribute these
 amongst the locations.  For example, if you declare there are 2 locations in 
 the second level and 9 locations in the third level, HERMES will assign 4 of locations 
 at the lower level to be connected to the first location in the second level, and the other 5 
-to be connected to the second.  You will have a chance to alter this later
-through the <b>Optionally Make Adjustments</b> page, further down the workflow.
+to be connected to the second.  You will have a chance to alter this in a later
+step through the <b>Make Adjustments</b> table.
 			
 
 

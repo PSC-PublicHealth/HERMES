@@ -5,7 +5,13 @@
 /************
 * Hermes-specific mods follow
 */
+div.hrm_quickhelp ul {
+    margin-top: -10px;
+}
 
+div.hrm_quickhelp ul li {
+    padding-top: 10px;
+}
 
 .hermes_edit_button .ui-button-text,
 .hermes_info_button .ui-button-text,

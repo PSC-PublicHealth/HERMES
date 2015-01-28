@@ -1,34 +1,34 @@
-<p>Users may make adjustments to each of the levels and routes between locations within the <b>Make Adjustments</b> table. 
-Users can modify the names of each location or level, the shipping policies between locations, and the number of 
-locations supplied by each location. Below is more information about each potential edit.
+<p>Users may make adjustments to each of the locations and routes between locations within the <b>Make Adjustments</b> table. 
+Whereas the previous steps generated location names, assigned shipping policies by level, and distributed locations evenly across suppliers, this step allows users to modify individually the names of each location, the shipping policies between locations, and the number of 
+locations supplied by each location. Click in any row to select a location, and type or select from the available options to edit information for that particular location. Below is more information about each potential edit.
 </p>
 <br>
 <p>
-Location and Level Names:
+Location Names:
 </p><br> 
 <p>
-Location and level names are text-only inputs and can be fully customized by the user - 
-these are used for labelling purposes only, so users should use the naming conventions most familiar and meaningful.<br>
+Location and level names are text-only inputs and can be fully customized by the user -- 
+these are used for labelling purposes only, so users should use the naming conventions most familiar and meaningful. Click the triangle to the left of a location name to expand or collapse the locations below it.<br>
 </p>
 <br>
 <p>Shipping Policies:</p>
 <br>
 <p>
-Specify the shipping policy at each level in the (model name) supply chain. 
+Edit the shipping policy for any route in the supply chain. 
 Shipping policies within HERMES determine how healthcare products are distributed from higher levels to lower levels and depend on three parameters:
 the number of products shipped per trip, where the shipment originates, and how often the shipment occurs.
 </p>
 <br>
 <p>
-The number of products can be fixed or variable; in fixed product shipments, 
+The quantify of products can be fixed or variable; in fixed product shipments, 
 a fixed number of products is always shipped, as long as that number of products is available at the originating location 
-(if there are not enough products, all available are shipped). In variable product shipments, the amount of products is determined by the 
-anticipated demand at the receiving location. For example, a health clinic that expects to administer 15 BGC vaccines within the shipping 
-interval would receive 15 vaccines in a variable product shipment.
+(if there are not enough products, all available are shipped). In variable product shipments, the quantity of products is determined by the 
+anticipated demand at the receiving location. For example, a health clinic that expects to need 15 BCG vaccine vials within the shipping 
+interval would receive 15 BCG vials in a variable product shipment.
 </p>
 <br>
 <p>
-Shipment origination can be at the supplier or at the receiver. Shipments picked up by the receiver originate from the receiving location; 
+Shipments can originate at the supplier or at the receiver. Shipments picked up by the receiver originate from the receiving location; 
 shipments dropped off by the supplier originate from the supplying location. Resources such as vehicles and labor are used by the originating location. 
 For example, a shipment being dropped off by a national store at a regional store would use a driver and vehicle that originated at the national store.
 </p>
@@ -39,15 +39,10 @@ while as-needed shipments happen when the receiving location's stock falls below
 Here users can specify this threshold as a percentage of total storage space at the receiving location.
 </p>
 <br>
-<p>
-HERMES Create-a-model assigns the same shipping policies to all routes between adjacent levels. 
-All of these settings can me modified after the basic model structure is created via the <b>Make Adjustments</b>
-</p>
-<br>
 <p>Number of Locations Supplied by this Location:</p>
 <br>
 <p>
-Locations at the lowest level of the supply chain must have no clients, because they do not supply any other locations.
+For each location in the model, this column lists the number of locations it directly supplies in the level below it. Changing any value in this column will change the total number of locations in the model. For example, adding 1 location to the number supplied by a location in Level 2 will raise the total number of locations at Level 3 by 1. Similarly, reducing the number of locations supplied by a Level 2 location will reduce the total number of locations at Level 3. Locations at the lowest level of the supply chain must have no clients, because they do not supply any other locations.
 </p>
  
 
