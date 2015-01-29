@@ -159,17 +159,22 @@ $(function() {
 	    datatype: "json",
         treeGrid: true,
 	    width: 1000, //specify width; optional
-	    colNames:['Level','Location Name','idcode','Pick Up or Receive Shipments? ',
-	              'Scheduled or On-Demand Shipments to this Level?','Amount of Shipment to this Level Fixed or Demand Based',
-	              'Freqency of Shipments to this Level?',
-	              'per','Number of Locations Supplied by this Location'], //define column names
+	    colNames:["{{_('Level')}}",
+	              "{{_('Location Name')}}",
+	              'idcode',
+	              "{{_('Pick Up or Receive Shipments?')}}",
+	              "{{_('Scheduled or Demand-Based Schedule of Shipments')}}",
+	              "{{_('Amount of Shipment Fixed or Demand Based')}}",
+	              "{{_('Freqency of Shipments')}}",
+	              "{{_('per')}}",
+	              "{{_('Number of Locations Supplied by this Location')}}"], //define column names
 	    colModel:[
 	        {name:'levelname', index:'level', width:100},
 	        {name:'name', index:'name', width:100, editable:true, edittype:'text'},
 	        {name:'idcode', index:'idcode', width:30, key:true, sorttype:'int'},
-	        {name:'fetch',index:'fetch',width:50,editable:true,edittype:'select',editoptions: {value:"fetch:{{_('yes')}}; deliver:{{_('no')}}"}},
-	        {name:'fixedam',index:'fixedam',width:50,editable:true,edittype:'select',editoptions: {value:"fixed:{{_('yes')}}; variable:{{_('no')}}"}},
-	        {name:'sched',index:'sched',width:50,editable:true,edittype:'select',editoptions: {value:"sched:{{_('yes')}}; demand:{{_('no')}}"}},
+	        {name:'isfetch',index:'isfetch',width:50,editable:true,edittype:'select',editoptions: {value:"true:{{_('pick up')}}; false:{{_('recieve')}}"}},
+	        {name:'issched',index:'issched',width:60,editable:true,edittype:'select',editoptions: {value:"true:{{_('scheduled')}}; false:{{_('demand-based')}}"}},
+	        {name:'isfixedam',index:'isfixedam',width:50,editable:true,edittype:'select',editoptions: {value:"true:{{_('fixed')}}; false:{{_('variable')}}"}},
 	        {name:'howoften',index:'howoften',width:60, sorttype:'int',editable:true,editrules:{integer:true}},
 	        {name:'ymw',index:'ymw',width:50,editable:true,edittype:'select',editoptions: {value:"year:year; month:month; week:week"}},
 	        {name:'kids', index:'kids', width:50, sorttype:'int',editable:true,edittype:'text',editrules:{integer:true}},	        
@@ -185,9 +190,9 @@ $(function() {
 			    //jQuery('#model_create_adjust_grid').jqGrid('editRow',id,true);
 			    jQuery('#model_create_adjust_grid').jqGrid('editRow',id,{
 			    	"keys":true,
-//			    	"aftersavefunc": function(rowid,response) {
-//			    		$("#model_create_adjust_grid").trigger('reloadGrid');
-//					}
+			    	//"aftersavefunc": function(rowid,response) {
+			    	//	$("#model_create_adjust_grid").trigger('reloadGrid');
+					//}
 			    });
 			    //lastsel_models=id;
                 var ids = $("#model_create_adjust_grid").jqGrid('getDataIDs');

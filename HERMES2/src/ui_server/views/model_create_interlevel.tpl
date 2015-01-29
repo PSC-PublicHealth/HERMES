@@ -251,7 +251,7 @@ function add_interlevelship_listeners(){
 				$("#Iter_Level_Info_Form_table_row_"+((thisLevNum)*7 + 4)+"_col_0").text("at a frequency of");
 			},300);
 		}
-		modelInfo.shippatterns[thisLevNum][2] = $(this).val() == "true" ? true : false;
+		modelInfo.shippatterns[thisLevNum][2] = $(this).val();
 		modelInfo.changed = true;
 		$("#tree-layout-diagram").diagram('change_route_freq',thisLevNum,$(this).val());
 	});
