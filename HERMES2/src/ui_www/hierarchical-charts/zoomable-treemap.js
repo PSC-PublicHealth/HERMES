@@ -98,17 +98,32 @@
             var svgTitle = d3.select("#"+this.svgContainerID).append("div")
                 .attr("id", "title")
                 .attr("text-align", "center")
+                .style("margin-top", "20px")
+                .style("margin-bottom", "10px")
                 .text(this.trant['title']);
             
             var svg = d3.select("#"+this.svgContainerID).append("svg")
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.bottom + margin.top)
                 .style("margin-left", -margin.left + "px")
-                .style("margin.right", -margin.right + "px")
+                .style("margin-right", -margin.right + "px")
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                 .style("shape-rendering", "crispEdges");
             
+            _widgit.parent_title_div = d3.select("#"+this.svgContainerID).append("div")
+                .attr("id", "parent_title_div")
+                .style("margin-top", "20px")
+                .style("margin-bottom", "10px")
+                .attr("width", "100%")
+                .html("&nbsp");
+
+            _widgit.child_title_div = d3.select("#"+this.svgContainerID).append("div")
+                .attr("id", "child_title_div")
+                .style("margin-bottom", "20px")
+                .attr("width", "100%")
+                .html("&nbsp");
+
             var grandparent = svg.append("g")
                 .attr("class", "grandparent");
             
@@ -191,11 +206,21 @@
               g.filter(function(d) { return d._children; })
                   .classed("children", true)
                   .on("click", transition);
-          
+         
+
               g.append("rect")
               .attr("class", "parent")
               .call(rect)
-              .append("title");
+              .append("title")
+              .text(function(d) {
+                  // append title text to the parent even though we'll never
+                  // see this directly as a tooltip the text is used to 
+                  // populate an info box outside the treemap
+                  var cost = _widgit._format_currency(d);
+                  return "Name: \"" + d.name + "\"\nCost: " + cost;
+                  //return formatNumber(d.value);
+              });
+ 
 
               g.selectAll(".child")
                   .data(function(d) { return d._children || [d]; })
@@ -291,6 +316,21 @@
                   .attr("y", function(d) { return y(d.y); })
                   .attr("width", function(d) { return x(d.x + d.dx) - x(d.x); })
                   .attr("height", function(d) { return y(d.y + d.dy) - y(d.y); });
+
+              if (rect.on && typeof(rect.on) == "function") {
+                  if (rect.classed("child")) {
+                    rect.on("mouseenter", function() {
+                        var child_rect = $(this);
+                        var parent_rect = $(child_rect.siblings()[0]);
+                        _widgit.parent_title_div.text(parent_rect.text());
+                        _widgit.child_title_div.text(child_rect.text());
+                    });
+                    rect.on("mouseleave", function() {
+                        _widgit.parent_title_div.html("&nbsp");
+                        _widgit.child_title_div.html("&nbsp");
+                    });
+                }
+              }
             }
           
             function name(d) {
