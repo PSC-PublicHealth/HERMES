@@ -13,12 +13,6 @@
 	</td>
 	</tr>
 </table>
-	<table width=100%>
-      <tr>
-        <td></td>
-        <td width=10%><input type="button" id="done_button" value={{_("Done")}}></td>
-      </tr>
-    </table>
 </form>
 
 <div id="store_info_dialog" title="This should get replaced"></div>
@@ -279,24 +273,7 @@ $(function() {
 	});
 });
 
-$(function() {
-	var btn = $("#done_button");
-	btn.button();
-	btn.click( function() {
-		$.getJSON("{{rootPath}}json/generic-pop")
-		.done(function(data) {
-			if (data.success) {
-				window.location = data.goto;
-			}
-			else {
-				alert('{{_("Failed: ")}}'+data.msg);
-			}
-    	})
-  		.fail(function(jqxhr, textStatus, error) {
-  			alert("Error: "+jqxhr.responseText);
-		});
-	})
-})
+$(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); });
 
 $(function() {
 	$("#store_info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});

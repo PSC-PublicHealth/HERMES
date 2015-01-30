@@ -74,7 +74,8 @@ def dialogDemoPage(db,uiSession):
     resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
     storeId = _getOrThrowError(bottle.request.params,'storeId',isInt=False)
     routeId = _getOrThrowError(bottle.request.params,'routeId',isInt=False)
-    return bottle.template('dialogboxdemo.tpl',{"breadcrumbPairs":[("top",_("Welcome"))],
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path + '?' + bottle.request.query_string, _("Dialog Demo")))
+    return bottle.template('dialogboxdemo.tpl',{"breadcrumbPairs":crumbTrack,
                                             "pageHelpText":_("This is intended to show page-specific help")},
                                             _=_,inlizer=inlizer,modelId=modelId,storeId=storeId,routeId=routeId,resultsId=resultsId)
     

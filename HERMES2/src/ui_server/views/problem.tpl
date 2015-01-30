@@ -8,4 +8,6 @@
 {{_('We apologize.  Please select one of the main tabs above to continue.')}}
 </p>
 
- 
+ <script>
+ $(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); });
+</script>

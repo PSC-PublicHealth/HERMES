@@ -177,6 +177,7 @@ $(function() {
 
 });
 
-  
+$(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); });
+
 </script>
  

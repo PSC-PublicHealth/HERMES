@@ -3,7 +3,7 @@
 
 <script src="{{rootPath}}static/base64v1_0.js"></script>
 <script>
-%if defined('createpipe'):
+%if defined('createpipe') and createpipe:
 	var createOn = true;
 %else:
 	var createOn = false;
@@ -97,6 +97,7 @@
 % end
   </tr>
 </table>
+<!--
 <table id="nextback" width=100%>
 	<tr>
 		<td width=10%>
@@ -122,10 +123,12 @@
 	
 </tr>
 </table>
+-->
 
 
 <div id="info_dialog" title='replace me'></div>
 <script>
+console.log('point 1');
 // many characters in a jquery id need escaped.
 function jId(i) {
     return '#' + i.replace( /(:|\.|\[|\]|\+|\=|\/)/g, "\\$1");
@@ -186,34 +189,35 @@ $(function() {
     $("#info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
     
     if(createOn){
-		var btn = $("#back_button");
-		btn.button();
-		btn.click( function() {
-			window.location = "{{rootPath}}model-create/back"
-		});
-		
-		var btn = $("#next_button");
-		btn.button();
-		btn.click( function() {
-			window.location = "{{rootPath}}model-create/next";
-		});
-		
-		var btn = $("#expert_button");
+		var btn = $("#wrappage_bn_misc_button");
 		btn.button();
 		btn.click( function() {
 			window.location = "{{rootPath}}model-create/next?expert=true";
 		});
-		$("#doneback").remove();
+
+		//		var btn = $("#back_button");
+//		btn.button();
+//		btn.click( function() {
+//			window.location = "{{rootPath}}model-create/back"
+//		});
+//		
+//		var btn = $("#next_button");
+//		btn.button();
+//		btn.click( function() {
+//			window.location = "{{rootPath}}model-create/next";
+//		});
+//		
+//		$("#doneback").remove();
     }
-    else{
-		var btn = $("#done_button");
-		btn.button();
-		btn.click( function() {
-			window.location = "javascript:history.back()";
-		})
-		
-		$("#nextback").remove();
-	}
+//    else{
+//		var btn = $("#done_button");
+//		btn.button();
+//		btn.click( function() {
+//			window.location = "javascript:history.back()";
+//		})
+//		
+//		$("#nextback").remove();
+//	}
 });
 
 // dest and src jqGrids
@@ -238,6 +242,7 @@ function reloadGrid(grid) {
     grid.lastSelName = null;
     $(grid.id).trigger("reloadGrid");
 }
+console.log('point 2');
 
 function selectRow(id, grid) {
     if (!id)
@@ -367,6 +372,7 @@ function getRemoveConfirm(data, name) {
 	});
     return defer.promise();
 }
+console.log('point 3');
 
 function delType(id) {
     //event.stopPropagation();
@@ -437,6 +443,7 @@ function editType(id) {
     window.location = url + parms;
 }
 	    
+console.log('point 4');
 
 function setupButtonTriples() {
 //    $('.new_hermes_button_triple').each(function() {
@@ -517,6 +524,7 @@ function catchNewType(event, ui, data, $source, $target) {
     //alert(data.name);
     copyType(data.name);
 }
+console.log('point 5');
 
 $("#src_grid").jqGrid({
     url : '{{rootPath}}json/types-manage-grid',
@@ -616,5 +624,23 @@ function copyType(name) {
     });
 
 }
+console.log('point 6');
 
+
+$(function() {
+	% if defined('createpipe') and createpipe:
+		$(document).hrmWidget({widget:'stdBackNextButtons',
+			getParms:function(){
+				return {};
+			},
+			checkParms:function(parmDict) {
+				return {success:true};
+			},
+			nextURL:'{{! breadcrumbPairs.getNextURL() }}',
+			backURL:'{{! breadcrumbPairs.getBackURL() }}',
+		})
+	% else:
+		$(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'});
+	% end
+});
 </script>

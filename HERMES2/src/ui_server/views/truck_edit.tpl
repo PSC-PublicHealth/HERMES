@@ -12,18 +12,7 @@
 % end
 <form id="_edit_form">
     <div id="_edit_form_div"></div>
-    <table width=100%>
-      <tr>
-        <td></td>
-        <td width=10%><input type="button" id="cancel_button" value={{_("Cancel")}}></td>
-        <td width=10%><input type="button" id="done_button" value={{_("Done")}}></td>
-      </tr>
-    </table>
 </form>
-
-<div id="dialog-modal" title={{_("Invalid Entry")}}>
-  <p>{{_("The name of the model must not be blank.")}}</p>
-</div>
 
 <script>
 $(function() {
@@ -55,71 +44,20 @@ $(function() {
 });
 
 $(function() {
-	var btn = $("#cancel_button");
-	btn.button();
-	btn.click( function() {
-		var dict = {modelId:{{get('modelId')}}}
-		$.getJSON("{{rootPath}}json/generic-edit-cancel",dict)
-		.done(function(data) {
-			if (data.success) {
-				if (data.value) {
-					window.location = data.goto;
-				}
-				else {
-					$("#dialog-modal").text(data['msg']);
-					$("#dialog-modal").dialog("open");
-				}
-			}
-			else {
-				alert('{{_("Failed: ")}}'+data.msg);
-			}
-    	})
-  		.fail(function(jqxhr, textStatus, error) {
-  			alert("Error: "+jqxhr.responseText);
-		});
-	})
-})
-
-$(function() {
-    $("#dialog-modal").dialog({
-	resizable: false,
-      	modal: true,
-	autoOpen:false,
-     	buttons: {
-	    OK: function() {
-		$( this ).dialog( "close" );
-            }
-        }
-    });
-    
-    var btn = $("#done_button");
-    btn.button();
-    btn.click( function() {
-	var dict = $('#_edit_form_div').editFormManager('getEntries');
-	% if overwrite:
-	dict['overwrite'] = 1;
-	% end
-	
-	$.getJSON("{{rootPath}}json/truck-edit-verify-commit",dict)
-	    .done(function(data) {
-		if (data.success) {
-		    if (data.value) {
-			window.location = data.goto;
-		    }
-		    else {
-			$("#dialog-modal").text(data['msg']);
-			$("#dialog-modal").dialog("open");
-		    }
-		}
-		else {
-		    alert('{{_("Failed: ")}}'+data.msg);
-		}
-    	    })
-  	    .fail(function(jqxhr, textStatus, error) {
-  		alert("Error: "+jqxhr.responseText);
-	    });
-	
-    });
+	$(document).hrmWidget({widget:'stdCancelSaveButtons',
+		getParms:function(){
+			var dict = $('#_edit_form_div').editFormManager('getEntries');
+			% if overwrite:
+			dict['overwrite'] = 1;
+			% end
+			return dict;
+		},
+		checkParms:function(parmDict) {
+			return ($.getJSON("{{rootPath}}json/truck-edit-verify-commit",parmDict)
+					.promise());
+		},
+		doneURL:'{{! breadcrumbPairs.getDoneURL() }}'
+	});
 });
 
 </script>

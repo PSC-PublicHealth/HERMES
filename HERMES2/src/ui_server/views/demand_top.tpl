@@ -94,31 +94,6 @@ var peopleLoaded = false;
 		</td>
 	</tr>
 </table>
-<table id="nextback" width=100%>
-	<tr>
-		<td width=10%>
-			<input type="button" id="back_button" value='{{_("Previous Screen")}}'>
-		</td>
-		<td width=70%>
-		</td>
-		<td width=10%>
-			<input type="button" id="expert_button" value='{{_("Skip to Model Editor")}}'>
-		</td>
-		<td width=10%>
-			<input type="button" id="next_button" value='{{_("Next Screen")}}'>
-		</td>
-	</tr>
-</table>
-<table id="doneback" width=100%>
-	<tr>
-		<td width=90%>
-		</td>
-		<td width=10%>
-			<input type="button" id="done_button" value='{{_("Done")}}'>
-		</td>
-		
-	</tr>
-</table>
 
 <script>
 {{!setupToolTips()}}
@@ -217,33 +192,11 @@ $(function() {
 	});
 	
 	if(createOn){
-			var btn = $("#back_button");
-			btn.button();
-			btn.click( function() {
-				window.location = "{{rootPath}}model-create/back"
-			});
-			
-			var btn = $("#next_button");
-			btn.button();
-			btn.click( function() {
-				window.location = "{{rootPath}}model-create/next";
-			});
-			
-			var btn = $("#expert_button");
-			btn.button();
+			var btn = $("#wrappage_bn_misc_button");
+			btn.button({label:'{{_("Skip to Model Editor")}}'}).show();
 			btn.click( function() {
 				window.location = "{{rootPath}}model-create/next?expert=true";
 			});
-			$("#doneback").remove();
-	}
-	else{
-		var btn = $("#done_button");
-		btn.button();
-		btn.click( function() {
-			window.location = "javascript:history.back()";
-		})
-		
-		$("#nextback").remove();
 	}
 });
 
@@ -725,6 +678,23 @@ function buildCalendarTable(modelId, modelName) {
 		},
 	}).jqGrid('hermify',{debug:true});
 }
+
+$(function() {
+	% if defined('createpipe') and createpipe:
+		$(document).hrmWidget({widget:'stdBackNextButtons',
+			getParms:function(){
+				return {};
+			},
+			checkParms:function(parmDict) {
+				return {success:true};
+			},
+			nextURL:'{{! breadcrumbPairs.getNextURL() }}',
+			backURL:'{{! breadcrumbPairs.getBackURL() }}',
+		})
+	% else:
+		$(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'});
+	% end
+});
 
 }
 

@@ -192,6 +192,9 @@ $(function(){
 	});
 	
 });	
+
+$(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); })
+
 /// Leaving this here to show how we are going to do this
 	
 //	$("#save_as_png").on("click", function(){

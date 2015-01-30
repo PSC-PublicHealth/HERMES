@@ -120,6 +120,8 @@ function getParmString() {
 			s += '&'+idStr+'='+seedVal.toString();			
 		}
 	};
+	s += '&' + 'modelId=' + {{modelId}};
+	s += '&' + 'runName=' + '{{runName}}';
 	return s;
 };
 
@@ -127,7 +129,7 @@ $(function() {
 	var btn = $("#edit_parms_button");
 	btn.button();
 	btn.click( function() {
-		window.location = "{{rootPath}}model-run/edit-parms"+getParmString();
+		window.location = "{{rootPath}}run-edit-parms"+getParmString();
 	});
 });
 

@@ -164,7 +164,7 @@ $("#manage_models_grid").jqGrid({ //set your grid id
     		},
     		onOpen: function(event){
     			var id = unescape($(this).parent().attr('id'));
-    			window.location = "{{rootPath}}model-open?modelId="+id+"&crmb=clear";
+    			window.location = "{{rootPath}}model-open?modelId="+id;
     		},
     		onCopy: function(event){
     			var id = unescape($(this).parent().attr('id'));
@@ -173,7 +173,7 @@ $("#manage_models_grid").jqGrid({ //set your grid id
     		},
             onRun: function(event){
     			var id = unescape($(this).parent().attr('id'));
-    			window.location = "{{rootPath}}model-run?modelId="+id+"&crmb=clear";
+    			window.location = "{{rootPath}}model-run?modelId="+id;
     		},
             onResults: function(event){
     			var id = unescape($(this).parent().attr('id'));
@@ -389,6 +389,8 @@ $(function() {
      	}
     });
 });
+
+$(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); });
 
 </script>
  

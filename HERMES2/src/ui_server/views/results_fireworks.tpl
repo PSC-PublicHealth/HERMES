@@ -48,6 +48,33 @@ $(function() {
 		var titleElt = elt.getElementsByTagName('title')[0];
 		var titleTxt = titleElt.childNodes[0].nodeValue;
 		alert('click on node with id '+titleTxt.substring(2,titleTxt.length));
+		$.getJSON('{{rootPath}}json/dialoghtmlforstore',{
+			name:'HelloWorld',
+			geninfo:1,
+			utilinfo:0,
+			popinfo:1,
+			storedev:1,
+			transdev:1,
+			vacavail:0,
+			fillratio:0,
+			invent:0,
+			availplot:0
+			})
+		.done(function(data) {
+			if (data.success) {
+				console.log(data.htmlString);
+				$(document.body).append(data.htmlString);
+				console.log('ping');
+			}
+			else {
+				alert('{{_("Failed: ")}}'+data.msg);
+			}
+
+		})
+		.fail(function(jqxhr, textStatus, error) {
+			alert("Error: "+jqxhr.responseText);
+		});
+
 	}
 
 	function edgeClick(evt, elt) {
@@ -88,9 +115,9 @@ $(function() {
 	var curCTM = null;
 
 	function drawIntro(svg) { 
-		$(svg.root()).svgPan('graph1',true,true,false,0.1);
+		$(svg.root()).svgPan('graph0',true,true,false,0.1);
 		addClicksRecursively(svg.root());
-		var g = $(svg.root()).find('#graph1')[0];
+		var g = $(svg.root()).find('#graph0')[0];
 		originalCTM = g.getCTM();
 		if (curCTM) setCTM(g,curCTM);
 	}
@@ -114,7 +141,7 @@ $(function() {
 			vaxStr="";
 		}
 		if ($('#results_fireworks_div').svg('get')) {
-			var g = $($('#results_fireworks_div').svg('get').root()).find('#graph1')[0];
+			var g = $($('#results_fireworks_div').svg('get').root()).find('#graph0')[0];
 			curCTM = g.getCTM();
 			$('#results_fireworks_div').svg('get').load(
 				'{{rootPath}}svg/fireworks?resultsId={{resultsId}}'+vaxStr,
@@ -134,13 +161,14 @@ $(function() {
 	var btn = $("#reset_button");
 	btn.button();
 	btn.click( function() {
-		var g = $($('#results_fireworks_div').svg('get').root()).find('#graph1')[0];
+		var g = $($('#results_fireworks_div').svg('get').root()).find('#graph0')[0];
 		setCTM(g,originalCTM);
 	});
 	
 	$('#show_what_form').change( function() { reloadGraph(); } );
 });
 
+$(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); });
   
 </script>
  

@@ -136,58 +136,76 @@ def generateInitialSeedTable(nInst,seeds):
     s += '</table>'
     return s
 
+@bottle.route('/run-edit-parms')
+def runEditParms(db, uiSession):
+    crumbTrack = uiSession.getCrumbs().push(((bottle.request.path + '?'
+                                              + bottle.request.query_string),
+                                             _("Edit Run Parameters")))
+    formVals = { 'breadcrumbPairs': uiSession.getCrumbs() }
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        formVals['modelId'] = modelId
+        runName = _getOrThrowError(bottle.request.params, 'runName')
+        formVals['runName'] = runName
+        return bottle.template("run_edit_parms.tpl",formVals)
+    except Exception,e:
+        _logMessage(str(e))
+        _logStacktrace()
+        formVals['comment'] = _("An error occurred while editing run parameters: {0}".format(str(e)))
+        return bottle.template("problem.tpl",formVals)
+        
+    
+
 @bottle.route('/model-run')
 @bottle.route('/model-run/<step>')
 def modelRunPage(db,uiSession,step="unknown"):
 
+    crumbTrack = uiSession.getCrumbs()
     formVals = { 'breadcrumbPairs':uiSession.getCrumbs() }
     try:
-        crumbTrack = uiSession.getCrumbs()
-        stepPairs = [('specify',_('Start')),
-                     #('realitycheck',_('Verify')),
-                     ('specifics',_('Details')),
-                     ('run',_('Go!')),
+        stepPairs = [('specify', _('Start')),
+                     # ('realitycheck',_('Verify')),
+                     ('specifics', _('Details')),
+                     ('run', _('Go!')),
                      ]
-        namedStepList = [a for a,b in stepPairs] # @UnusedVariable
+        namedStepList = [a for a, b in stepPairs]  # @UnusedVariable
         screen = None
         if 'runInfo' in uiSession and 'modelId' in uiSession['runInfo']:
             # beware of the case where runInfo survives but the model is gone
             try:
                 uiSession.getPrivs().mayReadModelId(db, uiSession['runInfo']['modelId'])
-            except Exception,e:
+            except Exception, e:
                 uiSession['runInfo'] = {}
                 if 'runCrumbTrack' in uiSession:
                     del uiSession['runCrumbTrack']
         else:
             uiSession['runInfo'] = {}
-        if "runCrumbTrack" in uiSession:
+        if "runCrumbTrack" in uiSession and step != "unknown":
             runCrumbTrack = uiSession['runCrumbTrack']
-            if crumbTrack.trail[-1] != runCrumbTrack:
-                crumbTrack.push(runCrumbTrack)
         else:
-            runCrumbTrack = None
-        if step=="unknown" or runCrumbTrack is None:
             runCrumbTrack = crumbtracks.TrackCrumbTrail(bottle.request.path, _("Run Model"))
-            for a,b in stepPairs: runCrumbTrack.append((a,b))
+            for a, b in stepPairs:
+                runCrumbTrack.append((a, b))
             uiSession['runCrumbTrack'] = runCrumbTrack
-            crumbTrack.push(runCrumbTrack)
+        crumbTrack.push(runCrumbTrack)  # no-op if it is already there
+        if step == 'unknown':
             step = screen = runCrumbTrack.current()
-        elif step=='next':
-            screen = runCrumbTrack.next()
-            if screen is None:
+        elif step == 'next':
+            if runCrumbTrack.next() is None:
                 # We just finished the track
                 del uiSession['runCrumbTrack']
                 crumbTrack.pop()
                 screen = 'run-top'
-        elif step=='back':
-            screen = runCrumbTrack.back()
-            if screen is None:
+            else:
+                screen = runCrumbTrack.current()
+        elif step == 'back':
+            if runCrumbTrack.back() is None:
                 # We just backed off the start of the track
                 crumbTrack.pop()
                 screen = 'run-top'
-        elif step=='edit-parms':
-            screen = 'edit-parms'
-            crumbTrack.push((bottle.request.path,_("Edit Run Parameters")))
+            else:
+                screen = runCrumbTrack.current()
         else:
             if not crumbTrack.jump(step):
                 raise bottle.BottleException("Invalid step %s in run model"%step)
@@ -208,7 +226,7 @@ def modelRunPage(db,uiSession,step="unknown"):
         _boolCheckDefAndInvalidate(reqParams, runInfo, 'setseeds', 'setseeds', None)
         if 'modelId' in reqParams: uiSession['selectedModelId'] = int(runInfo['modelId'])
         uiSession.changed() # maybe the _checkDefs changed it; be safe.
-            
+
         if 'modelId' in runInfo:
             uiSession.getPrivs().mayReadModelId(db, runInfo['modelId'])
             m = shadow_network_db_api.ShdNetworkDB(db, runInfo['modelId'])
@@ -219,8 +237,6 @@ def modelRunPage(db,uiSession,step="unknown"):
             if k in runInfo: formVals[k] = runInfo[k]
         if screen=="specify":
             return bottle.template("run_specify.tpl",formVals)
-        elif screen=="realitycheck":
-            return bottle.template("run_realitycheck.tpl",formVals)
         elif screen=="specifics":
             developer = False
             if 'developerMode' in uiSession and uiSession['developerMode']:
@@ -229,11 +245,10 @@ def modelRunPage(db,uiSession,step="unknown"):
         elif screen=="run":
             return bottle.template("run_run.tpl",formVals)
         elif screen=="run-top":
-            bottle.redirect("%srun-top"%rootPath)
-        elif screen=="edit-parms":
-            return bottle.template("run_edit_parms.tpl",formVals)
+            bottle.redirect(crumbTrack.currentPath())
         else:
-            formVals["comment"] = _("We have somehow forgotten which step we are on in running your model.")
+            formVals["comment"] = (_("We have somehow forgotten which step we are on in running your model.")
+                                    + _("{0} is not a valid step").format(screen))
             return bottle.template("problem.tpl",formVals)
     except bottle.HTTPResponse:
         raise # bottle will handle this
@@ -478,15 +493,8 @@ def _parseRunParms(db, uiSession, model, postParms = None):
         postParms = bottle.request.params
 
     eFM = {}
-    for pKey,p in model.parms.items():
-        if inputDefault.getTokenType(pKey) == 'TF':
-            val = (p.value.lower()=='true')
-        else:
-            val = p.value
-        if pKey in eFM: 
-            eFM[pKey]['value'] = val
-        else: 
-            eFM[pKey] = {'key':pKey, 'value':val}
+    for pKey in model.parms.keys():
+        eFM[pKey] = {'key': pKey, 'value': model.getParameterValue(pKey)}
             
     badParms = [] # list of inputs with invalid types
     deltas = [] # list of (key,typeString,value) tuples
@@ -498,7 +506,6 @@ def _parseRunParms(db, uiSession, model, postParms = None):
             else:
                 oldV = inputDefault[k]
             tp = inputDefault.getTokenType(k)
-            #print '%s: %s <%s> <%s>'%(k,tp,v,oldV)
             try:
                 if tp in ['filename', 'filename_list', 'filenameOrNone']:
                     pass

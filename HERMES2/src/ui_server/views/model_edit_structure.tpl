@@ -269,4 +269,5 @@ $(function () {
 
 <script>
     {{!setupToolTips()}}
+    $(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); })
 </script>

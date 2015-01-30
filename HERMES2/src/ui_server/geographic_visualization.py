@@ -22,6 +22,8 @@ import kml_jquery_shdNtwk as kml
 import htmlgenerator
 import model as M
 from information_dialog_box_hooks import generatePopulationListingForStore,generateVaccineStatsForStore
+import crumbtracks
+import serverconfig
 
 
 from HermesServiceException import HermesServiceException
@@ -41,7 +43,13 @@ def createNetworkResultsViz(db,uiSession):
     hRG = db.query(shadow_network.HermesResults).filter(shadow_network.HermesResults.resultsId==resultsId).one().resultsGroup
     m = shadow_network_db_api.ShdNetworkDB(db,hRG.modelId)
     #temporary non-functional crumbtrack to display model and resultsgroup name
-    return bottle.template('results_show_structure.tpl',{"breadcrumbPairs":[("top",_("Network Visualization")),("top",_("Model: {0}, Result: {1}").format(m.name,hRG.name))],
+    # This is going in a separate tab, so we have to create a completely separate crumbtrack
+    crumbTrack = crumbtracks.StackCrumbTrail(serverconfig.rootPath)
+    crumbTrack.push(('/'+serverconfig.topPath, _("Network Visualization")))
+    crumbTrack.push((bottle.request.path + '?' + bottle.request.query_string, 
+                     _("Model: {0}, Result: {1}").format(m.name,hRG.name)))
+    
+    return bottle.template('results_show_structure.tpl',{"breadcrumbPairs":crumbTrack,
                                             "pageHelpText":_("This is intended to show page-specific help")},
                                             _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId)
 
@@ -52,7 +60,12 @@ def createGeographicViz(db,uiSession):
     hRG = db.query(shadow_network.HermesResults).filter(shadow_network.HermesResults.resultsId==resultsId).one().resultsGroup
     m = shadow_network_db_api.ShdNetworkDB(db,hRG.modelId)
     #temporary non-functional crumbtrack to display model and resultsgroup name
-    return bottle.template('results_geo_visualization.tpl',{"breadcrumbPairs":[("top",_("Geographic Visualization")),("top",_("Model: {0}, Result: {1}").format(m.name,hRG.name))],
+    # This is going in a separate tab, so we have to create a completely separate crumbtrack
+    crumbTrack = crumbtracks.StackCrumbTrail(serverconfig.rootPath)
+    crumbTrack.push(('/'+serverconfig.topPath, _("Geographic Visualization")))
+    crumbTrack.push((bottle.request.path + '?' + bottle.request.query_string, 
+                     _("Model: {0}, Result: {1}").format(m.name,hRG.name)))
+    return bottle.template('results_geo_visualization.tpl',{"breadcrumbPairs":crumbTrack,
                                             "pageHelpText":_("This is intended to show page-specific help")},
                                             _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId)
 
@@ -310,7 +323,14 @@ def jsonGoogleEarthKMLString(db,uiSession):
 def googleEarthTopPage(db, uiSession):
     modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
     runId = _safeGetReqParam(bottle.request.params,'runId',isInt=True)    
+    m = shadow_network_db_api.ShdNetworkDB(db,modelId)
     ## Get the appropriate KMLString and extract it to a file
-    return bottle.template("google_earth_demo.tpl",{"breadcrumbPairs":[("top",_("Welcome"))],
+    crumbTrack = uiSession.getCrumbs()
+    # This is going in a separate tab, so we have to create a completely separate crumbtrack
+    crumbTrack = crumbtracks.StackCrumbTrail(serverconfig.rootPath)
+    crumbTrack.push(('/'+serverconfig.topPath, _("Google Earth Visualization")))
+    crumbTrack.push((bottle.request.path + '?' + bottle.request.query_string,
+                     _("Model: {0}, Run: {1}").format(m.name,runId)))
+    return bottle.template("google_earth_demo.tpl",{"breadcrumbPairs":crumbTrack,
                                "pageHelpText":_("This is intended to show page-specific help")},
                                _=_,inlizer=inlizer,modelId=modelId,runId=runId)

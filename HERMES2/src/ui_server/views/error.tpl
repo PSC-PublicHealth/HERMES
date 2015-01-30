@@ -6,3 +6,7 @@
 <div>
 {{bugtext}}
 </div>
+
+<script>
+$(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); });
+</script>

@@ -57,10 +57,8 @@ def resultsFireworksPage(db, uiSession):
     uiSession.getPrivs().mayReadModelId(db, hRG.modelId)
     m = shadow_network_db_api.ShdNetworkDB(db,hRG.modelId)
     vaccinesInUse = [k for k,v in hR.summaryRecs.items() if isinstance(v, s_n.ShdVaccineSummary)]
-    return bottle.template("results_fireworks.tpl",{"breadcrumbPairs":[("top",_("Welcome")),
-                                                                  ("results-top",_("Results")),
-                                                                  ("results-summary?modelId=%d&resultsId=%d"%(hRG.modelId,resultsId),_("Summary")),
-                                                                  ("results-fireworks",_("Fireworks"))],
+    crumbTrack = uiSession.getCrumb().push((bottle.request.path + '?' + bottle.request.query_string, _("Fireworks")))
+    return bottle.template("results_fireworks.tpl",{"breadcrumbPairs":crumbTrack,
                                                     "vaccineList":vaccinesInUse,
                                                     "resultsId":resultsId,
                                                     "modelName":m.name,
@@ -322,8 +320,8 @@ def createResultsSummary(db, uiSession):
     if resultsId is None:
         raise bottle.BottleException("resultsId is missing getting kmlstring")
         return None
-	
-    return bottle.template("results_summary.tpl",{"breadcrumbPairs":[("top",_("Welcome")),("results-top",_("Results")),("results-summary?modelId=%d&resultsId=%d"%(hRG.modelId,resultsId),_("Summary"))],
+    crumbTrack = uiSession.getCrumb().push(("results-summary?modelId=%d&resultsId=%d"%(hRG.modelId,resultsId), _("Summary")))
+    return bottle.template("results_summary.tpl",{"breadcrumbPairs":crumbTrack,
                                "pageHelpText":_("This is intended to show page-specific help"),"modelName":m.name,"resultsGroupName":hRG.name},
                                _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId,
                                gvAvailable=_gvAvailable)

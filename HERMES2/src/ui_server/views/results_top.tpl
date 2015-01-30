@@ -279,4 +279,6 @@ function getResultsTree(modelId){
 		dataType:'json'
 		}).promise();
 };
+
+$(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); });
 </script>

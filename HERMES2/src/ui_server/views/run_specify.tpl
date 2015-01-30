@@ -18,6 +18,7 @@ value={{runName}} \\
 ></td>
   		</tr>
     </table>
+<!--
     <table width=100%>
       <tr>
         <td width 10%><input type="button" id="back_button" value="{{_("Previous Screen")}}"></td>
@@ -25,54 +26,40 @@ value={{runName}} \\
         <td width=10%><input type="button" id="next_button" value="{{_("Next Screen")}}"></td>
       </tr>
     </table>
+-->
 </form>
 
+<!--
 <div id="dialog-modal" title={{_("Invalid Entry")}}>
   <p>{{_("The name of the run results must not be blank.")}}</p>
 </div>
+-->
 
 <script>
 
 $(function() {
-	var btn = $("#back_button");
-	btn.button();
-	btn.click( function() {
-		window.location = "{{rootPath}}model-run/back"
-	});
-
-	$("#dialog-modal").dialog({
-		resizable: false,
-      	modal: true,
-		autoOpen:false,
-     	buttons: {
-			OK: function() {
-				$( this ).dialog( "close" );
-        	}
-        }
-	});
-
-	var btn = $("#next_button");
-	btn.button();
-	btn.click( function() {
-		var runName = $("#run_results_name").val();
-		var modelId = $("#run_model_id_select").val();
-		if (runName) {
-			$.getJSON('{{rootPath}}check-unique',{runName:runName, modelId:modelId})
-			.done(function(data) {
-				if (data['matches'] == 0) {
-					window.location = "{{rootPath}}model-run/next?runName="+runName+"&modelId="+modelId;
-				}
-				else {
-					alert('{{_("The run name ")}}'+runName+'{{_(" has already been used for this model.  Please pick another name.")}}');
-				}
-			})
-	  		.fail(function(jqxhr, textStatus, error) {
-	  			alert("Error: "+jqxhr.responseText);
-			});
-		}
-		else {
-			$("#dialog-modal").dialog("open");
-		}
+	$(document).hrmWidget({widget:'stdBackNextButtons',
+		getParms:function(){
+			var runName = $("#run_results_name").val();
+			var modelId = $("#run_model_id_select").val();
+			return {runName:runName, modelId:modelId};
+		},
+		checkParms:function(parmDict) {
+			if (parmDict.runName.length == 0)
+				return {success:false, msg:'{{_("Please provide a valid run name")}}'}
+			else
+				return ($.getJSON('{{rootPath}}check-unique',parmDict)
+						.then( function(data) {
+							if (data['matches'] == 0) return {success:true}
+							else {
+								var msg = '{{_("The run name ")}}'+parmDict['runName']+'{{_(" has already been used for this model.  Please pick another name.")}}';
+								return {success:false, msg:msg}							
+							}
+						})
+						.promise());
+		},
+		nextURL:'{{! breadcrumbPairs.getNextURL() }}',
+		backURL:'{{! breadcrumbPairs.getBackURL() }}'
 	});
 	
   	$.getJSON('{{rootPath}}list/select-model')

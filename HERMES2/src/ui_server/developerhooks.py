@@ -350,11 +350,15 @@ def jsonShowDict(uiSession):
     reqDict = {}
     for k in bottle.request.params.keys():
         reqDict[k] = bottle.request.params[k]
-    result = {              
-              "sessionDict":uiSession.getDictSummary(),
+    result = {
               "path":bottle.request.path,
               "requestparams":reqDict
               }
+    try:
+        result['sessionDict'] = uiSession.getDictSummary()
+    except Exception, e:
+        _logStacktrace()
+        result['sessionDict'] = 'Error <%s> while packaging up session dict' % str(e)
     return result
 
 @bottle.route('/json/clear-session-data')
@@ -363,6 +367,19 @@ def jsonClearSessionData(uiSession):
     _logMessage('sessionDict cleared')
     result = {}
     return result
+
+
+@bottle.route('/json/delete-from-session')
+def jsonDeleteFromSession(uiSession):
+    try:
+        name = _getOrThrowError(bottle.request.params, 'name')
+        del uiSession[name]
+        return {'success': True}
+    except Exception, e:
+        _logMessage("Error in jsonDeleteFromSession: %s" % str(e))
+        _logStacktrace()
+        return {'success': False, 'msg': str(e)}
+
 
 @bottle.route('/json/clear-notes-data')
 def jsonClearNotesData(uiSession):

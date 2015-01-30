@@ -130,7 +130,9 @@ def topPage(uiSession):
     createPass = -1
     if createnew:
         createPass = createnew
-    
+
+    crumbTrack = uiSession.getCrumbs()  # to trigger automatic features, even if we don't use it here
+
     return bottle.template("welcome.tpl", title=_('This title is set in matcher'),createnew=createPass)
 
 @bottle.route('/notimpl')
@@ -268,7 +270,8 @@ def jsonNoOp(db, uiSession):
     return {'success':True}
 
 @bottle.route('/tutorial')
-def tutorialPage():
-    return bottle.template('tutorial.tpl',{'breadcrumbPairs':[("top",_("Welcome"))]},_=_,inlizer=inlizer)
+def tutorialPage(db, uiSession):
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path + '?' + bottle.request.query_string, _("Tutorial")))
+    return bottle.template('tutorial.tpl',{'breadcrumbPairs':crumbTrack},_=_,inlizer=inlizer)
 
 application= session_support.wrapBottleApp(bottle.app())

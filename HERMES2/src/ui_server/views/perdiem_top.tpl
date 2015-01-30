@@ -15,7 +15,7 @@
 %    ret['type'] = te[0]
 %    ret['name'] = te[1]
 %    ret['dbUrl'] = te[2]
-%    ret['fullDbURL'] = rootPath + ret['dbUrl'] + '?crmb=clear'
+%    ret['fullDbURL'] = rootPath + ret['dbUrl']
 %    return ret
 % end
 
@@ -563,6 +563,7 @@ $(function() {
   		alert("Error: "+jqxhr.responseText);
 	});
 });
-  
+
+$(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); });
 </script>
  

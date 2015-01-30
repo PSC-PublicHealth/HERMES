@@ -4,29 +4,6 @@
 	<div id="run_parms_edit_form_div"></div>
 </form>
 
-<form>
-	<table width=100%>
-		<tr>
-			<td width=70%></td>
-			<td width=10%>
-			    <input type="button" id="bas_adv_button" value="{{_('Switch To Advanced')}}">
-			</td>
-			<td width=10%>
-			<input type="button" id="cancel_button" value={{_("Cancel")}}>
-			</td>
-			<td width=10%>
-			<input type="button" id="save_button" value={{_("Save")}}>
-			</td>
-		</tr>
-	</table>
-</form>
-
-<div id="dialog-modal" title={{_("Invalid Entry")}}>
-	<p>
-		{{_("This will be replaced")}}
-	</p>
-</div>
-
 <script>
 function setParamVisibilityByLevel(level,table){
     $.getJSON('json/run-parms-levels-to-show', {
@@ -71,16 +48,10 @@ $(function() {
 });
 
 $(function() {
-    var btn = $("#cancel_button");
+    var btn = $("#wrappage_cs_misc_button");
+    btn.show();
     btn.button();
-    btn.click(function() {
-		window.location = "{{rootPath}}model-run/next"; // but without applying changes
-    });
-});
-
-$(function() {
-    var btn = $("#bas_adv_button");
-    btn.button();
+    btn.attr('value',"{{_('Switch To Advanced')}}");
     var level = 1;
     btn.click(function(){
 	var modelId = {{get('modelId')}};
@@ -97,51 +68,30 @@ $(function() {
 });	
 
 $(function() {
-    $("#dialog-modal").dialog({
-	resizable: false,
-	modal: true,
-	autoOpen:false,
-	buttons: {
-	    OK: function() {
-		$( this ).dialog( "close" );
-	    }
-	}
-    });
-    
-    var btn = $("#save_button");
-    btn.button();
-    btn.click( function() {
-	var dict = {modelId:{{get('modelId')}}}
-	
-	$("#run_parms_edit_form input,select").each(function(index) {
-	    var tj = $(this);
-	    if (tj.is(":checkbox")) {
-		dict[tj.attr('id')] = tj.is(":checked");
-	    } else {
-		dict[tj.attr('id')] = tj.val();
-	    }
+	$(document).hrmWidget({widget:'stdCancelSaveButtons',
+		getParms:function(){
+			var dict = {modelId:{{get('modelId')}}}
+			$("#run_parms_edit_form input,select").each(function(index) {
+			    var tj = $(this);
+			    if (tj.is(":checkbox")) {
+				dict[tj.attr('id')] = tj.is(":checked");
+			    } else {
+				dict[tj.attr('id')] = tj.val();
+			    }
+			});
+			return dict;
+		},
+		checkParms:function(parmDict) {
+			return ($.ajax({
+				type:"POST",
+				dataType:"json",
+				url:"{{rootPath}}json/run-parms-edit", 
+				data:parmDict
+			}).promise());
+		},
+		doneURL:'{{! breadcrumbPairs.getDoneURL() }}'
 	});
-	$.ajax({
-		type:"POST",
-		dataType:"json",
-		url:"{{rootPath}}json/run-parms-edit", 
-		data:dict
-	})
-	.done(function(data) {
-	    if (data.success) {
-	    	if (data.value) {
-	    		window.location = "{{rootPath}}model-run/next";
-	    	} else {
-	    		$("#dialog-modal").text(data['msg']);
-	    		$("#dialog-modal").dialog("open");
-	    	}
-	    	} else {
-	    		alert('{{_("Failed: ")}}' + data.msg);
-	    	}
-		})
-	.fail(function(jqxhr, textStatus, error) {
-	    alert("Error: " + jqxhr.responseText);
-		});
-    });
 });
+
+
 </script>

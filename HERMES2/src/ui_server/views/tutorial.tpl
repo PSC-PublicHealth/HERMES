@@ -1,4 +1,4 @@
-%rebase outer_wrapper _=_,title_slogan=_('HERMES Graphical User Inferface Start'),inlizer=inlizer
+%rebase outer_wrapper _=_,title_slogan=_('HERMES Graphical User Inferface Start'),inlizer=inlizer,breadcrumbPairs=breadcrumbPairs
 
 <style>
 #sp_top_div{
@@ -92,3 +92,7 @@
 			<p>{{_("If you have any questions or issues, please email")}} <a href="mailto:hermes-support@psc.edu">hermes-support@psc.edu</a>.  {{_("For more information about the HERMES project, visit")}} <a href="http://hermes.psc.edu">http://hermes.psc.edu</a>.</p>
 		</div>
 	</div>
+
+<script>
+$(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); });
+</script>

@@ -54,7 +54,6 @@ function getModelJson(){
 
 //updateNetworkDiagram();
 </script>
-</script>
 <style>
 #collapsible-network-diagram{
 	width:100%;
@@ -223,6 +222,7 @@ a.model-operation-item:hover{
 <div id="result_dialog" title='{{_("Simulation Experiment Results")}}'>
 <div id="result"></div>
 </div>
+
 <div id="model_dowantcopy_dialog">
 	{{_("This model already has Simulation Experiments associated with it, so you will need to make a copy if you would like to edit it. Would you like to make a copy now?")}}
 </div>
@@ -275,7 +275,7 @@ a.model-operation-item:hover{
 </div>
 
 <div id="dialog-modal" title='{{_("Invalid Entry")}}'>
-	<div id="dialog-modal-text"/>
+	<div id="dialog-modal-text"/></div>
 </div>
 
 <div id="not-implemented-modal" title='{{_("Feature is not yet implemented")}}'>
@@ -283,6 +283,7 @@ a.model-operation-item:hover{
 </div>
 
 <script>
+
 $(document).ready(function(){
 	$.ajax({
 		url:'{{rootPath}}json/set-selected-model?id={{modelId}}',
@@ -611,5 +612,7 @@ function openResults(modelId){
 	});
 }
 
+$(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); });
 
 </script>
+

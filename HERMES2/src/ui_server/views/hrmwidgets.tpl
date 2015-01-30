@@ -1135,6 +1135,127 @@ function addToggleExpansionButton($grid) {
  				$(elem).tooltips('applyTips');
  			});
  		}
+ 		else if (settings['widget']=='stdDoneButton') {
+ 			$('#wrappage_done_row').show();
+ 			$('#wrappage_done_button').button()
+ 			.click( function() {
+ 				window.location = settings['doneURL'];
+ 			});
+
+ 			return this.first().each(function(index,elem) {
+ 				// Nothing to do
+ 			});
+ 		}
+ 		else if (settings['widget']=='stdCancelSaveButtons') {
+ 			$('#wrappage_cancelsave_row').show();
+ 			$('#wrappage_cancel_button').button()
+ 			.click( function() {
+ 				window.location = settings['doneURL'];
+ 			});
+ 			$('#wrappage_save_button').button()
+ 			.click( function() {
+ 				var dest = settings['doneURL'];
+ 				$.when( settings['getParms']() )
+ 				.then( function(parmDict) {
+ 					return ($.when( settings['checkParms'](parmDict) )
+ 							.then( function(chkData) {
+ 								if (chkData.success && (chkData.value == undefined || chkData.value)) {
+ 									if (chkData.goto) dest = chkData.goto;
+ 									return parmDict; 	 							
+ 								}
+ 								else return $.Deferred().reject(chkData);
+ 							}).promise());
+ 				})
+ 				.then( 
+ 					function(parmDict) {
+ 						window.location= dest;
+ 					},
+ 					function(chkData) {
+						var $dlg = $('#wrappage_dialog_modal');
+ 						if (! $dlg.hasClass('ui-dialog')) {
+ 							$dlg.dialog({
+ 								resizable: false,
+ 								modal: true,
+ 								autoOpen:false,
+ 									buttons: {
+ 									OK: function() {
+ 										$( this ).dialog( "close" );
+ 									}
+ 								}
+ 							});
+ 						}
+ 						if (chkData.msg)
+ 							$("#wrappage_dialog_modal").text(chkData.msg);
+ 						else if (chkData.responseText)  // it is really a jqxhdr
+ 							$("#wrappage_dialog_modal").text(chkData.responseText);
+ 						else
+ 							$("#wrappage_dialog_modal").text('{{_("An error occurred")}}');
+ 						if (chkData.title) {
+ 	 						$("#wrappage_dialog_modal").dialog('option','title',chkData.title); 							
+ 						}
+ 						$("#wrappage_dialog_modal").dialog("open");
+ 					}
+ 				);
+ 			});
+
+ 			return this.first().each(function(index,elem) {
+ 				// Nothing to do
+ 			});
+ 		}
+ 		else if (settings['widget']=='stdBackNextButtons') {
+ 			$('#wrappage_backnext_row').show();
+ 			$('#wrappage_back_button').button()
+ 			.click( function() {
+ 				window.location = settings['backURL'];
+ 			});
+ 			$('#wrappage_next_button').button()
+ 			.click( function() {
+ 				$.when( settings['getParms']() )
+ 				.then( function(parmDict) {
+ 					return ($.when( settings['checkParms'](parmDict) )
+ 							.then( function(chkData) {
+ 								if (chkData.success && (chkData.value == undefined || chkData.value)) {
+ 									return parmDict;
+ 								}
+ 								else return $.Deferred().reject(chkData);
+ 							}).promise());
+ 				})
+ 				.then( 
+ 					function(parmDict) {
+ 						window.location= settings['nextURL'] + '?' + $.param(parmDict);
+ 					},
+ 					function(chkData) {
+						var $dlg = $('#wrappage_dialog_modal');
+ 						if (! $dlg.hasClass('ui-dialog')) {
+ 							$dlg.dialog({
+ 								resizable: false,
+ 								modal: true,
+ 								autoOpen:false,
+ 									buttons: {
+ 									OK: function() {
+ 										$( this ).dialog( "close" );
+ 									}
+ 								}
+ 							});
+ 						}
+ 						if (chkData.msg)
+ 							$("#wrappage_dialog_modal").text(chkData.msg);
+ 						else if (chkData.responseText)  // it is really a jqxhdr
+ 							$("#wrappage_dialog_modal").text(chkData.responseText);
+ 						else
+ 							$("#wrappage_dialog_modal").text('{{_("An error occurred")}}');
+ 						if (chkData.title) {
+ 	 						$("#wrappage_dialog_modal").dialog('option','title',chkData.title); 							
+ 						}
+ 						$("#wrappage_dialog_modal").dialog("open");
+ 					}
+ 				);
+ 			});
+
+ 			return this.first().each(function(index,elem) {
+ 				// Nothing to do
+ 			});
+ 		}
  		else if (settings['widget']=='editFormManager') {
 			$.fn.editFormManager = function( arg, arg2 ) {
  				if (arg=='getEntries') {
@@ -1307,7 +1428,7 @@ function addToggleExpansionButton($grid) {
                     }
 				}
 				$elem.data('map',map);
-			if ($(document).tooltips) $(document).tooltips('applyTips');
+				if ($(document).tooltips) $(document).tooltips('applyTips');
 			});
 		}
  		else if (settings['widget']=='buttontriple') {

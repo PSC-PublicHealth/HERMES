@@ -4,15 +4,24 @@
 <div id="hereDebugUI"></div>
 <!-- <iframe id="myframe"></iframe> -->
 
+<table>
+<tr>
+<td><button id="becomesystembutton">{{_('Become System')}}</button>
+</td><td><button id="becomeanyuserbutton">{{_('Become Anyuser')}}</button>
+</td><td><button id="clearsessionbutton">{{_('Clear Server-side Session')}}</button>
+</td><td><button id="clearnotesbutton">{{_('Clear Session Notes')}}</button>
+</td><td><button id="clearfsbutton">{{_('Clear FS Metadata')}}</button>
+</td><td><button id="cleanresultsgroup">{{_('Clean resultsGroup table')}}</button>
+</td><td><button id="toggledevelbutton">{{_('Toggle Developer Mode')}}</button>
+</td><td><button id="delfromsessionbutton">{{_('Delete Element From Session')}}</button>
+<td>
+</tr>
+</table>
 
-<button id="becomesystembutton">{{_('Become System')}}</button>
-<button id="becomeanyuserbutton">{{_('Become Anyuser')}}</button>
-<button id="clearsessionbutton">{{_('Clear Server-side Session')}}</button>
-<button id="clearnotesbutton">{{_('Clear Session Notes')}}</button>
-<button id="clearfsbutton">{{_('Clear FS Metadata')}}</button>
-<button id="cleanresultsgroup">{{_('Clean resultsGroup table')}}</button>
-<button id="toggledevelbutton">{{_('Toggle Developer Mode')}}</button>
-
+<div id="dfsb_div">
+<label>Delete what key?</label>
+<input type=text id='dfsb_key_text'></input>
+</div>
 
 </div>
 
@@ -36,9 +45,9 @@ $(function() {
 	btn.button();
 	btn.click( function() {
 	    $.getJSON('json/clear-session-data',{})
-	        .done(function(json) { console.log('Session data cleared'); })
-	        .fail(function(jqxhdr,textStatus,error) { alert(jqxhdr.responseText); })
-	        .always(function(data) { drawTable(); });
+        .done(function(json) { console.log('Session data cleared'); })
+        .fail(function(jqxhdr,textStatus,error) { alert(jqxhdr.responseText); })
+        .always(function(data) { drawTable(); });
 	});
 	var btn2 = $("#clearnotesbutton");
 	btn2.button();
@@ -95,7 +104,31 @@ $(function() {
 	        .fail(function(jqxhdr,textStatus,error) { alert(jqxhdr.responseText); })
 	        .always(function(data) { drawTable(); });
 	});
-	drawTable();
+	$('#dfsb_div').dialog({
+		resizable: false,
+      	modal: true,
+		autoOpen:false,
+     	buttons: {
+			'{{_("Cancel")}}': function() {
+				$( this ).dialog( "close" );
+        	},
+        	'{{_("OK")}}': function() {
+        		$( this ).dialog( "close" );
+        		$.getJSON("json/delete-from-session",{name:$('#dfsb_key_text').val()})
+    	        .done(function(data) { 
+    	        	if (data.success) alert('done!')
+    	        	else alert(data.msg);
+    	        })
+    	        .fail(function(jqxhdr,textStatus,error) { alert(jqxhdr.responseText); })
+    	        .always(function(data) { drawTable(); });
+        	}
+        }		
+	});
+	var btn8 = $("#delfromsessionbutton").button()
+		.click(function(){ $('#dfsb_div').dialog('open') });
+	drawTable();	
   });
+
+
 
 </script>

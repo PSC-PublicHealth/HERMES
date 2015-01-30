@@ -83,24 +83,10 @@ Tutorial</a> on running HERMES from the command line. (requires DAV login)</li>
 <!--<h3>Notes: things not to forget</h3>
 <div>
 <ul>
-<li>We really need a better DB password mechanism.</li>
-<li>Renames require a check to see if the name is in use.  A check is happening, but incorrectly.</li>
-<li>Do we need 'undo'?  I sure hope not.</li>
-<li>How does shipping latency get established?</li>
-<li>Ideas for latencies: column on interlevel page? a table of calendars? Something automatic behind the scenes?  
-		Assume 1 day per level? Do some math involving number of trucks?</li>
-<li>Ideas for year lengths: Always use 28 days?  Offer options of 20 and 28 days?  
-		Maybe always use 28 days, and then set up something to set clinic open days?</li>
-<li>Do we need a well-hidden page of Embarrassing Assumptions?</li>
 <li>Some jqGrids should have 'show expert columns'</li>
-<li>On models-top page, If I change a model name, the download name should change.</li>
-<li>Add an option to 'Add some default assumptions' to the Create Model chain?</li>
 <li>The function that initially recieves a request should check access privileges on incoming requests from the client.
 <li>We need some consistent policy about what exception type to return when.
 <li>Replace all instances of alert('Error:') with alert('{{_("Error:")}}')
-<li>_logMessage should be logMessage, _safeGetReqParam should be safeGetReqParam, etc.
-<li>Run logs can accumulate in session scratch directories.
-<li>There is currently no check-unique on the shortname for model zip upload (which becomes the model name)
 
 </ul>
 </div>-->
@@ -108,4 +94,5 @@ Tutorial</a> on running HERMES from the command line. (requires DAV login)</li>
 
 <script>
 $( "#help_accordion" ).accordion({collapsible: true, heightStyle:"content"});
+$(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); });
 </script>

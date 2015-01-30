@@ -7,32 +7,8 @@
 	<div id="validation_report_pager"></div>
 	<table id="validation_report_grid"></table>
 </div>
-<form>
-    <table width=100%>
-      <tr>
-        <td width 10%><input type="button" id="back_button" value="{{_("Previous Screen")}}"></td>
-        <td></td>
-        <td width=10%><input type="button" id="next_button" value="{{_("Next Screen")}}"></td>
-      </tr>
-    </table>
-</form>
 
 <script>
-
-$(function() {
-	var btn = $("#back_button");
-	btn.button();
-	btn.click( function() {
-		window.location = "{{rootPath}}model-run/back"
-	});
-
-	var btn = $("#next_button");
-	btn.button();
-	btn.click( function() {
-		window.location = "{{rootPath}}model-run/next";
-	});
-	
-});
 
 $(document).ready(function(){
 	$("#proc_validation_button").click( function(){
@@ -75,6 +51,21 @@ $(document).ready(function(){
 	});
 	
 });
+
+$(function() {
+	$(document).hrmWidget({widget:'stdBackNextButtons',
+		getParms:function(){
+			return {};
+		},
+		checkParms:function(parmDict) {
+			return {success:true}
+		},
+		nextURL:'{{! breadcrumbPairs.getNextURL() }}',
+		backURL:'{{! breadcrumbPairs.getBackURL() }}'
+	});
+	
+});
+
 
 </script>
  

@@ -16,7 +16,7 @@
 %    ret['type'] = te[0]
 %    ret['name'] = te[1]
 %    ret['dbUrl'] = te[2]
-%    ret['fullDbURL'] = rootPath + ret['dbUrl'] + '?crmb=clear'
+%    ret['fullDbURL'] = rootPath + ret['dbUrl']
 %    return ret
 % end
 
@@ -635,7 +635,8 @@ $(function() {
 	});
 
 });
-  
+
+$(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); });
 </script>
 
 <!-- this was the original error handling, replaced by depasse.

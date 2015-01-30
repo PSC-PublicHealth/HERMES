@@ -186,38 +186,6 @@ function reportError(jqxhdrOrData, textStatus, error) {
 	}
 }
 
-
-% if defined('backNextButtons') and backNextButtons:
-
-$(function() {
-	var btn = $("#back_button");
-	btn.button();
-	btn.click( function() {
-		window.location = window.location.pathname + "/back"
-	});
-});
-
-$(function() {
-	var btn = $("#next_button");
-	btn.button();
-	btn.click( function() {
-		window.location = window.location.pathname + "/next";
-	});
-});
-
-%end
-
-% if defined('doneButton') and doneButton:
-
-$(function() {
-	var btn = $("#done_button");
-	btn.button();
-	btn.click( function() {
-		window.location = window.location.pathname + "/done"
-	});
-});
-
-%end
 </script>
 
 <style>.art-content .art-postcontent-0 .layout-item-0 { padding: 0px;  }
@@ -315,21 +283,15 @@ $(function() {
 												<tr>
 													<td>
 														<div class="rcrumbs" id="models_top_breadcrumbs">
-															%if defined('breadcrumbPairs'):
-																%if isinstance(breadcrumbPairs,type([])):
-																	<ul>
-																	%  for ref,lbl in breadcrumbPairs[:-1]:
-																		<li><a href="{{rootPath}}{{ref}}">{{lbl}}</a><span class="divider"></span>></li>
-																	%  end
-																	%ref,lbl = breadcrumbPairs[-1]
-																	<li><a href="{{rootPath}}{{ref}}">{{lbl}}</a></li>
-																	</ul>
-																%  else:
+															% if defined('breadcrumbPairs'):
+																% if isinstance(breadcrumbPairs,type([])):
+																	% raise RuntimeError('Bare tuples for breadcrumbs are no longer supported')
+																% else:
 																	{{! breadcrumbPairs.render() }}
-																%  end
-															%else:
+																% end
+															% else:
 															<ul></ul>
-															%end
+															% end
 														</div>
 													</td>
 													<td width=10% align='right'>
@@ -346,30 +308,29 @@ $(function() {
 
 % if defined('topCaption'):
 <h1>{{topCaption}}</h1>
-%end
+% end
 
 %include
 
-% if defined('backNextButtons') and backNextButtons:
-<form>
-    <table width=100%>
-      <tr>
-        <td width 10%><input type="button" id="back_button" value={{_("Previous Screen")}}></td>
-        <td></td>
-        <td width=10%><input type="button" id="next_button" value={{_("Next Screen")}}></td>
-      </tr>
-    </table>
-</form>
-% elif defined('doneButton') and doneButton:
-<form>
-    <table width=100%>
-      <tr>
-        <td></td>
-        <td width=10%><input type="button" id="done_button" value={{_("Done")}}></td>
-      </tr>
-    </table>
-</form>
-% end
+<table width=100%>
+<tr id='wrappage_backnext_row' style='display:none'>
+<td width 10%><input type="button" id="wrappage_back_button" value='{{_("Previous Screen")}}'></td>
+<td></td>
+<td width=10%><input type="button" id="wrappage_bn_misc_button" value='{{_("Advanced")}}' style='display:none'></td>
+<td width=10%><input type="button" id="wrappage_next_button" value='{{_("Next Screen")}}'></td>
+</tr>
+<tr id='wrappage_done_row' style='display:none'>
+<td></td>
+<td width=10%><input type="button" id="wrappage_done_button" value='{{_("Done")}}'></td>
+</tr>
+<tr id='wrappage_cancelsave_row' style='display:none'>
+<td></td>
+<td width=10%><input type="button" id="wrappage_cs_misc_button" value='{{_("Advanced")}}' style='display:none'></td>
+<td width=10%><input type="button" id="wrappage_cancel_button" value='{{_("Cancel")}}'></td>
+<td width=10%><input type="button" id="wrappage_save_button" value='{{_("Save")}}'></td>
+</tr>
+</table>
+<div id="wrappage_dialog_modal" title='{{_("Invalid Entry")}}'></div>
 
 
 

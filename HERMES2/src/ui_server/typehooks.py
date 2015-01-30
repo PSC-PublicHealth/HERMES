@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-_hermes_svn_id_="$Id: truckhooks.py 1989 2014-10-22 22:58:03Z welling $"
+_hermes_svn_id_="$Id: typehooks.py 1989 2014-10-22 22:58:03Z welling $"
 
 
 import sys,os,os.path,time,json,math,types

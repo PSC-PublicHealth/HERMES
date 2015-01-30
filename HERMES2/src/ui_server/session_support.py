@@ -1,11 +1,5 @@
 #!/usr/bin/env python
 
-####################################
-# Notes:
-# -A session could be hijacked just by grabbing the SessionID;
-#  should use an encrypted cookie to prevent this.
-# -Other session's files could be downloaded the same way.
-####################################
 _hermes_svn_id_="$Id$"
 
 import sys,os.path,thread,time,inspect
@@ -149,16 +143,19 @@ class UISession(db_routines.Base):
     def _getDictSummaryFromDict(dd):
         d = {}
         for k,v in dd.items():
-            if isinstance(v,HermesUserFS):
-                d[k] = v.getJSONSafeSummary()
-            elif hasattr(v,'_toJSON'):
-                d[k] = v._toJSON()
-            elif hasattr(v,'__getstate__'):
-                d[k] = v.__getstate__()
-            elif isinstance(v,dict):
-                d[k] = UISession._getDictSummaryFromDict(v)
-            else:
-                d[k] = v
+            try:
+                if isinstance(v,HermesUserFS):
+                    d[k] = v.getJSONSafeSummary()
+                elif hasattr(v,'_toJSON'):
+                    d[k] = v._toJSON()
+                elif hasattr(v,'__getstate__'):
+                    d[k] = v.__getstate__()
+                elif isinstance(v,dict):
+                    d[k] = UISession._getDictSummaryFromDict(v)
+                else:
+                    d[k] = v
+            except Exception,e:
+                d[k] = "Exception '%s' while summarizing this term" % str(e)
         return d
 ### Rewrote this to now be recursive   
     def getDictSummary(self):
@@ -220,18 +217,26 @@ class UISession(db_routines.Base):
         self.sessionDict.changed()
 
     def getCrumbs(self):
-        #if True:
         if 'crumbTrack' not in self.sessionDict:
             #print 'creating crumbTrack'
             self.sessionDict['crumbTrack'] = crumbtracks.StackCrumbTrail(serverconfig.rootPath,
                                                                          changeListener = self.changed)
-            self.sessionDict['crumbTrack'].push((serverconfig.topPath,serverconfig.topName))
+            self.sessionDict['crumbTrack'].push(('/'+serverconfig.topPath,serverconfig.topName),
+                                                argDict={'crmb':'clear'})
         crumbTrack = self.sessionDict['crumbTrack']
         if not hasattr(crumbTrack,'changeListener') or crumbTrack.changeListener is None:
             # This is always going to be true, because the changeListener will have been lost when the session was pickled
             crumbTrack.setChangeListener(self.changed)
-        if 'crmb' in bottle.request.params and bottle.request.params['crmb']=='clear':
-            crumbTrack.clear()
+        if 'crmb' in bottle.request.params:
+            if bottle.request.params['crmb']=='clear':
+                crumbTrack.clear()
+            else:
+                raise RuntimeError("The only crmb note should be 'clear'")
+            del bottle.request.params['crmb']
+            print bottle.request.query_string
+            print [(k,v) for k,v in bottle.request.params.items()]
+        print 'getCrumbs returning the following crumbTrack:'
+        crumbTrack._dump()
         return  crumbTrack
 
     @classmethod

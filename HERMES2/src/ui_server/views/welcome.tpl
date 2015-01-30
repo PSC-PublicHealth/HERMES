@@ -109,7 +109,7 @@
 				</p>
 				<p>
 					<span class="welcome_item">
-						<a href="{{rootPath}}vaccines-top?crmb=clear"
+						<a href="{{rootPath}}vaccines-top"
 							title='{{_("View and modify supply chain component databases. Databases include vaccines, population, vehicles and storage devices. This will allow users to add or change supply chain components available for use in HERMES models.")}}'>
 							{{_("View and Modify Databases")}}
 						</a>
@@ -280,7 +280,7 @@ $(function(){
 				    	}
 				    	else{
 				    		$("#model_create_dialog_form").dialog('close');
-				    		window.location="model-create?name="+$("#model_create_dlg_new_name").val()+"&crmb=clear";
+				    		window.location="model-create?name="+$("#model_create_dlg_new_name").val();
 				    	}
 					}
 	    		});

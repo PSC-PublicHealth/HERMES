@@ -36,7 +36,7 @@ fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'stri
 
 @bottle.route('/staff-top')
 def staffTopPage(uiSession):
-    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Population")))
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Staff")))
     return bottle.template("staff_top.tpl",{"breadcrumbPairs":crumbTrack})
 
 @bottle.route('/staff-edit')

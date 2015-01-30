@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 
-####################################
-# Notes:
-# -A session could be hijacked just by grabbing the SessionID;
-#  should use an encrypted cookie to prevent this.
-####################################
 _hermes_svn_id_="$Id$"
 
 import sys,os,os.path,time,json,math,types
@@ -82,11 +77,10 @@ def sortModelList(models):
 
 @bottle.route('/models-top')
 def modelsTopPage(uiSession):
-    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Models")))
+    crumbTrack = addCrumb(uiSession, 'Models')
     return bottle.template("models_top.tpl",
                            {
-                            #"breadcrumbPairs":crumbTrack
-                            "breadcrumbPairs":[('top','HERMES'),('models-top',_('Models'))]
+                            "breadcrumbPairs":crumbTrack
                             })
 
 @bottle.route('/model-edit-params')
@@ -132,9 +126,10 @@ def modelsAddTypes(db, uiSession):
                                 "modelName":model.name,
                                 "startClass":startClass,
                                 "breadcrumbPairs": crumbTrack,
-                                "baseURL":'model-add-types'},create=False)
+                                "baseURL":'model-add-types'},createpipe=False)
 
     except Exception,e:
+        _logStacktrace()
         return bottle.template("problem.tpl", {"comment": str(e),
                                                "breadcrumbPairs":crumbTrack})
 
@@ -398,8 +393,6 @@ def _addLevel(pot, recDict, ngList, countsList, otherList, parent, recBuilder):
                 nKids = baseCountsList[0]
         else:
             nKids = 0
-        #print "MDFADTGAERTGARGAEGAEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
-        #print otherList[0]
         recDict[index] = recBuilder(name, nKids, otherList[0])
     #print '##### _addlevel exit %s %s %s %s #######'%(ngList,countsList,otherList,parent)
 
@@ -686,6 +679,12 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
         ### Finally, we need the new ModelInfo for the current name
         ### This should be updated from the page that this was created on,
         ### eliminating almost all of the logic from before
+        if newModelInfo['currentModelName'] not in newModelInfo:
+            # This can happen if the user jumps to the advanced editor and then back
+            del newModelInfo['currentModelName']
+            crumbTrack.pop()  # whatever sent us here
+            crumbTrack.pop()  # our own crumb
+            bottle.redirect(crumbTrack.currentPath())
         newModelInfoCN = newModelInfo[newModelInfo['currentModelName']]
         if not newModelInfoCN.has_key('firstTime'): newModelInfoCN['firstTime'] = 'T'
         #print '-0-0-0-0-0-0-0-0-0-'
@@ -728,9 +727,7 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
             subCrumbTrack = newModelInfoCN['subCrumbTrack']
             #print str(subCrumbTrack._toJSON())
             #print crumbTrack._toJSON()
-            if crumbTrack.trail[-1] != subCrumbTrack:
-                del crumbTrack.trail[-1]
-                crumbTrack.push(subCrumbTrack)
+            crumbTrack.push(subCrumbTrack)  # no-op if it is already there
             #print crumbTrack._toJSON()
         else:
             subCrumbTrack = None
@@ -740,7 +737,7 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
         #### unknown means we are entering the pipeline from outside
         #### next means we are moving from one page inside the chain to the next
         #### back means we are moving from one page inside the chaing to the previous
-        print "Step = " + str(step)
+        #print "Step = " + str(step)
         if step=="unknown":
             '''
             Step: unknown
@@ -751,7 +748,8 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
             if subCrumbTrack is None:
                 subCrumbTrack = crumbtracks.TrackCrumbTrail(bottle.request.path, 
                                                             "Create Model")
-                for a,b in stepPairs: subCrumbTrack.append((a,b))
+                for a,b in stepPairs:
+                    subCrumbTrack.append((a,b))
                 newModelInfoCN['subCrumbTrack'] = subCrumbTrack
                 crumbTrack.push(subCrumbTrack)
             ## we assume a new model is being born
@@ -781,7 +779,6 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
             if not crumbTrack.jump(step):
                 raise bottle.BottleException("Invalid step %s in model create"%step)
             screen = crumbTrack.current()
-            #print "This is our screen = " + str(screen)
             
         '''
         -------------------------------------------------------------------------------
@@ -808,7 +805,7 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
             if 'modelId' in newModelInfoCN and newModelInfoCN['modelId'] != -1:
                 # the user is messing around with the back/next buttons
                 del crumbTrack.trail[-1]
-                bottle.redirect('{0}model-edit-structure?id={1}&crmb=clear'.format(rootPath,newModelInfoCN['modelId'])) 
+                bottle.redirect('{0}model-edit-structure?id={1}'.format(rootPath,newModelInfoCN['modelId'])) 
             else:
                 # fake the remaining unfilled pages so the PreOrderTree can get created
                 if 'levelcounts' not in newModelInfoCN: newModelInfoCN['levelcounts'] = [1 for x in xrange(newModelInfo['nlevels'])]
@@ -838,7 +835,7 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
                 offset = fp.find(p)
                 rootPath = fp[:offset+1] # to include slash      
                 del crumbTrack.trail[-1]             
-                bottle.redirect('{}model-edit-structure?id={}&crmb=clear'.format(rootPath,createdModelId))        
+                bottle.redirect('{}model-edit-structure?id={}'.format(rootPath,createdModelId))        
         
         ''' STB TODO Make this throw more meaningful and easier to parse errors'''
         if 'provision' in bottle.request.params and bottle.request.params['provision'] == 'true':
@@ -889,8 +886,7 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
             ### add a tuple to make sure that Joels stuff works
             if len(newModelInfoCN['shippatterns'][0]) > 0:
                 newModelInfoCN['shippatterns'].insert(0,())
-            print newModelInfoCN.keys()
-            #print "MOTHERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            #print newModelInfoCN.keys()
             #if 'pottable' in newModelInfoCN.keys():
 #             if 'pottable' not in newModelInfoCN.keys():
 #                 print "------------------------------------------------------------------resetting"
@@ -898,7 +894,7 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
 #                 newModelIntoCN[u'potrecdict'] = None
             
             if not newModelInfoCN.has_key('modelId') or newModelInfoCN['modelId'] == -1 or len(newModelInfoCN['pottable']) == 0:
-                    print "--------------------------------------------------------------------going home"
+                    #print "--------------------------------------------------------------------going home"
                     pot,recDict = _buildPreOrderTree(newModelInfoCN)
                     newModelInfoCN['pottable'] = pot.table
                     newModelInfoCN['potrecdict'] = recDict
@@ -935,8 +931,8 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
             else:
                 if newModelInfoCN.has_key('modelId'):
                     formVals['modelId']=newModelInfoCN['modelId']
-                #for key,item in formVals.items():
-                #    print "-------------------------------------------{0} = {1}".format(key,item)
+#                 for key,item in formVals.items():
+#                     print "-------------------------------------------{0} = {1}".format(key,item)
                 return bottle.template(screenToTpl[screen],formVals,pagehelptag=screen,createpipe=True,modJson = newModelJson)
         elif screen=="models-top":
             ''' If we have no subcrumbtrack, then we can't do anything with this and 
@@ -963,7 +959,7 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
             fp = bottle.request.fullpath
             offset = fp.find(p)
             rootPath = fp[:offset+1] # to include slash
-            bottle.redirect("{0}model-open?modelId={1}&crmb=clear".format(rootPath,uiSession['selectedModelId']))
+            bottle.redirect("{0}model-open?modelId={1}".format(rootPath,uiSession['selectedModelId']))
         else:
             raise RuntimeError(_("Lost track of which step we are on"))
     except bottle.HTTPResponse:
@@ -1223,12 +1219,15 @@ def openModel(db,uiSession):
             modify = True
         except:
             pass
-        
-        crumbTrack = uiSession.getCrumbs().push(("{0}?modelId={1}".format(bottle.request.path,modelId),name))
+
+        crumbTrack = addCrumb(uiSession,name)
         return bottle.template("model_open.tpl",
-                               {"breadcrumbPairs":[("top",_("Welcome")),("models-top",_("Models")),
-                                                   ("model-open?modelId={0}".format(modelId),name)]},modelId=modelId,maymodify=modify,name=name,_=_,inlizer=inlizer)
+                               {"breadcrumbPairs":crumbTrack,
+                               'modelId':modelId,
+                               'maymodify':modify,
+                               'name':name})
     except Exception as e:
+        _logStacktrace()
         raise bottle.BottleException(_("Unable to load Open Models Page: {0}".format(str(e))))
     
 def _getStoreJITJSON(store):
@@ -1274,6 +1273,8 @@ def jsonModelCreateTimingFormVals(db, uiSession):
 @bottle.route('/json/model-create-timing-verify-commit')
 def jsonModelCreateTimingVerifyCommit(db, uiSession):
     try:
+#         for k,v in bottle.request.params.items():
+#             print '%s: %s'%(k,v)
         if 'newModelInfo' not in uiSession:
             raise bottle.BottleException(_("We are not creating a new model right now."))
         if 'currentModelName' not in uiSession['newModelInfo'].keys() or uiSession['newModelInfo']['currentModelName'] == "none":
@@ -1447,7 +1448,8 @@ def jsonRemoveTypeFromModel(db, uiSession):
         
         return { 'success' : True }
     except Exception, e:
-        print e
+        _logMessage('Error in jsonRemoveTypeFromModel: %s'%str(e))
+        _logStacktrace()
         return { 'success' : False }
 
 @bottle.route('/json/adjust-models-table')
@@ -1974,7 +1976,7 @@ def jsonCreateLevelsFormFromSession(db,uiSession):
         return {'success':False,'type':'error', 'msg':_("Parameter name not given in this request: ")+str(e)}  
     
     try:
-        newModelInfo = jsonGetModelInfoFromSession(db,uiSession)['data']
+        newModelInfo = jsonGetNewModelInfoFromSession(db,uiSession)['data']
         newModelInfoCN = newModelInfo[name]
     except bottle.HTTPResponse:
         raise
@@ -2025,7 +2027,7 @@ def jsonCreatePlacesPerLevelFormFromSession(db,uiSession):
         return {'success':False,'msg':_("Parameter name not given in this request: ")+str(e)}  
     
     try:
-        newModelInfo = jsonGetModelInfoFromSession(db,uiSession)['data']
+        newModelInfo = jsonGetNewModelInfoFromSession(db,uiSession)['data']
         newModelInfoCN = newModelInfo[name]
     except bottle.HTTPResponse:
         raise
@@ -2072,7 +2074,7 @@ def jsonCreateInterlInfoFormFromSession(db,uiSession):
         return {'success':False,'msg':_("Parameter name not given in this request: ")+str(e)}  
     
     try:
-        newModelInfo = jsonGetModelInfoFromSession(db,uiSession)['data']
+        newModelInfo = jsonGetNewModelInfoFromSession(db,uiSession)['data']
         newModelInfoCN = newModelInfo[name]
     except bottle.HTTPResponse:
         raise
@@ -2139,7 +2141,7 @@ def jsonCreateInterlTimingFormFromSession(db,uiSession):
         return {'success':False,'msg':_("Parameter name not given in this request: ")+str(e)}  
     
     try:
-        newModelInfo = jsonGetModelInfoFromSession(db,uiSession)['data']
+        newModelInfo = jsonGetNewModelInfoFromSession(db,uiSession)['data']
         newModelInfoCN = newModelInfo[name]
     except bottle.HTTPResponse:
         raise
@@ -2294,11 +2296,11 @@ def jsonGetModelInfoFromSession(db,uiSession):
         return result   
 
 '''
-Utility Function that will get a ModelInfo structure form the uiSession
+Utility Function that will get a ModelInfo structure from the uiSession
 '''
 
 @bottle.route('/json/get-newmodelinfo-from-session')
-def jsonGetModelInfoFromSession(db,uiSession):
+def jsonGetNewModelInfoFromSession(db,uiSession):
     try:
         newModelDict = {}
         if 'newModelInfo' in uiSession:
