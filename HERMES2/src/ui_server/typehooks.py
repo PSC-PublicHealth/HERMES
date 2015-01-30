@@ -120,8 +120,8 @@ def jsonTypeEditVerifyAndCommit(db, uiSession, typeClass, fieldMap, classEditFn=
             newType = shdTypesClass(attrRec.copy()) 
             db.add(newType)
             m.types[attrRec['Name']] = newType
-            crumbTrack = uiSession.getCrumbs().pop()
-            result = {'success':True, 'value':True, 'goto':crumbTrack.currentPath()}
+            crumbTrack = uiSession.getCrumbs()
+            result = {'success':True, 'value':True, 'goto':crumbTrack.getDoneURL()}
         return result
     except Exception, e:
         result = {'success':False, 'msg':str(e)}
@@ -145,8 +145,8 @@ def jsonTypeInfo(db, uiSession, htmlGeneratorFn):
 @bottle.route('/json/generic-edit-cancel')
 def jsonGenericEditCancel(db,uiSession):
     try:
-        crumbTrack = uiSession.getCrumbs().pop()
-        return {'success':True, 'value': True, 'goto':crumbTrack.currentPath()}
+        crumbTrack = uiSession.getCrumbs()
+        return {'success':True, 'value': True, 'goto':crumbTrack.getDoneURL()}
     except Exception, e:
         result = {'success':False, 'msg':str(e)}
         _logMessage(str(e))

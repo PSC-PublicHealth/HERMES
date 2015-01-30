@@ -110,8 +110,8 @@ def jsonStaffEditVerifyCommit(db,uiSession):
         newStaff = shadow_network.ShdStaffType(attrRec.copy()) 
         db.add(newStaff)
         m.types[attrRec['Name']] = newStaff 
-        crumbTrack = uiSession.getCrumbs().pop()
-        result = {'success':True, 'value':True, 'goto':crumbTrack.currentPath()}
+        crumbTrack = uiSession.getCrumbs()
+        result = {'success':True, 'value':True, 'goto':crumbTrack.getDoneURL()}
     return result
             
 @bottle.route('/json/staff-info')

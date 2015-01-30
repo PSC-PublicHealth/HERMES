@@ -235,8 +235,8 @@ class UISession(db_routines.Base):
             del bottle.request.params['crmb']
             print bottle.request.query_string
             print [(k,v) for k,v in bottle.request.params.items()]
-        print 'getCrumbs returning the following crumbTrack:'
-        crumbTrack._dump()
+#         print 'getCrumbs returning the following crumbTrack:'
+#         crumbTrack._dump()
         return  crumbTrack
 
     @classmethod

@@ -123,8 +123,8 @@ def jsonPerDiemEditVerifyCommit(db, uiSession):
         newPerDiem = shadow_network.ShdPerDiemType(attrRec.copy())
         db.add(newPerDiem)
         m.types[attrRec['Name']] = newPerDiem
-        crumbTrack = uiSession.getCrumbs().pop()
-        result = {'success': True, 'value': True, 'goto': crumbTrack.currentPath()}
+        crumbTrack = uiSession.getCrumbs()
+        result = {'success': True, 'value': True, 'goto': crumbTrack.getDoneURL()}
     return result
 
 
