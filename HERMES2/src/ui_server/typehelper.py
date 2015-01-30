@@ -53,6 +53,8 @@ def getTypeList(db, modelId, typeClass, fallback=True):
     names = set()
     tList = []
     for k, v in getattr(m, typeClass).items():
+        if k in hiddenTypesSet:
+            continue
         names.add(k)
         attrRec = {'_inmodel': True, 'modelId': modelId}
         shadow_network._copyAttrsToRec(attrRec, v)
@@ -60,6 +62,8 @@ def getTypeList(db, modelId, typeClass, fallback=True):
     if fallback:
         aM = _getAllTypesModel(db)
         for k, v in getattr(aM, typeClass).items():
+            if k in hiddenTypesSet:
+                continue
             if k not in names:
                 names.add(k)
                 attrRec = {'_inmodel': False, 'modelId': aM.modelId}

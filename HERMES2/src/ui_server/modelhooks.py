@@ -1383,6 +1383,8 @@ def jsonGetTypesGrid(db, uiSession):
     types = getattr(model, getType)
     rowList = []
     for t in types.values():
+        if t.Name in typehelper.hiddenTypesSet:
+            continue
         row = {}
         row['dispName'] = t.DisplayName
         row['name'] = t.Name

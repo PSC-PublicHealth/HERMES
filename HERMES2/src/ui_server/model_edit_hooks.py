@@ -13,7 +13,7 @@ import string
 from util import listify
 import input
 import traceback
-
+import typehelper
 import validate_model
 
 import shadow_network as shd
@@ -1210,6 +1210,8 @@ def storeInvOpts(store, iType):
     for i in inv:
         value = i.Name
         if 0 != store.countInventory(i):
+            continue
+        if value in typehelper.hiddenTypesSet:
             continue
         display = i.getDisplayName()
         opts.append((value, display))
