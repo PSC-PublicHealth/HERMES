@@ -54,6 +54,9 @@
 }
 
 .ztm .children:hover rect.child {
-    fill: #bbb;
+    fill: #b0b0b0;
 }
 
+.ztm .children rect.child:hover {
+    fill: #558cc7;
+}
