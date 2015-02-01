@@ -7,13 +7,19 @@
 		</td>
 	</tr>
 	<tr>
-	<td width=100%>
+	<td width=100% colspan=2>
 		<table id="perdiem_cost_grid"></table>
 		<div id="perdiem_cost_pager"> </div>
 	</td>
 	</tr>
 	<tr>
-	<td width=100%>
+	<td width=10%>
+		<table>
+		<tr><td>{{_("Mark all unassigned routes as having no per diem?")}}</td></tr>
+		<tr><td><div id='mark_default_perdiems_btn'></div></td></tr>
+		</table>
+	</td>
+	<td width=90%>
 		<table id="route_perdiem_grid"></table>
 		<div id="route_perdiem_pager"> </div>
 	</td>
@@ -459,6 +465,26 @@ $(function() {
 		},
 	});
 });
+
+$(function() {
+	$('#mark_default_perdiems_btn').button({ label:'{{_("Yes")}}' })
+	.click( function(evt) {
+		$.getJSON('{{rootPath}}json/cost-set-empty-perdiems-zero', {modelId:$('#model_sel_widget').modelSelector('selId')})
+			.done(function(data) {
+				if (data.success) {
+					$('#route_perdiem_grid').trigger("reloadGrid");
+					alert('{{_("Changed ")}}' + data.count + '{{_(" routes")}}')
+				}
+				else {
+		    		alert('{{_("Failed: ")}}'+data.msg);
+				}
+			})
+			.fail(function(jqxhr, textStatus, error) {
+				alert("Error: "+jqxhr.responseText);
+			});
+			evt.stopPropagation();
+	});
+})
 
 $(function() {
 	$("#perdiem_info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});

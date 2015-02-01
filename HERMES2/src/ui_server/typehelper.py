@@ -30,6 +30,10 @@ alwaysPresentTypes = defaultdict(lambda: [],
                                   'types': ['Std_WarehouseStaff', 'Std_Driver', 'Std_PerDiem_None']
                                   })
 
+# The following typenames are used elsewhere and should be considered reserved
+specialTypeNames = {'no-perdiem': 'Std_PerDiem_None'
+                    }
+
 
 def _getAllTypesModel(db):
     return (db.query(shadow_network.ShdNetwork)

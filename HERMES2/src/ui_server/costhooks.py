@@ -1,37 +1,34 @@
 #!/usr/bin/env python
 
-_hermes_svn_id_="$Id$"
+_hermes_svn_id_ = "$Id$"
 
-import sys,os,os.path,time,json,math,types
+import types
 import bottle
 import ipath
 import shadow_network_db_api
 import shadow_network
 import session_support_wrapper as session_support
-from serverconfig import rootPath
-from HermesServiceException import HermesServiceException
 from gridtools import orderAndChopPage
 import privs
-import htmlgenerator
 import typehelper
 import costmodel
-import typehelper
 from fridgetypes import energyTranslationDict
 from trucktypes import fuelTranslationDict
 import currencyhelper
 from widgethooks import getTypeFromRequest, getEnergyFromRequest, getFuelFromRequest, \
     getCurrencyFromRequest
 
-from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _safeGetReqParam, _mergeFormResults
+from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _safeGetReqParam
 
 from microcostmodel import priceKeyTable as _fuelNames
 
-inlizer=session_support.inlizer
-_=session_support.translateString
+inlizer = session_support.inlizer
+_ = session_support.translateString
+
 
 @bottle.route('/cost-top')
 def costTopPage(db, uiSession):
-    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Costs")))
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path, _("Costs")))
     if 'selectedModelId' in uiSession:
         minYear = currencyhelper.getCurrencyMinYear(db, uiSession['selectedModelId'])
         maxYear = currencyhelper.getCurrencyMaxYear(db, uiSession['selectedModelId'])
@@ -39,35 +36,44 @@ def costTopPage(db, uiSession):
         aTMId = typehelper._getAllTypesModel(db).modelId
         minYear = currencyhelper.getCurrencyMinYear(db, aTMId)
         maxYear = currencyhelper.getCurrencyMaxYear(db, aTMId)
-    return bottle.template("cost_top.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Costs"),
-                                           "minYear":minYear, "maxYear":maxYear})
+    return bottle.template("cost_top.tpl", {"breadcrumbPairs": crumbTrack,
+                                            "title_slogan": _("Costs"),
+                                            "minYear": minYear, "maxYear": maxYear})
+
 
 @bottle.route('/cost-edit-fuel')
 def costEditFuel(db, uiSession):
-    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Fuel")))
-    return bottle.template("cost_edit_fuel.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Fuel Costs")})
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path, _("Fuel")))
+    return bottle.template("cost_edit_fuel.tpl", {"breadcrumbPairs": crumbTrack,
+                                                  "title_slogan": _("Fuel Costs")})
+
 
 @bottle.route('/cost-edit-fridge')
 def costEditFridge(db, uiSession):
-    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Storage")))
-    return bottle.template("cost_edit_fridge.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Storage Device Costs")})
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path, _("Storage")))
+    return bottle.template("cost_edit_fridge.tpl", {"breadcrumbPairs": crumbTrack,
+                                                    "title_slogan": _("Storage Device Costs")})
+
 
 @bottle.route('/cost-edit-vaccine')
 def costEditVaccine(db, uiSession):
-    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Vaccines")))
-    return bottle.template("cost_edit_vaccines.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Vaccine Costs")})
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path, _("Vaccines")))
+    return bottle.template("cost_edit_vaccines.tpl", {"breadcrumbPairs": crumbTrack,
+                                                      "title_slogan": _("Vaccine Costs")})
+
 
 @bottle.route('/cost-edit-truck')
 def costEditTrucks(db, uiSession):
-    crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Vehicles")))
-    return bottle.template("cost_edit_trucks.tpl",{"breadcrumbPairs":crumbTrack, "title_slogan":_("Vehicle Costs")})
+    crumbTrack = uiSession.getCrumbs().push((bottle.request.path, _("Vehicles")))
+    return bottle.template("cost_edit_trucks.tpl", {"breadcrumbPairs": crumbTrack,
+                                                    "title_slogan": _("Vehicle Costs")})
 
 
 @bottle.route('/cost-edit-salary')
 def costEditSalary(db, uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path, _("Salaries")))
-    return bottle.template("cost_edit_salary.tpl", {"breadcrumbPairs":crumbTrack,
-                                                    "title_slogan":_("Staff Costs")})
+    return bottle.template("cost_edit_salary.tpl", {"breadcrumbPairs": crumbTrack,
+                                                    "title_slogan": _("Staff Costs")})
 
 
 @bottle.route('/cost-edit-perdiem')
@@ -92,15 +98,17 @@ def jsonSetCurrencyBaseYear(db, uiSession):
         uiSession.getPrivs().mayWriteModelId(db, modelId)
         baseYear = _getOrThrowError(bottle.request.params, 'baseYear', isInt=True)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-        m.addParm(shadow_network.ShdParameter('currencybaseyear',str(baseYear)))
-        result = { 'baseYear':baseYear, 'success':True }
+        m.addParm(shadow_network.ShdParameter('currencybaseyear', str(baseYear)))
+        result = {'baseYear': baseYear, 'success': True}
         return result
-    except Exception,e:
+    except Exception, e:
         _logStacktrace()
         if m:
-            return {"success":False, "msg":str(e), "value": m.getParameterValue('currencybaseyear')} 
+            return {"success": False, "msg": str(e),
+                    "value": m.getParameterValue('currencybaseyear')}
         else:
-            return {"success":False, "msg":str(e)} 
+            return {"success": False, "msg": str(e)}
+
 
 def setModelParamPercent(db, uiSession, key, paramName):
     try:
@@ -179,15 +187,16 @@ def jsonGetDefaultCurrency(db, uiSession):
         uiSession.getPrivs().mayReadModelId(db, modelId)
         if 'defaultCurrencyId' in uiSession:
             currencyId = uiSession['defaultCurrencyId']
-            result = {'id':currencyId,
-                      'name':currencyhelper.getCurrencyDict(db,modelId)[currencyId],
-                      'success':True }
+            result = {'id': currencyId,
+                      'name': currencyhelper.getCurrencyDict(db, modelId)[currencyId],
+                      'success': True}
         else:
-            result = { 'id':None, 'name':None, 'success':True }
+            result = {'id': None, 'name': None, 'success': True}
         return result
-    except Exception,e:
+    except Exception, e:
         _logStacktrace()
-        return {"success":False, "msg":str(e)} 
+        return {"success": False, "msg": str(e)}
+
 
 @bottle.route('/json/set-microcosting-enabled')
 def jsonSetMicroCostingEnabled(db, uiSession):
@@ -197,15 +206,15 @@ def jsonSetMicroCostingEnabled(db, uiSession):
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         enableFlag = _getOrThrowError(bottle.request.params, 'microCostingEnabled', isBool=True)
         if enableFlag:
-            m.addParm(shadow_network.ShdParameter('costmodel','micro1'))
+            m.addParm(shadow_network.ShdParameter('costmodel', 'micro1'))
         else:
-            m.addParm(shadow_network.ShdParameter('costmodel','legacy')) # falls back to default automatically
-        return {'success':True,
-                'microCostingEnabled':(m.getParameterValue('costmodel')=='micro1')
+            m.addParm(shadow_network.ShdParameter('costmodel', 'legacy'))  # falls back to default automatically
+        return {'success': True,
+                'microCostingEnabled': (m.getParameterValue('costmodel') == 'micro1')
                 }
-    except Exception,e:
+    except Exception, e:
         _logStacktrace()
-        return {"success":False, "msg":str(e)} 
+        return {"success": False, "msg": str(e)}
 
 
 @bottle.route('/json/set-vaccine-costs-included')
@@ -236,22 +245,22 @@ def jsonCostCheckCompleteness(db, uiSession):
         costModelVerifier = costmodel.getCostModelVerifier(m)
         problemList = costModelVerifier.getProblemList(m)
         if len(problemList) == 0:
-            if m.getParameterValue('costmodel')=='micro1':
+            if m.getParameterValue('costmodel') == 'micro1':
                 msg = _("This model is ready to run with microcosting.")
             else:
                 msg = _("This model is ready to run with legacy costing or no cost analysis.")
-            return {"success":True, "value":True,
-                    "msg":msg
+            return {"success": True, "value": True,
+                    "msg": msg
                     }
         else:
-            return {"success":True, "value":False,
-                    'msgList':problemList,
-                    "msg":_("The cost information for this model is not complete")
+            return {"success": True, "value": False,
+                    'msgList': problemList,
+                    "msg": _("The cost information for this model is not complete")
                     }
-    except Exception,e:
+    except Exception, e:
         _logStacktrace()
-        return {"success":False, "msg":str(e)} 
-    
+        return {"success": False, "msg": str(e)}
+
 
 @bottle.route('/json/set-default-currency')
 def jsonSetDefaultCurrency(db, uiSession):
@@ -261,13 +270,14 @@ def jsonSetDefaultCurrency(db, uiSession):
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         currencyId = getCurrencyFromRequest(db, m, 'id')  # Note that this is a string!
         uiSession['defaultCurrencyId'] = currencyId
-        result = { 'id':currencyId, 
-                  'name':currencyhelper.getCurrencyDict(db,modelId)[currencyId], 
-                  'success':True }
+        result = {'id': currencyId,
+                  'name': currencyhelper.getCurrencyDict(db, modelId)[currencyId],
+                  'success': True}
         return result
-    except Exception,e:
+    except Exception, e:
         _logStacktrace()
-        return {"success":False, "msg":str(e)} 
+        return {"success": False, "msg": str(e)}
+
 
 @bottle.route('/json/get-base-currency')
 def jsonGetBaseCurrency(db, uiSession):
@@ -276,13 +286,13 @@ def jsonGetBaseCurrency(db, uiSession):
         uiSession.getPrivs().mayReadModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         baseCurrency = m.getParameterValue('currencybase')
-        result = { 'id':baseCurrency, 
-                  'name':currencyhelper.getCurrencyDict(db,modelId)[baseCurrency], 
-                  'success':True }
+        result = {'id': baseCurrency,
+                  'name': currencyhelper.getCurrencyDict(db, modelId)[baseCurrency],
+                  'success': True}
         return result
-    except Exception,e:
+    except Exception, e:
         _logStacktrace()
-        return {"success": False, "msg": str(e)} 
+        return {"success": False, "msg": str(e)}
 
 
 @bottle.route('/json/set-base-currency')
@@ -292,15 +302,15 @@ def jsonSetBaseCurrency(db, uiSession):
         uiSession.getPrivs().mayWriteModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         currencyId = getCurrencyFromRequest(db, m, 'id')  # Note that this is a string!
-        m.addParm(shadow_network.ShdParameter('currencybase',currencyId))
+        m.addParm(shadow_network.ShdParameter('currencybase', currencyId))
         uiSession['defaultCurrencyId'] = currencyId
-        result = { 'id':currencyId, 
-                  'name':currencyhelper.getCurrencyDict(db,modelId)[currencyId], 
-                  'success':True }
+        result = {'id': currencyId,
+                  'name': currencyhelper.getCurrencyDict(db, modelId)[currencyId],
+                  'success': True}
         return result
-    except Exception,e:
+    except Exception, e:
         _logStacktrace()
-        return {"success":False, "msg":str(e)} 
+        return {"success": False, "msg": str(e)}
 
 
 def getFuelButtonLabel(db, uiSession, m):
@@ -404,6 +414,7 @@ def _getCurrencyConverter(db, uiSession, m):
 
     return uiSession['currencyConverter']
 
+
 @bottle.route('/json/get-fuel-price-info')
 def jsonGetFuelPriceInfo(db, uiSession):
     try:
@@ -413,39 +424,43 @@ def jsonGetFuelPriceInfo(db, uiSession):
         currencyBase = m.getParameterValue('currencybase')
         currencyConverter = _getCurrencyConverter(db, uiSession, m)
         result = {}
-        for fuel,fuelParamName in _fuelNames.items():
-            if fuelParamName is None: continue  # this fuel is free
-            fuelCurString = '%sCurrency'%fuel
-            fuelValueString = '%sValue'%fuel
+        for fuel, fuelParamName in _fuelNames.items():
+            if fuelParamName is None:
+                continue  # this fuel is free
+            fuelCurString = '%sCurrency' % fuel
+            fuelValueString = '%sValue' % fuel
             if fuelCurString not in uiSession:
                 uiSession[fuelCurString] = currencyBase
             result[fuelCurString] = uiSession[fuelCurString]
             if isinstance(fuelParamName, types.TupleType):
                 fuelAmortName = fuelParamName[1]
                 fuelParamName = fuelParamName[0]
-                fuelAmortString = '%samortValue'%fuel
+                fuelAmortString = '%samortValue' % fuel
                 fuelPrice = m.getParameterValue(fuelParamName)
-                #print "%s: %s"%(fuelParamName, fuelPrice)
+                # print "%s: %s"%(fuelParamName, fuelPrice)
                 if fuelPrice is None:
                     result[fuelValueString] = None
                 else:
-                    result[fuelValueString] = currencyConverter.convertTo(fuelPrice, currencyBase, uiSession[fuelCurString])
+                    result[fuelValueString] = currencyConverter.convertTo(fuelPrice, currencyBase,
+                                                                          uiSession[fuelCurString])
                 fuelAmort = m.getParameterValue(fuelAmortName)
                 result[fuelAmortString] = fuelAmort
             else:
                 fuelPrice = m.getParameterValue(fuelParamName)
-                #print "%s: %s"%(fuelParamName, fuelPrice)
+                # print "%s: %s"%(fuelParamName, fuelPrice)
                 if fuelPrice is None:
                     result[fuelValueString] = None
                 else:
-                    result[fuelValueString] = currencyConverter.convertTo(fuelPrice, currencyBase, uiSession[fuelCurString])
+                    result[fuelValueString] = currencyConverter.convertTo(fuelPrice, currencyBase,
+                                                                          uiSession[fuelCurString])
         # print result
         result['success'] = True
-        #print 'returning %s'%result
+        # print 'returning %s'%result
         return result
-    except Exception,e:
+    except Exception, e:
         _logStacktrace()
-        return {"success":False, "msg":str(e)} 
+        return {"success": False, "msg": str(e)}
+
 
 @bottle.route('/json/set-fuel-price/<fuelName>')
 @bottle.route('/json/set-fuel-price-currency/<fuelName>')
@@ -460,32 +475,35 @@ def jsonSetFuelPrice(db, uiSession, fuelName):
         currencyId = getCurrencyFromRequest(db, m, 'id')
         if fuelName.endswith('amort'):
             fuelName = fuelName[:-len('amort')]
-            assert fuelName in _fuelNames.keys(), _("{0} is not a valid fuel type").format(fuelName)
+            assert fuelName in _fuelNames.keys(), \
+                _("{0} is not a valid fuel type").format(fuelName)
             tpl = _fuelNames[fuelName]
-            assert isinstance(tpl, types.TupleType), _("The fuel {0} has no amortization period".format(fuelName))
+            assert isinstance(tpl, types.TupleType), \
+                _("The fuel {0} has no amortization period".format(fuelName))
             fuelAmortName = tpl[1]
             amort = _safeGetReqParam(bottle.request.params, 'price', isFloat=True)
-            if amort is not None and amort!='':
+            if amort is not None and amort != '':
                 m.addParm(shadow_network.ShdParameter(fuelAmortName, amort))
-            result = {'success':True, 'price':amort, 'id':None}
+            result = {'success': True, 'price': amort, 'id': None}
 
         else:
-            assert fuelName in _fuelNames.keys(), _("{0} is not a valid fuel type").format(fuelName)
+            assert fuelName in _fuelNames.keys(), \
+                _("{0} is not a valid fuel type").format(fuelName)
             currencyParamName = _fuelNames[fuelName]
             if isinstance(currencyParamName, types.TupleType):
                 currencyParamName = currencyParamName[0]
             price = _safeGetReqParam(bottle.request.params, 'price', isFloat=True)
-            if price is not None and price!='':
+            if price is not None and price != '':
                 priceInBaseCurrency = _getCurrencyConverter(db, uiSession, m).convertTo(price, currencyId,
                                                                                         m.getParameterValue('currencybase'))
                 m.addParm(shadow_network.ShdParameter(currencyParamName, priceInBaseCurrency))
             fuelCurString = '%sCurrency' % fuelName
             uiSession[fuelCurString] = currencyId
-            result = {'success':True, 'price':price, 'id':currencyId}
+            result = {'success': True, 'price': price, 'id': currencyId}
         return result
-    except Exception,e:
+    except Exception, e:
         _logStacktrace()
-        return {"success":False, "msg":str(e)} 
+        return {"success": False, "msg": str(e)}
 
 
 @bottle.route('/json/manage-fridge-cost-table')
@@ -1238,3 +1256,24 @@ def editCostBuildings(db, uiSession):
     except Exception, e:
         _logStacktrace()
         return {'success': False, 'msg': str(e)}
+
+
+@bottle.route('/json/cost-set-empty-perdiems-zero')
+def jsonCostSetEmptyPerDiemsZero(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        uiSession.getPrivs().mayModifyModelId(db, modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        nChanged = 0
+        for rt in m.routes.values():
+            if rt.PerDiemType is None or rt.PerDiemType == '':
+                rt.PerDiemType = typehelper.specialTypeNames['no-perdiem']
+                nChanged += 1
+        return {'success': True, 'count': nChanged}
+    except bottle.HTTPResponse:
+        raise  # bottle will handle this
+    except Exception, e:
+        _logMessage('Error in jsonCostSetEmptyPerDiemsZero: %s' % str(e))
+        _logStacktrace()
+        return {'success': False, 'msg': str(e)}
+
