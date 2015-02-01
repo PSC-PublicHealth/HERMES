@@ -232,6 +232,31 @@ function addToggleExpansionButton($grid) {
 //					this.grid.populate();
 //					if (opts.debug) console.log('finished grouping');
 //				}
+				if ($grid.jqGrid('getGridParam','grouping')) {
+					if (opts.debug) console.log('attempting to modify grouped behavior');
+					var groupCollapsed = {};
+					$grid.jqGrid('setGridParam', {
+						onClickGroup: function(hid, collapsed) {
+							var idPrefix = this.id + "ghead_";
+							var $this = $(this);
+							var groups = $(this).jqGrid("getGridParam", "groupingView").groups;
+							var offset = hid.lastIndexOf('_');
+							var gid = parseInt(hid.substr(offset+1));
+							//console.log('change to '+groups[gid].displayValue+' : now collaped = '+collapsed);
+							groupCollapsed[gid] = collapsed;
+						},
+					    loadComplete: function () {
+					        var $this = $(this), i, l;
+							var groups = $(this).jqGrid("getGridParam", "groupingView").groups;
+					        for (i = 0, l = groups.length; i < l; i++) {
+					        	if (groupCollapsed[i] != undefined && !groupCollapsed[i]) {
+					                $this.jqGrid('groupingToggle', this.id + 'ghead_' + groups[i].idx + '_' + i);
+					        	}
+					        }
+					    },						
+					})
+					if (opts.debug) console.log('done modifying grouped behavior');
+				}
             	if (opts.debug) {
     				console.log('finished hermify');
     			}
