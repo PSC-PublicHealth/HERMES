@@ -20,10 +20,34 @@
             this.svg.attr("height", total_height); 
         },
 
+        _format_currency: function(d) {
+            var cost_string = "No Cost Data Availalble"
+            if ($.isNumeric(d.value) && d.value > 0.0) {
+                cost_string = parseFloat(d.value, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
+                cost_string += " (" + this.currency_year + " " + this.currency + ")";
+            }
+            else {
+                console.log("Error parsing cost for " + d.name + "!" + "  Value supplied is: " + d.value);
+            }
+            return cost_string;
+        },
+
+        _format_currency_title: function() {
+            //console.log(this);
+            this.svgTitle.html(
+                    this.options.trant['title'] + ' ('
+                    + this.options.trant['currency_label'] 
+                    + ': ' + this.currency + ", " 
+                    + this.options.trant['year_label'] 
+                    + ': ' + this.currency_year + ')');
+        },
+
         _create: function() {
+
             trant = this.options.trant;
 
             this.containerID = this.element.attr("id");
+            //console.log(this.containerID);
 
             $(this.element).css({float: "left"})
                 .addClass("hbc");
@@ -38,21 +62,46 @@
 
             this.svgContainerID = this.chartContainerID+"_svgContainer";
             
-            d3.select("#"+this.chartContainerID).append("div")
+            d3.select("#"+this.chartContainerID).append("svgcontainer")
                 .attr("id", this.svgContainerID)
-                .attr("height", 200);
+                .attr("height", 200)
+                .attr("class", "hbc");
    
-            var jsonDataURL = this.options.jsonDataURLBase + "?"
+            this.jsonDataURL = this.options.jsonDataURLBase + "?"
                             + this.options.jsonDataURLParameters.join("&");
+            //console.log(this.jsonDataURL);
     
             $("<link/>", {
                rel: "stylesheet",
                type: "text/css",
                href: "static/hierarchical-charts/hierarchical-barcharts.css"
             }).appendTo("head");
-    
-            var margin = {top: 30, right: 120, bottom: 0, left: 120};
-            var width = this.options.minWidth - margin.left - margin.right;
+
+            var _this = this;
+            // bind this instance's refresh method to the window resize event
+            // wrap in function closure
+            window.addEventListener('resize', function(e) {
+                _this.refresh();
+            });
+
+            this.refresh();
+        },
+
+        refresh: function() {
+            $("#"+this.svgContainerID).empty();
+            $("#"+this.titleContainerID).empty();
+            this.draw();
+        },
+
+        draw: function() {
+
+            var _widgit = this;
+            
+            var margin = {top: 30, bottom: 0, left: 150, right: 15};
+            // get width from enclosing container and adjust to include the
+            // specified margins
+            var width = ($(this.element).parent().parent().width() * .97) 
+                - margin.right - margin.left;
             var height = this.options.minHeight - margin.top - margin.bottom;
         
             var x = d3.scale.linear()
@@ -76,8 +125,9 @@
         
             var svgTitle = d3.select("#"+this.titleContainerID).append("div")
                 .attr("id", "title")
-                .attr("text-align", "center")
-                .text(trant['title']);
+                .attr("text-align", "center");
+
+            this.svgTitle = svgTitle;
 
             var svg = d3.select("#"+this.svgContainerID).append("svg")
                 .attr("class", "hierarchicalBarchart")
@@ -105,12 +155,6 @@
                 .append("line")
                 .attr("y1", "100%");
 
-            if (this.options.resizable) {
-                // jquery
-                $("#"+this.svgContainerID).css("padding","10px");
-                $("#"+this.svgContainerID).css("margin","5px");
-            }
-   
             if (this.options.scrollable) {
                 // jquery
                 $("#"+this.chartContainerID)
@@ -119,30 +163,25 @@
                     .attr("width", "100%");
             }
 
-            var currency = "USD";
-            var currency_year = 2010;
-
-            d3.json(jsonDataURL, function(error, ret) {
+            svgTitle.append("div").append("text")
+                .attr("class", "x label")
+                .attr("text-anchor", "end")
+                .attr("x", width)
+                .attr("y", height - 6);
+ 
+            d3.json(this.jsonDataURL, function(error, ret) {
                 if (error) {console.log(ret.error);}
                 //console.log(ret.data);
                 var root = ret.data.cost_summary;
-                currency = ret.data.currency_base;
-                currency_year = ret.data.currency_year; 
+                _widgit.currency = ret.data.currency_base;
+                _widgit.currency_year = ret.data.currency_year; 
+                _widgit._format_currency_title();
                 partition.nodes(root);
                 x.domain([0, root.value]).nice();
                 down(root, 0);
             });
 
-            svgTitle.append("div").append("text")
-                .attr("class", "x label")
-                .attr("text-anchor", "end")
-                .attr("x", width)
-                .attr("y", height - 6)
-                .text(trant['currency_label'] + ': ' + currency + ", " + 
-                        trant['year_label'] + ': ' + currency_year);
-          
-            var _widget = this;
-
+         
             // down function called to decend into a selected bar on click
             function down(d, i) {
                 if (!d.children || this.__transition__) return;
@@ -187,7 +226,7 @@
                         return "translate(0," + barHeight * i * 1.2 + ")";
                     });
 
-                _widget._resize_container(total_height);
+                _widgit._resize_container(total_height);
         
                 // Transition entering text.
                 enterTransition.select("text")
