@@ -405,13 +405,17 @@ def _buildRunParmEditFieldTableNew(fieldMap):
     htmlForm = HTMLForm("run_parms_edit_form",None,width=800)
     
     ## run through the fields and create the form
+    #print fieldMap
     for fME in fieldMap:
         if fME['type'] == 'select':
             pass
         elif fME['type'] in ['int','float','string']:
             htmlForm.addElement(HTMLFormInputBox(fME['key'],fME['label'],fME['value'],fME['type'],True))
         elif fME['type'] == 'bool':
-            htmlForm.addElement(HTMLFormCheckBox(fME['key'],fME['label'],fME['value'],True))
+            htmlForm.addElement(HTMLFormSelectBox(fME['key'],fME['label'],
+                                                  [('true',True),('false',False)],
+                                                  fME['value']))
+            #htmlForm.addElement(HTMLFormCheckBox(fME['key'],fME['label'],fME['value'],True))
     htmlDoc.addConstruct(htmlForm)    
     htmlString = htmlDoc.htmlString()
     

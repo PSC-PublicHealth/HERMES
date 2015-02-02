@@ -1,13 +1,7 @@
 %rebase outer_wrapper title_slogan=_('Run A Model'), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
 
 <table>
-<tr><td  style="float:left;width:100px">
-<h2 style="display:none">{{_('Task:')}}</h2>
-<table>
-<tr><td><button id="run_model_button">{{_('Run HERMES')}}</button></td></tr>
-</table>
-</td>
-
+<tr>
 <td>
 <h3 style="display:none">{{_('Run Status')}}</h3>
 <table id="manage_runs_grid"></table>
@@ -16,13 +10,6 @@
 </td>
 </tr>
 </table>
-
-<!--
-<input id="ziprunupload" type="file" name="files[]" data-url="{{rootPath}}upload-run" style="display:none">
-<div id="progress">
-    <div class="bar" style="width: 0%;"></div>
-</div>
--->
 
 <div id="run_info_dialog" title="This should get replaced">
 </div>

@@ -143,18 +143,21 @@ class Validator:
     def getMessageList(self):
         messList = []
 
-        if len(self.warnings) == 0:
-            messList.append({'testname':'All','messtype':'Warnings','message':'None'})
-        else:
-            for nType, nId, nText, topic,message in self.warnings:
-                messList.append({'testname':topic,'messtype':'Warnings','message':"%s: %s"%(nText, message)})
-
         if len(self.fatals) == 0:
-            messList.append({'testname':'All','messtype':'Fatal Errors','message':'None'})
+            pass
+            #messList.append({'testname':'All','messtype':'Fatal Errors','message':'None'})
         else:
             for nType, nId, nText, topic,message in self.fatals:
                 messList.append({'test':topic,'messtype':'Fatal Errors','message':"%s: %s"%(nText, message)})
 
+        if len(self.warnings) == 0:
+            pass
+            #messList.append({'testname':'All','messtype':'Warnings','message':'None'})
+        else:
+            for nType, nId, nText, topic,message in self.warnings:
+                messList.append({'testname':topic,'messtype':'Warnings','message':"%s: %s"%(nText, message)})
+
+        
         return messList
 
     def printReport(self):
@@ -182,7 +185,7 @@ class Validator:
         for storeId,store in self._shdNtwk.stores.items():
             ### getStorageDevices
             hasStorage = False
-            hasCoolerStorage = False
+            hasCoolerStorage = False 
             totalStorage = {"cooler":0.0,"freezer":0.0}
             for device in store.inventory:
                 if type(device.invType) != shd.ShdStorageType and \
