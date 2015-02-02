@@ -102,7 +102,6 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\hermes-tray.exe"; Tasks: 
 [Run]
 Filename: "{app}\python\pythonw.exe"; Parameters: "-m compileall ""{app}"""
 Filename: "{cmd}"; Parameters: "/C ""{app}\src\tools\log_install_hermes.bat"""; Flags: runhidden
-Filename: "{cmd}"; Parameters: "/C ""{app}\src\tools\automodels.bat"""; Flags: runhidden
 Filename: "{app}\hermes-tray.exe"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]

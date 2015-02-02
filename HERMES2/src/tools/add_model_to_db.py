@@ -84,7 +84,9 @@ def main():
             modelName = os.path.splitext(os.path.split(inputName)[1])[0]
         
         if ( gblInputs['no_overwrite_db'] and not isModelNameUnique(modelName) ):
-            raise Exception('Model-name "%s" already exists'%(modelName))
+            #raise Exception('Model-name "%s" already exists'%(modelName))
+            print 'Model-name "%s" already exists'%(modelName)
+            continue
         
         shdTypes = shadow_network.ShdTypes()
         shdTypes.loadShdNetworkTypeManagers(userInput, unifiedInput)

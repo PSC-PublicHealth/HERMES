@@ -887,6 +887,20 @@ def addTypeHolderModel(replace=True):
     # let the alembic scripts do this instead.
     # installUserTypeHolderModel()
 
+def addInitialModels():
+    import site_info
+    sI = site_info.SiteInfo()
+    pathBase = os.path.join(sI.srcDir(),'..','..')
+    curWorkDir = os.path.join(pathBase,'src','tools')
+    print curWorkDir
+    automodelsDir = os.path.join('master_data','automodels')
+    path = os.path.join(pathBase,automodelsDir)
+    for file in os.listdir(path):
+        if file.lower().endswith(".zip"):
+            filePath = os.path.join('..','..',automodelsDir,file)
+            print "Attempting to add initial model: %s"%(file)
+            subprocess.check_call(['python','add_model_to_db.py','--no_overwrite_db','--use_zip='+filePath],cwd = curWorkDir)
+    
 
 def _install_hermes(overwrite = False):
 
@@ -907,6 +921,8 @@ def _install_hermes(overwrite = False):
  
     buildPrivTables()
     addTypeHolderModel(replace=overwrite)
+    
+    addInitialModels()
 
 def _install_dependencies(upgrade=False):
     installEZInstall()
