@@ -13,6 +13,11 @@ div.hrm_quickhelp ul li {
     padding-top: 10px;
 }
 
+/* hide iframe for google earth shim */
+#content-iframe {
+    display: none;
+}
+
 .hermes_edit_button .ui-button-text,
 .hermes_info_button .ui-button-text,
 .hermes_del_button .ui-button-text,
