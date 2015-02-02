@@ -183,6 +183,15 @@
 		    			d3.event.preventDefault();
 		    		});
 		    		
+		    $(document).on('keydown', 'body', { zoomListen : zoomListener }, function(event) {
+                if ((event.keyCode == 109)||(event.keyCode == 173 && event.shiftKey == false)) {
+                    // numpad minus OR numrow minus pressed
+                    zoom_step(event.data.zoomListen, false);
+                } else if ((event.keyCode == 107)||(event.keyCode == 61 && event.shiftKey == true)) {
+                    // numpad plus OR numrow plus pressed
+                    zoom_step(event.data.zoomListen, true);
+                }
+            });            
 		    		
 			var overCircle = function(d) {
 		        selectedNode = d;
@@ -975,3 +984,39 @@
 	}
 });
 })(jQuery);
+
+function zoom_step(listener, where) {
+    //where == TRUE means zoom-IN; where == FALSE means zoom-OUT
+    var container = d3.select("body").select("svg").select("g");
+    var tra = container.attr("transform");
+    //regex_translate = /translate\s*\(\s*((\d+\.?\d*)\s*,\s*(\d+\.?\d*))/;
+    regex_scale = /scale\s*\(\s*(\d+\.?\d*)/;
+    //traparsed = tra.match(regex_translate);
+    scale = tra.match(regex_scale);
+    if (scale == undefined) {
+        scale = 1;
+    } else {
+        scale = parseFloat(scale[1]);
+    }
+    max_scale = 3;
+    min_scale = 0.1;
+    step_scale = 0.6;
+    
+    if (where == true) {
+        if (scale > max_scale) { return; }
+        remaining_zoom = max_scale - scale;
+        step_scale = Math.min(remaining_zoom, step_scale);
+    } else {
+        if (scale < min_scale) { return; }
+        remaining_zoom = scale - min_scale;
+        step_scale = -Math.min(remaining_zoom, step_scale);
+    }
+    scale = scale + step_scale;
+
+    rootSvg = d3.select("#collapsible-network-diagramsvgContainer");
+    //listener.translate([traparsed[2],traparsed[3]]).scale(scale);
+    listener.scale(scale);
+    //listener.event(rootSvg.transition().duration(500)); /* transition does not always happen */
+    listener.event(rootSvg);
+    //container.attr("transform","translate(" + traparsed[2] + ", " + traparsed[3] + ")" + "scale(" + scale + ") ");    
+}
