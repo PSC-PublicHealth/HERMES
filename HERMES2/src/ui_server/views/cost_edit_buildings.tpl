@@ -7,6 +7,12 @@
 		</td>
 	</tr>
 	<tr>
+	<td width=10%>
+		<table>
+			<tr><td>{{_("Mark all unassigned locations as having zero building cost per year?")}}</td></tr>
+			<tr><td><div id='mark_default_buildings_btn'></div></td></tr>
+		</table>
+	</td>
 	<td width=100%>
 		<table id="store_cost_grid"></table>
 		<div id="store_cost_pager"> </div>
@@ -257,6 +263,28 @@ function buildPage(modelId) {
 		debug:true, printable:true, resizable:true
 	});
 }
+
+$(function() {
+	$('#mark_default_buildings_btn').button({ label:'{{_("Yes")}}' })
+	.click( function(evt) {
+		$.getJSON('{{rootPath}}json/cost-set-empty-buildings-zero', {modelId:$('#model_sel_widget').modelSelector('selId')})
+			.done(function(data) {
+				if (data.success) {
+					$('#store_cost_grid').trigger("reloadGrid");
+					alert('{{_("Changed ")}}' + data.count + '{{_(" stores")}}')
+				}
+				else {
+		    		alert('{{_("Failed: ")}}'+data.msg);
+				}
+			})
+			.fail(function(jqxhr, textStatus, error) {
+				alert("Error: "+jqxhr.responseText);
+			});
+			evt.stopPropagation();
+	});
+})
+
+
 
 $(function() {
 	$("#model_sel_widget").hrmWidget({

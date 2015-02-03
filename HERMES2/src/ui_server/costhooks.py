@@ -1277,3 +1277,26 @@ def jsonCostSetEmptyPerDiemsZero(db, uiSession):
         _logStacktrace()
         return {'success': False, 'msg': str(e)}
 
+
+@bottle.route('/json/cost-set-empty-buildings-zero')
+def jsonCostSetEmptyBuildingsZero(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        uiSession.getPrivs().mayModifyModelId(db, modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        nChanged = 0
+        for store in m.stores.values():
+            if store.SiteCost is None or store.SiteCost == '':
+                store.SiteCost = 0.0
+                if store.SiteCostCurCode is None or store.SiteCostCurCode == '':
+                    store.SiteCostCurCode = 'USD'
+                if store.SiteCostYear is None or store.SiteCostYear == '':
+                    store.SiteCostYear = 2012
+                nChanged += 1
+        return {'success': True, 'count': nChanged}
+    except bottle.HTTPResponse:
+        raise  # bottle will handle this
+    except Exception, e:
+        _logMessage('Error in jsonCostSetEmptyBuildingsZero: %s' % str(e))
+        _logStacktrace()
+        return {'success': False, 'msg': str(e)}
