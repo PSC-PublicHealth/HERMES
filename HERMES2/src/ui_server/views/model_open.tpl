@@ -16,6 +16,7 @@ var mayModify = "{{maymodify}}" == "True" ? true : false ;
 //console.log(mayModify);
 function updateNetworkDiagram(){
 	$('#ajax_busy_image').show();
+	$('#model_operations_holder').fadeTo(500,1.0);
 	getModelJson().done(function(result){
 		if (!result.success){
 			alert(result.msg);
@@ -33,7 +34,7 @@ function updateNetworkDiagram(){
 				resizeOn:false
 				//jsonUrl:'{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}'
 			});
-			$('#model_operations_holder').fadeTo(500,1.0);
+			$("#loading-notify").fadeTo(400,0.0).hide();
 			//$("#tooldiv").show();
 			$("#ajax_busy_image").hide();
 		}
@@ -59,7 +60,8 @@ function getModelJson(){
 	width:100%;
 	height:100%;
 	min-height:500px;
-	min-width:400px;
+	min-width:380px;
+	background:whitesmoke;
 }
 
 #model_holder{
@@ -77,18 +79,22 @@ function getModelJson(){
 	min-width:200px;
 	max-width:400px;
 	opacity:0;
+	#display:none;
 }
 #model_diagram_holder{
-	float:right;
+	float:left;
 	width:50%;
 	height:100%;
-	background-color:aliceblue;
+	#background-color:;
 	padding:10px;
 	min-width:400px;
+	z-index:5;
+	display:inline;
 }
 #model_show_diagram{
 	width:100%;
 	height:100%;
+	display:inline;
 }
 .model-operation-title{
 	font-size:20px;
@@ -153,6 +159,33 @@ a.model-operation-item:hover{
     /* border-bottom: none; */
     border-bottom: thin solid;
 }
+#loading-notify{
+	display:inline;
+	opacity:0.0;
+	position:absolute;
+	padding:20px;
+	top: 55%;
+	left: 32%;
+	background:grey;
+	font-weight:bold;
+	color:white;
+}
+
+#note-update-notify{
+	display:inline;
+	#opacity:0.0;
+	position:absolute;
+	padding:20px;
+	top: 50%;
+	left: 36%;
+	background:grey;
+	font-weight:bold;
+	color:white;
+}
+#model_dialog_note_edit{
+	width:100%;
+	height:500px;
+}
 </style>
 
 <div id="model_holder">
@@ -210,11 +243,27 @@ a.model-operation-item:hover{
 		</span>
 		</ul>
 	</div>
+	
 	<div id="model_diagram_holder">
+		<ul>
+			<li><a href="#model_show_diagram">Model Network</a></li>
+			<li><a href="#model_test">Notes</a></li>
+		</ul>
+		<div id="model_test">
+			<p><span class="model-diagram-title">{{_('Notes for {0} model'.format(name))}}</span></p>
+			<span class="model-diagram-note"><textarea rows="30" cols="55" id="model_dialog_note_edit"></textarea></span>
+			<button style="width:100%;" id="submit_note">{{_("Save Notes")}}</button>
+			<div id="note-update-notify">
+				<p>{{_("Note Updated")}}</p>
+			</div>
+		</div>
 		<div id="model_show_diagram">
+			<div id="model_diagram_caption_top">
 			<p><span class="model-diagram-title">{{_("Supply Chain Network Diagram")}}</span></p>
 			<p><span class="model-diagram-note">{{_("This diagram depicts the structure of this supply chain.  Clicking on a location can expand or contract the routes and locations below the selected location. Right-clicking a location or route will bring up more detailed information.")}}</span></p>
+			</div>
 			<div id="collapsible-network-diagram"></div>
+			<div id="loading-notify">{{_("Preparing Diagram")}}</div>
 		</div>
 	</div>
 </div>
@@ -282,6 +331,7 @@ a.model-operation-item:hover{
 	<p>   {{_('The Basic Model Editor is not yet implemented. We apologize for the inconvenience.  Please try editting the model with the advanced editor.')}} </p>
 </div>
 
+
 <script>
 
 $(document).ready(function(){
@@ -295,10 +345,56 @@ $(document).ready(function(){
 		}
 	});
 	
-	$("#model_diagram_holder").corner();
+	//$("#model_diagram_holder").corner();
+	$("#model_diagram_holder").tabs();
 	$(".notification").corner();
+	$("#note-update-notify").corner();
+	$("#note-update-notify").hide();
+	$("#loading-notify").corner();
+	$("#loading-notify").fadeTo(400,1.0);
+	$("#submit_note").button();
+	$.ajax({
+		url:'{{rootPath}}json/get-model-notes',
+		datatype:'json',
+		data:{'modelId':{{modelId}}},
+		method:'post'
+	})
+	.done(function(results){
+		if(!results.success){
+			alert(results.msg);
+		}
+		else{
+			$("#model_dialog_note_edit").val(results.notes);
+		}
+	})
+	.fail(function(jqxhr, textStatus, error) {
+    	alert("Error: " + jqxhr.responseText);
+    });
+	
 	updateNetworkDiagram();
 });
+	
+	$("#submit_note").click(function(){
+		$.ajax({
+			url:"{{rootPath}}edit/update-model-name-note",
+			method:"post",
+			datatype:"json",
+			data:{"modelId":{{modelId}},
+				  "newName":"{{name}}",
+				  "newNote":$("#model_dialog_note_edit").val()}
+		})
+		.done(function(results){
+			if(!results.success){
+				alert(results.msg);
+			}
+			else{
+				$("#note-update-notify").fadeIn(400).delay(200).fadeOut(400);
+			}
+		})
+		.fail(function(jqxhr, textStatus, error) {
+	    	alert("Error: " + jqxhr.responseText);
+	    });
+	});
 	
 	$("#not-implemented-modal").dialog({
 		resizable: false,

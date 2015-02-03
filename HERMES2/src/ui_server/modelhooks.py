@@ -2427,4 +2427,21 @@ def editUpdateModelNameAndNote(db,uiSession):
     except Exception,e:
         result = {'success':False, 'type':'error','msg':str(e)}
         return result    
+
+@bottle.route('/json/get-model-notes',method="POST")
+def getModelnotes(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         
+        return {'success':True,'notes':m.note}
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error','msg':str(e)}
+        return result    
+# @bottle.route('/json/table-for-store-provision')
+# def populateTableforStoreProvision(db,uiSession):
+#     try:
+#         modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+#         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
