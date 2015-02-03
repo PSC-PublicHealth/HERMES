@@ -38,6 +38,7 @@ PrivilegesRequired=poweruser
 AppMutex=HERMES: Highly Extensible Resource for Modeling Event-driven Supply chains; {{D82029AE-9A89-4A58-AD00-3E5C5CE68400},Global\HERMES: Highly Extensible Resource for Modeling Event-driven Supply chains; {{D82029AE-9A89-4A58-AD00-3E5C5CE68400}
 ArchitecturesInstallIn64BitMode=x64
 UninstallDisplayIcon={app}\hermes-tray.exe
+LicenseFile=..\..\HERMES2\license.txt
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
