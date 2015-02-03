@@ -322,6 +322,30 @@ queue()
 	.await(ready);
 
 
+$(document).on('keydown', 'body', function(event) { 
+    if ((event.keyCode == 109)||(event.keyCode == 173 && event.shiftKey == false)) {
+        // numpad minus OR numrow minus pressed
+        zoomByFactor(0.8);
+    } else if ((event.keyCode == 107)||(event.keyCode == 61 && event.shiftKey == true)) {
+        // numpad plus OR numrow plus pressed
+        zoomByFactor(1.2);
+    }
+});
+
+/* factor == 1 to center, factor > 1 to zoom in, factor < 1 to zoom out */
+function zoomByFactor(factor) {
+    var scale = zoom.scale();
+    var newScale = scale * factor;
+    var t = zoom.translate();
+    var c = [width / 2, height / 2];
+    zoom
+        .scale(newScale)
+        .translate(
+            [c[0] + (t[0] - c[0]) / scale * newScale, 
+            c[1] + (t[1] - c[1]) / scale * newScale])
+    .event(svg.transition().duration(350));
+}
+
 function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,routesJSON){
 	var states = stateJSON.objects.state;
 	var countries = countryJSON.objects.countries;
@@ -730,5 +754,4 @@ if (d3.event.defaultPrevented) d3.event.stopPropagation();
 
 
 d3.select(self.frameElement).style("height", height + "px");
-
 </script>
