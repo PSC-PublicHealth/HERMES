@@ -568,7 +568,6 @@ def _buildInterLevelInfoFormFromSession(prefix="",levelInfo={}):
         if levelInfo.has_key('shippatterns'):
             defaultsList = levelInfo['shippatterns'][i]
         
-        print defaultsList
         htmlForm.addRow(['<span class="interleveltablehead">' \
                          +_("For routes from the <span class='interleveltableem'>{0}</span> to <span class='interleveltableem'>{1}</span> levels:<br><br class='smallbr'>".format(levelNames[i],levelNames[i+1])) \
                          + "</span>"],['N',2])
@@ -581,11 +580,11 @@ def _buildInterLevelInfoFormFromSession(prefix="",levelInfo={}):
                                               amtEntries,str(defaultsList[0]).lower(),
                                               cssclass="interleveltable"))
         htmlForm.addElement(HTMLFormSelectBox('model_create_interl_issched_{0}'.format(i+1),
-                                              _('on a frequency that occurs'),
+                                              _('on a schedule that occurs'),
                                               schedEntries,str(defaultsList[2]).lower(),
                                               cssclass="interleveltable"))
         if defaultsList[2]:
-            thisHead = _("on a frequency that")
+            thisHead = _("at a frequency of")
         else:
             thisHead = _("up to a frequency of")
         htmlForm.addElement(HTMLFormInputBox('model_create_interl_howoften_{0}'.format(i+1),
