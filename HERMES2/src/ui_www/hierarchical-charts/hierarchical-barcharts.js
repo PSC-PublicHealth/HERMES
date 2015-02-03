@@ -145,6 +145,7 @@
                 .attr("height", height)
                 .on("click", up);
 
+            var background = bkg;
             this.background = bkg;
         
             svg_g.append("g")
@@ -227,7 +228,7 @@
                     });
 
                 _widgit._resize_container(total_height);
-        
+
                 // Transition entering text.
                 enterTransition.select("text")
                     .style("fill-opacity", 1);
@@ -276,8 +277,8 @@
                     })
                     .style("opacity", 1e-6);
  
-                _widget._resize_container(total_height);
-        
+                _widgit._resize_container(total_height);
+       
                 // Color the bars as appropriate.
                 // Exiting nodes will obscure the parent bar, so hide it.
                 enter.select("rect")
