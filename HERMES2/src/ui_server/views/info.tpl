@@ -51,7 +51,7 @@ Tutorial</a> on running HERMES from the command line. (requires DAV login)</li>
   <p>HERMES can also generate various visualizations, such as:</p>
 
   <ul>
-  <li>A Google Earth storage or transport map</li>
+  <li>A geographic storage or transport map</li>
   <li>Stock/inventory diagrams at a particular location</li>
   </ul>
   </p>
@@ -61,18 +61,18 @@ Tutorial</a> on running HERMES from the command line. (requires DAV login)</li>
   <p>
   <p>The HERMES graphical user interface (GUI) is a tool to help users input data into the HERMES model. It consists of a series of webpages dedicated to helping users input data into HERMES, running HERMES from a web-based platform and obtaining data from HERMES outputs.</p>
 
-  <p>Currently, the <b>Models</b> page contains the majority of the functionality in developing a HERMES model. It is responsible for inputting data files into HERMES, through either guiding a user through a questionnaire, or helping users use an existing HERMES country model as a starting point.</p>
+  <p>Currently, the <b>Welcome</b> page directs users to the majority of the functionality in developing a HERMES model. It is responsible for inputting data files into HERMES, through either guiding users through a questionnaire or helping users use an existing HERMES model as a starting point.</p>
 
-  <p>The Models page contains the following categories:</p>
+  <p>The Welcome page contains the following options:</p>
   <ul>
-  <li><b>Create A Model from Scratch</b>: This button will guide the user to an easy-to-user questionnaire, to help the user input their own country&#39;s data in a form accessible to the HERMES model.</li>
-  <li><b>Copy An Existing Model</b>: This button will create a new copy of a model, selected from the menu on the right-hand side of the <b>Model</b> page. This new copy of the model can be edited by the user (see <b>Modify An Existing Model</b>).</li>
-  <li><b>Modify An Existing Model</b>: With this feature, a user can modify features of either an existing country model, or a copy of an existing model, to allow for different scenarios to be implemented.</li>
-  <li><b>Upload a Zip Model</b>: This feature allows a user to upload already-created model spreadsheets in HERMES, zipped up using the HERMES --use_zip feature, to be run in the GUI setting.</li>
-  <li><b>Delete Selected Model</b>: Selecting a model, then clicking the button, will delete the selected model from the menu on the right-hand side of the Models page.</li>
+  <li><b>Create or Upload a New Model</b>: This option allows a user to upload already-created model spreadsheets in HERMES (zipped up using the HERMES --use_zip feature) to be run in the user interface setting, or users can enter a guided easy-to-use questionnaire to input their own country&#39;s data in a form accessible to the HERMES software.</li>
+  <li><b>Open, Modify, and Run an Existing Model</b>: This link directs users to the <b>Models</b> page, where they can create a new copy of a model to implement a new scenario, or delete a model. This page also allows users to open a model (where they can view or modify it) or run a model.</li>
+  <li><b>View and Compare Results from Previous Model Runs</b>: Selecting this feature leads users to the <b>Results</b> page, where users can view results from past runs and compare results from various scenarios.</li>
+  <li><b>View and Modify Databases </b>: This page displays components in the <b>HERMES Database</b>, which includes WHO prequalified WHO prequalified items where available, as well as examples of commonly used items. Users can also view components in any available models on this page.</li>
+  <li><b>HERMES Demo </b>: This feature guides users through the <b>HERMES Vaccine Introduction Tutorial</b>, in which they learn how to add a new vaccine to the vaccine schedule using the included model of Gaza Province, Mozambique.</li>
   </ul>
 
-  <p>Other pages that will be used in the GUI are either <b>Run HERMES</b> (used to run the selected model files in the HERMES program) or <b>Results</b> (where model outputs and reports will be displayed).</p>
+  <p>Detailed "quick help" specific to each page can be accessed by clicking the "?" icon in the top-right corner of the screen. Additionally, hovering over many words or phrases will cause "tool tips" to appear with helpful hints.</p>
 
   <em>How Does HERMES Work?</em>
 
