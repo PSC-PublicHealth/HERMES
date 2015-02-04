@@ -188,12 +188,38 @@ $(function() {
 		    if(id && id!==lastsel_models){
 			    //jQuery('#model_create_adjust_grid').jqGrid('saveRow',lastsel_models);
 			    //jQuery('#model_create_adjust_grid').jqGrid('editRow',id,true);
+		    	
 			    jQuery('#model_create_adjust_grid').jqGrid('editRow',id,{
 			    	"keys":true,
+			    	"aftersavefunc":function(rowid,response){
+			    		$("#1 td").each(function(){
+			        		console.log($(this).attr("aria-describedby"));
+			        		$this=$(this)
+			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_isfetch")
+			        			$this.html("");
+			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_issched")
+			        			$this.html("");
+			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_isfixedam")
+			        			$this.html("");
+			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_howoften")
+			        			$this.html("");
+			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_ymw")
+			        			$this.html("");
+			            });
+			    	}
 			    	//"aftersavefunc": function(rowid,response) {
 			    	//	$("#model_create_adjust_grid").trigger('reloadGrid');
 					//}
 			    });
+			    if(id==1){
+		    		$("#1_isfetch").hide();
+		            $("#1_issched").hide();
+		            $("#1_isfixedam").hide();
+		            $("#1_howoften").val(0);
+		            $("#1_howoften").hide();
+		            $("#1_ymw").val("year");
+		            $("#1_ymw").hide();
+		    	}
 			    //lastsel_models=id;
                 var ids = $("#model_create_adjust_grid").jqGrid('getDataIDs');
                 for(var i=0; i<ids.length; i++) {
@@ -212,8 +238,26 @@ $(function() {
         editurl:'{{rootPath}}edit/edit-create-model.json',
         height: 'auto',	
         caption:'{{_("Model Transport Network")}}',
-        ExpandColumn : 'name'
-    }).jqGrid('hermify',{debug:true, resizable_hz:true});
+        ExpandColumn : 'name',
+        loadComplete: function(){
+        	$("#1 td").each(function(){
+        		console.log($(this).attr("aria-describedby"));
+        		$this=$(this)
+        		if($this.attr("aria-describedby")=="model_create_adjust_grid_isfetch")
+        			$this.html("");
+        		if($this.attr("aria-describedby")=="model_create_adjust_grid_issched")
+        			$this.html("");
+        		if($this.attr("aria-describedby")=="model_create_adjust_grid_isfixedam")
+        			$this.html("");
+        		if($this.attr("aria-describedby")=="model_create_adjust_grid_howoften")
+        			$this.html("");
+        		if($this.attr("aria-describedby")=="model_create_adjust_grid_ymw")
+        			$this.html("");
+        		
+        	});
+        },
+    }).jqGrid('hermify',{debug:true, resizable_hz:true})
+    
     $("#model_create_adjust_grid").jqGrid('navGrid','#model_create_adjust_pager',{edit:false,add:false,del:false});
 });
 
