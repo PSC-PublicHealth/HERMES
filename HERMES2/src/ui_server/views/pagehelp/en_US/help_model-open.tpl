@@ -5,5 +5,5 @@
 <ul>
 <li>Left-click on a circle to expand the diagram and see which locations it supplies. Left-click again to collapse the network below that point. 
 <li>Right-click on a location (circle) or a route (line) to obtain more detailed information about the item. 
-<li>If the full diagram is not visible, click on any blank space in the diagram and drag to reposition the network. You can also zoom in and out using your scroll wheel. 
+<li>If the full diagram is not visible, click on any blank space in the diagram and drag to reposition the network. Zoom in and out using the scrollwheel or press and hold the Ctrl key while pressing the + key to zoom in or the - key to zoom out.
 </ul>
