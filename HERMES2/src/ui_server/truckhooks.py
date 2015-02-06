@@ -75,7 +75,7 @@ def jsonTruckEditForm(db, uiSession):
 @bottle.route('/truck-top')
 def truckTopPage(uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Transport")))
-    return bottle.template("truck_top.tpl",{"breadcrumbPairs":crumbTrack})
+    return bottle.template("truck_top.tpl",{"breadcrumbPairs":crumbTrack},pagehelptag="database")
 
 @bottle.route('/json/manage-truck-table')
 def jsonManageTruckTable(db, uiSession):

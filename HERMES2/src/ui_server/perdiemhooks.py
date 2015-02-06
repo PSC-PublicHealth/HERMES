@@ -47,7 +47,7 @@ fieldMap = [{'row': 1, 'label': _('Name'), 'key': 'Name', 'id': 'name', 'type': 
 @bottle.route('/perdiem-top')
 def perDiemTopPage(uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path, _("PerDiems")))
-    return bottle.template("perdiem_top.tpl", {"breadcrumbPairs": crumbTrack})
+    return bottle.template("perdiem_top.tpl", {"breadcrumbPairs": crumbTrack},pagehelptag="database")
 
 
 @bottle.route('/perdiem-edit')

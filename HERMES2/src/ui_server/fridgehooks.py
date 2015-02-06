@@ -92,7 +92,7 @@ def jsonFridgeEditForm(db, uiSession):
 @bottle.route('/fridge-top')
 def fridgeTopPage(uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Cold Storage")))
-    return bottle.template("fridge_top.tpl",{"breadcrumbPairs":crumbTrack})
+    return bottle.template("fridge_top.tpl",{"breadcrumbPairs":crumbTrack},pagehelptag="database")
 
 @bottle.route('/json/manage-fridge-table')
 def jsonManageFridgeTable(db, uiSession):

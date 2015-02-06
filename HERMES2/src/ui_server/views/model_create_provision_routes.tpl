@@ -1,4 +1,4 @@
-%rebase outer_wrapper title_slogan=_("Create {0}").format(name), breadcrumbPairs=breadcrumbPairs, _=_, inlizer=inlizer
+%rebase outer_wrapper title_slogan=_("Create {0}").format(name), breadcrumbPairs=breadcrumbPairs, _=_, inlizer=inlizer, pagehelptag=pagehelptag
 
 <script src="{{rootPath}}static/uisession.js"></script>
 <script>

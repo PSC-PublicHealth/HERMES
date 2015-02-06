@@ -126,7 +126,7 @@ def modelsAddTypes(db, uiSession):
                                 "modelName":model.name,
                                 "startClass":startClass,
                                 "breadcrumbPairs": crumbTrack,
-                                "baseURL":'model-add-types'},createpipe=False)
+                                "baseURL":'model-add-types'},createpipe=False,pagehelptag='types')
 
     except Exception,e:
         _logStacktrace()

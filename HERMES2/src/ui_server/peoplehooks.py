@@ -54,7 +54,7 @@ def jsonPeopleEditForm(db, uiSession):
 @bottle.route('/people-top')
 def peopleTopPage(uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Population")))
-    return bottle.template("people_top.tpl",{"breadcrumbPairs":crumbTrack})
+    return bottle.template("people_top.tpl",{"breadcrumbPairs":crumbTrack},pagehelptag="database")
 
 
 @bottle.route('/json/manage-people-table')

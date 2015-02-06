@@ -25,9 +25,9 @@ def demandTopPage(uiSession):
     modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Demand For Vaccines")))
     if modelId:
-        return bottle.template("demand_top.tpl",{'breadcrumbPairs':crumbTrack},modelId=modelId)
+        return bottle.template("demand_top.tpl",{'breadcrumbPairs':crumbTrack},modelId=modelId,pagehelptag="setdemand")
     else:
-        return bottle.template("demand_top.tpl",{"breadcrumbPairs":crumbTrack})
+        return bottle.template("demand_top.tpl",{"breadcrumbPairs":crumbTrack},pagehelptag="setdemand")
 
 def _interpretDemandModelStructure(model):
 

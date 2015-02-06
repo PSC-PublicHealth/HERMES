@@ -101,7 +101,7 @@ def jsonVaccineEditForm(db, uiSession):
 @bottle.route('/vaccines-top')
 def vaccineTopPage(uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Vaccines")))
-    return bottle.template("vaccine_top.tpl",{"breadcrumbPairs":crumbTrack})
+    return bottle.template("vaccine_top.tpl",{"breadcrumbPairs":crumbTrack},pagehelptag="database")
 
 @bottle.route('/list/select-subkey')
 def listSubkey(db, uiSession):

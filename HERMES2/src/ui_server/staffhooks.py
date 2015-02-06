@@ -37,7 +37,7 @@ fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'stri
 @bottle.route('/staff-top')
 def staffTopPage(uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path,_("Staff")))
-    return bottle.template("staff_top.tpl",{"breadcrumbPairs":crumbTrack})
+    return bottle.template("staff_top.tpl",{"breadcrumbPairs":crumbTrack},pagehelptag="database")
 
 @bottle.route('/staff-edit')
 def staffEditPage(db, uiSession):
@@ -48,7 +48,7 @@ def staffEditPage(db, uiSession):
         protoName = _smartStrip(protoName)
         crumbTracks = uiSession.getCrumbs().push((bottle.request.path,_("Create Modified Version")))
         return bottle.template("staff_edit.tpl",{"breadcrumbPairs":crumbTracks,
-                               "protoname":protoName,"modelId":modelId})
+                               "protoname":protoName,"modelId":modelId},pagehelptag='components')
     except Exception,e:
         _logMessage(str(e))
         _logStacktrace()
