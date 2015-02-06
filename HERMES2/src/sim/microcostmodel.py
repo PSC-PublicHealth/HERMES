@@ -623,10 +623,15 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         baseSalary = staff.recDict['BaseSalary']
         assert baseSalary is not None, \
             u"Cost information for %s is incomplete" % staff.name
+        fracEPI = staff.recDict['FractionEPI']
+        assert (baseSalary is not None
+                and isinstance(fracEPI, types.FloatType)
+                and fracEPI >= 0.0 and fracEPI <= 1.0), \
+            u"Cost information for %s is incomplete" % staff.name
         runCur = self.sim.userInput['currencybase']
         runCurYear = self.sim.userInput['currencybaseyear']
-        rawStaffCost = (baseSalary * (self.intervalEndTime
-                                      - self.intervalStartTime)
+        rawStaffCost = (fracEPI * baseSalary * (self.intervalEndTime
+                                                - self.intervalStartTime)
                         / self.model.daysPerYear)
         # print 'handling %s'%staff.recDict['Name']
         staffCost = self.currencyConverter.convertTo(rawStaffCost,
@@ -743,6 +748,8 @@ class MicroCostModelVerifier(dummycostmodel.DummyCostModelVerifier):
                     and (isinstance(invTp.BaseSalaryYear, (types.IntType,
                                                            types.LongType))
                          and invTp.BaseSalaryYear >= 2000)
+                    and (isinstance(invTp.FractionEPI, types.FloatType)
+                         and invTp.FractionEPI >= 0.0 and invTp.FractionEPI <= 1.0)
                     )
         except:
             return False
