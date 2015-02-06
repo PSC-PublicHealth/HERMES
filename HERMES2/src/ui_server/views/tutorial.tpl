@@ -31,14 +31,14 @@
 
 			<p>{{_("The following is a brief exercise to get you familiar with the the HERMES User Interface and perform a simple experiment on an already established model. Click on the \"?\" icon in the top right corner of any page for additional help.")}}</p>
 			
-			<p><h2>{{_("Exercise: Modify an Existing Model  (Addition of Rotarix Vaccine) ")}}</h2></p>
+			<p><h2>{{_("Exercise 1: Modify and Run an Existing Model  (Addition of Rotarix Vaccine) ")}}</h2></p>
 
 			<h3>{{_("Making a Copy of the Gaza Province, Mozambique Model")}}</h3>
 			
 			<p>{{_("To start using HERMES, you'll be modifying an existing model of the vaccine supply chain in Gaza Province, Mozambique. The model already exists in the software you've just installed; to make changes to it, you'll first need to make a copy of the original.")}}</p>
 						
 			<ol>
-			<li>{{_("From the welcome page, click \"Open, Modify, and Run an Existing Model\" or click on the Models tab in the menu bar at the top of any page.")}}
+			<li>{{_("From the Welcome page, click \"Open, Modify, and Run an Existing Model\" or click on the Models tab in the menu bar at the top of any page.")}}
 			<li>{{_("Find \"Moz Gaza Current\" in the table and click the Copy button in that row.")}}
 			
 			<li> {{_("Name your copy -- in this example, ours is called \"Moz Gaza Current(1)\". Click OK or hit enter. Note that the copy may take several seconds to create.")}}
@@ -89,8 +89,16 @@
 			<li>{{_("Explore the results on this page and in the Geographic Visualization, Network Visualization, and downloadble Results Spreadsheet. Detailed information on the types of results shown and how to use the interactive displays can be found by clicking the \"?\" icon in the top-right corner of each page.")}}
 			<li>{{_("Multiple results can be open at the same time and will display in tabs on the same page. Feel free to run the original Gaza Province model without adding any new vaccines, and compare the results to the ones you generated here. The results should show that Rotarix introduction leads to lower vaccine availability with higher storage and transport utilization.")}}
 			</ol>
-			<p>{{_("This completes the HERMES Vaccine Introduction Tutorial. To further explore the possibilities with the HERMES software, feel free to make another copy of the Gaza Province, Mozambique model and modify it using the \"Advanced Model Editor\" interface which gives you access to all aspects of a HERMES model. Alternatively, you can create a new model from scratch by selecting the \"Create\" tab in the menu bar.")}}</P>
-			 
+			
+			<h2>{{_("Exercise 2: Create and Modify a New Model with Costing")}}</h2>
+			<p>{{_("You have completed the HERMES Vaccine Introduction Tutorial Exercise. To further explore the possibilities with the HERMES software, you'll create a new model from scratch, modify it with an advanced interface, and add cost data. Because you now have some experience using the software, this exercise is more open-ended. We encourage you to explore the functionality on each page.")}}</p>
+			<ol>
+			<li>{{_("Click on the Create tab in the menu bar and select \"Create a New Model\" to enter the HERMES model creation guided workflow.")}} 
+			<li>{{_("Follow the guided workflow to create a new model of a vaccine supply chain with any structure or characteristics you choose.")}}
+			<li>{{_("Once your model is created, you will be directed to the page for that model. From the options on the left, go to the \"Advanced Model Editor\" to edit individual locations and routes. Click the \"?\" icon for more information about available actions on this page, including how to move locations, create new locations and routes, and recursively edit locations. Afterwards, click the Done button to return to the model page.")}}
+			<li>{{_("From the options on the left, select \"Add and modify costs\" to add details that will allow you to view costing results once the model is run.")}}
+			<li>{{_("Feel free to make another copy of the Gaza province model or your new model and modify it using the \"Advanced Model Editor\" interface to implement additional scenarios. Run the modified version and compare results across experiments.")}}
+			</ol>
 			 
 			<p>{{_("If you have any questions or issues, please email")}} <a href="mailto:hermes-support@psc.edu">hermes-support@psc.edu</a>.  {{_("For more information about the HERMES project, visit")}} <a href="http://hermes.psc.edu">http://hermes.psc.edu</a>.</p>
 		</div>
