@@ -57,7 +57,7 @@ StartServer:
 Launching := true
 if FileExist(A_ScriptDir "\python\pythonw.exe")
 {
-    Run, %A_ScriptDir%\python\pythonw.exe standalone_server.py, , , StandaloneServerPid
+    Run, %A_ScriptDir%\python\pythonw.exe standalone_server.py -d, , , StandaloneServerPid
     ;Run, C:\Python27\pythonw.exe standalone_server.py, , , StandaloneServerPid
 }
 else

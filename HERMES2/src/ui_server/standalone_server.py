@@ -40,10 +40,10 @@ parser.add_argument('-P', '--port', default='8080', type=int,
         help = 'Port to listen on')
 parser.add_argument('+P', '++port', action='store_const', const=8080,
                     help=argparse.SUPPRESS)
-#parser.add_argument('-d', '--debug', action='store_true',
-#                    help = 'turn on debug mode')
-#parser.add_argument('+d', '++debug', '--no-debug', action='store_false',
-#                    help=argparse.SUPPRESS)
+parser.add_argument('-d', '--debug', action='store_false',
+                    help = 'turn on debug mode')
+parser.add_argument('+d', '++debug', '--no-debug', action='store_true',
+                    help=argparse.SUPPRESS)
 parser.add_argument('-o', '--logfile', default=ui_utils._logFileName,
                     help = 'set logfile name, use +o to disable logfile' +
                     'defaults to %s'%ui_utils._logFileName)
@@ -63,7 +63,7 @@ else:
 
 ui_utils._logFileName = args.logfile
 
-kwargs = dict(reloader=True, debug=True, port=args.port)
+kwargs = dict(reloader=True, debug=args.debug, port=args.port)
 
 if args.promiscuous:
     kwargs['host'] = '0.0.0.0'
