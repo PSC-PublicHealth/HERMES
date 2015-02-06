@@ -78,6 +78,8 @@ $(document).ajaxSend(function (event, xhr, settings) {
     };
 });
 
+$.extend($.ui.dialog.prototype.options, { autoOpen: false, show: {effect: 'fade', duration: 250}, hide: {effect: 'fade', duration: 150} });  //set dialogs to fade in and out
+
 $(document).ready(function() {
 	$('#ajax_busy_blank').show(); 
 	$('#ajax_busy_image').hide(); 
@@ -349,7 +351,7 @@ function reportError(jqxhdrOrData, textStatus, error) {
 	
 		<footer class="art-footer clearfix">
 			<div class="art-footer-inner">
-	  			&nbsp; &nbsp; &nbsp; &nbsp;{{_('HERMES Project')}} - Copyright © 2013. {{_('All Rights Reserved.')}}
+	  			&nbsp; &nbsp; &nbsp; &nbsp;{{_('HERMES Project')}} - Copyright &copy; 2015. {{_('All Rights Reserved.')}}
 			</div>
 		</footer> 
     </div>    

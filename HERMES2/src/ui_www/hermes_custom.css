@@ -13,6 +13,12 @@ div.hrm_quickhelp ul li {
     padding-top: 10px;
 }
 
+.ui-dialog {
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+}
+
 /* hide iframe for google earth shim */
 #content-iframe {
     display: none;
@@ -758,6 +764,7 @@ text-decoration: none;
 text-shadow: 0.7px 0.7px 0px rgba(153, 153, 153, 0.8), 1.4px 1.4px 0px rgba(140, 140, 140, 0.8), 2.1px 2.1px 1px rgba(122, 122, 122, 0.5), 2.8px 2.8px 0px rgba(107, 107, 107, 0.5), 3.5px 3.5px 0px rgba(92, 92, 92, 0.5);
   padding: 0;
   margin: 0;
+  padding-left: 0.2em;
   color: #FFFFFF !important;
 }
 
