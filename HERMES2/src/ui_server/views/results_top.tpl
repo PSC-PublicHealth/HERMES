@@ -151,7 +151,10 @@ $(function(){
 							if(modelNode.children.length == 0){
 								tree.delete_node(modelNode);
 							}
-							$("#results_summary_tabs").results_tabs("remove",modelId,resId);
+							var $tabHolder = $("#results_summary_tabs");
+							if ($tabHolder.hasClass('ui-tabs')) { // which means it has been initialized
+								$("#results_summary_tabs").results_tabs("remove",modelId,resId);								
+							}
 							
 							//Must reset the buttons that are currently being displayed
 							setupButtons();
@@ -199,10 +202,13 @@ $(function(){
 								var id = nTD.children[i];
 								var modelId = parseInt(id.split("_")[1]);
 								var resultsId = parseInt(id.split("_")[2]);
-								$("#results_summary_tabs").results_tabs("remove",modelId,resultsId);
-								//resultNode = tree.get_node(nTD.children[i]);
-								//tree.delete_node(resultNode);
-								//console.log(resultNode.id);
+								var $tabHolder = $("#results_summary_tabs");
+								if ($tabHolder.hasClass('ui-tabs')) { // make sure it's been initialized
+									$tabHolder.results_tabs("remove",modelId,resultsId);
+									//resultNode = tree.get_node(nTD.children[i]);
+									//tree.delete_node(resultNode);
+									//console.log(resultNode.id);
+								}
 							}
 							tree.delete_node(nodeToDelete);
 							// walk up the tree, in case there is nothing to show
