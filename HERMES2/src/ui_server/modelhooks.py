@@ -1636,6 +1636,7 @@ def jsonModelInfo(db, uiSession):
     except bottle.HTTPResponse:
         raise # bottle will handle this
     except Exception, e:
+        _logStacktrace()
         result = {'success':False, 'msg':str(e)}
         return result
     

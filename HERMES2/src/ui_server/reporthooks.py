@@ -37,6 +37,7 @@ def createModelSummaryWSCall(db, uiSession):
         return returnJson
     
     except Exception as e:
+        _logStacktrace()
         return {'success':False,'msg':str(e)}
     
 def createModelSummarySerialized(m):
@@ -44,6 +45,7 @@ def createModelSummarySerialized(m):
         import json
         return json.dumps(createModelSummaryJson(m))
     except Exception as e:
+        _logStacktrace()
         print str(e)
         
 def createModelSummaryJson(m):

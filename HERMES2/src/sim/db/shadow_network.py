@@ -1399,7 +1399,8 @@ class ShdRoute(Base):
     def getDistanceKM(self):
         distanceKM = 0.0
         for stop in self.stops:
-            distanceKM += stop.DistanceKM
+            if stop.DistanceKM is not None:
+                distanceKM += stop.DistanceKM
         
         return distanceKM
     
@@ -3941,8 +3942,10 @@ class ShdNetwork(Base):
     def getModelSummaryJson(self):
         import json
         
-        if self.modelSummaryJson is None:
-            return None
+        if self.modelSummaryJson is None or self.modelSummaryJson.blob is None:
+            #return None
+            self.addModelSummaryJson()
+        
         print "BLOB"
         #print self.modelSummaryJson.blob
         print json.loads(self.modelSummaryJson.blob)['name']
