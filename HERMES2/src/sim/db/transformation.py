@@ -230,7 +230,10 @@ def makeLoopsOptimizedByDistanceBetweenLevels(shdNtwk,startLevel,endLevel,places
                         'Notes':'Automatically Generated',
                         'Conditions':'',
                         'TruckType':vehicleType,
-                        'DistanceKM':distances[0]
+                        'DistanceKM':distances[0],
+                        'PickupDelayMagnitude':0,
+                        'PickupDelaySigma':0,
+                        'PickupDelayFrequency':0
                         }
                     ]
                 loopCount = 0
@@ -264,7 +267,10 @@ def makeLoopsOptimizedByDistanceBetweenLevels(shdNtwk,startLevel,endLevel,places
                             'Notes':'Automatically Generated',
                             'Conditions':'',
                             'TruckType':vehicleType,
-                            'DistanceKM':distances[ind]
+                            'DistanceKM':distances[ind],
+                            'PickupDelayMagnitude':0,
+                            'PickupDelaySigma':0,
+                            'PickupDelayFrequency':0
                             }
                         )
                     
