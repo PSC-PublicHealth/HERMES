@@ -52,7 +52,7 @@ import copy
 import pickle
 try:
     # anything gotten from sqlalchemy should have an equivalent noop below
-    from sqlalchemy import Column, Integer, String, ForeignKey, Index
+    from sqlalchemy import Column, Integer, String, ForeignKey, Index, UnicodeText
     import sqlalchemy
     saEvent = sqlalchemy.event
     from sqlalchemy.orm import relationship, backref, object_mapper
@@ -726,7 +726,8 @@ class ShdStore(Base, ShdCopyable):
         else:
             raise RuntimeError('unknown form of inventory')
         return name
-
+    
+    
     def addInventory(self, invType, count, useDemandList=False):
         """
         add to or subtract from inventory/demand for a store
@@ -748,8 +749,9 @@ class ShdStore(Base, ShdCopyable):
             else:
                 self._addInvRec(invType, count)
             return
-
+        print "{0}: count {1}".format(item.count,count)
         if item.count + count == 0:
+            print "popping this bitch"
             invList.pop(i)
             return
 
@@ -809,6 +811,12 @@ class ShdStore(Base, ShdCopyable):
            invDict[inv.invName] = inv.count
        return invDict
 
+    def clearInventory(self):
+        del self.inventory[:]
+    
+    def clearTransport(self):
+        self.inventory = [x for x in self.inventory if type(x.invType) != ShdTruckType]
+
     def updateDemand(self, demandType, count):
         self.updateInventory(demandType, count, True)
 
@@ -818,6 +826,9 @@ class ShdStore(Base, ShdCopyable):
     def countDemand(self, demandType):
         return self.countInventory(demandType, True)
 
+    def clearDemand(self):
+        del self.demand[:]
+        
     def _findInvRec(self, name, invList):
         for i,item in enumerate(invList):
             if item.invName == name:

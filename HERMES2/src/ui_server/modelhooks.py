@@ -313,7 +313,7 @@ def _createModel(db,uiSession):
                 shipLatencyDays = 0.0
                 #print "RouteType = " + routeType
                 route = shdNetwork.addRoute({'RouteName':routeName, 'Type':routeType,
-                                             'ShipIntervalDays':shipIntervalDays, 'PullOrderAmountDays':shipIntervalDays,
+                                             'ShipIntervalDays':shipIntervalDays,
                                              'ShipLatencyDays':shipLatencyDays}, noStops=True)
                 ignoredNumber = 17
                 transitUnits = newModelInfoCN['shiptransitunits'][len(storeStack)-2]
@@ -323,18 +323,22 @@ def _createModel(db,uiSession):
                 if rec['isfetch']=='true':
                     #print "fetching"
                     route.addStop({'idcode':idcode, 'RouteName':routeName, 'RouteOrder':0,
-                                   'TransitHours':transitHours,'DistanceKM':transitDistance},
+                                   'TransitHours':transitHours,'DistanceKM':transitDistance,
+                                   'PullOrderAmountDays':shipIntervalDays},
                                   storeDict)
                     route.addStop({'idcode':supplierId, 'RouteName':routeName, 'RouteOrder':1,
-                                   'TransitHours':transitHours,'DistanceKM':transitDistance},
+                                   'TransitHours':transitHours,'DistanceKM':transitDistance,
+                                   'PullOrderAmountDays':shipIntervalDays},
                                   storeDict)
                 else:
                     #print "not fetching"
                     route.addStop({'idcode':supplierId, 'RouteName':routeName, 'RouteOrder':0,
-                                   'TransitHours':transitHours,'DistanceKM':transitDistance},
+                                   'TransitHours':transitHours,'DistanceKM':transitDistance,
+                                   'PullOrderAmountDays':shipIntervalDays},
                                   storeDict)
                     route.addStop({'idcode':idcode, 'RouteName':routeName, 'RouteOrder':1,
-                                   'TransitHours':transitHours,'DistanceKM':transitDistance},
+                                   'TransitHours':transitHours,'DistanceKM':transitDistance,
+                                   'PullOrderAmountDays':shipIntervalDays},
                                   storeDict)
                 route.linkRoute()
                 #shdNetwork.addRoute(route.createRecords())
@@ -1488,6 +1492,9 @@ def jsonAdjustModelsTable(db,uiSession):
         r = {'levelname':newModelInfoCN['levelnames'][lvl], 'idcode':idcode, 
              'level':lvl, 'lft':lkey, 'rgt':rkey, 'isLeaf':(rkey==lkey+1),'expanded':(lvl<2),
              'kids':pot.nKids(idcode,tpl=(lkey,rkey,lvl))}
+        #print potRecDict[idcode]
+        #r.update({'name':potRecDict[idcode]['name'],'ymw':'','isfetch':'','issched':'',
+        #          'isfixedam':'','howoften':0})
         r.update(potRecDict[idcode])
         mList=[r]
     nPages = 1
@@ -2440,9 +2447,129 @@ def getModelnotes(db,uiSession):
         raise # bottle will handle this
     except Exception,e:
         result = {'success':False, 'type':'error','msg':str(e)}
-        return result    
-# @bottle.route('/json/table-for-store-provision')
-# def populateTableforStoreProvision(db,uiSession):
-#     try:
-#         modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
-#         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        return result   
+     
+@bottle.route('/json/table-for-store-provision')
+def populateTableforStoreProvision(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        levelList = m.getLevelList()
+        
+        storageList = []
+        peopleList = []
+        transportList = []
+        
+        for key,device in m.types.items():
+            if type(device) == shd.ShdStorageType:
+                if(device.Name != "OUTDOORS"):
+                    storageList.append((device.Name,device.getDisplayName()))
+            if type(device) == shd.ShdPeopleType:
+                peopleList.append((device.Name,device.getDisplayName()))
+            if type(device) == shd.ShdTruckType:
+                transportList.append((device.Name,device.getDisplayName()))
+        
+        rows = []
+        
+        for id,name in storageList:
+            rows.append({'type':_('Devices to Store Vaccines at this Level'),'id':id,'name':name})
+        for id,name in peopleList:
+            rows.append({'type':_('Population To Vaccinate at this Level'),'id':id,'name':name})
+        #for id,name in transportList:
+        #    rows.append({'type':_('Transport Modes to Use at this Level'),'id':id,'name':name})
+            
+        ### Make the Level columns
+        
+        for row in rows:
+            for level in levelList:
+                row["{0}".format(level)] = 0
+                
+        return {'success':True,'levels':levelList,'data':{'total':1,'page':1,'records':len(rows),'rows':rows}}
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error','msg':str(e)}
+        return result  
+
+@bottle.route('/json/provision-stores',method="post")
+def provisionStoresFromGrid(db,uiSession):
+    try:
+        import json
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        typeDataJSON= _getOrThrowError(bottle.request.params,'itemData')
+        resetStores = _safeGetReqParam(bottle.request.params,'reset',isBool=True)
+        
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        levelList = m.getLevelList()
+        
+        typeData = json.loads(typeDataJSON)
+        for storeId,store in m.stores.items():
+            print storeId
+            if not store.isAttached():
+                if resetStores:
+                    store.clearInventory()
+                    store.clearDemand()
+                for row in typeData:
+                    store.addInventory(row['id'],
+                                       int(row[store.CATEGORY]),
+                                       row['type']=="Population To Vaccinate at this Level")
+                        
+        return {'success':True}
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error','msg':str(e)}
+        return result  
+
+@bottle.route('/json/provision-routes',method='post')
+def assignVehiclesToRoutes(db,uiSession):
+    ### This only works with routes that are not loops, would have to make something a bit more complicated to do loops
+    try:
+        import json
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        routeDataJSON = _getOrThrowError(bottle.request.params,'routeData')
+        
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        routeData = json.loads(routeDataJSON)
+        
+        ## lets put this is somethign a little easier to parse
+        routeDict = {}
+        for r in routeData:
+            routeDict[(r['l1'],r['l2'])] = (r['vName'],int(r['vcount']))
+        
+        ### clear all of the transport from the system
+        for storeId,store in m.stores.items():
+            if not store.isAttached():
+                store.clearTransport()
+        
+        timeDict = {}        
+        ## Ok now the logic
+        for routeId,route in m.routes.items():
+            if len(route.stops) > 2:
+                raise "Not written for loops"
+            
+            if route.Type != 'attached':
+                supplierLevel = route.stops[0].store.CATEGORY
+                clientLevel = route.stops[1].store.CATEGORY
+                vehicle = routeDict[(supplierLevel,clientLevel)][0]
+                vcount = routeDict[(supplierLevel,clientLevel)][1]
+                
+                if route.stops[0].store.countInventory(vehicle) == 0:
+                    route.stops[0].store.addInventory(vehicle,vcount)
+                route.TruckType = vehicle
+                
+        return {'success':True}
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error','msg':str(e)}
+        return result  
+
+        
+        
+        
+        

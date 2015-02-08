@@ -253,10 +253,11 @@ $(function() {
         			$this.html("");
         		if($this.attr("aria-describedby")=="model_create_adjust_grid_ymw")
         			$this.html("");
+        		$("#model_create_adjust_grid").jqGrid('expandNode',$("#model_create_adjust_grid").jqGrid('getRootNodes'));
         		
         	});
         },
-    }).jqGrid('hermify',{debug:true, resizable_hz:true})
+    }).jqGrid('hermify',{debug:true, resizable_hz:true});
     
     $("#model_create_adjust_grid").jqGrid('navGrid','#model_create_adjust_pager',{edit:false,add:false,del:false});
 });
