@@ -7,6 +7,7 @@
 }
 </style>
 <h3 style="display:none">{{_('Select A Model')}}</h3>
+<h4>{{_("Please select a model to open.  You can use the buttons on the right to perform various actions with the selected model.  If you would like to edit the notes or the name of a model, please double click on the line.")}}</h4>
 <table id="manage_models_grid" class="models_list_table"></table>
 <div id="manage_models_pager"> </div>
 </td>
