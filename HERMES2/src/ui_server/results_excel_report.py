@@ -1,4 +1,20 @@
 #!/usr/bin/env python
+
+###################################################################################
+# Copyright © 2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
+# =============================================================================== #
+#                                                                                 #
+# Permission to use, copy, and modify this software and its documentation without # 
+# fee for personal use within your organization is hereby granted, provided that  #
+# the above copyright notice is preserved in all copies and that the copyright    # 
+# and this permission notice appear in supporting documentation.  All other       #
+# restrictions and obligations are defined in the GNU Affero General Public       #
+# License v3 (AGPL-3.0) located at http://www.gnu.org/licenses/agpl-3.0.html  A   #
+# copy of the license is also provided in the top level of the source directory,  #
+# in the file LICENSE.txt.                                                        #
+#                                                                                 #
+###################################################################################
+
 from openpyxl.styles import alignment
 
 ####################################
@@ -397,6 +413,31 @@ def downloadXLS(db, uiSession):
         fullname = "%s/%s.xlsx" % (state.fs().workDir, shortname)
     return bottle.static_file(xlsName, os.path.dirname(fullname),
                               mimetype='application/vnd.ms-excel', download=xlsName)
+    
+@bottle.route('/json/downloadSVG',method='post')
+def downloadSVG(db,uiSession):
+    try:
+        import json
+        from xml.dom import minidom
+        data = json.load(bottle.request.body)
+        print '1243135315214234325124351341324554513431514513546514452465135315'
+        print "Data = " + str(data)
+        #print type(data.data)
+        #svgXML = minidom.parse(str(data['data']))
+        print "Trying to save this fucking file!!!!!"
+        with uiSession.getLockedState() as state:
+            #fullname = "{0}/test.svg".format(state.fs().workDir)
+            fullname = "test.svg"
+        with open(fullname,"wb") as f:
+            f.write(data['data'])
+        return {'success':True}
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error', 'msg':_("Problem saving SVG XML: ") + str(e)}
+        return result  
+    
     
 def getNumberOfLocationsFromModel(model):
     placeCount = 0
