@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 ########################################################################
-# Copyright C 2010, Pittsburgh Supercomputing Center (PSC).            #
+# Copyright   2010, Pittsburgh Supercomputing Center (PSC).            #
 # =========================================================            #
 #                                                                      #
 # Permission to use, copy, and modify this software and its            #

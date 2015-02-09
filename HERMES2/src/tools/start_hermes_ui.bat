@@ -1,5 +1,5 @@
 REM ###################################################################################
-REM # Copyright © 2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
+REM # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
 REM # =============================================================================== #
 REM #                                                                                 #
 REM # Permission to use, copy, and modify this software and its documentation without # 

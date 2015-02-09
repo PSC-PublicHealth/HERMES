@@ -4,7 +4,7 @@ A map between a collection of people and their vaccine needs.
 """
 
 ###################################################################################
-# Copyright © 2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
+# Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
 # =============================================================================== #
 #                                                                                 #
 # Permission to use, copy, and modify this software and its documentation without # 

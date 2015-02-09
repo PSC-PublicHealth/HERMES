@@ -73,16 +73,16 @@ function getRandomColor() {
 		</table>
 	</div>
 	<div id="poplegend" style="float:right;position:relative;bottom:43%;right:50px;background:white;">
-		<img height="300px" src="{{rootPath}}static/images/PopLegend.PNG">
+		<img height="200px" src="{{rootPath}}static/images/PopLegend.PNG">
 	</div>
 	<div id="storelegend" style="float:right;position:relative;bottom:43%;right:50px;background:white;">
-		<img height="300px" src="{{rootPath}}static/images/StoreLegend.PNG">
+		<img height="200px" src="{{rootPath}}static/images/StoreLegend.PNG">
 	</div>
 	<div id="valegend" style="float:right;position:relative;bottom:43%;right:50px;background:white;">
-		<img height="300px" src="{{rootPath}}static/images/VALegend.PNG">
+		<img height="200px" src="{{rootPath}}static/images/VALegend.PNG">
 	</div>
 	<div id="translegend" style="float:right;position:relative;bottom:43%;right:50px;background:white;">
-		<img height="300px" src="{{rootPath}}static/images/TransLegend.PNG">
+		<img height="200px" src="{{rootPath}}static/images/TransLegend.PNG">
 	</div>
 </div>
 
