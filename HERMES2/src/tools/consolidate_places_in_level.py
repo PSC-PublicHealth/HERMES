@@ -3,22 +3,20 @@ __doc__=""" consolidate_places_in_level.py
 This program takes a stores file, route file and a csv that describes places to be changed, and creates new stores and routes files executing the alterations.
 """
 
-########################################################################
-# Copyright C 2010, Pittsburgh Supercomputing Center (PSC).            #
-# =========================================================            #
-#                                                                      #
-# Permission to use, copy, and modify this software and its            #
-# documentation without fee for personal use or non-commercial use     #
-# within your organization is hereby granted, provided that the above  #
-# copyright notice is preserved in all copies and that the copyright   #
-# and this permission notice appear in supporting documentation.       #
-# Permission to redistribute this software to other organizations or   #
-# individuals is not permitted without the written permission of the   #
-# Pittsburgh Supercomputing Center.  PSC makes no representations      #
-# about the suitability of this software for any purpose.  It is       #
-# provided "as is" without express or implied warranty.                #
-#                                                                      #
-########################################################################
+###################################################################################
+# Copyright © 2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
+# =============================================================================== #
+#                                                                                 #
+# Permission to use, copy, and modify this software and its documentation without # 
+# fee for personal use within your organization is hereby granted, provided that  #
+# the above copyright notice is preserved in all copies and that the copyright    # 
+# and this permission notice appear in supporting documentation.  All other       #
+# restrictions and obligations are defined in the GNU Affero General Public       #
+# License v3 (AGPL-3.0) located at http://www.gnu.org/licenses/agpl-3.0.html  A   #
+# copy of the license is also provided in the top level of the source directory,  #
+# in the file LICENSE.txt.                                                        #
+#                                                                                 #
+###################################################################################
 
 _hermes_svn_id_="$Id: consolidate_places_in_level.py 1053 2012-08-16 17:47:26Z stbrown $"
 
