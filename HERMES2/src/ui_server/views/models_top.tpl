@@ -6,8 +6,16 @@
 	text-overflow: ellipsis; 
 }
 </style>
-<h3 style="display:none">{{_('Select A Model')}}</h3>
-<h4>{{_("Please select a model to open.  You can use the buttons on the right to perform various actions with the selected model.  If you would like to edit the notes or the name of a model, please double click on the line.")}}</h4>
+<p>
+	<span class="hermes-top-main">
+		{{_("Available Models in HERMES")}}
+	</span>
+</p>
+<p>
+	<span class="hermes-top-sub">
+		{{_("Please select a model to open.  You can use the buttons on the right to perform various actions with the selected model.  If you would like to edit the notes or the name of a model, please double click on the line.")}}</h4>
+	</span>
+</p>
 <table id="manage_models_grid" class="models_list_table"></table>
 <div id="manage_models_pager"> </div>
 </td>

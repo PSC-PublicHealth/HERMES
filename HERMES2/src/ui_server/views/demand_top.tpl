@@ -10,29 +10,37 @@
 var vaccLoaded = false;
 var peopleLoaded = false;
 </script>
-<h2>{{_('Edit Demand: Vaccine Dose Schedule')}}</h2>
-<h4>{{_('For "Include in the dose table?", select the components (vaccines and population types) you\'d like to include in the dose schedule. For "How many doses of each vaccine?" enter the number of doses per population type for each vaccine.')}}</h4>
+<p>
+	<span class="hermes-top-main">
+		{{_('Edit Demand: Vaccine Dose Schedule')}}
+	</span>
+</p>
+<p>
+	<span class="hermes-top-sub">
+		{{_('For "Include in the dose table?", select the components (vaccines and population types) you\'d like to include in the dose schedule. For "How many doses of each vaccine?" enter the number of doses per population type for each vaccine.')}}</h4>
+	</span>
+</p>
 <table>
-<tr>
-	<td>
-		<form id='left_grid_form'>
-			<input type='radio' name='left_show' value='vaccines'>{{_('Vaccines')}}
-			<input type='radio' name='left_show' value='people'>{{_('Population')}}
-		</form>
-	</td>
-	<td>
-		<div align=center id="model_sel_widget"></div>
-	</td>
-</tr>
-<tr>
-  <td>
-	<table id="demand_vac_grid"></table>
-  </td>
-
-  <td>
-    <table id="demand_edit_grid"></table>
-  </td>
-</tr>
+	<tr>
+		<td>
+			<form id='left_grid_form'>
+				<input type='radio' name='left_show' value='vaccines'>{{_('Vaccines')}}
+				<input type='radio' name='left_show' value='people'>{{_('Population')}}
+			</form>
+		</td>
+		<td>
+			<div align=center id="model_sel_widget"></div>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<table id="demand_vac_grid"></table>
+		</td>
+		
+		<td>
+		    <table id="demand_edit_grid"></table>
+		</td>
+	</tr>
 </table>
 
 <table>

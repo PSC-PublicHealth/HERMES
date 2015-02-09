@@ -32,8 +32,18 @@ function updateNetworkDiagram(){
 
 </script>
 
-<h2>{{_('What is the supply chain structure of the \"{0}\" model?'.format(name))}}</h2>
-<h4>{{_('This dynamic diagram will automatically update as you change the characteristics of the supply chain structure (e.g., add/subtract levels, locations, etc.) or shipping policies/frequency/distance.')}}</h4>
+<p>
+	<span class="hermes-top-main">
+		{{_('What is the supply chain structure of the \"{0}\" model?'.format(name))}}
+	</span>
+</p>
+
+<p>
+	<span class="hermes-top-sub">
+		{{_('Please answer the following questions about the overall supply chain structure.  Click the Next Step button to move onto the next questions.')}}
+		{{_('The dynamic diagram will automatically update as you change the characteristics of the supply chain structure (e.g., add/subtract levels, locations, etc.) or shipping policies/frequency/distance.')}}
+	</span>
+<p>
 
 <style>
 #model_create_ui_holder{

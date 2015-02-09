@@ -190,7 +190,11 @@ a.model-operation-item:hover{
 
 <div id="model_holder">
 	<div id="model_operations_holder">
-		<h2>{{_("{0} Model".format(name))}}</h2>
+		<p>
+			<span class="hermes-top-main">
+				{{_("{0} Model".format(name))}}
+			</span>
+		</p>
 		<!--<p><span class="model-operation-second">{{_("Below is a list of operations that you can perform on the model you currently have selected.")}}</span></p>-->
 		<br>
 		<p><span class="model-operation-title">{{_("Please select what you would like to do with this model:")}}</span></p>

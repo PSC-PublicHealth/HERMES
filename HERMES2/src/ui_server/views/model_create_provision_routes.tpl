@@ -6,10 +6,18 @@ var modJson = JSON.parse('{{modJson}}'.replace(/&quot;/g,'"'));
 var modelInfo = ModelInfoFromJson(modJson);
 </script>
 
-<h1>{{_('What Are The Details Of Each Transport Route?')}}</h1>
-{{_('The shipping network for {0} has been created, and now you must define the vehicle that each route will use').format(name)}}
-{{_('All routes between given levels will use the vehicle specified below.  The supplier location will need to be allocated the vehicles, and you must specify the number of them that will be located at each supplier for the routes.')}}
 <p>
+	<span class="hermes-top-main">
+		{{_('What and how many Transport Vehicles would you like shipping routes?')}}
+	</span>
+</p>
+<p>
+	<span class="hermes-top-sub">
+		{{_('The shipping network for {0} has been created, and now you must define the vehicle that each route will use').format(name)}}
+		{{_('All routes between given levels will use the vehicle specified below.  The supplier location will need to be allocated the vehicles, and you must specify the number of them that will be located at each supplier for the routes.')}}
+
+	</span>
+</p>
 <form>
   	<table id = "provision_route_levels">
   	</table>

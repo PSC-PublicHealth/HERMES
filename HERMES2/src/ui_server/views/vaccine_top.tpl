@@ -20,6 +20,11 @@
 %    return ret
 % end
 
+<p>
+	<span class="hermes-top-main">
+		{{_('Explore the HERMES Databases')}}
+	</span>
+</p>
 <table>
   <tr>
   %for te in typesEntries:

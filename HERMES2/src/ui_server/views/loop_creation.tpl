@@ -93,7 +93,7 @@ $(function(){
 	
 	$.ajax({
 		url:'{{rootPath}}json/get-transport-type-names-in-model?modelId={{modelId}}',
-		data:'json',
+		datatype:'json',
 		success:function(result){
 			if(!result.success){
 				alert(result.msg);

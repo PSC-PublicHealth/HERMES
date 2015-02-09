@@ -67,7 +67,16 @@ function updateNetworkDiagram(){
 }
 </style>
 
-<h1>{{_('How are goods shipped?')}}</h1>
+<p>
+	<span class="hermes-top-main">
+		{{_('How are goods shipped?')}}
+	</span>
+</p>
+<p>
+	<span class="hermes-top-sub">
+		{{_("Now please answer this series of questions about the shipping policies between the levels of the network.  The answer below will be used to create a new route between each of the locations at these levels.")}}
+	</span>
+</p>
 <div name="model_create_ui_holder" id="model_create_ui_holder">
 	<div id="model_create_interlev_form_div">A form needs to go here</div>
 	<div id="model_create_diagram" name="model_create_diagram_container" style="position:relative; left:0; top:0; bottom:0;float:right;">

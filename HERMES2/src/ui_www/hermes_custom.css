@@ -2471,3 +2471,10 @@ div.ui-jqgrid-view table.ui-jqgrid-btable th
 {
     border-left-style:none
 }
+.hermes-top-main{
+    font-size:24px;
+    font-weight:bold;
+}
+.hermes-top-sub{
+    font-size:12px;
+}

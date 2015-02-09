@@ -61,7 +61,16 @@ function updateNetworkDiagram(){
 }
 </script>
 
-<h1>{{_('What are the typical travel times between levels?')}}</h1>
+<p>
+	<span class="hermes-top-main">
+		{{_('What are the typical travel times between levels?')}}
+	</span>
+</p>
+<p>
+	<span class="hermes-top-sub">
+		{{_("Please asnwer the questions below about on average how long it takes and how far it is to ship goods between these levels.")}}
+	</span>
+</p>
 
 <div name="model_create_ui_holder" id="model_create_ui_holder">
 <div id="model_create_interltime_form_div">A form needs to go here</div>

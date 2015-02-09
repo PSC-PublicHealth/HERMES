@@ -16,9 +16,24 @@ var modelInfo = ModelInfoFromJson(modJson);
 	background:whitesmoke;
 }
 </style>
-<h1>{{_('What Equipment And Population Exist At Each Level?')}}</h1>
-{{_('The shipping network for {0} has been created, but equipment and population must be specified at each level.').format(name)}}
-{{_('All locations at a given level will be equipped as you describe below.  You can modify individual locations by editing the model.')}}
+<p>
+	<span class="hermes-top-main">
+		{{_('What Equipment And Population Exist At Each Level?')}}
+	</span>
+</p>
+
+<p>
+	<span class="hermes-top-sub">
+		{{_('Now, we need to allocate the equipment for storage and population that will be served for each location at each level.').format(name)}}
+		{{_('To add an item to all of the location, edit the cell to indicate the number to be added.  You can modify individual locations by editing the model.')}}
+	</span>
+</p>
+<p>
+	<span class="hermes-top-sub">
+		{{_('NOTE: The count should be the number you would like at each location in the level (e.g. if you specify 100 Newborns at the Health Post level, each location at that level will be assigned 100 Newborns)"')}}
+	</span>
+</p>
+
 <table id = "provision_table"></table>
 <form>
   	<!--<table id = "provision_levels"></table>-->
@@ -62,6 +77,7 @@ $.ajax({
 		alert(results.msg);
 	}
 	else{
+		
 		// Build the ColModel and column datastructures outside so they can be dynamic
 		var colNames = ['ID',
 						'Type',

@@ -28,12 +28,18 @@
 %    return ret
 % end
 
-<h2>
-	{{_('Edit Components')}}
-</h2>
-<h4>
-	{{_('Use the Source dropdown to select the source from which components can be selected.  Select which component to add to the {0} model and click the arrow button to add it. To remove existing components, click delete.'.format(modelName))}}
-</h4>
+<p>
+	<span class='hermes-top-main'>
+		{{_('Edit Components')}}
+	</span>
+</p>
+
+<p>
+	<span class='hermes-top-sub'>
+		{{_('Use the Source dropdown to select the source from which components can be selected.  Select which component to add to the {0} model and click the arrow button to add it. To remove existing components, click delete.'.format(modelName))}}
+	</span>
+</p>
+
 <table>
   <tr>
     <td>

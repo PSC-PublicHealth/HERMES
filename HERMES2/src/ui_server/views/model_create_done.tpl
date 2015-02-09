@@ -8,9 +8,18 @@ var modelInfo = ModelInfoFromJson(modJson);
 console.log(modelInfo);
 </script>
 
-<h1>{{_('Make Adjustments')}}</h1>
-{{_("Make adjustments to the model by clicking the cell to be modified and then hitting the enter key when finished.  You can expand or collapase levels by click the triangle next to the location name.")}}
 <p>
+	<span class="hermes-top-main">
+		{{_('Make Adjustments')}}
+	</span>
+</p>
+
+<p>
+	<span class="hermes-top-sub">
+		{{_("Here you can make some minor adjustments to the supply chain.  Make adjustments to the model by clicking the cell to be modified and then hitting the enter key when finished.  You can expand or collapase levels by click the triangle next to the location name.")}}
+	</span>
+</p>
+
 
 <table id="model_create_adjust_grid"></table>
 <div id="model_create_adjust_pager"> </div>
@@ -258,7 +267,7 @@ $(function() {
         	});
         },
     }).jqGrid('hermify',{debug:true, resizable_hz:true});
-    
+    setTimeout("jQuery('.treeclick').click();",100);
     $("#model_create_adjust_grid").jqGrid('navGrid','#model_create_adjust_pager',{edit:false,add:false,del:false});
 });
 

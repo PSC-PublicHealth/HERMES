@@ -1,5 +1,11 @@
 %rebase outer_wrapper title_slogan=_('Run A Model'), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
 
+<p>
+	<span class="hermes-top-main">
+		{{_('Status of Currently Running Simulations')}}
+	</span>
+</p>
+
 <table>
 <tr>
 <td>

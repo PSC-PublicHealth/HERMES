@@ -93,7 +93,7 @@ $(document).ready(function() {
 		$('#ajax_busy_image').hide(); 
 	});
     $("#models_top_breadcrumbs").rcrumbs();
-	$("#wrappage_help_dialog").dialog({autoOpen:false});
+	$("#wrappage_help_dialog").dialog({width:400,height:300,autoOpen:false});
 	var btn = $("#wrappage_help_button");
 	btn.click( function() {
 %if defined('pagehelptag'):
