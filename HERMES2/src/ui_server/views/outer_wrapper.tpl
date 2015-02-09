@@ -30,34 +30,14 @@
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-svg-1.4.5/jquery.svg.css" />
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/hermes_custom.css" />
 
-<!-- 
-<link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-rcrumbs-3234d9e/jquery.rcrumbs.min.css" />
- -->
- <link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-rcrumbs-3234d9e/jquery.rcrumbs.css" />
+<link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-rcrumbs-3234d9e/jquery.rcrumbs.css" />
 <script src="{{rootPath}}static/jquery-1.9.1.min.js"></script>
-
-<!--
-<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
--->
 <script src="{{rootPath}}static/jquery-ui-1.10.2/ui/jquery-ui.js"></script>
 
-<!--
-	<script src="{{rootPath}}static/jquery-ui-1.10.2/ui/jquery.ui.core.js"></script>
-	<script src="{{rootPath}}static/jquery-ui-1.10.2/ui/jquery.ui.widget.js"></script>
-	<script src="{{rootPath}}static/jquery-ui-1.10.2/ui/jquery.ui.position.js"></script>
-	<script src="{{rootPath}}static/jquery-ui-1.10.2/ui/jquery.ui.menu.js"></script>
--->
-
-
 <script type="text/javascript" src="{{rootPath}}static/jqGrid-4.4.4/js/i18n/grid.locale-en.js"></script>
-<!--
-<script type="text/javascript" src="{{rootPath}}static/jqGrid-4.4.4/js/jquery.jqGrid.min.js"></script>
--->
 <script type="text/javascript" src="{{rootPath}}static/jqGrid-4.4.4/js/jquery.jqGrid.src.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/jQuery-File-Upload-7.4.1/js/jquery.fileupload.js"></script>
-<!-- 
-<script type="text/javascript" src="{{rootPath}}static/jquery-rcrumbs-3234d9e/jquery.rcrumbs.min.js"></script>
- -->
+
 <script type="text/javascript" src="{{rootPath}}static/jquery-rcrumbs-3234d9e/jquery.rcrumbs.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/jquery-form-3.45.0.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/jquery-migrate-1.2.1.js"></script>
@@ -65,16 +45,6 @@
 <script type="text/javascript" src="{{rootPath}}static/Jit-2.0.1/jit.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/hermes-ui-utils.js"></script>
 <script src="{{rootPath}}static/jquery.corner.js"></script>
-
-<!--
-	<link rel="stylesheet" href="../../themes/base/jquery.ui.all.css">
-	<script src="../../jquery-1.9.1.js"></script>
-	<script src="../../ui/jquery.ui.core.js"></script>
-	<script src="../../ui/jquery.ui.widget.js"></script>
-	<script src="../../ui/jquery.ui.position.js"></script>
-	<script src="../../ui/jquery.ui.menu.js"></script>
-	<link rel="stylesheet" href="../demos.css">
--->
 
 <script src="{{rootPath}}static/jQuery-contextMenu-master/src/jquery.ui.position.js" type="text/javascript"></script>
 <script src="{{rootPath}}static/jQuery-contextMenu-master/src/jquery.contextMenu.js" type="text/javascript"></script>
