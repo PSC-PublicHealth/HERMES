@@ -4,7 +4,7 @@
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
 # =============================================================================== #
 #                                                                                 #
-# Permission to use, copy, and modify this software and its documentation without # 
+# Permission to use, copy, and modify this software and its documentation without #
 # fee for personal use within your organization is hereby granted, provided that  #
 # the above copyright notice is preserved in all copies and that the copyright    # 
 # and this permission notice appear in supporting documentation.  All other       #
@@ -197,11 +197,11 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                 nh = wh.getNoteHolder()
                 if nh is None:
                     continue
-                nh.addNote(self._generateBuildingCostNotes(wh,
-                                                           self.intervalStartTime,
-                                                           self.intervalEndTime,
-                                                           inflation))
                 if not isinstance(wh, warehouse.AttachedClinic):
+                    nh.addNote(self._generateBuildingCostNotes(wh,
+                                                               self.intervalStartTime,
+                                                               self.intervalEndTime,
+                                                               inflation))
                     for costable in wh.ownedCostables:
                         if isinstance(costable, abstractbaseclasses.CanStore):
                             try:
