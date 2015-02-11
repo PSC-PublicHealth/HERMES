@@ -62,7 +62,8 @@ class i18n:
 
             ## Supported Languages
             print 'locale = <%s>, localeDir = <%s>'%(localeDir_, self.localeDir)
-            langDirList = [s for s in os.listdir(self.localeDir) if s[0] != '.' and s != 'hermes_locale_dir']
+            langDirList = [s for s in os.listdir(self.localeDir) if s != "COPYRIGHT.txt" and s[0] != '.' and s != 'hermes_locale_dir']
+            print langDirList
             try:
                 import zest.pocompile.compile
                 for lang in langDirList:
