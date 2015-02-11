@@ -396,18 +396,23 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 	}
 	
 	if(meta['invent']){
-		$.ajax({
-			url:rootPath + 'json/get-vials-plot-for-store',
-			dataType:'json',
-			data:{'modelId':modId,'storeId':storId,'resultsId':resId},
-			success:function(data){
-				console.log(data.data);
-				createVialsPlot(divName+"_VialsPlot",data.data);
-				}
-			});
+		$("#"+divName+"_VialsPlot").vialsplot({
+			modelId:modId,
+			resultsId:resId,
+			storeId:storId,
+			rootPath:rootPath
+		});
 	}
 	
 	if(meta['fillRatio']){
+		$("#"+divName+"_FillPlot").vialsplot({
+			modelId:modId,
+			resultsId:resId,
+			storeId:storId,
+			rootPath:rootPath,
+			vials:false
+		});
+	/*
 	$.ajax({
 		url:rootPath + 'json/get-fill-ratio-time-for-store',
 		dataType:'json',
@@ -417,6 +422,7 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 			createFillRatioPlot(divName+"_FillPlot",data.data);
 			}
 		});	
+	*/
 	}
 	if(meta['availPlot']){
 		$.ajax({
@@ -603,7 +609,14 @@ function populateRouteInfoDialog(rootPath,divName,meta,modId,rouId,resId){
 
 
 
-function createVialsPlot(divName, plotData) {
+function createVialsPlot(divName,rootPath,modId,storId,resId) {
+	$("#"+divName).vialsplot({
+		modelId:modId,
+		resultsId:resId,
+		storId:storId,
+		rootPath:rootPath
+		});
+/*
 	var phrases = {0:'Days',1:'Vials'}
 	$.ajax({
 		url:'json/translate',
@@ -661,6 +674,7 @@ function createVialsPlot(divName, plotData) {
 			}
 		}
 	});
+	*/
 };
 
 function createFillRatioPlot(divName, plotData) {
