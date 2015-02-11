@@ -962,10 +962,16 @@ def getStoreDialogHTML(db,uiSession,name="model_store_dialog",buttonName=None,ge
         stringList.append("<div id='tab-%d'><table id='%s_TransDevInfo'></table></div>"%(tabCount,name))
         tabCount += 1
     if invent:
-        stringList.append("<div id='tab-%d'><table id='%s_VialsPlot'></table><p align='right'>%s</p></div>"%(tabCount,name,_('Click on Name of Vaccine to Hide/Show it on the Chart.')))
+        stringList.append("<div id='tab-%d'><div id='%s_VialsPlot' style='position:relative;'></div><p align='right'>%s<br>%s</p></div>"%(tabCount,
+                                                                                                                                          name,
+                                                                                                                                          _('Click on the check mark to add vaccine to Chart'),
+                                                                                                                                          _('Click on Name of Vaccine show only it on the Chart.')))
         tabCount += 1  
     if fillRatio:
-        stringList.append("<div id='tab-%d'><table id='%s_FillPlot'></table></div>"%(tabCount,name))
+        stringList.append("<div id='tab-%d'><div id='%s_FillPlot' style='position:relative;'></div><p align='right'>%s<br>%s</p></div>"%(tabCount,
+                                                                                                                                               name,
+                                                                                                                                          _('Click on the check mark to add storage type to Chart'),
+                                                                                                                                          _('Click on Name of storage type show only it on the Chart.')))
         tabCount += 1
     if vaccAvail:
         stringList.append("<div id='tab-%d'><table id='%s_Availability'></table></div>"%(tabCount,name))

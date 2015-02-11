@@ -302,6 +302,14 @@ def generateTransportListingForStore(db,uiSession):
                   'msg':str(e)}
         return result
 
+@bottle.route('/test-d3-vials-plot')
+def d3linedemo(db,uiSession):
+    modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+    storeId = _getOrThrowError(bottle.request.params,'storeId',isInt=False)
+    resId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True) 
+    
+    return bottle.template('d3linedemo.tpl',_=_,inlizer=inlizer,modelId=modelId,storeId=storeId,resultsId=resId)
+
 @bottle.route('/json/get-vials-plot-for-store')
 def generateVialsPlotForStore(db,uiSession):
         try:
@@ -328,27 +336,28 @@ def generateVialsPlotForStore(db,uiSession):
             timeList = countDict['time']
             totalList = [0.0 for x in range(0,len(timeList))]
             
+            returnList = []
+            
             for key,data in countDict.items():
                 if key == "time":
                     continue
                 if type(m.types[key]) == shadow_network.ShdVaccineType:
                     name = m.types[key].Abbreviation
-                    thisDict = {'name':name,'data':[]}
-                    
-                    for i in xrange(0,len(data)):
-                        thisDict['data'].append([timeList[i]-burnDays,data[i]])
+                    newDict = {'name':name,'data':[{'x':0,'y':data[0]}]}
+                    for i in xrange(1,len(data)):
+                        newDict['data'].append({'x':timeList[i]-burnDays,'y':data[i]})
                         totalList[i]+= data[i]
                 
-                    returnDict.append(thisDict)
+                    returnList.append(newDict)
+            newTDict = {'name':'All Vaccines','data':[{'x':0,'y':totalList[0]}]}
+            for i in xrange(1,len(totalList)):
+                newTDict['data'].append({'x':timeList[i]-burnDays,'y':totalList[i]})
             
-            totalDict = {'name':'All Vaccines','data':[]}
-            for i in xrange(0,len(totalList)):
-                totalDict['data'].append([timeList[i]-burnDays,totalList[i]])
-            returnDict.append(totalDict)
+            returnList.append(newTDict)
             
             return {
                     'success':True,
-                    'data':returnDict
+                    'dataList':returnList
                     }
        
         except Exception,e:
@@ -380,6 +389,8 @@ def generateFillRatioTimeForStore(db,uiSession):
 
             burnDays = m.getParameterValue('burnindays')
             timeList = countDict['time']
+            returnDict = [{},{}]
+            
             for key,data in countDict.items():
                 if key == "time":
                     continue
@@ -391,15 +402,18 @@ def generateFillRatioTimeForStore(db,uiSession):
                     continue
                     #name = key
                 
-                thisDict = {'name':name,'data':[]}
+                thisDict = {'name':name,'data':[{'x':0,'y':data[0]*100.0}]}
                 for i in xrange(0,len(data)):
-                    thisDict['data'].append([timeList[i]-burnDays,data[i]*100.0])
+                    thisDict['data'].append({'x':timeList[i]-burnDays,'y':data[i]*100.0})
                 
-                returnDict.append(thisDict)
-
+                if key == "cooler":
+                    returnDict[1] = thisDict
+                elif key == "freezer":
+                    returnDict[0] = thisDict
+                
             return {
                     'success':True,
-                    'data':returnDict
+                    'dataList':returnDict
                     }
        
         except Exception,e:

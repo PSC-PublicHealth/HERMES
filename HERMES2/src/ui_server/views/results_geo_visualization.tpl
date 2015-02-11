@@ -20,6 +20,10 @@
 <script src="{{rootPath}}static/queue.min.js"></script>
 <script src="{{rootPath}}static/hermes_info_dialogs.js"></script>
 <script src="{{rootPath}}static/rainbowvis.js"></script>
+<link rel="stylesheet" href="{{rootPath}}static/rickshaw-master/rickshaw.css"/>
+<link rel="stylesheet" href="{{rootPath}}static/linechart-widgets/linechart.css"/>
+<script src="{{rootPath}}static/rickshaw-master/rickshaw.js"></script>
+<script src="{{rootPath}}static/linechart-widgets/linechart.js"></script>
 <script type="text/javascript" src='{{rootPath}}static/Highcharts-3.0.5/js/highcharts.js'></script>
 
 <script>

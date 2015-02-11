@@ -26,6 +26,10 @@
 <script src="{{rootPath}}static/saveSvgAsPng-gh-pages/saveSvgAsPng.js"></script>
 <script src="{{rootPath}}static/jquery.corner.js"></script>
 <link rel="stylesheet" href="{{rootPath}}static/collapsible-network-diagram/collapsible-network-diagram.css"/>
+<link rel="stylesheet" href="{{rootPath}}static/rickshaw-master/rickshaw.css"/>
+<link rel="stylesheet" href="{{rootPath}}static/linechart-widgets/linechart.css"/>
+<script src="{{rootPath}}static/rickshaw-master/rickshaw.js"></script>
+<script src="{{rootPath}}static/linechart-widgets/linechart.js"></script>
 
 <script>
 function updateNetworkDiagram(){
