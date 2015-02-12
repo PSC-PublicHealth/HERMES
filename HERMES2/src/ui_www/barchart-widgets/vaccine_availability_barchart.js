@@ -25,7 +25,7 @@
             storeId:-1,
             width:800,
             height:200,
-            margin: [30, 50, 200, 100], 
+            margin: [30, 70, 200, 100], 
             hideAllButTotal:true,
             rootPath:'',
             trant:{
@@ -84,7 +84,7 @@
 									                  margin.left,
 									                  margin.top,
 									                  width - margin.right - margin.left,
-									                  height - margin.bottom - margin.top
+									                  height - margin.bottom
 													  );
 							
 							var x = myChart.addMeasureAxis("x","value");
