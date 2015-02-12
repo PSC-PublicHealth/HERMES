@@ -28,7 +28,7 @@ import sys, os, os.path, time, json, math, types
 import bottle
 import ipath
 import shadow_network_db_api
-import shadow_network as shdNtwk
+import shadow_network as shd
 import session_support_wrapper as session_support
 from HermesServiceException import HermesServiceException
 import privs
@@ -36,280 +36,521 @@ import htmlgenerator
 import typehelper
 from costmodel import getCostModelSummary
 from ui_utils import _logMessage, _logStacktrace, _safeGetReqParam, _getOrThrowError
-from xlwt.Workbook import *
-from xlwt.Style import *
-import xlwt
-ezxf = xlwt.easyxf
+if 0:
+    from xlwt.Workbook import *
+    from xlwt.Style import *
+    import xlwt
+    ezxf = xlwt.easyxf
+
+from openpyxl import Workbook
+from openpyxl.compat import range
+from openpyxl.cell import get_column_letter
+from openpyxl.styles import Style, PatternFill, Border, Side, Alignment, Protection, Font,Color,fills
+from openpyxl.worksheet.dimensions import ColumnDimension, RowDimension
+
 import time
 from reporthooks import createModelSummaryWSCall
+import traceback
 
+from collections import defaultdict
 
 inlizer = session_support.inlizer
 _ = session_support.translateString
 
+
+class XLCell:
+    def __init__(self, worksheet, row=1, column=1):
+        self.worksheet = worksheet
+        self._row = row
+        self._column = column
+        self._maxRow = row
+        self._maxCol = column
+
+    def ws(self):
+        return self.worksheet
+
+    def r(self, row = None):
+        if row is not None:
+            self._row = row
+            if self._row > self._maxRow:
+                self._maxRow = self._row
+        return self._row
+
+    def c(self, column = None):
+        if column is not None:
+            self._column = column
+            if self._column > self._maxCol:
+                self._maxCol = self._column
+        return self._column
+
+    def maxRow(self, maxRow=None):
+        if maxRow is not None:
+            self._maxRow = maxRow
+        return self._maxRow
+
+    def maxColumn(self, maxColumn=None):
+        if maxColumn is not None:
+            self_maxCol = maxColumn
+        return self._maxCol
+
+    def cell(self, column = None, row = None):
+        if column is not None:
+            self.c(column)
+        if row is not None:
+            self.r(row)
+        return self.worksheet.cell(row=self._row, column=self._column)
+
+    def right(self, cols=1):
+        self.c(self.c() + cols)
+        return self.cell()
+
+    def down(self, rows=1):
+        self.r(self.r() + rows)
+        return self.cell()
+
+    def left(self, cols=1):
+        return self.right(-cols)
+
+    def up(self, rows=1):
+        return self.down(-rows)
+
+    def set(self, value=None, style=None):
+        c = self.cell()
+        if value is not None:
+            c.value = value
+        if style is not None:
+            c.style = style
+        return c
+
+    def next(self, value = None, style = None):
+        c = self.right()
+        if value is not None:
+            c.value = value
+        if style is not None:
+            c.style = style
+        return c
+    
+    def postNext(self, value = None, style = None):
+        c = self.cell()
+        if value is not None:
+            c.value = value
+        if style is not None:
+            c.style = style
+        self.right()
+        return c
+    
+    def nextRow(self):
+        self._column = 1
+        self.down()
+        return self.cell()
+
+    def mergeCells(self, columns=1, rows=1):
+        self.ws().merge_cells(start_row=self.r(),
+                              start_column=self.c(),
+                              end_row=self.r() + rows - 1,
+                              end_column=self.c() + columns - 1)
+
+    RowHeightCache = {}
+    ColumnWidthCache = {}
+    def columnWidth(self, width, column=None):
+        if column is None:
+            column = self.c()
+        if width not in self.ColumnWidthCache:
+            self.ColumnWidthCache[width] = ColumnDimension(width=width)
+        colStr = get_column_letter(column)
+        self.ws().column_dimensions[colStr] = self.ColumnWidthCache[width]
+
+    def rowHeight(self, height, row=None):
+        if row is None:
+            row = self.r()
+        if height not in self.RowHeightCache:
+            self.RowHeightCache[height] = RowDimension(height=height)
+        self.ws().row_dimensions[row] = self.RowHeightCache[height]
+
+medBorder = Border(bottom=Side(style='medium', color='FF000000'), 
+                   left=Side(style='medium', color='FF000000'), 
+                   right=Side(style='medium', color='FF000000'), 
+                   top=Side(style='medium', color='FF000000'))
+
+
+modelHeadingStyle = Style(font=Font(bold=True, color="FF000000", sz=18.0),
+                          fill=PatternFill(patternType=fills.FILL_SOLID,
+                                           fgColor=Color('FFFFFFFF')), #fgColor=Color('FF911313')),
+                          alignment=Alignment(horizontal='left',
+                                              vertical='center',
+                                              wrap_text=True),
+                          border=Border(bottom=Side(color="FF000000", border_style=None)))
+
+modelHeading2Style = Style(font=Font(bold=True, color="FF000000"),
+                          fill=PatternFill(patternType=fills.FILL_SOLID,fgColor=Color('FFFFFFFF')),
+                          alignment=Alignment(horizontal='left',
+                                              vertical='center',
+                                            wrap_text=True),
+                          border=Border(bottom=Side(color="FF000000", border_style=None)))
+
+divider1Style = Style(font=Font(bold=True, color="FFFFFFFF"),
+                      fill=PatternFill(patternType=fills.FILL_SOLID,
+                                       fgColor=Color('FF0000FF')),
+                      alignment=Alignment(horizontal='left',
+                                          vertical='bottom',
+                                          wrap_text=True),
+                      border=Border(bottom=Side(color="FF000000", 
+                                                border_style=None)))
+
+divider2Style = Style(font=Font(bold=True, color="FFFFFFFF"),
+                      fill=PatternFill(patternType=fills.FILL_SOLID,
+                                       fgColor=Color('FF3709EF')),
+                      alignment=Alignment(horizontal='left',
+                                          vertical='bottom',
+                                          wrap_text=True),
+                      border=Border(bottom=Side(color="FF000000", 
+                                                border_style=None)))
+
+labelStyle = Style(font=Font(bold=True, color="FF000000"),
+                          fill=PatternFill(patternType=fills.FILL_SOLID,
+                                           fgColor=Color('FFA0A8EC')),
+                          alignment=Alignment(horizontal='left',
+                                              vertical='center',
+                                              wrap_text=True),
+                          border=Border(bottom=Side(color="FF000000", 
+                                                    border_style=None)))
+
+labelStyleCenter = Style(font=Font(bold=True, color="FF000000"),
+                         fill=PatternFill(patternType=fills.FILL_SOLID,
+                                          fgColor=Color('FFA0A8EC')),
+                         alignment=Alignment(horizontal='center',
+                                             vertical='center',
+                                             wrap_text=True),
+                         #border=None
+                         )
+
+levelStyle = Style(font=Font(bold=True),
+                   # fill=PatternFill(fill_type=None,start_color='dark_red',
+                   #  end_color='dark_red'),
+                   alignment=Alignment(horizontal='left',
+                                       vertical='center'))   
+
+levelTotalStyle = levelStyle
+totalStyle = Style(font=Font(bold=True),
+                   # fill=PatternFill(fill_type=None,start_color='dark_red',
+                   #  end_color='dark_red'),
+                   alignment=Alignment(horizontal='right',
+                                       vertical='center'))   
+
+
+
+plainStyle = Style(font=Font(bold=False),
+                   # fill=PatternFill(fill_type=None,start_color='dark_red',end_color='dark_red'),
+                   alignment=Alignment(horizontal='right',
+                                       vertical='center'))   
+plainCenteredStyle = Style(font=Font(bold=False),
+                   # fill=PatternFill(fill_type=None,start_color='dark_red',end_color='dark_red'),
+                   alignment=Alignment(horizontal='center',
+                                       vertical='center'))
+plainLabelStyle = Style(font=Font(bold=False),
+                   # fill=PatternFill(fill_type=None,start_color='dark_red',end_color='dark_red'),
+                        alignment=Alignment(horizontal='left',
+                                            vertical='center'))     
+
+
 @bottle.route('/json/create-xls-summary-openpyxl')
 def createExcelSummaryOpenPyXl(db, uiSession):
+    print "I got here!"
     try:
         modelJSON = createModelSummaryWSCall(db, uiSession)
         fname = _safeGetReqParam(bottle.request.params, 'filename', isInt=False)
+        modelId = _safeGetReqParam(bottle.request.params, 'modelId', isInt=False)
+        resultsId = _safeGetReqParam(bottle.request.params, 'resultsId', isInt=False)
+        hr = db.query(shd.HermesResults).filter(shd.HermesResults.resultsId==resultsId).one()
+
+        levelSummary = summarizeByLevel(hr)
+
     except Exception as e:
+        print 'Exception: %s'%e
+        traceback.print_exc()
         return {'success':False, 'msg':str(e)}
     
-    from openpyxl import Workbook
-    from openpyxl.compat import range
-    from openpyxl.cell import get_column_letter
-    from openpyxl.styles import Style, PatternFill, Border, Side, Alignment, Protection, Font,Color,fills
-     
     try:
         wb = Workbook()
         summary_sheet = wb.create_sheet(0)
         summary_sheet.title = "Model Summary"
+        #summary_sheet.row_dimensions[1] = RowDimension(height=22.0)
+        #summary_sheet.row_dimensions[4] = RowDimension(height=30.0)
+
+        ss = XLCell(summary_sheet)
+
+        ss.mergeCells(5)
+        ss.rowHeight(22)
+        ss.postNext(modelJSON['name'], modelHeadingStyle)
+
+        ss.nextRow()
+        ss.mergeCells(5)
+        ss.postNext(_("Overall System Statistics"), modelHeading2Style)
         
-        modelHeadingStyle = Style(font=Font(bold=True, color="FFFFFFFF"),
-                                  fill=PatternFill(patternType=fills.FILL_SOLID,fgColor=Color('FF911313')),
-                                  alignment=Alignment(horizontal='left',
-                                                      vertical='center',
-                                                    wrap_text=True),
-                                  border=Border(bottom=Side(color="FF000000", border_style=None)))
+        ss.nextRow()
+        ss.mergeCells(5)
+        ss.postNext(_("Facility Statistics"), divider1Style)
         
-        divider1Style = Style(font=Font(bold=True, color="FFFFFFFF"),
-                                  fill=PatternFill(patternType=fills.FILL_SOLID,fgColor=Color('FF3709EF')),
-                                  alignment=Alignment(horizontal='left',
-                                                      vertical='center',
-                                                    wrap_text=True),
-                                  border=Border(bottom=Side(color="FF000000", border_style=None)))
-        divider2Style = Style(font=Font(bold=True, color="FFFFFFFF"),
-                                  fill=PatternFill(patternType=fills.FILL_SOLID,fgColor=Color('FFA0A8EC')),
-                                  alignment=Alignment(horizontal='left',
-                                                      vertical='center',
-                                                      wrap_text=True),
-                                  border=Border(bottom=Side(color="FF000000", border_style=None)))                               
-        
-        plainStyle = Style(font=Font(bold=False),
-                           # fill=PatternFill(fill_type=None,start_color='dark_red',end_color='dark_red'),
-                           alignment=Alignment(horizontal='right',
-                                               vertical='center'))   
-        plainCenteredStyle = Style(font=Font(bold=False),
-                           # fill=PatternFill(fill_type=None,start_color='dark_red',end_color='dark_red'),
-                           alignment=Alignment(horizontal='center',
-                                               vertical='center'))   
-        plainLabelStyle = Style(font=Font(bold=False),
-                           # fill=PatternFill(fill_type=None,start_color='dark_red',end_color='dark_red'),
-                                alignment=Alignment(horizontal='left',
-                                                    vertical='center'))     
-        totalStyle = Style(font=Font(bold=True),
-                           # fill=PatternFill(fill_type=None,start_color='dark_red',end_color='dark_red'),
-                           alignment=Alignment(horizontal='right',
-                                               vertical='center')) 
-        totalLabelStyle = Style(font=Font(bold=True),
-                           # fill=PatternFill(fill_type=None,start_color='dark_red',end_color='dark_red'),
-                           alignment=Alignment(horizontal='left',
-                                               vertical='center'))                         
-                                            
-        
-        summary_sheet.merge_cells(start_row=1,start_column=1,end_row=1,end_column=4)
-        summary_sheet["A1"] = modelJSON['name']
-        summary_sheet["A1"].style = modelHeadingStyle
-        
-        row=2
-        col=1
-        summary_sheet.merge_cells(start_row=row,start_column=col,end_row=row,end_column=col+3) 
-        summary_sheet.cell(row=row,column=col).value = _("Overall System Statistics")
-        summary_sheet.cell(row=row,column=col).style = divider1Style
-        
-        row+=1
-        summary_sheet.merge_cells(start_row=row,start_column=col,end_row=row,end_column=col+3) 
-        summary_sheet.cell(row=row,column=col).value = _("Facility Statistics")
-        summary_sheet.cell(row=row,column=col).style = divider2Style
-        
-        row+=1
+        ss.nextRow()
+
         levels = modelJSON['orderedLevelList']
         levelCount = modelJSON['fixedLocationCount']
         vaccLevelCount = modelJSON['vaccinationLocationCount']
-            
-        summary_sheet.cell(row=row,column=1).value   = "Level"
-        summary_sheet.cell(row=row,column=col+1).value = "Total"
-        summary_sheet.cell(row=row,column=col+2).value = "Vaccinating"
         
-        row+=1  
+        ss.rowHeight(30)
+        headers = ["Level", "Total", "Vaccinating", "Average Peak Storage", "Total Volume"]
+        for header in headers:
+            ss.postNext(header, labelStyle)
+
+        ss.nextRow()
+        
         for level in levels:
             if level in levelCount.keys():
-                summary_sheet.cell(row=row,column=1).value = level
-                summary_sheet.cell(row=row,column=1).style = plainLabelStyle
-                summary_sheet.cell(row=row,column=2).value = levelCount[level]
-                summary_sheet.cell(row=row,column=2).style = plainStyle
+                ss.postNext(level, levelStyle)
+                ss.postNext(levelCount[level], plainStyle)
                 if level in vaccLevelCount.keys():
-                    summary_sheet.cell(row=row,column=3).value = vaccLevelCount[level]
+                    ss.postNext(vaccLevelCount[level], plainStyle)
                 else:
-                    summary_sheet.cell(row=row,column=3).value = 0
-                summary_sheet.cell(row=row,column=3).style = plainStyle
-                row += 1
-        summary_sheet.cell(row=row,column=1).value = _("All Levels")
-        summary_sheet.cell(row=row,column=1).style = totalLabelStyle
-        summary_sheet.cell(row=row,column=2).value = levelCount['Total']
-        summary_sheet.cell(row=row,column=2).style = totalStyle
-        summary_sheet.cell(row=row,column=3).value = vaccLevelCount['Total']
-        summary_sheet.cell(row=row,column=3).style = totalStyle
+                    ss.postNext(0, plainStyle)
+                ss.nextRow()
+
+        ss.postNext(_("All Levels"), levelTotalStyle)
+        ss.postNext(levelCount['Total'], totalStyle)
+        ss.postNext(vaccLevelCount['Total'], totalStyle)
         
+        vCols = [(_("Vaccine"), "Name"),
+                 (_("Availability"), "SupplyRatio"),
+                 (_("Doses Needed"), "Applied"),
+                 (_("Doses Received"), "Treated"),
+                 (_("Open Vial Waste"), "OpenVialWasteFrac"),
+                 (_("Vials Opened"), "VialsUsed"),
+                 (_("Vials Procured"), "VialsCreated"),
+                 (_("Vials Spoiled"), "VialsExpired"),
+                 #(_("Vials Broken"), "VialsBroken"),
+                 (_("% Stored 2 to 8 C"), "coolerStorageFrac"),
+                 (_("% Stored Below 2 C"), "freezerStorageFrac")]
+        ss.nextRow()
+        ss.nextRow()
+        ss.mergeCells(len(vCols))
+        ss.set(_("Vaccine Statistics"), divider1Style)
+        ss.nextRow()
+        ss.rowHeight(30)
+        for header, attr in vCols:
+            ss.postNext(header, labelStyle)
+        ss.nextRow()
+            
+        for rec in hr.summaryRecs.values():
+            if not isinstance(rec, shd.ShdVaccineSummary):
+                continue
+            for header, attr in vCols:
+                ss.postNext(getattr(rec, attr), plainStyle)
+            ss.nextRow()
+
+
+
         popLevelCount = modelJSON['populationLevelCount']
         numColumns = len(popLevelCount)
         
-        summary_sheet.merge_cells(start_row=row,start_column=col,end_row=row,end_column=col+4*numColumns) 
-        summary_sheet.cell(row=row,column=col).value = _("Population Statistics")
-        summary_sheet.cell(row=row,column=col).style = divider2Style
-        row+=1
-        
-        col=2
+        ss.nextRow()
+        ss.mergeCells(1 + 4*numColumns)
+        ss.postNext(_("Population Statistics"), divider1Style)
+
+        ss.nextRow()
+
         ## Get an ordered list to make all consistent
         popCats = sorted([x for x in popLevelCount['Total'].keys()])
-        origRow = row
+
+        levelList = []
         for level in levels:
             if level in popLevelCount.keys():
-                summary_sheet.merge_cells(start_row=row,start_column=col,end_row=row,end_column=col+3)
-                summary_sheet.cell(row=row,column=col).value = level
-                summary_sheet.cell(row=row,column=col).style = plainCenteredStyle
-                summary_sheet.cell(row=row+1,column=col).value = _("Total")
-                summary_sheet.cell(row=row+1,column=col+1).value = _("Average")
-                summary_sheet.cell(row=row+1,column=col+2).value = _("Minimum")
-                summary_sheet.cell(row=row+1,column=col+3).value = _("Maximum")
-                col+=4
-        summary_sheet.merge_cells(start_row=row,start_column=col,end_row=row,end_column=col+3)
-        summary_sheet.cell(row=row,column=col).value = _("All Levels")
-        summary_sheet.cell(row=row,column=col).style = plainCenteredStyle
-        summary_sheet.cell(row=row+1,column=col).value = _("Total")
-        summary_sheet.cell(row=row+1,column=col+1).value = _("Average")
-        summary_sheet.cell(row=row+1,column=col+2).value = _("Minimum")
-        summary_sheet.cell(row=row+1,column=col+3).value = _("Maximum")
-        row+=2
-        for cat in popCats:
-            summary_sheet.cell(row=row,column=1).value = cat
-            row +=1
+                levelList.append((level,level))
+        levelList.append((_("All Levels"), "Total"))
+
+        statList = ((_("Total"), 'count'),
+                    (_("Average"), 'ave'),
+                    (_("Minimum"), 'min'),
+                    (_("Maximum"), 'max'))
+
+        ss.set(style=labelStyleCenter)
+        ss.down()
+        ss.set(style=labelStyleCenter)
+        ss.up()
+        ss.right()
+        for title, level in levelList:
+            ss.mergeCells(len(statList))
+            ss.set(title, labelStyleCenter)
+            ss.down()
+            for statLabel, stat in statList:
+                ss.postNext(statLabel, labelStyle)
+            ss.up()
         
-        col=2
-        for level in levels:
-            row=origRow+2
-            if level in popLevelCount.keys():
-                for cat in popCats:
-                    if cat in popLevelCount[level].keys():
-                        summary_sheet.cell(row=row,column=col).value   = popLevelCount[level][cat]['count']
-                        summary_sheet.cell(row=row,column=col+1).value = round(popLevelCount[level][cat]['ave'])
-                        summary_sheet.cell(row=row,column=col+2).value = popLevelCount[level][cat]['min']
-                        summary_sheet.cell(row=row,column=col+3).value = popLevelCount[level][cat]['max']
-                    else:
-                        summary_sheet.cell(row=row,column=col).value   = 0
-                        summary_sheet.cell(row=row,column=col+1).value = 0#popLevelCount[level][cat]['ave']
-                        summary_sheet.cell(row=row,column=col+2).value = 0#popLevelCount[level][cat]['min']
-                        summary_sheet.cell(row=row,column=col+3).value = 0#popLevelCount[level][cat]['max']
-                    row+= 1
-                col+=4
-        row=origRow+2
+        ss.nextRow()
+        ss.nextRow()
+
         for cat in popCats:
-            summary_sheet.cell(row=row,column=col).value   = popLevelCount["Total"][cat]['count']
-            summary_sheet.cell(row=row,column=col+1).value = round(popLevelCount["Total"][cat]['ave'])
-            summary_sheet.cell(row=row,column=col+2).value = popLevelCount["Total"][cat]['min']
-            summary_sheet.cell(row=row,column=col+3).value = popLevelCount["Total"][cat]['max']
-            row+=1
-            
+            ss.postNext(cat, levelStyle)
+            for title, level in levelList:
+                for statLabel, stat in statList:
+                    if cat in popLevelCount[level].keys():
+                        val = round(popLevelCount[level][cat][stat])
+                    else:
+                        val = 0
+                    ss.postNext(val, plainStyle)
+            ss.nextRow()
+
+
+        ss.nextRow()
+        row = ss.r()
         col=1
-        summary_sheet.merge_cells(start_row=row,start_column=col,end_row=row,end_column=col+8) 
-        summary_sheet.cell(row=row,column=col).value = _("Transport Route Statistics")
-        summary_sheet.cell(row=row,column=col).style = divider2Style
+        ss.mergeCells(9)
+        ss.set(_("Transport Route Statistics"), divider2Style)
+        ss.nextRow()
         row+=1
         
         ## Get an ordered list to make all consistent
         routeLevelDict = modelJSON['routeLevelCount']
-        summary_sheet.merge_cells(start_row=row,start_column=2,end_row=row,end_column=5)
-        summary_sheet.cell(row=row,column=2).value = _("Distance (KM)")
-        summary_sheet.merge_cells(start_row=row,start_column=6,end_row=row,end_column=7)
-        summary_sheet.cell(row=row,column=6).value = _("Route Types")
-        summary_sheet.merge_cells(start_row=row,start_column=8,end_row=row,end_column=9)
-        summary_sheet.cell(row=row,column=8).value = _("Vehicles")
-        row +=1
-        summary_sheet.cell(row=row,column=1).value = _("Level")
-        summary_sheet.cell(row=row,column=2).value = _("Total")
-        summary_sheet.cell(row=row,column=3).value = _("Average")
-        summary_sheet.cell(row=row,column=4).value = _("Minimum")
-        summary_sheet.cell(row=row,column=5).value = _("Maximum")
-        summary_sheet.cell(row=row,column=6).value = _("Type")
-        summary_sheet.cell(row=row,column=7).value = _("Count")
-        summary_sheet.cell(row=row,column=8).value = _("Type")
-        summary_sheet.cell(row=row,column=9).value = _("Count")
-        row+=1
-        maxRow = row
+        ss.postNext(style=labelStyleCenter)
+        ss.mergeCells(4)
+        ss.set(_("Distance (KM)"), labelStyleCenter)
+        ss.right(4)
+        ss.mergeCells(2)
+        ss.set(_("Route Types"), labelStyleCenter)
+        ss.right(2)
+        ss.mergeCells(2)
+        ss.set(_("Vehicles"), labelStyleCenter)
+        ss.nextRow()
+
+        for label in (_("Level"), 
+                      _("Total"), _("Average"), _("Minimum"), _("Maximum"),
+                      _("Type"), _("Count"),
+                      _("Type"), _("Count")):
+            ss.postNext(label, labelStyle)
+
+        ss.nextRow()
+
         for level in levels:
-            if level in routeLevelDict.keys():
-                summary_sheet.cell(row=row,column=1).value = _(level)
-                summary_sheet.cell(row=row,column=2).value = round(routeLevelDict[level]['distance']['total'],2)
-                summary_sheet.cell(row=row,column=3).value = round(routeLevelDict[level]['distance']['ave'],2)
-                summary_sheet.cell(row=row,column=4).value = round(routeLevelDict[level]['distance']['min'],2)
-                summary_sheet.cell(row=row,column=5).value = round(routeLevelDict[level]['distance']['max'],2)
-                rowInc = 0
-                for rType,count in routeLevelDict[level]['routeTypeCount'].items():
-                    summary_sheet.cell(row=row+rowInc,column=6).value = rType
-                    summary_sheet.cell(row=row+rowInc,column=7).value = count
-                    rowInc += 1
-                    if row+rowInc > maxRow:
-                        maxRow = row+rowInc
-                rowInc=0
-                for tType,count in routeLevelDict[level]['vehicleCount'].items():
-                    summary_sheet.cell(row=row+rowInc,column=8).value = tType
-                    summary_sheet.cell(row=row+rowInc,column=9).value = count
-                    rowInc += 1
-                    if row+rowInc > maxRow:
-                        maxRow = row+rowInc
-                row = maxRow
+            if level not in routeLevelDict.keys():
+                continue
+            ss.postNext(level, levelStyle)
+            for stat in ('total', 'ave', 'min', 'max'):
+                ss.postNext(round(routeLevelDict[level]['distance'][stat], 2), plainStyle)
+            
+            rTypeCounts = routeLevelDict[level]['routeTypeCount']
+            tTypeCounts = routeLevelDict[level]['vehicleCount']
+            for (routeItem, truckItem) in map(None,
+                                              rTypeCounts.items(),
+                                              tTypeCounts.items()):
+                if routeItem is not None:
+                    ss.postNext(routeItem[0])
+                    ss.postNext(routeItem[1])
+                else:
+                    ss.right(2)
+                if truckItem is not None:
+                    ss.postNext(truckItem[0])
+                    ss.postNext(truckItem[1])
+                else:
+                    ss.right(2)
+                ss.left(4)
+                ss.down()
+
+            ss.cell(column=1)
+
+        ss.nextRow()
         
+        if len(hr.costSummaryRecs) > 0:
+            if isinstance(hr.costSummaryRecs[0], shd.ShdMicro1CostSummaryGrp):
+                summarizeMicroCostLevels(hr, levels, ss)
+
+            elif isinstance(hr.costSummaryRecs[0], shd.ShdLegacyCostSummary):
+                ss.set("legacycostsummary")
+            else:
+                ss.set("unknown cost summary")
+            
+            ss.nextRow()
+
+
+        ss.columnWidth(20, column=1)
+        for i in xrange(2, ss.maxColumn()):
+            ss.columnWidth(15, column=i)
+
+
+
         dev_inventory_sheet = wb.create_sheet(1)
         dev_inventory_sheet.title = _("Level-wise Device Inventory")
+
+        dis = XLCell(dev_inventory_sheet)
+        dis.columnWidth(20, column=1)
+        dis.columnWidth(30, column=2)
+        dis.columnWidth(15, column=3)
+
+
+        dis.mergeCells(3)
+        dis.set(_("Device Inventory by Level"), divider1Style)
+        dis.nextRow()
+        dis.rowHeight(30)
+        for label in (_("Level"), _("Device"), _("Number of Devices")):
+            dis.postNext(label, labelStyle)
         
-        dev_inventory_sheet.merge_cells(start_row=1,end_row=1,start_column=1,end_column=4)
-        dev_inventory_sheet.cell(row=1,column=1).value = _("Device Inventory by Level")
-        dev_inventory_sheet.cell(row=1,column=1).style = divider1Style
+        dis.nextRow()
         
-        dev_inventory_sheet.cell(row=2,column=1).value = _("Level")
-        dev_inventory_sheet.cell(row=2,column=2).value = _("Device")
-        dev_inventory_sheet.cell(row=2,column=3).value = _("Number of Devices")
-        
-        row=3
         inventoryCount = modelJSON['inventoryLevelCount']
         
         for level in levels:
             if level in inventoryCount.keys():
-                dev_inventory_sheet.cell(row=row,column=1).value = level
+                dis.set(level, levelStyle)
                 for dev,count in inventoryCount[level].items():
-                    dev_inventory_sheet.cell(row=row,column=2).value = dev
-                    dev_inventory_sheet.cell(row=row,column=3).value = count
-                    row+=1
+                    dis.next(dev, plainLabelStyle)
+                    dis.next(count, plainStyle)
+                    dis.nextRow()
         
                     
                     
         
         heir_sheet = wb.create_sheet(2)
         heir_sheet.title = "Store Locations"
-        
+
+        hs = XLCell(heir_sheet)
+
         heirInfo = modelJSON['heirarchicalStores']
-        row=2
-        maxDepth = 0
+        hs.nextRow()
+
         for placeDict in heirInfo:
-            col = 1+placeDict['depth']
-            if placeDict['depth'] > maxDepth: maxDepth = placeDict['depth']
-            heir_sheet.cell(row=row,column=col).value = placeDict['name']
-            heir_sheet.cell(row=row,column=col+1).value = placeDict['level']
-            row+=1
-        maxDepth+=1
-        heir_sheet.merge_cells(start_row=1,end_row=1,start_column=1,end_column=1+maxDepth)
-        heir_sheet.cell(row=1,column=1).value = "Storage Locations"
-        heir_sheet.cell(row=1,column=maxDepth+2).value="Latitude"
-        heir_sheet.cell(row=1,column=maxDepth+3).value="Longitude"
-        
-        row=2
-        
+            hs.right(placeDict['depth'])
+            hs.postNext(placeDict['name'], plainLabelStyle)
+            hs.nextRow()
+
+        levCol = hs.maxColumn() + 1
+
+
+        hs.r(1)
+        hs.mergeCells(levCol - 1)
+        hs.set("Storage Locations", divider1Style)
+        hs.c(levCol)
+        hs.postNext("Level", divider1Style)
+        hs.postNext("Latitude", divider1Style)
+        hs.postNext("Longitude", divider1Style)
+        hs.nextRow()
         for placeDict in heirInfo:
-            print "PlaceDict  = " + str(placeDict)
+            dep = placeDict['depth']
+            if dep > 1:
+                hs.mergeCells(dep)
+            hs.right(dep)
+            hs.mergeCells(levCol- dep - 1)
+            hs.c(levCol)
+            hs.postNext(placeDict['level'], plainLabelStyle)
             if placeDict['latitude'] != 0.0 and placeDict['longitude'] != 0.0:
-                heir_sheet.cell(row=row,column=maxDepth+2).value = placeDict['latitude']
-                heir_sheet.cell(row=row,column=maxDepth+3).value = placeDict['latitude']
-                row+=1
+                hs.postNext(placeDict['latitude'], plainLabelStyle)
+                hs.postNext(placeDict['longitude'], plainLabelStyle)
+            hs.nextRow()
+
+        for i in xrange(1,levCol-1):
+            hs.columnWidth(6, column=i)
+        hs.columnWidth(20, column=levCol-1)
+        hs.columnWidth(20, column=levCol)
+        hs.columnWidth(15, column=levCol+1)
+        hs.columnWidth(15, column=levCol+2)
+
+
         with uiSession.getLockedState() as state:
             (fileKey, fullFileName) = \
                 state.fs().makeNewFileInfo(shortName="%s.xlsx" % fname,
@@ -320,6 +561,9 @@ def createExcelSummaryOpenPyXl(db, uiSession):
         return {'success':True, 'xlsfilename':fullFileName}
     
     except Exception as e:
+        print 'Exception: %s'%e
+        traceback.print_exc()
+
         return {'success':False, 'msg':str(e)}
     
 # @bottle.route('/json/create-xls-summary')
@@ -403,7 +647,21 @@ def createExcelSummaryOpenPyXl(db, uiSession):
 #         return {'success':True, 'xlsfilename':fullFileName}
 #     except Exception as e:
 #         return {'success':False, 'msg':str(e)}
-     
+
+
+def summarizeByLevel(hr):
+    deliveryVol = defaultdict(lambda : 0)
+    levelCount = defaultdict(lambda : 0)
+
+    for sr in hr.storesRpts.values():
+        deliveryVol[sr.category] += sr.tot_delivery_vol
+        levelCount[sr.category] += 1
+
+    ret = {}
+    ret['deliveryVol'] = deliveryVol
+    ret['levelCount'] = levelCount
+
+    return ret
 
 @bottle.route('/downloadXLS')
 def downloadXLS(db, uiSession):
@@ -452,4 +710,101 @@ def getNumberOfLocationsFromModel(model):
 def getNumberOfLocationsByLevel(model):
     return model.getLevelCount()
     
+#class Micro1CostModelHierarchicalSummary(CostModelHierarchicalSummary):
+#    costGroups = {'so
+def summarizeMicroCostLevels(hr, levels, ss):
+    costGroups = {'solar': ('s_energy', 's_total', 'total'), #'fuel/power',
+                  'electric': ('s_energy', 's_total', 'total'), #'fuel/power',
+                  'diesel': ('s_energy', 's_total', 'total'), #'fuel/power',
+                  'gasoline': ('t_fuel', 't_total', 'total'), #'fuel/power',
+                  'kerosene': ('s_energy', 's_total', 'total'), #'fuel/power',
+                  'petrol': ('s_energy', 's_total', 'total'), #'fuel/power',
+                  'ice': ('s_energy', 's_total', 'total'), #'fuel/power',
+                  'propane': ('s_energy', 's_total', 'total'), #'fuel/power',
+                  'StaffSalary': ('personnel', 'total'), # 'staff',
+                  'PerDiem': ('t_perdiem', 't_total', 'total'), #'staff',
+                  'TransitFareCost': ('t_fare', 't_total', 'total'), #'staff',
+                  'Vaccines': ('vax', 'total'), #'cargo',
+                  'BuildingCost': ('building', 'total'), #'equipment',
+                  'FridgeAmort': ('s_amort', 's_total', 'total'), #'equipment',
+                  'TruckAmort': ('t_amort', 't_total', 'total'), #'equipment',
+                  'TruckMaint': ('t_maint', 't_total', 'total'), #'equipment',
+                  'FridgeMaint': ('s_maint', 's_total', 'total'), #'equipment',
+                  'SolarMaint': ('s_maint', 's_total', 'total'), #'equipment'
+                  # other things I've found:
+                  'LaborCost':  ('personnel', 'total'),
+                  'Storage': ('s_maint', 's_total', 'total'),
+                  'Transport': ('t_maint', 't_total', 'total'),
+                  }
+
+    columns = (
+        (_("Storage"), ((_("Energy Usage"), 's_energy'),
+                        (_("Equipment Maintenance"), 's_maint'),
+                        (_("Equipment Amortization"), 's_amort'),
+                        (_("Total"), 's_total'))),
+        (_("Transport"), ((_("Fuel Usage"), 't_fuel'),
+                          (_("Vehicle Maintenance"), 't_maint'),
+                          (_("Vehicle Amortization"), 't_amort'),
+                          (_("Fixed Fares"), 't_fare'),
+                          (_("Per Diems"), 't_perdiem'),
+                          (_("Total"), 't_total'))),
+        (_("Personnel"), ((_("Total"), "personnel"),)),
+        (_("Building"), ((_("Total"), "building"),)),
+        (_("Vaccine Procurement"), ((_("Total"), "vax"),)),
+#        (_("Logistics"), # We don't have anything under this heading
+        (_("Total Costs"), ((_("Including Procurement"), 'total'),)),
+        )
+
+    columnCount = 1 # include the row header (level)
+    for h,c in columns:
+        columnCount += len(c)
+
+    ss.mergeCells(columnCount)
+    ss.set(_("Costs By Level"), divider1Style)
+    ss.nextRow()
+    
+    ss.rowHeight(30)
+    ss.postNext("", labelStyleCenter)
+    for h,c in columns:
+        ss.mergeCells(len(c))
+        ss.set(h, labelStyleCenter)
+        ss.right(len(c))
+
+    ss.nextRow()
+    ss.rowHeight(30)
+    ss.postNext("Level", labelStyle)
+    for h, cList in columns:
+        for cHead,data in cList:
+            ss.postNext(cHead, labelStyle)
+ 
+    ss.nextRow()
+
+    levelCsrs = {}
+    for csr in hr.costSummaryRecs:
+        if csr.ReportingBranch in levels:
+            levelCsrs[csr.ReportingBranch] = csr  # make it so I can find this later
+
+    for level in levels:
+        if level not in levelCsrs:
+            continue
+        levelInfo = defaultdict(lambda : 0)
+        unknownCategories = []
+        csr = levelCsrs[level]
+        for ce in csr.costEntries:
+            cc = ce.costCategory
+            if cc.startswith('m1C_'):
+                cc = cc[4:]
+            if cc not in costGroups:
+                unknownCategories.append(cc)
+                continue
+            for grouping in costGroups[cc]:
+                levelInfo[grouping] += ce.cost
+        
+        ss.postNext(level, levelStyle)
+        for h, cList in columns:
+            for cHead, data in cList:
+                ss.postNext(round(levelInfo[data], 2), plainStyle)
+        if len(unknownCategories) > 0:
+            ss.set("unknown categories: %s"%unknownCategories)
+        ss.nextRow()
 

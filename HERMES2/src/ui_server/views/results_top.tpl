@@ -15,6 +15,7 @@
 #                                                                                 #
 ###################################################################################
 -->
+<script type="text/javascript" src="{{rootPath}}static/jquery.fileDownload.js"></script>
 <script src="{{rootPath}}static/hermes-ui-utils.js"></script>
 <script src="{{rootPath}}static/vakata-jstree-841eee8/dist/jstree.min.js"></script>
 <script src="{{rootPath}}static/d3/d3.min.js" charset="utf-8"></script>
