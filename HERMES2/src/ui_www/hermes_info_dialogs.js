@@ -417,6 +417,10 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 									storeId:storId,
 									rootPath:rootPath
 								});
+								
+								$("[aria-controls='tab-9']").click(function(){
+									$("#"+divName+"_AvailPlot").vabarchart("redraw");
+								});
 							}
 						}
 					}

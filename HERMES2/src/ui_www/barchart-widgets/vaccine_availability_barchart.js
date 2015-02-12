@@ -15,7 +15,11 @@
 ###################################################################################
 */
 
+
 ;(function($){
+	var myChart;
+	var x,y;
+	var xlab,ylab;
     $.widget("barcharts.vabarchart",{
         options:{
             scrollable:false,
@@ -33,6 +37,13 @@
     		}
     	},	
  
+    	redraw: function(){
+    		myChart.draw();
+    		x.titleShape.style("font-size","12px").text(xlab);
+			y.titleShape.style("font-size","12px").text(ylab);
+    		
+    	},
+
     	_create: function(){
     		trant = this.option.trant;
 	
@@ -40,12 +51,17 @@
 			var containerID = this.containerID;
 			//$("#"+this.containerID).css('width',this.options.width);
 			//$("#"+this.containerID).css('height',this.options.height);
+			
+			$("#"+this.containerID).append("<div class='barChartWidget_ylabel' id='"+ y_labelID + "'"+
+				"style='position:absolute;left:0px;top:80px;-ms-transform:rotate(270deg);-moz-transform:rotate(270deg);-webkit-transform:rotate(270deg);-o-transform:rotate(270deg);'></div>");
+			
 			var modelId = this.options.modelId;
 			var resultsId = this.options.resultsId;
 			var storeId = this.options.storeId;
 			var rootPath = this.options.rootPath;
 			var width = this.options.width;
 			var height = this.options.height;
+			var y_labelID = this.containerID + "_y_label";
 			
 			var margin = {'top':this.options.margin[0],
 			              'bottom':this.options.margin[1], 
@@ -63,7 +79,8 @@
 			translate_phrases(phrases)
 				.done(function(tphrases){
 					var tp = tphrases.translated_phrases;
-					
+					xlab = tp[0];
+					ylab = tp[1];
 					$.ajax({
 						url:rootPath+'json/get-vaccine-availability-plot-for-store',
 						dataytpe:'json',
@@ -79,7 +96,7 @@
 						}
 						else{
 							var svg = dimple.newSvg("#"+containerID,width,height);
-							var myChart = new dimple.chart(svg,result.dataList);
+							myChart = new dimple.chart(svg,result.dataList);
 							var b = myChart.setBounds(
 									                  margin.left,
 									                  margin.top,
@@ -87,13 +104,13 @@
 									                  height - margin.bottom
 													  );
 							
-							var x = myChart.addMeasureAxis("x","value");
+							x = myChart.addMeasureAxis("x","value");
 							x.overrideMin = 0.0;
 							x.overrideMax = 1.0;
 							x.ticks = 5;
 							x.tickFormat = "%";
 							
-							var y = myChart.addCategoryAxis('y','label');
+							y = myChart.addCategoryAxis('y','label');
 							y.addOrderRule(result.data.categories,true);
 							var ser = myChart.addSeries(null,dimple.plot.bar);
 							ser.barGap = 0.5;
@@ -132,6 +149,8 @@
 										}
 									});
 							});
+							
+							$("#"+y_labelID).html("<p style='font-size:14px;'>"+tp[1]+"</p>");
 						}
 					});
 				});	
