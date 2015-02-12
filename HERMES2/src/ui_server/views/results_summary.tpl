@@ -15,7 +15,6 @@
 #                                                                                 #
 ###################################################################################
 -->
-<script type="text/javascript" src="{{rootPath}}static/Highcharts-3.0.5/js/highcharts.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/jquery.fileDownload.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/results-widgets/summary.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/results-widgets/vaccine_availability_by_cohort.js"></script>

@@ -1,7 +1,0 @@
-Used on the non-commercial license of Highcharts under the Creative Commons Attibution NonCommercial 3.0 license.
-
-A copy of the license can be found at: http://shop.highsoft.com/faq/non-commercial#non-commercial-redistribution
-
-Under no circumstances can this software be used for commercial purposes without expressed consent of Highsoft Inc.
-
-No modifications to the code were made.

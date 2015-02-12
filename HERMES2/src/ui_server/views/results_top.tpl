@@ -17,7 +17,8 @@
 -->
 <script src="{{rootPath}}static/hermes-ui-utils.js"></script>
 <script src="{{rootPath}}static/vakata-jstree-841eee8/dist/jstree.min.js"></script>
-<script type="text/javascript" src="{{rootPath}}static/Highcharts-3.0.5/js/highcharts.js"></script>
+<script src="{{rootPath}}static/d3/d3.min.js" charset="utf-8"></script>
+<script src="{{rootPath}}static/dimple.v2.1.2/dimple.v2.1.2.min.js"></script>
 <link rel="stylesheet" href="{{rootPath}}static/vakata-jstree-841eee8/dist/themes/default/style.min.css"/>
 <script type="text/javascript" src="{{rootPath}}static/results-widgets/summary.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/results-widgets/vaccine_availability_by_cohort.js"></script>

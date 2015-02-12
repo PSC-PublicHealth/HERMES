@@ -24,7 +24,8 @@
 <link rel="stylesheet" href="{{rootPath}}static/linechart-widgets/linechart.css"/>
 <script src="{{rootPath}}static/rickshaw-master/rickshaw.js"></script>
 <script src="{{rootPath}}static/linechart-widgets/linechart.js"></script>
-<script type="text/javascript" src='{{rootPath}}static/Highcharts-3.0.5/js/highcharts.js'></script>
+<script src="{{rootPath}}static/dimple.v2.1.2/dimple.v2.1.2.min.js"></script>
+<script src="{{rootPath}}static/barchart-widgets/vaccine_availability_barchart.js"></script>
 
 <script>
 

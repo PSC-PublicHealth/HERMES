@@ -16,8 +16,6 @@
 ###################################################################################
 -->
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript" src='{{rootPath}}static/Highcharts-3.0.5/js/highcharts.js'></script>
-
 <script type="text/javascript" src='{{rootPath}}static/google_earth.js'></script>
 
 <script>
