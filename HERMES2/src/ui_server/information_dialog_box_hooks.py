@@ -421,7 +421,7 @@ def generateFillRatioTimeForStore(db,uiSession):
                      'msg':str(e)}
             return result 
         
-@bottle.route('/json/get-vaccine-stats-for-store') 
+@bottle.route('/json/get-vaccine-stats-for-store',method='post') 
 def generateVaccineStatsForStoreJSON(db,uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
@@ -536,6 +536,7 @@ def generateVaccineAvailabilityPlotForStore(db,uiSession):
                 vacDict['allvax']['vials']    += n.vials
         
         
+        newList = []
         keys = sorted([x for x in vacDict.keys() if x != "allvax"])
         categories = [vacDict[x]['name'] for x in keys]
         categories.append("All Vaccines")
@@ -544,10 +545,15 @@ def generateVaccineAvailabilityPlotForStore(db,uiSession):
         if vacDict['allvax']['patients'] > 0.0:
             allav = float(vacDict['allvax']['treated'])/float(vacDict['allvax']['patients'])*100.0
     
-        data.append({"y":allav,"color":"red"})
+        data.append(allav)
         
+        for i in range(0,len(categories)):
+            print data[i]
+            newList.append({'label':categories[i],'value':data[i]/100.0})
+            
         return {
                 'data':{'categories':categories,'plotData':data},
+                'dataList':newList,
                 'success':True
                 }
         

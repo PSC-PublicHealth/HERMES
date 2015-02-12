@@ -24,8 +24,8 @@
             resultsId:-1,
             storeId:-1,
             vials:true,
-            width:800,
-            height:300,
+            width:600,
+            height:200,
             hideAllButTotal:true,
             rootPath:'',
             trant:{
@@ -38,8 +38,9 @@
 		
 			this.containerID = $(this.element).attr('id');
 			var containerID = this.containerID;
-			$("#"+this.containerID).css('width',800);
-			$("#"+this.containerID).css('height',300);
+			$("#"+this.containerID).css('width',"600px");
+			$("#"+this.containerID).css('height',"200px");
+			$("#"+this.containerID).css('margin-top',"30px");
 			
 			var chartID = this.containerID + "_chart";
 			var y_axisID = this.containerID + "_y_axis";
@@ -53,10 +54,10 @@
 			
 			
 			$("#"+this.containerID).append("<div class='linechartWidget_y_axis' id='" + y_axisID + "'"+
-				" style='position:absolute;top:0;bottom:0;left:20px;width:60px;'></div>");
+				" style='position:absolute;z-index:10;top:0;bottom:0;left:20px;width:60px;'></div>");
 			
 			$("#"+this.containerID).append("<div class='linechartWidget_ylabel' id='"+ y_labelID + "'"+
-				"style='position:absolute;left:-10px;top:105px;-ms-transform:rotate(270deg);-moz-transform:rotate(270deg);-webkit-transform:rotate(270deg);-o-transform:rotate(270deg);'></div>");
+				"style='position:absolute;left:0px;top:80px;-ms-transform:rotate(270deg);-moz-transform:rotate(270deg);-webkit-transform:rotate(270deg);-o-transform:rotate(270deg);'></div>");
 			
 			$("#"+this.containerID).append("<div class='linechartWidget_chart' id='" + chartID + "'"+
 				" style='position:relative;left:80px;'></div>");
@@ -65,9 +66,9 @@
 				"style='position:absolute;left:80px;height:80px;'></div>");
 			
 			$("#"+this.containerID).append("<div class='linechartWidget_xlabel' id='"+ x_labelID + "'"+
-				"style='position:absolute;left:420px;bottom:40px;'></div>");
+				"style='position:absolute;left:220px;bottom:10px;'></div>");
 			$("#"+this.containerID).append("<div class='linechartWidget_legend' id='" + legendID + "'"+
-				"style='position:absolute;top:-10px;left:880px;color:black;background-color:white; display:inline-block;"+
+				"style='position:absolute;top:10px;left:600px;color:black;background-color:white; display:inline-block;"+
 				"vertical-align:top;margin:0 0 0 10px;'></div>");
 				
 			this.svgContainerID = this.containerID+"svgContainer";
@@ -122,8 +123,8 @@
 								interpolation:'step-after',
 								stroke:true,
 								preserve: true,
-								width:800,
-								height:200,
+								width:500,
+								height:150,
 								min:0,
 								series: seriesData
 							});
@@ -190,7 +191,7 @@
 							
 							//setting Css here, cause I have no fucking idea how else to do it.
 							$("#"+legendID+" .action").css('opacity',1.0);
-							
+							$('#'+y_axisID +' svg').css('height',parseFloat($('#'+y_axisID + ' svg').attr("height"))+10 + "px")
 							var hideallbutTotsl = $("#"+legendID+" .label")[0].click();
 
 						}

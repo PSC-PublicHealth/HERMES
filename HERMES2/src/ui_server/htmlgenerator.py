@@ -977,7 +977,7 @@ def getStoreDialogHTML(db,uiSession,name="model_store_dialog",buttonName=None,ge
         stringList.append("<div id='tab-%d'><table id='%s_Availability'></table></div>"%(tabCount,name))
         tabCount += 1
     if availPlot:
-        stringList.append("<div id='tab-%d'><table id='%s_AvailPlot'></table></div>"%(tabCount,name))
+        stringList.append("<div id='tab-%d'><div id='%s_AvailPlot' style='position:relative;'></div></div>"%(tabCount,name))
         tabCount += 1
     stringList.append("</div>")
     stringList.append("</div>")

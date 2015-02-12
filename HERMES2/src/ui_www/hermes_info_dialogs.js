@@ -330,66 +330,96 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 			type:"post",
 			async:false,
 			success:function(data){
-				$("#"+divName+"_Availability").jqGrid({
+				$.ajax({
 					url:rootPath + 'json/get-vaccine-stats-for-store',
-					postData:{modelId:modId,storeId:storId,resultsId:resId},
 					datatype:'json',
-					jsonReader: {
-						repeatitems: false,
-						root: 'rows',
-						page: function(obj){console.log("OBJ = " + obj); return 1;}
-					},
-					height : 'auto',
-					width : 'auto',
-					scroll : false,
-					scrollOffset : 0,
-					colNames : data.translated_phrases.slice(0,7),
-					colModel : [{
-						name : 'name',
-						id : 'name',
-						jsonmap: 'name',
-						width: 300,
-					}, {
-						name : 'patients',
-						id : 'patients',
-						jsonmap:'patients',
-						align : 'right',
-						width : 100
-					}, {
-						name : 'treated',
-						id : 'treated',
-						jsonmap:'treated',
-						align : 'right',
-						width : 100
-					}, {
-						name : 'vials',
-						id : 'vials',
-						jsonmap:'vials',
-						align : 'right',
-						width : 100
-					}, {
-						name : 'outages',
-						id : 'outages',
-						jsonmap:'outages',
-						align : 'right',
-						width : 75
-					}, {
-						name: 'expired',
-						id : 'expired',
-						jsonmap:'expired',
-						align : 'right',
-						width : 75
-					}, {
-						name : 'avail',
-						id : 'avail',
-						jsonmap:'avail',
-						align : 'right',
-						formatter : "number",
-						formatoptions : {
-							decimalPlaces : 2
+					data:{'modelId':modId,
+						  'storeId':storId,
+						  'resultsId':resId},
+					method:'post'
+				})
+				.done(function(result){
+					if(!result.success){
+						alert(result.msg);
+					}
+					else{
+						if(result.rows[0].name == "All Vaccines" && result.rows[0].patients == 0){
+							$("[aria-controls='tab-8']").remove();
+							$("[aria-controls='tab-9']").remove();
 						}
-					}],
-					caption : data.translated_phrases[7]
+						else{
+							$("#"+divName+"_Availability").jqGrid({
+								//url:rootPath + 'json/get-vaccine-stats-for-store',
+								//postData:{modelId:modId,storeId:storId,resultsId:resId},
+								datastr:result,
+								datatype:'jsonstring',
+								jsonReader: {
+									repeatitems: false,
+									root: 'rows',
+									page: function(obj){console.log("OBJ = " + obj); return 1;}
+								},
+								height : 'auto',
+								width : 'auto',
+								scroll : false,
+								scrollOffset : 0,
+								colNames : data.translated_phrases.slice(0,7),
+								colModel : [{
+									name : 'name',
+									id : 'name',
+									jsonmap: 'name',
+									width: 300,
+								}, {
+									name : 'patients',
+									id : 'patients',
+									jsonmap:'patients',
+									align : 'right',
+									width : 100
+								}, {
+									name : 'treated',
+									id : 'treated',
+									jsonmap:'treated',
+									align : 'right',
+									width : 100
+								}, {
+									name : 'vials',
+									id : 'vials',
+									jsonmap:'vials',
+									align : 'right',
+									width : 100
+								}, {
+									name : 'outages',
+									id : 'outages',
+									jsonmap:'outages',
+									align : 'right',
+									width : 75
+								}, {
+									name: 'expired',
+									id : 'expired',
+									jsonmap:'expired',
+									align : 'right',
+									width : 75
+								}, {
+									name : 'avail',
+									id : 'avail',
+									jsonmap:'avail',
+									align : 'right',
+									formatter : "number",
+									formatoptions : {
+										decimalPlaces : 2
+									}
+								}],
+								caption : data.translated_phrases[7]
+							});
+							if(meta['availPlot']){
+								$("#"+divName+"_AvailPlot").vabarchart({
+									modelId:modId,
+									resultsId:resId,
+									storeId:storId,
+									rootPath:rootPath
+								});
+							}
+						}
+					}
 				});
 			}
 		});
@@ -412,29 +442,8 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 			rootPath:rootPath,
 			vials:false
 		});
-	/*
-	$.ajax({
-		url:rootPath + 'json/get-fill-ratio-time-for-store',
-		dataType:'json',
-		data:{'modelId':modId,'storeId':storId,'resultsId':resId},
-		success:function(data){
-			//console.log(data.data);
-			createFillRatioPlot(divName+"_FillPlot",data.data);
-			}
-		});	
-	*/
 	}
-	if(meta['availPlot']){
-		$.ajax({
-			url:rootPath + 'json/get-vaccine-availability-plot-for-store',
-			dataType:'json',
-			data:{'modelId':modId,'storeId':storId,'resultsId':resId},
-			success:function(data){
-				console.log(data.data);
-				createVaccineAvailPlot(divName+"_AvailPlot",data.data);
-			}
-		});
-	}
+	
 }
 
 function populateRouteInfoDialog(rootPath,divName,meta,modId,rouId,resId){
