@@ -3054,13 +3054,24 @@ class ShdTruckType(ShdType):
     def __init__(self, *args, **kwargs):
         _initShdType(self, args, kwargs)
     
-    #def getNetStorageCapacity(self):
-    #    returnVolDict = {'cooler':0.0,'freezer':0.0}
-    #    returnVolDict['cooler'] += self.CoolVolumeCC
-    #    for 
-        
     def copy(self):
         return ShdTruckType(self.createRecord())
+
+    def totalCoolVolume(self, model):
+        # returns total cooler volume of vehicle in liters
+        vol = float(self.CoolVolumeCC) / 1000.0
+        
+        invList = parseInventoryString(self.Storage)
+        for count, inv in invList:
+            addVol = 0.0
+            # this gets a basic storage type
+            # is there any other types a truck might be carrying that we want to add?
+            try: addVol = float(model.types[inv].cooler)
+            except: pass
+            vol += addVol * count
+
+        return vol
+
 
 _makeColumns(ShdTruckType)
 

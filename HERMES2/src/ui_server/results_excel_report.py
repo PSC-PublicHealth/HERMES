@@ -252,18 +252,71 @@ plainLabelStyle = Style(font=Font(bold=False),
                         alignment=Alignment(horizontal='left',
                                             vertical='center'))     
 
+def preprocessCostRows(hr):
+    csrs = hr.costSummaryRecs
+
+    topEntries = {}
+    allEntries = {}
+    routeEntries = {}
+    storeEntries = {}
+
+    currency = None
+    year = None
+
+
+    for csr in csrs:
+        if currency is None:
+            currency = csr.Currency
+        else:
+            assert currency == csr.Currency, "cost summary currencies aren't consistent"
+        if year is None:
+            year = csr.BaseYear
+        else:
+            assert year == csr.BaseYear, "cost summary base years aren't consistent"
+        rl = csr.ReportingLevel
+        rb = csr.ReportingBranch
+        if rl == '-top-':
+            topEntries[rb] = csr
+        elif rl == 'all':
+            allEntries[rb] = csr
+        elif rb.startswith('loc: '):
+            (x, paren, loc) = rb.rpartition('(')
+            assert paren == '(', "invalid cost summary rec: %s"%csr
+            (loc, paren, x) = loc.partition(')')
+            assert paren == ')', "invalid cost summary rec: %s"%csr
+            loc = long(loc)
+            storeEntries[loc] = csr
+        elif rb.startswith('rt: '):
+            rt = rb[4:]
+            routeEntries[rt] = csr
+        else:
+            assert False, "unknown cost summary rec type: %s"%csr
+        
+    return {'top' : topEntries,
+            'all' : allEntries,
+            'route' : routeEntries,
+            'store' : storeEntries,
+            'currency' : currency,
+            'year' : year }
+
+
+
 
 @bottle.route('/json/create-xls-summary-openpyxl')
 def createExcelSummaryOpenPyXl(db, uiSession):
-    print "I got here!"
     try:
         modelJSON = createModelSummaryWSCall(db, uiSession)
         fname = _safeGetReqParam(bottle.request.params, 'filename', isInt=False)
         modelId = _safeGetReqParam(bottle.request.params, 'modelId', isInt=False)
         resultsId = _safeGetReqParam(bottle.request.params, 'resultsId', isInt=False)
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        #hr = m.getResultById(resultsId)
         hr = db.query(shd.HermesResults).filter(shd.HermesResults.resultsId==resultsId).one()
 
         levelSummary = summarizeByLevel(hr)
+        costs = preprocessCostRows(hr)
+        srs = hr.storesRpts
 
     except Exception as e:
         print 'Exception: %s'%e
@@ -274,8 +327,6 @@ def createExcelSummaryOpenPyXl(db, uiSession):
         wb = Workbook()
         summary_sheet = wb.create_sheet(0)
         summary_sheet.title = "Model Summary"
-        #summary_sheet.row_dimensions[1] = RowDimension(height=22.0)
-        #summary_sheet.row_dimensions[4] = RowDimension(height=30.0)
 
         ss = XLCell(summary_sheet)
 
@@ -293,12 +344,14 @@ def createExcelSummaryOpenPyXl(db, uiSession):
         
         ss.nextRow()
 
-        levels = modelJSON['orderedLevelList']
+        #levels = modelJSON['orderedLevelList']
+        #levels = m.getLevelList()
+        levels = m.getParameterValue('levellist')
         levelCount = modelJSON['fixedLocationCount']
         vaccLevelCount = modelJSON['vaccinationLocationCount']
         
-        ss.rowHeight(30)
-        headers = ["Level", "Total", "Vaccinating", "Average Peak Storage", "Total Volume"]
+        ss.rowHeight(45)
+        headers = ["Level", "Total", "Vaccinating", "Average Peak Storage Utilization", "Total Volume Delivered (L)"]
         for header in headers:
             ss.postNext(header, labelStyle)
 
@@ -312,38 +365,52 @@ def createExcelSummaryOpenPyXl(db, uiSession):
                     ss.postNext(vaccLevelCount[level], plainStyle)
                 else:
                     ss.postNext(0, plainStyle)
+                ss.postNext(round(levelSummary['averagePeakUtilization'][level], 3), plainStyle)
+                ss.postNext(round(levelSummary['deliveryVol'][level], 3), plainStyle)
+                #ss.postNext(levelSummary['coolerVol'][level], plainStyle)
+                #ss.postNext(levelSummary['usedCoolerVol'][level], plainStyle)
                 ss.nextRow()
 
         ss.postNext(_("All Levels"), levelTotalStyle)
         ss.postNext(levelCount['Total'], totalStyle)
         ss.postNext(vaccLevelCount['Total'], totalStyle)
-        
-        vCols = [(_("Vaccine"), "Name"),
-                 (_("Availability"), "SupplyRatio"),
-                 (_("Doses Needed"), "Applied"),
-                 (_("Doses Received"), "Treated"),
-                 (_("Open Vial Waste"), "OpenVialWasteFrac"),
-                 (_("Vials Opened"), "VialsUsed"),
-                 (_("Vials Procured"), "VialsCreated"),
-                 (_("Vials Spoiled"), "VialsExpired"),
+        ss.postNext(round(levelSummary['averagePeakUtilization']['Total'],3), totalStyle)
+        ss.postNext(round(levelSummary['deliveryVol']['Total'], 3), totalStyle)
+        #ss.postNext(levelSummary['coolerVol']['Total'], totalStyle)
+        #ss.postNext(levelSummary['usedCoolerVol']['Total'], totalStyle)
+        vCols = [(_("Vaccine"), "Name", 'text'),
+                 (_("Availability"), "SupplyRatio", '%'),
+                 (_("Doses Needed"), "Applied", None),
+                 (_("Doses Received"), "Treated", None),
+                 (_("Open Vial Waste"), "OpenVialWasteFrac", '%'),
+                 (_("Vials Opened"), "VialsUsed", None),
+                 (_("Vials Procured"), "VialsCreated", None),
+                 (_("Vials Spoiled"), "VialsExpired", None),
                  #(_("Vials Broken"), "VialsBroken"),
-                 (_("% Stored 2 to 8 C"), "coolerStorageFrac"),
-                 (_("% Stored Below 2 C"), "freezerStorageFrac")]
+                 (_("% Stored 2 to 8 C"), "coolerStorageFrac", '%'),
+                 (_("% Stored Below 2 C"), "freezerStorageFrac", '%')]
         ss.nextRow()
         ss.nextRow()
         ss.mergeCells(len(vCols))
         ss.set(_("Vaccine Statistics"), divider1Style)
         ss.nextRow()
         ss.rowHeight(30)
-        for header, attr in vCols:
+        for header, attr, fmt in vCols:
             ss.postNext(header, labelStyle)
         ss.nextRow()
             
         for rec in hr.summaryRecs.values():
             if not isinstance(rec, shd.ShdVaccineSummary):
                 continue
-            for header, attr in vCols:
-                ss.postNext(getattr(rec, attr), plainStyle)
+            for header, attr, fmt in vCols:
+                val = getattr(rec, attr)
+                if fmt == '%':
+                    val = round(100.0 * val, 3)
+                style = plainStyle
+                if fmt == 'text':
+                    style = plainLabelStyle
+
+                ss.postNext(val, style)
             ss.nextRow()
 
 
@@ -402,7 +469,7 @@ def createExcelSummaryOpenPyXl(db, uiSession):
         ss.nextRow()
         row = ss.r()
         col=1
-        ss.mergeCells(9)
+        ss.mergeCells(10)
         ss.set(_("Transport Route Statistics"), divider2Style)
         ss.nextRow()
         row+=1
@@ -416,17 +483,19 @@ def createExcelSummaryOpenPyXl(db, uiSession):
         ss.mergeCells(2)
         ss.set(_("Route Types"), labelStyleCenter)
         ss.right(2)
-        ss.mergeCells(2)
+        ss.mergeCells(3)
         ss.set(_("Vehicles"), labelStyleCenter)
         ss.nextRow()
 
         for label in (_("Level"), 
                       _("Total"), _("Average"), _("Minimum"), _("Maximum"),
                       _("Type"), _("Count"),
-                      _("Type"), _("Count")):
+                      _("Type"), _("Count"), _("Average Peak % Capacity Needed")):
             ss.postNext(label, labelStyle)
 
         ss.nextRow()
+        
+        truckLevelSummary = summarizeTrucksByLevel(m, hr)
 
         for level in levels:
             if level not in routeLevelDict.keys():
@@ -448,9 +517,16 @@ def createExcelSummaryOpenPyXl(db, uiSession):
                 if truckItem is not None:
                     ss.postNext(truckItem[0])
                     ss.postNext(truckItem[1])
+                    try:
+                        fill = truckLevelSummary['fill'][level][truckItem[0]]
+                        count = truckLevelSummary['count'][level][truckItem[0]]
+                        fillPercent = round(fill * 100.0 / count, 3)
+                    except:
+                        fillPercent = ""
+                    ss.postNext(fillPercent)
                 else:
-                    ss.right(2)
-                ss.left(4)
+                    ss.right(3)
+                ss.left(5)
                 ss.down()
 
             ss.cell(column=1)
@@ -459,7 +535,7 @@ def createExcelSummaryOpenPyXl(db, uiSession):
         
         if len(hr.costSummaryRecs) > 0:
             if isinstance(hr.costSummaryRecs[0], shd.ShdMicro1CostSummaryGrp):
-                summarizeMicroCostLevels(hr, levels, ss)
+                summarizeMicroCostLevels(costs, levels, ss)
 
             elif isinstance(hr.costSummaryRecs[0], shd.ShdLegacyCostSummary):
                 ss.set("legacycostsummary")
@@ -471,7 +547,7 @@ def createExcelSummaryOpenPyXl(db, uiSession):
 
         ss.columnWidth(20, column=1)
         for i in xrange(2, ss.maxColumn()):
-            ss.columnWidth(15, column=i)
+            ss.columnWidth(16, column=i)
 
 
 
@@ -513,43 +589,352 @@ def createExcelSummaryOpenPyXl(db, uiSession):
 
         heirInfo = modelJSON['heirarchicalStores']
         hs.nextRow()
+        hs.nextRow()
+        hs.nextRow()
 
         for placeDict in heirInfo:
             hs.right(placeDict['depth'])
             hs.postNext(placeDict['name'], plainLabelStyle)
             hs.nextRow()
 
-        levCol = hs.maxColumn() + 1
+        levCol = hs.maxColumn()
 
+        mcd = MicroCostDisplay('stores')
+        
 
         hs.r(1)
-        hs.mergeCells(levCol - 1)
-        hs.set("Storage Locations", divider1Style)
-        hs.c(levCol)
-        hs.postNext("Level", divider1Style)
-        hs.postNext("Latitude", divider1Style)
-        hs.postNext("Longitude", divider1Style)
+        hs.mergeCells(levCol + 7)
+        hs.set(_("Storage Locations"), divider1Style)
+        hs.c(levCol+8)
+        hs.mergeCells(mcd.columnCount)
+        hs.set(_("Costs") + " (%s %s)"%(costs['year'], costs['currency']), divider1Style)
         hs.nextRow()
+        hs.rowHeight(30)
+        hs.mergeCells(levCol,2)
+        hs.set("Name", labelStyleCenter)
+        hs.c(levCol+1)
+        headers = (_("Level"), _("ID Code"), 
+                   _("Latitude"), _("Longitude"),
+                   _("Total Volume Delivered"),
+                   _("Peak Storage Utilization"),
+                   _("Vaccine Availability"),)
+        
+                   #_("Energy Usage"),
+                   #_("Equipment Maintenance"),
+                   #_("Equipment Amortization"),
+                   #_("Building"),
+                   #_("Personnel"),
+                   #_("Vaccine Procurement"),
+                   #_("TOTAL"))
+
+        for header in headers:
+            hs.mergeCells(1, 2)
+            hs.postNext(header, labelStyleCenter)
+
+        costsCol = hs.c()
+        mcd.topHeaders(hs, labelStyleCenter)
+        hs.nextRow()
+        
+        hs.rowHeight(30)
+        hs.c(costsCol)
+        mcd.detailHeaders(hs, labelStyle)
+        hs.nextRow()
+
         for placeDict in heirInfo:
+            code = placeDict['idcode']
             dep = placeDict['depth']
             if dep > 1:
                 hs.mergeCells(dep)
             hs.right(dep)
-            hs.mergeCells(levCol- dep - 1)
-            hs.c(levCol)
+            hs.mergeCells(levCol- dep)
+            hs.c(levCol+1)
             hs.postNext(placeDict['level'], plainLabelStyle)
+            hs.postNext(code, plainLabelStyle)
             if placeDict['latitude'] != 0.0 and placeDict['longitude'] != 0.0:
-                hs.postNext(placeDict['latitude'], plainLabelStyle)
-                hs.postNext(placeDict['longitude'], plainLabelStyle)
+                hs.postNext(placeDict['latitude'], plainStyle)
+                hs.postNext(placeDict['longitude'], plainStyle)
+            else:
+                hs.next()
+                hs.next()
+
+            if code in srs:
+                sr = srs[code]
+                hs.postNext(round(sr.tot_delivery_vol, 3), plainStyle)
+                if 'cooler' in sr.storage and sr.storage['cooler'].vol > 0.0:
+                    cooler = sr.storage['cooler']
+                    hs.postNext(round(cooler.fillRatio * 100.0, 3), plainStyle)
+                else:
+                    hs.next()
+                patients = 0
+                treated = 0
+                for vr in sr.vax.values():
+                    patients += vr.patients
+                    treated += vr.treated
+                if patients == 0:
+                    hs.next()
+                else:
+                    hs.postNext(round(100.0 * treated / patients, 3), plainStyle)
+            else:
+                hs.next()
+                hs.next()
+
+            if code in costs['store']:
+                mcd.detailRow(hs, costs['store'][code], plainStyle)
+            
+
             hs.nextRow()
 
-        for i in xrange(1,levCol-1):
+        for i in xrange(1,levCol):
             hs.columnWidth(6, column=i)
-        hs.columnWidth(20, column=levCol-1)
         hs.columnWidth(20, column=levCol)
-        hs.columnWidth(15, column=levCol+1)
-        hs.columnWidth(15, column=levCol+2)
+        hs.columnWidth(20, column=levCol+1)
+        for i in xrange (levCol+2, hs.maxColumn()+1):
+            hs.columnWidth(16, column=i)
 
+
+        route_sheet = wb.create_sheet(3)
+        route_sheet.title = "Routes"
+        rs = XLCell(route_sheet)
+        mcd = MicroCostDisplay('routes')
+
+        rs.mergeCells(8) # need to set this
+        rs.set(_("Transport Routes"), divider1Style)
+        rs.right(8)
+        rs.mergeCells(mcd.columnCount)
+        rs.set(_("Costs") + " (%s %s)"%(costs['year'], costs['currency']), divider1Style)
+        rs.nextRow()
+
+        rs.mergeCells(1, 2)
+        rs.postNext(_('Route'), labelStyle)
+        rs.mergeCells(2)
+        rs.postNext(_('Supplier'), labelStyleCenter)
+        rs.next()
+        rs.mergeCells(2)
+        rs.postNext(_('Recipient'), labelStyleCenter)
+        rs.next()
+        rs.mergeCells(1, 2)
+        rs.postNext(_('Vehicle'), labelStyle)
+        rs.mergeCells(1, 2)
+        rs.postNext(_('Trips'), labelStyle)
+        rs.mergeCells(1, 2)
+        rs.postNext(_('Peak % Capacity Needed'), labelStyle)
+
+        costsCol = rs.c()
+        mcd.topHeaders(rs, labelStyle)
+        rs.nextRow()
+
+        rs.rowHeight(30)
+        rs.next()
+        rs.postNext(_('Name'), labelStyle)
+        rs.postNext(_('Level'), labelStyle)
+        rs.postNext(_('Name'), labelStyle)
+        rs.postNext(_('Level'), labelStyle)
+        rs.c(costsCol)
+        mcd.detailHeaders(rs, labelStyle)
+        rs.nextRow()
+
+        rRpts = hr.routesRpts
+
+        for routeId, route in m.routes.items():
+            if route.Type == "attached":
+                continue
+
+            rs.postNext(routeId, levelStyle)
+            supplier = route.supplier()
+            clients = route.clients()
+
+            rs.postNext(supplier.NAME, plainStyle)
+            rs.postNext(supplier.CATEGORY, plainStyle)
+            rs.postNext(clients[0].NAME, plainStyle)
+            rs.postNext(clients[0].CATEGORY, plainStyle)
+            rs.postNext(route.TruckType, plainStyle)
+            if routeId in rRpts:
+                rpt = rRpts[routeId]
+                rs.postNext(rpt.RouteTrips, plainStyle)
+                rs.postNext(round(rpt.RouteFill*100.0,3), plainStyle)
+            else:
+                rs.next()
+                rs.next()
+            if routeId in costs['route']:
+                mcd.detailRow(rs, costs['route'][routeId], plainStyle)
+            rs.nextRow()
+            for i in xrange(1, len(clients)):
+                rs.c(4)
+                rs.postNext(clients[i].NAME, plainStyle)
+                rs.postNext(clients[i].CATEGORY, plainStyle)
+                rs.nextRow()
+
+        for i in xrange(1, 7):
+            rs.columnWidth(20, column=i)
+        for i in xrange(7, rs.maxColumn()):
+            rs.columnWidth(16, column=i)
+        
+        storage_sheet = wb.create_sheet(4)
+        storage_sheet.title = "Storage Devices"
+        s = XLCell(storage_sheet)
+        
+        s.mergeCells(9)
+        s.set(_("Storage Devices"), divider1Style)
+        s.nextRow()
+
+        s.mergeCells(1,2)
+        s.postNext(_("Device"), labelStyle)
+        s.mergeCells(2)
+        s.postNext(_("Net Capacity (L)"), labelStyleCenter)
+        s.next()
+        s.mergeCells(3)
+        s.postNext(_("Price"), labelStyleCenter)
+        s.next()
+        s.next()
+        s.mergeCells(1,2)
+        s.postNext(_("Amortization Years"), labelStyle)
+        s.mergeCells(2)
+        s.postNext(_("Energy"), labelStyleCenter)
+        s.nextRow()
+
+        s.rowHeight(30)
+        s.next()
+        s.postNext(_("2 to 8 C"), labelStyle)
+        s.postNext(_("Below 2 C"), labelStyle)
+        s.postNext(_("Amount"), labelStyle)
+        s.postNext(_("Currency"), labelStyle)
+        s.postNext(_("Year"), labelStyle)
+        s.next()
+        s.postNext(_("Usage"), labelStyle)
+        s.postNext(_("Units"), labelStyle)
+        s.nextRow()
+
+        for f in m.fridges.values():
+            s.postNext(f.Name, plainStyle)
+            s.postNext(f.cooler, plainStyle)
+            s.postNext(f.freezer, plainStyle)
+            s.postNext(f.BaseCost, plainStyle)
+            s.postNext(f.BaseCostCurCode, plainStyle)
+            s.postNext(f.BaseCostYear, plainStyle)
+            s.postNext(f.AmortYears, plainStyle)
+            s.postNext(f.PowerRate, plainStyle)
+            s.postNext(f.PowerRateUnits, plainStyle)
+            s.nextRow()
+
+        s.columnWidth(20, column=1)
+        for i in xrange(2, rs.maxColumn()):
+            s.columnWidth(12, column=i)
+
+
+        vehicle_sheet = wb.create_sheet(5)
+        vehicle_sheet.title = "Vehicles"
+        s = XLCell(vehicle_sheet)
+
+        s.mergeCells(9)
+        s.set(_("Vehicles"), divider1Style)
+        s.nextRow()
+
+
+        s.mergeCells(1,2)
+        s.postNext(_("Vehicle"), labelStyle)
+        s.mergeCells(1,2)
+        s.postNext(_("2-8 C Capacity (L)"), labelStyle)
+        s.mergeCells(3)
+        s.postNext(_("Price"), labelStyleCenter)
+        s.next()
+        s.next()
+        s.mergeCells(1,2)
+        s.postNext(_("Amortization km"), labelStyle)
+        s.mergeCells(3)
+        s.postNext(_("Fuel"), labelStyleCenter)
+        s.nextRow()
+
+        s.rowHeight(30)
+        s.next()
+        s.next()
+        s.postNext(_("Amount"), labelStyle)
+        s.postNext(_("Currency"), labelStyle)
+        s.postNext(_("Year"), labelStyle)
+        s.next()
+        s.postNext(_("Type"), labelStyle)
+        s.postNext(_("Usage"), labelStyle)
+        s.postNext(_("Units"), labelStyle)
+        s.nextRow()
+
+        for t in m.trucks.values():
+            s.postNext(t.Name, plainStyle)
+            s.postNext(t.totalCoolVolume(m), plainStyle)
+            s.postNext(t.BaseCost, plainStyle)
+            s.postNext(t.BaseCostCurCode, plainStyle)
+            s.postNext(t.BaseCostYear, plainStyle)
+            s.postNext(t.AmortizationKm, plainStyle)
+            s.postNext(t.Fuel, plainStyle)
+            s.postNext(t.FuelRate, plainStyle)
+            s.postNext(t.FuelRateUnits, plainStyle)
+            s.nextRow()
+
+        s.columnWidth(20, column=1)
+        for i in xrange(2, rs.maxColumn()):
+            s.columnWidth(12, column=i)
+
+
+        vaccine_sheet = wb.create_sheet(6)
+        vaccine_sheet.title = "Vaccines"
+        s = XLCell(vaccine_sheet)
+
+        s.mergeCells(12)
+        s.set(_("Vaccines"), divider1Style)
+        s.nextRow()
+
+
+        s.mergeCells(1,2)
+        s.postNext(_("Vaccine"), labelStyle)
+        s.mergeCells(1,2)
+        s.postNext(_("Presentation"), labelStyle)
+        s.mergeCells(1,2)
+        s.postNext(_("Doses Per Vial"), labelStyle)
+        s.mergeCells(2)
+        s.postNext(_("Packaged mL Per Dose"), labelStyleCenter)
+        s.next()
+        s.mergeCells(4)
+        s.postNext(_("Potent Lifetime"), labelStyleCenter)
+        s.right(3)
+        s.mergeCells(3)
+        s.postNext(_("Price Per Vial"), labelStyleCenter)
+        #############################
+        #  Doses Per Person Go Here #
+        #############################
+        s.nextRow()
+        s.rowHeight(30)
+        s.right(3)
+        s.postNext(_("Vaccine"), labelStyle)
+        s.postNext(_("Diluent"), labelStyle)
+        s.postNext(_("2 to 8 C"), labelStyle)
+        s.postNext(_("Below 2 C"), labelStyle)
+        s.postNext(_("After Opening"), labelStyle)
+        s.postNext(_("Out of Cold Chain"), labelStyle)
+        s.postNext(_("Amount"), labelStyle)
+        s.postNext(_("Currency"), labelStyle)
+        s.postNext(_("Year"), labelStyle)
+        s.nextRow()
+
+        for v in m.vaccines.values():
+            s.postNext(v.Name, plainStyle)
+            s.postNext(v.presentation, plainStyle)
+            s.postNext(v.dosesPerVial, plainStyle)
+            s.postNext(v.volPerDose, plainStyle)
+            s.postNext(v.diluentVolPerDose, plainStyle)
+            s.postNext(v.coolerLifetime, plainStyle)
+            s.postNext(v.freezerLifetime, plainStyle)
+            s.postNext(v.openLifetime, plainStyle)
+            s.postNext(v.roomtempLifetime, plainStyle)
+            s.postNext(v.pricePerVial, plainStyle)
+            s.postNext(v.priceUnits, plainStyle)
+            s.postNext(v.priceBaseYear, plainStyle)
+            s.nextRow()
+
+
+
+        s.columnWidth(20, column=1)
+        for i in xrange(2, rs.maxColumn()):
+            s.columnWidth(12, column=i)
+
+                   
 
         with uiSession.getLockedState() as state:
             (fileKey, fullFileName) = \
@@ -649,18 +1034,63 @@ def createExcelSummaryOpenPyXl(db, uiSession):
 #         return {'success':False, 'msg':str(e)}
 
 
+def summarizeTrucksByLevel(m, hr):
+    truckFill = defaultdict(lambda : defaultdict(lambda : 0.0))
+    truckCount = defaultdict(lambda : defaultdict(lambda : 0))
+
+    for tr in hr.routesRpts.values():
+        routeId = tr.RouteName
+        route = m.routes[routeId]
+        truck = route.TruckType
+        # is level based on stop 0 or supplier?
+        level = route.supplier().CATEGORY
+
+        truckFill[level][truck] += tr.RouteFill
+        truckCount[level][truck] += 1
+    
+    return {'fill' : truckFill, 'count' : truckCount}
+        
+        
+
 def summarizeByLevel(hr):
     deliveryVol = defaultdict(lambda : 0)
     levelCount = defaultdict(lambda : 0)
+    storageUtilizationSum = defaultdict(lambda : 0)
+    storageUtilizationCount = defaultdict(lambda : 0)
+    coolerVol = defaultdict(lambda : 0)
+    usedCoolerVol = defaultdict(lambda : 0)
 
     for sr in hr.storesRpts.values():
-        deliveryVol[sr.category] += sr.tot_delivery_vol
-        levelCount[sr.category] += 1
+        lev = sr.category
+        deliveryVol[lev] += sr.tot_delivery_vol
+        deliveryVol['Total'] += sr.tot_delivery_vol
+        levelCount[lev] += 1
+        levelCount['Total'] += 1
+
+        if 'cooler' in sr.storage:
+            cooler = sr.storage['cooler']
+            if cooler.vol > 0.0:
+                storageUtilizationSum[lev] += cooler.fillRatio * 100.0
+                storageUtilizationCount[lev] += 1
+                storageUtilizationSum['Total'] += cooler.fillRatio * 100.0
+                storageUtilizationCount['Total'] += 1
+
+                coolerVol[lev] += cooler.vol
+                usedCoolerVol[lev] += cooler.vol_used
+                coolerVol['Total'] += cooler.vol
+                usedCoolerVol['Total'] += cooler.vol_used
+
+
+    averagePeakUtilization = defaultdict(lambda : 0)
+    for k,v in storageUtilizationSum.items():
+        averagePeakUtilization[k] = v / storageUtilizationCount[k]
 
     ret = {}
     ret['deliveryVol'] = deliveryVol
     ret['levelCount'] = levelCount
-
+    ret['averagePeakUtilization'] = averagePeakUtilization
+    ret['coolerVol'] = coolerVol
+    ret['usedCoolerVol'] = usedCoolerVol
     return ret
 
 @bottle.route('/downloadXLS')
@@ -709,18 +1139,17 @@ def getNumberOfLocationsFromModel(model):
 
 def getNumberOfLocationsByLevel(model):
     return model.getLevelCount()
-    
-#class Micro1CostModelHierarchicalSummary(CostModelHierarchicalSummary):
-#    costGroups = {'so
-def summarizeMicroCostLevels(hr, levels, ss):
-    costGroups = {'solar': ('s_energy', 's_total', 'total'), #'fuel/power',
-                  'electric': ('s_energy', 's_total', 'total'), #'fuel/power',
-                  'diesel': ('s_energy', 's_total', 'total'), #'fuel/power',
-                  'gasoline': ('t_fuel', 't_total', 'total'), #'fuel/power',
-                  'kerosene': ('s_energy', 's_total', 'total'), #'fuel/power',
-                  'petrol': ('s_energy', 's_total', 'total'), #'fuel/power',
-                  'ice': ('s_energy', 's_total', 'total'), #'fuel/power',
-                  'propane': ('s_energy', 's_total', 'total'), #'fuel/power',
+
+class MicroCostDisplay():
+
+    costGroups = {'solar': ('energy', 'total'), #'fuel/power',
+                  'electric': ('energy', 'total'), #'fuel/power',
+                  'diesel': ('energy', 'total'), #'fuel/power',
+                  'gasoline': ('energy', 'total'), #'fuel/power',
+                  'kerosene': ('energy', 'total'), #'fuel/power',
+                  'petrol': ('energy', 'total'), #'fuel/power',
+                  'ice': ('energy', 'total'), #'fuel/power',
+                  'propane': ('energy', 'total'), #'fuel/power',
                   'StaffSalary': ('personnel', 'total'), # 'staff',
                   'PerDiem': ('t_perdiem', 't_total', 'total'), #'staff',
                   'TransitFareCost': ('t_fare', 't_total', 'total'), #'staff',
@@ -737,24 +1166,123 @@ def summarizeMicroCostLevels(hr, levels, ss):
                   'Transport': ('t_maint', 't_total', 'total'),
                   }
 
-    columns = (
-        (_("Storage"), ((_("Energy Usage"), 's_energy'),
-                        (_("Equipment Maintenance"), 's_maint'),
-                        (_("Equipment Amortization"), 's_amort'),
-                        (_("Total"), 's_total'))),
-        (_("Transport"), ((_("Fuel Usage"), 't_fuel'),
-                          (_("Vehicle Maintenance"), 't_maint'),
-                          (_("Vehicle Amortization"), 't_amort'),
-                          (_("Fixed Fares"), 't_fare'),
-                          (_("Per Diems"), 't_perdiem'),
-                          (_("Total"), 't_total'))),
-        (_("Personnel"), ((_("Total"), "personnel"),)),
-        (_("Building"), ((_("Total"), "building"),)),
-        (_("Vaccine Procurement"), ((_("Total"), "vax"),)),
-#        (_("Logistics"), # We don't have anything under this heading
-        (_("Total Costs"), ((_("Including Procurement"), 'total'),)),
-        )
+    def microCostColumns(self):
+        """
+        set up our column headers and contents.
+        this is a method so that the internationalization code is called every use.
 
+        """
+        columns = (
+            (_("Energy"), ((_("Fuel and Electric"), 'energy'), )),
+            (_("Storage"), ((_("Equipment Maintenance"), 's_maint'),
+                            (_("Equipment Amortization"), 's_amort'),
+                            (_("Total"), 's_total'))),
+            (_("Transport"), ((_("Vehicle Maintenance"), 't_maint'),
+                              (_("Vehicle Amortization"), 't_amort'),
+                              (_("Fixed Fares"), 't_fare'),
+                              (_("Per Diems"), 't_perdiem'),
+                              (_("Total"), 't_total'))),
+            (_("Personnel"), ((_("Total"), "personnel"),)),
+            (_("Building"), ((_("Total"), "building"),)),
+            (_("Vaccine Procurement"), ((_("Total"), "vax"),)),
+            #        (_("Logistics"), # We don't have anything under this heading
+            (_("Total Costs"), ((_("Including Procurement"), 'total'),)),
+            )
+
+        groups = self.groups
+        columns = []
+        columns.append((_("Energy"), ((_("Fuel and Electric"), 'energy'), )))
+        if groups != 'routes':
+            columns.append((_("Storage"), ((_("Equipment Maintenance"), 's_maint'),
+                                           (_("Equipment Amortization"), 's_amort'),
+                                           (_("Total"), 's_total'))))
+        if groups != 'stores':
+            columns.append((_("Transport"), ((_("Vehicle Maintenance"), 't_maint'),
+                                             (_("Vehicle Amortization"), 't_amort'),
+                                             (_("Fixed Fares"), 't_fare'),
+                                             (_("Per Diems"), 't_perdiem'),
+                                             (_("Total"), 't_total'))))
+        columns.append((_("Personnel"), ((_("Total"), "personnel"),)))
+        if groups != 'routes':
+            columns.append((_("Building"), ((_("Total"), "building"),)))
+        if groups == 'all':
+            columns.append((_("Vaccine Procurement"), ((_("Total"), "vax"),)))
+            #        (_("Logistics"), # We don't have anything under this heading
+        columns.append((_("Total Costs"), ((_("Including Procurement"), 'total'),)))
+        
+        return columns
+
+    def __init__(self, groups='all'):
+        """ what settings do I want here?
+        allowed groups are 'all', 'stores', 'routes'
+        """
+        self.groups = groups
+        self.columns = self.microCostColumns()
+        self.columnCount = 0
+        for h,c in self.columns:
+            self.columnCount += len(c)
+        
+    def topHeaders(self, ss, style):
+        for h,c in self.columns:
+            ss.mergeCells(len(c))
+            ss.set(h, style)
+            ss.right(len(c))
+
+    def detailHeaders(self, ss, style):
+        for h, cList in self.columns:
+            for cHead,data in cList:
+                ss.postNext(cHead, style)
+
+    def detailRow(self, ss, csr, style):
+        info = defaultdict(lambda : 0)
+        unknownCategories = []
+
+        for ce in csr.costEntries:
+            cc = ce.costCategory
+            if cc.startswith('m1C_'):
+                cc = cc[4:]
+            if cc not in self.costGroups:
+                unknownCategories.append(cc)
+                continue
+            for grouping in self.costGroups[cc]:
+                info[grouping] += ce.cost
+        
+        for h, cList in self.columns:
+            for cHead, data in cList:
+                ss.postNext(round(info[data], 2), style)
+        if len(unknownCategories) > 0:
+            ss.set("unknown categories: %s"%unknownCategories)
+
+    def levelSummary(self, costs, levels, ss):
+        columnCount = 1 + self.columnCount
+        ss.mergeCells(columnCount)
+        ss.set(_("Costs By Level") + " (%s %s)"%(costs['year'], costs['currency']), 
+               divider1Style)
+        ss.nextRow()
+        
+        ss.rowHeight(30)
+        ss.postNext("", labelStyleCenter)
+        self.topHeaders(ss, labelStyleCenter)
+        ss.nextRow()
+
+        ss.rowHeight(30)
+        ss.postNext("Level", labelStyle)
+        self.detailHeaders(ss, labelStyle)
+        ss.nextRow()
+
+        for level in levels:
+            if level not in costs['all']:
+                continue
+            ss.postNext(level, levelStyle)
+            self.detailRow(ss, costs['all'][level], plainStyle)
+            ss.nextRow()
+
+
+def summarizeMicroCostLevels(costs, levels, ss):
+    mcd = MicroCostDisplay()
+    mcd.levelSummary(costs, levels, ss)
+
+if 0:
     columnCount = 1 # include the row header (level)
     for h,c in columns:
         columnCount += len(c)

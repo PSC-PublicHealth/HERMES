@@ -566,6 +566,60 @@ def jsonCostsSummaryLayout(db, uiSession):
         result = {'success': False, 'msg': str(e)}
         return result
 
+def costsSummaryKey(m, r):
+    totalCost = 0.0
+    for rec in [csr.createRecord() for csr in r.costSummaryRecs]:
+        if rec['ReportingLevel'] == '-top-' and rec['ReportingBranch'] == 'all':
+            if rec['Type'] == 'micro1':
+                for k, v in rec.items():
+                    if k.startswith('m1C_') and v is not None and v != '':
+                        totalCost += v
+            elif rec['Type'] == 'legacy':
+                for k, v in rec.items():
+                    expectedTerms = ['BuildingCost', 'StorageCost',
+                                     'LaborCost', 'TransportCost']
+                    assert all([k in rec for k in expectedTerms]), \
+                        _("Some expected legacy cost entries are missing")
+                    totalCost = sum([rec[k] for k in expectedTerms])
+
+            # print 'total cost: %s' % totalCost
+            break
+
+    dosesByVaccine = {}
+    for dmnd in m.unifiedDemands:
+        if dmnd.peopleStr.lower() not in ['pregnant', 'service']:
+            dosesByVaccine[dmnd.vaccineStr] = dmnd.count
+    for dmnd in m.consumptionDemands:
+        if dmnd.peopleStr.lower() not in ['pregnant', 'service']:
+            dosesByVaccine[dmnd.vaccineStr] = dmnd.count
+
+    totDosesDelivered = 0
+    nFullyTreated = None
+    for rec in [sr.createRecord() for sr in r.summaryRecs.values()
+                if sr.summaryType == 'vaccines']:
+        totDosesDelivered += rec['Treated']
+        print rec
+        if rec['Name'] in dosesByVaccine:
+            print dosesByVaccine[rec['Name']]
+            if float(dosesByVaccine[rec['Name']]) > 0:
+                nFT = float(rec['Treated'])/float(dosesByVaccine[rec['Name']])
+                if nFullyTreated is None or nFT < nFullyTreated:
+                    nFullyTreated = nFT
+
+    if nFullyTreated > 0.0:
+        costPerFIC = totalCost / nFullyTreated
+    else:
+        costPerFIC = 0.0
+
+    if totDosesDelivered > 0:
+        costPerDose = totalCost / totDosesDelivered
+    else:
+        costPerDose = 0.0
+
+    ret = {'costPerFIC' : costPerFIC,
+           'costPerDose' : costPerDose }
+
+    return ret
 
 @bottle.route('/json/costs-summary-keypoints')
 def jsonCostsSummaryKeyPoints(db, uiSession):
@@ -575,61 +629,16 @@ def jsonCostsSummaryKeyPoints(db, uiSession):
         uiSession.getPrivs().mayReadModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         r = m.getResultById(resultsId)
-        totalCost = 0.0
-        for rec in [csr.createRecord() for csr in r.costSummaryRecs]:
-            if rec['ReportingLevel'] == '-top-' and rec['ReportingBranch'] == 'all':
-                if rec['Type'] == 'micro1':
-                    for k, v in rec.items():
-                        if k.startswith('m1C_') and v is not None and v != '':
-                            totalCost += v
-                elif rec['Type'] == 'legacy':
-                    for k, v in rec.items():
-                        expectedTerms = ['BuildingCost', 'StorageCost',
-                                         'LaborCost', 'TransportCost']
-                        assert all([k in rec for k in expectedTerms]), \
-                            _("Some expected legacy cost entries are missing")
-                        totalCost = sum([rec[k] for k in expectedTerms])
 
-                # print 'total cost: %s' % totalCost
-                break
-
-        dosesByVaccine = {}
-        for dmnd in m.unifiedDemands:
-            if dmnd.peopleStr.lower() not in ['pregnant', 'service']:
-                dosesByVaccine[dmnd.vaccineStr] = dmnd.count
-        for dmnd in m.consumptionDemands:
-            if dmnd.peopleStr.lower() not in ['pregnant', 'service']:
-                dosesByVaccine[dmnd.vaccineStr] = dmnd.count
-
-        totDosesDelivered = 0
-        nFullyTreated = None
-        for rec in [sr.createRecord() for sr in r.summaryRecs.values()
-                    if sr.summaryType == 'vaccines']:
-            totDosesDelivered += rec['Treated']
-            print rec
-            if rec['Name'] in dosesByVaccine:
-                print dosesByVaccine[rec['Name']]
-                if float(dosesByVaccine[rec['Name']]) > 0:
-                    nFT = float(rec['Treated'])/float(dosesByVaccine[rec['Name']])
-                    if nFullyTreated is None or nFT < nFullyTreated:
-                        nFullyTreated = nFT
-
-        if nFullyTreated > 0.0:
-            costPerFIC = totalCost / nFullyTreated
-        else:
-            costPerFIC = 0.0
-
-        if totDosesDelivered > 0:
-            costPerDose = totalCost / totDosesDelivered
-        else:
-            costPerDose = 0.0
+        vals = costsSummaryKey(m, r)
+        
         return {'success': True,
                 'mainTitle': _('Key Costing Points'),
                 'labels': [_('Logistics Cost per Dose Administered'),
                            _('Logistics Cost per Fully Immunized Child (FIC)')
                            ],
-                'values': [costPerDose,
-                           costPerFIC
+                'values': [vals['costPerDose'],
+                           vals['costPerFIC']
                            ],
                 'fmts': ['money',
                          'money'
