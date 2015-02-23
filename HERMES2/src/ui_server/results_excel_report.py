@@ -51,6 +51,7 @@ from openpyxl.worksheet.dimensions import ColumnDimension, RowDimension
 import time
 from reporthooks import createModelSummaryWSCall
 import traceback
+from resultshooks import costsSummaryKey
 
 from collections import defaultdict
 
@@ -250,7 +251,8 @@ plainCenteredStyle = Style(font=Font(bold=False),
 plainLabelStyle = Style(font=Font(bold=False),
                    # fill=PatternFill(fill_type=None,start_color='dark_red',end_color='dark_red'),
                         alignment=Alignment(horizontal='left',
-                                            vertical='center'))     
+                                            vertical='center'))
+plainTextStyle = plainLabelStyle
 
 def preprocessCostRows(hr):
     csrs = hr.costSummaryRecs
@@ -378,7 +380,7 @@ def createExcelSummaryOpenPyXl(db, uiSession):
         ss.postNext(round(levelSummary['deliveryVol']['Total'], 3), totalStyle)
         #ss.postNext(levelSummary['coolerVol']['Total'], totalStyle)
         #ss.postNext(levelSummary['usedCoolerVol']['Total'], totalStyle)
-        vCols = [(_("Vaccine"), "Name", 'text'),
+        vCols = [(_("Vaccine"), "Name", 'label'),
                  (_("Availability"), "SupplyRatio", '%'),
                  (_("Doses Needed"), "Applied", None),
                  (_("Doses Received"), "Treated", None),
@@ -403,12 +405,15 @@ def createExcelSummaryOpenPyXl(db, uiSession):
             if not isinstance(rec, shd.ShdVaccineSummary):
                 continue
             for header, attr, fmt in vCols:
-                val = getattr(rec, attr)
+                if attr == "Name":
+                    val = m.types[rec.Name].getDisplayName()
+                else:
+                    val = getattr(rec, attr)
                 if fmt == '%':
                     val = round(100.0 * val, 3)
                 style = plainStyle
-                if fmt == 'text':
-                    style = plainLabelStyle
+                if fmt == 'label':
+                    style = levelStyle
 
                 ss.postNext(val, style)
             ss.nextRow()
@@ -510,20 +515,20 @@ def createExcelSummaryOpenPyXl(db, uiSession):
                                               rTypeCounts.items(),
                                               tTypeCounts.items()):
                 if routeItem is not None:
-                    ss.postNext(routeItem[0])
-                    ss.postNext(routeItem[1])
+                    ss.postNext(routeItem[0], plainTextStyle)
+                    ss.postNext(routeItem[1], plainStyle)
                 else:
                     ss.right(2)
                 if truckItem is not None:
-                    ss.postNext(truckItem[0])
-                    ss.postNext(truckItem[1])
+                    ss.postNext(m.types[truckItem[0]].getDisplayName(), plainTextStyle)
+                    ss.postNext(truckItem[1], plainStyle)
                     try:
                         fill = truckLevelSummary['fill'][level][truckItem[0]]
                         count = truckLevelSummary['count'][level][truckItem[0]]
                         fillPercent = round(fill * 100.0 / count, 3)
                     except:
                         fillPercent = ""
-                    ss.postNext(fillPercent)
+                    ss.postNext(fillPercent, plainStyle)
                 else:
                     ss.right(3)
                 ss.left(5)
@@ -549,6 +554,29 @@ def createExcelSummaryOpenPyXl(db, uiSession):
         for i in xrange(2, ss.maxColumn()):
             ss.columnWidth(16, column=i)
 
+        ss.nextRow()
+
+        ss.mergeCells(4)
+        ss.set(_("Cost Per Dose and Fully Immunized Child"))
+        ss.nextRow()
+        ss.mergeCells(2)
+        ss.postNext(_("Cost Per Dose"))
+        ss.next()
+        ss.mergeCells(2)
+        ss.postNext(_("Cost Per FIC"))
+        ss.nextRow()
+        ss.postNext(_("Logistics"))
+        ss.postNext(_("with Procurement"))
+        ss.postNext(_("Logistics"))
+        ss.postNext(_("with Procurement"))
+        ss.nextRow()
+
+        keyCosts = costsSummaryKey(m, hr)
+        ss.postNext(keyCosts['logCostPerDose'])
+        ss.postNext(keyCosts['costPerDose'])
+        ss.postNext(keyCosts['logCostPerFIC'])
+        ss.postNext(keyCosts['costPerFIC'])
+        
 
 
         dev_inventory_sheet = wb.create_sheet(1)
@@ -575,7 +603,7 @@ def createExcelSummaryOpenPyXl(db, uiSession):
             if level in inventoryCount.keys():
                 dis.set(level, levelStyle)
                 for dev,count in inventoryCount[level].items():
-                    dis.next(dev, plainLabelStyle)
+                    dis.next(m.types[dev].getDisplayName(), plainLabelStyle)
                     dis.next(count, plainStyle)
                     dis.nextRow()
         
@@ -618,14 +646,6 @@ def createExcelSummaryOpenPyXl(db, uiSession):
                    _("Total Volume Delivered"),
                    _("Peak Storage Utilization"),
                    _("Vaccine Availability"),)
-        
-                   #_("Energy Usage"),
-                   #_("Equipment Maintenance"),
-                   #_("Equipment Amortization"),
-                   #_("Building"),
-                   #_("Personnel"),
-                   #_("Vaccine Procurement"),
-                   #_("TOTAL"))
 
         for header in headers:
             hs.mergeCells(1, 2)
@@ -743,11 +763,11 @@ def createExcelSummaryOpenPyXl(db, uiSession):
             supplier = route.supplier()
             clients = route.clients()
 
-            rs.postNext(supplier.NAME, plainStyle)
-            rs.postNext(supplier.CATEGORY, plainStyle)
-            rs.postNext(clients[0].NAME, plainStyle)
-            rs.postNext(clients[0].CATEGORY, plainStyle)
-            rs.postNext(route.TruckType, plainStyle)
+            rs.postNext(supplier.NAME, plainLabelStyle)
+            rs.postNext(supplier.CATEGORY, plainTextStyle)
+            rs.postNext(clients[0].NAME, plainLabelStyle)
+            rs.postNext(clients[0].CATEGORY, plainTextStyle)
+            rs.postNext(m.types[route.TruckType].getDisplayName(), plainTextStyle)
             if routeId in rRpts:
                 rpt = rRpts[routeId]
                 rs.postNext(rpt.RouteTrips, plainStyle)
@@ -760,8 +780,8 @@ def createExcelSummaryOpenPyXl(db, uiSession):
             rs.nextRow()
             for i in xrange(1, len(clients)):
                 rs.c(4)
-                rs.postNext(clients[i].NAME, plainStyle)
-                rs.postNext(clients[i].CATEGORY, plainStyle)
+                rs.postNext(clients[i].NAME, plainLabelStyle)
+                rs.postNext(clients[i].CATEGORY, plainTextStyle)
                 rs.nextRow()
 
         for i in xrange(1, 7):
@@ -805,7 +825,7 @@ def createExcelSummaryOpenPyXl(db, uiSession):
         s.nextRow()
 
         for f in m.fridges.values():
-            s.postNext(f.Name, plainStyle)
+            s.postNext(m.types[f.Name].getDisplayName(), plainLabelStyle)
             s.postNext(f.cooler, plainStyle)
             s.postNext(f.freezer, plainStyle)
             s.postNext(f.BaseCost, plainStyle)
@@ -857,7 +877,7 @@ def createExcelSummaryOpenPyXl(db, uiSession):
         s.nextRow()
 
         for t in m.trucks.values():
-            s.postNext(t.Name, plainStyle)
+            s.postNext(m.types[t.Name].getDisplayName(), plainLabelStyle)
             s.postNext(t.totalCoolVolume(m), plainStyle)
             s.postNext(t.BaseCost, plainStyle)
             s.postNext(t.BaseCostCurCode, plainStyle)
@@ -892,7 +912,7 @@ def createExcelSummaryOpenPyXl(db, uiSession):
         s.postNext(_("Packaged mL Per Dose"), labelStyleCenter)
         s.next()
         s.mergeCells(4)
-        s.postNext(_("Potent Lifetime"), labelStyleCenter)
+        s.postNext(_("Potent Lifetime (Days)"), labelStyleCenter)
         s.right(3)
         s.mergeCells(3)
         s.postNext(_("Price Per Vial"), labelStyleCenter)
@@ -914,8 +934,8 @@ def createExcelSummaryOpenPyXl(db, uiSession):
         s.nextRow()
 
         for v in m.vaccines.values():
-            s.postNext(v.Name, plainStyle)
-            s.postNext(v.presentation, plainStyle)
+            s.postNext(m.types[v.Name].getDisplayName(), plainLabelStyle)
+            s.postNext(v.presentation, plainTextStyle)
             s.postNext(v.dosesPerVial, plainStyle)
             s.postNext(v.volPerDose, plainStyle)
             s.postNext(v.diluentVolPerDose, plainStyle)
@@ -930,8 +950,9 @@ def createExcelSummaryOpenPyXl(db, uiSession):
 
 
 
-        s.columnWidth(20, column=1)
-        for i in xrange(2, rs.maxColumn()):
+        s.columnWidth(30, column=1)
+        s.columnWidth(20, column=2)
+        for i in xrange(3, rs.maxColumn()):
             s.columnWidth(12, column=i)
 
                    
@@ -1161,9 +1182,9 @@ class MicroCostDisplay():
                   'FridgeMaint': ('s_maint', 's_total', 'total'), #'equipment',
                   'SolarMaint': ('s_maint', 's_total', 'total'), #'equipment'
                   # other things I've found:
-                  'LaborCost':  ('personnel', 'total'),
-                  'Storage': ('s_maint', 's_total', 'total'),
-                  'Transport': ('t_maint', 't_total', 'total'),
+                  #'LaborCost':  ('personnel', 'total'),
+                  #'Storage': ('s_maint', 's_total', 'total'),
+                  #'Transport': ('t_maint', 't_total', 'total'),
                   }
 
     def microCostColumns(self):
@@ -1172,44 +1193,47 @@ class MicroCostDisplay():
         this is a method so that the internationalization code is called every use.
 
         """
-        columns = (
-            (_("Energy"), ((_("Fuel and Electric"), 'energy'), )),
-            (_("Storage"), ((_("Equipment Maintenance"), 's_maint'),
-                            (_("Equipment Amortization"), 's_amort'),
-                            (_("Total"), 's_total'))),
-            (_("Transport"), ((_("Vehicle Maintenance"), 't_maint'),
-                              (_("Vehicle Amortization"), 't_amort'),
-                              (_("Fixed Fares"), 't_fare'),
-                              (_("Per Diems"), 't_perdiem'),
-                              (_("Total"), 't_total'))),
-            (_("Personnel"), ((_("Total"), "personnel"),)),
-            (_("Building"), ((_("Total"), "building"),)),
-            (_("Vaccine Procurement"), ((_("Total"), "vax"),)),
-            #        (_("Logistics"), # We don't have anything under this heading
-            (_("Total Costs"), ((_("Including Procurement"), 'total'),)),
-            )
+        if self.groups == 'all':
+            columns = (
+                (_("Energy"), ((_("Fuel and Electric"), 'energy'), )),
+                (_("Storage"), ((_("Equipment Maintenance"), 's_maint'),
+                                (_("Equipment Amortization"), 's_amort'),
+                                (_("Total"), 's_total'))),
+                (_("Transport"), ((_("Vehicle Maintenance"), 't_maint'),
+                                  (_("Vehicle Amortization"), 't_amort'),
+                                  (_("Fixed Fares"), 't_fare'),
+                                  (_("Per Diems"), 't_perdiem'),
+                                  (_("Total"), 't_total'))),
+                (_("Personnel"), ((_("Total"), "personnel"),)),
+                (_("Building"), ((_("Total"), "building"),)),
+                (_("Vaccine Procurement"), ((_("Total"), "vax"),)),
+                #        (_("Logistics"), # We don't have anything under this heading
+                (_("Total Costs"), ((_("Including Procurement"), 'total'),)),
+                )
+        elif self.groups == 'stores':
+            columns = (
+                (_("Energy"), ((_("Total"), 'energy'), )),
+                (_("Storage"), ((_("Equipment Maintenance"), 's_maint'),
+                                (_("Equipment Amortization"), 's_amort'),
+                                (_("Total"), 's_total'))),
+                (_("Personnel"), ((_("Total"), "personnel"),)),
+                (_("Building"), ((_("Total"), "building"),)),
+                (_("Total Costs"), ((_("Including Procurement"), 'total'),)),
+                )
+        elif self.groups == 'routes':
+            columns = (
+                (_("Fuel"), ((_("Total"), 'energy'), )),
+                (_("Transport"), ((_("Vehicle Maintenance"), 't_maint'),
+                                  (_("Vehicle Amortization"), 't_amort'),
+                                  (_("Fixed Fares"), 't_fare'),
+                                  (_("Per Diems"), 't_perdiem'),
+                                  (_("Total"), 't_total'))),
+                #(_("Personnel"), ((_("Total"), "personnel"),)),
+                (_("Total Costs"), ((_("Including Procurement"), 'total'),)),
+                )
+        else:
+            raise(RuntimeError, "invalid costing display group request")
 
-        groups = self.groups
-        columns = []
-        columns.append((_("Energy"), ((_("Fuel and Electric"), 'energy'), )))
-        if groups != 'routes':
-            columns.append((_("Storage"), ((_("Equipment Maintenance"), 's_maint'),
-                                           (_("Equipment Amortization"), 's_amort'),
-                                           (_("Total"), 's_total'))))
-        if groups != 'stores':
-            columns.append((_("Transport"), ((_("Vehicle Maintenance"), 't_maint'),
-                                             (_("Vehicle Amortization"), 't_amort'),
-                                             (_("Fixed Fares"), 't_fare'),
-                                             (_("Per Diems"), 't_perdiem'),
-                                             (_("Total"), 't_total'))))
-        columns.append((_("Personnel"), ((_("Total"), "personnel"),)))
-        if groups != 'routes':
-            columns.append((_("Building"), ((_("Total"), "building"),)))
-        if groups == 'all':
-            columns.append((_("Vaccine Procurement"), ((_("Total"), "vax"),)))
-            #        (_("Logistics"), # We don't have anything under this heading
-        columns.append((_("Total Costs"), ((_("Including Procurement"), 'total'),)))
-        
         return columns
 
     def __init__(self, groups='all'):
@@ -1241,6 +1265,9 @@ class MicroCostDisplay():
             cc = ce.costCategory
             if cc.startswith('m1C_'):
                 cc = cc[4:]
+            else:
+                # per joel if it doesn't start with m1C it doesn't count
+                continue
             if cc not in self.costGroups:
                 unknownCategories.append(cc)
                 continue

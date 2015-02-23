@@ -568,12 +568,15 @@ def jsonCostsSummaryLayout(db, uiSession):
 
 def costsSummaryKey(m, r):
     totalCost = 0.0
+    totalLogisticsCost = 0.0
     for rec in [csr.createRecord() for csr in r.costSummaryRecs]:
         if rec['ReportingLevel'] == '-top-' and rec['ReportingBranch'] == 'all':
             if rec['Type'] == 'micro1':
                 for k, v in rec.items():
                     if k.startswith('m1C_') and v is not None and v != '':
                         totalCost += v
+                        if k != 'm1C_Vaccines':
+                            totalLogisticsCost += v
             elif rec['Type'] == 'legacy':
                 for k, v in rec.items():
                     expectedTerms = ['BuildingCost', 'StorageCost',
@@ -608,16 +611,22 @@ def costsSummaryKey(m, r):
 
     if nFullyTreated > 0.0:
         costPerFIC = totalCost / nFullyTreated
+        logCostPerFIC = totalLogisticsCost / nFullyTreated
     else:
         costPerFIC = 0.0
+        logCostPerFIC = 0.0
 
     if totDosesDelivered > 0:
         costPerDose = totalCost / totDosesDelivered
+        logCostPerDose = totalLogisticsCost / totDosesDelivered
     else:
         costPerDose = 0.0
+        logCostPerDose = 0.0
 
     ret = {'costPerFIC' : costPerFIC,
-           'costPerDose' : costPerDose }
+           'costPerDose' : costPerDose, 
+           'logCostPerFIC' : logCostPerFIC,
+           'logCostPerDose' : logCostPerDose }
 
     return ret
 
