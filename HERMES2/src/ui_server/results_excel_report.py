@@ -550,33 +550,33 @@ def createExcelSummaryOpenPyXl(db, uiSession):
             ss.nextRow()
 
 
-        ss.columnWidth(20, column=1)
-        for i in xrange(2, ss.maxColumn()):
-            ss.columnWidth(16, column=i)
-
-        ss.nextRow()
 
         ss.mergeCells(4)
-        ss.set(_("Cost Per Dose and Fully Immunized Child"))
+        ss.set(_("Cost Per Dose and Fully Immunized Child") + " (%s %s)"%(costs['year'], costs['currency']), divider1Style)
         ss.nextRow()
         ss.mergeCells(2)
-        ss.postNext(_("Cost Per Dose"))
+        ss.postNext(_("Cost Per Dose"), labelStyleCenter)
         ss.next()
         ss.mergeCells(2)
-        ss.postNext(_("Cost Per FIC"))
+        ss.postNext(_("Cost Per FIC"), labelStyleCenter)
         ss.nextRow()
-        ss.postNext(_("Logistics"))
-        ss.postNext(_("with Procurement"))
-        ss.postNext(_("Logistics"))
-        ss.postNext(_("with Procurement"))
+        ss.rowHeight(30)
+        ss.postNext(_("Logistics"), labelStyle)
+        ss.postNext(_("with Procurement"), labelStyle)
+        ss.postNext(_("Logistics"), labelStyle)
+        ss.postNext(_("with Procurement"), labelStyle)
         ss.nextRow()
 
         keyCosts = costsSummaryKey(m, hr)
-        ss.postNext(keyCosts['logCostPerDose'])
-        ss.postNext(keyCosts['costPerDose'])
-        ss.postNext(keyCosts['logCostPerFIC'])
-        ss.postNext(keyCosts['costPerFIC'])
+        ss.postNext(round(keyCosts['logCostPerDose'], 3), plainStyle)
+        ss.postNext(round(keyCosts['costPerDose'], 3), plainStyle)
+        ss.postNext(round(keyCosts['logCostPerFIC'], 3), plainStyle)
+        ss.postNext(round(keyCosts['costPerFIC'], 3), plainStyle)
         
+
+        ss.columnWidth(20, column=1)
+        for i in xrange(2, ss.maxColumn()):
+            ss.columnWidth(16, column=i)
 
 
         dev_inventory_sheet = wb.create_sheet(1)
