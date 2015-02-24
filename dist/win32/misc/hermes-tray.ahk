@@ -7,7 +7,7 @@ url = http://localhost:8080/bottle_hermes/top
 seconds_to_attempt = 30
 mutex = HERMES: Highly Extensible Resource for Modeling Event-driven Supply chains; {D82029AE-9A89-4A58-AD00-3E5C5CE68400}
 logfile = %APPDATA%\HERMES\standalone.log
-bugemail = hermes-devel@psc.edu
+bugemail = hermes-support@psc.edu
 bugsubject = HERMES bug report
 bugsubject := uriEncode(bugsubject)
 
