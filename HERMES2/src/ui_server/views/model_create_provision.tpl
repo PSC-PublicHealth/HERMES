@@ -40,7 +40,7 @@ var modelInfo = ModelInfoFromJson(modJson);
 <p>
 	<span class="hermes-top-sub">
 		{{_('Now, we need to allocate the equipment for storage and population that will be served for each location at each level.').format(name)}}
-		{{_('To add an item to all of the location, edit the cell to indicate the number to be added.  You can modify individual locations by editing the model.')}}
+		{{_('To add an item to all locations at a level, edit the cell to indicate the number to be added.  You can modify individual locations by editing the model.')}}
 	</span>
 </p>
 <p>

@@ -23,12 +23,12 @@ var modelInfo = ModelInfoFromJson(modJson);
 
 <p>
 	<span class="hermes-top-main">
-		{{_('What and how many Transport Vehicles would you like shipping routes?')}}
+		{{_('What and how many Transport Vehicles are available for shipping routes?')}}
 	</span>
 </p>
 <p>
 	<span class="hermes-top-sub">
-		{{_('The shipping network for {0} has been created, and now you must define the vehicle that each route will use').format(name)}}
+		{{_('The shipping network for {0} has been created, and now you must define the vehicle that each route will use.').format(name)}}
 		{{_('All routes between given levels will use the vehicle specified below.  The supplier location will need to be allocated the vehicles, and you must specify the number of them that will be located at each supplier for the routes.')}}
 
 	</span>
@@ -57,7 +57,7 @@ for (var i = 0; i < modelInfo.nlevels; i++){
 		var levelN2 = modelInfo.levelnames[j];
 		if(modelInfo.canonicalroutesdict[levelN1][levelN2]){
 			$("#provision_route_levels").append(
-					"<tr><td>{{_('For Routes betweent the')}} <span style='font-weight:bold;'>"
+					"<tr><td>{{_('For Routes between the')}} <span style='font-weight:bold;'>"
 					+levelN1+"</span> {{_('and the')}} <span style='font-weight:bold;'>"
 					+levelN2+"</span> {{_('levels')}}:</td>"
 					+"<td><select id='select_route_"+levelN1+"_"+levelN2+"' l1='"+levelN1+"' l2='"+levelN2+"'></select></td>" 
@@ -100,7 +100,7 @@ $(function(){
 			alert(result.msg);
 		}
 		else if(result.values.length == 0){
-			alert("{{_('There are no Transportation in thismodel.  Please go back to the Add/Remove Components page and please add some Transportation.')}}");
+			alert("{{_('There are no Transportation vehicles in this model.  Please go back to the Add/Remove Components page and add vehicles.')}}");
 		}
 		else{
 			$("[id^='select_route_']").each(function(){
