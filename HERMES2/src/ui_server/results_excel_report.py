@@ -67,6 +67,10 @@ class XLCell:
         self._maxRow = row
         self._maxCol = column
 
+        self.RowHeightCache = {}
+        self.ColumnWidthCache = {}
+
+
     def ws(self):
         return self.worksheet
 
@@ -151,13 +155,11 @@ class XLCell:
                               end_row=self.r() + rows - 1,
                               end_column=self.c() + columns - 1)
 
-    RowHeightCache = {}
-    ColumnWidthCache = {}
     def columnWidth(self, width, column=None):
         if column is None:
             column = self.c()
         if width not in self.ColumnWidthCache:
-            self.ColumnWidthCache[width] = ColumnDimension(width=width)
+            self.ColumnWidthCache[width] = ColumnDimension(worksheet=self.worksheet, width=width)
         colStr = get_column_letter(column)
         self.ws().column_dimensions[colStr] = self.ColumnWidthCache[width]
 
@@ -165,7 +167,7 @@ class XLCell:
         if row is None:
             row = self.r()
         if height not in self.RowHeightCache:
-            self.RowHeightCache[height] = RowDimension(height=height)
+            self.RowHeightCache[height] = RowDimension(worksheet=self.worksheet, height=height)
         self.ws().row_dimensions[row] = self.RowHeightCache[height]
 
 medBorder = Border(bottom=Side(style='medium', color='FF000000'), 
