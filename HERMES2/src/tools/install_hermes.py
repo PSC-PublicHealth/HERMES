@@ -950,6 +950,13 @@ def main():
     parser.add_argument('-R', '--rebuildalltypes', action='store_true',
                         help='Delete and rebuild the AllTypesModel, leaving everything else intact')
 
+    try:
+        with open(os.path.join("..","version.txt"),"r") as f:
+            hermes_version = f.readlines()[1]
+    except IOError:
+        hermes_version = None
+    if hermes_version: print "Installing HERMES {0}".format(hermes_version)
+    
     args = parser.parse_args()
 
     if args.rebuildalltypes:

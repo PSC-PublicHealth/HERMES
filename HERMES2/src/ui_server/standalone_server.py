@@ -83,11 +83,19 @@ kwargs = dict(reloader=True, debug=args.debug, port=args.port)
 if args.promiscuous:
     kwargs['host'] = '0.0.0.0'
 
+try:
+    with open(os.path.join("..","version.txt"),"r") as f:
+        hermes_version = f.readlines()[1]
+except IOError:
+    hermes_version = None
+if hermes_version: print "Running HERMES {0}".format(hermes_version)
+
 with ui_utils.loggingFileHandle() as f:
     encoding = util.getPreferredOutputEncoding()
     sys.stdout = codecs.getwriter(encoding)(f, 'replace')
     sys.stderr = codecs.getwriter(encoding)(f, 'replace')
 
+    if hermes_version: print "Starting HERMES {0}".format(hermes_version)
     matcher._logMessage('starting up under standalone server')
     (major, minor, rev) = bottle.__version__.replace('-','.').split('.')
 

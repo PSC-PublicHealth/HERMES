@@ -4,7 +4,7 @@
 #define MyAppName "HERMES"
 #define MyAppPublisher "HERMES Team"
 #define MyAppURL "http://hermes.psc.edu"
-#define BaseVersion "0.9.1"
+#define BaseVersion "0.9"
 #define BaseFilename "hermes-setup"
 
 #ifdef SvnRevision
