@@ -226,18 +226,19 @@ class Validator:
  
     def checkDemands(self):
         peopleTypeExclusionList = ["Service1"]
-        for storeId,store in self._shdNtwk.stores.items():
-                ### There should be no demand
-            hasDemand = False
-            for demand in store.demand:
-                if demand.invName not in peopleTypeExclusionList:
-                    if demand.count > 0:
-                        hasDemand = True
-            if store.FUNCTION == "Distribution" and hasDemand:
-                self.warning(store, "has a FUNCTION of Distribution, but has population to serve")
-
-            if store.FUNCTION == "Administration" and hasDemand is False:
-                self.fatal(store, "has a FUNCTION of Administration, but has no population to serve")
+        return 
+#         for storeId,store in self._shdNtwk.stores.items():
+#                 ### There should be no demand
+#             hasDemand = False
+#             for demand in store.demand:
+#                 if demand.invName not in peopleTypeExclusionList:
+#                     if demand.count > 0:
+#                         hasDemand = True
+#             if store.FUNCTION == "Distribution" and hasDemand:
+#                 self.warning(store, "has a FUNCTION of Distribution, but has population to serve")
+# 
+#             if store.FUNCTION == "Administration" and hasDemand is False:
+#                 self.fatal(store, "has a FUNCTION of Administration, but has no population to serve")
 
     def checkStoreVehicles(self):
         for storeId,store in self._shdNtwk.stores.items():
