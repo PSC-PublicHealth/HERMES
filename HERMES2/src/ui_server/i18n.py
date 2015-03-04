@@ -113,7 +113,8 @@ class i18n:
             return
 
         if locale_ not in self.supportedLocales:
-            raise RuntimeError('Locale %s not supported in this install'%(locale_))
+            locale_ = 'en_US'
+            #raise RuntimeError('Locale %s not supported in this install'%(locale_))
   
         templateDir = os.path.join(self.localeDir,locale_,'TEMPLATES')
 
