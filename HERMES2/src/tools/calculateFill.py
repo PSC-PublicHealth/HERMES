@@ -109,7 +109,7 @@ def xxxshare1(space, volumes):
 
 def _share1(space, *vols):
     sv = sum(vols)
-    if space > sv:
+    if space >= sv:
         baseRatio = 1.0
     else:
         baseRatio = (1.0 * space) / sv
@@ -197,7 +197,7 @@ def _share2(space1, space2, vol1, vol2, vol12):
 
         
 
-def _share3(space1, space2, space3, vol1, vol2, vol3, vol12, vol23, vol123):
+def _share3(space1, space2, space3, vol1, vol2, vol3, vol12, vol23, vol123, debug=False):
     """
     returns (vol1 ratio going into space1,
              vol1 amount going into space1,
@@ -239,9 +239,19 @@ def _share3(space1, space2, space3, vol1, vol2, vol3, vol12, vol23, vol123):
     cv23 = (vol3 + vol23 + vol2) * baseRatio > space3 + space2
     cv13 = vol1 * baseRatio > space1 and vol3 * baseRatio > space3
     
+    cr1 = d0(space1, vol1 * baseRatio)
+    cr2 = d0(space2, vol2 * baseRatio)
+    cr3 = d0(space3, vol3 * baseRatio)
+    cr12 = d0(space1 + space2, (vol1 + vol12 + vol2) * baseRatio)
+    cr23 = d0(space2 + space3, (vol3 + vol23 + vol2) * baseRatio)
 
-    if cv1 and not (cv12 or cv13): # see if only space1 is constrained
-        print "case4"
+
+    if debug: print (cv1, cv2, cv3, cv12, cv23, cv13)
+    if debug: print (cr1, cr2, cr3, cr12, cr23)
+
+    # if cv1 and not (cv12 or cv13): # see if only space1 is constrained
+    if cv1 and not cv13 and cr1 < cr12:
+        if debug: print "case4"
         (r2_2, (v2_2, v12_2), r23_2, (v23_2, v123_2), 
          r3_3, (v3_3,), 
          r23_3, (v23_3, v123_3)) = share2(space2, space3, 
@@ -253,8 +263,9 @@ def _share3(space1, space2, space3, vol1, vol2, vol3, vol12, vol23, vol123):
                 r3_3, v3_3, r23_3, v23_3, r23_3, v123_3)
 
         
-    if cv3 and not(cv23 or cv13): # see if space3 is constrained
-        print "case5"
+    #if cv3 and not(cv23 or cv13): # see if space3 is constrained
+    if cv3 and not cv13 and cr3  < cr23:
+        if debug: print "case5"
         (r1_1, (v1_1,), r12_1, (v12_1, v123_1),
          r2_2, (v2_2, v23_2), 
          r12_2, (v12_2, v123_2)) = share2(space1, space2,
@@ -264,8 +275,9 @@ def _share3(space1, space2, space3, vol1, vol2, vol3, vol12, vol23, vol123):
                 r2_2, v2_2, r12_2, v12_2, r2_2, v23_2, r12_2, v123_2,
                 r3_3, v3_3, 0.0, 0.0, 0.0, 0.0)
 
-    if cv2 and not(cv12 or cv23): # see if space2 is constrained
-        print "case6"
+    #if cv2 and not(cv12 or cv23): # see if space2 is constrained
+    if cv2 and cr2 < cr23 and cr2 < cr12:
+        if debug: print "case6"
         (r1_1, (v1_1, v12_1), r123_1, (v123_1, ),
          r3_3, (v3_3, v23_3), 
          r123_3, (v123_3, )) = share2(space1, space3, 
@@ -277,7 +289,7 @@ def _share3(space1, space2, space3, vol1, vol2, vol3, vol12, vol23, vol123):
 
     # check if we are constrained on two spaces
     if cv12:
-        print "case1"
+        if debug: print "case1"
         # if here we have our excess of space in space3 only
         (r1_1, v1_1, r12_1, v12_1, 
          r2_2, v2_2, r12_2, v12_2) = _share2(space1, space2, vol1, vol2, vol12)
@@ -287,7 +299,7 @@ def _share3(space1, space2, space3, vol1, vol2, vol3, vol12, vol23, vol123):
                 r3_3, v3_3, r3_3, v23_3, r3_3, v123_3)
 
     if cv23:
-        print "case2"
+        if debug: print "case2"
         # if here we have our excess of space in space 1 only
         (r1_1, v1_1, v12_1, v123_1) = _share1(space1, vol1, vol12, vol123)
         (r2_2, v2_2, r23_2, v23_2,
@@ -298,7 +310,7 @@ def _share3(space1, space2, space3, vol1, vol2, vol3, vol12, vol23, vol123):
 
 
     if cv13:
-        print "case3"
+        if debug: print "case3"
         # excess in space 2 only
         (r1_1, v1_1) = _share1(space1, vol1)
         (r3_3, v3_3) = _share1(space3, vol3)
@@ -307,7 +319,7 @@ def _share3(space1, space2, space3, vol1, vol2, vol3, vol12, vol23, vol123):
                 r2, v2_2, r2, v12_2, r2, v23_2, r2, v123_2,
                 r3_3, v3_3, 0.0, 0.0, 0.0, 0.0)
 
-    print "case7"
+    if debug: print "case7"
 
     # if we're here we should be able to place all volumes at baseRatio
     br = baseRatio
@@ -375,7 +387,7 @@ def _share3(space1, space2, space3, vol1, vol2, vol3, vol12, vol23, vol123):
 def test3(s1, s2, s3, v1, v2, v3, v12, v23, v123):
     (r1_1, v1_1, r12_1, v12_1, r123_1, v123_1,
      r2_2, v2_2, r12_2, v12_2, r23_2, v23_2, r123_2, v123_2,
-     r3_3, v3_3, r23_3, v23_3, r123_3, v123_3) = _share3(s1, s2, s3, v1, v2, v3, v12, v23, v123)
+     r3_3, v3_3, r23_3, v23_3, r123_3, v123_3) = _share3(s1, s2, s3, v1, v2, v3, v12, v23, v123, True)
 
     print "space1: %s of %s"%(v1_1 + v12_1 + v123_1, s1)
     print "space2: %s of %s"%(v2_2 + v12_2 + v23_2 + v123_2, s2)
@@ -390,10 +402,94 @@ def test3(s1, s2, s3, v1, v2, v3, v12, v23, v123):
 
 
 
+def ratio1(x,y):
+    " special ratio to make anything based off 0 to be listed as 100% (ie 0 of 0 is 100%) "
+    if y == 0.0:
+        return 1.0
+    return x / y
 
+def float_eq(x,y):
+    return abs(x - y) < 0.00001
     
-            
+def autotest3(s1, s2, s3, v1, v2, v3, v12, v23, v123):
 
+    (r1_1, v1_1, r12_1, v12_1, r123_1, v123_1,
+     r2_2, v2_2, r12_2, v12_2, r23_2, v23_2, r123_2, v123_2,
+     r3_3, v3_3, r23_3, v23_3, r123_3, v123_3) = _share3(s1, s2, s3, v1, v2, v3, v12, v23, v123)
 
+    #v1_1 = 18.0
+
+    vIn = [v1, v2, v3, v12, v23, v123]
+
+    vTots = [v1_1,
+             v2_2,
+             v3_3,
+             v12_1 + v12_2,
+             v23_2 + v23_3,
+             v123_1 + v123_2 + v123_3]
+
+    vRatios = [ratio1(t,i) for t,i in zip(vTots, vIn)]
+
+    vMap = [[v1_1, 0.0, 0.0],
+            [0.0, v2_2, 0.0],
+            [0.0, 0.0, v3_3],
+            [v12_1, v12_2, 0.0],
+            [0.0, v23_2, v23_3],
+            [v123_1, v123_2, v123_3]]
+
+    vAllowed = [[True, False, False],
+                [False, True, False],
+                [False, False, True],
+                [True, True, False],
+                [False, True, True],
+                [True, True, True]]
+
+    volOrder = sorted(xrange(6), key=lambda x: vRatios[x], reverse=True)
+
+    success = True
+    # go through each volume in order percentage filled in (highest first)
+    for i in xrange(6):
+        vI = volOrder[i]
+        # if this volume has any contents in a space that a volume with a lower fill ratio
+        # could use then this volume will be violating the fair share algorithm
         
+
+        if vTots[vI] == 0:
+            continue
+
+        for j in xrange(i+1, 6):
+            vJ = volOrder[j]
+            if float_eq(vRatios[vI], vRatios[vJ]):
+                continue
+
+            for s in xrange(3):
+                if vMap[vI][s] > 0.0 and vAllowed[vJ][s]:
+                    success = False
+                    print "vI %s, vJ %s"%(vI, vJ)
+                    print "****************** failed!!! *********************"
+                    test3(s1, s2, s3, v1, v2, v3, v12, v23, v123)
+
+    if success:
+        pass
+        #print "success"
+        #test3(s1, s2, s3, v1, v2, v3, v12, v23, v123)
+
+    return success
+
+import random
+
+def randVal():
+    " create a value to be used in a share3 test function. 1 in 20 values returned will be 0.0 "
+    if random.randrange(20) == 0:
+        return 0.0
+    return random.uniform(0.0, 20.0)
+
+def bulkAutoTest3(count):
+    success = 0
+    for i in xrange(count):
+        if autotest3(randVal(), randVal(), randVal(),
+                     randVal(), randVal(), randVal(), randVal(), randVal(), randVal()):
+            success += 1
         
+
+    print "%s of %s successful"%(success, count)
