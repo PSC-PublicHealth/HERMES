@@ -1,3 +1,4 @@
+@echo off
 REM ###################################################################################
 REM # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
 REM # =============================================================================== #
@@ -12,10 +13,14 @@ REM # copy of the license is also provided in the top level of the source direct
 REM # in the file LICENSE.txt.                                                        #
 REM #                                                                                 #
 REM ###################################################################################
-@echo off
 setlocal
 
-if exist %HOMEDRIVE%\Python27\python.exe (
+set curdir=%cd%
+set pythonexe=python
+
+if exist "%cd%\..\..\python\python.exe" (
+ rem pass
+) else if exist %HOMEDRIVE%\Python27\python.exe (
   set PATH="%path%";%HOMEDRIVE%\Python27;%HOMEDRIVE%\Python27\Scripts
 ) else if exist %HOMEDRIVE%\Python26\python.exe (
    set PATH="%path%";%HOMEDRIVE%\Python26;%HOMEDRIVE%\Python26\Scripts
@@ -27,14 +32,23 @@ if exist %HOMEDRIVE%\Python27\python.exe (
 )
 
 REM Start the server
-cd "%cd%"\..\ui_server\
-start python standalone_server.py"
+
+cd "%cd%\..\ui_server\"
+if exist "%cd%\..\..\python\python.exe" (
+  start "HERMES Server" ..\..\python\python standalone_server.py
+) else (
+  start python standalone_server.py
+)
 
 REM Sleep 5 seconds by pinging a non-existant address 6 times
 C:\Windows\system32\PING.exe -n 5 127.0.0.1 > nul
 
 REM Tell the browser to open the right web page
 
-python -m webbrowser -t "http://localhost:8080/bottle_hermes/top"
+if exist "%cd%\..\..\python\python.exe" (
+  ..\..\python\python -m webbrowser -t "http://localhost:8080/bottle_hermes/top"
+else (
+  python -m webbrowser -t "http://localhost:8080/bottle_hermes/top"
+)
 
 endlocal
