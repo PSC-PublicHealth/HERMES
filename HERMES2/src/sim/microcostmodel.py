@@ -337,6 +337,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         traversed; PerDiem and PerTrip costs are based on home conditions.
         """
         totKm = 0.0
+        totTimeDays = 0.0
         allPendingCostEvents = []
         for tpl in tripJournal:
             op = tpl[0]
@@ -347,6 +348,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                 conditionMultiplier = 1.0
                 totKm += (conditionMultiplier *
                           fromWH.getKmTo(toWH, level, legConditions))
+                totTimeDays += (tpl[2] - tpl[1])
             else:
                 legConditions = tpl[3]
             miscCosts = tpl[-1]
@@ -399,6 +401,28 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                                     inflation)
             fuelCost = 0.0
             maintCost = 0.0
+        elif costPattern == 'time':
+            priceKeyInfo = priceKeyTable[fuel]
+            if (priceKeyInfo is not None
+                    and self.sim.userInput[priceKeyInfo] != 0.0):
+                assert isinstance(priceKeyInfo, types.StringTypes), \
+                    (u"fuel type for %s should not have amortization" %
+                     truckType.name)
+                fuelPrice = self.sim.userInput[priceKeyInfo]  # in run currency at run base year
+                assert fuelPrice is not None, \
+                    u"Cost information for fuel type %s is missing" % fuel
+                fuelRate = truckType.recDict['FuelRate']
+                assert fuelRate is not None, \
+                    u"Cost information for %s is incomplete" % truckType.name
+                #
+                # fuel consumption is totTimeDays/fuelRate, since fuelRate is
+                # an inverse- days per KwH for electricity.  The price of fuel
+                # is already given in the run currency at the run year, so no
+                # currency conversion is needed.
+                #
+                fuelCost = (totTimeDays/fuelRate)*fuelPrice
+                fare = 0.0
+                maintCost = maintFrac * fuelCost
         else:
             raise RuntimeError(u'Transport type %s has an unexpected costing pattern' %
                                truckType.name)

@@ -44,7 +44,8 @@ fuelTranslationDict = collections.defaultdict(lambda : ('Unknown',None,None,None
                                                'G':('Propane','LP Gas','km/kg','Kg','propane','distance'),
                                                'D':('Diesel','Diesel Fuel','km/liter','Liter','diesel','distance'),
                                                'F':('Free','No Fuel','','None','free','distance'),
-                                               'T':('Fixed','Fixed Fare','','None','fixed fare','pertrip')
+                                               'T':('Fixed','Fixed Fare','','None','fixed fare','pertrip'),
+                                               'E':('Electric','Electric Mains','days/KwH','Kilowatt Hour','electric','time')
                                                })
 
 class Truck(abstractbaseclasses.CanOwn, abstractbaseclasses.Trackable, abstractbaseclasses.Costable):
