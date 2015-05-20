@@ -962,7 +962,7 @@ class ShdStore(Base, ShdCopyable):
             return None
         if len(s) == 1:
             return s[0][1]
-        raise RuntimeError("only one supplier expected")
+        raise RuntimeError("only one supplier expected: %s, %s"%(self.idcode, s))
     
     def supplierStore(self):
         s = self.suppliers()

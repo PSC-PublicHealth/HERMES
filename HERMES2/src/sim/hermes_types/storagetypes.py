@@ -110,6 +110,10 @@ class StorageTypeManager(typemanager.SubTypeManager):
 
     def roomtempStorage(self):
         return self.getTypeByName("roomtemperature")
+
+    def outdoorDiscardStorage(self):
+        # this should be harmonized with discardStorage()
+        return self.getTypeByName("outdoorDiscard")
     
     def coolStorageList(self):
         return [self.getTypeByName(nm) for nm in coolerStorageTypeNames]

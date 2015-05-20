@@ -80,6 +80,22 @@ class StorageModel:
         else:
             return shippableType.canFreeze()
     
+    def canRefridgerateShippableType(self, shippableType):
+        """
+        Filter the natural 'canRefridgerate' attribute of the shippableType according to the
+        StorageModel.  
+        """
+        if self.storeDiluentWithVaccines:
+            rBL = shippableType.getRequiredByList()
+            if len(rBL) == 0: 
+                # This is an actual deliverable
+                return shippableType.canRefridgerate()
+            else:
+                # 'storeDiluentWithVaccines' is interpreted to mean 'store this diluent like it were vaccine'
+                return rBL[0].canRefridgerate()
+        else:
+            return shippableType.canRefridgerate()
+    
     def canLeaveOutShippableType(self, shippableType):
         """
         Filter the natural 'canLeaveOut' attribute of the shippableType according to the

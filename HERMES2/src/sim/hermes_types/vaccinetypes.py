@@ -464,10 +464,13 @@ class VaccineType(GroupedShippableType, HasOVW):
         return self.name
 
     def canFreeze(self):
-        return (self.freezerFac<1.5)
+        return (self.freezerFac < 1.5)
         
+    def canRefridgerate(self):
+        return (self.coolerFac < 1.5)
+
     def canLeaveOut(self):
-        return (self.roomtempFac<1.5)
+        return (self.roomtempFac < 1.5)
         
     def canKeepOpenVials(self,howLongOpen):
         if self.keepOpenVials:# and howLongOpen<2.0: # keep two days max
@@ -600,20 +603,24 @@ class VaccineType(GroupedShippableType, HasOVW):
 
     def updateAge(self,age,deltaT,storageType,nVials):
         if age is None: return None # already expired
-        assert(isinstance(storageType,storagetypes.StorageType))
+        #assert(isinstance(storageType,storagetypes.StorageType))
         if not storageType in self.storageHistoryDict:
             self.storageHistoryDict[storageType]= 0.0
         self.storageHistoryDict[storageType] += nVials*deltaT
+        discard = False
         if storageType==self.sim.storage.frozenStorage():
             fac= self.freezerFac
         elif storageType==self.sim.storage.roomtempStorage():
             fac= self.roomtempFac
+        elif storageType==self.sim.storage.outdoorDiscardStorage():
+            discard = True
+            fac = 1.0
         elif storageType in self.sim.storage.coolStorageList():
             fac= self.coolerFac
         else:
             raise RuntimeError("Internal error; inappropriate vaccine storage type")
         newAge= age+(deltaT*fac)
-        if newAge<=self.maxAge: return newAge
+        if newAge<=self.maxAge and not discard: return newAge
         else:
             # this vial just expired
             self.nVialsExpired += nVials

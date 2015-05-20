@@ -226,6 +226,9 @@ class ShippableFridgeType(FridgeType, abstractbaseclasses.ShippableType, abstrac
     def canLeaveOut(self):
         return True
 
+    def canRefridgerate(self):
+        return True
+
     def canFreeze(self):
         return True
 
@@ -366,7 +369,10 @@ class Fridge(abstractbaseclasses.CanStore, abstractbaseclasses.Costable):
             if vol+self.volUsed<=self.volAvail+C.epsilon:
                 self.volUsed += vol
                 self.contents.append(vaccineGroup)
-                vaccineGroup.setStorage(self.storageType, withDiluent)
+                if self.volAvail == 1000000000000:
+                    vaccineGroup.setStorage(storagetypes.OUTDOORS, withDiluent)
+                else:
+                    vaccineGroup.setStorage(self.storageType, withDiluent)
             else:
                 print "%f: %f: %f"%(vol,vol+self.volUsed,self.volAvail)
                 raise RuntimeError('Overfilled StorageBlock of %s for %s %s'%\

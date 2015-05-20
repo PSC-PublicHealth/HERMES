@@ -1128,7 +1128,7 @@ def realityCheck(sim):
             if wh.getPopServedPC().totalCount()>0:
                 totStorageVol= 0.0
                 for sb in wh.getStorageBlocks():
-                    if sb.storageType != sim.storage.discardStorage():
+                    if sb.storageType != sim.storage.discardStorage() or sim.userInput.getValue("limitedroomtemp") == True:
                         totStorageVol += sb.volAvail
                 if totStorageVol==0.0:
                     warningMessages.append("%s %d is active but has no storage"%(wh.bName,code))

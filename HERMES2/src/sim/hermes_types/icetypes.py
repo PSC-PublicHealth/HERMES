@@ -253,6 +253,9 @@ class IceType(abstractbaseclasses.ShippableType, abstractbaseclasses.NonScalingT
     def canLeaveOut(self):
         """Returns true if this type can be stored at room temperature"""
         return False
+    def canRefridgerate(self):
+        """Returns true if this type can be stored refridgerated"""
+        return False
     def canFreeze(self):
         """Returns true if this type can be stored at freezing temperatures"""
         return True # freeze us, please

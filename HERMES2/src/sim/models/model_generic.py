@@ -315,7 +315,7 @@ class Model(model.Model):
         # an attached clinic, which means we shouldn't be dealing with it
         whatFitsVC= vaccinesOnlyVC*fillVC
         whatFitsVC.roundDown()
-        # print "clinicShipThresholdFunc %s: %s"%(toW.name,[(v.name,n) for v,n in whatFitsVC.items()])
+        #print "clinicShipThresholdFunc %s: %s"%(toW.name,[(v.name,n) for v,n in whatFitsVC.items()])
         return whatFitsVC
 
     def warehouseShipQuantityFunc(self,fromW, toW, pullMeanFrequencyDays, timeNow):
@@ -375,7 +375,6 @@ class Model(model.Model):
                 threshVC[v] = 1.0
         threshVC.roundDown()
         threshVC= scaledVaccineVialsVC*0.25
-        # print "warehouseShipThresholdFunc %s: %s"%(toW.name,threshVC)
         return threshVC
 
     def getApproxScalingVC(self,storeDict,code):

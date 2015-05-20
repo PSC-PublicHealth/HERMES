@@ -92,6 +92,21 @@ class TypeManagerLoader(object):
             self.typeManager.addType({"Name": stn}, storagetypes.StorageType,
                                      verbose, debug)
             self.typeManager.getTypeByName(stn)
+        # make a special outdoors type that can be used when we wish to track and 
+        # differentiate room temperature storage. 
+        self.typeManager.addType({"Name": "outdoorDiscard"}, storagetypes.StorageType,
+                                     verbose, debug)
+        if sim.userInput.getValue("limitedroomtemp"):
+        
+            # this is gross and should be fixed:
+            # make "outdoors" storage type visible from a high level because very little is accessible
+            # in the weeds of fridge storage routines.  Ultimately it should be attached somewhere to
+            # the fridge outdoors in some way but attaching it is proving very frustrating right now.
+            #
+            # this also has the effect of activating this type
+            storagetypes.OUTDOORS = self.typeManager.getTypeByName("outdoorDiscard")
+        else:
+            storagetypes.OUTDOORS = self.typeManager.getTypeByName("roomtemperature")
 
         # genericPeopleTypeName is a hold-over from ancient models which
         # did not specify population types.  'default' is the name of a

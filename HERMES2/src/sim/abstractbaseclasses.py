@@ -687,6 +687,10 @@ class ShippableType(TrackableType):
         """Returns true if this type can be stored at room temperature"""
         return True
     @abc.abstractmethod
+    def canRefridgerate(self):
+        """Returns true if this type can be stored at cold temperatures"""
+        return True
+    @abc.abstractmethod
     def canFreeze(self):
         """Returns true if this type can be stored at freezing temperatures"""
         return True

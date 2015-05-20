@@ -79,6 +79,26 @@ class PackagingModel:
         """
         raise RuntimeError("PackagingModel.getStorageVolumeSCTriple called")
     
+    def getStorageVolumeHex(self, trackableCollection, storageModel):
+        """
+        This method calculates the storage volume of the given shippableCollection.  For example,
+        if a given Shippable is stored at the 'box' level, any number of that shippable might be
+        rounded up to the nearest box, to simulate that fact that the storage area may contain 
+        partially-full boxes.  The return value is a 6-element tuple (frozenOnlyVolCC,coolOnlyVolCC,warmOnlyVolCC,
+        frozenCoolVolCC, coolWarmVolCC, anyVolCC).
+        """
+        raise RuntimeError("PackagingModel.getStorageVolumeHex called")
+    
+    def getStorageVolumeSCHex(self, trackableCollection, storageModel):
+        """
+        This method calculates the storage volume of the given shippableCollection as a triple of per-shippable
+        collections.  For example, if a given Shippable is stored at the 'box' level, any number of that shippable 
+        might be rounded up to the nearest box, to simulate that fact that the storage area may contain 
+        partially-full boxes.  The return value is a 6-element tuple of collections: (frozenOnlyVolVC,coolOnlyVolVC,
+        warmOnlyVolVC, frozenCoolVolVC, coolWarmVolVC, anyVolVC).
+        """
+        raise RuntimeError("PackagingModel.getStorageVolumeSCHex called")
+    
     def getNThatFit(self,volCC,shippableType, storageModel):
         """
         This method returns an integer count of the number of shippable instances
@@ -229,6 +249,95 @@ class SimplePackagingModel(PackagingModel):
         return (trackableCollection.getSimilarCollection(freezeTuples),
                 trackableCollection.getSimilarCollection(coolTuples),
                 trackableCollection.getSimilarCollection(warmTuples))
+                
+    def getStorageVolumeHex(self, trackableCollection, storageModel):
+        """
+        This method calculates the storage volume of the given trackableCollection.  For example,
+        if a given Shippable is stored at the 'box' level, any number of that shippable might be
+        rounded up to the nearest box, to simulate that fact that the storage area may contain 
+        partially-full boxes.  The return value is a 6-element tuple (frozenVolCC, coolVolCC, warmVolCC, 
+        frozenCoolVolCC, coolWarmVolCC, anyVolCC).
+        
+        This method assumes all shippables are broken down to the single vial level.
+        """
+        freezeCC = coolCC = warmCC = freezeCoolCC = coolWarmCC = anyCC = 0
+        for v,n in trackableCollection.items():
+            #dv = math.ceil(n)*v.getSingletonStorageVolume(storageModel.getStoreVaccinesWithDiluent(v))
+            if isinstance(v,abstractbaseclasses.ShippableType):
+                dv = n*v.getSingletonStorageVolume(storageModel)
+                #print 'coolTotalVol += %f for %s %s'%(dv,n,v.name)
+                warm = storageModel.canLeaveOutShippableType(v)
+                fridge = storageModel.canRefridgerateShippableType(v)
+                freeze = storageModel.canFreezeShippableType(v)
+                if freeze and fridge and warm:
+                    anyCC += dv
+                elif freeze and fridge:
+                    freezeCoolCC += dv
+                elif fridge and warm:
+                    coolWarmCC += dv
+                elif warm:
+                    warmCC += dv
+                elif fridge:
+                    coolCC += dv
+                elif freeze:
+                    coolCC += dv
+                else:  # apparently no storage method is viable
+                    anyCC += dv
+            else:
+                # Non-Shippable objects like trucks and stationary fridges take up no space
+                pass
+        return (freezeCC, coolCC, warmCC, freezeCoolCC, coolWarmCC, anyCC)
+    
+    def getStorageVolumeSCHex(self, trackableCollection, storageModel):
+        """
+        This method calculates the storage volume of the given shippableCollection as a triple of per-shippable
+        collections.  For example, if a given Shippable is stored at the 'box' level, any number of that shippable 
+        might be rounded up to the nearest box, to simulate that fact that the storage area may contain 
+        partially-full boxes.  The return value is a 3-element tuple of collections: (frozenVolVC,coolVolVC,warmVolVC).
+
+        This method assumes all shippables are broken down to the single vial level.
+        """
+        freezeTuples = []
+        coolTuples = []
+        warmTuples = []
+        freezeCoolTuples = []
+        coolWarmTuples = []
+        anyTuples = []
+        for v,n in trackableCollection.items():
+            #dv = math.ceil(n)*v.getSingletonStorageVolume(storageModel.getStoreVaccinesWithDiluent(v))
+            if isinstance(v,abstractbaseclasses.ShippableType):
+                dv = n*v.getSingletonStorageVolume(storageModel)
+
+                #print 'coolTotalVol += %f for %s %s'%(dv,n,v.name)
+                warm = storageModel.canLeaveOutShippableType(v)
+                fridge = storageModel.canRefridgerateShippableType(v)
+                freeze = storageModel.canFreezeShippableType(v)
+                if freeze and fridge and warm:
+                    anyTuples.append((v, dv))
+                elif freeze and fridge:
+                    freezeCoolTuples.append((v, dv))
+                elif fridge and warm:
+                    coolWarmTuples.append((v, dv))
+                elif warm:
+                    warmTuples.append((v, dv))
+                elif fridge:
+                    coolTuples.append((v, dv))
+                elif freeze:
+                    coolTuples.append((v, dv))
+                else:  # apparently no storage method is viable
+                    anyTuples.append((v, dv))
+                if storageModel.canLeaveOutShippableType(v): warmTuples.append((v,dv))
+                elif storageModel.canFreezeShippableType(v): freezeTuples.append((v,dv))
+                else: coolTuples.append((v,dv))
+            else:
+                # Non-Shippable objects like trucks and stationary fridges take up no space
+                pass
+        return (trackableCollection.getSimilarCollection(freezeTuples),
+                trackableCollection.getSimilarCollection(coolTuples),
+                trackableCollection.getSimilarCollection(warmTuples),
+                trackableCollection.getSimilarCollection(freezeCoolTuples),
+                trackableCollection.getSimilarCollection(coolWarmTuples),
+                trackableCollection.getSimilarCollection(anyTuples))
                 
     def getNThatFit(self,volCC,shippableType, storageModel):
         """
@@ -396,6 +505,111 @@ class ListPackagingModel(PackagingModel):
         return (trackableCollection.getSimilarCollection(freezeTuples),
                 trackableCollection.getSimilarCollection(coolTuples),
                 trackableCollection.getSimilarCollection(warmTuples))
+
+    def getStorageVolumeHex(self, trackableCollection, storageModel):
+        """
+        This method calculates the storage volume of the given trackableCollection.  For example,
+        if a given Shippable is stored at the 'box' level, any number of that shippable might be
+        rounded up to the nearest box, to simulate that fact that the storage area may contain 
+        partially-full boxes.  The return value is a 3-element tuple (frozenVolCC,coolVolCC,warmVolCC).
+        
+        This method assumes all shippables are stored in completely filled packages, with leftovers 
+        stored in the next package size down.
+        """        
+        freezeCC = coolCC = warmCC = freezeCoolCC = coolWarmCC = anyCC = 0
+        for v,n in trackableCollection.items():
+            if isinstance(v, abstractbaseclasses.ShippableType):
+                if v in self.pkgTypeDict:
+                    pT = self.pkgTypeDict[v]
+                    dv = 0.0
+                    while pT is not None and n>0:
+                        nPkg = int(n/pT.count)
+                        dv += nPkg * pT.volumeCC
+                        n -= nPkg * pT.count
+                        pT = pT.getNextSmaller()
+                    dv += n * v.getSingletonStorageVolume(storageModel.getStoreVaccinesWithDiluent(v))
+                else:
+                    dv = math.ceil(n)*v.getSingletonStorageVolume(storageModel.getStoreVaccinesWithDiluent(v))
+                warm = storageModel.canLeaveOutShippableType(v)
+                fridge = storageModel.canRefridgerateShippableType(v)
+                freeze = sortageModel.canFreezeShippableType(v)
+                if freeze and fridge and warm:
+                    anyCC += dv
+                elif freeze and fridge:
+                    freezeCoolCC += dv
+                elif fridge and warm:
+                    coolWarmCC += dv
+                elif warm:
+                    warmCC += dv
+                elif fridge:
+                    coolCC += dv
+                elif freeze:
+                    coolCC += dv
+                else:  # apparently no storage method is viable
+                    anyCC += dv
+            else:
+                # Non-Shippable objects like trucks and stationary fridges take up no space
+                pass
+        return (freezeCC, coolCC, warmCC, freezeCoolCC, coolWarmCC, anyCC)
+
+    def getStorageVolumeSCHex(self, trackableCollection, storageModel):
+        """
+        This method calculates the storage volume of the given shippableCollection as a triple of per-shippable
+        collections.  For example, if a given Shippable is stored at the 'box' level, any number of that shippable 
+        might be rounded up to the nearest box, to simulate that fact that the storage area may contain 
+        partially-full boxes.  The return value is a 3-element tuple of collections: (frozenVolVC,coolVolVC,warmVolVC).
+
+        This method assumes all shippables are stored in completely filled packages, with leftovers 
+        stored in the next package size down.
+        """
+        freezeTuples = []
+        coolTuples = []
+        warmTuples = []
+        freezeCoolTuples = []
+        coolWarmTuples = []
+        anyTuples = []
+        for v,n in trackableCollection.items():
+            if isinstance(v,abstractbaseclasses.ShippableType):
+                if v in self.pkgTypeDict:
+                    pT = self.pkgTypeDict[v]
+                    dv = 0.0
+                    while pT is not None and n>0:
+                        nPkg = int(n/pT.count)
+                        dv += nPkg * pT.volumeCC
+                        n -= nPkg * pT.count
+                        pT = pT.getNextSmaller()
+                    dv += n * v.getSingletonStorageVolume(storageModel.getStoreVaccinesWithDiluent(v))
+                else:
+                    dv = math.ceil(n)*v.getSingletonStorageVolume(storageModel.getStoreVaccinesWithDiluent(v))
+                warm = storageModel.canLeaveOutShippableType(v)
+                fridge = storageModel.canRefridgerateShippableType(v)
+                freeze = sortageModel.canFreezeShippableType(v)
+                if freeze and fridge and warm:
+                    anyTuples.append((v, dv))
+                elif freeze and fridge:
+                    freezeCoolTuples.append((v, dv))
+                elif fridge and warm:
+                    coolWarmTuples.append((v, dv))
+                elif warm:
+                    warmTuples.append((v, dv))
+                elif fridge:
+                    coolTuples.append((v, dv))
+                elif freeze:
+                    coolTuples.append((v, dv))
+                else:  # apparently no storage method is viable
+                    anyTuples.append((v, dv))
+                if storageModel.canLeaveOutShippableType(v): warmTuples.append((v,dv))
+                elif storageModel.canFreezeShippableType(v): freezeTuples.append((v,dv))
+                else: coolTuples.append((v,dv))
+            else:
+                # Non-Shippable objects like trucks and stationary fridges take up no space
+                pass
+        return (trackableCollection.getSimilarCollection(freezeTuples),
+                trackableCollection.getSimilarCollection(coolTuples),
+                trackableCollection.getSimilarCollection(warmTuples),
+                trackableCollection.getSimilarCollection(freezeCoolTuples),
+                trackableCollection.getSimilarCollection(coolWarmTuples),
+                trackableCollection.getSimilarCollection(anyTuples))
             
     def getNThatFit(self,volCC,shippableType, storageModel):
         """
