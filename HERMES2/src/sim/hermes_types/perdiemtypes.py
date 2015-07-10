@@ -114,6 +114,7 @@ class PerDiemType(abstractbaseclasses.ManagedType,
         """
         currentWH = homeWH
         totDays = 0.0
+        totDistKM = 0.0
         mustBeOvernight = self.recDict['MustBeOvernight']
         countFirstDay = self.recDict['CountFirstDay']
         minKmHome = self.recDict['MinKmHome']
@@ -122,14 +123,18 @@ class PerDiemType(abstractbaseclasses.ManagedType,
             legStart = tpl[1]
             legEnd = tpl[2]
             conditions = tpl[3]
+            fromWH = tpl[4]
             if op == 'move':
                 currentWH = toWH = tpl[5]  # @UnusedVariable
-            if conditions is None:
-                conditions = 'normal'
-            if homeWH.getKmTo(currentWH, currentWH.category, conditions) > minKmHome:
-                totDays += math.floor(legEnd) - math.floor(legStart)
+                if conditions is None:
+                    conditions = 'normal'
+                totDistKM += fromWH.getKmTo(toWH,homeWH.category,conditions)
+            #if homeWH.getKmTo(currentWH, currentWH.category, conditions) > minKmHome:
+            #    totDays += math.floor(legEnd) - math.floor(legStart)
         if mustBeOvernight and totDays < 1.0:
             return 0
+        if totDistKM > minKmHome:
+            totDays += 1
         totDays = int(totDays)
         if countFirstDay:
             totDays += 1
