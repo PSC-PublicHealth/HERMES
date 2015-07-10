@@ -132,7 +132,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                                             baseCostYear, runCurYear, inflation)
                 tot += cnt*unitCost
             except Exception, e:
-                errList.append(unicode(e))
+                errList.append("There was an error in InventoryCost: {0}".format(unicode(e)))
         return tot, errList
 
     def __init__(self, sim, model, currencyConverter):
@@ -212,7 +212,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                                                          costable.getType(),
                                                                          inflation))
                             except Exception, e:
-                                errList.append(unicode(e))
+                                errList.append("In End Costing: adding FidgeCosts 1:{0}".format(unicode(e)))
                         elif isinstance(costable, trucktypes.Truck):
                             for innerItem in costable.getCargo():
                                 if isinstance(innerItem, abstractbaseclasses.CanStore):
@@ -224,7 +224,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                                                                  innerItem.getType(),
                                                                                  inflation))
                                     except Exception, e:
-                                        errList.append(str(e))
+                                        errList.append("In End Costing: adding Truck Storage Costs:{0}".format(str(e)))
                         elif isinstance(costable, stafftypes.Staff):
                             try:
                                 nh.addNote(self._generateStaffCostNotes(wh.reportingLevel,
@@ -234,7 +234,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                                                         costable.getType(),
                                                                         inflation))
                             except Exception, e:
-                                errList.append(unicode(e))
+                                errList.append("In End Costing adding Staff Costs: {0}".format(unicode(e)))
                         else:
                             print 'Unexpectedly found %s on %s' % (type(costable),
                                                                    wh.name)
@@ -303,7 +303,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                                          for v, n in deliveredSC.items()
                                                          if isinstance(v, trucktypes.TruckType)])
         if len(errList) != 0:
-            util.logError("The following errors were encountered generating costs:")
+            util.logError("The following errors were encountered generating Factory costs:")
             for line in errList:
                 util.logError("   %s" % line)
             raise RuntimeError("Cost calculation failed")
@@ -386,7 +386,10 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                 # run currency at the run year, so no currency conversion is
                 # needed.
                 #
-                fuelCost = (totKm/fuelRate)*fuelPrice
+                
+                fuelCost = 0.0
+                if fuelRate > 0.0:
+                    fuelCost = (totKm/fuelRate)*fuelPrice
                 fare = 0.0
                 maintCost = maintFrac * fuelCost
             else:
@@ -592,21 +595,27 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                     u"Cost information for power type %s is missing" % fuel
                 assert fuelAmortPeriod is not None and fuelAmortPeriod != 0.0, \
                     u"Component lifetime for power type %s is missing" % fuel
-                fuelPrice = basePrice/fuelAmortPeriod
+                fuelPrice = 0.0
+                if fuelAmortPeriod > 0.0:
+                    fuelPrice = basePrice/fuelAmortPeriod
             else:
                 fuelPrice = self.sim.userInput[priceKeyInfo]  # in run currency at run base year
                 assert fuelPrice is not None, \
                     u"Cost information for power type %s is missing" % fuel
             baseCost = fridge.recDict['BaseCost']
             powerRate = fridge.recDict['PowerRate']
+            ### STB, the power rate 
+            powerRate = powerRate*(365.0/self.model.daysPerYear)
             amortPeriod = fridge.recDict['AmortYears']*self.model.daysPerYear
             assert (baseCost is not None and powerRate is not None
                     and fridge.recDict['AmortYears'] is not None), \
                 u"Cost information for %s is incomplete" % fridge.name
             runCur = self.sim.userInput['currencybase']
             runCurYear = self.sim.userInput['currencybaseyear']
-            rawAmortCost = baseCost*(self.intervalEndTime
-                                     - self.intervalStartTime)/amortPeriod
+            rawAmortCost = 0.0
+            if amortPeriod > 0.0:
+                rawAmortCost = baseCost*(self.intervalEndTime
+                                         - self.intervalStartTime)/amortPeriod
             rawMaintCost = baseCost*self.sim.userInput['storagemaintcostfraction']
             # print 'handling %s'%fridge.recDict['Name']
             amortCost = self.currencyConverter.convertTo(rawAmortCost, fCur,
