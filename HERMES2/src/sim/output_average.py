@@ -127,7 +127,7 @@ def create_average_report_CSV(outFileName, inputList, desiredTags=['_ave','_stdv
     create_merged_CSV(outFileName, inputFnameList, desiredTags, forbiddenKeys,sortKey="code")
 
 def create_average_cost_CSV(outFileName, inputList, desiredTags=['_ave']):
-    forbiddenKeys = ["ReportingLevel","ReportingBranch","ReportingIntervalDays","DaysPerYear","Currency"]
+    forbiddenKeys = ["Type","ReportingLevel","ReportingBranch","ReportingIntervalDays","DaysPerYear","Currency"]
     inputFnameList= ["./" + userInput['outputfile'] + "." + str(runNumber) + "_costs.csv" 
                      for runNumber,userInput in enumerate(inputList)]
     create_merged_CSV(outFileName, inputFnameList, desiredTags, forbiddenKeys,sortKey="ReportingLevel")
