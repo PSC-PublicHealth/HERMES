@@ -20,7 +20,7 @@
 	{{_("Choose different outputs under visualization options to plot them on the diagram.")}}</span>
 
 <script src="{{rootPath}}static/d3/d3.min.js" charset="utf-8"></script>
-<script src="{{rootPath}}static/hermes_info_dialogs.js"></script>s
+<script src="{{rootPath}}static/hermes_info_dialogs.js"></script>
 <script src="{{rootPath}}static/collapsible-network-diagram/collapsible-network-diagram.js"></script>
 <script src="{{rootPath}}static/saveSvgAsPng-gh-pages/saveSvgAsPng.js"></script>
 <script src="{{rootPath}}static/jquery.corner.js"></script>
