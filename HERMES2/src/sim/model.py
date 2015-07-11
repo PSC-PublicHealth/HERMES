@@ -488,6 +488,27 @@ class Model:
         self.sim.statsManager.writeStatsRecordList(fileNameRoot+'_stats.csv',
                                                    self.sim.allReportingHierarchies[0])
         
+        allKeys = set()
+        allRecs = []
+        sim = self.sim
+        for tp in util.createSubclassIterator(typemanager.SubTypeManager,
+                                              lambda c: len(c.__subclasses__()) == 0):
+            entityList = getattr(sim, tp.subTypeKey).getActiveTypes()
+            for entity in entityList:
+                sDict = entity.getSummaryDict()
+                for k in sDict.keys():
+                    if k not in allKeys:
+                        allKeys.add(k)
+                allRecs.append(sDict)
+        allKeys = list(allKeys)
+        allKeys.sort()
+        
+        if self.sim.userInput.fromDb:
+            self.sim.results.addSummaryRecs(self.sim.shdNet, allRecs)
+        else:
+            with openOutputFile(fileNameRoot+"_summary.csv","w") as f:
+                filteredWriteCSV(f,allKeys,allRecs,quoteStrings=True)
+        
         if self.sim.userInput.fromDb:
             self.sim.costManager.writeCostRecordsToResultsEntry(self.sim.shdNet,
                                                                 self.sim.allReportingHierarchies[0],
@@ -512,27 +533,10 @@ class Model:
                                 if isinstance(arcname,types.UnicodeType): arcname = arcname.encode('utf-8')
                                 arcname = '_'.join(arcname.split()) # remove whitespace
                                 myzip.writestr(arcname, histo.toJSON())
-
-        allKeys = set()
-        allRecs = []
-        sim = self.sim
-        for tp in util.createSubclassIterator(typemanager.SubTypeManager,
-                                              lambda c: len(c.__subclasses__()) == 0):
-            entityList = getattr(sim, tp.subTypeKey).getActiveTypes()
-            for entity in entityList:
-                sDict = entity.getSummaryDict()
-                for k in sDict.keys():
-                    if k not in allKeys:
-                        allKeys.add(k)
-                allRecs.append(sDict)
-        allKeys = list(allKeys)
-        allKeys.sort()
-
-        if self.sim.userInput.fromDb:
-            self.sim.results.addSummaryRecs(self.sim.shdNet, allRecs)
-        else:
-            with openOutputFile(fileNameRoot+"_summary.csv","w") as f:
-                filteredWriteCSV(f,allKeys,allRecs,quoteStrings=True)
+ 
+         
+ 
+         
             with openOutputFile(fileNameRoot+"_transit_histograms.zip") as f:
                 with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as myzip:
                     for rec in allRecs:
@@ -542,7 +546,7 @@ class Model:
                             else: arcname = nm
                             arcname = '_'.join(arcname.split()) # remove whitespace
                             myzip.writestr(arcname, rec['TransitTime'].toJSON())
-                
+                 
         if clear:
             for wh in [r() for r in self.sim.warehouseWeakRefs if r() is not None]:
                 wh.clearStockIntervalHistograms()
