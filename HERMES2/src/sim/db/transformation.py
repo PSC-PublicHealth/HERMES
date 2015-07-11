@@ -134,8 +134,98 @@ def setRouteByPolicyBetweenLevels(shdNtwk,levelFrequencies):
                 if stop.PullOrderAmountDays is not None:
                     stop.PullOrderAmountDays = freq
     
-    
 
+def convertToSurrogate(shdNtwk,storeId,connectToStore=None):
+    (storesToConvert,routesToRemove,storesRejected) = shdNtwk.storesAndRoutesBelow(shdNtwk.stores[storeId])
+    
+    thisStore = shdNtwk.stores[storeId]
+    
+    totDemandRec = thisStore.demandToRec()
+    
+    for store in storesToConvert:
+        if store.idcode == storeId:
+            continue
+        storeDemRec = store.demandToRec()
+        if storeId == 1120108:
+            print storeDemRec
+        for k,v in storeDemRec.items():
+            if k in totDemandRec.keys():
+                totDemandRec[k]+= v 
+            else:
+                totDemandRec[k] = v 
+    thisStore.clearDemand()
+    thisStore.demandFromRec(totDemandRec)
+    
+    ### delete all of the children stores
+    for route in routesToRemove:
+        shdNtwk.removeRoute(route)
+        
+    for store in storesToConvert:
+        if store != thisStore:
+            shdNtwk.removeStore(store)
+        
+    ### NOw make the store a surrogate
+    thisStore.clearInventory()
+    supplyRoute = thisStore.supplierRoute()
+    thisStore.Latitude = 0.0
+    thisStore.Longitude = 0.0
+    thisStore.FUNCTION = "Surrogate"
+    if supplyRoute.Type in ['pull','demandfetch']:
+        thisStore.useVialsIntervalDays = supplyRoute.stops[0].PullOrderAmountDays
+    elif supplyRoute.Type in ['attached']:
+        pass
+    else:
+        thisStore.UseVialsInterval = supplyRoute.ShipIntervalDays
+    thisStore.UseVialsLatency = supplyRoute.ShipLatencyDays
+    
+    if connectToStore is None:
+        newRoute = [
+                    {
+                     'RouteName':'{0}_surrogate_route'.format(thisStore.idcode),
+                     'Type':'attached',
+                     'LocName':thisStore.supplierStore().NAME,
+                     'idcode':thisStore.supplierStore().idcode,
+                     'RouteOrder':0
+                     },
+                    {
+                     'Type':'attached',
+                     'LocName':thisStore.NAME,
+                     'idcode':thisStore.idcode,
+                     'RouteOrder':1
+                     }
+                    ]
+    else:
+        connectStore = shdNtwk.stores[connectToStore]
+        newRoute = [
+                    {
+                     'RouteName':'{0}_surrogate_route'.format(thisStore.idcode),
+                     'Type':'attached',
+                     'LocName':connectStore.NAME,
+                     'idcode':connectStore.idcode,
+                     'RouteOrder':0
+                     },
+                    {
+                     'Type':'attached',
+                     'LocName':thisStore.NAME,
+                     'idcode':thisStore.idcode,
+                     'RouteOrder':1
+                     }
+                    ]
+    if connectToStore is None:
+        shdNtwk.removeRoute(supplyRoute)
+    shdNtwk.addRoute(newRoute)
+    
+    stopsToRemove= []
+    for storeId,store in shdNtwk.stores.items():
+        if store.FUNCTION == "Surrogate":
+            if store.NAME[-4:] == "stop":
+                stopsToRemove.append(storeId)
+    
+    for storeId in stopsToRemove:
+        thisStore = shdNtwk.stores[storeId]
+        shdNtwk.removeRoute(thisStore.supplierRoute())
+        shdNtwk.removeStore(thisStore)
+    
 def makeLoopsOptimizedByDistanceBetweenLevels(shdNtwk,startLevel,endLevel,placesPerLoop,
                                               maxTravelTime=8.0,vehicleType="GenericVehicle",iterations = 100000, 
                                               add_vehicles=True,
