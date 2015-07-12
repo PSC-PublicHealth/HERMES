@@ -225,6 +225,287 @@ def calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
 
     # classify everything
     freezeTuples= []
+    coolTuples= []
+    warmTuples= []
+    incomingStorageBlocks= []
+    roomtempStorage= canOwn.sim.storage.roomtempStorage() # cache for speed
+    frozenStorage= canOwn.sim.storage.frozenStorage() # cache for speed
+    coolStorageList= canOwn.sim.storage.coolStorageList() # cache for speed
+    sM = canOwn.getStorageModel()
+    for v,n in thisVC.getTupleList():
+        if isinstance(v,abstractbaseclasses.ShippableType):
+            if sM.canLeaveOutShippableType(v): warmTuples.append((v,n))
+            elif sM.canFreezeShippableType(v): freezeTuples.append((v,n))
+            else: coolTuples.append((v,n))
+        else:
+            warmTuples.append((v,n)) # Things like trucks and fridges get stored warm
+        if isinstance(v,abstractbaseclasses.CanStoreType):
+            assert n==int(n), "Non-integral number of fridges"
+            storageCapacityInfo= v.getStorageCapacityInfo()
+            for st,vol in storageCapacityInfo:
+                for _ in xrange(int(n)):
+                    incomingStorageBlocks.append(fridgetypes.Fridge.StorageBlock(canOwn,st,vol))
+    incomingStorageBlocks= canOwn.filterStorageBlocks(incomingStorageBlocks)
+    if len(freezeTuples) + len(coolTuples) == 0:
+        # It's all to be stored warm.  This situation can arise when the inventory to
+        # be packed is a group of fridges, for example.  
+        freezeVC = canOwn.sim.shippables.getCollection()
+        coolVC = canOwn.sim.shippables.getCollection()
+        warmVC= canOwn.sim.shippables.getCollection([(v,1.0) for v,n in warmTuples])        
+    else:
+        # Count up storage in each category
+        freezeTotalVol,coolTotalVol,warmTotalVol = \
+            canOwn.getPackagingModel().getStorageVolumeTriple(thisVC,canOwn.getStorageModel())
+        warmVol= 0.0
+        warmVolUsed= 0.0
+        freezeVol= 0.0
+        freezeVolUsed= 0.0
+        coolVol= 0.0
+        coolVolUsed= 0.0
+        if assumeEmpty:
+            for sb in incomingStorageBlocks:
+                if sb.storageType in coolStorageList:
+                    coolVol += sb.volAvail
+                elif sb.storageType==roomtempStorage:
+                    warmVol += sb.volAvail
+                else:
+                    assert(sb.storageType==frozenStorage)
+                    freezeVol += sb.volAvail
+        else:
+            for sb in canOwn.getStorageBlocks()+incomingStorageBlocks:
+                if sb.storageType in coolStorageList:
+                    coolVol += sb.volAvail
+                    coolVolUsed += sb.volUsed
+                elif sb.storageType==roomtempStorage:
+                    warmVol += sb.volAvail
+                    warmVolUsed += sb.volUsed
+                else: 
+                    assert(sb.storageType==frozenStorage)
+                    freezeVol += sb.volAvail
+                    freezeVolUsed += sb.volUsed
+    
+        # Anything we can leave at room temperature, we leave at room temp
+        if warmTotalVol>warmVol:
+            print 'warmTotalVol = %s, warmVol = %s, assumeEmpty = %s'%(warmTotalVol,warmVol,assumeEmpty)
+            canOwn.printInventory()
+            raise RuntimeError("%s ran out of room temperature storage"%canOwn.bName)
+        warmVC= canOwn.sim.shippables.getCollection([(v,1.0) for v,n in warmTuples])
+    
+        # ratio1 is available freezer volume / desired freezer volume
+        # ratio2 is a measure of how oversubscribed the non-freezer volume is
+        if freezeTotalVol>0.0:
+            ratio1= freezeVol/freezeTotalVol
+        else:
+            ratio1= 0.0
+        if ratio1>=1.0:
+            ratio1= 1.0
+            freezeVC= canOwn.sim.shippables.getCollection([(v,ratio1) for v,n in freezeTuples])
+            if coolTotalVol>0.0:
+                ratio2= min(1.0,coolVol/coolTotalVol)
+            else:
+                ratio2= 0.0
+            coolVC= canOwn.sim.shippables.getCollection([(v,ratio2) for v,n in coolTuples])
+        else:
+            freezeVC= canOwn.sim.shippables.getCollection([(v,ratio1) for v,n in freezeTuples])
+            if coolTotalVol+freezeTotalVol>0.0:
+                ratio2= coolVol/(((1.0-ratio1)*freezeTotalVol)
+                                 +coolTotalVol)
+                ratio2= min(1.0,ratio2)
+                if ratio2>=ratio1:
+                    coolVC= canOwn.sim.shippables.getCollection([(v,ratio2)
+                                                             for v,n in coolTuples]
+                                                            +[(v,ratio2*(1.0-ratio1))
+                                                              for v,n in freezeTuples])
+                else:
+                    # Cooler space is scarce compared to freezer space
+                    # If we include freezable stuff in the cooler, we'll
+                    # end up allocating space for ratio1+(1.0-ratio1)*ratio2
+                    # of it, so it'll get an unfair advantage- don't
+                    # put any freezables in the cooler
+                    ratio2= min(1.0,coolVol/coolTotalVol)
+                    coolVC= canOwn.sim.shippables.getCollection([(v,ratio2) for v,n in coolTuples])
+            else:
+                ratio2= 0.0
+                coolVC= canOwn.sim.shippables.getCollection([(v,0.0) for v,n in coolTuples])
+            #print 'ratio2 = %f, coolTotalVol = %f, coolVol = %f'%(ratio2,coolTotalVol,coolVol)
+
+    #print 'calculateOwnerStorageFillRatios for %s: thisVC is %s, assumeEmpty=%s'%(canOwn.bName,thisVC,assumeEmpty)
+
+    return (freezeVC,coolVC,warmVC)
+
+def allocateOwnerStorageSpace(canOwn,stockBuf):
+    "New goods have been delivered; match to limited storage"
+
+    # Bail early if we have nothing to store
+    if len(stockBuf)==0:
+        return []
+    
+    # Collect storage in each category
+    warmBlocks= []
+    freezeBlocks= []
+    coolBlocks= []
+    for sb in canOwn.getStorageBlocks():
+        sb.clear()
+        if sb.storageType==canOwn.sim.storage.roomtempStorage():
+            warmBlocks.append(sb)
+        elif sb.storageType==canOwn.sim.storage.frozenStorage():
+            freezeBlocks.append(sb)
+        else:
+            coolBlocks.append(sb)
+    warmCollection= Warehouse.StorageBlockCollection(canOwn,warmBlocks)
+    freezeCollection= Warehouse.StorageBlockCollection(canOwn,freezeBlocks)
+    
+    # Sort out what we've got
+    supply= HDict()
+    doNotUseList= []
+    useTheseList= []
+    for group in stockBuf:
+    #for group in [g for g in stockBuf if isinstance(g, abstractbaseclasses.Shippable)]:
+        group.maybeTrack("sort at %s"%canOwn.bName)
+        if not isinstance(group,abstractbaseclasses.Shippable):
+            useTheseList.append(group)
+            vax= group.getType()
+            if vax not in supply: supply[vax]= []
+            supply[vax].append(group)
+        elif group.getAge() is None or group.getTag(abstractbaseclasses.Shippable.DO_NOT_USE_TAG):
+            doNotUseList.append(group)
+        else:
+            useTheseList.append(group)
+            vax= group.getType()
+            if vax not in supply: supply[vax]= []
+            supply[vax].append(group)
+
+    newlySplitGroups= []
+    
+    # First, a special rule: everything marked DoNotUse or expired gets stored warm.
+    for g in doNotUseList:
+        leftovers,newSplits= warmCollection.store(g)
+        #print '%s : stored %s %d %s at room temp'%(canOwn.bName,g.getType().bName,g.getCount(),g.getUniqueName())
+        newlySplitGroups += newSplits
+        if leftovers is not None:
+            raise RuntimeError("%s ran out of discard space"%canOwn.bName)
+    
+    # What do we have?
+    allVC= canOwn.sim.shippables.getCollectionFromGroupList(useTheseList)
+    if allVC.totalCount()==0:
+        return []
+
+    # We attempt to implement the 'fair' allocation system from ARENA
+    freezeVC,coolVC,warmVC= canOwn.calculateStorageFillRatios(allVC, assumeEmpty=True)
+    #print '%s %s freezeVC: %s'%(canOwn.bName,canOwn.sim.now(),[(v.bName,n) for v,n in freezeVC.items()])
+    #print '%s %f coolVC: %s'%(canOwn.bName,canOwn.sim.now(),[(v.bName,n) for v,n in coolVC.items()])
+    #print '%s %f warmVC: %s'%(canOwn.bName,canOwn.sim.now(),[(v.bName,n) for v,n in warmVC.items()])
+    #print '%s %f on allVC %s'%(canOwn.bName,canOwn.sim.now(),[(v.bName,n) for v,n in allVC.items()])
+
+    # Fill storage, one vaccine at a time.  Note that expired
+    # vials will end up in badVialStorage.  This comes from
+    # storage.discardStorage() and is presumably
+    # StorageType("roomtemperature").  We need to track space used in that
+    # storage state, even though it's never expected to fill up.
+    # We store vaccines largest-first to improve packing efficiency.
+    vaxInPackingOrder = canOwn.getPackagingModel().sortToPackingOrder(allVC.keys(),
+                                                                      canOwn.getStorageModel())
+    
+    for vax in vaxInPackingOrder:
+        # The storage spaces in coolCollection need to be ordered
+        # according to the storage priority list of the vaccine
+        if isinstance(vax, abstractbaseclasses.ShippableType):
+            orderedST= [sT for sT in canOwn.getStorageModel().getShippableTypeStoragePriorityList(vax)
+                        if (sT in canOwn.sim.storage.coolStorageList())]
+            if len(orderedST)>0:
+                d= dict([(st,ind) for ind,st in enumerate(orderedST)])
+                l= [(d[block.storageType],block) for block in coolBlocks]
+                l.sort()
+                coolCollection= Warehouse.StorageBlockCollection(canOwn,[block for _,block in l])
+            else:
+                coolCollection= Warehouse.StorageBlockCollection(canOwn,[])
+        else:
+            coolCollection= Warehouse.StorageBlockCollection(canOwn,[])
+            
+        # For some reason the following block is not functionally equivalent to
+        # the code which produces allGroupsThisVax below.
+        #l= [(g.getAge(),g.getCount(),g.history,g) for g in supply[vax]]
+        #l.sort()
+        #allGroupsThisVax= [g for age,nVials,history,g in l]
+
+        if isinstance(vax, abstractbaseclasses.ShippableType):
+            # Sort these youngest first
+            l= [(g.getAge(),g) for g in supply[vax]]
+            l.sort()
+            allGroupsThisVax = [g for _,g in l]
+        else:
+            # These have no age, so no sorting
+            allGroupsThisVax = supply[vax]
+        
+        groupIter= PushbackIterWrapper(allGroupsThisVax.__iter__())
+        try:
+            g= groupIter.next()
+            
+            # Room temperature storage- we should never run out.
+            nWarm= int(math.floor(warmVC[vax]*allVC[vax]))
+            # Frozen storage
+            nFreeze= int(math.floor(freezeVC[vax]*allVC[vax]))
+            # Cool storage
+            nCool= int(math.floor(coolVC[vax]*allVC[vax]))
+            for n,collection in [(nWarm,warmCollection), (nFreeze,freezeCollection),
+                                 (nCool,coolCollection)]:
+                while n>0:
+                    if isinstance(g, abstractbaseclasses.Shippable):
+                        gCount = g.getCount()
+                    else:
+                        gCount = 1
+                    if gCount > n:
+                        subG= g.split(gCount-n)
+                        gCount = n
+                        newlySplitGroups.append(subG)
+                        groupIter.pushback(subG)
+                    n -= gCount
+                    leftovers,newSplits= collection.store(g)
+                    newlySplitGroups += newSplits
+                    if leftovers is not None: 
+                        g= leftovers
+                        # We won't be using n, so don't correct it for leftovers
+                        break
+                    g= groupIter.next()
+                   
+            # Any others get bumped to room temperature
+            # We should never run out.
+            while True:
+                leftovers,newSplits= warmCollection.store(g)
+                #print "%s : bumped %s %d %s to room temp"%(canOwn.bName,g.getType().bName,g.getCount(),g.getUniqueName())
+                newlySplitGroups += newSplits
+                if leftovers is not None: 
+                    warmCollection.printSummary('Warm collection summary')
+                    canOwn.printInventory()
+                    raise RuntimeError("%s ran out of warm space"%canOwn.bName)
+                g= groupIter.next()
+
+        except StopIteration:
+            pass
+    
+    return newlySplitGroups
+
+def NEWcalculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
+    """
+    This attempts to allocate space fairly between vaccines.  It's
+    very similar to the ARENA 'fair share' storage calculation.
+    The return value is a triple of VaccineCollections
+
+       freezeVC, coolVC, warmVC
+
+    where each vaccine's entry represents the fraction of the available
+    vials in the input VC to be stored in each medium.  These fractions
+    are truncated at 1.0.  If assumeEmpty is true, all the canOwn's resources 
+    are presumed to be included in thisVC; this includes both attached fridges
+    and all vaccine supplies.  If false, thisVC is assumed to be 'in addition to'
+    any existing fridges and supplies.
+    """
+
+    # This method should be 'const' in the C++ sense- no modifying
+    # the canOwn!
+
+    # classify everything
+    freezeTuples= []
     freezeCoolTuples = []
     coolTuples= []
     coolWarmTuples = []
@@ -416,7 +697,7 @@ def calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
 
     return (freezeVC,coolVC,warmVC)
 
-def allocateOwnerStorageSpace(canOwn,stockBuf):
+def NEWallocateOwnerStorageSpace(canOwn,stockBuf):
     "New goods have been delivered; match to limited storage"
 
     #print "canOwn: %s\n"%repr(canOwn)
