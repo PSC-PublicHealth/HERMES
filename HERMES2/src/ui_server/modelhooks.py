@@ -367,6 +367,9 @@ def _createModel(db,uiSession):
     db.commit()
     uiSession.getPrivs().registerModelId(db, shdNetwork.modelId, 
                                          uiSession.getDefaultReadGroupID(),uiSession.getDefaultWriteGroupID())
+    
+    shdNetwork.addModelD3Json()
+    db.commit()
 
     quotedLevelNames = ["'%s'"%nm for nm in newModelInfoCN['levelnames']]
     shdNetwork.addParm(shd.ShdParameter('levellist',','.join(quotedLevelNames)))
@@ -1708,13 +1711,15 @@ def jsonRouteInfo(db, uiSession):
 @bottle.route('/json/model-structure-tree-d3')
 def jsonModelStructureTreeD3(db,uiSession):
     try:
-        import locale
-        #print locale.getdefaultlocale()[1]
+        #import locale
         modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
         uiSession.getPrivs().mayReadModelId(db,modelId)
         model = shadow_network_db_api.ShdNetworkDB(db,modelId)
-        
-        json = model.getWalkOfClientsDictForJson(model.rootStores()[0].idcode)
+        json = model.getModelD3Json()
+        if json is None:
+            model.addModelD3Json()
+            db.commit()
+            json = model.getModelD3Json()
         json['success']=True
         
         return json
@@ -1819,6 +1824,9 @@ def uploadModel(db,uiSession):
                                          uiSession.getDefaultReadGroupID(),uiSession.getDefaultWriteGroupID())
         _logMessage("Database insertion was successful!")
         # We now delete the uploaded file.
+        #### Create Jsons that will not be reloaded then
+        net.addModelD3Json()
+        db.commit()
         with uiSession.getLockedState() as state:
             os.remove(info['serverSideName'])
             state.fs().removeFileInfo(info['uploadKey'])

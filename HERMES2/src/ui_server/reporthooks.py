@@ -64,6 +64,7 @@ def createModelSummarySerialized(m):
         print str(e)
         
 def createModelSummaryJson(m):
+    from util import longitudeLatitudeSep
     returnJSON = {}
     orderedLevelList= m.getLevelList()
     totalPlaceCount,vaccPlaceCount = getNumberOfLocationsFromModel(m)
@@ -112,9 +113,16 @@ def createModelSummaryJson(m):
     heirList= []
     for place,depth in heirIdList:
         thisStore = m.stores[place]
+        distKM = -1.0
+        if thisStore.hasGIS() and (len(thisStore.suppliers()) > 0 and thisStore.suppliers()[0][0].hasGIS()):
+            distKM = longitudeLatitudeSep(thisStore.Longitude,thisStore.Latitude,
+                                          thisStore.suppliers()[0][0].Longitude,
+                                          thisStore.suppliers()[0][0].Latitude)
         heirList.append({'idcode':thisStore.idcode,'name':thisStore.NAME,
                          'level':thisStore.CATEGORY,'depth':depth,
-                         'latitude':thisStore.Latitude,'longitude':thisStore.Longitude})
+                         'latitude':thisStore.Latitude,'longitude':thisStore.Longitude,'distKM':distKM})
+        
+            
         
     returnJSON['heirarchicalStores'] =  heirList
     return returnJSON

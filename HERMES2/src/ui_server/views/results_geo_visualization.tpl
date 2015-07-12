@@ -366,6 +366,8 @@ function zoomByFactor(factor) {
     .event(svg.transition().duration(350));
 }
 
+var in_count = 0;
+
 function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,routesJSON){
 	var states = stateJSON.objects.state;
 	var countries = countryJSON.objects.countries;
@@ -403,10 +405,10 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 	
 	var ctgjson = topojson.feature(countryJSON,countryJSON.objects.countries).features.filter(
 			function(d) { 
-				console.log(d.properties.name);
+				//console.log(d.properties.name);
 				return ctIds.indexOf(d.properties.name) > -1;
 			});
-	console.log(ctgjson);
+	//console.log(ctgjson);
 	var stIds = [];
 	var stjson = stateJSON.objects.state.geometries.filter(function(d){
 		thisCentroid = path.centroid(topojson.feature(stateJSON,d));
@@ -420,7 +422,7 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 	
 	var stgjson = topojson.feature(stateJSON,stateJSON.objects.state).features.filter(
 			function(d) { 
-				console.log(d.properties.name);
+				//console.log(d.properties.name);
 				return stIds.indexOf(d.properties.name) > -1;
 			});
 	
@@ -527,6 +529,7 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 			.style("stroke-width",0.025+"px")
 			.style("fill-opacity",1.0)
 			.on("click",clickRouteDialog);
+		
 	features
 		.selectAll('.route-line')
 			.data(routesJSON.geoFC.features)
@@ -536,11 +539,32 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 			.attr("class","route-line")
 			.style("stroke",function(d){
 				//console.log(routeColors[d.rindex]);
+//				if(d.bold=="true"){
+//					return "red";
+//				}
+//				else{
+//					//return "white";
 				return routeColors[d.rindex];
+//				}
 				//return "#"+rainbow.colorAt(100*d.util);
 			})
-			.style("stroke-width",0.025+"px")
-			.style("fill-opacity",1.0)
+			.style("stroke-width",function(d){
+				console.log(d.bold);
+				if(d.bold == "true"){
+					return 0.1+"px";
+				}
+				else{
+					return 0.025+"px";
+				}
+			})
+			.style("fill-opacity",function(d){
+				if(d.bold == "true"){
+					return 1.0;
+				}
+				else{
+					return 0.01;
+				}
+			})
 			.on("click",clickRouteDialog);
 	features
 		.selectAll(".store-circle")
@@ -555,10 +579,16 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 				return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[1];
 			})
 			.attr("r",function(d) {
-				return 0.5/(d.level+1);
+				return 0.25/(d.level+1);
 			})
 			.style("fill",function(d){
-				return levelColors[d.level];
+				if(d.bold == "true"){
+					in_count++;
+					return "red";
+				}
+				else{
+						return levelColors[d.level];
+				}
 				//"#"+rainbow.colourAt(100*d.util);
 			})
 			.style("fill-opacity",0.75)
@@ -651,6 +681,7 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 		.on("click",clickStoreDialog);
 	zoomToCollection(storeJSON.geoFC);
 	doneLoading();
+	console.log("in_count = "+in_count);
 }
 
 // Turn on and off the elements

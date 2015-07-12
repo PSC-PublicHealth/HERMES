@@ -133,6 +133,7 @@ def generateStoreInfoJSON(db, uiSession):
 def generateRouteLinesJSON(db,uiSession):
     try:
         #print "Shoot"
+        from util import longitudeLatitudeSep
         from geojson import Feature,FeatureCollection,dumps,LineString
         modelId= _getOrThrowError(bottle.request.params,'modelId',isInt=True)
         
@@ -157,8 +158,12 @@ def generateRouteLinesJSON(db,uiSession):
                     end = route.stops[1].store
                     if (start.Latitude != 0.0 and start.Longitude != 0.0) and \
                        (end.Latitude != 0.0 and end.Longitude != 0.0):
+                        bold = "false"
+                        if longitudeLatitudeSep(start.Longitude,start.Latitude,end.Longitude,end.Latitude) > 50.0:
+                            bold = "true"
                         #print "HERE"
-                        f.append(Feature(geometry=LineString([(start.Longitude,start.Latitude),(end.Longitude,end.Latitude)]),id=routeId,rindex=routeIndexDict[routeId],maxcount=maxCount))
+                        f.append(Feature(geometry=LineString([(start.Longitude,start.Latitude),(end.Longitude,end.Latitude)]),
+                                         id=routeId,rindex=routeIndexDict[routeId],maxcount=maxCount),bold=bold)
         
         FC = FeatureCollection(f)
         
@@ -169,32 +174,55 @@ def generateRouteLinesJSON(db,uiSession):
         return result
         
 
-### This will return stores with results attached             
+### This will return stores with results attached            
 @bottle.route('/json/storeresultslocations')
 def generateStoreUtilInfoJSON(db, uiSession):
+    modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+    resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
+        
+    uiSession.getPrivs().mayReadModelId(db,modelId)
+    m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+    r = m.getResultById(resultsId)
+    returnJson = r.getGeoResultsJson()
+    return returnJson['storejson']
+
+def generateStoreUtilInfoJSONFromResult(r):
+    import session_support_wrapper as session_support
+    import db_routines
+    try:
+        iface = db_routines.DbInterface(echo=False)
+        session = iface.Session()
+        rG = session.query(shadow_network.HermesResultsGroup).filter(shadow_network.HermesResultsGroup.resultsGroupId == r.resultsGroupId).one()
+        m = session.query(shadow_network.ShdNetwork).filter(shadow_network.ShdNetwork.modelId == rG.modelId).one()
+        if m.hasGeoCoordinates():
+            return generateStoreUtilInfoJSONNoSession(m, r)
+        else:
+            return {'success':True,'msg':'There are no coordinates'}
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+    
+def generateStoreUtilInfoJSONNoSession(m,r):
     #from visualizationUtils import circleLonLat
     try:
+        from util import longitudeLatitudeSep
         from geojson import Feature,Point,Polygon,FeatureCollection,dumps
-        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
-        resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
         
-        uiSession.getPrivs().mayReadModelId(db,modelId)
-        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
-        r = m.getResultById(resultsId)
                 
         levels = m.getLevelList()
         
         f = []
-        
         maxPop = m.getMaxPopulationByWalkOfClients(m.rootStores()[0].idcode)
         for storeId,store in m.stores.items():
             flag = False
             if store.supplierRoute() is None: 
                 flag = True
             else: 
-                if (store.supplierRoute().Type != "attached" and store.CATEGORY != "Surrogate" and store.CATEGORY != "OutreachClinic"): 
+                if (store.supplierRoute().Type != "attached" and store.CATEGORY != "Surrogate" and store.CATEGORY != "OutreachClinic" and
+                    (float(store.Latitude) != 0.0 and float(store.Longitude)!= 0.0)): 
                     flag = True
             if flag:
+                bold="false"
                 pop = generatePopulationListingForStore(m,store)
                 vac = generateVaccineStatsForStore(m,r,storeId)
                 f.append(Feature(geometry=Point([store.Longitude,store.Latitude]),id=store.idcode,\
@@ -202,7 +230,8 @@ def generateStoreUtilInfoJSON(db, uiSession):
                          level=levels.index(store.CATEGORY),
                          util=r.storesRpts[storeId].storage['cooler'].fillRatio,
                          pop=pop['all']['count']/maxPop,
-                         va=vac['allvax']['avail']))
+                         va=vac['allvax']['avail'],
+                         bold=bold))
              
         FC = FeatureCollection(f)
                     
@@ -216,24 +245,45 @@ def generateStoreUtilInfoJSON(db, uiSession):
 @bottle.route('/json/routeresultslines')
 def generateRouteUtilizationLinesJSON(db,uiSession):
     try:
-        #print "Shoot"
-        from geojson import Feature,FeatureCollection,dumps,LineString
         modelId= _getOrThrowError(bottle.request.params,'modelId',isInt=True)
         resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
         
         uiSession.getPrivs().mayReadModelId(db,modelId)
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         r = m.getResultById(resultsId)
+        returnJson = r.getGeoResultsJson()
+        return returnJson['routejson']
+
+    except Exception,e:
+        result = {'success':False, 'msg':"%s: %s"%(sys.exc_traceback.tb_lineno,str(e))}
+        return result
+
+def generateRouteUtilizationLinesJSONFromResult(r):
+    import session_support_wrapper as session_support
+    import db_routines
+    try:
+        iface = db_routines.DbInterface(echo=False)
+        session = iface.Session()
+        rG = session.query(shadow_network.HermesResultsGroup).filter(shadow_network.HermesResultsGroup.resultsGroupId == r.resultsGroupId).one()
         
-        #print "YES"
+        m = session.query(shadow_network.ShdNetwork).filter(shadow_network.ShdNetwork.modelId == rG.modelId).one()
+        if m.hasGeoCoordinates():
+            return generateRouteUtilizationLinesJSONNoSession(m, r)
+        else:
+            return {'success':True,'message':'There are no coordinates'}
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+    
+def generateRouteUtilizationLinesJSONNoSession(m,r):
+    try:
+        #from util import longitudeLatitudeSep
+        from geojson import Feature,FeatureCollection,dumps,LineString
         f = []
-        #print "THERE"
         routeIndexDict = {}
         count = 1
         for routeId,route in m.routes.items():
             if routeId not in routeIndexDict.keys():
-                #print route.stops[0][0].CATEGORY
-                #print route.stops[1][0].CATEGORY
                 if route.Type != 'attached' and route.stops[1].store.CATEGORY != "OutreachClinic":
                     routeIndexDict[routeId] = count
                     count += 1
@@ -250,21 +300,13 @@ def generateRouteUtilizationLinesJSON(db,uiSession):
                        (end.Latitude != 0.0 and end.Longitude != 0.0) and \
                        (start.Latitude != None and start.Longitude != None) and \
                        (end.Latitude != None and end.Longitude != None):
-                        #print "HERE"
-                        print "theeee"
-                        print routeId
                         fill = r.routesRpts[routeId].RouteFill
-                        print fill
-                        print start.Latitude
-                        print start.Longitude
-                        print end.Latitude
-                        print end.Longitude
-                        
+                        bold = "false"
                         if fill > 1.0:
                             fill = 1.0
                             
                         f.append(Feature(geometry=LineString([(start.Longitude,start.Latitude),(end.Longitude,end.Latitude)]),
-                                         id=routeId,util=fill,rindex=routeIndexDict[routeId],maxcount=maxCount))
+                                         id=routeId,util=fill,rindex=routeIndexDict[routeId],maxcount=maxCount,bold=bold))
                 else:
                     print routeId
                     for i in range(0,len(route.stops)):

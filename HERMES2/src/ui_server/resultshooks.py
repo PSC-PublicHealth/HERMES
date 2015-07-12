@@ -192,11 +192,7 @@ def getResultsGroupTree(rG,m,db):
             tText += "Ave"
         else:
             tText += "Run {0}".format(r.runNumber)
-        
-        #linkName = "<a href={0}results-summary?modelId={1}&resultsId={2}>Open</a>".format("",
-        #                                                                                  modelId,
-        #                   
-        #                                                               r.resultsId)    
+    
         rName += " <button id='res_del_but_r_{0}_{1}' class='res_del_button' >{2}</button>".format(rG.modelId,
                                                                                                  r.resultsId,
                                                                                                  _("delete"))
@@ -245,13 +241,6 @@ def resultsTreeForOneModels(db,uiSession):
 def resultsTreeForModel(db,uiSession):
     try:
         modelId=_getOrThrowError(bottle.request.params,'modelId',isInt=True)
-#         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
-#         ## get Results Group (note s_n is shadow_network)
-#         rsltGrps = db.query(s_n.HermesResultsGroup).filter(s_n.HermesResultsGroup.modelId==modelId)
-#         resultsJson = []
-#         for rG in rsltGrps:
-#             resultsJson.append(getResultsGroupTree(rG,m,db))
-        
         return {'success':True,'rgnames':getResultsTreeForModel(modelId, db)}
     
     except Exception as e:
@@ -272,7 +261,6 @@ def jsonManageResultsTable(db, uiSession):
                 if rslt.resultsType != "average":
                     rsltscount +=1
             for rslt in rsltGrp.results:
-                #if rslt.resultsType=='single':
                 if rsltscount == 1:
                     if rslt.resultsType == "average":
                         print "average"
@@ -315,9 +303,6 @@ def jsonManageResultsTable(db, uiSession):
                      }
                        for r in rList]
               }
-    print "-------------------"
-    for r in result['rows']: print r
-    print '%d rows'%len(result['rows'])
     return result
 
 @bottle.route('/results-summary')
@@ -413,7 +398,6 @@ def jsonResultsSummary(db, uiSession):
                     results['rows'].append(attrRec)
 
         results['success'] = True
-        print results
         return results
 
     except Exception,e:
@@ -430,6 +414,64 @@ def _checkSameAndDel(rec,key,val):
         del rec[key]
         return val
 
+def generateCostsSummaryFromResult(r):
+    import session_support_wrapper as session_support
+    import db_routines
+    
+    iface = db_routines.DbInterface(echo=False)
+    session = iface.Session()
+    rG = session.query(s_n.HermesResultsGroup).filter(s_n.HermesResultsGroup.resultsGroupId == r.resultsGroupId).one()
+    m = session.query(s_n.ShdNetwork).filter(s_n.ShdNetwork.modelId == rG.modelId).one()
+    
+    results = {'total': 1,
+               'page': "1"
+               }
+
+    workingRecs = []
+    for cSR in r.costSummaryRecs:
+        rec = cSR.createRecord()
+        if rec['ReportingLevel'] in ['all']:
+            workingRecs.append(rec)
+    
+    baseYear = baseCur = intervalDays = daysPerYear = recType = None
+    
+    for rec in workingRecs:
+        baseYear = _checkSameAndDel(rec, 'BaseYear', baseYear)
+        baseCur = _checkSameAndDel(rec, 'Currency', baseCur)
+        intervalDays = _checkSameAndDel(rec, 'ReportingIntervalDays', intervalDays)
+        daysPerYear = _checkSameAndDel(rec, 'DaysPerYear', daysPerYear)
+        recType = _checkSameAndDel(rec, 'Type', recType)
+        for entry in ['ReportingLevel']:
+            del rec[entry]
+    
+    if recType == 'micro1':
+        # Clip the tags off the cost entries
+        newRecs = []
+        for rec in workingRecs:
+            nRec = {}
+            for k, v in rec.items():
+                if k.startswith('m1C_'):
+                    k = k[4:]
+                if v != 0.0:
+                    nRec[k] = v
+            newRecs.append(nRec)
+        workingRecs = newRecs
+   
+    lvlNames = m.getParameterValue('levellist')
+    lvlMap = {nm: ind for ind, nm in enumerate(lvlNames)}
+    sortMe = [(lvlMap[rec['ReportingBranch']], rec) for rec in workingRecs]
+    sortMe.sort()
+    workingRecs = [b for a, b in sortMe]  # @UnusedVariable
+
+    results['BaseYear'] = baseYear
+    results['Type'] = recType
+    results['Currency'] = baseCur
+    results['ReportingIntervalDays'] = intervalDays
+    results['DaysPerYear'] = daysPerYear
+    results['rows'] = workingRecs
+    
+    return results
+    
 @bottle.route('/json/costs-summary')
 def jsonCostsSummary(db, uiSession):
     try:
@@ -438,52 +480,7 @@ def jsonCostsSummary(db, uiSession):
         uiSession.getPrivs().mayReadModelId(db,modelId)
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         r = m.getResultById(resultsId)
-
-        results = {'total': 1,
-                   'page': "1"
-                   }
-
-        workingRecs = []
-        for cSR in r.costSummaryRecs:
-            rec = cSR.createRecord()
-            if rec['ReportingLevel'] in ['all']:
-                workingRecs.append(rec)
-        baseYear = baseCur = intervalDays = daysPerYear = recType = None
-        for rec in workingRecs:
-            baseYear = _checkSameAndDel(rec, 'BaseYear', baseYear)
-            baseCur = _checkSameAndDel(rec, 'Currency', baseCur)
-            intervalDays = _checkSameAndDel(rec, 'ReportingIntervalDays', intervalDays)
-            daysPerYear = _checkSameAndDel(rec, 'DaysPerYear', daysPerYear)
-            recType = _checkSameAndDel(rec, 'Type', recType)
-            for entry in ['ReportingLevel']:
-                del rec[entry]
-
-        if recType == 'micro1':
-            # Clip the tags off the cost entries
-            newRecs = []
-            for rec in workingRecs:
-                nRec = {}
-                for k, v in rec.items():
-                    if k.startswith('m1C_'):
-                        k = k[4:]
-                    if v != 0.0:
-                        nRec[k] = v
-                newRecs.append(nRec)
-            workingRecs = newRecs
-
-        lvlNames = m.getParameterValue('levellist')
-        lvlMap = {nm: ind for ind, nm in enumerate(lvlNames)}
-        sortMe = [(lvlMap[rec['ReportingBranch']], rec) for rec in workingRecs]
-        sortMe.sort()
-        workingRecs = [b for a, b in sortMe]  # @UnusedVariable
-
-        results['BaseYear'] = baseYear
-        results['Type'] = recType
-        results['Currency'] = baseCur
-        results['ReportingIntervalDays'] = intervalDays
-        results['DaysPerYear'] = daysPerYear
-        results['rows'] = workingRecs
-
+        results = r.getCostSummaryResultsJson()
         results['success'] = True
         return results
 
@@ -524,6 +521,7 @@ def jsonCostsSummaryLayout(db, uiSession):
         r = m.getResultById(resultsId)
         details = jsonCostsSummary(db, uiSession)
         costType = details['Type']
+        
         if costType == "dummy" or costType is None:
             title = _("No costing calculations were done")
             columns = []
@@ -543,7 +541,7 @@ def jsonCostsSummaryLayout(db, uiSession):
                     if k != 'ReportingBranch':
                         colSet.add(k)
             columns = list(colSet)
-
+        
         title = title.format(details['BaseYear'], details['Currency'])
         tColumns = []
         for col in columns:
@@ -559,7 +557,7 @@ def jsonCostsSummaryLayout(db, uiSession):
                   'levelTitle': _('Levels'),
                   'totalLabel': _('Totals')
                   }
-
+        
         return result
 
     except Exception, e:
@@ -587,7 +585,6 @@ def costsSummaryKey(m, r):
 
             # print 'total cost: %s' % totalCost
             break
-
     dosesByVaccine = {}
     for dmnd in m.unifiedDemands:
         if dmnd.peopleStr.lower() not in ['pregnant', 'service']:
@@ -600,15 +597,14 @@ def costsSummaryKey(m, r):
     nFullyTreated = None
     for rec in [sr.createRecord() for sr in r.summaryRecs.values()
                 if sr.summaryType == 'vaccines']:
+       
         totDosesDelivered += rec['Treated']
-        print rec
         if rec['Name'] in dosesByVaccine:
-            print dosesByVaccine[rec['Name']]
             if float(dosesByVaccine[rec['Name']]) > 0:
                 nFT = float(rec['Treated'])/float(dosesByVaccine[rec['Name']])
                 if nFullyTreated is None or nFT < nFullyTreated:
                     nFullyTreated = nFT
-
+                    
     if nFullyTreated > 0.0:
         costPerFIC = totalCost / nFullyTreated
         logCostPerFIC = totalLogisticsCost / nFullyTreated
@@ -630,6 +626,28 @@ def costsSummaryKey(m, r):
 
     return ret
 
+def generateCostsSummaryKeyPointsFromResult(r):
+    #import session_support_wrapper as session_support
+    import db_routines
+    
+    iface = db_routines.DbInterface(echo=False)
+    session = iface.Session()
+    rG = session.query(s_n.HermesResultsGroup).filter(s_n.HermesResultsGroup.resultsGroupId == r.resultsGroupId).one()
+    m = session.query(s_n.ShdNetwork).filter(s_n.ShdNetwork.modelId == rG.modelId).one()
+    
+    vals = costsSummaryKey(m,r)
+    return {'mainTitle': _('Key Costing Points'),
+            'labels': [_('Logistics Cost per Dose Administered'),
+                       _('Logistics Cost per Fully Immunized Child (FIC)')
+                       ],
+            'values': [vals['costPerDose'],
+                       vals['costPerFIC']
+                       ],
+            'fmts': ['money',
+                     'money'
+                    ]  # valid formats are 'money', 'text', 'number'
+            }
+
 @bottle.route('/json/costs-summary-keypoints')
 def jsonCostsSummaryKeyPoints(db, uiSession):
     try:
@@ -638,22 +656,10 @@ def jsonCostsSummaryKeyPoints(db, uiSession):
         uiSession.getPrivs().mayReadModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         r = m.getResultById(resultsId)
-
-        vals = costsSummaryKey(m, r)
+        results = r.getCostSummaryKeyPointsJson()
+        results['success'] = True
+        return results
         
-        return {'success': True,
-                'mainTitle': _('Key Costing Points'),
-                'labels': [_('Logistics Cost per Dose Administered'),
-                           _('Logistics Cost per Fully Immunized Child (FIC)')
-                           ],
-                'values': [vals['costPerDose'],
-                           vals['costPerFIC']
-                           ],
-                'fmts': ['money',
-                         'money'
-                         ]  # valid formats are 'money', 'text', 'number'
-                }
-
     except Exception, e:
         _logStacktrace()
         result = {'success': False, 'msg': str(e)}
@@ -707,8 +713,6 @@ def jsonResultSummaryVaccineByPlaceBySize(db, uiSession):
         sizeBorders = [100,300,1000]
         histogramDataString = r.getVAHistString()
         histDataSplit = histogramDataString.split(":")
-        #print "Lenght = " + str(len(histDataSplit))
-        print "String = " + str(histogramDataString)
         histogramData = []
         for i in range(0,4):
             histogramData.append([])
@@ -912,6 +916,37 @@ def jsonResultSummaryCostHierarchicalMixedValue(db, uiSession):
     return jsonResultSummaryCostHierarchicalMixed(db, uiSession, value_format='value')
 
 
+def generateResultSummaryCostHierarchicalFromResult(r, value_format='size', fmt=None):
+    import db_routines
+    
+    iface = db_routines.DbInterface(echo=False)
+    session = iface.Session()
+    rG = session.query(s_n.HermesResultsGroup).filter(s_n.HermesResultsGroup.resultsGroupId == r.resultsGroupId).one()
+    m = session.query(s_n.ShdNetwork).filter(s_n.ShdNetwork.modelId == rG.modelId).one()
+    
+    base = m.getParameterValue('currencybase')
+    year = m.getParameterValue('currencybaseyear')
+    _from = 'size'
+    if value_format == 'value':
+        _to = 'value'
+    else:
+        _to = 'size'
+
+    try:
+        cost_summary = getCostModelSummary(m, r)
+        result = {'data': {'cost_summary': _convert_key(cost_summary.dict(fmt=fmt),
+                                                        _from, _to),
+                           'currency_base': base,
+                           'currency_year': year
+                           }
+                  }
+    except Exception, e:
+        _logStacktrace()
+        result = {'data': '{}',
+                  'msg': str(e)}
+    
+    return result
+
 @bottle.route('/json/results-cost-hierarchical')
 def jsonResultSummaryCostHierarchical(db, uiSession, value_format='size', fmt=None):
     try:
@@ -923,30 +958,9 @@ def jsonResultSummaryCostHierarchical(db, uiSession, value_format='size', fmt=No
 
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         r = m.getResultById(resultsId)
-
-        base = m.getParameterValue('currencybase')
-        year = m.getParameterValue('currencybaseyear')
-        _from = 'size'
-        if value_format == 'value':
-            _to = 'value'
-        else:
-            _to = 'size'
-
-        try:
-            cost_summary = getCostModelSummary(m, r)
-            result = {'success': True,
-                      'data': {'cost_summary': _convert_key(cost_summary.dict(fmt=fmt),
-                                                            _from, _to),
-                               'currency_base': base,
-                               'currency_year': year
-                               }
-                      }
-        except Exception, e:
-            _logStacktrace()
-            result = {'success': False,
-                      'data': '{}',
-                      'msg': str(e)}
-
+        #result = generateResultSummaryCostHierarchicalFromResult(r, value_format='size', fmt=None)
+        result = r.getHierarchicalCostSummaryBarChartJson()
+        result['success'] = True
         return result
 
     except Exception, e:
@@ -957,5 +971,23 @@ def jsonResultSummaryCostHierarchical(db, uiSession, value_format='size', fmt=No
 
 @bottle.route('/json/results-cost-hierarchical-value')
 def jsonResultSummaryCostHierarchicalValue(db, uiSession):
-    return jsonResultSummaryCostHierarchical(db, uiSession, value_format='value',
-                                             fmt='cllc')
+    try:
+        
+        modelId = _getOrThrowError(bottle.request.params,
+                                       'modelId', isInt=True)
+        resultsId = _getOrThrowError(bottle.request.params,
+                                        'resultsId', isInt=True)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+    
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        r = m.getResultById(resultsId)
+        
+        result = r.getHierarchicalCostSummaryTreeMapJson()
+        result['success'] = True
+        return result
+
+    except Exception, e:
+        _logStacktrace()
+        result = {'success': False, 'msg': str(e)}
+        return result
+    

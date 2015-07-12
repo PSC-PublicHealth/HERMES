@@ -521,32 +521,32 @@ class Model:
             keys,recs = self.sim.statsManager.generateStatsRecordInfo(self.sim.allReportingHierarchies[0])
             csv_tools.castColumn(recs,'ReportingLevel',csv_tools.castTypes.STRING)
             csv_tools.castColumn(recs,'ReportingBranch',csv_tools.castTypes.STRING)
-            with openOutputFile(fileNameRoot+"_retention_histograms.zip") as f:
-                with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as myzip:
-                    vaxKeys = ["%s_daysretention"%n for n in self.sim.vaccines.getActiveTypeNames()]
-                    for rec in recs:
-                        for vK in vaxKeys:
-                            if vK in rec:
-                                histo = rec[vK]
-                                nm = vK[:-14]+'.histo' # trim off '_daysretention'
-                                arcname = u"%s/%s/%s"%(rec['ReportingLevel'],rec['ReportingBranch'],nm)
-                                if isinstance(arcname,types.UnicodeType): arcname = arcname.encode('utf-8')
-                                arcname = '_'.join(arcname.split()) # remove whitespace
-                                myzip.writestr(arcname, histo.toJSON())
- 
-         
- 
-         
-            with openOutputFile(fileNameRoot+"_transit_histograms.zip") as f:
-                with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as myzip:
-                    for rec in allRecs:
-                        if 'TransitTime' in rec:
-                            nm = rec['Name']+'.histo'
-                            if isinstance(nm, types.UnicodeType): arcname = nm.encode('utf-8')
-                            else: arcname = nm
-                            arcname = '_'.join(arcname.split()) # remove whitespace
-                            myzip.writestr(arcname, rec['TransitTime'].toJSON())
-                 
+#             with openOutputFile(fileNameRoot+"_retention_histograms.zip") as f:
+#                 with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as myzip:
+#                     vaxKeys = ["%s_daysretention"%n for n in self.sim.vaccines.getActiveTypeNames()]
+#                     for rec in recs:
+#                         for vK in vaxKeys:
+#                             if vK in rec:
+#                                 histo = rec[vK]
+#                                 nm = vK[:-14]+'.histo' # trim off '_daysretention'
+#                                 arcname = u"%s/%s/%s"%(rec['ReportingLevel'],rec['ReportingBranch'],nm)
+#                                 if isinstance(arcname,types.UnicodeType): arcname = arcname.encode('utf-8')
+#                                 arcname = '_'.join(arcname.split()) # remove whitespace
+#                                 myzip.writestr(arcname, histo.toJSON())
+#  
+#          
+#  
+#          
+#             with openOutputFile(fileNameRoot+"_transit_histograms.zip") as f:
+#                 with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as myzip:
+#                     for rec in allRecs:
+#                         if 'TransitTime' in rec:
+#                             nm = rec['Name']+'.histo'
+#                             if isinstance(nm, types.UnicodeType): arcname = nm.encode('utf-8')
+#                             else: arcname = nm
+#                             arcname = '_'.join(arcname.split()) # remove whitespace
+#                             myzip.writestr(arcname, rec['TransitTime'].toJSON())
+#                  
         if clear:
             for wh in [r() for r in self.sim.warehouseWeakRefs if r() is not None]:
                 wh.clearStockIntervalHistograms()

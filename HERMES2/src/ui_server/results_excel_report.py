@@ -49,7 +49,7 @@ from openpyxl.styles import Style, PatternFill, Border, Side, Alignment, Protect
 from openpyxl.worksheet.dimensions import ColumnDimension, RowDimension
 
 import time
-from reporthooks import createModelSummaryWSCall
+from reporthooks import createModelSummaryWSCall, createModelSummarySerialized
 import traceback
 from resultshooks import costsSummaryKey
 
@@ -309,12 +309,14 @@ def preprocessCostRows(hr):
 @bottle.route('/json/create-xls-summary-openpyxl')
 def createExcelSummaryOpenPyXl(db, uiSession):
     try:
-        modelJSON = createModelSummaryWSCall(db, uiSession)
+        import json
+        #createModelSummaryWSCall(db, uiSession)
         fname = _safeGetReqParam(bottle.request.params, 'filename', isInt=False)
         modelId = _safeGetReqParam(bottle.request.params, 'modelId', isInt=False)
         resultsId = _safeGetReqParam(bottle.request.params, 'resultsId', isInt=False)
         uiSession.getPrivs().mayReadModelId(db,modelId)
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        modelJSON = json.loads(createModelSummarySerialized(m))
         #hr = m.getResultById(resultsId)
         hr = db.query(shd.HermesResults).filter(shd.HermesResults.resultsId==resultsId).one()
 
@@ -336,6 +338,7 @@ def createExcelSummaryOpenPyXl(db, uiSession):
 
         ss.mergeCells(5)
         ss.rowHeight(22)
+        print modelJSON['name']
         ss.postNext(modelJSON['name'], modelHeadingStyle)
 
         ss.nextRow()
@@ -645,6 +648,7 @@ def createExcelSummaryOpenPyXl(db, uiSession):
         hs.c(levCol+1)
         headers = (_("Level"), _("ID Code"), 
                    _("Latitude"), _("Longitude"),
+                   _("Straight KM Distance"),
                    _("Total Volume Delivered"),
                    _("Peak Storage Utilization"),
                    _("Vaccine Availability"),)
@@ -675,7 +679,9 @@ def createExcelSummaryOpenPyXl(db, uiSession):
             if placeDict['latitude'] != 0.0 and placeDict['longitude'] != 0.0:
                 hs.postNext(placeDict['latitude'], plainStyle)
                 hs.postNext(placeDict['longitude'], plainStyle)
+                hs.postNext(placeDict['distKM'],plainStyle)
             else:
+                hs.next()
                 hs.next()
                 hs.next()
 

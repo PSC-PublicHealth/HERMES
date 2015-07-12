@@ -6,4 +6,4 @@ geojson
 kitchen
 zest.pocompile
 xlwt
-openpyxl
+openpyxl==2.1.1

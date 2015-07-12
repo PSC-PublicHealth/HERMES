@@ -962,7 +962,8 @@ class ShdStore(Base, ShdCopyable):
             return None
         if len(s) == 1:
             return s[0][1]
-        raise RuntimeError("only one supplier expected: %s, %s"%(self.idcode, s))
+        else:
+            raise RuntimeError("only one supplier expected for store {0}: {1} found".format(self.idcode,len(s)))
     
     def supplierStore(self):
         s = self.suppliers()
@@ -970,7 +971,7 @@ class ShdStore(Base, ShdCopyable):
             return None
         if len(s) == 1:
             return s[0][0]
-        raise RuntimeError("only one supplier expected")
+        raise RuntimeError("only one supplier expected for store {0}: {1} found".format(self.idcode,len(s)))
             
 
     def recursiveSuppliers(self):
@@ -1019,6 +1020,13 @@ class ShdStore(Base, ShdCopyable):
        
         return False
 
+    def hasGIS(self):
+        if (self.Latitude != 0.0 and self.Longitude !=0.0) and \
+            (self.Latitude != None and self.Longitude != None): 
+            return True
+        else:
+            return False
+        
     def reportDemandServedDict(self):
         ### This will return the total demand served by this location
         ### This takes into account is a location has attached clinics
@@ -1032,7 +1040,7 @@ class ShdStore(Base, ShdCopyable):
                 returnDict[demand.invType.getDisplayName()] = demand.count
         for client in self.clients():
             if client[1].Type == 'attached':
-                if client[0].FUNCTION != "Surrogate" and client[0].CATEGORY != "OutreachClinic":
+                if client[0].FUNCTION != "Surrogate": #and client[0].CATEGORY != "OutreachClinic":
                     for demand in client[0].demand:
                         if demand.invName not in excludeList:
                             dispName = demand.invType.getDisplayName()
@@ -2045,6 +2053,8 @@ class HermesResultsGroup(Base):
             summaryRec /= float(len(resultsToParse))
 
         aveResult.addHistograms(net)
+        print "Trying to add Geo"
+        aveResult.addGeoResultsJson()
         costSummaryRecList = aveResult.costSummaryRecs[:]
         for rslt in resultsToParse:
             costSummaryRecList.extend(rslt.costSummaryRecs[:])
@@ -2072,7 +2082,11 @@ class HermesResultsGroup(Base):
             aveCostSummaryRecs.append(oldSummary)
  
         aveResult.costSummaryRecs = aveCostSummaryRecs
-
+        aveResult.addCostSummaryResultsJson()
+        aveResult.addCostSummaryKeyPointsJson()
+        aveResult.addHierarchicalCostSummaryTreeMapJson()
+        aveResult.addHierarchicalCostSummaryBarChartJson()
+        
 _makeColumns(HermesResultsGroup)
 
 def resultsGroupLoadListener(HermesResultsGroup, context):
@@ -2115,6 +2129,62 @@ class StoreCapHistBlobHolder(Base):
     def __init__(self, blob):
         self.blob = blob
 
+class GeoResultsBlobHolder(Base):
+    """
+    This class adds a layer of abstraction so that Blobs are only accessed when specifically desired
+    and don't clutter up table displays or increase DB usage.
+    """
+    __tablename__ = 'geoResultsBlobHolder'
+    blobId = Column(Integer, primary_key=True)
+    blob = Column(LargeBinary)
+    
+    def __init__(self, blob):
+        self.blob = blob
+
+class CostSummaryResultsBlobHolder(Base):
+    """
+    This class will hold the cost summary blob for quick loading
+    """
+    __tablename__= 'costSummaryResultsBlobHolder'
+    blobId = Column(Integer, primary_key=True)
+    blob = Column(LargeBinary)
+    
+    def __init__(self, blob):
+        self.blob = blob
+            
+class CostSummaryKeyPointsBlobHolder(Base):
+    """
+    This class will hold the cost summary key points blob for quick loading
+    """
+    __tablename__= 'costSummaryKeyPointsBlobHolder'
+    blobId = Column(Integer, primary_key=True)
+    blob = Column(LargeBinary)
+    
+    def __init__(self, blob):
+        self.blob = blob
+        
+class HierarchicalCostSummaryTreeMapBlobHolder(Base):
+    '''
+    This class will hold the json for the cost tree map
+    '''
+    __tablename__= 'hierarchicalCostSummaryTreeMapBlobHolder'
+    blobId = Column(Integer, primary_key=True)
+    blob = Column(LargeBinary)
+    
+    def __init__(self, blob):
+        self.blob = blob
+
+class HierarchicalCostSummaryBarChartBlobHolder(Base):
+    '''
+    This class will hold the json for the cost bar chart
+    '''
+    __tablename__= 'hierarchicalCostSummaryBarChartBlobHolder'
+    blobId = Column(Integer, primary_key=True)
+    blob = Column(LargeBinary)
+    
+    def __init__(self, blob):
+        self.blob = blob
+
 class HermesResults(Base):
     """
     This will hold information about a specific time that hermes was run
@@ -2146,7 +2216,37 @@ class HermesResults(Base):
             self.kmlVizStingRef = None
             return
         self.storeCapJsonRef = StoreCapHistBlobHolder(tt)    
-            
+        
+    def copyGeoResultsJson(self,tt):
+        if tt is None or tt == '':
+            self.geoResultsJsonRef = None
+            return
+        self.geoResultsJsonRef = GeoResultsBlobHolder(tt)
+    
+    def copyCostSummaryResultsJson(self,tt):
+        if tt is None or tt == '':
+            self.costSummaryResultsJsonRef = None
+            return
+        self.costSummaryResultsJsonRef = CostSummaryResultsBlobHolder(tt) 
+    
+    def copyCostSummaryKeyPointsJson(self,tt):
+        if tt is None or tt == '':
+            self.costSummaryKeyPointsJsonRef = None
+            return
+        self.costSummaryKeyPointsJsonRef = CostSummaryKeyPointsBlobHolder(tt) 
+    
+    def copyHierarchicalCostSummaryTreeMapJson(self,tt):
+        if tt is None or tt == '':
+            self.hierarchicalCostSummaryTreeMapJsonRef = None
+            return
+        self.hierarchicalCostSummaryTreeMapJsonRef = HierarchicalCostSummaryTreeMapBlobHolder(tt) 
+        
+    def copyHierarchicalCostSummaryBarChartJson(self,tt):
+        if tt is None or tt == '':
+            self.hierarchicalCostSummaryBarChartJsonRef = None
+            return
+        self.hierarchicalCostSummaryBarChartJsonRef = HierarchicalCostSummaryBarChartBlobHolder(tt) 
+    
     attrs = [('resultsGroupId', 
                               DataType(INTEGER, foreignKey='resultsGroup.resultsGroupId'),
               'noInputRec', True),
@@ -2155,7 +2255,16 @@ class HermesResults(Base):
              ('kmlVizStringRef', DataType(INTEGER, foreignKey='blobHolder.blobId'),'copy', copykmlViz),
              ('vaccineAvailJsonRef',DataType(INTEGER, foreignKey='vaHistBlobHolder.blobId'),'copy', copyVAJson),
              ('tranportCapJsonRef',DataType(INTEGER, foreignKey='transCapHistBlobHolder.blobId'),'copy', copyTransJson),
-             ('storeCapJsonRef',DataType(INTEGER, foreignKey='storeCapHistBlobHolder.blobId'),'copy', copyStoreJson)
+             ('storeCapJsonRef',DataType(INTEGER, foreignKey='storeCapHistBlobHolder.blobId'),'copy', copyStoreJson),
+             ('geoResultsJsonRef',DataType(INTEGER, foreignKey='geoResultsBlobHolder.blobId'),'copy',copyGeoResultsJson),
+             ('costSummaryResultsJsonRef',DataType(INTEGER, foreignKey='costSummaryResultsBlobHolder.blobId'),'copy',copyCostSummaryResultsJson),
+             ('costSummaryKeyPointsJsonRef',DataType(INTEGER,foreignKey='costSummaryKeyPointsBlobHolder.blobId'),'copy',copyCostSummaryKeyPointsJson),
+             ('hierarchicalCostSummaryTreeMapJsonRef',
+              DataType(INTEGER,foreignKey='hierarchicalCostSummaryTreeMapBlobHolder.blobId'),
+              'copy',copyHierarchicalCostSummaryTreeMapJson),
+             ('hierarchicalCostSummaryBarChartJsonRef',
+              DataType(INTEGER,foreignKey='hierarchicalCostSummaryBarChartBlobHolder.blobId'),
+              'copy',copyHierarchicalCostSummaryBarChartJson)
              ] 
              
               
@@ -2182,7 +2291,11 @@ class HermesResults(Base):
     vaAvailJson = relationship('VAHistBlobHolder',uselist=False)
     transCapJson = relationship('TransCapHistBlobHolder',uselist=False)
     storeCapJson = relationship('StoreCapHistBlobHolder',uselist=False)
-    
+    geoResultsJson = relationship('GeoResultsBlobHolder',uselist=False)
+    costSummaryResultsJson = relationship('CostSummaryResultsBlobHolder',uselist=False)
+    costSummaryKeyPointsJson = relationship('CostSummaryKeyPointsBlobHolder',uselist=False)
+    hierarchicalCostSummaryTreeMapJson = relationship('HierarchicalCostSummaryTreeMapBlobHolder',uselist=False)
+    hierarchicalCostSummaryBarChartJson = relationship('HierarchicalCostSummaryBarChartBlobHolder',uselist=False)
     #                            backref = 'blobHolder',
     #                            primaryjoin = "results.kmlVizStringRef == blobHolder.blobId")
     #vaccineAvailJson = relationship('BlobHolder',uselist=False)
@@ -2284,8 +2397,13 @@ class HermesResults(Base):
                     net.routes[rtName].rpt = rpt
             else:
                 raiseRuntimeError("invalid record in report records")
-            
+        
         self.addHistograms(net)
+        self.addGeoResultsJson()
+        self.addCostSummaryResultsJson()
+        self.addCostSummaryKeyPointsJson()
+        self.addHierarchicalCostSummaryTreeMapJson()
+        self.addHierarchicalCostSummaryBarChartJson()
             
             
     def addSummaryRecs(self, net, summaryRecDicts):
@@ -2419,6 +2537,66 @@ class HermesResults(Base):
             bh = self.storeCapJson
             bh.blob = ''.join(blobStringList)
 
+    def addGeoResultsJson(self):
+        from geographic_visualization import generateStoreUtilInfoJSONFromResult,generateRouteUtilizationLinesJSONFromResult
+        import json
+        geoJSON = {'storejson':generateStoreUtilInfoJSONFromResult(self),
+                   'routejson':generateRouteUtilizationLinesJSONFromResult(self)}
+        
+        if self.geoResultsJson is None:
+            self.geoResultsJson = GeoResultsBlobHolder(json.dumps(geoJSON))
+        else:
+            bh = self.geoResultsJson
+            bh.blob = json.dumps(geoJSON)
+    
+    def addCostSummaryResultsJson(self):
+        from resultshooks import generateCostsSummaryFromResult
+        import json
+         
+        costJson = generateCostsSummaryFromResult(self)
+        
+        if self.costSummaryResultsJson is None:
+            self.costSummaryResultsJson = CostSummaryResultsBlobHolder(json.dumps(costJson))
+        else:
+            bh = self.costSummaryResultsJson
+            bh.blob = json.dumps(costJson)
+    
+    def addCostSummaryKeyPointsJson(self):
+        from resultshooks import generateCostsSummaryKeyPointsFromResult
+        import json
+         
+        costJson = generateCostsSummaryKeyPointsFromResult(self)
+         
+        if self.costSummaryKeyPointsJson is None:
+            self.costSummaryKeyPointsJson = CostSummaryKeyPointsBlobHolder(json.dumps(costJson))
+        else:
+            bh = self.costSummaryKeyPointsJson
+            bh.blob = json.dumps(costJson)
+
+    def addHierarchicalCostSummaryTreeMapJson(self):
+        from resultshooks import generateResultSummaryCostHierarchicalFromResult
+        import json
+        
+        costJson = generateResultSummaryCostHierarchicalFromResult(self,value_format="value",fmt='cllc')
+        
+        if self.hierarchicalCostSummaryTreeMapJson is None:
+            self.hierarchicalCostSummaryTreeMapJson = HierarchicalCostSummaryTreeMapBlobHolder(json.dumps(costJson))
+        else:
+            bh = self.hierarchicalCostSummaryTreeMapJson
+            bh.blob = json.dumps(costJson)
+    
+    def addHierarchicalCostSummaryBarChartJson(self):
+        from resultshooks import generateResultSummaryCostHierarchicalFromResult
+        import json
+        
+        costJson = generateResultSummaryCostHierarchicalFromResult(self,value_format="size",fmt=None)
+        
+        if self.hierarchicalCostSummaryBarChartJson is None:
+            self.hierarchicalCostSummaryBarChartJson = HierarchicalCostSummaryBarChartBlobHolder(json.dumps(costJson))
+        else:
+            bh = self.hierarchicalCostSummaryBarChartJson
+            bh.blob = json.dumps(costJson)
+    
     def getVAHistString(self):
         if self.vaAvailJson is None:
             return None
@@ -2450,6 +2628,7 @@ class HermesResults(Base):
         
         return histDict
     
+            
     def getStoreCapHistDict(self):
         if self.storeCapJson is None:
             return None
@@ -2474,7 +2653,28 @@ class HermesResults(Base):
                 count += offInt
         
         return histDict
-
+    
+    def getGeoResultsJson(self):
+        import json
+        #print self.geoResultsJson.blob
+        return json.loads(self.geoResultsJson.blob)
+    
+    def getCostSummaryResultsJson(self):
+        import json
+        return json.loads(self.costSummaryResultsJson.blob)
+    
+    def getCostSummaryKeyPointsJson(self):
+        import json
+        return json.loads(self.costSummaryKeyPointsJson.blob)
+    
+    def getHierarchicalCostSummaryTreeMapJson(self):
+        import json
+        return json.loads(self.hierarchicalCostSummaryTreeMapJson.blob)
+    
+    def getHierarchicalCostSummaryBarChartJson(self):
+        import json
+        return json.loads(self.hierarchicalCostSummaryBarChartJson.blob)
+    
     def getCostSummaryRecs(self):
         return self.costSummaryRecs
     
@@ -3716,6 +3916,17 @@ class ModelSummaryBlobHolder(Base):
     def __init__(self,blob):
         self.blob = blob
 
+class ModelD3JsonBlobHolder(Base):
+    """ 
+    This class holds the model json for displaying te collapsible diagram.
+    """
+    __tablename__ = 'modelD3JsonBlobHolder'
+    blobId = Column(Integer,primary_key=True)
+    blob = Column(LargeBinary)
+    
+    def __init__(self,blob):
+        self.blob = blob
+    
 
 class ShdNetwork(Base):
     """
@@ -3767,12 +3978,21 @@ class ShdNetwork(Base):
             return
         self.modelSummaryJsonRef = ModelSummaryBlobHolder(tt)
     
+    def copyModelD3Json(self,tt):
+        if tt is None or tt == '':
+            self.modelD3JsonRef = None
+            return
+        self.modelD3JsonRef = ModelD3JsonBlobHolder(tt)
+    
     note = Column(String(4096))
     attrs = [('name',    STRING),
 			 ('refOnly',  BOOLEAN),  # set if this model is only for holding types
              ('modelSummaryJsonRef',
               DataType(INTEGER, foreignKey='modelSummaryBlobHolder.blobId'),
-              'copy',copyModelSummary)]
+              'copy',copyModelSummary),
+             ('modelD3JsonRef',
+              DataType(INTEGER, foreignKey='modelD3JsonBlobHolder.blobId'),
+              'copy',copyModelD3Json)]
 
     factories = relationship('ShdFactory',
                             backref='model',
@@ -3884,6 +4104,7 @@ class ShdNetwork(Base):
                                     )
 
     modelSummaryJson = relationship('ModelSummaryBlobHolder',uselist=False)
+    modelD3Json = relationship('ModelD3JsonBlobHolder', uselist=False)
     
     def __init__(self, storeRecs, routeRecs, factoryRecs, shdTypes, name=None, refOnly=False):
         """
@@ -3904,6 +4125,7 @@ class ShdNetwork(Base):
         self.demands = []
         self.resultsGroups = []
         self.modelSummaryJson = None
+        self.modelD3Json = None
     
 
         # segregated copy of the types as well
@@ -3958,18 +4180,40 @@ class ShdNetwork(Base):
         else:
             bh = self.modelSummaryJson
             bh.blob = modelJson
-            
+    
+    def addModelD3Json(self):
+        import json
+        ### This only works with one root
+        modelJson = json.dumps(self.getWalkOfClientsDictForJson(self.rootStores()[0].idcode))
+        
+        print modelJson
+        print "--------DONE-----"
+        if self.modelD3Json is None:
+            print "!!!! HERE"
+            self.modelD3Json = ModelD3JsonBlobHolder(modelJson)
+            print self.modelD3Json.blob
+            print "$$$$$ HJERES"
+        else:
+            bh = self.modelD3Json
+            bh.blob = modelJson
+             
     def getModelSummaryJson(self):
         import json
         
         if self.modelSummaryJson is None or self.modelSummaryJson.blob is None:
             #return None
             self.addModelSummaryJson()
-        
-        print "BLOB"
+            
         #print self.modelSummaryJson.blob
         print json.loads(self.modelSummaryJson.blob)['name']
         return json.loads(self.modelSummaryJson.blob)
+    
+    def getModelD3Json(self):
+        import json
+        if self.modelD3Json is None or self.modelD3Json.blob is None:
+            self.addModelD3Json()
+            
+        return json.loads(self.modelD3Json.blob)
     
     ### The next set of members produce data in formats for reporting
     def getLevelList(self):
