@@ -183,7 +183,20 @@ var TreeLabels = {
 
 </script>
 <script>
+//$(window).bind('beforeunload',function(){
+//	$.ajax({
+//		url:'{{rootPath}}json/removeD3Model?modelId={{modelId}}',
+//		async:false
+//	});
+//	//return "";
+//});
+
 $(function() {
+	$.ajax({
+		url:'{{rootPath}}json/removeD3Model?modelId={{modelId}}',
+		async:false
+	});
+	
     $('#modelTree')
 	.bind("load_node.jstree", function (event, data) {
 	    loadNode(event, data);

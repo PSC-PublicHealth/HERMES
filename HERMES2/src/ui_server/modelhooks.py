@@ -1437,6 +1437,21 @@ def jsonGetTypesGrid(db, uiSession):
               }
     return result
 
+@bottle.route('/json/removeD3Model')
+def jsonRemoveD3Model(db, uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        try:
+            uiSession.getPrivs().mayReadModelId(db, modelId)
+        except privs.PrivilegeException:
+            raise bottle.BottleException('User may not read model %d'%modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        m.modelD3Json = None
+        db.commit()
+        return {'success':True}
+    except Exception, e:
+        return {'success': False,
+                'msg': str(e)}
 
 @bottle.route('/json/copyTypeToModel')
 def jsonCopyTypeToModel(db, uiSession):
