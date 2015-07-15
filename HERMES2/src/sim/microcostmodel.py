@@ -653,9 +653,16 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         fCur = staff.recDict['BaseSalaryCur']
         fYear = staff.recDict['BaseSalaryYear']
         baseSalary = staff.recDict['BaseSalary']
+        print "{0}:{1}:{2}".format(fCur,fYear,baseSalary)
         assert baseSalary is not None, \
             u"Cost information for %s is incomplete" % staff.name
-        fracEPI = staff.recDict['FractionEPI']
+        fracEPI = 1.0
+        try:
+            fracEPI = float(staff.recDict['FractionEPI'])
+        except:
+            print u"Cost information for %s is incomplete" % staff.name
+            raise
+        
         assert (baseSalary is not None
                 and isinstance(fracEPI, types.FloatType)
                 and fracEPI >= 0.0 and fracEPI <= 1.0), \
