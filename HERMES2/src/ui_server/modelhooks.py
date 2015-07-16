@@ -2103,8 +2103,8 @@ def jsonCreatePlacesPerLevelFromFromJson(db,uiSession):
         return result  
     try:
         import htmlgenerator
-        return {'htmlString':'<span class="levelcount-head">'+_("Please enter the total number of locations (e.g., storage, immunization, and outreach) for each level.") + "</span>"\
-                    + htmlgenerator._buildNumberPlacesPerLevelsFormFromSession("model_create_", modelInfoJson),'success':True}
+        return {'htmlString':'<span class="levelcount-head">'+ _("Please enter the total number of locations (e.g., storage, immunization, and outreach) for each level.") + "</span>" \
+                    + unicode(htmlgenerator._buildNumberPlacesPerLevelsFormFromSession("model_create_", modelInfoJson)),'success':True}
     except bottle.HTTPResponse:
         raise
     except Exception,e:

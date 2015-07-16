@@ -657,6 +657,8 @@ def jsonCostsSummaryKeyPoints(db, uiSession):
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         r = m.getResultById(resultsId)
         results = r.getCostSummaryKeyPointsJson()
+        results['labels'] = [_('Logistics Cost per Dose Administered'),
+                             _('Logistics Cost per Fully Immunized Child (FIC)')]
         results['success'] = True
         return results
         
