@@ -554,7 +554,7 @@ def main():
                     outputFileRoot = userInputList[0]['outputfile']
                     create_average_summary_CSV('./'+outputFileRoot+'.ave_summary.csv',userInputList) 
                     create_average_report_CSV('./'+outputFileRoot+'.ave.csv',userInputList)
-                    if userInputList[0]['pricetable'] is not None:
+                    if userInputList[0]['pricetable'] is not None or userInputList[0]['costmodel'] == 'micro1':
                         create_average_cost_CSV('./'+outputFileRoot+'.ave_cost.csv',userInputList)
 
             for output in outputList:
