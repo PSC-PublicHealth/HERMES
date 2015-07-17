@@ -260,9 +260,9 @@ $(function() {
     $("#submit_button").button();
     $("#submit_button").click(function(e){
     	//validate that the result has been given a name
-    	$('.ui-dialog-buttonpane button:contains("Go To Advanced Model Editor")').button().hide();
-    	$('.ui-dialog-buttonpane button:contains("Go To Cost Model Editor")').button().hide();
-    	$('.ui-dialog-buttonpane button:contains("Run Simulation")').button().show();
+    	$('.ui-dialog-buttonpane button:contains("{{_('Go To Advanced Model Editor')}}")').button().hide();
+    	$('.ui-dialog-buttonpane button:contains("{{_('Go To Cost Model Editor')}}")').button().hide();
+    	$('.ui-dialog-buttonpane button:contains("{{_('Run Simulation')}}")').button().show();
     	if(validate_page()==true){
     		$("#validating-model-div").show().fadeTo(200,1.0);
     		$.ajax({
@@ -324,12 +324,12 @@ $(function() {
     				$("#validating-model-dialog").dialog("open");
     				
     				if(hasCosting){
-    					$('.ui-dialog-buttonpane button:contains("Go To Cost Model Editor")').button().show();
-    					$('.ui-dialog-buttonpane button:contains("Run Simulation")').button().hide();
+    					$('.ui-dialog-buttonpane button:contains("{{_('Go To Cost Model Editor')}}")').button().show();
+    					$('.ui-dialog-buttonpane button:contains("{{_('Run Simulation')}}")').button().hide();
     					$("#costing-notify").dialog("open");
     				}
     				if(hasFatals){
-    					$('.ui-dialog-buttonpane button:contains("Go To Advanced Model Editor")').button().show();
+    					$('.ui-dialog-buttonpane button:contains("{{_('Go To Advanced Model Editor')}}")').button().show();
     					$("#fatal-notify").dialog("open");
     				}
     			}

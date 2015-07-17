@@ -487,7 +487,7 @@ def _buildNameLevelsFormFromSession(prefix="",levelInfo={},numberOfLevels_=4):
     
     for i in range(0,numberOfLevels):
         htmlForm.addElement(HTMLFormInputBox('model_create_levelname_{0}'.format(i+1),
-                                             u'Name for Level <span class="levelnames-em">{0}</span>'.format(i+1),
+                                             _('Name for Level') + u'<span class="levelnames-em"> {0} </span>'.format(i+1),
                                              levelNames[i],
                                              'string',
                                              True))
@@ -548,7 +548,7 @@ def _buildNumberPlacesPerLevelsFormFromSession(prefix="",levelInfo={},levelNames
         
     for i in range(0,len(levelNames)):
         htmlForm.addElement(HTMLFormInputBox('model_create_lcounts_{0}'.format(i+1),
-                                             u'Number of Locations in <span class="levelcount-em">{0}</span> level'.format(levelNames[i]),
+                                             _('Number of Locations in')+u'<span class="levelcount-em"> {0} </span> '.format(levelNames[i]) + _('level'),
                                              levelCounts[i],
                                              'int',
                                              True))

@@ -36,9 +36,10 @@ function new_model_copy_name(name){
 	}
 }
 
-function translate_phrases(phrases){
+function translate_phrases(phrases,rootPath){
+	if(typeof rootPath === 'undefined') rootPath = ""
 	return $.ajax({
-				url:'json/translate',
+				url:rootPath + 'json/translate',
 				dataType:'json',
 				data:phrases,
 				type:'post'

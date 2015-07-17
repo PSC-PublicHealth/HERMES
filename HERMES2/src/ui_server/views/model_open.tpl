@@ -22,6 +22,7 @@
 
 <script src="{{rootPath}}static/spin/spin.js"></script>
 <script src="{{rootPath}}static/vakata-jstree-841eee8/dist/jstree.min.js"></script>
+<!--<link rel="stylesheet" href="{{rootPath}}static/bootstrap-3.3.5-dist/css/bootstrap.css"/>-->
 <link rel="stylesheet" href="{{rootPath}}static/collapsible-network-diagram/collapsible-network-diagram.css"/>
 <link rel="stylesheet" href="{{rootPath}}static/vakata-jstree-841eee8/dist/themes/default/style.min.css"/>
 <script>
@@ -224,49 +225,49 @@ a.model-operation-item:hover{
 				<li>
 					<span class="model-operation-item">
 						<a class="model-operation-item" href="#" title='{{_("Edit the model via the Advanced Model Editor. This will allow users to edit detailed model parameters, including individual route and location characteristics.")}}'
-							id="edit_adv_model_link">Modify structure with the <span class="action-underline">Advanced Model Editor</span></a>
+							id="edit_adv_model_link">{{_('Modify structure with the')}} <span class="action-underline">{{_('Advanced Model Editor') }}</span></a>
 					</span>
 				<li>
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Populate the model with different components that can then be placed at different locations in the supply chain model.")}}'
-						id="types_model_link"><span class="action-underline">Add or remove model components</span> (e.g. vaccines, storage devices, vehicles, and population categories)</a>
+						id="types_model_link"><span class="action-underline">{{_('Add or remove model components')}} </span> {{_('(e.g. vaccines, storage devices, vehicles, and population categories)')}}</a>
 				</span>	
 				<li>
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Specify the vaccine dosage schedule for all population categories throughout the year.")}}'
-						id="dose_sched_link">Modify the <span class="action-underline">Vaccine Dose Schedule</span></a>
+						id="dose_sched_link">{{_('Modify the')}} <span class="action-underline"> {{_('Vaccine Dose Schedule')}} </span></a>
 				</span>	
 				<li>
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Define the details needed to implement the HERMES microcosting model, including storage, building, labor, transportation and vaccine costs.")}}'
-						id="costs_model_link">Add and modify <span class="action-underline">costs</span></a>
+						id="costs_model_link">{{_('Add and modify')}} <span class="action-underline">{{_('costs')}}</span></a>
 				</span>	
 				<li>
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Open the HERMES Transport Loop Generator to explore the effects of implementing transport loops at various levels in your system.")}}'
-						id="loop_model_link">Transform the system with automatically created <span class="action-underline">transport loops</span></a>
+						id="loop_model_link">{{_('Transform the system with automatically created')}} <span class="action-underline">{{_('transport loops')}}</span></a>
 				</span>	
 			</ul>
 		<li><span class="model-operation-item">
 			<a class="model-operation-item" href="#" title='{{_("Run a simulation experiment using the existing model. This allows users to run HERMES in order to simulate a the healthcare supply chain over a specified period of time. Users can then view the results of the run(s) via the results page.")}}'
-				id="run_model_link"><span class="action-underline">Run</span> a Simulation Experiment with this Model</a>
+				id="run_model_link"><span class="action-underline">{{_('Run')}}</span> {{_('a Simulation Experiment with this Model')}}</a>
 		</span>
 		<li><span class="model-operation-item">
 			<a class="model-operation-item" href="#" title='{{_("Access a wide array of visualizations and data from the results of all simulation experiments run with this model")}}'
-				id="result_model_link"><span class="action-underline">View Results</span> from previously saved Simulation Experiments</a>
+				id="result_model_link"><span class="action-underline">{{_('View Results')}} </span> {{_('from previously saved Simulation Experiments')}}</a>
 		</span>
 		<li>
 		<span class="model-operation-item">
 			<a class="model-operation-item" href="#" title='{{_("Export the current model as a .zip file, in order to save, send and view the model and its results on any other HERMES-installed computer.")}}' 
-				id="download_model_link"><span class="action-underline">Export Model</span> as a HERMES Zip File</a>
+				id="download_model_link"><span class="action-underline">{{_('Export Model')}} </span> {{_('as a HERMES Zip File')}}</a>
 		</span>
 		</ul>
 	</div>
 	
 	<div id="model_diagram_holder">
 		<ul>
-			<li><a href="#model_show_diagram">Model Network</a></li>
-			<li><a href="#model_test">Notes</a></li>
+			<li><a href="#model_show_diagram">{{_('Model Network')}}</a></li>
+			<li><a href="#model_test">{{_('Notes')}}</a></li>
 		</ul>
 		<div id="model_test">
 			<p><span class="model-diagram-title">{{_('Notes for {0} model'.format(name))}}</span></p>

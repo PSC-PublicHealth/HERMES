@@ -39,6 +39,7 @@ function updateNetworkDiagram(){
 	        minHeight: 775,
 	        resizable: false,
 	        scrollable: true,
+	        rootPath: '{{rootPath}}',
 	        trant: {
 	             "title": "{{_('Model')}}",
 	        }
@@ -118,7 +119,6 @@ function updateNetworkDiagram(){
 }
 #
 </style>
-
 <div name="scroll_down_div" id="scroll_down_div">
 <img src="{{rootPath}}static/images/scrolldownarrow.png">
 </div>
@@ -169,15 +169,15 @@ function updateNetworkDiagram(){
 		<table width=100%>
 			<tr>
 				<td width 10%>
-					<!--<input type="button" id="back_button" value='{{_("Previous Screen")}}'>-->
+					<!--<input type="button" id="back_button" value="{{_('Previous Screen')}}">-->
 				</td>
 				<td>
 				</td>
 				<td width=10%>
-					<!--<input type="button" id="expert_button" value='{{_("Skip to Model Editor")}}'>-->
+					<!--<input type="button" id="expert_button" value="{{_('Skip to Model Editor')}}">-->
 				</td>
 				<td width=10%>
-					<input type="button" id="next_button" value='{{_("Next Step")}}'>
+					<input type="button" id="next_button" value="{{_('Next Step')}}">
 				</td>
 			</tr>
 		</table>
@@ -508,7 +508,7 @@ $(function() {
 			modelInfo.levelcounts[thisLevNum] = parseInt($(this).val());
 			modelInfo.changed = true;
 			//Update diagram widget
-			$("#tree-layout-diagram").diagram("change_location_text",thisLevNum,$(this).val() + " " +locString);
+			$("#tree-layout-diagram").diagram("change_location_text",thisLevNum,$(this).val());
 		});
 		$("#model_create_number_places :input").focusin(function(){
 			thisLevNum = parseInt($(this).prop('id').replace("model_create_lcounts_","")) - 1;

@@ -56,7 +56,7 @@
 			var modelId = this.options.modelId;
 			
 			var chartData = this.options.jsonData;
-			
+	
 			$.getJSON('json/costs-summary-keypoints',
 				{
 					modelId:modelId,

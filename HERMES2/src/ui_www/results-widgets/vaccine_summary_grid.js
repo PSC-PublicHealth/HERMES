@@ -58,7 +58,8 @@
             7:'Percent Stored 2 to 8 C',
             8:'Percent Stored Below 2C',
             9:'Vials Spoiled',
-            10:'Vaccine Results'};
+            10:'Vaccine Results',
+            11:'Overall Totals'};
 
         translate_phrases(phrases)
             .done(function(tphrases){
@@ -200,7 +201,7 @@
                    	gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
                    	gridComplete: function(){
                     	var $grid = $("#"+containerID).jqGrid();
-                    	var vals = {'vaccid':'total','name':'Overall Totals'};
+                    	var vals = {'vaccid':'total','name':tp[11]};
                     	
                     	// Availability
                     	var dosesDem = $grid.getCol('dosesrequested');

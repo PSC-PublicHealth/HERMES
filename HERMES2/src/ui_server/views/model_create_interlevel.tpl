@@ -54,6 +54,7 @@ function updateNetworkDiagram(){
 	        minHeight: 775,
 	        resizable: false,
 	        scrollable: true,
+	        rootPath: '{{rootPath}}',
 	        trant: {
 	             "title": "{{_('Model')}}",
 	        }

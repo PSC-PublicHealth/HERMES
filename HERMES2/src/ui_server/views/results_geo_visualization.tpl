@@ -45,46 +45,46 @@ function getRandomColor() {
 		<table>
 			<tr>
 				<td colspan=3>
-					<p style="font-size:large;">Layers:</p>
+					<p style="font-size:large;">{{_('Layers')}}:</p>
 				</td>
 			</tr>
 			<tr>
 				<p style="font-size:medium;">
 				<td width="50px"></td>
-				<td>Population:</td>
+				<td id="poplab">{{_('Population')}}:</td>
 				<td width:"100px"> 
 					<input type="checkbox" id="show_population"/>
 				</td>
 			</tr>
 			<tr>
 				<td width="50px"></td>
-				<td>Utilization:</td>
+				<td id ="utillab">{{_('Utilization')}}:</td>
 				<td width:"100px"> 
 					<input type="checkbox" id="show_utilization" value="On"/>
 				</td>
 			</tr>
 			<tr>
 				<td width="50px"></td>
-				<td>Vaccines:</td>
+				<td>{{_('Vaccines')}}:</td>
 				<td width:"100px"> 
 					<input type="checkbox" id="show_vaccine" value="On"/>
 				</td>
 			</tr>
 			<tr>
 				<td width="50px"></td>
-				<td>Routes:</td>
+				<td>{{_('Routes')}}:</td>
 				<td width="100px"></td>
 			</tr>
 			<tr>
 				<td width=50px"></td>
-				<td style="padding-left:2em;width:100px;">Color By Route</td>
+				<td style="padding-left:2em;width:100px;">{{_('Color By Route')}}</td>
 				<td width="100px"> 
 					<input type="checkbox" id="show_routes" value="On"/>
 				</td>
 			</tr>
 			<tr>
 				<td width=50px"></td>
-				<td style="padding-left:2em;width:100px;">Color By Utilization</td>
+				<td style="padding-left:2em;width:100px;">{{_('Color By Utilization')}}</td>
 				<td width="100px"> 
 					<input type="checkbox" id="show_routes_util" value="On"/>
 				</td>
@@ -286,6 +286,7 @@ $(function() {
 	$("#storelegend").hide();
 	$("#translegend").hide();
 	$('#ajax_busy_image').show();
+	
 });
 
 function doneLoading(){
