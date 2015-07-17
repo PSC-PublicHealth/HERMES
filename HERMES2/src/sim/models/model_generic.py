@@ -467,12 +467,22 @@ class Model(model.Model):
             if factory.demandType == "Projection":
                 ### Get demand in vials as a projection of the population demand
                 demandDownstreamVialsVC = targetStore.getProjectedDemandVC((timeNow, timeNow + daysUntilNextShipment))
+                print "Before: {0}".format(demandDownstreamVialsVC)
+                scaledTupleList = []
+                
                 if factory.wasteEstimatesDict:
-                    for v,frac in factory.wasteEstimatesDict.items():
-                        demandDownstreamVialsVC[v] *= (1.0 + float(frac))
+                    for v,nVials in demandDownstreamVialsVC.items():
+                        wastage = 1.0
+                        if v.name in factory.wasteEstimatesDict.keys():
+                            wastage = 1.0 + float(factory.wasteEstimatesDict[v.name])
+                        print wastage
+                        scaledTupleList.append((v, math.ceil(demandDownstreamVialsVC[v]*(wastage))))
 
-                vaccineVialsVC, otherVialsVC = self._separateVaccines(demandDownstreamVialsVC)
-
+                    vaccineVialsTotVC = self.sim.shippables.getCollection(scaledTupleList)
+                else:
+                    vaccineVialsTotVC = demandDownstreamVialsVC
+                print "After: {0}".format(vaccineVialsTotVC)
+                vaccineVialsVC, otherVialsVC = self._separateVaccines(vaccineVialsTotVC)
             elif factory.demandType == "Expectation":
                 ### Use the demand expectation in doses and scale it by wastage estimates
                 demandDownstreamDosesVC = self.demandModelTuple[0].getDemandExpectation(targetStore.getTotalDownstreamPopServedPC(),
@@ -482,18 +492,19 @@ class Model(model.Model):
                 vaccineD2VVC= vaccineDosesVC*self.sim.vaccines.getDosesToVialsVC()
 
                 scaledTupleList = []
-                for v,nVials in vaccineD2VVC.items():
-                    wastage = 1.0
-                    if factory.wasteEstimatesDict:
-                        if v in factory.wasteEstimatesDict.keys():
-                            wastage -= factory.wasteEstimatesDict[v]
-
-                    scaledTupleList.append((v,int(math.ceil(nVials/wastage))))
+                if factory.wasteEstimatesDict:
+                    for v,nVials in vaccineD2VVC.items():
+                        wastage = 1.0
+                        if v.name in factory.wasteEstimatesDict.keys():
+                            wastage =1.0 + float(factory.wasteEstimatesDict[v.name])
+                        scaledTupleList.append((v,math.ceil(nVials*wastage)))
 
                     vaccineVialsVC = self.sim.shippables.getCollection(scaledTupleList)
             else:
                 raise RuntimeError("in getFactoryProductionVC, invalid demandType of %s for %s" % (factory.demandType, factory.name))
 
+            print "getFactoryProductionVC: vaccineVialsVC: " + str([(v.name,n) for v,n in vaccineVialsVC.items()])
+            print factory.overstockScale
             ### Filter by vaccines produced by this factory
             if factory.vaccinesProd is not None:
                 for v, n in vaccineVialsVC.items():
@@ -501,7 +512,7 @@ class Model(model.Model):
                         vaccineVialsVC[v] = 0.0
             vaccineVialsVC *= prop * factory.overstockScale
             
-            # print "getFactoryProductionVC: vaccineVialsVC: " + str([(v.name,n) for v,n in vaccineVialsVC.items()])
+            print "getFactoryProductionVC: vaccineVialsVC: " + str([(v.name,n) for v,n in vaccineVialsVC.items()])
             fVC, cVC, wVC = targetStore.calculateStorageFillRatios(vaccineVialsVC)
             fillVC = fVC + cVC + wVC
             # print factory.name + " getFactoryProductionVC: fillVC: " + str([(v.name,n) for v,n in fillVC.items()])
@@ -514,9 +525,9 @@ class Model(model.Model):
             lowVC = targetStore.getPackagingModel().applyPackagingRestrictions(lowVC)
             lowVC.roundUp()
             totalShipment[targetStore] = lowVC
-            #print "getFactoryProductionVC for %s: Actual amount: %s" % \
-            #      (targetStore.name, [(v.name, n) for v, n in lowVC.items()])
-        #print "Total Shipment = " + str(totalShipment)
+            print "getFactoryProductionVC for %s: Actual amount: %s" % \
+                (targetStore.name, [(v.name, n) for v, n in lowVC.items()])
+        print "Total Shipment = " + str(totalShipment)
         return totalShipment
 
     def getFactoryProductionFunction(self, storeDict, code, alwaysTrue=False):
