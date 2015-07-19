@@ -630,7 +630,7 @@ if __name__=="__main__":
         main()
     except Exception,e:
         print '-'*60
-        print 'Exception: %s'%unicode(e).encode('utf8')
+        print 'Exception: {0}'.format(e)
         print '-'*60
         traceback.print_exc(file=sys.stderr)
 
