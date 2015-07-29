@@ -200,6 +200,12 @@ def removeTypeFromModel(db, modelOrModelId, typeName, force=False):
                     del storesRpt.storage[typeName]
             if typeName in r.summaryRecs: 
                 del r.summaryRecs[typeName]
+    
+    toDel = []
+    
+    nDemand = [d for d in targetModel.unifiedDemands if typeName != d.vaccineStr]
+    targetModel.unifiedDemands = nDemand
+    
     del targetModel.types[typeName]
     
 def getTypeWithFallback(db,modelId,typeName):
