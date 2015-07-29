@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HERMES_UI\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-17 10:30-0400\n"
-"PO-Revision-Date: 2015-07-17 11:31-0400\n"
+"POT-Creation-Date: 2015-07-19 14:13+0100\n"
+"PO-Revision-Date: 2015-07-19 16:56+0100\n"
 "Last-Translator: Shawn Brown <stbrown@psc.edu>\n"
 "Language-Team: HERMES Team <hermes-devel@psc.edu>\n"
 "Language: fr_FR\n"
@@ -1971,7 +1971,7 @@ msgstr "avec acquisition"
 
 #: results_excel_report.py:588
 msgid "Level-wise Device Inventory"
-msgstr "Niveau par niveau de inventaire de dispositifs"
+msgstr "Niveau inventaire"
 
 #: results_excel_report.py:597
 msgid "Device Inventory by Level"
@@ -2587,6 +2587,104 @@ msgstr "Exécuter la Simulation"
 #: test.py:56
 msgid "Must give the run a name before proceeding"
 msgstr "Vous devez donner le nom avant de procéder à l'exécution"
+
+#: test.py:57
+msgid "Count First Day?"
+msgstr "Inclure le premier jour?"
+
+#: test.py:58
+msgid "Must Be Overnight?"
+msgstr "Ce doit être la nuitInclure le premier jour"
+
+#: test.py:59
+msgid "Base Amount Year"
+msgstr "Année de référence"
+
+#: test.py:60
+msgid "Min Km Home"
+msgstr "KM min maison"
+
+#: test.py:61
+msgid "Route Per Diem Rules"
+msgstr "Les règles de perdiem de trajet"
+
+#: test.py:62 views/page_9.tpl:27
+msgid "Route Name"
+msgstr "Nom de trajet"
+
+#: test.py:63
+msgid "Per Diem Type"
+msgstr "Type de perdiem"
+
+#: test.py:64
+msgid "Details"
+msgstr "Détails"
+
+#: test.py:65
+msgid "Showing per diem costs for"
+msgstr "Affichage les coûts de perdiem pour"
+
+#: test.py:66
+msgid "Base Salary Year"
+msgstr "Année de reference salaire"
+
+#: test.py:67
+msgid "Edit Salary Information for "
+msgstr "Modifier informations sur le salaire pour "
+
+#: test.py:68 views/obsolete/cost_edit_fridge_version0.tpl:25
+#: views/obsolete/cost_edit_fridge_version3.tpl:25
+#: views/outer_wrapper_simple.tpl:383
+msgid "Done"
+msgstr "Terminé"
+
+#: test.py:69
+msgid "Showing salary costs for"
+msgstr "Affichage des coûts salaire pour"
+
+#: test.py:70
+msgid "Edit"
+msgstr "Modifier"
+
+#: test.py:71
+msgid "Model Transport Network"
+msgstr "Modèle réseau de transport"
+
+#: test.py:72
+msgid "Delete Store"
+msgstr "Supprimez le site"
+
+#: test.py:73
+msgid "Recursive Edit"
+msgstr "Modifiez récursive"
+
+#: test.py:74
+msgid "Edit Store"
+msgstr "Modifiez le site"
+
+#: test.py:75
+msgid "Copy Store to Unattached"
+msgstr "copiez le site de \"Sans attaches\""
+
+#: test.py:76
+msgid "Edit Route"
+msgstr "Modifiez le trajet"
+
+#: test.py:77
+msgid "Delete Route"
+msgstr "Supprimez le trajet"
+
+#: test.py:78
+msgid "set as default template"
+msgstr "définissez comme le modèle par défaut"
+
+#: test.py:79
+msgid "Delete Stop"
+msgstr "Supprimez l'arrêt"
+
+#: test.py:80
+msgid "Detach Store"
+msgstr "Détachez le site"
 
 #: truckhooks.py:48
 msgid "CoolVolume (cc)"
@@ -3990,12 +4088,6 @@ msgstr "Cette fonctionnalité n'a pas encore été mis en œuvre."
 msgid "Years to amortize these devices"
 msgstr "Années d'amortir ces dispositifs"
 
-#: views/obsolete/cost_edit_fridge_version0.tpl:25
-#: views/obsolete/cost_edit_fridge_version3.tpl:25
-#: views/outer_wrapper_simple.tpl:383
-msgid "Done"
-msgstr "Terminé"
-
 #: views/obsolete/results_edit.tpl:1 views/results_fireworks.tpl:1
 msgid "Examine Results"
 msgstr "Examiner les résultats"
@@ -4150,10 +4242,6 @@ msgstr ""
 msgid "Route Editor Tests"
 msgstr ""
 
-#: views/page_9.tpl:27
-msgid "Route Name"
-msgstr ""
-
 #: views/pagehelp/fr_FR/help_cost-edit-building.tpl:1
 msgid "Setting Building Costs"
 msgstr ""
@@ -4166,6 +4254,12 @@ msgid ""
 "assumed to be 'free'. Building costs can also be set via the main Models/"
 "Modify page."
 msgstr ""
+"La comptabilité analytique pour les programmes de vaccination peut inclure "
+"les coûts des bâtiments, en particulier aux niveaux supérieurs du modèle. Ce "
+"tableau vous permet de définir les coûts des bâtiments. Tous les bâtiments "
+"pour lesquels vous ne définissez pas les coûts sont supposés être \"gratis"
+"\". Les coûts de construction peuvent également être configurés via les "
+"principaux modèles / Modifier la page."
 
 #: views/pagehelp/fr_FR/help_cost-edit-building.tpl:6
 #: views/pagehelp/fr_FR/help_cost-edit-fridge.tpl:4
@@ -4192,22 +4286,31 @@ msgid ""
 "name.  Each row of the table shows one location, listed by name and location "
 "ID code."
 msgstr ""
+"Par commodité, ce table groupes par niveau les sites dans le modèle de "
+"l'expédition. Pour déplier un niveau, cliquez sur l'icône «+» à la gauche du "
+"nom de niveau. Chaque ligne du tableau montre un site, énumérés par nom et "
+"site code d'identification."
 
 #: views/pagehelp/fr_FR/help_cost-edit-building.tpl:8
 msgid ""
 "For each location, the building <b>Cost Per Year</b> is given in that "
 "column, in the given Currency and Cost Base Year."
 msgstr ""
+"Pour chaque site, le coût du bâtiment par année est donné dans cette "
+"colonne, dans la devise donnée et du prix de base Année."
 
 #: views/pagehelp/fr_FR/help_cost-edit-fridge.tpl:1
 msgid "The Vehicle Costs Table"
-msgstr ""
+msgstr "Le tableau des coûts de véhicules"
 
 #: views/pagehelp/fr_FR/help_cost-edit-fridge.tpl:2
 msgid ""
 "This table allows you to set or adjust costing information associated with "
 "storage devices like refrigerators, freezers, and vaccine carriers."
 msgstr ""
+"Ce tableau vous permet de régler ou d'ajuster information sur les coûts "
+"associés à des dispositifs de stockage tels que les réfrigérateurs, les "
+"congélateurs, et porte-vaccins."
 
 #: views/pagehelp/fr_FR/help_cost-edit-fridge.tpl:6
 msgid ""
@@ -4215,6 +4318,9 @@ msgid ""
 "with Currency and Base Cost Year specifying the currency (e.g. USD for U.S. "
 "Dollars) and year of the purchase."
 msgstr ""
+"Le coût de reference représente le prix d'achat initial de le dispositif de "
+"stockage, avec Monnaie et annee de référence spécifiant la monnaie (par "
+"exemple USD pour dollars américains) et l'année de l'achat."
 
 #: views/pagehelp/fr_FR/help_cost-edit-fridge.tpl:9
 msgid ""
@@ -4224,6 +4330,12 @@ msgid ""
 "figure for the device.  Note that these costs are separate from amortization "
 "costs."
 msgstr ""
+"Les coûts permanents sont les coûts de fonctionnement de l'appareil (par "
+"exemple l'électricité ou de gaz LP). La colonne en cours spécifie la vitesse "
+"à laquelle combustible ou d'énergie est utilisée. Il est associé à des "
+"informations de coût de carburant pour produire une figure permanente des "
+"coûts pour le périphérique. Notez que ces coûts sont distincts des coûts "
+"d'amortissement."
 
 #: views/pagehelp/fr_FR/help_cost-edit-fridge.tpl:11
 msgid ""
@@ -4234,6 +4346,13 @@ msgid ""
 "number along with the number of liters per charge and the cost to freeze a "
 "liter of ice to estimate the cost of operating the cold box."
 msgstr ""
+"Le coût permanent de la glace et de la glace bleue sont des cas "
+"particuliers. Une glacièreil faudra un certain nombre de litres de glace par "
+"charge. Ce nombre sera donnée dans la colonne en cours. HERMES tente de "
+"calculer le nombre de fois où le dispositif sera chargé dans le cadre d'une "
+"simulation, et utilise ce nombre avec le nombre de litres par charge et le "
+"coût de geler un litre de glace pour estimer le coût de fonctionnement de la "
+"glacière ."
 
 #: views/pagehelp/fr_FR/help_cost-edit-fridge.tpl:13
 msgid ""
@@ -4244,6 +4363,13 @@ msgid ""
 "This is used with the cost of an installed kilowatt of solar power to "
 "estimate the amortization cost of the solar panels over the HERMES run."
 msgstr ""
+"L'énergie solaire est un autre cas spécial. Un réfrigérateur solaire il "
+"faudra un certain nombre de kilowatts d'électricité à partir de panneaux "
+"solaires pour fonctionner. Ces panneaux sont supposés être acheté une fois "
+"et amorti. Pour le stockage solaire, le nombre de kilowatts nécessaires est "
+"donnée dans la colonne en cours. Il est utilisé avec le coût d'un kilowatt "
+"installé de l'énergie solaire pour estimer le coût d'amortissement des "
+"panneaux solaires sur le terme HERMES."
 
 #: views/pagehelp/fr_FR/help_cost-edit-fridge.tpl:7
 msgid ")}}"
@@ -4252,6 +4378,7 @@ msgstr ""
 #: views/pagehelp/fr_FR/help_cost-edit-fuel.tpl:2
 msgid "This page sets the fuel and energy costs for your model."
 msgstr ""
+"Cette page définit les coûts combustibles et énergétiques pour votre modèle."
 
 #: views/pagehelp/fr_FR/help_cost-edit-fuel.tpl:4
 #: views/pagehelp/fr_FR/help_cost-edit-perdiem.tpl:4
@@ -4266,6 +4393,13 @@ msgid ""
 "safely changed show in the selector.  You may need to make a fresh copy of "
 "your model, or go to the Results screen and delete the model's results."
 msgstr ""
+"Si le modèle que vous souhaitez ne apparaît pas dans les \"montrant les "
+"coûts pour\" sélecteur, il peut être parce que les résultats ont déjà été "
+"calculés pour le modèle et la modification du modèle seraient invalider ces "
+"résultats. Seuls les modèles qui peuvent être modifiés en toute sécurité "
+"afficher dans le sélecteur. Vous pouvez avoir besoin de faire une nouvelle "
+"copie de votre modèle, ou aller à l'écran des résultats et supprimer les "
+"résultats du modèle."
 
 #: views/pagehelp/fr_FR/help_cost-edit-fuel.tpl:6
 msgid ""
@@ -4273,6 +4407,9 @@ msgid ""
 "price is expressed.  The prices are assumed to be valid for the model's base "
 "year."
 msgstr ""
+"Chaque ligne indique le prix pour un carburant donné, et la devise dans "
+"laquelle ce prix est exprimé. Les prix sont supposés être valable pour "
+"l'année de référence du modèle."
 
 #: views/pagehelp/fr_FR/help_cost-edit-fuel.tpl:8
 msgid ""
@@ -4285,10 +4422,19 @@ msgid ""
 "available solar energy per square meter for the country which is being "
 "modeled."
 msgstr ""
+"La dernière ligne permet de définir le nombre d'années utilisées pour "
+"l'amortissement de panneau solaire. Les panneaux solaires apparaissent "
+"uniquement dans le description d'un modèle sous la forme de dispositifs de "
+"stockage avec l'énergie solaire. Chaque tel dispositif est supposé être "
+"achetés avec accompagnement panneaux solaires, achetés à un prix par "
+"kilowatt installé donnée dans le champ de l'énergie solaire. Notez qu'une "
+"bonne estimation des coûts des panneaux solaires nécessitera une "
+"connaissance de l'énergie solaire disponible moyen par mètre carré pour le "
+"pays qui est en cours de modélisation."
 
 #: views/pagehelp/fr_FR/help_cost-edit-perdiem.tpl:1
 msgid "Setting Per Diem Costs"
-msgstr ""
+msgstr "Réglage coûts perdiem"
 
 #: views/pagehelp/fr_FR/help_cost-edit-perdiem.tpl:2
 msgid ""
@@ -4296,6 +4442,10 @@ msgid ""
 "each per diem policy in your model.  The second allows you to set the per "
 "diem policy associated with each route in the model."
 msgstr ""
+"Cette page fournit deux tableaux. Le premier vous permet de définir les "
+"détails de chacun la règle de perdiem dans votre modèle. Le second vous "
+"permet de définir les régles de perdiem associé à chaque trajet dans le "
+"modèle."
 
 #: views/pagehelp/fr_FR/help_cost-edit-perdiem.tpl:5
 msgid ""
@@ -4304,12 +4454,19 @@ msgid ""
 "if certain policy-specific rules are satisfied.  The other fields on the per "
 "diem policy line specify those other rules."
 msgstr ""
+"Pour une règle de perdiem donnée, le conducteur sera versée un perdiem du "
+"montant de base donnée, spécifié dans la devise donnée au Année de reference "
+"donné, si certaines règles spécifiques en matière de politique sont "
+"satisfaits. Les autres champs des règles de perdiem ligne par précisent ces "
+"autres règles."
 
 #: views/pagehelp/fr_FR/help_cost-edit-perdiem.tpl:6
 msgid ""
 "If Must Be Overnight? is true (checked), no per diems will be paid for trips "
 "which end on the same day they began."
 msgstr ""
+"Si \"Ce doit être la nuit\" est vraie (cochée), aucun per diem seront payés "
+"pour les voyages qui se terminent le même jour  qu'ils ont commencé."
 
 #: views/pagehelp/fr_FR/help_cost-edit-perdiem.tpl:7
 msgid ""
@@ -4319,6 +4476,12 @@ msgid ""
 "(assuming all other rules are satisfied).  If 'Count First Day?' was not "
 "true, the driver would be entitled to only two per diems."
 msgstr ""
+"Si \"Inclure le premier jour?\" est vraie (vérifié), un per diem est payé "
+"pour la première journée du voyage. Par exemple, si un conducteur commence "
+"une route le mardi et le retour sur le jeudi suivant, le conducteur aurait "
+"droit à trois per diems (en supposant que toutes les autres règles sont "
+"satisfaits). Si \"comte premier jour?\" n'a pas été vrai, le conducteur "
+"aurait droit à seulement deux per diem."
 
 #: views/pagehelp/fr_FR/help_cost-edit-perdiem.tpl:8
 msgid ""
@@ -4327,6 +4490,11 @@ msgid ""
 "day trip for which only some days are spent outside this range will pay per "
 "diems only on that subset of days."
 msgstr ""
+"\"KM min maison\" donne un nombre minimum de kilomètres de la base d'origine "
+"du véhicule que le véhicule doit être à recevoir un perdiem sur un jour "
+"donné. Un voyage de plusieurs jours pour lesquels seulement quelques jours "
+"sont dépensés en dehors de cette gamme va payer les perdiems uniquement sur "
+"ce sous-ensemble de jours."
 
 #: views/pagehelp/fr_FR/help_cost-edit-perdiem.tpl:9
 msgid ""
@@ -4335,12 +4503,19 @@ msgid ""
 "page, which provides some recursive setting tools).  In this table, routes "
 "are organized by the model level of the route's supplier warehouse."
 msgstr ""
+"Le tableau «Règles Diem Route Par\" permet de définir la règle de perdiem "
+"pour une trajet donnée dans le modèle. (Cela peut également être fait à "
+"partir de la page \"Modèles / Modifier\", qui fournit des outils de réglage "
+"récursives). Dans ce tableau, les trajets sont organisées par le niveau du "
+"fournisseur pour la trajet de modèle."
 
 #: views/pagehelp/fr_FR/help_cost-edit-perdiem.tpl:10
 msgid ""
 "To access an individual route in this table, unfold the appropriate group by "
 "clicking on the '+' icon to the left of the level name."
 msgstr ""
+"Pour accéder à un trajet individuelle dans ce tableau, déplier le groupe "
+"approprié en cliquant sur l'icône «+» à la gauche du nom de niveau."
 
 #: views/pagehelp/fr_FR/help_cost-edit-salary.tpl:2
 msgid ""
@@ -4351,12 +4526,21 @@ msgid ""
 "and warehouses will continue to operate normally even if no drivers or staff "
 "are present."
 msgstr ""
+"Ce tableau vous permet de régler ou d'ajuster information sur les coûts "
+"associés aux salaires du personnel. Notez que HERMES actuellement seulement "
+"utilise les informations sur les salaires du personnel pour calculer les "
+"coûts. La présence ou l'absence de personnel n'a pas d'effet la livraison "
+"des vaccins dans la simulation en aucune façon. Véhicules et sites "
+"continueront à fonctionner normalement même si aucun pilote ou du personnel "
+"sont présents."
 
 #: views/pagehelp/fr_FR/help_cost-edit-salary.tpl:6
 msgid ""
 "The Base Salary represents the per-year salary of the staff member, in the "
 "given Currency and at the given Base Salary Year."
 msgstr ""
+"Le salaire de base représente le salaire par année de la membre du "
+"personnel, dans la devise donnée et au salaire de année de référence donné."
 
 #: views/pagehelp/fr_FR/help_cost-edit-salary.tpl:8
 msgid ""
@@ -4510,6 +4694,8 @@ msgstr ""
 msgid ""
 "View components in the <b>HERMES Database</b> and your available models."
 msgstr ""
+"Voir les composants dans le Base de données HERMES et vos modèles "
+"disponibles."
 
 #: views/pagehelp/fr_FR/help_database.tpl:2
 msgid ""
@@ -4519,6 +4705,11 @@ msgid ""
 "prequalified items where available, as well as examples of commonly used "
 "items."
 msgstr ""
+"Basculer entre catégories de composants (vaccins, dispositifs de transport, "
+"dispositifs de stockage, les types de population, des règles de perdiem, et "
+"les types de personnel) en utilisant les boutons en haut de la page. La base "
+"de données comprend HERMES OMS articles lorsqu'ils sont disponibles, ainsi "
+"que des exemples d'articles couramment utilisés préqualifié."
 
 #: views/pagehelp/fr_FR/help_database.tpl:5
 msgid ""
@@ -4527,6 +4718,11 @@ msgid ""
 "'+' to expand any category and view individual items. Use the 'Info' button "
 "to view details for any item."
 msgstr ""
+"Par défaut, les vaccins sont regroupés par antigène abréviation. Utilisez le "
+"menu déroulant pour les vaccins du groupe par la présentation ou le "
+"fabricant à la place. Cliquez sur le '+' pour développer toute catégorie et "
+"afficher les éléments individuels. Utilisez le bouton \"Info\" pour afficher "
+"les détails pour tout article."
 
 #: views/pagehelp/fr_FR/help_done.tpl:1
 msgid ""
@@ -4540,10 +4736,21 @@ msgid ""
 "options to edit information for that particular location. Below is more "
 "information about each potential edit."
 msgstr ""
+"Les utilisateurs peuvent faire des ajustements pour chacun des sites et des "
+"trajets entre des sites dans le tableau  \"Modèle réseau de transport\". "
+"Alors que les étapes précédentes ont généré des noms de lieux, les "
+"politiques de transport affectés par niveau, et les sites répartis "
+"uniformément entre les fournisseurs, cette étape permet aux utilisateurs de "
+"modifier individuellement les noms de chaque site, les règles de transport "
+"entre les lieux, et le nombre de sites fournis par chaque emplacement. "
+"Cliquez dans une ligne pour sélectionner un site et tapez ou sélectionnez "
+"parmi les options disponibles pour modifier les informations pour cet "
+"endroit particulier. Ci-dessous plus d'informations sur chaque modification "
+"potentielle."
 
 #: views/pagehelp/fr_FR/help_done.tpl:5
 msgid "Location Names"
-msgstr ""
+msgstr "Noms de site"
 
 #: views/pagehelp/fr_FR/help_done.tpl:8
 msgid ""
@@ -4552,14 +4759,22 @@ msgid ""
 "the naming conventions most familiar and meaningful. Click the triangle to "
 "the left of a location name to expand or collapse the locations below it."
 msgstr ""
+"Les noms de site et de niveau sont des entrées de texte seulement et peuvent "
+"être entièrement personnalisés par l'utilisateur -- ceux-ci sont utilisés "
+"qu'à des fins d'étiquetage, afin que les utilisateurs doivent utiliser les "
+"conventions de nommage plus familier et significative. Cliquez sur le "
+"triangle à gauche du nom d'un lieu pour développer ou réduire les sites ci-"
+"dessous il."
 
 #: views/pagehelp/fr_FR/help_done.tpl:11
 msgid "Shipping Policies"
-msgstr ""
+msgstr "Règles de livraison"
 
 #: views/pagehelp/fr_FR/help_done.tpl:14
 msgid "Edit the shipping policy for any route in the supply chain. "
 msgstr ""
+"Modifier la règle de livraison pour toute route dans la chaîne "
+"d'approvisionnement."
 
 #: views/pagehelp/fr_FR/help_done.tpl:15
 msgid ""
@@ -4568,6 +4783,11 @@ msgid ""
 "parameters: the number of products shipped per trip, where the shipment "
 "originates, and how often the shipment occurs."
 msgstr ""
+"Les règle de livraison dans HERMES déterminer comment les produits de soins "
+"de santé sont distribués à partir des niveaux plus élevés à des niveaux "
+"inférieurs et dépendent de trois paramètres: le nombre de produits expédiés "
+"par voyage, où la livraison est originaire, et combien de fois la livraison "
+"se produit."
 
 #: views/pagehelp/fr_FR/help_done.tpl:19
 msgid ""
@@ -4580,6 +4800,14 @@ msgid ""
 "15 BCG vaccine vials within the shipping interval would receive 15 BCG vials "
 "in a variable product shipment."
 msgstr ""
+"La quantité des produits livrés peut être fixe ou variable; pour livraisons "
+"fixes de produits, un nombre fixe de produits est toujours livré, tant que "
+"ce nombre de produits est disponible à le site d'origine (si il n'y a pas "
+"assez de produits, tous produits disponibles sont livré). Dans les "
+"livraisons variable des produits, la quantité de produits est déterminée par "
+"la demande prévue à le site  de réception. Par exemple, une centre de santé "
+"qui prévoit un besoin de 15 flacons de vaccin BCG dans l'intervalle de "
+"livraison recevrait 15 flacons de BCG dans une cargaison de produits."
 
 #: views/pagehelp/fr_FR/help_done.tpl:23
 #: views/pagehelp/fr_FR/help_interlevel.tpl:9
@@ -4591,6 +4819,13 @@ msgid ""
 "shipment being dropped off by a national store at a regional store would use "
 "a driver and vehicle that originated at the national store."
 msgstr ""
+"Les livraisons peuvent provenir au fournisseur ou au niveau du récepteur. "
+"Livraisons captés par le récepteur provenir de le site de réception; les "
+"livraisons déposées par le fournisseur provenir de le site fournir. Les "
+"ressources telles que les véhicules et le main-d'œuvre sont utilisés par le "
+"site d'origine. Par exemple, une livraison étant déposé par un dépôt "
+"national dans un site régionale serait d'utiliser un conducteur et le "
+"véhicule qui a pris naissance dans le dépôt national."
 
 #: views/pagehelp/fr_FR/help_done.tpl:27
 msgid ""
@@ -4600,6 +4835,12 @@ msgid ""
 "this threshold as a percentage of total storage space at the receiving "
 "location."
 msgstr ""
+"Fréquence des livraisons peut être fixe ou comme-nécessaire. Livraisons "
+"fixes se produisent à des intervalles de temps réguliers, tandis que les "
+"livraisons comme-nécessaire se produisent lorsque le stock des sites de "
+"réception tombe en dessous d'un certain seuil. Ici les utilisateurs peuvent "
+"spécifier ce seuil en pourcentage de l'espace total de stockage sur le site "
+"de réception."
 
 #: views/pagehelp/fr_FR/help_done.tpl:33
 msgid ""
@@ -4612,16 +4853,30 @@ msgid ""
 "locations at Level 3. Locations at the lowest level of the supply chain must "
 "have no clients, because they do not supply any other locations."
 msgstr ""
+"Pour chaque site dans le modèle, cette colonne indique le nombre de sitess "
+"il alimente directement dans le niveau en dessous. Modification de toute "
+"valeur dans cette colonne va changer le nombre total de sites dans le "
+"modèle. Par exemple, l'ajout de 1 site pour le nombre fourni par un site au "
+"niveau 2 va augmenter le nombre total de sites au niveau 3 de 1. De même, la "
+"réduction du nombre de sites alimentés par un site de niveau 2 permettra de "
+"réduire le nombre total de sites à niveau 3. sitess au niveau le plus bas de "
+"la chaîne d'approvisionnement doit avoir aucun clients, car ils ne "
+"fournissent pas tous les autres sites."
 
 #: views/pagehelp/fr_FR/help_geographic_visualization.tpl:1
 msgid "View locations and routes with simulation results on a map."
 msgstr ""
+"Voir les emplacements et les trajets avec des résultats de simulation sur "
+"une carte"
 
 #: views/pagehelp/fr_FR/help_geographic_visualization.tpl:2
 msgid ""
 "Zoom in and out using the scrollwheel or press and hold the Ctrl key while "
 "pressing the + key to zoom in or the - key to zoom out."
 msgstr ""
+"Zoomer et dézoomer en utilisant la molette de la souris ou appuyez et "
+"maintenez la touche Ctrl enfoncée tout en appuyant sur la touche + pour "
+"zoomer ou la touche - pour effectuer un zoom arrière."
 
 #: views/pagehelp/fr_FR/help_geographic_visualization.tpl:4
 msgid ""
@@ -4629,10 +4884,14 @@ msgid ""
 "size and color of the circles correspond to the level of the supply chain, "
 "with larger circles representing locations at higher levels."
 msgstr ""
+"Cercles sur la carte représentent des sites dans la chaîne "
+"d'approvisionnement. Initialement, la taille et la couleur des cercles "
+"correspondent au niveau de la chaîne d'approvisionnement, avec des cercles "
+"plus grands représentant des sites à des niveaux supérieurs."
 
 #: views/pagehelp/fr_FR/help_geographic_visualization.tpl:6
 msgid "Select layers to view other details on the map"
-msgstr ""
+msgstr "Sélectionnez couches pour afficher d'autres détails sur la carte"
 
 #: views/pagehelp/fr_FR/help_geographic_visualization.tpl:9
 msgid ""
@@ -4640,6 +4899,9 @@ msgid ""
 "each location. Circles become larger and more red to represent larger "
 "populations."
 msgstr ""
+"Sélectionnez \"Population\" pour afficher la taille relative de la "
+"population immunisée à chaque site. Cercles deviennent plus grandes et plus "
+"de rouge pour représenter de plus grandes populations."
 
 #: views/pagehelp/fr_FR/help_geographic_visualization.tpl:10
 msgid ""
@@ -4648,6 +4910,10 @@ msgid ""
 "level of the supply chain, and the color becomes more red as maximum storage "
 "utilization approaches 100%."
 msgstr ""
+"Sélectionnez \"utilisation\" de montrer la capacité de stockage maximale "
+"utilisée sur chaque site pendant la simulation. La taille de chaque cercle "
+"correspond au niveau de la chaîne d'approvisionnement, et la couleur devient "
+"plus rouge que l'utilisation maximale de stockage est proche de 100%."
 
 #: views/pagehelp/fr_FR/help_geographic_visualization.tpl:11
 msgid ""
@@ -4655,12 +4921,18 @@ msgid ""
 "availability. Each circle becomes more blue as vaccine availability "
 "approaches 100%."
 msgstr ""
+"Sélectionnez \"Vaccins\" de couleur immunisation sites par la disponibilité "
+"globale du vaccin. Chaque cercle devient plus bleu que la disponibilité du "
+"vaccin est proche de 100%."
 
 #: views/pagehelp/fr_FR/help_geographic_visualization.tpl:12
 msgid ""
 "Select Color by Route to display routes as lines connecting locations, with "
 "a different color assigned to each route."
 msgstr ""
+"Sélectionnez \"Couleur par Trajet\" pour afficher les trajets comme des "
+"lignes reliant des sites, avec une couleur différente attribué à chaque "
+"trajet."
 
 #: views/pagehelp/fr_FR/help_geographic_visualization.tpl:13
 msgid ""
@@ -4669,6 +4941,10 @@ msgid ""
 "simulation. The color becomes more red as maximum transport utilization "
 "approaches 100%."
 msgstr ""
+"Sélectionnez \"Couleur par utilisation\" pour afficher les routes avec la "
+"couleur de chaque ligne correspondant à l'utilisation de transport maximale "
+"pour cette trajet au cours de la simulation. La couleur devient plus rouge "
+"que l'utilisation du transport maximale proche de 100%."
 
 #: views/pagehelp/fr_FR/help_interlevel.tpl:2
 msgid ""
@@ -4678,6 +4954,12 @@ msgid ""
 "quantity of products shipped per trip, where the shipment originates, and "
 "how often the shipment occurs."
 msgstr ""
+"Spécifiez la règle de transport à chaque niveau de la chaîne "
+"d'approvisionnement. Règles de livraison en HERMES déterminer comment les "
+"produits de soins de santé sont distribués à partir des niveaux plus élevés "
+"à des niveaux inférieurs et dépendent de trois paramètres: la quantité de "
+"produits expédiés par voyage, où la livraison est originaire, et combien de "
+"fois la livraison se produit."
 
 #: views/pagehelp/fr_FR/help_interlevel.tpl:6
 msgid ""
@@ -4690,6 +4972,14 @@ msgid ""
 "15 BCG vaccine vials within the shipping interval would receive 15 BCG vials "
 "in a variable product shipment."
 msgstr ""
+"La quantité des produits livrés peut être fixe ou variable; pour livraisons "
+"fixes de produits, un nombre fixe de produits est toujours livré, tant que "
+"ce nombre de produits est disponible à le site d'origine (si il n'y a pas "
+"assez de produits, tous produits disponibles sont livré). Dans les "
+"livraisons variable des produits, la quantité de produits est déterminée par "
+"la demande prévue à le site  de réception. Par exemple, une centre de santé "
+"qui prévoit un besoin de 15 flacons de vaccin BCG dans l'intervalle de "
+"livraison recevrait 15 flacons de BCG dans une cargaison de produits."
 
 #: views/pagehelp/fr_FR/help_interlevel.tpl:13
 msgid ""
@@ -4701,6 +4991,12 @@ msgid ""
 "needed shipments up to 1 time per month, then the Health Posts will receive "
 "shipments when vaccines are needed but no more than once per month)."
 msgstr ""
+"Fréquence des livraisons peut être fixe ou comme-nécessaire. Livraisons "
+"fixes se produisent à des intervalles de temps réguliers, tandis que les "
+"livraisons comme-nécessaire se produisent lorsque le stock des sites de "
+"réception tombe en dessous d'un certain seuil. Ici les utilisateurs peuvent "
+"spécifier ce seuil en pourcentage de l'espace total de stockage sur le site "
+"de réception."
 
 #: views/pagehelp/fr_FR/help_interlevel.tpl:17
 msgid ""
@@ -4709,10 +5005,16 @@ msgid ""
 "structure is created via the Make Adjustments page or in even further detail "
 "via the HERMES Advanced Model Editor."
 msgstr ""
+"HERMES attribue les mêmes règles d'expédition à toutes les trajets entre "
+"niveaux adjacents. Tous ces paramètres peuvent me modifiés après la "
+"structure du modèle de base est créé via la page \"Effectuez des ajustements"
+"\" ou dans encore plus de détails via \"L'éditeur avancée de modèle.\""
 
 #: views/pagehelp/fr_FR/help_interleveltimes.tpl:1
 msgid "Specify the average travel time between levels in the supply chain. "
 msgstr ""
+"Spécifiez lea temps de trajet moyenne entre les niveaux de la chaîne "
+"d'approvisionnement."
 
 #: views/pagehelp/fr_FR/help_interleveltimes.tpl:5
 msgid ""
@@ -4721,6 +5023,11 @@ msgid ""
 "between levels are, users may assume a reasonable speed to determine the "
 "average travel times between levels."
 msgstr ""
+"Pour calculer les temps de trajet moyenne, les utilisateurs peuvent avoir "
+"besoin de faire des hypothèses. Par exemple, si les temps de trajet entre "
+"les sites sont des distances inconnues, mais la moyenne entre les niveaux "
+"sont, les utilisateurs peuvent supposer une vitesse raisonnable afin de "
+"déterminer les temps de trajet moyen entre les niveaux."
 
 #: views/pagehelp/fr_FR/help_interleveltimes.tpl:8
 msgid ""
@@ -4729,12 +5036,18 @@ msgid ""
 "settings can me modified for individual routes in the next step using the "
 "Make Adjustments table or at a later time via the Advanced Model Editor."
 msgstr ""
+"HERMES attribue les mêmes temps de trajet à toutes les trajets entre niveaux "
+"adjacents. Tous ces paramètres peuvent me modifiés après la structure du "
+"modèle de base est créé via la page \"Effectuez des ajustements\" ou dans "
+"encore plus de détails via \"L'éditeur avancée de modèle.\""
 
 #: views/pagehelp/fr_FR/help_loops-top.tpl:1
 msgid ""
 "The HERMES Transportation Loop Generator calculates optimal transportation "
 "loops for locations in a model."
 msgstr ""
+"Le HERMES Transport boucle Générateur calcule boucles de transport optimales "
+"pour les emplacements dans un modèle."
 
 #: views/pagehelp/fr_FR/help_loops-top.tpl:3
 msgid ""
@@ -4742,10 +5055,14 @@ msgid ""
 "two adjacent supply chain levels. The loop generator requires an internet "
 "connection."
 msgstr ""
+"Cette fonctionnalité est en cours de développement, et ne supporte "
+"actuellement que des boucles entre deux niveaux de la chaîne "
+"d'approvisionnement adjacentes. Le générateur de boucle nécessite une "
+"connexion Internet."
 
 #: views/pagehelp/fr_FR/help_model-create.tpl:1
 msgid "Model Creation"
-msgstr ""
+msgstr "Création du modèle"
 
 #: views/pagehelp/fr_FR/help_model-create.tpl:2
 msgid ""
@@ -4765,6 +5082,25 @@ msgid ""
 "Department stores, then to Commune stores, and finally to Health Posts where "
 "they are administered to patients."
 msgstr ""
+"La plupart des chaînes d'approvisionnement des soins de santé ont une "
+"structure hiérarchique. Produits proviennent à un site de haut niveau, où "
+"ils sont stockés pendant un certain temps avant qu'ils ne soient distribués "
+"de manière séquentielle à des niveaux inférieurs. Finalement - lorsque les "
+"produits atteignent le bas-plus haut niveau de la chaîne d'approvisionnement "
+"- ils sont utilisés ou administrés à des patients (par exemple, les vaccins "
+"sont souvent administrés dans les cliniques comprenant le niveau le plus bas "
+"d'une chaîne d'approvisionnement en vaccins). Le nombre de niveaux dans une "
+"chaîne d'approvisionnement indique le nombre de groupes distincts de sites "
+"qui peuvent stocker ou administrer des produits, et varie en fonction du "
+"système modélisé; ordre des produits du les supérieur niveaux  "
+"d'approvisionnement à des niveaux. Souvent, les niveaux de la chaîne "
+"d'approvisionnement reflètent limites administratives ou géographiques du "
+"pays ou de la région d'intérêt. Par exemple, un modèle de la chaîne "
+"d'approvisionnement en vaccins au Bénin comprendrait quatre niveaux: "
+"national, départemental, commune, et la santé de poste. Les vaccins "
+"proviennent à le dépôt national et sont transportés à sites département, "
+"puis à sites commune, et finalement aux postes de santé où ils sont "
+"administrés aux patients."
 
 #: views/pagehelp/fr_FR/help_model-create.tpl:4
 msgid ""
@@ -4776,10 +5112,21 @@ msgid ""
 "model structure is created via the Make Adjustments table or in even further "
 "detail via the Advanced Model Editor."
 msgstr ""
+"La création du modèle HERMES utilise des niveaux de sites du groupe en "
+"catégories présentant des caractéristiques similaires. Par exemple, les "
+"règles de transport sont initialement configurés pour toutes les trajets de "
+"transport entre les niveaux adjacents (par exemple pour le Bénin, toutes les "
+"trajets entre le  dépôt national et les sites département seraient "
+"initialement assignés règles identiques). Tous ces paramètres peuvent me "
+"modifiés après la structure du modèle de base est créé via le page "
+"\"Effectuez des ajustements\" ou dans encore plus de détails via \"L'éditeur "
+"avancée de modèle.\""
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:1
 msgid "Make advanced modifications to a model using the Advanced Model Editor"
 msgstr ""
+"Apporter des modifications avancées à un modèle utilisant le \"L'éditeur "
+"avancée de modèle.\""
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:2
 msgid ""
@@ -4789,10 +5136,15 @@ msgid ""
 "the store and route viewing options to view, edit, and hide information "
 "across multiple locations."
 msgstr ""
+"Cliquez sur le \"+\" à côté d'un site pour voir les trajets et les sites "
+"directement en dessous. Utilisez les boutons \"Editer\" et sélectionnez "
+"\"Modifier site\" ou \"Modifier voyage\" pour éditer un site ou un trajet "
+"individuel. Sélectionnez parmi les options du site et trajet affichage pour "
+"afficher, modifier et cacher l'information sur plusieurs sites."
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:6
 msgid "Moving locations in the network"
-msgstr ""
+msgstr "Déplaçant des sites du réseau"
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:10
 msgid ""
@@ -4801,6 +5153,10 @@ msgid ""
 "and release. Any recipients will continue to be supplied by that location "
 "after it is moved."
 msgstr ""
+"Cliquez et glissez un site pour changer sa position dans le réseau. Pour "
+"changer le fournisseur d'un site, faites glisser le site sur le nom du "
+"fournisseur souhaitée et la libération. Tous les bénéficiaires continueront "
+"d'être fournies par cet endroit après qu'il est déplacé."
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:14
 msgid ""
@@ -4810,16 +5166,23 @@ msgid ""
 "delivery loop. Drag locations within a route to change the order they are "
 "supplied in the delivery loop."
 msgstr ""
+"Pour ajouter un site à une route existante, faites glisser le site sur le "
+"nom de le trajet désiré et la libération. Cela va ajouter le site à un autre "
+"site déjà sur cette trajet, transformant ainsi un trajet point à point dans "
+"une boucle de la livraison. Faites glisser les sites dans une trajet de "
+"changer l'ordre où ils sont fournis dans la boucle de livraison."
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:18
 msgid ""
 "To remove a location from the network, click \"edit\" and select \"Delete "
 "Store.\""
 msgstr ""
+"Pour supprimer un site de réseau, cliquez sur \"modifier\" et sélectionnez "
+"\"Supprimer magasin.\""
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:22
 msgid "Unattached locations"
-msgstr ""
+msgstr "Sites sans attaches"
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:26
 msgid ""
@@ -4831,10 +5194,18 @@ msgid ""
 "and must be added again (by clicking and dragging to the desired location) "
 "if they are to remain in the model."
 msgstr ""
+"Pour supprimer temporairement un site du réseau, faites-le glisser sur "
+"l'espace marqué \"Sans attaches\" sur la droite. Cela peut également être "
+"obtenue en cliquant sur le bouton \"modifier\" à côté d'un emplacement et en "
+"sélectionnant \"Détacher magasin.\" Certains des changements au réseau "
+"entraîneront automatiquement dans des sites devenant détaché. Sites seules "
+"sont supprimés à partir du réseau de la chaîne d'approvisionnement et "
+"doivent être ajoutés (en cliquant et en faisant glisser à le site désiré) si "
+"elles veulent rester dans le modèle."
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:30
 msgid "Adding new locations and routes"
-msgstr ""
+msgstr "Ajout de nouveaux sites et trajets"
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:34
 msgid ""
@@ -4844,6 +5215,11 @@ msgid ""
 "the copy as needed, and drag the unattached location to its new position in "
 "the network"
 msgstr ""
+"our ajouter un nouveau site, trouver un site similaire dans le réseau, "
+"cliquez sur le bouton «Modifier» à côté de ce site, et sélectionnez \"copies "
+"le site de sans attaches\". Une copie de ce site sera alors apparaître dans "
+"la section \"Sans attaches\". Modifier la copie que nécessaire, et faites "
+"glisser l'emplacement détaché à sa nouvelle position dans le réseau."
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:38
 msgid ""
@@ -4858,10 +5234,22 @@ msgid ""
 "next to the currently selected route displayed above the supply chain "
 "network."
 msgstr ""
+"Des actions telles que l'ajout d'un nouveau site permettra de créer "
+"automatiquement un nouvel trajet entre ce site et son fournisseur. Avant de "
+"générer de nouvelles trajets, une route existante peut être spécifié comme "
+"un modèle pour les trajets nouvellement créés à copier. Si un modèle est "
+"spécifié, de nouvelles routes seront affectés des mêmes règles d'expédition, "
+"type de véhicule, et les règles perdiem que le trajet de modèle. Pour "
+"définir un trajet comme le modèle par défaut, cliquez sur le bouton "
+"\"modifier\" à côté de la route et sélectionnez \"définissez comme le modèle "
+"par défaut\". Ce réglage peut être modifié en définissant un trajet "
+"différent que le défaut ou en cliquant sur \"Effacer\" à côté de la voie "
+"actuellement sélectionnée affichée au-dessus du réseau de chaîne "
+"d'approvisionnement."
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:42
 msgid "Recursive editing"
-msgstr ""
+msgstr "Modifiez récursive"
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:46
 msgid ""
@@ -4871,6 +5259,12 @@ msgid ""
 "the dialog that appears, select the level of stores which will be edited, "
 "and the field that will be edited."
 msgstr ""
+"Les sites peuvent être modifiés individuellement ou de manière récursive. "
+"Modifications récursifs appliquent à tous les sites à un niveau spécifié au-"
+"dessous d'un site sélectionné dans le réseau. Cliquez sur \"modifier\" à "
+"côté d'un emplacement et sélectionnez \"Modifier récursive.\" Dans la boîte "
+"de dialogue qui apparaît, sélectionnez le niveau de sites qui sera édité, et "
+"le champ qui sera édité."
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:50
 msgid ""
@@ -4881,6 +5275,12 @@ msgid ""
 "specified to indicate 1 new fridge per location, and the type of fridge "
 "would be selected."
 msgstr ""
+"Par exemple, pour ajouter un réfrigérateur pour chacun des sites de district "
+"dans une région, la région touchée serait choisi pour une édition récursive. "
+"Le niveau du district et le champ de stockage seraient choisis. Parmi les "
+"nouvelles options qui apparaissent, l'action \"Ajouter\" serait sélectionné, "
+"un compte de 1 serait spécifiée pour indiquer une nouvelle réfrigérateur par "
+"site, et le type de réfrigérateur serait choisi."
 
 #: views/pagehelp/fr_FR/help_model-edit-structure.tpl:53
 msgid "Validation"
@@ -4892,6 +5292,9 @@ msgid ""
 "Validation\" and \"Validate Model.\" The validator will list issues under "
 "the relevant locations and routes."
 msgstr ""
+"Pour vérifier l'exhaustivité de l'information dans un modèle, sélectionnez "
+"\"Validation du modèle\" et \"Valider le modèle.\" Le validateur va lister "
+"les questions sous les sites et les trajets concernées."
 
 #: views/pagehelp/fr_FR/help_model-open.tpl:1
 msgid ""
@@ -4899,24 +5302,34 @@ msgid ""
 "the left. If your model has already been run, you may be prompted to make a "
 "copy of the model so that you can alter it."
 msgstr ""
+"S'il vous plaît sélectionnez l'une des options à effectuer sur votre modèle "
+"dans le menu sur la gauche. Si votre modèle a déjà été exécuté, vous pouvez "
+"être invité à faire une copie du modèle de sorte que vous pouvez le modifier."
 
 #: views/pagehelp/fr_FR/help_model-open.tpl:3
 msgid ""
 "The dynamic diagram on the right allows you to explore the structure of this "
 "model by the following:"
 msgstr ""
+"Le diagramme dynamique sur la droite vous permet d'explorer la structure de "
+"ce modèle par le texte suivant:"
 
 #: views/pagehelp/fr_FR/help_model-open.tpl:6
 msgid ""
 "Left-click on a circle to expand the diagram and see which locations it "
 "supplies. Left-click again to collapse the network below that point. "
 msgstr ""
+"Cliquez avec le bouton gauche sur un cercle d'étendre le schéma et voir "
+"quels sites il fournit. Gauche-cliquez de nouveau pour réduire le réseau "
+"dessous de ce point."
 
 #: views/pagehelp/fr_FR/help_model-open.tpl:7
 msgid ""
 "Right-click on a location (circle) or a route (line) to obtain more detailed "
 "information about the item."
 msgstr ""
+"Cliquez avec le bouton droit sur un site (cercle) ou un itinéraire (ligne) "
+"pour obtenir des informations plus détaillées sur le produit."
 
 #: views/pagehelp/fr_FR/help_model-open.tpl:8
 msgid ""
@@ -4925,6 +5338,11 @@ msgid ""
 "press and hold the Ctrl key while pressing the + key to zoom in or the - key "
 "to zoom out."
 msgstr ""
+"Si le diagramme complet est pas visible, cliquez sur l'espace vide dans le "
+"diagramme et faites glisser pour repositionner le réseau. Zoomer et dézoomer "
+"en utilisant la molette de défilement ou appuyez et maintenez la touche Ctrl "
+"enfoncée tout en appuyant sur la touche + pour zoomer ou la touche - pour "
+"effectuer un zoom arrière."
 
 #: views/pagehelp/fr_FR/help_model-run.tpl:1
 msgid ""
@@ -4934,10 +5352,15 @@ msgid ""
 "but you will be able to return to the sequence where you left off by "
 "selecting Run again."
 msgstr ""
+"Ceci est la première étape dans l'exécution d'un modèle HERMES. Une fois que "
+"vous avez terminé cette courte série de pages, l'exécution de votre modèle "
+"va commencer. Si vous laissez cette séquence d'écrans trop tôt, votre modèle "
+"ne sera pas commencer à courir, mais vous serez en mesure de retourner à la "
+"séquence où vous avez quitté en sélectionnant à nouveau sur \"Exécuter\"."
 
 #: views/pagehelp/fr_FR/help_model-run.tpl:5
 msgid "Entering run details"
-msgstr ""
+msgstr "Entrez de détails d'exécution"
 
 #: views/pagehelp/fr_FR/help_model-run.tpl:9
 msgid ""
@@ -4950,6 +5373,16 @@ msgid ""
 "patients than others at any given location. Thus, HERMES stochastically "
 "generates daily demand as a Poisson distribution."
 msgstr ""
+"Ici, vous entrez un nom pour les résultats et spécifier le nombre de fois "
+"que vous souhaitez pour exécuter le modèle lors de la création de cet "
+"ensemble de résultats. Pour mieux saisir la variation quotidiennes , qui se "
+"produit dans le monde réel, les modèles HERMES sont stochastique (sauf "
+"indication contraire dans les paramètres). Cela signifie que chaque "
+"exécution va générer des résultats quelque peu différents. Par exemple, la "
+"demande journalière à un emplacement immunisant est pas uniforme - plutôt, "
+"quelques jours vont voir plus de patients que d'autres à un endroit donné. "
+"Ainsi, HERMES génère stochastique demande quotidienne comme une distribution "
+"de Poisson."
 
 #: views/pagehelp/fr_FR/help_model-run.tpl:13
 msgid ""
@@ -4958,16 +5391,24 @@ msgid ""
 "thumb is to use the average of 10 runs for results that will not vary "
 "significantly due to stochasticity alone."
 msgstr ""
+"Pour obtenir des résultats qui sont représentatifs du modèle, en prenant la "
+"moyenne de plusieurs exécutions est recommandé. Chaque modèle est différent, "
+"mais une bonne règle empirique est d'utiliser la moyenne de 10 points pour "
+"les résultats qui ne seront pas varier de façon significative en raison de "
+"la stochasticité seul."
 
 #: views/pagehelp/fr_FR/help_model-run.tpl:16
 msgid "Adjusting parameters"
-msgstr ""
+msgstr "Ajustez les paramètres"
 
 #: views/pagehelp/fr_FR/help_model-run.tpl:20
 msgid ""
 "Three basic run parameters are displayed to allow editing of the simulation "
 "length, shipments from the manufacturer, and buffer stock."
 msgstr ""
+"Trois paramètres de base d'exécution sont affichés pour permettre la "
+"modification de la longueur de la simulation, les expéditions en provenance "
+"du fabricant, et le stock tampon."
 
 #: views/pagehelp/fr_FR/help_model-run.tpl:24
 msgid ""
@@ -4975,6 +5416,10 @@ msgid ""
 "simulate. Because each simulated month in HERMES is 4 weeks long, one year "
 "is equal to 336 days."
 msgstr ""
+"Le nombre de jours de simulation (\"Number of Simulation Days\" en anglais) "
+"spécifie la période de temps que chaque execution   permettra de simuler. "
+"Parce que chaque mois simulé dans HERMES est de 4 semaines de long, une "
+"année est égale à 336 jours."
 
 #: views/pagehelp/fr_FR/help_model-run.tpl:28
 msgid ""
@@ -4983,6 +5428,10 @@ msgid ""
 "example, if vaccines enter the supply chain via quarterly deliveries to the "
 "top level, then 4 would be entered here."
 msgstr ""
+"Le nombre de livraisons du fabricant par an indique le nombre annuel des "
+"temps le site au plus haut niveau reçoit les vaccins. Par exemple, si les "
+"vaccins entrent dans la chaîne d'approvisionnement par l'intermédiaire de "
+"livraisons trimestrielles au niveau supérieur, puis 4 seraient entrés ici."
 
 #: views/pagehelp/fr_FR/help_model-run.tpl:32
 msgid ""
@@ -4994,10 +5443,18 @@ msgid ""
 "will receive 25% more vaccines than the amount expected to be necessary (if "
 "adequate storage capacity exists at that location)."
 msgstr ""
+"Le facteur de stock tampon du fabricant spécifie comment les envois à haut "
+"niveau sont calculés. Typiquement, les commandes sont calculées sur la base "
+"de la demande de vaccins attendus et deschets de flacon ouvert puis gonflé "
+"par un facteur pour permettre tampon supplémentaire stock. Une valeur de "
+"1,25 dans ce domaine indiquerait une reglé de stockage tampon de 25%, dans "
+"lequel le site au niveau supérieur recevra 25% plus de vaccins que le "
+"montant qui devrait être nécessaire (si la capacité de stockage adéquate "
+"existe à cet endroit)."
 
 #: views/pagehelp/fr_FR/help_model-run.tpl:35
 msgid "Validating model"
-msgstr ""
+msgstr "Validez le modèle"
 
 #: views/pagehelp/fr_FR/help_model-run.tpl:39
 msgid ""
@@ -5011,6 +5468,17 @@ msgid ""
 "Advanced Model Editor to address the issues or you may proceed with running "
 "the simulation."
 msgstr ""
+"Une fois que cette page est terminée, cliquez sur Soumettez va commencer le "
+"processus de validation du modèle. Un tableau contextuel pour afficher "
+"toutes les erreurs du validateur trouvé. \"Erreurs fatales\" entraînera "
+"probablement la course à l'échec avant la simulation est terminée, revenant "
+"ainsi aucun résultat. \"Avertissements\" indiquent les éléments qui peuvent "
+"être erronées, mais serait probablement pas causer la course à l'échec. "
+"Cependant, ces éléments peuvent conduire à des résultats erronés si elles "
+"reflètent des erreurs réelles dans le modèle. Si des erreurs sont détectées, "
+"vous pouvez aller directement à partir de cette boîte de dialogue à "
+"l'éditeur de modèle avancée pour répondre aux questions ou vous pouvez "
+"procéder à l'exécution de la simulation."
 
 #: views/pagehelp/fr_FR/help_models-top.tpl:1
 msgid ""
@@ -5019,18 +5487,29 @@ msgid ""
 "add/edit a note for that model. Notes are optional and will not affect how "
 "the model runs"
 msgstr ""
+"Le tableau des modèles disponibles répertorie vos modèles existants. Double-"
+"cliquer sur une ligne dans la liste pour ouvrir une boîte de dialogue, vous "
+"permettant de modifier le nom du modèle et d'ajouter / modifier une remarque "
+"pour ce modèle. Les remarques sont facultatives et ne seront pas affecter la "
+"façon dont le modèle exécute"
 
 #: views/pagehelp/fr_FR/help_models-top.tpl:4
 msgid ""
 "You can create a full copy of a model by selecting the Copy button.  This is "
 "helpful if you would like to alter or edit the model to create a new system."
 msgstr ""
+"Vous pouvez créer une copie complète d'un modèle en sélectionnant le bouton "
+"\"Copier\". Ceci est utile si vous souhaitez modifier ou modifier le modèle "
+"pour créer un nouveau système."
 
 #: views/pagehelp/fr_FR/help_models-top.tpl:5
 msgid ""
 "To permanently remove a model, select Del and confirm. This will also remove "
 "any results that have been generated by running this model."
 msgstr ""
+"Pour supprimer définitivement un modèle, sélectionnez \"Del\" et confirmer. "
+"Cela permettra également de supprimer tous les résultats qui ont été générés "
+"par l'exécution de ce modèle."
 
 #: views/pagehelp/fr_FR/help_models-top.tpl:6
 msgid ""
@@ -5038,6 +5517,10 @@ msgid ""
 "page, which shows the supply chain network diagram and allows users to "
 "modify, run, view results, or export the selected model."
 msgstr ""
+"Pour afficher ou modifier un modèle, sélectionnez \"Ouvrir\". Ce dirige vers "
+"la page du modèle, qui montre le diagramme de réseau de chaîne "
+"d'approvisionnement et permet aux utilisateurs de modifier, exécuter, "
+"afficher des résultats ou exporter le modèle sélectionné."
 
 #: views/pagehelp/fr_FR/help_network_results_visualization.tpl:1
 msgid ""
@@ -5047,12 +5530,20 @@ msgid ""
 "scrollwheel or press and hold the Ctrl key while pressing the + key to zoom "
 "in or the - key to zoom out."
 msgstr ""
+"Voir les sites et trajets avec des résultats de simulation dans une "
+"visualisation de réseau. Si le diagramme complet est pas visible, cliquez "
+"sur l'espace vide dans le diagramme et faites glisser pour repositionner le "
+"réseau. Zoomer et dézoomer en utilisant la molette de défilement ou appuyez "
+"et maintenez la touche Ctrl enfoncée tout en appuyant sur la touche + pour "
+"zoomer ou la touche - pour effectuer un zoom arrière."
 
 #: views/pagehelp/fr_FR/help_network_results_visualization.tpl:3
 msgid ""
 "Left-click on a circle to expand the diagram and see which locations it "
 "supplies. Left-click again to collapse the network below that point."
 msgstr ""
+"Left-click on a circle to expand the diagram and see which locations it "
+"supplies. Left-click again to collapse the network below that point. "
 
 #: views/pagehelp/fr_FR/help_network_results_visualization.tpl:5
 msgid ""
@@ -5062,10 +5553,16 @@ msgid ""
 "Inventory tab. Click on any vaccine name in the plot legend to show or hide "
 "the inventory levels for that individual vaccine."
 msgstr ""
+"Cliquez avec le bouton droit sur un site (cercle) ou un trajet (ligne) pour "
+"obtenir des informations plus détaillées sur de l'article. Ces informations "
+"détaillées comprend parcelles d'inventaire des stocks pour chaque site tout "
+"au long de la simulation, dans l'onglet Inventaire. Cliquez sur le nom du "
+"vaccin dans la légende du tracé pour afficher ou masquer les niveaux de "
+"stocks pour que le vaccin individuel."
 
 #: views/pagehelp/fr_FR/help_nlevels.tpl:1
 msgid "Model Creation Workflow"
-msgstr ""
+msgstr "Créer un flux de travail de modèle"
 
 #: views/pagehelp/fr_FR/help_nlevels.tpl:24
 msgid ""
@@ -5276,6 +5773,9 @@ msgid ""
 "The Vaccine Results table lists statistics for each vaccine in the dose "
 "schedule, as well as overall statistics for all vaccines combined."
 msgstr ""
+"Le tableau nommé \"Résultats de vaccine\" listes statistiques pour chaque "
+"vaccin dans le calendrier de la dose, ainsi que des statistiques globales "
+"pour tous les vaccins combinés."
 
 #: views/pagehelp/fr_FR/help_results-top.tpl:9
 msgid ""
@@ -5283,6 +5783,9 @@ msgid ""
 "at immunizing locations in order to administer the required vaccines to all "
 "people who arrived for vaccinations."
 msgstr ""
+"\"Doses nécessaires\" indique le nombre de doses de chaque vaccin qui a été "
+"nécessaire à l'immunisation des sites afin d'administrer les vaccins "
+"nécessaires à tous les gens qui sont arrivés pour les vaccinations."
 
 #: views/pagehelp/fr_FR/help_results-top.tpl:10
 msgid ""
@@ -5291,12 +5794,19 @@ msgid ""
 "supply chain bottlenecks or ordering policies prevented the necessary "
 "vaccines from getting where they were needed, when they were needed."
 msgstr ""
+"\"Doses administrées\" indique le nombre de doses qui ont été donnés à des "
+"gens qui arrivent pour les vaccinations. Ce nombre peut être inférieur à "
+"celui \"Doses nécessaires\" si les goulets d'étranglement de la chaîne "
+"d'approvisionnement ou de règles de classement ont empêché les vaccins "
+"nécessaires d'obtenir où ils sont nécessaires, quand ils étaient nécessaires."
 
 #: views/pagehelp/fr_FR/help_results-top.tpl:11
 msgid ""
 "Availability expresses the Doses Administered as a percentage of the Doses "
 "Demanded."
 msgstr ""
+"Disponibilité exprime les Doses Administrées en tant que pourcentage des "
+"Doses nécessaires."
 
 #: views/pagehelp/fr_FR/help_results-top.tpl:12
 msgid ""
@@ -5307,12 +5817,23 @@ msgid ""
 "discarding all opened vials at the end of every session, while others may "
 "allow some types of opened vials to be used in future sessions)."
 msgstr ""
+"Le déchet de flacon ouvert est le nombre de doses rebut de flacons ouverts, "
+"comme un pourcentage de toutes les doses dans des flacons qui ont été "
+"ouverts. Les doses doivent être mis au rebut de flacons ouverts en fonction "
+"du type de vaccin (lyophilisée ou liquide, par exemple) et les politiques du "
+"programme de vaccination (certains programmes mandat de jeter tous les "
+"flacons entamés à la fin de chaque session, tandis que d'autres peuvent "
+"permettre certains types de flacons entamés pour être utilisé dans les "
+"futures sessions)."
 
 #: views/pagehelp/fr_FR/help_results-top.tpl:16
 msgid ""
 "Histograms display the distribution of overall vaccine availability, maximum "
 "storage utilization, and maximum transport utilization across locations."
 msgstr ""
+"Histogrammes afficher la distribution de la disponibilité globale du vaccin, "
+"l'utilisation maximale de stockage, et l'utilisation maximale de transport à "
+"travers les sites."
 
 #: views/pagehelp/fr_FR/help_results-top.tpl:21
 msgid ""
@@ -5320,6 +5841,9 @@ msgid ""
 "needed for a route during the simulation, as a percentage of the actual "
 "capacity available on that route."
 msgstr ""
+"Utilisation  de transport maximale  indique la capacité  de transport "
+"maximale nécessaire  pour un itinéraire au cours de la simulation, sous "
+"forme de pourcentage de la capacité réelle disponible sur cette trajet."
 
 #: views/pagehelp/fr_FR/help_results-top.tpl:25
 msgid ""
@@ -5328,6 +5852,11 @@ msgid ""
 "total for all levels. The table heading states the year and currency in "
 "which all cost results are reported."
 msgstr ""
+"Résultats microcosting sont d'abord affichés dans un tableau qui énumère les "
+"coûts à payer à chaque niveau de la chaîne d'approvisionnement au cours de "
+"la simulation, ainsi que le total de tous les niveaux. La tête du tableau "
+"affirme de l'année et la monnaie dans laquelle tous les résultats de coûts "
+"sont rapportés."
 
 #: views/pagehelp/fr_FR/help_results-top.tpl:29
 msgid ""
@@ -5340,6 +5869,15 @@ msgid ""
 "zoom out to the previous level of costs, click on the blue bar at the top of "
 "the treemap, which displays a label of the current category."
 msgstr ""
+"Un interactive Zoomable Treemap permet la visualisation rapide des "
+"principales catégories de conduite des coûts et le coût relatif de chaque "
+"niveau, des sites et la trajet. Le treemap affiche des boîtes étiquetées "
+"avec des catégories de coûts, avec la taille relative de chaque boîte "
+"représentant la part relative des coûts attribués à cette catégorie. En "
+"cliquant sur une case sera \"zoomer\" l'treemap à la catégorie sélectionnée, "
+"désormais subdivisées en sous-catégories. Pour effectuer un zoom arrière au "
+"niveau précédent des coûts, cliquez sur la barre bleue en haut de la "
+"treemap, qui affiche une étiquette de la catégorie actuelle."
 
 #: views/pagehelp/fr_FR/help_results-top.tpl:33
 msgid ""
@@ -5349,6 +5887,12 @@ msgid ""
 "route will display the costs by category at that location or route. Return "
 "to the previous view by clicking in any empty white space in the chart."
 msgstr ""
+"Un Coûts interactif Bar Chart affiche initialement les coûts totaux par "
+"niveau. Cliquer sur un niveau va régénérer le graphique à barres pour "
+"illustrer les coûts accumulés à chaque emplacement et de la trajet au niveau "
+"sélectionné. Cliquer sur un site ou un itinéraire affiche les coûts par "
+"catégorie à cet site ou trajet. Revenir à la vue précédente en cliquant dans "
+"un espace blanc et vide dans le tableau."
 
 #: views/pagehelp/fr_FR/help_results-top.tpl:37
 msgid ""
@@ -5357,6 +5901,11 @@ msgid ""
 "longitude coordinates were specified for locations in this model -- view "
 "results in a Geographic Visualization."
 msgstr ""
+"Utilisez les boutons pour afficher une visualisation de réseau des résultats "
+"de simulation, télécharger une feuille de calcul des résultats avec les "
+"données détaillées, ou - si les coordonnées de latitude et de longitude ont "
+"été spécifiés pour les sites de ce modèle - Voir les résultats dans une "
+"visualisation géographique."
 
 #: views/pagehelp/fr_FR/help_results-top.tpl:20
 msgid ""
@@ -5364,12 +5913,17 @@ msgid ""
 "a location during the simulation, as a percentage of the actual capacity "
 "available at that location."
 msgstr ""
+"Utilisation du stockage maximale indique la capacité de stockage maximale "
+"nécessaire à un site au cours de la simulation, comme un pourcentage de la "
+"capacité réellement disponible sur ce site."
 
 #: views/pagehelp/fr_FR/help_run-top.tpl:1
 msgid ""
 "The Available Runs table displays the status of all runs begun during the "
 "current session."
 msgstr ""
+"Le tableau Executions Disponible  affiche l'état de tous les essais "
+"commencés au cours de la session en cours."
 
 #: views/pagehelp/fr_FR/help_run-top.tpl:4
 msgid ""
@@ -5378,6 +5932,11 @@ msgid ""
 "continue to modify other models while a model is running. Access results via "
 "the \"Results\" tab at the top of the page."
 msgstr ""
+"La colonne État mettra à jour périodiquement pour afficher la progression "
+"d'un exécution en cours. Une exécution en cours peut être arrêté en "
+"utilisant le bouton Annuler. Vous pouvez continuer à modifier d'autres "
+"modèles tout en un modèle est en cours d'exécution. Résultats de l'accès via "
+"l'onglet \"Résultats\" en haut de la page."
 
 #: views/pagehelp/fr_FR/help_setdemand.tpl:1
 msgid ""
@@ -5385,6 +5944,9 @@ msgid ""
 "and the vaccine schedule for each population type. Here, you will define the "
 "vaccine dose schedule for this model."
 msgstr ""
+"Dans HERMES, la demande est déterminée par les populations desservies par "
+"chaque site et le calendrier de vaccination pour chaque type de population. "
+"Ici, vous allez définir le calendrier de dose de vaccin pour ce modèle."
 
 #: views/pagehelp/fr_FR/help_setdemand.tpl:3
 msgid ""
@@ -5394,6 +5956,12 @@ msgid ""
 "where you may select or unselect any components to add or remove them from "
 "the schedule."
 msgstr ""
+"Le \"Inclure dans le tableau de dose?\" boîte sur le côté gauche de la page "
+"affiche des composants dans le modèle qui peut être inclus dans le programme "
+"de doses de vaccin. Vous pouvez basculer entre l'affichage de vaccins "
+"disponibles et les types de population, où vous pouvez sélectionner ou "
+"désélectionner tous les composants pour ajouter ou supprimer les du "
+"calendrier."
 
 #: views/pagehelp/fr_FR/help_setdemand.tpl:5
 msgid ""
@@ -5403,6 +5971,11 @@ msgid ""
 "each member of the population type in that column over the course of one "
 "simulation."
 msgstr ""
+"Dans le tableau de dose à droite, vaccins sélectionnés apparaissent comme "
+"des lignes et des types de population sélectionnés apparaissent sous forme "
+"de colonnes. Vous pouvez cliquer sur une cellule d'entrer le nombre de doses "
+"de vaccin dans cette rangée qui seront prévues pour chaque membre du type de "
+"population dans cette colonne au cours d'une simulation."
 
 #: views/pagehelp/fr_FR/help_setdemand.tpl:6
 msgid ""
@@ -5410,12 +5983,17 @@ msgid ""
 "\"1\" to indicate that each newborn in the model would be scheduled to "
 "receive 1 dose of BCG."
 msgstr ""
+"Par exemple, si incluez les nouveau-nés et un vaccin BCG, un utilisateur "
+"entrerait \"1\" pour indiquer que chaque nouveau-né dans le modèle serait "
+"prévue pour recevoir une dose de BCG."
 
 #: views/pagehelp/fr_FR/help_setdemand.tpl:8
 msgid ""
 "Select Show Advanced Options? to view additional information you can include "
 "about vaccine demand"
 msgstr ""
+"Sélectionnez Afficher les options avancées? pour afficher des informations "
+"supplémentaires vous pouvez inclure à propos de la demande de vaccins."
 
 #: views/pagehelp/fr_FR/help_setdemand.tpl:11
 #, python-format
@@ -5425,6 +6003,11 @@ msgid ""
 "default value is 1, meaning 100% of the populations in the model will "
 "present for vaccines at immunization locations during each simulation run."
 msgstr ""
+"La proportion de la population de se faire vacciner est la fraction de "
+"toutes les populations de modèles qui arriveront pour les vaccinations dans "
+"la simulation. La valeur par défaut est 1, ce qui signifie 100% de la "
+"population dans le modèle présentera pour les vaccins sur les sites de "
+"vaccination lors de chaque exécution de la simulation."
 
 #: views/pagehelp/fr_FR/help_setdemand.tpl:12
 #, python-format
@@ -5436,6 +6019,13 @@ msgid ""
 "entered. The default value is 1, meaning the number of people expected to "
 "arrive for vaccinations will equal 100% of the people actually arriving."
 msgstr ""
+"Entrer un valeur dans projetée vs réelle ajuste la demande attendue (la "
+"taille de la population qui devrait arriver pour les vaccinations, qui est "
+"pris en compte lors du calcul de la quantité de chaque produit à commander). "
+"La demande prévue est égale à la demande réelle, réduite par le facteur "
+"entré. La valeur par défaut est 1, ce qui signifie le nombre de personnes "
+"attendues à arriver pour les vaccinations sera égal à 100% des personnes qui "
+"arrivent effectivement."
 
 #: views/pagehelp/fr_FR/help_setdemand.tpl:13
 msgid ""
@@ -5443,6 +6033,9 @@ msgid ""
 "getting vaccinated and projected vs. actual factors independently for each "
 "specific vaccine."
 msgstr ""
+"Sélectionnez \"Échelle de vaccins séparément?\" de préciser la proportion de "
+"la population de se faire vacciner et projetée contre les facteurs réels "
+"indépendamment pour chaque vaccin spécifique."
 
 #: views/pagehelp/fr_FR/help_setdemand.tpl:14
 msgid ""
@@ -5451,12 +6044,19 @@ msgid ""
 "population getting vaccinated column to \"0.85\" and \"0.9\" for the "
 "appropriate rows."
 msgstr ""
+"Par exemple, pour entrer un objectif de couverture de 85% pour une vaccin et "
+"une couverture cible de 90% pour l'autre, un utilisateur modifier la "
+"proportion de la population se colonne vaccinés à \"0.85\" et \"0,9\" pour "
+"les lignes appropriées."
 
 #: views/pagehelp/fr_FR/help_setdemand.tpl:15
 msgid ""
 "Select Treatment Calendar to select which days, weeks, and months the "
 "immunizing locations administer vaccines to all population types."
 msgstr ""
+"Sélectionnez \"Calendrier traitement\" pour sélectionner les jours, semaines "
+"et mois les emplacements immunisation administrent des vaccins à tous les "
+"types de population."
 
 #: views/pagehelp/fr_FR/help_setdemand.tpl:16
 msgid ""
@@ -5464,6 +6064,9 @@ msgid ""
 "and months the immunizing locations administer vaccines to each individual "
 "population type."
 msgstr ""
+"Sélectionnez \"Planifier les types de population séparément?\" pour "
+"spécifier les jours, semaines et mois les sites immunisation administrent "
+"des vaccins à chaque type de population particuliers."
 
 #: views/pagehelp/fr_FR/help_types.tpl:1
 msgid ""
@@ -5474,10 +6077,18 @@ msgid ""
 "transport equipment, storage equipment, population types, per diem policies, "
 "and staff types) using the buttons on the left."
 msgstr ""
+"Sélectionnez les composants à inclure dans ce modèle. Ces composants seront "
+"ensuite affectés à des endroits et itinéraires: Cela se produira dans une "
+"étape ultérieure si vous utilisez le modèle flux de travail de création, ou "
+"dans l'éditeur de modèle avancée si la modification d'un modèle existant. "
+"Basculer entre catégories de composants (vaccins, matériel de transport, "
+"matériel de stockage, les types de population, par des politiques "
+"quotidiens, et les types de personnel) en utilisant les boutons sur la "
+"gauche."
 
 #: views/pagehelp/fr_FR/help_types.tpl:5
 msgid "Selecting a Source"
-msgstr ""
+msgstr "Sélectionnez une source"
 
 #: views/pagehelp/fr_FR/help_types.tpl:8
 msgid ""
@@ -5488,10 +6099,17 @@ msgid ""
 "includes WHO prequalified items where available, as well as examples of "
 "commonly used items."
 msgstr ""
+"Articles dans le modèle actuellement ouvert apparaissent dans la boîte sur "
+"la gauche, et les éléments disponibles à ajouter à ce modèle apparaissent "
+"dans la boîte de Source sur la droite. Utilisez le menu déroulant pour "
+"sélectionner une source. Sources disponibles incluent la base de données "
+"HERMES ainsi que d'autres modèles dans votre base de données. La base de "
+"données comprend HERMES OMS articles lorsqu'ils sont disponibles, ainsi que "
+"des exemples d'articles couramment utilisés préqualifié."
 
 #: views/pagehelp/fr_FR/help_types.tpl:12
 msgid "Adding and Removing Items in the Current Model"
-msgstr ""
+msgstr "Ajout et suppression d'éléments dans le modèle actuel"
 
 #: views/pagehelp/fr_FR/help_types.tpl:15
 msgid ""
@@ -5506,6 +6124,18 @@ msgid ""
 "the original item in the model. Remove any item from the current model using "
 "the Del button."
 msgstr ""
+"Pour ajouter un élément à partir d'une source, cliquez sur l'élément de la "
+"Source pour le sélectionner et cliquez sur le bouton de flèche dans le "
+"milieu pour copier l'élément au modèle actuel. Pour ajouter un élément non "
+"disponible dans aucune Source, commencent par un article de la même "
+"catégorie de composant dans le modèle actuel (si il n'y a aucun élément dans "
+"cette catégorie, en ajouter une de toute Source). Utilisez le bouton "
+"Modifier pour modifier l'article comme nécessaire. Sauf si le nom de "
+"l'article est modifié, les modifications vont remplacer l'élément d'origine "
+"dans le modèle actuel. Modification du nom de l'élément ajoutera à la "
+"version modifiée du modèle actuel tout en maintenant l'élément d'origine "
+"dans le modèle. Retirez tout élément du modèle actuel en utilisant le bouton "
+"Del."
 
 #: views/pagehelp/fr_FR/help_types.tpl:23
 msgid ""
@@ -5521,6 +6151,19 @@ msgid ""
 "price per vial. All vaccine types to be administered at any location should "
 "be added to the model in this step."
 msgstr ""
+"Les listes de bases de données HERMES préqualifié par l'OMS des vaccins par "
+"l'antigène, suivie par le fabricant et la taille du récipient primaire "
+"(doses par flacon). Vaccins avec l'OMS répertorié comme le fabricant "
+"indiquent l'OMS Directives internationales envoi. Ces lignes directrices "
+"indiquent le maximum recommandé le volume emballé par dose de différents "
+"types de vaccins, et ceux-ci peuvent être utilisées lorsque le fabricant "
+"réel approvisionnement en vaccins est pas connue. Les caractéristiques des "
+"vaccins dans HERMES comprennent la doses par flacon, la présentation (comme "
+"liquide ou lyophilisée), la durée de vie de puissants (congelés, réfrigérés, "
+"à la température ambiante, et après l'ouverture), le volume emballé par dose "
+"(pour le vaccin et le diluant), et le prix par flacon . Tous les types de "
+"vaccin doit être administré à n'importe quel emplacement doivent être "
+"ajoutés au modèle de cette étape."
 
 #: views/pagehelp/fr_FR/help_types.tpl:31
 msgid ""
@@ -5538,6 +6181,22 @@ msgid ""
 "Fuel. All transport methods used to move vaccines at any location should be "
 "added to the model in this step."
 msgstr ""
+"La base de données comprend HERMES couramment utilisé types de véhicules. "
+"Ces exemples comprennent un camion réfrigéré, qui a une capacité nette de "
+"stockage de froid. Autres véhicules qui manquent de réfrigération "
+"comprennent glacières et porte-vaccins. Les caractéristiques des dispositifs "
+"de transport dans HERMES comprennent la capacité de stockage (soit le volume "
+"net ou dispositifs), prix d'achat, prévue kilométrage total, le type de "
+"carburant, et le taux de consommation de carburant. Les moyens de transport "
+"tels que le transport en commun et la marche peuvent aussi être ajoutés ici. "
+"Pour les types de transport en commun qui ont un tarif fixe qui leur sont "
+"associés (tels que des billets d'autobus pour le transport public), le "
+"carburant spécifié doit être fixe et de la Fare tarif aller-retour doit être "
+"inscrit dans la consommation de carburant. Pour les types de transit qui "
+"engagent sans frais de transport, comme la marche, le type de carburant "
+"devrait être spécifié Non carburant. Tous les modes de transport utilisés "
+"pour déplacer les vaccins à tout emplacement devraient être ajoutés au "
+"modèle à cette étape."
 
 #: views/pagehelp/fr_FR/help_types.tpl:39
 msgid ""
@@ -5552,6 +6211,19 @@ msgid ""
 "storage devices used at any location to store vaccines should be added to "
 "the model in this step."
 msgstr ""
+"La base de données HERMES comprend préqualifié par l'OMS équipements de "
+"stockage, ainsi que des dispositifs couramment utilisés. OMS équipements "
+"présélectionnés est répertorié par modèle, avec le préfixe «CB» pour les "
+"glacières et \"VC\" pour les porte-vaccins. Appareils couramment utilisés "
+"comprennent un 30 mètre cube chambre froide walk-in et une salle de "
+"congélateur de la même taille. Les caractéristiques des dispositifs de "
+"stockage à HERMES comprennent la marque, le modèle, le volume net de "
+"stockage des vaccins (2-8 ° C, congélateur, et la température ambiante "
+"glacière ou), type d'équipement, prix d'achat, durée de vie prévue, le type "
+"d'énergie, le taux d'utilisation de l'énergie, et des durées d'efficacité "
+"lors d'une panne de courant. Tous les périphériques de stockage utilisés à "
+"tout emplacement pour stocker les vaccins doivent être ajoutés au modèle à "
+"cette étape."
 
 #: views/pagehelp/fr_FR/help_types.tpl:47
 msgid ""
@@ -5571,6 +6243,23 @@ msgid ""
 "population groups who are immunized at any location should be added to the "
 "model in this step."
 msgstr ""
+"La base de données HERMES comprend couramment utilisé les groupes de "
+"population, généralement fondée sur l'âge. Tous les individus dans un groupe "
+"de population exigent les mêmes vaccins. La population à chaque site "
+"immunisation est également entré (dans une étape différente) en fonction de "
+"ces groupes de population. Même si un calendrier de vaccination réelle peut "
+"spécifier doses à des semaines ou des mois d'âge spécifiques, les groupes de "
+"population doivent être définies en fonction du niveau de détail des données "
+"démographiques disponibles. Par exemple, supposons doses d'un vaccin "
+"particulier est recommandé à 2 mois et 8 mois d'âge. Dans la plupart des "
+"cas, les données ne sont pas disponibles sur la taille de la population à "
+"chaque emplacement immunisation à chacun de ces âges spécifiques, donc il "
+"n'y a aucun avantage à entrer dans ces groupes de population distinctes. "
+"Toutefois, les données peuvent être disponibles sur le nombre de nourrissons "
+"de moins de 1 an d'âge, donc un type de population de ce groupe d'âge plus "
+"large peuvent être assignés à recevoir toutes les doses de vaccins prévues "
+"pour les nourrissons. Tous les groupes de population qui sont immunisées à "
+"tout emplacement devraient être ajoutés au modèle à cette étape."
 
 #: views/pagehelp/fr_FR/help_types.tpl:55
 msgid ""
@@ -5586,6 +6275,19 @@ msgid ""
 "additional days, and any minimum one-way distance required for a per diem to "
 "be paid."
 msgstr ""
+"La base de données HERMES comprend un exemple les règles de perdiem pour les "
+"trajets, qui précise qu'aucune indemnité journalière versée pour des voyages "
+"qui se produisent. Dans un système donné, il peut y avoir plusieurs  règles "
+"de perdiem entre les différents niveaux de la chaîne d'approvisionnement. "
+"Par exemple, les conducteurs sur les routes à des niveaux plus élevés "
+"peuvent être versées les indemnités journalières, tandis que les conducteurs "
+"sur les routes à des niveaux inférieurs ne peuvent pas. Toutes les règles de "
+"per diem utilisés dans toute voie doivent être ajoutés au modèle à cette "
+"étape. Par quotidiens règles dans HERMES sont spécifiés basés sur le montant "
+"payé par jour, que ce soit un voyage doit prendre plus d'une journée afin de "
+"perdiem à payer, si un perdiem est payé pour le premier jour d'un voyage ou "
+"seulement pour les jours supplémentaires, et toute distance minimale d'un "
+"moyen nécessaire pour une indemnité journalière pour être payés."
 
 #: views/pagehelp/fr_FR/help_types.tpl:63
 msgid ""
@@ -5600,10 +6302,21 @@ msgid ""
 "included in labor costs at any location should be added to the model in this "
 "step."
 msgstr ""
+"La base de données HERMES comprend des exemples de types de personnel "
+"couramment utilisés. Dans HERMES, le personnel affecte seul les résultats de "
+"coûts. Ainsi, le même modèle exécution avec et sans personnel produire des "
+"résultats qui ne diffèrent que par le main-d'œuvre / les frais de personnel. "
+"Caractéristiques du type de personnel dans HERMES comprennent le salaire "
+"annuel et la fraction de ce salaire qui devrait être prise en compte pour "
+"les coûts du programme de vaccination modélisé. Par exemple, si seulement y "
+"compris les coûts liés à la logistique du PEV, le pourcentage du temps de "
+"chaque membre dupersonnel qui se consacre à l'égard de la logistique du PEV "
+"serait signalé. Tous les types de personnel pour être inclus dans les coûts "
+"de main-d'œuvre à tout emplacement doit être ajouté au modèle de cette étape."
 
 #: views/pagehelp/fr_FR/help_types.tpl:51
 msgid "Per Diem Rules: "
-msgstr ""
+msgstr "les règles de perdiem:"
 
 #: views/people_edit.tpl:1 views/type_edit.tpl:42
 msgid "Modify Population Type"
@@ -5625,7 +6338,7 @@ msgstr ""
 
 #: views/people_top.tpl:83
 msgid "Known Population Types"
-msgstr ""
+msgstr "Types de population connus"
 
 #: views/people_top.tpl:84
 msgid "Showing population types for"
@@ -5734,7 +6447,7 @@ msgstr "Télécharger les résultats d'Excel"
 
 #: views/results_summary.tpl:52
 msgid "Save Excel Model Results As..."
-msgstr ""
+msgstr "Enregistrez les Résultats du Modèle dans Excel que..."
 
 #: views/results_summary.tpl:57
 msgid "Filename"
@@ -5858,7 +6571,7 @@ msgstr "Créez votre type de personnel"
 
 #: views/staff_top.tpl:81
 msgid "Known Staff Types"
-msgstr ""
+msgstr "Types de personnel connus"
 
 #: views/staff_top.tpl:82
 msgid "Showing staff types for"
@@ -5998,7 +6711,7 @@ msgstr ""
 msgid ""
 "Exercise 1: Modify and Run an Existing Model  (Addition of Rotarix Vaccine) "
 msgstr ""
-"Exercice 1: Modifier et exécuter un modèle existant (ajout de Rotarix vaccin)"
+"Exercice 1: Modifier et exécuter un modèle existant (ajout de vaccin Rotarix)"
 
 #: views/tutorial.tpl:51
 msgid "Making a Copy of the Gaza Province, Mozambique Model"
@@ -6379,6 +7092,11 @@ msgid ""
 "displays can be found by clicking the \"?\" icon in the top-right corner of "
 "each page."
 msgstr ""
+"Explorez les résultats sur cette page et dans la visualisation géographique, "
+"visualisation réseau, et les résultats téléchargeables tableur. Des "
+"informations détaillées sur les types de résultats  montré et comment "
+"utiliser les écrans interactifs peuvent être trouvés en cliquant sur le \"?"
+"\" icône dans le coin en haut à droite de chaque page."
 
 #: views/tutorial.tpl:105
 msgid ""
@@ -6388,6 +7106,13 @@ msgid ""
 "here. The results should show that Rotarix introduction leads to lower "
 "vaccine availability with higher storage and transport utilization."
 msgstr ""
+"Plusieurs résultats peuvent être ouvertes en même temps et vont afficher "
+"dans les onglets sur la même page. Sentez-vous libre pour exécuter le modèle "
+"original de le province de Gaza sans l'ajout de nouveaux vaccins, et de "
+"comparer les résultats à ceux que vous avez généré ici. Les résultats "
+"devraient démontrer que l'introduction de vaccine Rotarix  conduit à réduire "
+"la disponibilité du vaccin avec rangement supérieur et l'utilisation des "
+"transports."
 
 #: views/tutorial.tpl:108
 msgid "Exercise 2: Create and Modify a New Model with Costing"
@@ -6626,6 +7351,15 @@ msgstr ""
 "Vous avez déjà commencé à créer ce modèle, souhaitez-vous continuer ou "
 "recommencer?"
 
+#~ msgid "set as template"
+#~ msgstr "Définissez comme modèle"
+
+#~ msgid "Edit Salary Information for"
+#~ msgstr "Modifier informations sur le salaire pour"
+
+#~ msgid "Edit Salary Information for Driver"
+#~ msgstr "Modifier informations sur le salaire pour"
+
 #~ msgid ""
 #~ "If the model you want does not appear in the <b>Showing Costs for</b> "
 #~ "selector, it may be because results have already been calculated for the "
@@ -6700,9 +7434,6 @@ msgstr ""
 
 #~ msgid "Show Structure"
 #~ msgstr "Afficher la structure"
-
-#~ msgid "Edit"
-#~ msgstr "Modifier"
 
 #~ msgid "Editing"
 #~ msgstr "Vous modifiez"
@@ -6783,9 +7514,6 @@ msgstr ""
 
 #~ msgid "Optionally Make Adjustments"
 #~ msgstr "Eventuellement faire des ajustements"
-
-#~ msgid "Model Transport Network"
-#~ msgstr "Modèle réseau de transport"
 
 #~ msgid "How are goods shipped from level to level?"
 #~ msgstr "Comment les marchandises sont expédiées de niveau en niveau?"
