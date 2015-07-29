@@ -189,7 +189,7 @@ $(function() {
 	              "{{_('Pick Up or Receive Shipments?')}}",
 	              "{{_('Scheduled or Demand-Based Schedule of Shipments')}}",
 	              "{{_('Amount of Shipment Fixed or Demand Based')}}",
-	              "{{_('Freqency of Shipments')}}",
+	              "{{_('Frequency of Shipments')}}",
 	              "{{_('per')}}",
 	              "{{_('Number of Locations Supplied by this Location')}}"], //define column names
 	    colModel:[

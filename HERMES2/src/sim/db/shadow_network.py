@@ -1425,6 +1425,13 @@ class ShdRoute(Base):
         if len(self.stops) > 2:
             return True
         return False
+    
+    def totalTransitHours(self):
+        totTime = 0.0
+        for stop in self.stops:
+            totTime += stop.TransitHours
+        
+        return totTime  
 _makeColumns(ShdRoute)
 Index('routesIdxName', ShdRoute.modelId, ShdRoute.RouteName)
 
@@ -4826,6 +4833,7 @@ class ShdNetwork(Base):
         for rec in demandRecs:
             getattr(self, demandAttr).extend(ShdDemand.fromRec(rec, demandType))
 
+        
     def addConsumptionDemands(self, demandRecs):
         "shortcut for addDemands(demandRecs, DemandEnums.TYPE_CONSUMPTION)"
         self.addDemands(demandRecs, DemandEnums.TYPE_CONSUMPTION)
@@ -4833,7 +4841,7 @@ class ShdNetwork(Base):
     def addShippingDemands(self, demandRecs):
         "shortcut for addDemands(demandRecs, DemandEnums.TYPE_SHIPPING)"
         self.addDemands(demandRecs, DemandEnums.TYPE_SHIPPING)
-
+    
     def getDemandRecs(self, demandType=DemandEnums.TYPE_UNIFIED):
         """
         convert one list of the demand entries (defaulting to unified)

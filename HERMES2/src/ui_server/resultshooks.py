@@ -139,7 +139,7 @@ def editDeleteResultsGroup(db,uiSession):
         resultsGroupId = _getOrThrowError(bottle.request.params,'rgId',isInt=True)
         hRG = db.query(s_n.HermesResultsGroup).filter(s_n.HermesResultsGroup.resultsGroupId==resultsGroupId).one()
         uiSession.getPrivs().mayWriteModelId(db, hRG.modelId)
-        _logMessage("Deleting resultGroup {0}".format(resultsGroupId))
+        _logMessage(u"Deleting resultGroup {0}".format(resultsGroupId))
         if len(hRG.results) != 0:
             for i in range(len(hRG.results)):
                 db.delete(hRG.results[i])
@@ -151,7 +151,7 @@ def editDeleteResultsGroup(db,uiSession):
         
 def getResultsTreeForModel(mId,db):
     m = shadow_network_db_api.ShdNetworkDB(db,mId)
-    resultsJson = {'text':'{0}'.format(m.name),'type':'disabled','id':"m_{0}".format(mId),'children':[]}
+    resultsJson = {'text':u'{0}'.format(m.name),'type':'disabled','id':u"m_{0}".format(mId),'children':[]}
     rGPs = db.query(s_n.HermesResultsGroup).filter(s_n.HermesResultsGroup.modelId==mId)
     for rG in rGPs:
         resultsJson['children'].append(getResultsGroupTree(rG,m,db))
@@ -160,13 +160,14 @@ def getResultsTreeForModel(mId,db):
     
 def getResultsGroupTree(rG,m,db):
     
-    rGName = "{0} <button id='rg_del_but_rG_{1}_{2}' class='res_del_button'>{3}</button>".format(rG.name,
+    rGName = u"{0} <button id='rg_del_but_rG_{1}_{2}' class='res_del_button'>{3}</button>".format(rG.name,
                                                                                                  rG.modelId,
                                                                                                  rG.resultsGroupId,
                                                                                                  _('delete'))
-    rGDict = {'text':'{0}'.format(rGName),'state':{'opened':True},
-              'id':'rG_{0}_{1}'.format(rG.modelId,rG.resultsGroupId),
+    rGDict = {'text':u'{0}'.format(rGName),'state':{'opened':True},
+              'id':u'rG_{0}_{1}'.format(rG.modelId,rG.resultsGroupId),
               'children':[]}
+    
     ### get the results from this 
     rsltcount=0
     for r in rG.results:
@@ -182,22 +183,22 @@ def getResultsGroupTree(rG,m,db):
 #                 pass
         if not r.hasResults():
             continue
-        rName = "Run: {0}".format(r.runNumber)
+        rName = u"Run: {0}".format(r.runNumber)
         hasCosts = 0
         if r.hasCostResults():
             hasCosts = 1
-        tText = "Model:{0}, Result:{1}, ".format(m.name,rG.name)
+        tText = u"Model:{0}, Result:{1}, ".format(m.name,rG.name)
         if r.resultsType == "average":
-            rName = "Average Result"
-            tText += "Ave"
+            rName = u"Average Result"
+            tText += u"Ave"
         else:
-            tText += "Run {0}".format(r.runNumber)
+            tText += u"Run {0}".format(r.runNumber)
     
-        rName += " <button id='res_del_but_r_{0}_{1}' class='res_del_button' >{2}</button>".format(rG.modelId,
+        rName += u" <button id='res_del_but_r_{0}_{1}' class='res_del_button' >{2}</button>".format(rG.modelId,
                                                                                                  r.resultsId,
                                                                                                  _("delete"))
-        rGDict['children'].append({'text':rName,'tabText':tText,
-                                   'id':"r_{0}_{1}_{2}".format(rG.modelId,r.resultsId,hasCosts)})
+        rGDict['children'].append({'text':u"{0}".format(rName),'tabText':u"{0}".format(tText),
+                                   'id':u"r_{0}_{1}_{2}".format(rG.modelId,r.resultsId,hasCosts)})
     return rGDict
 
     
@@ -213,7 +214,7 @@ def resultsTreeForAllModels(db,uiSession):
                 continue
             mIdsParsed.append(rGp.modelId)
             returnJson.append(getResultsTreeForModel(rGp.modelId,db))
-    
+
         return {'success':True,'treeData':returnJson}
     except Exception as e:
         return {'success':False,'type':'error','msg':str(e)}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+# -*- coding: utf-8 -*-
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
 # =============================================================================== #
@@ -1233,7 +1233,7 @@ def openModel(db,uiSession):
         
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         name = m.name
-        
+        print "+++++++++++++++++==TYPE+++++++{0}".format(type(name))
         ## Get whether this model may be modified
         modify = False
         try:
@@ -1250,7 +1250,7 @@ def openModel(db,uiSession):
                                'name':name})
     except Exception as e:
         _logStacktrace()
-        raise bottle.BottleException(_("Unable to load Open Models Page: {0}".format(str(e))))
+        raise bottle.BottleException(_("Unable to load Open Models Page: {0}".format(e)))
     
 def _getStoreJITJSON(store):
     return { 'data' : { 'leaf':(store.clients() == []), 'isstore':True },
@@ -1581,7 +1581,7 @@ def jsonCopyModel(db,uiSession):
     try:
         srcModelId = int(bottle.request.params['srcModelId'])
         uiSession['selectedModelId'] = srcModelId
-        dstName = bottle.request.params['dstName']  
+        dstName = bottle.request.params['dstName'].decode('utf-8')
         _logMessage("Request to copy model %d to %s"%(srcModelId,dstName))
         uiSession.getPrivs().mayReadModelId(db, srcModelId)
         srcModel = shadow_network_db_api.ShdNetworkDB(db,srcModelId)
@@ -2521,7 +2521,7 @@ def populateTableforStoreProvision(db,uiSession):
         
         for row in rows:
             for level in levelList:
-                row["{0}".format(level)] = 0
+                row[u"{0}".format(level)] = 0
                 
         return {'success':True,'levels':levelList,'data':{'total':1,'page':1,'records':len(rows),'rows':rows}}
     
@@ -2552,7 +2552,7 @@ def provisionStoresFromGrid(db,uiSession):
                 for row in typeData:
                     store.addInventory(row['id'],
                                        int(row[store.CATEGORY]),
-                                       row['type']=="Population To Vaccinate at this Level")
+                                       row['type']==_("Population To Vaccinate at this Level"))
                         
         return {'success':True}
     except bottle.HTTPResponse:

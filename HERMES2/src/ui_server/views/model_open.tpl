@@ -208,7 +208,7 @@ a.model-operation-item:hover{
 	<div id="model_operations_holder">
 		<p>
 			<span class="hermes-top-main">
-				{{_("{0} Model".format(name))}}
+				{{_(u"{0} Model".format(name))}}
 			</span>
 		</p>
 		<!--<p><span class="model-operation-second">{{_("Below is a list of operations that you can perform on the model you currently have selected.")}}</span></p>-->
@@ -270,7 +270,7 @@ a.model-operation-item:hover{
 			<li><a href="#model_test">{{_('Notes')}}</a></li>
 		</ul>
 		<div id="model_test">
-			<p><span class="model-diagram-title">{{_('Notes for {0} model'.format(name))}}</span></p>
+			<p><span class="model-diagram-title">{{_(u'Notes for {0} model'.format(name))}}</span></p>
 			<span class="model-diagram-note"><textarea rows="30" cols="55" id="model_dialog_note_edit"></textarea></span>
 			<button style="width:100%;" id="submit_note">{{_("Save Notes")}}</button>
 			<div id="note-update-notify">
@@ -296,7 +296,7 @@ a.model-operation-item:hover{
 	{{_("This model already has Simulation Experiments associated with it, so you will need to make a copy if you would like to edit it. Would you like to make a copy now?")}}
 </div>
 
-<div id="model_copy_dialog_form" title='{{_("Make a copy of model {0}".format(name))}}'>
+<div id="model_copy_dialog_form" title='{{_(u"Make a copy of model {0}".format(name))}}'>
 	<form>
 		<fieldset>
 			<table style="width:100%;">

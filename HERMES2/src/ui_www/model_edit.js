@@ -652,90 +652,113 @@ function unpackNodeId(id) {
 
 
 $(function(){
-    $.contextMenu({
-        selector: '.store-edit-menu', 
-        trigger: 'left',
-        callback: function(key, options) {
-            var packedId = options.$trigger.attr("id");
-	    var id = unpackInputId(packedId);
+	var phrases = {0:'Edit Store',
+	               1:'Recursive Edit',
+	               2:'Detach Store',
+	               3:'Copy Store to Unattached',
+	               4:'Delete Store'};
+	translate_phrases(phrases)
+	.done(function(tphrases){
+		tp = tphrases.translated_phrases;
+	    $.contextMenu({
+	        selector: '.store-edit-menu', 
+	        trigger: 'left',
+	        callback: function(key, options) {
+	            var packedId = options.$trigger.attr("id");
+		    var id = unpackInputId(packedId);
+		    
+		    if (key == 'edit') {
+		        meStoreEdit(modelId, id.itemId, id.tree, id.itemType);
+		    } else if (key == 'recEdit') {
+			meRecursiveStoreEdit(modelId, id.itemId, id.tree, id.itemType);
+	            } else {
+			meRequestBasicEdit(modelId, packedId, key)
+		    }
+	        },
+	        items: {
+	            "edit": {name: tp[0], icon: "edit"},
+		    "recEdit": {name: tp[1]},
+	            "cut": {name: tp[2], icon: "cut"},
+	            "copy": {name: tp[3], icon: "copy"},
+	            "delete": {name: tp[4], icon: "delete"},
+	        }
+	    });
 	    
-	    if (key == 'edit') {
-	        meStoreEdit(modelId, id.itemId, id.tree, id.itemType);
-	    } else if (key == 'recEdit') {
-		meRecursiveStoreEdit(modelId, id.itemId, id.tree, id.itemType);
-            } else {
-		meRequestBasicEdit(modelId, packedId, key)
-	    }
-        },
-        items: {
-            "edit": {name: "Edit Store", icon: "edit"},
-	    "recEdit": {name: "Recursive Edit"},
-            "cut": {name: "Detach Store", icon: "cut"},
-            "copy": {name: "Copy Store to Unattached", icon: "copy"},
-            "delete": {name: "Delete Store", icon: "delete"},
-        }
+	    $('.context-menu-one').on('click', function(e){
+	        console.log('clicked', this);
+	    });
     });
-    
-    $('.context-menu-one').on('click', function(e){
-        console.log('clicked', this);
-    })
 });
 
 $(function(){
-    $.contextMenu({
-        selector: '.route-edit-menu', 
-        trigger: 'left',
-        callback: function(key, options) {
-            var packedId = options.$trigger.attr("id");
-	    var id = unpackInputId(packedId);
+	var phrases = {0:'Edit Route',
+				   1:'Delete Route',
+				   2:'set as default template'};
+	translate_phrases(phrases)
+	.done(function(tphrases){
+		tp = tphrases.translated_phrases;
+	    $.contextMenu({
+	        selector: '.route-edit-menu', 
+	        trigger: 'left',
+	        callback: function(key, options) {
+	            var packedId = options.$trigger.attr("id");
+		    var id = unpackInputId(packedId);
+		    
+		    if (key == 'edit') {
+		        meRouteEdit(modelId, id.itemId, id.tree, id.itemType);
+		    } else if (key == 'template') {
+			setRouteTemplate(id.itemId);
+	            } else {
+			meRequestBasicEdit(modelId, packedId, key)
+		    }
+	        },
+	        items: {
+	            "edit": {name: tp[0], icon: "edit"},
+	//            "cut": {name: "Detach Store", icon: "cut"},
+	//            "copy": {name: "Copy Store", icon: "copy"},
+	            "delete": {name: tp[1], icon: "delete"},
+		    "template": {name: tp[2]},
+	        }
+	    });
 	    
-	    if (key == 'edit') {
-	        meRouteEdit(modelId, id.itemId, id.tree, id.itemType);
-	    } else if (key == 'template') {
-		setRouteTemplate(id.itemId);
-            } else {
-		meRequestBasicEdit(modelId, packedId, key)
-	    }
-        },
-        items: {
-            "edit": {name: "Edit Route", icon: "edit"},
-//            "cut": {name: "Detach Store", icon: "cut"},
-//            "copy": {name: "Copy Store", icon: "copy"},
-            "delete": {name: "Delete Route", icon: "delete"},
-	    "template": {name: "set as default template"},
-        }
-    });
-    
-    $('.context-menu-one').on('click', function(e){
-        console.log('clicked', this);
-    })
+	    $('.context-menu-one').on('click', function(e){
+	        console.log('clicked', this);
+	    });
+	});
 });
 
-$(function(){
-    $.contextMenu({
-        selector: '.stop-edit-menu', 
-        trigger: 'left',
-        callback: function(key, options) {
-            var packedId = options.$trigger.attr("id");
-	    var id = unpackInputId(packedId);
+$(function(){	
+	var phrases = {0:'Delete Stop'};
+			
+	translate_phrases(phrases)
+	.done(function(tphrases){
+		tp = tphrases.translated_phrases;
+
+	    $.contextMenu({
+	        selector: '.stop-edit-menu', 
+	        trigger: 'left',
+	        callback: function(key, options) {
+	            var packedId = options.$trigger.attr("id");
+		    var id = unpackInputId(packedId);
+		    
+		    if (key == 'edit') {
+	//	        meRouteEdit(modelId, id.itemId);
+	            } else {
+			meRequestBasicEdit(modelId, packedId, key)
+		    }
+	        },
+	        items: {
+	//            "edit": {name: "Edit Route", icon: "edit"},
+	//            "cut": {name: "Detach Store", icon: "cut"},
+	//            "copy": {name: "Copy Store", icon: "copy"},
+	            "delete": {name: tp[0], icon: "delete"},
+	        }
+	    });
 	    
-	    if (key == 'edit') {
-//	        meRouteEdit(modelId, id.itemId);
-            } else {
-		meRequestBasicEdit(modelId, packedId, key)
-	    }
-        },
-        items: {
-//            "edit": {name: "Edit Route", icon: "edit"},
-//            "cut": {name: "Detach Store", icon: "cut"},
-//            "copy": {name: "Copy Store", icon: "copy"},
-            "delete": {name: "Delete Stop", icon: "delete"},
-        }
+	    $('.context-menu-one').on('click', function(e){
+	        console.log('clicked', this);
+	    });
     });
-    
-    $('.context-menu-one').on('click', function(e){
-        console.log('clicked', this);
-    })
 });
 
 function meRequestBasicEdit(modelId, packedId, request) {
@@ -797,7 +820,7 @@ function meStoreEdit(modelId, storeId, tree, nodeType) {
 		}
 	    });
 	}
-    });
+    });  
     $newdiv.dialog('option','title',"Editing location "+storeId+" of model "+modelId);
 }
 

@@ -51,7 +51,7 @@
 
 <p>
 	<span class='hermes-top-sub'>
-		{{_('Use the Source dropdown to select the source from which components can be selected.  Select which component to add to the {0} model and click the arrow button to add it. To remove existing components, click delete.'.format(modelName))}}
+		{{_('Use the Source dropdown to select the source from which components can be selected.  Select which component to add to the {0} model and click the arrow button to add it. To remove existing components, click delete.').format(modelName)}}
 	</span>
 </p>
 
@@ -146,7 +146,8 @@
 </table>
 -->
 
-
+<div id="info_modal">
+	<div class="modal-dialog"
 <div id="info_dialog" title='replace me'></div>
 <script>
 console.log('point 1');
