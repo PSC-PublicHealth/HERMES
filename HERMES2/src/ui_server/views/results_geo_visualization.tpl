@@ -271,6 +271,11 @@ rainbow.setSpectrum('blue','red');
 //routeColors = ["black","red","blue","orange","green","purple","white","gold","aqua","maroon"];
 
 var levelColors = ["silver","gold","orange","pink","white","black","green"];
+var provinceColors = {"01":"black","02":"red","03":"orange","04":"yellow","05":"green",
+					  "06":"blue","07":"indigo","08":"violet","09":"maroon","10":"gold",
+					  "11":"brown","12":"darkgrey"};
+					 
+
 var routeColors = [];
 for (var i=0; i < 10000; i++){
 	routeColors.push(getRandomColor());
@@ -587,8 +592,12 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 					in_count++;
 					return "red";
 				}
+				if("{{leila}}"=="true"){
+					var idstr = (''+d.id).substring(1,3);
+					return provinceColors[idstr];
+				}
 				else{
-						return levelColors[d.level];
+					return levelColors[d.level];
 				}
 				//"#"+rainbow.colourAt(100*d.util);
 			})
