@@ -427,14 +427,19 @@ class Model(model.Model):
 #        if isinstance(toW,Model.OutreachClinic):
 #            scaledVaccineVialsVC = vaccineVialsVC
 #        else:
-        fVC,cVC,wVC= toW.calculateStorageFillRatios(vaccineVialsVC)
-        fillVC= fVC+cVC+wVC
-        scaledVaccineVialsVC= vaccineVialsVC*fillVC
-        scaledVaccineVialsVC.roundDown()
-
-        onhandVC= self.sim.shippables.getCollectionFromGroupList([s for s in toW.getStore().theBuffer
-                                                                if isinstance(s,abstractbaseclasses.Shippable)])
-        lowVC= scaledVaccineVialsVC - onhandVC
+        suppliers = toW.getSuppliers()
+        supplierRoute = suppliers[0][1]
+        if supplierRoute['Type']=='askingpush':
+            lowVC = vaccineVialsVC
+        else:
+            fVC,cVC,wVC= toW.calculateStorageFillRatios(vaccineVialsVC)
+            fillVC= fVC+cVC+wVC
+            scaledVaccineVialsVC= vaccineVialsVC*fillVC
+            scaledVaccineVialsVC.roundDown()
+    
+            onhandVC= self.sim.shippables.getCollectionFromGroupList([s for s in toW.getStore().theBuffer
+                                                                    if isinstance(s,abstractbaseclasses.Shippable)])
+            lowVC= scaledVaccineVialsVC - onhandVC
         lowVC.floorZero()
         lowVC.roundUp()
         #if fromW.idcode == 1:
@@ -453,7 +458,8 @@ class Model(model.Model):
         delivery is actually transferred to toW, and the amount delivered is
         the lesser of the returned VaccineCollection and availableVC.
         """
-        vc = self.getScheduledShipmentSize(None, toW, shipInterval, timeNow)*0.9
+        
+        vc = self.getScheduledShipmentSize(None, toW, shipInterval, timeNow)
         vc.roundUp()
         return vc
 
