@@ -82,10 +82,10 @@ def createGeographicViz(db,uiSession):
                      _("Model: {0}, Result: {1}").format(m.name,hRG.name)))
     return bottle.template('results_geo_visualization.tpl',{"breadcrumbPairs":crumbTrack,
                                             "pageHelpText":_("This is intended to show page-specific help")},
-                                            _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId)
+                                            _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId,leila="false")
 
 @bottle.route('/geographic_visualization_leila')
-def createGeographicViz(db,uiSession):
+def createGeographicVizLeila(db,uiSession):
     modelId= modelId= _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
     resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
     hRG = db.query(shadow_network.HermesResults).filter(shadow_network.HermesResults.resultsId==resultsId).one().resultsGroup
