@@ -44,13 +44,13 @@ function open_store_info_box(rootPath,modelId,storeId,storeName,resultId){
 function open_route_info_box(rootPath,modelId,routeId,resultId){
 	iShowRes = 0;
 	if(resultId > 0) iShowRes = 1;
-	
 	var divIDName = 'route_info_' + Math.random().toString(36).replace(/[^a-z]+/g,'');
 	$.ajax({
 		url: rootPath+'json/dialoghtmlforroute',
 		dataType:'json',
 		data:{name:divIDName,geninfo:1,utilinfo:iShowRes,tripman:iShowRes},
 		success:function(result){
+			console.log(result);
 			if(!result.success){
 				alert(result.msg);
 			}
@@ -61,18 +61,19 @@ function open_route_info_box(rootPath,modelId,routeId,resultId){
 				$("#"+divIDName+"_dialog").dialog("option","title","Information for Route "+ routeId);
 				$("#"+divIDName+"_dialog").dialog("open");
 			}
-		}	
+		}
 	});
 };
 	
 function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
-	//console.log("creating for div "+divName+ " modelID = " + modId + " storeID = " + storId);
+	// console.log("creating for div "+divName+ " modelID = " + modId + "
+	// storeID = " + storId);
 	$("#" + divName+"_content").tabs();
 	if (meta['genInfo']){
 		console.log("#"+divName+"_GenInfo");
 		$("#"+divName+"_GenInfo").jqGrid({
 			url:rootPath + 'json/get-general-info-for-store',
-				//&modelId='+modId+'&storeId='+storId,
+				// &modelId='+modId+'&storeId='+storId,
 			datatype: 'json',
 			postData:{modelId:modId,storeId:storId},
 			jsonReader: {
@@ -103,7 +104,8 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 	
 	if (meta['utilInfo']){
 		var phrases = {0:'Information',1:'Placemark',2:'Category',3:'Data',4:'Utilization Statistics'};
-		//var phrase = {'Name','Count','2-8C Net Storage','Below 2C Net Storage'};
+		// var phrase = {'Name','Count','2-8C Net Storage','Below 2C Net
+		// Storage'};
 		$.ajax({
 			url:'json/translate',
 			dataType:'json',
@@ -205,7 +207,8 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 	
 	if(meta['storeDev']){
 		var phrases = {0:'Name',1:'Count',2:'2-8C Net Storage',3:'Below 2C Net Storage',4:'Storage Devices'};
-		//var phrase = {'Name','Count','2-8C Net Storage','Below 2C Net Storage'};
+		// var phrase = {'Name','Count','2-8C Net Storage','Below 2C Net
+		// Storage'};
 		$.ajax({
 			url:'json/translate',
 			dataType:'json',
@@ -263,7 +266,8 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 	
 	if(meta['transDev']){
 		var phrases = {0:'Name',1:'Count',2:'2-8C Net Storage (L)',3:'Below 2C Net Storage (L)',4:'Vehicle Information'};
-		//var phrase = {'Name','Count','2-8C Net Storage','Below 2C Net Storage'};
+		// var phrase = {'Name','Count','2-8C Net Storage','Below 2C Net
+		// Storage'};
 		$.ajax({
 			url:'json/translate',
 			dataType:'json',
@@ -349,8 +353,9 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 						}
 						else{
 							$("#"+divName+"_Availability").jqGrid({
-								//url:rootPath + 'json/get-vaccine-stats-for-store',
-								//postData:{modelId:modId,storeId:storId,resultsId:resId},
+								// url:rootPath +
+								// 'json/get-vaccine-stats-for-store',
+								// postData:{modelId:modId,storeId:storId,resultsId:resId},
 								datastr:result,
 								datatype:'jsonstring',
 								jsonReader: {
@@ -490,7 +495,7 @@ function populateRouteInfoDialog(rootPath,divName,meta,modId,rouId,resId){
 							width : '70%',
 							sortable : false
 						}],
-						//caption : data.translated_phrases[2]
+						// caption : data.translated_phrases[2]
 					}); 
 					$("#"+divName+"_RGenInfo").parents("div.ui-jqgrid-view").children("div.ui-jqgrid-hdiv").hide();
 				}
@@ -536,7 +541,7 @@ function populateRouteInfoDialog(rootPath,divName,meta,modId,rouId,resId){
 							width : '70%',
 							sortable : false
 						}],
-						//caption : data.translated_phrases[2]
+						// caption : data.translated_phrases[2]
 					}); 
 					$("#"+divName+"_RUtilInfo").parents("div.ui-jqgrid-view").children("div.ui-jqgrid-hdiv").hide();
 				}
@@ -556,10 +561,12 @@ function populateRouteInfoDialog(rootPath,divName,meta,modId,rouId,resId){
 					url:rootPath+'json/get-tripman-for-route',
 					postData:{modelId:modId,routeId:rouId,resultsId:resId},
 					datatype :'json',
+					//mtype:'GET',
 					jsonReader: {
 						repeatitems: false,
 						root: 'rows',
-						page: 1
+						page:1
+						//total:'total'
 					},
 					ajaxGridOptions: {
 					      type    : 'post',
@@ -567,7 +574,11 @@ function populateRouteInfoDialog(rootPath,divName,meta,modId,rouId,resId){
 					},
 					height : 'auto',
 					width : 600,
-					scroll : false,
+					pager: '#trippager',
+					viewrecords:true,
+					gridview:true,
+					loadonce:true,
+					rowNum:20,
 					scollOffset : 0,
 					colNames : data.translated_phrases.slice(0,5),
 					colModel : [{
@@ -630,64 +641,20 @@ function createVialsPlot(divName,rootPath,modId,storId,resId) {
 		rootPath:rootPath
 		});
 /*
-	var phrases = {0:'Days',1:'Vials'}
-	$.ajax({
-		url:'json/translate',
-		dataType:'json',
-		data:phrases,
-		type:"post",
-		async:false,
-		success:function(data){
-			$('#' + divName).highcharts({
-				chart : {
-					//type : 'line',
-					height : 300,
-					width : 800
-				},
-				title : {
-					text : null
-				},
-				legend : {
-					enabled : true,
-					itemWidth:100,
-					align: "right",
-					float: false,
-					width:130,
-					reversed: true
-					
-				},
-				plotOptions : {
-					series : {
-						marker : {
-							enabled : false
-						}
-					}
-				},
-				xAxis : {
-					title : {
-						text : data.translated_phrases[0]
-					}
-				},
-				yAxis : {
-					title : {
-						text : data.translated_phrases[1]
-					},
-					min : 0,
-					endOnTick : false
-				},
-				credits : {
-					enabled : false
-				},
-				series : plotData
-			});
-			for (var i=0;i< $("#"+divName).highcharts().series.length;i++){
-				if ($("#"+divName).highcharts().series[i].name != "All Vaccines"){
-					$("#"+divName).highcharts().series[i].hide();
-				}
-			}
-		}
-	});
-	*/
+ * var phrases = {0:'Days',1:'Vials'} $.ajax({ url:'json/translate',
+ * dataType:'json', data:phrases, type:"post", async:false,
+ * success:function(data){ $('#' + divName).highcharts({ chart : { //type :
+ * 'line', height : 300, width : 800 }, title : { text : null }, legend : {
+ * enabled : true, itemWidth:100, align: "right", float: false, width:130,
+ * reversed: true
+ *  }, plotOptions : { series : { marker : { enabled : false } } }, xAxis : {
+ * title : { text : data.translated_phrases[0] } }, yAxis : { title : { text :
+ * data.translated_phrases[1] }, min : 0, endOnTick : false }, credits : {
+ * enabled : false }, series : plotData }); for (var i=0;i<
+ * $("#"+divName).highcharts().series.length;i++){ if
+ * ($("#"+divName).highcharts().series[i].name != "All Vaccines"){
+ * $("#"+divName).highcharts().series[i].hide(); } } } });
+ */
 };
 
 function createFillRatioPlot(divName, plotData) {

@@ -850,8 +850,8 @@ def getRouteDialogHTML(db,uiSession,name="model_route_dialog",genInfo=True,util=
     tabCount =1
     sio=StringIO()
     
-    sio.write("<div id='%s_dialog' class = '%s_dialog' title='This should get replaced'>"%(name,name))
-    sio.write("<div id = '%s_content'>"%(name))
+    sio.write("<div id='{0}_dialog' class = '{1}_dialog' title='This should get replaced'>".format(name,name))
+    sio.write("<div id = '{0}_content'>".format(name))
     sio.write("<ul>")
     if genInfo:
         sio.write(u"<li style='font-size:small'><a href='#tab-{0}'>{1}</a></li>".format(tabCount,_('Route Information')))
@@ -866,44 +866,44 @@ def getRouteDialogHTML(db,uiSession,name="model_route_dialog",genInfo=True,util=
     sio.write("</ul>")
     tabCount = 1
     if genInfo:
-        sio.write("<div id='tab-%d'><table id='%s_RGenInfo'></table></div>"%(tabCount,name))
+        sio.write("<div id='tab-{0}'><table id='{1}_RGenInfo'></table></div>".format(tabCount,name))
         tabCount += 1
     if util:
-        sio.write("<div id='tab-%d'><table id='%s_RUtilInfo'></table></div>"%(tabCount,name))
+        sio.write("<div id='tab-{0}'><table id='{1}_RUtilInfo'></table></div>".format(tabCount,name))
         tabCount += 1
     if tripMan:
-        sio.write("<div id='tab-%d'><table id='%s_RTripMan'></table></div>"%(tabCount,name))
+        sio.write("<div id='tab-{0}'><table id='{1}_RTripMan'></table><div id='trippager'></div></div>".format(tabCount,name))
         tabCount += 1  
         
     sio.write("</div>")
     sio.write("</div>")
     ### Now add the javascript to load the dialog box
     sio.write("<script>")
-    sio.write("$('#%s_dialog').dialog({"%name)
+    sio.write("$('#{0}_dialog').dialog({{".format(name))
     sio.write("autoOpen:false,") 
     sio.write("height:'auto',")
     sio.write("width:'auto',")
     sio.write("close: function() {")
-    sio.write("$('#%s_content').tabs();"%name)
-    sio.write("    $('#%s_content').tabs('destroy');"%name)
-    sio.write("    $('#%s_content').innerHtml = '';"%name)
+    sio.write("$('#{0}_content').tabs();".format(name))
+    sio.write("    $('#{0}_content').tabs('destroy');".format(name))
+    sio.write("    $('#{0}_content').innerHtml = '';".format(name))
     if genInfo:
-        sio.write("    $('#%s_RGenInfo').jqGrid('GridUnload');"%name)
+        sio.write("    $('#{0}_RGenInfo').jqGrid('GridUnload');".format(name))
     if util:
-        sio.write("    $('#%s_RUtilInfo').jqGrid('GridUnload');"%name)
+        sio.write("    $('#{0}_RUtilInfo').jqGrid('GridUnload');".format(name))
     if tripMan:
-        sio.write("   $('#%s_RTripMan').jqGrid('GridUnload');"%name)
+        sio.write("   $('#{0}_RTripMan').jqGrid('GridUnload');".format(name))
     sio.write("$(this).remove();")
     sio.write("var script = document.getElementById('{0}_script');".format(name))
     sio.write("script.parentElement.removeChild(script);")
     sio.write("}")
     sio.write("});")
     
-    sio.write("var %s_meta = new Object();"%name)
-    sio.write("%s_meta['getResult'] = false;"%name)
-    if genInfo: sio.write("%s_meta['genInfo'] = true;"%name)
-    if util: sio.write("%s_meta['utilInfo'] = true; %s_meta['getResults'] = true;"%(name,name))
-    if tripMan: sio.write("%s_meta['tripMan'] = true;%s_meta['getResults'] = true;"%(name,name))
+    sio.write("var {0}_meta = new Object();".format(name))
+    sio.write("{0}_meta['getResult'] = false;".format(name))
+    if genInfo: sio.write("{0}_meta['genInfo'] = true;".format(name))
+    if util: sio.write("{0}_meta['utilInfo'] = true; {1}_meta['getResults'] = true;".format(name,name))
+    if tripMan: sio.write("{0}_meta['tripMan'] = true;{1}_meta['getResults'] = true;".format(name,name))
     sio.write("</script>")
   
     print type(sio.getvalue())

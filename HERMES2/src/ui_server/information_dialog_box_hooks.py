@@ -751,6 +751,8 @@ def generateTripManifestForRoute(db,uiSession):
                 iEnd= 1
             if iStart == len(route.stops)-1:
                 iEnd = 0
+            else:
+                iEnd = iStart + 1
             
             rows.append({'start':route.stops[iStart].store.NAME,
                         'end':route.stops[iEnd].store.NAME,
@@ -758,10 +760,11 @@ def generateTripManifestForRoute(db,uiSession):
                         'tEnd':tripTimesDict['endTime'][i]-burnDays,
                         'LitersCarried':tripTimesDict['volumeCarried'][i]})
             iStart += 1
-        result = {'success':True, 
-                'rows':rows,
-                'total':1,
-                'page':1}
+        result = {'success':True,
+                  'records':len(rows), 
+                  'rows':rows,
+                  'total':len(rows)/20,
+                  'page':1}
         return result
     except Exception,e:
         result = {'success':False,
