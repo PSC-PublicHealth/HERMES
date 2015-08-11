@@ -670,6 +670,12 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 // Turn on and off the elements
 $("#show_population").click(function(){
 	if ($("#show_population").is(':checked')){
+		if($("#show_vaccine").is(':checked')){
+			$("#show_vaccine").click();
+		}
+		if($("#show_utilization").is(':checked')){
+			$("#show_utilization").click();
+		}
 		features.selectAll(".store-circle").style('visibility','hidden');
 		features.selectAll(".pop-circle").style('visibility','visible');
 		$("#poplegend").width("100px");
@@ -682,28 +688,27 @@ $("#show_population").click(function(){
 		$("#poplegend").hide();
 	}
 });
-$("#show_routes").click(function(){
-	if ($("#show_routes").is(':checked')){
-		if($("#show_routes_util").is(':checked')){
-			$("#show_routes_util").click();
-		}
-		features.selectAll(".route-line").style('visibility','visible');
-	}
-	else {
-		features.selectAll(".route-line").style('visibility','hidden');
-	}
-});
+//$("#show_routes").click(function(){
+//	if ($("#show_routes").is(':checked')){
+//		if($("#show_routes_util").is(':checked')){
+//			$("#show_routes_util").click();
+//		}
+//		features.selectAll(".route-line").style('visibility','visible');
+//	}
+//	else {
+//		features.selectAll(".route-line").style('visibility','hidden');
+//	}
+//});
 $("#show_routes_util").click(function(){
 	if ($("#show_routes_util").is(':checked')){
-		if($("#show_routes").is(':checked')){
-			$("#show_routes").click();
-		}
 		features.selectAll(".route-util-line").style('visibility','visible');
+		features.selectAll(".route-line").style('visibility','hidden');
 		$("#translegend").width("100px");
 		$("#translegend").show();
 	}
 	else {
 		features.selectAll(".route-util-line").style('visibility','hidden');
+		features.selectAll(".route-line").style('visibility','visible');
 		$("#translegend").width("0px");
 		$("#translegend").hide();
 	}
@@ -712,6 +717,12 @@ $("#show_routes_util").click(function(){
 
 $("#show_vaccine").click(function(){
 	if ($("#show_vaccine").is(':checked')){
+		if($("#show_utilization").is(':checked')){
+			$("#show_utilization").click();
+		}
+		if($("#show_population").is(':checked')){
+			$("#show_population").click();
+		}
 		features.selectAll(".store-circle").style('visibility','hidden');
 		features.selectAll(".va-circle").style('visibility','visible');
 		$("#valegend").width("100px");
@@ -726,6 +737,12 @@ $("#show_vaccine").click(function(){
 });
 $("#show_utilization").click(function(){
 	if ($("#show_utilization").is(':checked')){
+		if($("#show_vaccine").is(':checked')){
+			$("#show_vaccine").click();
+		}
+		if($("#show_population").is(':checked')){
+			$("#show_population").click();
+		}
 		features.selectAll(".store-circle").style('visibility','hidden');
 		features.selectAll(".util-circle").style('visibility','visible');
 		$("#storelegend").width("100px");
