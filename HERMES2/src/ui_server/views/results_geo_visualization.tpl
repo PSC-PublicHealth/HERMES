@@ -38,6 +38,10 @@ function getRandomColor() {
     return color;
 }
 
+var selectedStore = [];
+var selectedRoute = [];
+var openStoreDialogs = {};
+var openRouteDialogs = {};
 </script>
 <div id="geo_map3d">
 	<div class="map-container"></div>
@@ -75,13 +79,13 @@ function getRandomColor() {
 				<td>{{_('Routes')}}:</td>
 				<td width="100px"></td>
 			</tr>
-			<tr>
+			<!--<tr>
 				<td width=50px"></td>
 				<td style="padding-left:2em;width:100px;">{{_('Color By Route')}}</td>
 				<td width="100px"> 
 					<input type="checkbox" id="show_routes" value="On"/>
 				</td>
-			</tr>
+			</tr>-->
 			<tr>
 				<td width=50px"></td>
 				<td style="padding-left:2em;width:100px;">{{_('Color By Utilization')}}</td>
@@ -252,7 +256,7 @@ function getRandomColor() {
 }
 
 .route-line{
-	visibility:hidden;
+	visibility:visible;
 	cursor:pointer;
 }
 .route-util-line{
@@ -307,7 +311,7 @@ var velocity = 0.01;
 var then = Date.now();
 
 var path;
-
+var currentScale = 1.0;
 var projection = d3.geo.mercator()
 	.clipAngle(90)
 	.scale(width / 2 / Math.PI)
@@ -528,11 +532,9 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 			.attr("d",path)
 			.attr("class","route-util-line")
 			.style("stroke",function(d){
-				//console.log(routeColors[d.rindex]);
-				//return routeColors[d.rindex];
 				return "#"+rainbow.colorAt(100*d.util);
 			})
-			.style("stroke-width",0.025+"px")
+			.style("stroke-width",0.25+"px")
 			.style("fill-opacity",1.0)
 			.on("click",clickRouteDialog);
 		
@@ -544,15 +546,7 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 			.attr("d",path)
 			.attr("class","route-line")
 			.style("stroke",function(d){
-				//console.log(routeColors[d.rindex]);
-//				if(d.bold=="true"){
-//					return "red";
-//				}
-//				else{
-//					//return "white";
-				return routeColors[d.rindex];
-//				}
-				//return "#"+rainbow.colorAt(100*d.util);
+				return "white";
 			})
 			.style("stroke-width",function(d){
 				console.log(d.bold);
@@ -560,7 +554,7 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 					return 0.1+"px";
 				}
 				else{
-					return 0.025+"px";
+					return 0.010 +"px";
 				}
 			})
 			.style("fill-opacity",function(d){
@@ -568,7 +562,7 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 					return 1.0;
 				}
 				else{
-					return 0.01;
+					return 0.25;
 				}
 			})
 			.on("click",clickRouteDialog);
@@ -584,9 +578,6 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 			.attr("cy",function(d) {
 				return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[1];
 			})
-			.attr("r",function(d) {
-				return 0.25/(d.level+1);
-			})
 			.style("fill",function(d){
 				if(d.bold == "true"){
 					in_count++;
@@ -599,10 +590,10 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 				else{
 					return levelColors[d.level];
 				}
-				//"#"+rainbow.colourAt(100*d.util);
 			})
 			.style("fill-opacity",0.75)
 			.style("stroke",function(d){
+				return "black";
 				return levelColors[d.level];
 			})
 			.style("visibility","visible")
@@ -621,16 +612,12 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 			.attr("cy",function(d) {
 				return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[1];
 			})
-			.attr("r",function(d) {
-				return 0.5/(d.level+1);
-			})
 			.style("fill",function(d){
 				return "#"+rainbow.colourAt(100*d.util);
 			})
 			.style("fill-opacity",1.0)
 			.style("stroke",function(d){
 				return "black";
-				//return levelColors[d.level];
 			})
 			.style("visibility","hidden")
 			.style("stroke-width",0.010+"px")
@@ -647,10 +634,6 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 			})
 			.attr("cy",function(d) {
 				return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[1];
-			})
-			.attr("r",function(d) {
-				//console.log(d);
-				return 0.005*((100*d.pop));
 			})
 			.style("fill",function(d){
 				return "#"+rainbow.colourAt(100*d.pop);
@@ -672,15 +655,6 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 		.attr("cy",function(d) {
 			return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[1];
 		})
-		.attr("r",function(d) {
-			if (d.va == 0.0){
-				return 0.0;
-			}
-			else {
-			//console.log(d);
-				return 0.1;
-			}
-		})
 		.style("fill",function(d){
 			console.log(d.va);
 			return "#"+rainbow.colourAt(100.0-d.va);
@@ -691,7 +665,6 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 		.on("click",clickStoreDialog);
 	zoomToCollection(storeJSON.geoFC);
 	doneLoading();
-	console.log("in_count = "+in_count);
 }
 
 // Turn on and off the elements
@@ -715,13 +688,9 @@ $("#show_routes").click(function(){
 			$("#show_routes_util").click();
 		}
 		features.selectAll(".route-line").style('visibility','visible');
-		//$("#translegend").width("100px");
-		//$("#translegend").show();
 	}
 	else {
 		features.selectAll(".route-line").style('visibility','hidden');
-		//$("#translegend").width("0px");
-		//$("#translegend").hide();
 	}
 });
 $("#show_routes_util").click(function(){
@@ -770,15 +739,61 @@ $("#show_utilization").click(function(){
 	}
 });
 
+$( document ).on("doneStore",function(event, divId, storeId){
+	$("#"+divId+"_dialog").on("dialogclose",function(){
+		if(selectedStore.indexOf(storeId)>-1){
+			selectedStore.splice(selectedStore.indexOf(storeId),1);
+			if((selectedRoute.length == 0) && (selectedStore.length == 0)){
+				restoreEverything();
+			}
+			else{
+				highlightStores(selectedStore);
+				highlightRoutes(selectedRoute);
+			}
+		}
+	});
+});
+
+$( document ).on("doneRoute",function(event, divId, routeId){
+	$("#"+divId+"_dialog").on("dialogclose",function(){
+		console.log("fuck");
+		if(selectedRoute.indexOf(routeId)>-1){
+			selectedRoute.splice(selectedStore.indexOf(routeId),1);
+			if((selectedRoute.length == 0) && (selectedStore.length == 0)){
+				restoreEverything();
+			}
+			else{
+				highlightStores(selectedStore);
+				highlightRoutes(selectedRoute);
+			}
+		}
+	});
+});
+
 function clickStoreDialog(d) {
 	d3.event.preventDefault();
-	open_store_info_box('{{rootPath}}',{{modelId}},d.id,d.name,{{resultsId}});
-}
+	
+	if(selectedStore.indexOf(d.id)>-1){
+		console.log("already there");
+	}
+	else{
+		selectedStore.push(d.id);
+		highlightStores(selectedStore);
+		open_store_info_box('{{rootPath}}',{{modelId}},d.id,d.name,{{resultsId}});
+	}
+};
 
 function clickRouteDialog(d) { 
 	d3.event.preventDefault();
-	open_route_info_box('{{rootPath}}',{{modelId}},d.id,{{resultsId}});
-}
+	if(selectedRoute.indexOf(d.id)>-1){
+		console.log("route already here");
+	}
+	else{
+		selectedRoute.push(d.id);
+		highlightRoutes(selectedRoute);
+		open_route_info_box('{{rootPath}}',{{modelId}},d.id,{{resultsId}});
+	}
+};
 
 function zoomToCollection(d) {
 	
@@ -790,19 +805,219 @@ function zoomToCollection(d) {
 	svg.transition()
 		.duration(750)
 		.call(zoom.translate(t).scale(s).event);
+};
+
+function highlightStores(ds){
+	features.selectAll(".store-circle")
+	.style('opacity',function(a){
+		if (ds.indexOf(a.id)>-1){
+			return 1.0;
+		}
+		else{
+			return 0.2;
+		}
+	});
+	features.selectAll(".route-line")
+		.style('opacity',function(a){
+			var ops = 1.0;
+			for(var i = 0;i<ds.length; i++){
+				d = ds[i];
+				if(a.onIds.indexOf(d) > -1){
+					ops = 1.0;
+				}
+			}
+			return ops;
+		})
+		.style('stroke-width',function(a){
+			var ops = 0.5/currentScale;
+			for(var i = 0;i<ds.length; i++){
+				d = ds[i];
+				if(a.onIds.indexOf(d) > -1){
+					ops = 1.5/currentScale;
+				}
+			}
+			return ops + "px";
+		})
+		.style('stroke',function(a){
+			var ops = "white";
+			for(var i = 0;i<ds.length; i++){
+				d = ds[i];
+				if(a.onIds.indexOf(d) > -1){
+					ops = "gold";
+				}
+			}
+			return ops;
+		});
+		features.selectAll(".route-util-line")
+			.style('opacity',function(a){
+				var ops = 1.0;
+				for(var i = 0;i<ds.length; i++){
+					d = ds[i];
+					if(a.onIds.indexOf(d) > -1){
+						ops = 1.0;
+					}
+				}
+				return ops;
+			})
+			.style('stroke-width',function(a){
+				var ops = 0.5/currentScale;
+				for(var i = 0;i<ds.length; i++){
+					d = ds[i];
+					if(a.onIds.indexOf(d) > -1){
+						ops = 1.5/currentScale;
+					}
+				}
+				return ops + "px";
+			});
+	features.selectAll(".util-circle")
+		.style('opacity',function(a){
+			if (ds.indexOf(a.id)>-1){
+				return 1.0;
+			}
+			else{
+				return 0.2;
+			}
+		})
+		.style('stroke-opacity',function(a){
+			if (ds.indexOf(a.id)>-1){
+				return 1.0;
+			}
+			else{
+				return 0.2;
+			}
+		});
+	features.selectAll(".va-circle")
+		.style('opacity',function(a){
+			if (ds.indexOf(a.id)>-1){
+				return 1.0;
+			}
+			else{
+				return 0.2;
+			}
+		})
+		.style('stroke-opacity',function(a){
+			if (ds.indexOf(a.id)>-1){
+				return 1.0;
+			}
+			else{
+				return 0.2;
+			}
+		});
+	features.selectAll(".pop-circle")
+	.style('opacity',function(a){
+		if (ds.indexOf(a.id)>-1){
+			return 1.0;
+		}
+		else{
+			return 0.2;
+		}
+	})
+	.style('stroke-opacity',function(a){
+		if (ds.indexOf(a.id)>-1){
+			return 1.0;
+		}
+		else{
+			return 0.2;
+		}
+	});
+};
+
+function highlightRoutes(ds){
+	features.selectAll(".route-line")
+		.each(function(a){
+			if(ds.indexOf(a.id) > -1){
+				console.log(a);
+			}
+		})
+		.style('opacity',function(a){
+			var ops = 0.3;
+			if(ds.indexOf(a.id) > -1){
+				ops = 1.0;
+			}
+			return ops;
+		})
+		.style('stroke-width',function(a){
+			var ops = 0.5/currentScale
+			if(ds.indexOf(a.id) > -1){
+				ops = 1.5/currentScale;
+			}
+			return ops + "px";
+		})
+		.style('stroke',function(a){
+			var ops = "white";
+			if(ds.indexOf(a.id) > -1){
+				ops = "gold";
+			}
+			return ops;
+		});
+	features.selectAll(".route-util-line")
+		.style('opacity',function(a){
+			var ops = 1.0;
+			if(ds.indexOf(a.id) > -1){
+				ops = 1.0;
+			}
+			return ops;
+		})
+		.style('stroke-width',function(a){
+			var ops = 0.5/currentScale
+			if(ds.indexOf(a.id) > -1){
+				ops = 1.5/currentScale;
+			}
+			return ops + "px";
+		});
 }
+function restoreEverything(){
+	features.selectAll(".store-circle").style('opacity',1.0);
+	features.selectAll(".route-line").style('opacity',1.0).style('stroke-width',(0.25/currentScale)+"px").style('stroke',"white");
+	features.selectAll(".util-circle").style('opacity',1.0).style('stroke-opacity',1.0);
+	features.selectAll(".pop-circle").style('opacity',1.0).style('stroke-opacity',1.0);
+	features.selectAll(".va-circle").style('opacity',1.0).style('stroke-opacity',1.0);
+	features.selectAll(".route-util-line").style('opacity',1.0).style('stroke-width',(0.25/currentScale)+"px");
+};
 
 function zoomed() { 
 	  //console.log(d3.event.translate);
 	  translate = d3.event.translate
 	  scale = d3.event.scale
 	  area = 1/scale/scale;
-	  
+	  currentScale = d3.event.scale;
 	  features.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	  features.selectAll(".land").style("stroke-width", 1.5 / d3.event.scale + "px");
 	  features.selectAll(".state-border").style("stroke-width", 0.5 / d3.event.scale + "px");
 	  features.selectAll(".country-border").style("stroke-width", 1.0 / d3.event.scale + "px");
 	  features.selectAll(".road").style("stroke-width", function(d){ var sc = (.25 / d3.event.scale); if(sc < 0.010){return 0.025+"px"}else{ return sc + "px"}});
+	  features.selectAll(".store-circle")
+	  	.attr('r',function(d){return 15.0/(d.level+1)/d3.event.scale;})
+	  	.style('stroke-width',(1.0/d3.event.scale)+"px");
+	  features.selectAll(".va-circle")
+	  	.attr('r',function(d){return 3.0/d3.event.scale})
+	  	.style('stroke-width',(1.0/d3.event.scale)+"px");
+	  features.selectAll(".util-circle")
+	  	.attr('r',function(d){return 3.0/d3.event.scale})
+	  	.style('stroke-width',(1.0/d3.event.scale)+"px");
+	  features.selectAll(".pop-circle")
+	  	.attr('r',function(d){ 
+	  		var factor = (0.5*(100.0*d.pop))
+	  		if(factor < 3.0){
+	  			factor = 3.0;
+	  		}
+	  		return factor/d3.event.scale;
+	  	})
+	  	.style('stroke-width',(1.0/d3.event.scale)+"px");
+	  features.selectAll(".route-util-line").style("stroke-width",function(d){ 
+		  var ops = 0.50/d3.event.scale;
+		  if(selectedRoute.indexOf(d.id)>-1){
+			  ops = 1.5/d3.event.scale;
+		  }
+		  return ops + "px";
+	  });
+	  features.selectAll(".route-line").style("stroke-width",function(d){ 
+		  var ops = 0.50/d3.event.scale;
+		  if(selectedRoute.indexOf(d.id)>-1){
+			  ops = 1.5/d3.event.scale;
+		  }
+		  return ops + "px";
+	  });
 	  curr_scale = d3.event.scale;
 }
 

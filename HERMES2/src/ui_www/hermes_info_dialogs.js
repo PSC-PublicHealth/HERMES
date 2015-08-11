@@ -22,23 +22,24 @@ function open_store_info_box(rootPath,modelId,storeId,storeName,resultId){
 
 	var divIDName = "storeInfo_" + Math.random().toString(36).replace(/[^a-z]+/g,'');
 	$.ajax({
-		url: rootPath+'json/dialoghtmlforstore',
-		dataType:'json',
-		data:{name:divIDName,geninfo:1,utilinfo:iShowRes,popinfo:1,storedev:1,transdev:1,
-			  vacavail:iShowRes,fillratio:iShowRes,invent:iShowRes,availplot:iShowRes}
-	})
-	.done(function(result){
-		if(!result.success){
-			alert(result.msg);
-		}
-		else{
-			$(document.body).append(result.htmlString);
-			var meta_data = eval(divIDName + "_meta");
-			populateStoreInfoDialog(rootPath,divIDName,meta_data,modelId,storeId,resultId);
-			$("#"+divIDName+"_dialog").dialog("option","title","Information for Location "+ storeName + "("+ storeId+")");
-			$("#"+divIDName+"_dialog").dialog("open");
-		}
-	});
+			url: rootPath+'json/dialoghtmlforstore',
+			dataType:'json',
+			data:{name:divIDName,geninfo:1,utilinfo:iShowRes,popinfo:1,storedev:1,transdev:1,
+				  vacavail:iShowRes,fillratio:iShowRes,invent:iShowRes,availplot:iShowRes}
+		})
+		.done(function(result){
+			if(!result.success){
+				alert(result.msg);
+			}
+			else{
+				$(document.body).append(result.htmlString);
+				var meta_data = eval(divIDName + "_meta");
+				populateStoreInfoDialog(rootPath,divIDName,meta_data,modelId,storeId,resultId);
+				$("#"+divIDName+"_dialog").dialog("option","title","Information for Location "+ storeName + "("+ storeId+")");
+				$("#"+divIDName+"_dialog").dialog("open");
+			}
+			$( document ).trigger("doneStore",[divIDName,storeId]);
+		});
 }
 
 function open_route_info_box(rootPath,modelId,routeId,resultId){
@@ -61,6 +62,8 @@ function open_route_info_box(rootPath,modelId,routeId,resultId){
 				$("#"+divIDName+"_dialog").dialog("option","title","Information for Route "+ routeId);
 				$("#"+divIDName+"_dialog").dialog("open");
 			}
+			$( document ).trigger("doneRoute",[divIDName,routeId]);
+			
 		}
 	});
 };
@@ -561,12 +564,10 @@ function populateRouteInfoDialog(rootPath,divName,meta,modId,rouId,resId){
 					url:rootPath+'json/get-tripman-for-route',
 					postData:{modelId:modId,routeId:rouId,resultsId:resId},
 					datatype :'json',
-					//mtype:'GET',
 					jsonReader: {
 						repeatitems: false,
 						root: 'rows',
 						page:1
-						//total:'total'
 					},
 					ajaxGridOptions: {
 					      type    : 'post',

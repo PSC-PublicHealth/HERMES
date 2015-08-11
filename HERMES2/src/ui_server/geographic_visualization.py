@@ -179,7 +179,7 @@ def generateRouteLinesJSON(db,uiSession):
                             bold = "true"
                         #print "HERE"
                         f.append(Feature(geometry=LineString([(start.Longitude,start.Latitude),(end.Longitude,end.Latitude)]),
-                                         id=routeId,rindex=routeIndexDict[routeId],maxcount=maxCount),bold=bold)
+                                         id=routeId,startId=route.stops[0].store.idcode,endId=route.stops[1].idcode,rindex=routeIndexDict[routeId],maxcount=maxCount),bold=bold)
         
         FC = FeatureCollection(f)
         
@@ -322,7 +322,8 @@ def generateRouteUtilizationLinesJSONNoSession(m,r):
                             fill = 1.0
                             
                         f.append(Feature(geometry=LineString([(start.Longitude,start.Latitude),(end.Longitude,end.Latitude)]),
-                                         id=routeId,util=fill,rindex=routeIndexDict[routeId],maxcount=maxCount,bold=bold))
+                                         id=routeId,onIds=[x.store.idcode for x in route.stops],
+                                         util=fill,rindex=routeIndexDict[routeId],maxcount=maxCount,bold=bold))
                 else:
                     print routeId
                     for i in range(0,len(route.stops)):
@@ -338,7 +339,8 @@ def generateRouteUtilizationLinesJSONNoSession(m,r):
                                 fill = 1.0
                             
                             f.append(Feature(geometry=LineString([(start.Longitude,start.Latitude),(end.Longitude,end.Latitude)]),
-                                             id=routeId,util=fill,rindex=routeIndexDict[routeId],maxcount=maxCount))
+                                             id=routeId,onIds=[x.store.idcode for x in route.stops],
+                                             util=fill,rindex=routeIndexDict[routeId],maxcount=maxCount))
         FC = FeatureCollection(f)
         
         return {'success':True,'geoFC':FC}  
