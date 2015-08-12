@@ -1,4 +1,4 @@
-%rebase outer_wrapper title_slogan=_("Geographic Visualization"), pageHelpText=pageHelpText, breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId,resultId=resultsId
+%rebase outer_wrapper title_slogan=_("Geographic Visualization"), pageHelpText=pageHelpText, breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId,resultId=resultsId,levels=levels
 <!---
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
@@ -47,36 +47,71 @@ var openRouteDialogs = {};
 	<div class="map-container"></div>
 	<div id="geo_layers">
 		<table>
-			<tr>
+			<!--<tr>
 				<td colspan=3>
 					<p style="font-size:large;">{{_('Layers')}}:</p>
 				</td>
+			</tr>-->
+			<tr>
+				<td colspan=2 style='font-size:large'>{{_('Stores')}}:</td>
+				<td width="120px"></td>
 			</tr>
 			<tr>
-				<p style="font-size:medium;">
 				<td width="50px"></td>
-				<td id="poplab">{{_('Population')}}:</td>
+				<td></td>
+				<td width="120px"></td>
+			</tr>
+			<tr>
+				<td width="50px"></td>
+				<td colspan=2 style='font-size:medium'>{{_('Show/Hide Levels')}}:</td>
+			</tr>
+			<tr>
+				<p style="font-size:small;">
+				<td width="50px"></td>
+				<td id="level_lab_all" style="padding-left:2em;width:100px;">{{_("All Levels")}}:</td>
+				<td width:"100px"> 
+					<input type="checkbox" id="show_all_levels" checked/>
+				</td>
+			</tr>
+% for i in range(0,len(levels)):
+			<tr id="level_row_{{i}}" style='display:none'>
+				<p style="font-size:small;">
+				<td width="50px"></td>
+				<td id="level_lab_{{i}}" style="padding-left:2em;width:100px;">{{levels[i]}}:</td>
+				<td width:"100px"> 
+					<input type="checkbox" id="show_level_{{i}}"/>
+				</td>
+			</tr>
+% end
+			<tr>
+				<td width="50px"></td>
+				<td colspan=2 style="font-size:medium"><br>{{_('Show Indicators')}}:</td>
+			</tr>
+			
+			<tr>
+				<p style="font-size:small;">
+				<td width="50px"></td>
+				<td id="poplab" style="padding-left:2em;width:100px;">{{_('Population')}}:</td>
 				<td width:"100px"> 
 					<input type="checkbox" id="show_population"/>
 				</td>
 			</tr>
 			<tr>
 				<td width="50px"></td>
-				<td id ="utillab">{{_('Utilization')}}:</td>
+				<td id ="utillab" style="padding-left:2em;width:100px;">{{_('Utilization')}}:</td>
 				<td width:"100px"> 
 					<input type="checkbox" id="show_utilization" value="On"/>
 				</td>
 			</tr>
 			<tr>
 				<td width="50px"></td>
-				<td>{{_('Vaccines')}}:</td>
+				<td style="padding-left:2em;width:100px;">{{_('Vaccines')}}:</td>
 				<td width:"100px"> 
 					<input type="checkbox" id="show_vaccine" value="On"/>
 				</td>
 			</tr>
 			<tr>
-				<td width="50px"></td>
-				<td>{{_('Routes')}}:</td>
+				<td colspan=2 style="font-size:large"><br>{{_('Routes')}}:</td>
 				<td width="100px"></td>
 			</tr>
 			<!--<tr>
@@ -155,6 +190,7 @@ var openRouteDialogs = {};
   left:10px;
   width:200px;
   height:auto;
+  font-size:11px;
   border-style:solid;
   border-width:1px;
   border-radius:3px;
@@ -280,6 +316,11 @@ var provinceColors = {"01":"black","02":"red","03":"orange","04":"yellow","05":"
 					  "11":"brown","12":"darkgrey"};
 					 
 
+var levelList = [];
+%for level in levels:
+	levelList.push('{{level}}');
+%end
+
 var routeColors = [];
 for (var i=0; i < 10000; i++){
 	routeColors.push(getRandomColor());
@@ -381,11 +422,16 @@ var in_count = 0;
 function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,routesJSON){
 	var states = stateJSON.objects.state;
 	var countries = countryJSON.objects.countries;
-	
+	console.log(storeJSON.geoFC)
 	//var smCTJSON = cTJSON.features.filter(function(d) { return d.properties.name == "Benin";});
+	for(var i=0; i < storeJSON.geoFC.features.length;i++){
+		levelHere = levelList[storeJSON.geoFC.features[i].level];
+		
+		$("#level_row_"+storeJSON.geoFC.features[i].level).show()//.css('display','on');
+	}
 	
 	var bounds = path.bounds(storeJSON.geoFC);
-	
+
 	// Create a new bounding Box that is some percent larger than the stores
 	var newBounds = [[0.0,0.0],[0.0,0.0]];
 	var yDiff = bounds[1][0]-bounds[0][0]
@@ -395,16 +441,12 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 	newBounds[1][0] = bounds[1][0] + perDiff*yDiff;
 	newBounds[0][1] = bounds[0][1] - perDiff*xDiff;
 	newBounds[1][1] = bounds[1][1] + perDiff*xDiff;
-	//console.log(bounds);
-	//console.log(newBounds);
 	var centroid = path.centroid(storeJSON.geoFC);
-	//console.log(centroid);
 	
 	// Create reduced jsons based on proximity to the actual visualization.
 	var ctIds = [];
 	var ctjson = countryJSON.objects.countries.geometries.filter(function(d){
 		thisCentroid = path.centroid(topojson.feature(countryJSON,d));
-		//console.log("this Cent" + thisCentroid);
 		var flag = ((thisCentroid[0] >= newBounds[0][0] && thisCentroid[0] <= newBounds[1][0]) && 
 				(thisCentroid[1] >= newBounds[0][1] && thisCentroid[1] <= newBounds[1][1]));
 		if (flag) {
@@ -415,10 +457,9 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 	
 	var ctgjson = topojson.feature(countryJSON,countryJSON.objects.countries).features.filter(
 			function(d) { 
-				//console.log(d.properties.name);
 				return ctIds.indexOf(d.properties.name) > -1;
 			});
-	//console.log(ctgjson);
+	
 	var stIds = [];
 	var stjson = stateJSON.objects.state.geometries.filter(function(d){
 		thisCentroid = path.centroid(topojson.feature(stateJSON,d));
@@ -432,7 +473,6 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 	
 	var stgjson = topojson.feature(stateJSON,stateJSON.objects.state).features.filter(
 			function(d) { 
-				//console.log(d.properties.name);
 				return stIds.indexOf(d.properties.name) > -1;
 			});
 	
@@ -549,7 +589,6 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 				return "white";
 			})
 			.style("stroke-width",function(d){
-				console.log(d.bold);
 				if(d.bold == "true"){
 					return 0.1+"px";
 				}
@@ -656,7 +695,6 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 			return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[1];
 		})
 		.style("fill",function(d){
-			console.log(d.va);
 			return "#"+rainbow.colourAt(100.0-d.va);
 		})
 		.style("fill-opacity",1.0)
@@ -668,6 +706,30 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 }
 
 // Turn on and off the elements
+$("#show_all_levels").click(function(){
+	$("[id^=show_level_]").prop("checked",false);
+	if($(this).is(':checked')){
+		showAllStores();
+	}
+	else{
+		hideAllStores();
+	}
+});
+
+$("[id^=show_level_]").change(function(){
+	var thisLevNum = parseInt($(this).prop('id').match(/\d+/));
+	if($('#show_all_levels').is(':checked')){
+		$("#show_all_levels").prop("checked",false);
+		hideAllStores();
+	}
+	if(!$(this).is(":checked")){
+		hideStoresForLevel(thisLevNum);
+	}
+	else{
+		showStoresForLevel(thisLevNum);
+	}
+});
+
 $("#show_population").click(function(){
 	if ($("#show_population").is(':checked')){
 		if($("#show_vaccine").is(':checked')){
@@ -687,6 +749,10 @@ $("#show_population").click(function(){
 		$("#poplegend").width("0px");
 		$("#poplegend").hide();
 	}
+	if (!$("#show_all_levels").is(":checked")){
+		$("#show_all_levels").click();
+	}
+	showAllStores();
 });
 //$("#show_routes").click(function(){
 //	if ($("#show_routes").is(':checked')){
@@ -734,6 +800,10 @@ $("#show_vaccine").click(function(){
 		$("#valegend").width("0px");
 		$("#valegend").hide();
 	}
+	if (!$("#show_all_levels").is(":checked")){
+		$("#show_all_levels").click();
+	}
+	showAllStores();
 });
 $("#show_utilization").click(function(){
 	if ($("#show_utilization").is(':checked')){
@@ -754,6 +824,10 @@ $("#show_utilization").click(function(){
 		$("#storelegend").width("0px");
 		$("#storelegend").hide();
 	}
+	if (!$("#show_all_levels").is(":checked")){
+		$("#show_all_levels").click();
+	}
+	showAllStores();
 });
 
 $( document ).on("doneStore",function(event, divId, storeId){
@@ -773,7 +847,6 @@ $( document ).on("doneStore",function(event, divId, storeId){
 
 $( document ).on("doneRoute",function(event, divId, routeId){
 	$("#"+divId+"_dialog").on("dialogclose",function(){
-		console.log("fuck");
 		if(selectedRoute.indexOf(routeId)>-1){
 			selectedRoute.splice(selectedStore.indexOf(routeId),1);
 			if((selectedRoute.length == 0) && (selectedStore.length == 0)){
@@ -817,7 +890,6 @@ function zoomToCollection(d) {
 	var b = path.bounds(d),
 	s =  s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
     t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
-	console.log(b);
 
 	svg.transition()
 		.duration(750)
@@ -941,11 +1013,11 @@ function highlightStores(ds){
 
 function highlightRoutes(ds){
 	features.selectAll(".route-line")
-		.each(function(a){
-			if(ds.indexOf(a.id) > -1){
-				console.log(a);
-			}
-		})
+		//.each(function(a){
+		//	if(ds.indexOf(a.id) > -1){
+				//console.log(a);
+		//	}
+		//})
 		.style('opacity',function(a){
 			var ops = 0.3;
 			if(ds.indexOf(a.id) > -1){
@@ -983,6 +1055,7 @@ function highlightRoutes(ds){
 			return ops + "px";
 		});
 }
+
 function restoreEverything(){
 	features.selectAll(".store-circle").style('opacity',1.0);
 	features.selectAll(".route-line").style('opacity',1.0).style('stroke-width',(0.25/currentScale)+"px").style('stroke',"white");
@@ -991,6 +1064,135 @@ function restoreEverything(){
 	features.selectAll(".va-circle").style('opacity',1.0).style('stroke-opacity',1.0);
 	features.selectAll(".route-util-line").style('opacity',1.0).style('stroke-width',(0.25/currentScale)+"px");
 };
+
+function showAllStores(){
+	if($("#show_population").is(":checked")){
+		features.selectAll(".pop-circle").style('display','block');
+	}
+	else if($("#show_vaccine").is(":checked")){
+		features.selectAll(".va-circle").style('display','block');
+	}
+	else if($("#show_utilization").is(":checked")){
+		features.selectAll(".util-circle").style('display','block');
+	}
+	else{
+		features.selectAll(".store-circle").style('display','block');
+	}
+};
+
+function hideAllStores(){
+	if($("#show_population").is(":checked")){
+		features.selectAll(".pop-circle").style('display','none');
+	}
+	else if($("#show_vaccine").is(":checked")){
+		features.selectAll(".va-circle").style('display','none');
+	}
+	else if($("#show_utilization").is(":checked")){
+		features.selectAll(".util-circle").style('display','none');
+	}
+	else{
+		features.selectAll(".store-circle").style('display','none');
+	}
+};
+
+function showStoresForLevel(level_num){
+	if($("#show_population").is(":checked")){
+		features.selectAll(".pop-circle").style('display',function(d){
+			console.log(d.level + " " + level_num)
+			if(d.level == level_num){
+				console.log("turning on "+d.id);
+				return "inline";
+			}
+			else{
+				return d3.select(this).style('display');
+			}
+		});
+	}
+	else if($("#show_vaccine").is(":checked")){
+		features.selectAll(".va-circle").style('display',function(d){
+			console.log(d.level + " " + level_num)
+			if(d.level == level_num){
+				console.log("turning on "+d.id);
+				return "inline";
+			}
+			else{
+				return d3.select(this).style('display');
+			}
+		});
+	}
+	else if($("#show_utilization").is(":checked")){
+		features.selectAll(".util-circle").style('display',function(d){
+			console.log(d.level + " " + level_num)
+			if(d.level == level_num){
+				console.log("turning on "+d.id);
+				return "inline";
+			}
+			else{
+				return d3.select(this).style('display');
+			}
+		});
+	}
+	else{
+		features.selectAll(".store-circle").style('display',function(d){
+			console.log(d.level + " " + level_num)
+			if(d.level == level_num){
+				console.log("turning on "+d.id);
+				return "inline";
+			}
+			else{
+				return d3.select(this).style('display');
+			}
+		});
+	}
+};
+
+function hideStoresForLevel(level_num){
+	if($("#show_population").is(":checked")){
+		features.selectAll(".pop-circle").style('display',function(d){
+			console.log(d.level + " " + level_num)
+			if(d.level == (level_num)){
+				return "none";
+			}
+			else{
+				return d3.select(this).style('display');
+			}
+		});
+	}
+	else if($("#show_vaccine").is(":checked")){
+		features.selectAll(".va-circle").style('display',function(d){
+			console.log(d.level + " " + level_num)
+			if(d.level == (level_num)){
+				return "none";
+			}
+			else{
+				return d3.select(this).style('display');
+			}
+		});
+	}
+	else if($("#show_utilization").is(":checked")){
+		features.selectAll(".util-circle").style('display',function(d){
+			console.log(d.level + " " + level_num)
+			if(d.level == (level_num)){
+				return "none";
+			}
+			else{
+				return d3.select(this).style('display');
+			}
+		});
+	}
+	else{
+		features.selectAll(".store-circle").style('display',function(d){
+			console.log(d.level + " " + level_num)
+			if(d.level == (level_num)){
+				return "none";
+			}
+			else{
+				return d3.select(this).style('display');
+			}
+		});
+	}
+};
+
 
 function zoomed() { 
 	  //console.log(d3.event.translate);
