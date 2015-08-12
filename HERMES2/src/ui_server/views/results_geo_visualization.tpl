@@ -1,4 +1,4 @@
-%rebase outer_wrapper title_slogan=_("Geographic Visualization"), pageHelpText=pageHelpText, breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId,resultId=resultsId,levels=levels
+%rebase outer_wrapper title_slogan=_("Geographic Visualization"), pageHelpText=pageHelpText, breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId,resultId=resultsId,levels=levels,maxpop=maxpop
 <!---
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
@@ -300,6 +300,18 @@ var openRouteDialogs = {};
 	cursor:pointer;
 }
 
+div.tooltip {
+	position: absolute;
+	text-align: center;
+	padding: 8px;
+	font: 10px sans-serif;
+	background: #fff;
+	border: solid 1px #aaa;
+	border-radius: 8px;
+	pointer-events: none;
+	z-index:100;
+}
+
 </style>
 
 <script>
@@ -379,9 +391,14 @@ svg.append("rect")
 	.attr("class","overlay")
 	.attr("width",width)
 	.attr("height",height)
-	.call(zoom)
-	
+	.call(zoom);
+
 var features = svg.append("g");
+
+var storeTipDiv = d3.select("body")
+	.append("div")
+	.attr("class","tooltip")
+	.style("opacity",0);
 
 queue()
 	.defer(d3.json,"{{rootPath}}static/world.10m.states.json")
@@ -418,6 +435,8 @@ function zoomByFactor(factor) {
 }
 
 var in_count = 0;
+
+
 
 function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,routesJSON){
 	var states = stateJSON.objects.state;
@@ -637,7 +656,22 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 			})
 			.style("visibility","visible")
 			.style("stroke-width",0.010+"px")
-			.on("click",clickStoreDialog);
+			.on("click",clickStoreDialog)
+			.on("mouseover",function(d){
+				console.log(d);
+				storeTipDiv.transition()
+					.duration(200)
+					.style("opacity",0.9);
+				storeTipDiv.html("Name: "+ d.name + "<br>Level: "+levelList[d.level]+"<br>Lat,Lon: " +
+						d.geometry.coordinates[1] + "," + d.geometry.coordinates[0])
+					.style("left",(d3.event.pageX)+"px")
+					.style("top",(d3.event.pageY - 28) + "px");
+			})
+			.on("mouseout",function(d){
+				storeTipDiv.transition()
+					.duration(500)
+					.style("opacity",0);
+			});
 	
 	features
 		.selectAll(".util-circle")
@@ -660,7 +694,22 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 			})
 			.style("visibility","hidden")
 			.style("stroke-width",0.010+"px")
-			.on("click",clickStoreDialog);
+			.on("click",clickStoreDialog)
+			.on("mouseover",function(d){
+				console.log(d);
+				storeTipDiv.transition()
+					.duration(200)
+					.style("opacity",1.0);
+				storeTipDiv.html("Name: "+ d.name + "<br>Level: "+levelList[d.level]+"<br>Maximum Storage Utilization: " +
+						parseFloat(d.util*100.0).toFixed(2) + "%")
+					.style("left",(d3.event.pageX)+"px")
+					.style("top",(d3.event.pageY - 28) + "px");
+			})
+			.on("mouseout",function(d){
+				storeTipDiv.transition()
+					.duration(500)
+					.style("opacity",0);
+			});
 	
 	features
 		.selectAll(".pop-circle")
@@ -680,8 +729,22 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 			.style("fill-opacity",1.0)
 			.style("stroke","black")
 			.style("stroke-width",0.010+"px")
-			.on("click",clickStoreDialog);
-	
+			.on("click",clickStoreDialog)
+			.on("mouseover",function(d){
+				console.log(d);
+				storeTipDiv.transition()
+					.duration(200)
+					.style("opacity",1.0);
+				storeTipDiv.html("Name: "+ d.name + "<br>Level: "+levelList[d.level]+"<br>Percent of Population: " +
+						parseInt(d.pop*{{maxpop}}))
+					.style("left",(d3.event.pageX)+"px")
+					.style("top",(d3.event.pageY - 28) + "px");
+			})
+			.on("mouseout",function(d){
+				storeTipDiv.transition()
+					.duration(500)
+					.style("opacity",0);
+			});
 	features
 	.selectAll(".va-circle")
 		.data(storeJSON.geoFC.features)
@@ -700,7 +763,21 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 		.style("fill-opacity",1.0)
 		.style("stroke","black")
 		.style("stroke-width",0.010+"px")
-		.on("click",clickStoreDialog);
+		.on("click",clickStoreDialog)
+		.on("mouseover",function(d){
+			storeTipDiv.transition()
+				.duration(200)
+				.style("opacity",1.0);
+			storeTipDiv.html("Name: "+ d.name + "<br>Level: "+levelList[d.level]+"<br>Vaccine Availability: " +
+					parseFloat(d.va).toFixed(2) + "%")
+				.style("left",(d3.event.pageX)+"px")
+				.style("top",(d3.event.pageY - 28) + "px");
+		})
+		.on("mouseout",function(d){
+			storeTipDiv.transition()
+				.duration(500)
+				.style("opacity",0);
+		});
 	zoomToCollection(storeJSON.geoFC);
 	doneLoading();
 }
