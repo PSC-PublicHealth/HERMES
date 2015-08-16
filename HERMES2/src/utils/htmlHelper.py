@@ -29,7 +29,6 @@ class HTMLPrimitive:
                              'background','color','fontweight',u'fontsize',
                              '']
     def __init__(self,name_,**kwargs):
-        print "HERE22223"
         self.name = name_
         self.classString = u''
         self.styleString = u''
@@ -49,7 +48,6 @@ class HTMLPrimitive:
                     self.styleString += u'%s:%s;'%(arg,value)
         if self.styleString != '':
             self.styleString += u'" '
-        print "HERE%$$$$"
             
 class HTMLElement(HTMLPrimitive):
     def __init__(self,name_,pretty_=True,**kwargs):
@@ -154,7 +152,7 @@ class HTMLTableColumn(HTMLElement):
         
     def htmlString(self):
         if self.header:
-            mon = u"th"
+            mon = u"td"
         else:
             mon = u"td"
         

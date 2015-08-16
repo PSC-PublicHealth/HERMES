@@ -72,7 +72,7 @@ def XgetModelInfoHTML(db,uiSession,modelId):
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
 
     titleStr = _("Model {0}").format(model.name)
-
+    
     sio = StringIO()
     sio.write("<h3>\n")
     sio.write("{0}\n".format(model.name))
@@ -243,6 +243,35 @@ def getPerDiemInfoHTML(db,uiSession, modelId, typeName):
     return sio.getvalue(), titleStr
 
 def getVaccineInfoHTML(db, uiSession, modelId, typeName):
+    itemOrder = ['DisplayName',
+                 'Abbreviation',
+                 'Manufacturer',
+                 'Vaccine presentation',
+                 'Doses per vial',
+                 'Packed vol/dose(cc) of vaccine',
+                 'Packed vol/dose(cc) of diluent',
+                 'Secondary Packaging',
+                 'Method of administration',
+                 'LifetimeCoolerMonths',
+                 'LifetimeFreezerMonths',
+                 'LifetimeOpenMonths',
+                 'LifetimeRoomTempMonths'
+                 ]
+    itemTranslate = [_('Name'),
+                     _('Abbreviation'),
+                     _('Manufacturer'),
+                     _('Presentation'),
+                     _('Doses per Vial'),
+                     _('Packed Volume per Dose of Vaccine (mL)'),
+                     _('Packed Volume per Dose of Diluent (mL)'),
+                     _('Secondary Packaging'),
+                     _('Method of Administration'),
+                     _('Months Vaccine can be stored in 2-8 C'),
+                     _('Months Vaccine can be stored in Below 0C'),
+                     _('Months Vaccine can be used once opened'),
+                     _('Months Vaccine can be stored at Room Temperature')
+                     ]
+    
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
 
@@ -250,18 +279,33 @@ def getVaccineInfoHTML(db, uiSession, modelId, typeName):
         titleStr = _("Vaccine Type {0} in {1}").format(typeName,model.name)
     else:
         titleStr = _("Vaccine Type {0}").format(typeName)
+        
+    table = HTMLTable(name="Vaccine Info",
+                      title_=_("Vaccine Type Information"),
+                      width='100%',height='100%',
+                      border='1px solid black')
+    
     sio = StringIO()
-    sio.write("<h3>\n")
-    sio.write("{0}\n".format(typeName))
-    sio.write("</h3>\n")
-    sio.write("<table>\n")
+#     sio.write("<table><tr><td colspan=2>\n")
+#     sio.write("<h3>\n")
+#     sio.write("Vaccine Type: {0}\n".format(typeName))
+#     sio.write("</h3>\n")
+#     sio.write("</td></tr>")
+#     sio.write("<tr><td colspan=2>\n")
+#     sio.write("<")
+#     #sio.write("<table>\n")
     attrRec = {}
     shadow_network._copyAttrsToRec(attrRec,typeInstance)
-    for k,v in attrRec.items(): 
-        sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
-    sio.write("</table>\n")
-    
-    return sio.getvalue(), titleStr
+    for item in itemOrder:
+        table.addRow([itemTranslate[itemOrder.index(item)],attrRec[item]],['c',1,1])
+        
+    return table.htmlString(),titleStr
+        
+#     for k,v in attrRec.items(): 
+#         sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
+#     sio.write("</table>\n")
+#    
+#    return sio.getvalue(), titleStr
 
 def getFridgeInfoHTML(db, uiSession, modelId, typeName):
     canWrite,typeInstance = typehelper.getTypeWithFallback(db, modelId, typeName)
