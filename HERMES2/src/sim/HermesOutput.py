@@ -169,6 +169,7 @@ class HermesOutput():
         scp.cell = [0,0]
         scp.cellCache = {}
         scp.recGroup = scp.recs['stores']
+        scp.NA = ""
         
         for lineCount, line in enumerate(lines):
             fn = line['function']
@@ -185,6 +186,13 @@ class HermesOutput():
 
             if fn == 'outputName':
                 outputName = field + output_suffix + ".csv"
+                continue
+
+            if fn == 'setNA':
+                if field is None:
+                    scp.NA = ""
+                else:
+                    scp.NA = field
                 continue
 
             if fn == 'use':
@@ -240,7 +248,8 @@ class HermesOutput():
             if fn == 'label':
                 scp._placeCell(name)
 
-            elif fn in ('display', 'sumClientRoutes', 'sumClients', 'averageClients', 'addFields', 'divFields', 'sumClientTree'):
+            elif fn in ('display', 'sumClientRoutes', 'sumClients', 'averageClients', 'addFields', 'divFields', 
+                        'sumClientTree', 'textColumn', 'runNumColumn'):
                 if fn == 'display':
                     if name is None:
                         name = field
@@ -259,8 +268,19 @@ class HermesOutput():
                 elif fn == 'sumClientTree':
                     name = scp._sumClientTree(field, name)
 
-                if hide is None:
-                    scp._placeColumn(field, name)
+                elif fn == 'textColumn':
+                    name = field
+                    field = None
+                elif fn == 'runNumColumn':
+                    name = output_suffix
+                    try:
+                        if name[0] == '_':
+                            name = name[1:]
+                    except:
+                        pass
+                    field = None
+
+                scp._placeColumn(field, name, hide=hide)
 
             elif fn in ('statSumField', 'statSumFieldForField2Val', 'statAverageField', 'statAverageFieldForField2Val'):
                 if fn == 'statSumField':
@@ -289,8 +309,7 @@ class HermesOutput():
                 items.sort()
                 recList = [{'key':key, 'val':val} for (key,val) in items]
                 
-                if hide is None:
-                    scp._placeColumn('key', field, recList)
+                scp._placeColumn('key', field, recList, hide)
                 scp._placeColumn('val', name, recList)
 
             else:
@@ -307,17 +326,22 @@ class HermesOutput():
 
 
     # _placeColumn and _placeCell will move cell one space to the right when done
-    def _placeColumn(self, field, label, recs=None):
+    def _placeColumn(self, field, label, recs=None, hide=None):
+        if not (hide is None or hide == 'header'):
+            return
         if recs == None:
             recs = self.recGroup
         cell = copy.deepcopy(self.cell)
-        self._xPlaceCell(cell, label)
+        if hide != 'header':
+            self._xPlaceCell(cell, label)
         for rec in recs:
             cell[1] += 1
-            if field in rec:
+            if field is None:
+                self._xPlaceCell(cell, label)
+            elif field in rec:
                 self._xPlaceCell(cell, rec[field])
             else:
-                self._xPlaceCell(cell, "")
+                self._xPlaceCell(cell, self.NA)
         self.cell[0] += 1
 
     def _placeCell(self, val):
