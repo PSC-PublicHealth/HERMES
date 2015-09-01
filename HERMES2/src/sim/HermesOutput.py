@@ -162,6 +162,7 @@ class HermesOutput():
         castColumn(lines, 'name', (castTypes.EMPTY_IS_NONE, castTypes.STRING))
         castColumn(lines, 'val', (castTypes.EMPTY_IS_NONE, castTypes.STRING))
         castColumn(lines, 'hide', (castTypes.EMPTY_IS_NONE, castTypes.STRING))
+        castColumn(lines, 'format', (castTypes.EMPTY_IS_NONE, castTypes.STRING))
         
         outputName = "custom_out" + output_suffix + ".csv"
 
@@ -178,6 +179,7 @@ class HermesOutput():
             field2 = line['field2']
             name = line['name']
             val = line['val']
+            fmt = line['format']
 
 #            print "fn: %s, hide: %s, field: %s, name:%s"%(fn,hide,field,name)
 
@@ -280,7 +282,7 @@ class HermesOutput():
                         pass
                     field = None
 
-                scp._placeColumn(field, name, hide=hide)
+                scp._placeColumn(field, name, hide=hide, fmt=fmt)
 
             elif fn in ('statSumField', 'statSumFieldForField2Val', 'statAverageField', 'statAverageFieldForField2Val'):
                 if fn == 'statSumField':
@@ -293,8 +295,8 @@ class HermesOutput():
                     (name,value) = scp._statAverageFieldForField2Val(field, name, field2, val)
 
                 if hide is None:
-                    scp._placeCell(name)
-                scp._placeCell(value)
+                    scp._placeCell(name,fmt='string')
+                scp._placeCell(value,fmt=fmt)
             
             elif fn in ('aggregateValues', 'aggregateSum', 'aggregateAverage'):
                 if fn == 'aggregateValues':
@@ -309,8 +311,8 @@ class HermesOutput():
                 items.sort()
                 recList = [{'key':key, 'val':val} for (key,val) in items]
                 
-                scp._placeColumn('key', field, recList, hide)
-                scp._placeColumn('val', name, recList)
+                scp._placeColumn('key', field, recList, hide=hide, fmt='string')
+                scp._placeColumn('val', name, recList, fmt=fmt)
 
             else:
                 raise RuntimeError("invalid custom output fn (%s) on line %d"%(fn,lineCount))
@@ -326,22 +328,22 @@ class HermesOutput():
 
 
     # _placeColumn and _placeCell will move cell one space to the right when done
-    def _placeColumn(self, field, label, recs=None, hide=None):
+    def _placeColumn(self, field, label, recs=None, hide=None, fmt=None):
         if not (hide is None or hide == 'header'):
             return
         if recs == None:
             recs = self.recGroup
         cell = copy.deepcopy(self.cell)
         if hide != 'header':
-            self._xPlaceCell(cell, label)
+            self._xPlaceCell(cell, label, fmt)
         for rec in recs:
             cell[1] += 1
             if field is None:
-                self._xPlaceCell(cell, label)
+                self._xPlaceCell(cell, label, fmt)
             elif field in rec:
-                self._xPlaceCell(cell, rec[field])
+                self._xPlaceCell(cell, rec[field], fmt)
             else:
-                self._xPlaceCell(cell, self.NA)
+                self._xPlaceCell(cell, self.NA, fmt)
         self.cell[0] += 1
 
     def _placeCell(self, val):
@@ -349,16 +351,20 @@ class HermesOutput():
         self.cell[0] += 1
 
     # _xPlaceCell is intended as a lower level call used by the functions above.
-    def _xPlaceCell(self, cell, val):
+    def _xPlaceCell(self, cell, val, fmt):
         while len(self.rows) <= cell[1]:
             self.rows.append([])
         row = self.rows[cell[1]]
         while len(row) <= cell[0]:
             row.append('')
         try:
-            v = "NA"
-            v = str(val)
-            v = float(val)
+            v = self.NA
+            if fmt != "num":
+                v = unicode(val)
+            if fmt != "string":
+                v = float(val)
+            if fmt == "int":
+                v = long(val)
         except:
             pass
 
