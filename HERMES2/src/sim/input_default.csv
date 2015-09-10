@@ -127,3 +127,4 @@ amortizationstorageyears,deprecated,float,7,9999,125,Deprecated – this option 
 orderpendinglifetime,Order Pending Lifetime,float,1.1,4,126,How long should a shipment be delayed waiting for goods to arrive?,
 patientwaitinterval,Patient Wait Interval,float,0.3,4,127,How long should a patient wait for vaccine to arrive at a clinic?,
 limitedroomtemp,Limited Room Temperature Storage,TF,FALSE,4,128,If set room temperature storage is not unlimited,
+fillcalculation,Which storage allocation calculation should be used,string,sharecool,4,129,how storage allocation is done. sharecool assumes the only contention is for refrigerated space and is faster.  share3 assumes contention for all space.,

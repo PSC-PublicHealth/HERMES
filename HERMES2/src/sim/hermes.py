@@ -184,6 +184,21 @@ class HermesSim(SimulationStep):
         self.stockMonitorInterval = self.userInput.safeGetValue('stockmonitorinterval',1.0)
         self.stockMonitorThresh = self.userInput.safeGetValue('stockmonitorthres',0.99)
 
+        # pick which storage allocation scheme to use
+        fc = self.userInput.getValue('fillcalculation')
+        self.fc = fc
+        if fc == 'sharecool':
+            self.fillCalculationRoutine = warehouse.shareCool_calculateOwnerStorageFillRatios
+            self.allocateStorageRoutine = warehouse.shareCool_allocateOwnerStorageSpace
+        elif fc == 'share3':
+            self.fillCalculationRoutine = warehouse.share3_calculateOwnerStorageFillRatios
+            self.allocateStorageRoutine = warehouse.share3_allocateOwnerStorageSpace
+        else:
+            raise RuntimeError("Invalid fillcalculation in user input")
+
+        self.limitedRoomTemp = False
+        if self.userInput.getValue('limitedroomtemp'):
+            self.limitedRoomTemp = True
         #
         #  Create the sim-wide type manager, and define all initially known types.
         #

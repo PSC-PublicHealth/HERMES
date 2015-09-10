@@ -26,6 +26,7 @@ import ipath
 import sys, types, math, random, util, unittest, cStringIO
 import storagemodel
 import abstractbaseclasses
+from enums import StorageTypeEnums as ST
 
 # Packaging categories, in increasing order of size.
 PKG_SINGLE = 0
@@ -214,8 +215,8 @@ class SimplePackagingModel(PackagingModel):
             if isinstance(v,abstractbaseclasses.ShippableType):
                 dv = n*v.getSingletonStorageVolume(storageModel)
                 #print 'coolTotalVol += %f for %s %s'%(dv,n,v.name)
-                if storageModel.canLeaveOutShippableType(v): warmCC += dv
-                elif storageModel.canFreezeShippableType(v): freezeCC += dv
+                if storageModel.canStoreShippableType(v, ST.STORE_WARM): warmCC += dv
+                elif storageModel.canStoreShippableType(v, ST.STORE_FREEZE): freezeCC += dv
                 else: coolCC += dv
             else:
                 # Non-Shippable objects like trucks and stationary fridges take up no space
@@ -240,8 +241,10 @@ class SimplePackagingModel(PackagingModel):
             if isinstance(v,abstractbaseclasses.ShippableType):
                 dv = n*v.getSingletonStorageVolume(storageModel)
                 #print 'coolTotalVol += %f for %s %s'%(dv,n,v.name)
-                if storageModel.canLeaveOutShippableType(v): warmTuples.append((v,dv))
-                elif storageModel.canFreezeShippableType(v): freezeTuples.append((v,dv))
+                if storageModel.canStoreShippableType(v, ST.STORE_WARM): warmCC += dv
+                elif storageModel.canStoreShippableType(v, ST.STORE_FREEZE): freezeCC += dv
+                if storageModel.canStoreShippableType(v, ST.STORE_WARM): warmTuples.append((v,dv))
+                elif storageModel.canStoreShippableType(v, ST.STORE_FREEZE): freezeTuples.append((v,dv))
                 else: coolTuples.append((v,dv))
             else:
                 # Non-Shippable objects like trucks and stationary fridges take up no space
@@ -266,9 +269,8 @@ class SimplePackagingModel(PackagingModel):
             if isinstance(v,abstractbaseclasses.ShippableType):
                 dv = n*v.getSingletonStorageVolume(storageModel)
                 #print 'coolTotalVol += %f for %s %s'%(dv,n,v.name)
-                warm = storageModel.canLeaveOutShippableType(v)
-                fridge = storageModel.canRefridgerateShippableType(v)
-                freeze = storageModel.canFreezeShippableType(v)
+                (warm, fridge, freeze) = [storageModel.canStoreShippableType(v, st) 
+                                          for st in (ST.STORE_WARM, ST.STORE_COOL, ST.STORE_FREEZE)]
                 if freeze and fridge and warm:
                     anyCC += dv
                 elif freeze and fridge:
@@ -280,7 +282,7 @@ class SimplePackagingModel(PackagingModel):
                 elif fridge:
                     coolCC += dv
                 elif freeze:
-                    coolCC += dv
+                    freezeCC += dv
                 else:  # apparently no storage method is viable
                     anyCC += dv
             else:
@@ -309,9 +311,8 @@ class SimplePackagingModel(PackagingModel):
                 dv = n*v.getSingletonStorageVolume(storageModel)
 
                 #print 'coolTotalVol += %f for %s %s'%(dv,n,v.name)
-                warm = storageModel.canLeaveOutShippableType(v)
-                fridge = storageModel.canRefridgerateShippableType(v)
-                freeze = storageModel.canFreezeShippableType(v)
+                (warm, fridge, freeze) = [storageModel.canStoreShippableType(v, st) 
+                                          for st in (ST.STORE_WARM, ST.STORE_COOL, ST.STORE_FREEZE)]
                 if freeze and fridge and warm:
                     anyTuples.append((v, dv))
                 elif freeze and fridge:
@@ -323,12 +324,9 @@ class SimplePackagingModel(PackagingModel):
                 elif fridge:
                     coolTuples.append((v, dv))
                 elif freeze:
-                    coolTuples.append((v, dv))
+                    freezeTuples.append((v, dv))
                 else:  # apparently no storage method is viable
                     anyTuples.append((v, dv))
-                if storageModel.canLeaveOutShippableType(v): warmTuples.append((v,dv))
-                elif storageModel.canFreezeShippableType(v): freezeTuples.append((v,dv))
-                else: coolTuples.append((v,dv))
             else:
                 # Non-Shippable objects like trucks and stationary fridges take up no space
                 pass
@@ -461,8 +459,8 @@ class ListPackagingModel(PackagingModel):
                     dv += n * v.getSingletonStorageVolume(storageModel.getStoreVaccinesWithDiluent(v))
                 else:
                     dv = math.ceil(n)*v.getSingletonStorageVolume(storageModel.getStoreVaccinesWithDiluent(v))
-                if storageModel.canLeaveOutShippableType(v): warmCC += dv
-                elif storageModel.canFreezeShippableType(v): freezeCC += dv
+                if storageModel.canStoreShippableType(v, ST.STORE_WARM): warmCC += dv
+                elif storageModel.canStoreShippableType(v, ST.STORE_FREEZE): freezeCC += dv
                 else: coolCC += dv
             else:
                 # Only Shippables have volume
@@ -496,8 +494,8 @@ class ListPackagingModel(PackagingModel):
                     dv += n * v.getSingletonStorageVolume(storageModel.getStoreVaccinesWithDiluent(v))
                 else:
                     dv = math.ceil(n)*v.getSingletonStorageVolume(storageModel.getStoreVaccinesWithDiluent(v))
-                if storageModel.canLeaveOutShippableType(v): warmTuples.append((v,dv))
-                elif storageModel.canFreezeShippableType(v): freezeTuples.append((v,dv))
+                if storageModel.canStoreShippableType(v, ST.STORE_WARM): warmCC += dv
+                elif storageModel.canStoreShippableType(v, ST.STORE_FREEZE): freezeCC += dv
                 else: coolTuples.append((v,dv))
             else:
                 # Non-Shippable objects like trucks and stationary fridges take up no space
@@ -530,9 +528,8 @@ class ListPackagingModel(PackagingModel):
                     dv += n * v.getSingletonStorageVolume(storageModel.getStoreVaccinesWithDiluent(v))
                 else:
                     dv = math.ceil(n)*v.getSingletonStorageVolume(storageModel.getStoreVaccinesWithDiluent(v))
-                warm = storageModel.canLeaveOutShippableType(v)
-                fridge = storageModel.canRefridgerateShippableType(v)
-                freeze = sortageModel.canFreezeShippableType(v)
+                (warm, fridge, freeze) = [storageModel.canStoreShippableType(v, st) 
+                                          for st in (ST.STORE_WARM, ST.STORE_COOL, ST.STORE_FREEZE)]
                 if freeze and fridge and warm:
                     anyCC += dv
                 elif freeze and fridge:
@@ -581,9 +578,8 @@ class ListPackagingModel(PackagingModel):
                     dv += n * v.getSingletonStorageVolume(storageModel.getStoreVaccinesWithDiluent(v))
                 else:
                     dv = math.ceil(n)*v.getSingletonStorageVolume(storageModel.getStoreVaccinesWithDiluent(v))
-                warm = storageModel.canLeaveOutShippableType(v)
-                fridge = storageModel.canRefridgerateShippableType(v)
-                freeze = sortageModel.canFreezeShippableType(v)
+                (warm, fridge, freeze) = [storageModel.canStoreShippableType(v, st) 
+                                          for st in (ST.STORE_WARM, ST.STORE_COOL, ST.STORE_FREEZE)]
                 if freeze and fridge and warm:
                     anyTuples.append((v, dv))
                 elif freeze and fridge:
@@ -595,12 +591,9 @@ class ListPackagingModel(PackagingModel):
                 elif fridge:
                     coolTuples.append((v, dv))
                 elif freeze:
-                    coolTuples.append((v, dv))
+                    freezeTuples.append((v, dv))
                 else:  # apparently no storage method is viable
                     anyTuples.append((v, dv))
-                if storageModel.canLeaveOutShippableType(v): warmTuples.append((v,dv))
-                elif storageModel.canFreezeShippableType(v): freezeTuples.append((v,dv))
-                else: coolTuples.append((v,dv))
             else:
                 # Non-Shippable objects like trucks and stationary fridges take up no space
                 pass

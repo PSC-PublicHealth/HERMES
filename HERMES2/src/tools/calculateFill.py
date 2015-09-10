@@ -493,3 +493,17 @@ def bulkAutoTest3(count):
         
 
     print "%s of %s successful"%(success, count)
+
+def bulkAutoProfile3_p1(count):
+    for i in xrange(count):
+        _share3(randVal(), randVal(), randVal(),
+                randVal(), randVal(), randVal(), randVal(), randVal(), randVal())
+
+def _nullFunc(v1, v2, v3, v4, v5, v6, v7, v8, v9):
+    pass
+
+def bulkAutoProfile3_p2(count):
+    for i in xrange(count):
+        _nullFunc(randVal(), randVal(), randVal(),
+                  randVal(), randVal(), randVal(), randVal(), randVal(), randVal())
+

@@ -30,6 +30,7 @@ import warehouse
 import storagetypes
 import trackabletypes
 import constants as C
+from enums import StorageTypeEnums as ST
 
 class Ice(abstractbaseclasses.Shippable, abstractbaseclasses.Deliverable, abstractbaseclasses.Trackable):
     """
@@ -250,15 +251,14 @@ class IceType(abstractbaseclasses.ShippableType, abstractbaseclasses.NonScalingT
     def getNDosesPerVial(self): 
         """Returns doses per vial- since everything shippable is sometimes treated like a vaccine"""
         return 1
-    def canLeaveOut(self):
-        """Returns true if this type can be stored at room temperature"""
+    def canStore(self, storageType):
+        if storageType == ST.STORE_FREEZE:
+            return True
         return False
-    def canRefridgerate(self):
-        """Returns true if this type can be stored refridgerated"""
+    def wantStore(self, storageType):
+        if storageType == ST.STORE_FREEZE:
+            return True
         return False
-    def canFreeze(self):
-        """Returns true if this type can be stored at freezing temperatures"""
-        return True # freeze us, please
     def canKeepOpenVials(self,howLongOpen):
         """
         If the first dose from a vial has been used, can the rest still be used after 'howLongOpen' days?  

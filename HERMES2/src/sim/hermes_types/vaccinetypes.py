@@ -33,6 +33,7 @@ import storagemodel
 import warehouse 
 import util
 from enums import TimeUnitsEnums
+from enums import StorageTypeEnums as ST
 
 allVaccineTypes= [] #: List of all VaccineType instances
 activeVaccineTypes= [] #: List of currently active VaccineType instances
@@ -463,15 +464,23 @@ class VaccineType(GroupedShippableType, HasOVW):
     def __str__(self):
         return self.name
 
-    def canFreeze(self):
-        return (self.freezerFac < 1.5)
-        
-    def canRefridgerate(self):
-        return (self.coolerFac < 1.5)
+    stFac = { ST.STORE_WARM : 'roomtempFac',
+              ST.STORE_COOL : 'coolerFac',
+              ST.STORE_FREEZE : 'freezerFac',
+          }
 
-    def canLeaveOut(self):
-        return (self.roomtempFac < 1.5)
-        
+    def canStore(self, storageType):
+        try:
+            return getattr(self, self.stFac[storageType]) < 10.0
+        except:
+            return False
+
+    def wantStore(self, storageType):
+        try: 
+            return getattr(self, self.stFac[storageType]) < 1.5
+        except:
+            return False
+
     def canKeepOpenVials(self,howLongOpen):
         if self.keepOpenVials:# and howLongOpen<2.0: # keep two days max
             return True

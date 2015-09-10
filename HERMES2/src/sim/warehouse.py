@@ -46,7 +46,9 @@ from util import logDebug, logVerbose
 import copy
 
 import calculateFill
+from enums import StorageTypeEnums as ST
 
+DEBUG = False
 
 """
 The class HDict will be an ordered dict if globals.deterministic is true
@@ -205,6 +207,19 @@ def getStoreByName(storeDict,storeName):
     raise RuntimeError('Could not find store by Name %s'%storeName)
 
 def calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
+    if DEBUG:
+        oldVal = shareCool_calculateOwnerStorageFillRatios(canOwn, thisVC, assumeEmpty)
+        newVal = share3_calculateOwnerStorageFillRatios(canOwn, thisVC, assumeEmpty)
+        print "**** do they match:  ****"
+        print [old==new for (t, old, new) in zip(('freeze', 'cool', 'warm'), oldVal, newVal)]
+        return newVal
+
+    return canOwn.sim.fillCalculationRoutine(canOwn, thisVC, assumeEmpty)
+
+def allocateOwnerStorageSpace(canOwn,stockBuf):
+    return canOwn.sim.allocateStorageRoutine(canOwn, stockBuf)
+
+def shareCool_calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
     """
     This attempts to allocate space fairly between vaccines.  It's
     very similar to the ARENA 'fair share' storage calculation.
@@ -224,6 +239,9 @@ def calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
     # the canOwn!
 
     # classify everything
+
+    if DEBUG:
+        print "**** Old version ****"
     freezeTuples= []
     coolTuples= []
     warmTuples= []
@@ -234,8 +252,8 @@ def calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
     sM = canOwn.getStorageModel()
     for v,n in thisVC.getTupleList():
         if isinstance(v,abstractbaseclasses.ShippableType):
-            if sM.canLeaveOutShippableType(v): warmTuples.append((v,n))
-            elif sM.canFreezeShippableType(v): freezeTuples.append((v,n))
+            if sM.canStoreShippableType(v, ST.STORE_WARM): warmTuples.append((v,n))
+            elif sM.canStoreShippableType(v, ST.STORE_FREEZE): freezeTuples.append((v,n))
             else: coolTuples.append((v,n))
         else:
             warmTuples.append((v,n)) # Things like trucks and fridges get stored warm
@@ -252,10 +270,17 @@ def calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
         freezeVC = canOwn.sim.shippables.getCollection()
         coolVC = canOwn.sim.shippables.getCollection()
         warmVC= canOwn.sim.shippables.getCollection([(v,1.0) for v,n in warmTuples])        
+        freezeTotalVol,coolTotalVol,warmTotalVol = \
+            canOwn.getPackagingModel().getStorageVolumeTriple(thisVC,canOwn.getStorageModel())
     else:
         # Count up storage in each category
         freezeTotalVol,coolTotalVol,warmTotalVol = \
             canOwn.getPackagingModel().getStorageVolumeTriple(thisVC,canOwn.getStorageModel())
+        if DEBUG:
+            print "total volumes:"
+            print "freeze: %s"%freezeTotalVol
+            print "cool: %s"%coolTotalVol
+            print "warm: %s"%warmTotalVol
         warmVol= 0.0
         warmVolUsed= 0.0
         freezeVol= 0.0
@@ -283,7 +308,10 @@ def calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
                     assert(sb.storageType==frozenStorage)
                     freezeVol += sb.volAvail
                     freezeVolUsed += sb.volUsed
-    
+
+        if DEBUG:
+            print "volume available: %s, %s, %s"%(freezeVol, coolVol, warmVol)
+
         # Anything we can leave at room temperature, we leave at room temp
         if warmTotalVol>warmVol:
             print 'warmTotalVol = %s, warmVol = %s, assumeEmpty = %s'%(warmTotalVol,warmVol,assumeEmpty)
@@ -329,11 +357,16 @@ def calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
                 coolVC= canOwn.sim.shippables.getCollection([(v,0.0) for v,n in coolTuples])
             #print 'ratio2 = %f, coolTotalVol = %f, coolVol = %f'%(ratio2,coolTotalVol,coolVol)
 
-    #print 'calculateOwnerStorageFillRatios for %s: thisVC is %s, assumeEmpty=%s'%(canOwn.bName,thisVC,assumeEmpty)
+    if DEBUG:
+        print "freezeVC: %s\n"%repr(freezeVC)
+        print "coolVC: %s\n"%repr(coolVC)
+        print "warmVC: %s\n"%repr(warmVC)
 
     return (freezeVC,coolVC,warmVC)
 
-def allocateOwnerStorageSpace(canOwn,stockBuf):
+
+
+def shareCool_allocateOwnerStorageSpace(canOwn,stockBuf):
     "New goods have been delivered; match to limited storage"
 
     # Bail early if we have nothing to store
@@ -485,7 +518,7 @@ def allocateOwnerStorageSpace(canOwn,stockBuf):
     
     return newlySplitGroups
 
-def NEWcalculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
+def share3_calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
     """
     This attempts to allocate space fairly between vaccines.  It's
     very similar to the ARENA 'fair share' storage calculation.
@@ -500,7 +533,9 @@ def NEWcalculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
     and all vaccine supplies.  If false, thisVC is assumed to be 'in addition to'
     any existing fridges and supplies.
     """
-
+    
+    if DEBUG:
+        print "**** new version ****"
     # This method should be 'const' in the C++ sense- no modifying
     # the canOwn!
 
@@ -517,16 +552,13 @@ def NEWcalculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
     frozenStorage= canOwn.sim.storage.frozenStorage() # cache for speed
     coolStorageList= canOwn.sim.storage.coolStorageList() # cache for speed
     sM = canOwn.getStorageModel()
+    noShippables = True
     for v,n in thisVC.getTupleList():
         if isinstance(v,abstractbaseclasses.ShippableType):
-            warm = cool = freeze = False
-            if sM.canLeaveOutShippableType(v): warm = True
-            if sM.canFreezeShippableType(v): freeze = True
-            if sM.canRefridgerateShippableType(v): cool = True
-
-            if warm and cool and freeze: 
-                anyTuples.append((v,n))
-                
+            noShippables = False
+            (warm, cool, freeze) = [sM.canStoreShippableType(v, st) for st in ST.wcfList]
+            
+            if warm and cool and freeze: anyTuples.append((v,n))
             elif warm and cool: coolWarmTuples.append((v,n))
             elif cool and freeze: freezeCoolTuples.append((v,n))
             elif warm: warmTuples.append((v,n))
@@ -535,173 +567,245 @@ def NEWcalculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
             else: anyTuples.append((v,n))
         else:
             ignoreTuples.append((v,n)) # Things like trucks and fridges get stored outside the constraints
+
         if isinstance(v,abstractbaseclasses.CanStoreType):
             assert n==int(n), "Non-integral number of fridges"
             storageCapacityInfo= v.getStorageCapacityInfo()
             for st,vol in storageCapacityInfo:
                 for _ in xrange(int(n)):
                     incomingStorageBlocks.append(fridgetypes.Fridge.StorageBlock(canOwn,st,vol))
-    incomingStorageBlocks= canOwn.filterStorageBlocks(incomingStorageBlocks)
-    if len(freezeTuples) + len(coolTuples) + len(warmTuples) == 0:
-        # It's all to be stored warm.  This situation can arise when the inventory to
-        # be packed is a group of fridges, for example.  
+
+    if noShippables:
         freezeVC = canOwn.sim.shippables.getCollection()
         coolVC = canOwn.sim.shippables.getCollection()
-        warmVC= canOwn.sim.shippables.getCollection([(v,1.0) for v,n in warmTuples])        
-    else:
-        # Count up storage in each category
-        #freezeTotalVol,coolTotalVol,warmTotalVol = \
-        #    canOwn.getPackagingModel().getStorageVolumeTriple(thisVC,canOwn.getStorageModel())
-
-        freezeTotalVol,coolTotalVol,warmTotalVol,freezeCoolTotalVol,coolWarmTotalVol,anyTotalVol = \
-            canOwn.getPackagingModel().getStorageVolumeHex(thisVC,canOwn.getStorageModel())
-
-        warmVol= 0.0
-        warmVolUsed= 0.0
-        freezeVol= 0.0
-        freezeVolUsed= 0.0
-        coolVol= 0.0
-        coolVolUsed= 0.0
-        outdoorVol = 0.0
-        outdoorVolUsed = 0.0
-        if assumeEmpty:
-            for sb in incomingStorageBlocks:
-                if sb.storageType in coolStorageList:
-                    coolVol += sb.volAvail
-                elif sb.storageType==roomtempStorage:
-                    warmVol += sb.volAvail
-                else:
-                    assert(sb.storageType==frozenStorage)
-                    freezeVol += sb.volAvail
-        else:
-            for sb in canOwn.getStorageBlocks()+incomingStorageBlocks:
-                if sb.storageType in coolStorageList:
-                    coolVol += sb.volAvail
-                    coolVolUsed += sb.volUsed
-                elif sb.storageType==roomtempStorage:
-                    if sb.volAvail == 1000000000000:
-                        outdoorVol += sb.volAvail
-                        outdoorVolUsed += sb.volUsed
-                    else:
-                        warmVol += sb.volAvail
-                        warmVolUsed += sb.volUsed
-                else: 
-                    assert(sb.storageType==frozenStorage)
-                    freezeVol += sb.volAvail
-                    freezeVolUsed += sb.volUsed
-    
-
-        
-        w_wR, w_wV, wc_wR, wc_wV, wcf_wR, wcf_wV, \
-        c_cR, c_cV, wc_cR, wc_cV, cf_cR, cf_cV, wcf_cR, wcf_cV, \
-        f_fR, f_fV, cf_fR, cf_fV, wcf_fR, wcf_fV = \
-            calculateFill._share3(warmVol, coolVol, freezeVol, 
-                                  warmTotalVol, coolTotalVol, freezeTotalVol,
-                                  coolWarmTotalVol, freezeCoolTotalVol, anyTotalVol)
-
-
-        warmVC = canOwn.sim.shippables.getCollection()
-        coolVC = canOwn.sim.shippables.getCollection()
-        freezeVC = canOwn.sim.shippables.getCollection()
-
-
-        for (tupleList, ratioList) in ((warmTuples, (w_wR, None, None)),
-                                       (coolWarmTuples, (wc_wR, wc_cR, None)),
-                                       (anyTuples, (wcf_wR, wcf_cR, wcf_fR)),
-                                       (coolTuples, (None, c_cR, None)),
-                                       (freezeCoolTuples, (None, cf_cR, cf_fR)),
-                                       (freezeTuples, (None, None, f_fR))):
-            
-            
-            for v,n in tupleList:
-                for ratio, vc in zip(ratioList, (warmVC, coolVC, freezeVC)):
-                    if ratio is None:
-                        continue
-                    vc += canOwn.sim.shippables.getCollection([(v,ratio)])
-
-        # since we don't yet have a proper place to put ignoreVC, put it in warm:
-        for v,n in ignoreTuples:
-            warmVC += canOwn.sim.shippables.getCollection([(v,1.0)])
-
-        if 0:
-            print "\n"
-            print "first attempt\n"
-            print "freezeVC: %s\n"%repr(freezeVC)
-            print "coolVC: %s\n"%repr(coolVC)
-            print "warmVC: %s\n"%repr(warmVC)
-            print "sum: %s\n"%repr(freezeVC + coolVC + warmVC)
-            print (freezeVC, coolVC, warmVC)
+        warmVC= canOwn.sim.shippables.getCollection([(v,1.0) for v,n in ignoreTuples])        
         return (freezeVC, coolVC, warmVC)
 
-        print "\n"
+    if DEBUG:
+        print "ignoreTuples: %s"%repr(ignoreTuples)
+        print "any: %s"%repr(anyTuples)
+        print "freezeCool: %s"%repr(freezeCoolTuples)
+        print "coolWarm: %s"%repr(coolWarmTuples)
+        print "freeze: %s"%repr(freezeTuples)
+        print "cool: %s"%repr(coolTuples)
+        print "warm: %s"%repr(warmTuples)
 
+    incomingStorageBlocks= canOwn.filterStorageBlocks(incomingStorageBlocks)
 
-        freezeVC,coolVC,warmVC,freezeCoolVC,coolWarmVC,anyVC = \
-            canOwn.getPackagingModel().getStorageVolumeSCHex(thisVC,canOwn.getStorageModel())
-        
+    # Count up storage in each category
+    #freezeTotalVol,coolTotalVol,warmTotalVol = \
+    #    canOwn.getPackagingModel().getStorageVolumeTriple(thisVC,canOwn.getStorageModel())
 
+    freezeTotalVol,coolTotalVol,warmTotalVol,freezeCoolTotalVol,coolWarmTotalVol,anyTotalVol = \
+        canOwn.getPackagingModel().getStorageVolumeHex(thisVC,canOwn.getStorageModel())
 
-        # Anything we can leave at room temperature, we leave at room temp
-        if warmTotalVol>warmVol:
-            print 'warmTotalVol = %s, warmVol = %s, assumeEmpty = %s'%(warmTotalVol,warmVol,assumeEmpty)
-            canOwn.printInventory()
-            raise RuntimeError("%s ran out of room temperature storage"%canOwn.bName)
-        warmVC= canOwn.sim.shippables.getCollection([(v,1.0) for v,n in warmTuples])
-    
-        # ratio1 is available freezer volume / desired freezer volume
-        # ratio2 is a measure of how oversubscribed the non-freezer volume is
-        if freezeTotalVol>0.0:
-            ratio1= freezeVol/freezeTotalVol
-        else:
-            ratio1= 0.0
-        if ratio1>=1.0:
-            ratio1= 1.0
-            freezeVC= canOwn.sim.shippables.getCollection([(v,ratio1) for v,n in freezeTuples])
-            if coolTotalVol>0.0:
-                ratio2= min(1.0,coolVol/coolTotalVol)
+    if DEBUG:
+        print "total volumes:"
+        print "any: %s"%anyTotalVol
+        print "freezeCool: %s"%freezeCoolTotalVol
+        print "coolWarm: %s"%coolWarmTotalVol
+        print "freeze: %s"%freezeTotalVol
+        print "cool: %s"%coolTotalVol
+        print "warm: %s"%warmTotalVol
+
+    warmVol= 0.0
+    warmVolUsed= 0.0
+    freezeVol= 0.0
+    freezeVolUsed= 0.0
+    coolVol= 0.0
+    coolVolUsed= 0.0
+    outdoorVol = 0.0
+    outdoorVolUsed = 0.0
+    if assumeEmpty:
+        for sb in incomingStorageBlocks:
+            if sb.storageType in coolStorageList:
+                coolVol += sb.volAvail
+            elif sb.storageType==roomtempStorage:
+                warmVol += sb.volAvail
             else:
-                ratio2= 0.0
-            coolVC= canOwn.sim.shippables.getCollection([(v,ratio2) for v,n in coolTuples])
-        else:
-            freezeVC= canOwn.sim.shippables.getCollection([(v,ratio1) for v,n in freezeTuples])
-            if coolTotalVol+freezeTotalVol>0.0:
-                ratio2= coolVol/(((1.0-ratio1)*freezeTotalVol)
-                                 +coolTotalVol)
-                ratio2= min(1.0,ratio2)
-                if ratio2>=ratio1:
-                    coolVC= canOwn.sim.shippables.getCollection([(v,ratio2)
-                                                             for v,n in coolTuples]
-                                                            +[(v,ratio2*(1.0-ratio1))
-                                                              for v,n in freezeTuples])
+                assert(sb.storageType==frozenStorage)
+                freezeVol += sb.volAvail
+    else:
+        for sb in canOwn.getStorageBlocks()+incomingStorageBlocks:
+            if sb.storageType in coolStorageList:
+                coolVol += sb.volAvail
+                coolVolUsed += sb.volUsed
+            elif sb.storageType==roomtempStorage:
+                if sb.volAvail == 1000000000000:
+                    outdoorVol += sb.volAvail
+                    outdoorVolUsed += sb.volUsed
                 else:
-                    # Cooler space is scarce compared to freezer space
-                    # If we include freezable stuff in the cooler, we'll
-                    # end up allocating space for ratio1+(1.0-ratio1)*ratio2
-                    # of it, so it'll get an unfair advantage- don't
-                    # put any freezables in the cooler
-                    ratio2= min(1.0,coolVol/coolTotalVol)
-                    coolVC= canOwn.sim.shippables.getCollection([(v,ratio2) for v,n in coolTuples])
-            else:
-                ratio2= 0.0
-                coolVC= canOwn.sim.shippables.getCollection([(v,0.0) for v,n in coolTuples])
-            #print 'ratio2 = %f, coolTotalVol = %f, coolVol = %f'%(ratio2,coolTotalVol,coolVol)
+                    warmVol += sb.volAvail
+                    warmVolUsed += sb.volUsed
+            else: 
+                assert(sb.storageType==frozenStorage)
+                freezeVol += sb.volAvail
+                freezeVolUsed += sb.volUsed
 
-    #print 'calculateOwnerStorageFillRatios for %s: thisVC is %s, assumeEmpty=%s'%(canOwn.bName,thisVC,assumeEmpty)
+    if DEBUG:
+        print "volume available: %s, %s, %s"%(freezeVol, coolVol, warmVol)
 
-    if 0:
-        print "orig version:\n"
+
+    w_wR, w_wV, wc_wR, wc_wV, wcf_wR, wcf_wV, \
+    c_cR, c_cV, wc_cR, wc_cV, cf_cR, cf_cV, wcf_cR, wcf_cV, \
+    f_fR, f_fV, cf_fR, cf_fV, wcf_fR, wcf_fV = \
+        calculateFill._share3(warmVol, coolVol, freezeVol, 
+                              warmTotalVol, coolTotalVol, freezeTotalVol,
+                              coolWarmTotalVol, freezeCoolTotalVol, anyTotalVol)
+
+    spaceLeft = {ST.STORE_WARM : warmVol - w_wV - wc_wV - wcf_wV,
+                 ST.STORE_COOL : coolVol - c_cV - wc_cV - cf_cV - wcf_cV,
+                 ST.STORE_FREEZE : freezeVol - f_fV - cf_fV - wcf_fV}
+
+
+    warmVC = canOwn.sim.shippables.getCollection()
+    coolVC = canOwn.sim.shippables.getCollection()
+    freezeVC = canOwn.sim.shippables.getCollection()
+
+
+    for (tupleList, ratioList) in ((warmTuples, (w_wR, None, None)),
+                                   (coolWarmTuples, (wc_wR, wc_cR, None)),
+                                   (anyTuples, (wcf_wR, wcf_cR, wcf_fR)),
+                                   (coolTuples, (None, c_cR, None)),
+                                   (freezeCoolTuples, (None, cf_cR, cf_fR)),
+                                   (freezeTuples, (None, None, f_fR))):
+
+
+        for v,n in tupleList:
+            for ratio, vc in zip(ratioList, (warmVC, coolVC, freezeVC)):
+                if ratio is None:
+                    continue
+                if ratio == 0.0:
+                    continue
+                vc += canOwn.sim.shippables.getCollection([(v,ratio)])
+
+
+    # currently we've put our shippables into one of the optimal configurations that satisfies their minimum
+    # needs.  Now let's go through this and see which shippables would prefer to be elsewhere
+    # and then see if that can swap any of them around into a different, more optimal, optimal configuration.
+
+    # first generate two lists, a list of things that can be moved and still satisfy their "want" behavior
+    # and a list of things that want to be moved because currently their want behavior is not satisfied.
+    vcDict = {ST.STORE_WARM : warmVC, ST.STORE_COOL : coolVC, ST.STORE_FREEZE : freezeVC}
+    wantMoveList = []
+    canMoveList = []
+    for (tupleList, ratioList) in ((warmTuples, (w_wR, None, None)),
+                                   (coolWarmTuples, (wc_wR, wc_cR, None)),
+                                   (anyTuples, (wcf_wR, wcf_cR, wcf_fR)),
+                                   (coolTuples, (None, c_cR, None)),
+                                   (freezeCoolTuples, (None, cf_cR, cf_fR)),
+                                   (freezeTuples, (None, None, f_fR))):
+        for v,n in tupleList:
+            want = {}
+            wantCount = 0;
+            for st in ST.wcfList:
+                if sM.wantStoreShippableType(v, st):
+                    want[st] = True
+                    wantCount += 1
+                else:
+                    want[st] = False
+            for ratio, vc, st in zip(ratioList, (warmVC, coolVC, freezeVC), ST.wcfList):
+                if ratio is None:
+                    continue
+                if ratio > 0.0:
+                    if not want[st]:
+                        wantMoveList.append([st, v, ratio, ratio * n, want, wantCount])
+                    elif wantCount > 1:
+                        canMoveList.append([st, v, ratio, ratio * n, want, wantCount])
+        # add empty space to the canMoveList
+        openWant = {ST.STORE_WARM:True, ST.STORE_COOL:True,ST.STORE_FREEZE:True}
+        for st,amt in spaceLeft.items():
+            if amt <= 0.0:
+                continue
+            canMoveList.append([st, None, None, amt, openWant, 3])
+
+    # now let's try swapping things around!
+    #arguably we should randomize the wantMoveList so that no entity is favored.  For now we're not going to bother.
+    while True:
+        try:
+            (wantSt, wantV, wantRatio, wantVol, wantWant, wantCount) = wantMoveList.pop()
+        except:
+            break
+        if wantVol <= 0.0:  #did we get to this one already?
+            continue
+        # might need to modify the list entry in place so grab list entry before expanding it
+        for canMove in wantMoveList + canMoveList:
+            (canSt, canV, canRatio, canVol, canWant, canCount) = canMove
+            # if can and want are in the same pool there's no swap possible
+            if wantSt == canSt:
+                continue
+            # can must be in a pool that want is ok with and vice versa
+            if not canWant[wantSt] or not wantWant[canSt]:
+                continue
+
+            # if we're here, we can swap some or all of want with can
+            if DEBUG:
+                print "swapping some %s with %s"%(wantV, canV)
+            if wantVol <= canVol:
+                # split the can entry
+                try: # the canMove entry might have None for its ratio
+                    swapRatio = canRatio/canVol * wantVol
+                    remainingRatio = canRatio - swapRatio
+                except: 
+                    swapRatio = remainingRatio = None
+                canMove[:] = [wantSt, canV, swapRatio, wantVol, canWant, canCount]
+                newCan = [canSt, canV, remainingRatio, canVol-wantVol, canWant, canCount]
+                canMoveList.append(newCan)
+
+                # we can swap all of want for part of can
+                vcDict[wantSt] -= canOwn.sim.shippables.getCollection([(wantV, wantRatio)])
+                vcDict[canSt] += canOwn.sim.shippables.getCollection([(wantV, wantRatio)])
+                if canV is not None: # don't need to formally move empty space
+                    vcDict[canSt] -= canOwn.sim.shippables.getCollection([(canV, swapRatio)])
+                    vcDict[wantSt] += canOwn.sim.shippables.getCollection([(canV, swapRatio)])
+
+                # if wantCount > 1 then this should be added to the canMoveList because
+                # something else in the canMove list might still wish to swap with it.
+                if wantCount > 1:
+                    canMoveList.append([canSt, wantV, wantRatio, wantVol, wantWant, wantCount])
+
+                # since we're completely done with this want entry (and it has been disposed of) we can just
+                break # out of the canMove list and get a new wantMove entry.
+
+            else: # wantVol > canVol
+                # get the ratios.  The wantMove entry had better not have None for its ratio
+                swapRatio = wantRatio/wantVol * canVol
+                remainingRatio = wantRatio - swapRatio
+
+                # modify the canMove Entry
+                canMove[:] = [wantSt, canV, canRatio, canVol, canWant, canCount]
+
+                # now swap part of want for all of can
+                vcDict[wantSt] -= canOwn.sim.shippables.getCollection([(wantV, swapRatio)])
+                vcDict[canSt] += canOwn.sim.shippables.getCollection([(wantV, swapRatio)])
+                if canV is not None: # don't need to formally move empty space
+                    vcDict[canSt] -= canOwn.sim.shippables.getCollection([(canV, canRatio)])
+                    vcDict[wantSt] += canOwn.sim.shippables.getCollection([(canV, canRatio)])
+
+                # if wantMove is happy to be in at least two places make a new canMove entry
+                if wantCount > 1:
+                    canMoveList.append([canSt, wantV, swapRatio, canVol, wantWant, wantCount])
+
+                # modify the want values before we continue
+                wantRatio = remainingRatio
+                wantVol = wantVol - canVol
+
+
+
+    # since we don't yet have a proper place to put ignoreVC, put it in warm:
+    for v,n in ignoreTuples:
+        warmVC += canOwn.sim.shippables.getCollection([(v,1.0)])
+
+    if DEBUG:
         print "freezeVC: %s\n"%repr(freezeVC)
         print "coolVC: %s\n"%repr(coolVC)
         print "warmVC: %s\n"%repr(warmVC)
-        print
+        #print "sum: %s\n"%repr(freezeVC + coolVC + warmVC)
+        #print (freezeVC, coolVC, warmVC)
+    return (freezeVC, coolVC, warmVC)
 
-    return (freezeVC,coolVC,warmVC)
-
-def NEWallocateOwnerStorageSpace(canOwn,stockBuf):
+def share3_allocateOwnerStorageSpace(canOwn,stockBuf):
     "New goods have been delivered; match to limited storage"
-
-    #print "canOwn: %s\n"%repr(canOwn)
-    #print "stockBuf: %s\n"%repr(stockBuf)
 
     # Bail early if we have nothing to store
     if len(stockBuf)==0:
@@ -715,11 +819,8 @@ def NEWallocateOwnerStorageSpace(canOwn,stockBuf):
     for sb in canOwn.getStorageBlocks():
         sb.clear()
         if sb.storageType==canOwn.sim.storage.roomtempStorage():
-            #print "***** warm storage block ***** %s %s\n"%(repr(sb),sb.volAvail)
-            #print "%s\n"%dir(sb)
-            #print "%s\n"%dir(sb.fridge)
+            #SILLY_CHECK_FOR_OUTDOORS
             if sb.volAvail == 1000000000000:
-                #print "putting in outdoorblocks!"
                 outdoorBlocks.append(sb)
             else:
                 warmBlocks.append(sb)
@@ -727,11 +828,11 @@ def NEWallocateOwnerStorageSpace(canOwn,stockBuf):
             freezeBlocks.append(sb)
         else:
             coolBlocks.append(sb)
+    freezeCollection = Warehouse.StorageBlockCollection(canOwn, freezeBlocks)
+    coolCollection = Warehouse.StorageBlockCollection(canOwn, coolBlocks)
+    warmCollection = Warehouse.StorageBlockCollection(canOwn, warmBlocks)
+    outdoorCollection = Warehouse.StorageBlockCollection(canOwn, outdoorBlocks)
 
-    warmCollection= Warehouse.StorageBlockCollection(canOwn,warmBlocks)
-    freezeCollection= Warehouse.StorageBlockCollection(canOwn,freezeBlocks)
-    outdoorCollection = Warehouse.StorageBlockCollection(canOwn,outdoorBlocks)
-    
     # Sort out what we've got
     supply= HDict()
     doNotUseList= []
@@ -754,9 +855,6 @@ def NEWallocateOwnerStorageSpace(canOwn,stockBuf):
 
     newlySplitGroups= []
     
-
-
-
     # First, a special rule: everything marked DoNotUse or expired gets stored warm.
     for g in doNotUseList:
         leftovers,newSplits= outdoorCollection.store(g)
@@ -787,21 +885,6 @@ def NEWallocateOwnerStorageSpace(canOwn,stockBuf):
                                                                       canOwn.getStorageModel())
     
     for vax in vaxInPackingOrder:
-        # The storage spaces in coolCollection need to be ordered
-        # according to the storage priority list of the vaccine
-        if isinstance(vax, abstractbaseclasses.ShippableType):
-            orderedST= [sT for sT in canOwn.getStorageModel().getShippableTypeStoragePriorityList(vax)
-                        if (sT in canOwn.sim.storage.coolStorageList())]
-            if len(orderedST)>0:
-                d= dict([(st,ind) for ind,st in enumerate(orderedST)])
-                l= [(d[block.storageType],block) for block in coolBlocks]
-                l.sort()
-                coolCollection= Warehouse.StorageBlockCollection(canOwn,[block for _,block in l])
-            else:
-                coolCollection= Warehouse.StorageBlockCollection(canOwn,[])
-        else:
-            coolCollection= Warehouse.StorageBlockCollection(canOwn,[])
-            
         # For some reason the following block is not functionally equivalent to
         # the code which produces allGroupsThisVax below.
         #l= [(g.getAge(),g.getCount(),g.history,g) for g in supply[vax]]
@@ -864,8 +947,6 @@ def NEWallocateOwnerStorageSpace(canOwn,stockBuf):
             pass
     
     return newlySplitGroups
-
-
 
 
 
@@ -2963,6 +3044,10 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 truck.dropTrash()
                 truck.maybeTrack('released by %s'%name)
                 assert len(truck.getStock())==0, "Released non-empty truck"
+                # call discharge on all CanStore objects on the truck!!!
+                for fridge in truck.getFridges():
+                    fridge.discharge(proc)
+
                 truck.setPackagingModel(packagingmodel.DummyPackagingModel())
                 truck.setStorageModel(storagemodel.DummyStorageModel())
                 delattr(truck,"noteHolder")

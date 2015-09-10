@@ -136,3 +136,18 @@ class StorageTypeManager(typemanager.SubTypeManager):
         "collection of %s passed to getTotalCoolVol"%collection.implementedClass
         coolList= self.coolStorageList()
         return sum([v for k,v in collection.items() if k in coolList])
+
+    def getStorageVolumes(self, collection):
+        """
+        Given a Collection of StorageType information, return the total volume 
+        of freezer, cool, and room temperature space.
+        Values are generally in CC.
+        """
+        assert issubclass(collection.implementedClass, self.typeClass), \
+            "collection of %s passed to getTotalCoolVol"%collection.implementedClass
+        f=c=w=0.0
+        for k,v in collection.items():
+            if k is self.getTypeByName("freezer"): f = v
+            elif k is self.getTypeByName("cooler"): c = v
+            elif k is self.getTypeByName("roomtemperature"): w = v
+        return f,c,w

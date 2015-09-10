@@ -223,13 +223,10 @@ class ShippableFridgeType(FridgeType, abstractbaseclasses.ShippableType, abstrac
     def getNDosesPerVial(self):
         return 1
     
-    def canLeaveOut(self):
+    def canStore(self, storageType):
         return True
 
-    def canRefridgerate(self):
-        return True
-
-    def canFreeze(self):
+    def wantStore(self, storageType):
         return True
 
     def canKeepOpenVials(self,howLongOpen):
@@ -369,6 +366,7 @@ class Fridge(abstractbaseclasses.CanStore, abstractbaseclasses.Costable):
             if vol+self.volUsed<=self.volAvail+C.epsilon:
                 self.volUsed += vol
                 self.contents.append(vaccineGroup)
+                #SILLY_CHECK_FOR_OUTDOORS
                 if self.volAvail == 1000000000000:
                     vaccineGroup.setStorage(storagetypes.OUTDOORS, withDiluent)
                 else:
@@ -399,7 +397,7 @@ class Fridge(abstractbaseclasses.CanStore, abstractbaseclasses.Costable):
         abstractbaseclasses.CanStore.__init__(self)
         abstractbaseclasses.Costable.__init__(self)
         self.fridgeType= fridgeType
-        self.place= None # must be attached before this storage can be used
+        self.place= "Never" # must be attached before this storage can be used
         self.allStorageBlocks= []
         for st,vol in fridgeType.getStorageCapacityInfo():
             self.allStorageBlocks.append(Fridge.StorageBlock(self,st,vol))
@@ -480,6 +478,16 @@ class Fridge(abstractbaseclasses.CanStore, abstractbaseclasses.Costable):
         """
         pass
     def attach(self,place,callingProc):
+        # this is something of a stupid hack
+        # At startup, if a fridge is attached to a warehouse the fridge should default to on.
+        # If the fridge starts as attached to a truck it should default to off.
+        # deal with that here.
+        if self.place is not None:
+            if self.place == "Never":
+                self.place = None
+                if isinstance(place, abstractbaseclasses.Trackable):
+                    self.discharge(callingProc)
+        
         assert self.place is None, "%s:%d is already attached"%(self.name,self.history)
         self.place= weakref.proxy(place) # Avoid loop graph for easier GC
         place.attachStorage(self, callingProc)
@@ -662,11 +670,13 @@ class IceFridge(ShippableFridge):
             fridgeType.sim.activate(self.meltTimer,self.meltTimer.run())
             self.discharge= self.discharge_std
             self.recharge= self.recharge_std
-        
+
+
     def iceFail(self,meltProc,otherArg):
         """
         This method is triggered by the meltTimer process when it runs out.
         """
+        #print "*** ice fail occurred at %s ***"%self.place
         self.discharge(meltProc)
         if self.place is None:
             # unconnected; all the contents get warm
@@ -693,6 +703,9 @@ class IceFridge(ShippableFridge):
                     sb._realStorageType= sb.storageType
                 sb.storageType= rtStorage
             assert callingProc is not None, "unexpected attempt to discharge an IceFridge at initialization time"
+            self.meltTimer.cancel()
+        else:
+            #we're at startup and we want the melt timer canceled if we're starting on a truck
             self.meltTimer.cancel()
 
     def discharge_perfect(self, callingProc):
@@ -758,6 +771,7 @@ class AlarmedIceFridge(IceFridge):
             "AlarmedIceFridge type %s requires an SnoozeDays entry"%fridgeType.name            
         self.alarmDays= float(fridgeType.recDict['AlarmDays'])
         self.snoozeDays= float(fridgeType.recDict['SnoozeDays'])
+
         if fridgeType.sim.perfect:
             # disable all special functionality
             self.alarmTimer= None
@@ -810,6 +824,7 @@ class AlarmedIceFridge(IceFridge):
         callingProc is the process making the call; it is required so that timer processes
         can be canceled. 
         """
+        self.charged = True
         IceFridge.recharge_std(self,callingProc)
         self.alarmTimer.cancel()
         self.alarmTimer= warehouse.SnoozeTimerProcess(self.fridgeType.sim,"%s_AlarmProc"%self.name,
@@ -977,7 +992,7 @@ class FridgeTypeManager(trackabletypes.TrackableTypeManager):
         perfFridgeTypeList.append(self.getOnTheFlyFridgeType('roomtemperature',C.storageLotsOfSpace))
         return perfFridgeTypeList
     
-    def getTotalVolumeSCFromFridgeTypeList(self,fridgeTypeList):
+    def getTotalVolumeSCFromFridgeTypeList(self,fridgeTypeList,ignoreOutdoors=False):
         """
         Returns a StorageCollection containing the total volume described in fridgeTypeList.
         """
@@ -985,6 +1000,9 @@ class FridgeTypeManager(trackabletypes.TrackableTypeManager):
         for entry in fridgeTypeList:
             assert(isinstance(entry,FridgeType))
             for st,vol in entry.storageCapacityInfo:
+                if ignoreOutdoors:
+                    if vol == 1000000000000:
+                        continue
                 if st in sDict:
                     sDict[st] += vol
                 else:

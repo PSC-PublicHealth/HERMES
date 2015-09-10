@@ -35,6 +35,7 @@ import storagemodel
 import util
 import constants as C
 from copy import copy
+import calculateFill
 
 #: fuelTranslationDict maps the 'Fuel' field of the type record to a tuple containing a short name, a longer name, a string 
 #: for rate units for that fuel type, a string for scalar (non-rate) units, the fuel type string for costing purposes, and
@@ -61,6 +62,8 @@ class Truck(abstractbaseclasses.CanOwn, abstractbaseclasses.Trackable, abstractb
         self.packagingModel = packagingmodel.DummyPackagingModel() # to be replaced later
         self.storageModel = storagemodel.DummyStorageModel() # to be replaced later
         for ft in truckType.storageCapacityInfo: ft.createInstance().attach(self, None)
+    def __repr__(self):
+        return "<Truck(%s)>"%(self.name)
     def setPackagingModel(self,packagingModel):
         """
         Set the PackagingModel associated with this CanOwn
@@ -115,6 +118,8 @@ class Truck(abstractbaseclasses.CanOwn, abstractbaseclasses.Trackable, abstractb
         return self.stock
     def getCargo(self):
         return self.stock + self.fridges
+    def getFridges(self):
+        return self.fridges
     def attachStock(self,shippable):
         """
         shippable must not satisfy isinstance(shippable,abstractbaseclasses.CanStore)
@@ -359,6 +364,22 @@ class TruckType(abstractbaseclasses.TrackableType):
         return self.sim.fridges.getCollection([(tp,1) for tp in self.storageCapacityInfo])
     
     def checkStorageCapacity(self, proposedVC, packagingModel, storageModel):
+        if self.sim.fc == 'sharecool':
+            return self.share1_checkStorageCapacity(proposedVC, packagingModel, storageModel)
+        elif self.sim.fc == "share3":
+            return self.share3_checkStorageCapacity(proposedVC, packagingModel, storageModel)
+        raise RuntimeError("Invalid fillcalculation in user input")
+
+        loadFac1, scaleVC1, totVolCC1 = self.share1_checkStorageCapacity(proposedVC, packagingModel, storageModel)
+        #return loadFac1, scaleVC1, totVolCC1
+        loadFac3, scaleVC3, totVolCC3 = self.share3_checkStorageCapacity(proposedVC, packagingModel, storageModel)
+        print "***** checkStorageCapacity *****"
+        print "loadFac: %s / %s"%(loadFac1, loadFac3)
+        print "scaleVC: %s / %s"%(scaleVC1, scaleVC3)
+        print "totVolCC: %s / %s"%(totVolCC1, totVolCC3)
+        return loadFac3, scaleVC3, totVolCC3
+
+    def share1_checkStorageCapacity(self, proposedVC, packagingModel, storageModel):
         myStorageSC= self.sim.fridges.getTotalVolumeSCFromFridgeTypeList(self.storageCapacityInfo)
         incomingFridgeSC= proposedVC.copy().splitOut(abstractbaseclasses.CanStoreType) # Don't change proposedVC!!
         myStorageSC += self.sim.fridges.getTotalVolumeSCFromFridgeSC(incomingFridgeSC)
@@ -375,7 +396,51 @@ class TruckType(abstractbaseclasses.TrackableType):
         fridgeVC= self.sim.shippables.getCollection([(v,1.0) for v,n in incomingFridgeSC.items() if n>0.0])
         
         resultVC.replace(fridgeVC)
-        return (totVolCC/coldVolAvail, resultVC, totVolCC)               
+        return (totVolCC/coldVolAvail, resultVC, totVolCC)
+
+    def share3_checkStorageCapacity(self, proposedVC, packagingModel, storageModel):
+        myStorageSC= self.sim.fridges.getTotalVolumeSCFromFridgeTypeList(self.storageCapacityInfo,ignoreOutdoors=self.sim.limitedRoomTemp)
+        #print "current storage: %s"%myStorageSC
+        incomingFridgeSC= proposedVC.copy().splitOut(abstractbaseclasses.CanStoreType) # Don't change proposedVC!!
+        myStorageSC += self.sim.fridges.getTotalVolumeSCFromFridgeSC(incomingFridgeSC)
+        fV,cV,wV = self.sim.storage.getStorageVolumes(myStorageSC)
+        #print "volumes: %s, %s, %s"%(fV, cV, wV)
+        fSV,cSV,wSV,fcSV,cwSV,fcwSV = packagingModel.getStorageVolumeHex(proposedVC, storageModel)
+        #print  fSV,cSV,wSV,fcSV,cwSV,fcwSV
+        totVolProposed = sum((fSV,cSV,wSV,fcSV,cwSV,fcwSV))
+        w_wR, w_wV, wc_wR, wc_wV, wcf_wR, wcf_wV, \
+        c_cR, c_cV, wc_cR, wc_cV, cf_cR, cf_cV, wcf_cR, wcf_cV, \
+        f_fR, f_fV, cf_fR, cf_fV, wcf_fR, wcf_fV = \
+            calculateFill._share3(wV, cV, fV, wSV, cSV, fSV, cwSV, fcSV, fcwSV)
+        totVolFit = sum((w_wV, wc_wV, wcf_wV, c_cV, wc_cV, cf_cV, wcf_cV, f_fV, cf_fV, wcf_fV))
+        fSC,cSC,wSC,fcSC,cwSC,fcwSC = packagingModel.getStorageVolumeSCHex(proposedVC, storageModel)
+        #print fSC,cSC,wSC,fcSC,cwSC,fcwSC
+        resultVC = self.sim.shippables.getCollection()
+        #print "fc info: fcSC: %s, cf_cR: %s, cf_fR: %s"%(fcSC, cf_cR, cf_fR)
+
+        for (collection, ratioList) in ((fSC, (f_fR,)),
+                                       (cSC, (c_cR,)),
+                                       (wSC, (w_wR,)),
+                                       (fcSC, (cf_cR, cf_fR)),
+                                       (cwSC, (wc_wR, wc_cR)),
+                                       (fcwSC, (wcf_wR, wcf_cR, wcf_fR))):
+            ratio = 0.0
+            for r in ratioList:
+                ratio += r
+            for v,n in collection.items():
+                resultVC += self.sim.shippables.getCollection([(v,ratio)])
+
+        # rid ourselves of pesky /0
+        if totVolFit < 0.01: totVolFit = 0.01
+        #print "request: %s"%proposedVC
+        #print "result: %s"%resultVC
+        return (totVolProposed/totVolFit, resultVC, totVolProposed)
+
+
+            
+
+
+
 
     def __repr__(self):
         return "<TruckType(%s)>"%(self.name)

@@ -683,17 +683,15 @@ class ShippableType(TrackableType):
         """Returns doses per vial- since everything shippable is sometimes treated like a vaccine"""
         pass
     @abc.abstractmethod
-    def canLeaveOut(self):
-        """Returns true if this type can be stored at room temperature"""
+    def canStore(self, storageType):
+        """Returns true if this type can be stored in a given storage type / temperature"""
         return True
+
     @abc.abstractmethod
-    def canRefridgerate(self):
-        """Returns true if this type can be stored at cold temperatures"""
+    def wantStore(self, storageType):
+        """Returns true if this type is stored optimally in a given storage type / temperature"""
         return True
-    @abc.abstractmethod
-    def canFreeze(self):
-        """Returns true if this type can be stored at freezing temperatures"""
-        return True
+
     @abc.abstractmethod
     def canKeepOpenVials(self,howLongOpen):
         """

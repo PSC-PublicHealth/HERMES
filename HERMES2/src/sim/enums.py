@@ -35,3 +35,14 @@ class TimeUnitsEnums:
             'M': 'months'}
 
         
+
+class StorageTypeEnums:
+    STORE_WARM = 'roomtemperature'
+    STORE_COOL = 'cooler'
+    STORE_FREEZE = 'freezer'
+
+    eStr = {'roomtemperature' : 'warm',
+            'cooler' : 'cool',
+            'freezer' : 'freeze'}
+
+    wcfList = (STORE_WARM, STORE_COOL, STORE_FREEZE)

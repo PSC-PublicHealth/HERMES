@@ -64,53 +64,42 @@ class StorageModel:
         else:
             return shippableType.getStoragePriorityList()
     
-    def canFreezeShippableType(self, shippableType):
+    def canStoreShippableType(self, shippableType, storageType):
         """
-        Filter the natural 'canFreeze' attribute of the shippableType according to the
-        StorageModel.  
-        """
-        if self.storeDiluentWithVaccines:
-            rBL = shippableType.getRequiredByList()
-            if len(rBL) == 0: 
-                # This is an actual deliverable
-                return shippableType.canFreeze()
-            else:
-                # 'storeDiluentWithVaccines' is interpreted to mean 'store this diluent like it were vaccine'
-                return rBL[0].canFreeze()
-        else:
-            return shippableType.canFreeze()
-    
-    def canRefridgerateShippableType(self, shippableType):
-        """
-        Filter the natural 'canRefridgerate' attribute of the shippableType according to the
-        StorageModel.  
+        return whether a specific shippable type _can_ be reasonably stored in a specific storageType.
+        (there may be better places to store the shippable but if this returns true it shouldn't be
+        bad to store it in this type)
         """
         if self.storeDiluentWithVaccines:
             rBL = shippableType.getRequiredByList()
             if len(rBL) == 0: 
                 # This is an actual deliverable
-                return shippableType.canRefridgerate()
+                return shippableType.canStore(storageType)
             else:
                 # 'storeDiluentWithVaccines' is interpreted to mean 'store this diluent like it were vaccine'
-                return rBL[0].canRefridgerate()
+                return rBL[0].canStore(storageType)
         else:
-            return shippableType.canRefridgerate()
-    
-    def canLeaveOutShippableType(self, shippableType):
+            return shippableType.canStore(storageType)
+
+
+
+    def wantStoreShippableType(self, shippableType, storageType):
         """
-        Filter the natural 'canLeaveOut' attribute of the shippableType according to the
-        StorageModel
+        return whether a specific shippable type prefers to be stored in a specific storageType.  
+        If this returns true then this should be a nearly optimal storage type for this shippable.
         """
         if self.storeDiluentWithVaccines:
             rBL = shippableType.getRequiredByList()
             if len(rBL) == 0: 
                 # This is an actual deliverable
-                return shippableType.canLeaveOut()
+                return shippableType.wantStore(storageType)
             else:
                 # 'storeDiluentWithVaccines' is interpreted to mean 'store this diluent like it were vaccine'
-                return rBL[0].canLeaveOut()
+                return rBL[0].wantStore(storageType)
         else:
-            return shippableType.canLeaveOut()
+            return shippableType.wantStore(storageType)
+
+
     
 class DummyStorageModel(StorageModel):
     """

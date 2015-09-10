@@ -97,7 +97,10 @@ class TypeManagerLoader(object):
         self.typeManager.addType({"Name": "outdoorDiscard"}, storagetypes.StorageType,
                                      verbose, debug)
         if sim.userInput.getValue("limitedroomtemp"):
-        
+            print "*******************************************"
+            print "**** limited room temperature *************"
+            print "*******************************************"
+
             # this is gross and should be fixed:
             # make "outdoors" storage type visible from a high level because very little is accessible
             # in the weeds of fridge storage routines.  Ultimately it should be attached somewhere to
