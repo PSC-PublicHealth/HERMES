@@ -15,6 +15,8 @@ _hermes_svn_id_="$Id$"
 #                                                                                 #
 ###################################################################################
 
+import ipath
+from full_import_paths import HermesBaseDir
 from util import listify, openDataFullPath
 import util
 import zipfile
@@ -22,6 +24,7 @@ import pickle
 from contextlib import closing
 import string
 from main import parseCommandLine
+import os.path
 
 def RevisionInfo():
     return "$Id$"
@@ -62,6 +65,8 @@ class GatherInputs:
         # hermes libraries.  This is to be used by job submission queues and the like.
         stats = {}
         stats['inputCount'] = len(userInputList)
+        stats['version'] = getHermesVersion()
+
         # I'm sure I'll want more stats for job submission stuff later but for now
         # this is sufficient to get something up and running.
         self.files['input_stats'] = pickle.dumps(stats)
@@ -107,6 +112,14 @@ def gatherInputs(zipfileName, userInputList, gblInputs, unifiedInput, argv):
 
 def extractInputs(zipfileName):
     util.redirectInput(zipfileName=zipfileName)
+
+    try:
+        with openDataFullPath('input_stats') as f:
+            stats = pickle.loads(f.read())
+            if stats['version'] != getHermesVersion():
+                raise RuntimeError("version mismatch between hermes program and zip file")
+    except:
+        raise RuntimeError("version mismatch between hermes program and zip file")
 
     with openDataFullPath('argv.pkl') as f:
         myArgv = pickle.loads(f.read())
@@ -164,3 +177,14 @@ def smallerOutput(oldOutput, newOutput, hdataPrefix):
                     continue
                 data = zi.read(fileName)
                 zo.writestr(fileName, data)
+
+def getHermesVersion():
+    "get the hermes version out of HermesBaseDir/src/version.txt"
+    try:
+        with open(os.path.join(HermesBaseDir, "src", "version.txt")) as f:
+            while f.readline().strip() != "HERMES":
+                continue
+            return f.readline().strip()
+    except:
+        raise RuntimeError("unable to get HERMES version from sim/version.txt")
+
