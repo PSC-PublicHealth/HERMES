@@ -186,5 +186,5 @@ def getHermesVersion():
                 continue
             return f.readline().strip()
     except:
-        raise RuntimeError("unable to get HERMES version from sim/version.txt")
+        raise RuntimeError("unable to get HERMES version from src/version.txt")
 
