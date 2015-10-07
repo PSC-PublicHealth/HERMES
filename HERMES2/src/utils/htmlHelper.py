@@ -27,6 +27,7 @@ class HTMLPrimitive:
     _allowedStyleElements = ['width','height','visibility',
                              'display','table-layout','border',
                              'background','color','fontweight',u'fontsize',
+                             'minwidth','maxwidth','paddingright'
                              '']
     def __init__(self,name_,**kwargs):
         self.name = name_
@@ -44,6 +45,12 @@ class HTMLPrimitive:
                     self.styleString += u'font-size:%s;'%value
                 elif arg == 'fontweight':
                     self.styleString += u'font-weight:%s;'%value
+                elif arg == 'minwidth':
+                    self.styleString += u'min-width:{0};'.format(value)
+                elif arg == 'maxwidth':
+                    self.styleString += u'max-width:{0};'.format(value)
+                elif arg == 'paddingright':
+                    self.styleString += u'padding-right:{0};'.format(value)
                 else:
                     self.styleString += u'%s:%s;'%(arg,value)
         if self.styleString != '':
@@ -220,7 +227,7 @@ class HTMLTable(HTMLConstruct):
             elif rowStyle == 'b':
                 row = HTMLTableRow(u"%s_row_%d"%(self.name,i),self.pretty,background=u"white",color=u"black",fontweight=u'bold',fontsize=u'12px')
             elif rowStyle == 'c':
-                row = HTMLTableRow(u"%s_row_%d"%(self.name,i),self.pretty,background=u"white",color=u"black",fontsize=u'12px')
+                row = HTMLTableRow(u"%s_row_%d"%(self.name,i),self.pretty,background=u"white",color=u"black",fontsize=u'12px',paddingright=u'10px')
             elif rowStyle =='U':
                 row = HTMLTableRow(u"%s_row_%d"%(self.name,i),self.pretty)
             else:

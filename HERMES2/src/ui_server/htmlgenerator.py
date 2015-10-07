@@ -180,67 +180,125 @@ def getModelRouteInfoHTML(db, uiSession, modelId, routeName):
     return sio.getvalue(), titleStr
 
 def getPeopleInfoHTML(db,uiSession, modelId, typeName):
+    itemOrder = ['DisplayName',
+                 'Notes']
+    itemTranslate = [_('Name'),
+                     _('Notes')]
+    
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
 
     if canWrite:
-        titleStr = _("Population Type {0} in {1}").format(typeName,model.name)
+        titleStr = _("Population Type '{0}' in '{1}'").format(typeName,model.name)
     else:
-        titleStr = _("Population Type {0}").format(typeName)
-    sio = StringIO()
-    sio.write("<h3>\n")
-    sio.write("{0}\n".format(typeName))
-    sio.write("</h3>\n")
-    sio.write("<table>\n")
+        titleStr = _("Population Type '{0}'").format(typeName)
+#     sio = StringIO()
+#     sio.write("<h3>\n")
+#     sio.write("{0}\n".format(typeName))
+#     sio.write("</h3>\n")
+#     sio.write("<table>\n")
     attrRec = {}
     shadow_network._copyAttrsToRec(attrRec,typeInstance)
-    for k,v in attrRec.items(): 
-        sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
-    sio.write("</table>\n")
     
-    return sio.getvalue(), titleStr
+    table = HTMLTable(name="Population Type Info",
+                      title_=_("Population Type Information"),
+                      #width='100%',height='100%',
+                      border='1px solid black')
+    
+    for item in itemOrder:
+        if attrRec[item] != '':
+            table.addRow([itemTranslate[itemOrder.index(item)],attrRec[item]],['c',1,1])
+    
+    return table.htmlString(),titleStr
+#     for k,v in attrRec.items(): 
+#         sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
+#     sio.write("</table>\n")
+#     
+#     return sio.getvalue(), titleStr
 
 def getStaffInfoHTML(db,uiSession, modelId, typeName):
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
 
+    itemOrder =['DisplayName',
+                'salaryCustom',
+                'FractionEPI']
+    
+    itemTranslate = [_("Name"),
+                     _("Yearly Salary"),
+                     _("Fraction dedicated to Supply Chain Logistics")]
+    
+    
+                
+                
     if canWrite:
         titleStr = _("Staff Type {0} in {1}").format(typeName,model.name)
     else:
         titleStr = _("Staff Type {0}").format(typeName)
-    sio = StringIO()
-    sio.write("<h3>\n")
-    sio.write("{0}\n".format(typeName))
-    sio.write("</h3>\n")
-    sio.write("<table>\n")
+        
+    table = HTMLTable(name="Staff Type Info",
+                      title_=_("Staff Type Information"),
+                      #width='100%',height='100%',
+                      border='1px solid black')
+    
+        
     attrRec = {}
     shadow_network._copyAttrsToRec(attrRec,typeInstance)
-    for k,v in attrRec.items(): 
-        sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
-    sio.write("</table>\n")
-    
-    return sio.getvalue(), titleStr
-
+    for item in itemOrder:
+        if item == 'salaryCustom':
+            if attrRec['BaseSalary'] != '' and attrRec['BaseSalaryCur'] != '' \
+                and attrRec['BaseSalaryYear'] != '':
+                salString = '{0} in {1} {2}'.format(attrRec['BaseSalary'],
+                                                    attrRec['BaseSalaryYear'],
+                                                    attrRec['BaseSalaryCur'])
+                table.addRow([itemTranslate[itemOrder.index(item)],salString],['c',1,1])
+        else:
+            if attrRec[item] != '':
+                table.addRow([itemTranslate[itemOrder.index(item)],attrRec[item]],['c',1,1])
+               
+    return table.htmlString(),titleStr
+                             
 def getPerDiemInfoHTML(db,uiSession, modelId, typeName):
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
 
+    itemOrder = ['DisplayName',
+                 'MinKmHome',
+                 'MustBeOvernight',
+                 'CountFirstDay',
+                 'costCustom',
+                 'Notes']
+    itemTranslate = [_('Name'),
+                     _('Minimum Kilometers from Origin Before Charging PerDiem'),
+                     _('Charge PerDiem for Overnight Trips'),
+                     _('Count the First Day of Transit in PerDiem'),
+                     _('Cost of PerDiem per Instance (i.e. Each Time a PerDiem is Given'),
+                     _('Notes')]
+    
+    
     if canWrite:
-        titleStr = _("PerDiem Type {0} in {1}").format(typeName,model.name)
+        titleStr = _("PerDiem Type '{0}' in '{1}'").format(typeName,model.name)
     else:
-        titleStr = _("PerDiem Type {0}").format(typeName)
-    sio = StringIO()
-    sio.write("<h3>\n")
-    sio.write("{0}\n".format(typeName))
-    sio.write("</h3>\n")
-    sio.write("<table>\n")
+        titleStr = _("PerDiem Type '{0}'").format(typeName)
+        
+    table = HTMLTable(name="PerDiem Type Info",
+                      title_=_("PerDiem Type Information"),
+                      #width='100%',height='100%',
+                      border='1px solid black')
+    
     attrRec = {}
     shadow_network._copyAttrsToRec(attrRec,typeInstance)
-    for k,v in attrRec.items(): 
-        sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
-    sio.write("</table>\n")
-    
-    return sio.getvalue(), titleStr
+    for item in itemOrder:
+        if item == 'costCustom':
+            if attrRec['BaseAmount'] != '' and attrRec['BaseAmountYear'] != '' and attrRec['BaseAmountCur'] !='':
+                capString = "{0} in {1} {2}".format(attrRec['BaseAmount'],attrRec['BaseAmountYear'],
+                                                    attrRec['BaseAmountCur'])
+                table.addRow([itemTranslate[itemOrder.index(item)],capString],['c',1,1])
+        else:
+            if attrRec[item] != '':
+                table.addRow([itemTranslate[itemOrder.index(item)],attrRec[item]],['c',1,1])
+               
+    return table.htmlString(),titleStr
 
 def getVaccineInfoHTML(db, uiSession, modelId, typeName):
     itemOrder = ['DisplayName',
@@ -255,7 +313,8 @@ def getVaccineInfoHTML(db, uiSession, modelId, typeName):
                  'LifetimeCoolerMonths',
                  'LifetimeFreezerMonths',
                  'LifetimeOpenMonths',
-                 'LifetimeRoomTempMonths'
+                 'LifetimeRoomTempMonths',
+                 'Notes'
                  ]
     itemTranslate = [_('Name'),
                      _('Abbreviation'),
@@ -269,7 +328,8 @@ def getVaccineInfoHTML(db, uiSession, modelId, typeName):
                      _('Months Vaccine can be stored in 2-8 C'),
                      _('Months Vaccine can be stored in Below 0C'),
                      _('Months Vaccine can be used once opened'),
-                     _('Months Vaccine can be stored at Room Temperature')
+                     _('Months Vaccine can be stored at Room Temperature'),
+                     _('Notes')
                      ]
     
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
@@ -282,32 +342,48 @@ def getVaccineInfoHTML(db, uiSession, modelId, typeName):
         
     table = HTMLTable(name="Vaccine Info",
                       title_=_("Vaccine Type Information"),
-                      width='100%',height='100%',
+                      minwidth='500px',maxwidth='700px',
                       border='1px solid black')
     
     sio = StringIO()
-#     sio.write("<table><tr><td colspan=2>\n")
-#     sio.write("<h3>\n")
-#     sio.write("Vaccine Type: {0}\n".format(typeName))
-#     sio.write("</h3>\n")
-#     sio.write("</td></tr>")
-#     sio.write("<tr><td colspan=2>\n")
-#     sio.write("<")
-#     #sio.write("<table>\n")
     attrRec = {}
     shadow_network._copyAttrsToRec(attrRec,typeInstance)
     for item in itemOrder:
-        table.addRow([itemTranslate[itemOrder.index(item)],attrRec[item]],['c',1,1])
+        if attrRec[item] != '':
+            table.addRow([itemTranslate[itemOrder.index(item)],attrRec[item]],['c',1,1])
         
     return table.htmlString(),titleStr
-        
-#     for k,v in attrRec.items(): 
-#         sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
-#     sio.write("</table>\n")
-#    
-#    return sio.getvalue(), titleStr
-
+      
 def getFridgeInfoHTML(db, uiSession, modelId, typeName):
+    itemOrder = ['DisplayName',
+                 'Make',
+                 'Model',
+                 'cooler',
+                 'freezer',
+                 'powerTypeCustom',
+                 'powerRateCustom',
+                 'capitalExpCustom',
+                 'Notes',
+                 #'AmortYears',
+                 #'capitalExpCustom'
+                 ]
+    
+    itemTranslate = [_('Name'),
+                     _('Make'),
+                     _('Model'),
+                     _('Net Volume for 2-8C Storage'),
+                     _('Net Volume for Below 0C Storage'),
+                     _('Energy Type'),
+                     _('Power Rate'),
+                     _('Capital Cost'),
+                     _('Notes'),
+                     ]       
+    energyTypes = {'E':_('Electricity'),
+                   'I':_('Ice Packs'),
+                   'K':_('Kerosene'),
+                   'S':_('Solar'),
+                   'EK':_('Electricity / Kerosene')}
+            
     canWrite,typeInstance = typehelper.getTypeWithFallback(db, modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db, modelId)
 
@@ -315,18 +391,29 @@ def getFridgeInfoHTML(db, uiSession, modelId, typeName):
         titleStr = _("Cold Storage Type {0} in {1}").format(typeName,model.name)
     else:
         titleStr = _("Cold Storage Type {0}").format(typeName)
-    sio = StringIO()
-    sio.write("<h3>\n")
-    sio.write("{0}\n".format(typeName))
-    sio.write("</h3>\n")
-    sio.write("<table>\n")
+    
+    table = HTMLTable(name="Storage Device Info",
+                      title_=_("Storage Device Information"),
+                      #width='100%',height='100%',
+                      border='1px solid black')
     attrRec = {}
     shadow_network._copyAttrsToRec(attrRec,typeInstance)
-    for k,v in attrRec.items(): 
-        sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
-    sio.write("</table>\n")
-    
-    return sio.getvalue(), titleStr
+    for item in itemOrder:
+        if item == "powerRateCustom":
+            powerRateString = "{0} {1}".format(attrRec['PowerRate'],attrRec['PowerRateUnits'])
+            table.addRow([itemTranslate[itemOrder.index(item)],powerRateString],['c',1,1])
+        elif item == "powerTypeCustom":
+            if attrRec['Energy'] in energyTypes.keys():
+                table.addRow([itemTranslate[itemOrder.index(item)],energyTypes[attrRec['Energy']]],['c',1,1])
+        elif item == "capitalExpCustom":
+            if attrRec['BaseCost'] != '' and attrRec['BaseCostYear'] != '' and attrRec['BaseCostCur'] !='':
+                capString = "{0} in {1} {2}".format(attrRec['BaseCost'],attrRec['BaseCostYear'],
+                                                    attrRec['BaseCostCur'])
+                table.addRow([itemTranslate[itemOrder.index(item)],capString],['c',1,1])
+        else:
+            if attrRec[item] != '':
+                table.addRow([itemTranslate[itemOrder.index(item)],attrRec[item]],['c',1,1])
+    return table.htmlString(),titleStr
 
 def getIceInfoHTML(db, uiSession, modelId, typeName):
     canWrite,typeInstance = typehelper.getTypeWithFallback(db, modelId, typeName)
@@ -371,26 +458,93 @@ def getPackagingInfoHTML(db, uiSession, modelId, typeName):
     return sio.getvalue(), titleStr
 
 def getTruckInfoHTML(db, uiSession, modelId, typeName):
+    from trucktypes import fuelTranslationDict
+    from util import parseInventoryString
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
-
+    
+    itemOrder = ['DisplayName',
+                 'CoolVolumeCC',
+                 'capCustom',
+                 'AmortizationKm',
+                 'fuelCustom',
+                 'storeCustom']
+    
+    itemTranslate = [_('Name'),
+                     _('2-8C Net Storage Volume (L)'),
+                     _('Capital Cost'),
+                     _('Lifetime Distance (KM)'),
+                     _('Fuel Usage'),
+                     _('Storage Devices'),
+                     _('Notes')]
+    
     if canWrite:
         titleStr = _("Transport Type {0} in {1}").format(typeName,model.name)
     else:
         titleStr = _("Transport Type {0}").format(typeName)
-    sio = StringIO()
-    sio.write("<h3>\n")
-    sio.write("{0}\n".format(typeName))
-    sio.write("</h3>\n")
-    sio.write("<table>\n")
+    
+    table = HTMLTable(name="Transport Type Info",
+                  title_=_("Transport Type Information"),
+                  minwidth="500px",maxwidth="700px",
+                  #width='100%',height='100%',
+                  border='1px solid black')   
+
+
+#     sio = StringIO()
+#     sio.write("<h3>\n")
+#     sio.write("{0}\n".format(typeName))
+#     sio.write("</h3>\n")
+#     sio.write("<table>\n")
     attrRec = {}
     shadow_network._copyAttrsToRec(attrRec,typeInstance)
-    for k,v in attrRec.items(): 
-        sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
-    sio.write("</table>\n")
     
-    return sio.getvalue(), titleStr
-
+    for item in itemOrder:
+        if item == 'capCustom':
+            if attrRec['BaseCost'] != '' and attrRec['BaseCostYear'] != '' and attrRec['BaseCostCur'] !='':
+                capString = "{0} in {1} {2}".format(attrRec['BaseCost'],attrRec['BaseCostYear'],
+                                                    attrRec['BaseCostCur'])
+                table.addRow([itemTranslate[itemOrder.index(item)],capString],['c',1,2])
+        elif item == 'fuelCustom':
+            if attrRec['Fuel'] != '' and attrRec['FuelRateUnits'] != '' \
+                and attrRec['FuelRate'] != '':
+                fuelString = "{0} {1} of {2}".format(attrRec['FuelRate'],
+                                                    attrRec['FuelRateUnits'],
+                                                    fuelTranslationDict[attrRec['Fuel']][1])
+                
+                table.addRow([itemTranslate[itemOrder.index(item)],fuelString],['c',1,2])
+        elif item == 'storeCustom':
+            if attrRec['Storage'] != '':
+                storageList = typeInstance.getStorageDeviceList(model)
+                
+                table.addRow([itemTranslate[itemOrder.index(item)],'Device','Count'],['c',1,1,1])
+                two8Sum = 0.0
+                for count,dev in storageList:
+                    #print("{0} L".format(dev.cooler))
+                    '''
+                    STB - Need to make flexible for all storage types
+                    '''
+                    two8Sum += dev.cooler
+                    table.addRow(['',dev.DisplayName,"{0}".format(count)],['c',1,1,1])
+        elif item == 'CoolVolumeCC':
+            volSum = 0.0
+            if attrRec['CoolVolumeCC']!='':
+                volSum+= attrRec['CoolVolumeCC']/1000.0
+            
+            if attrRec['Storage']!='':
+                storageList = typeInstance.getStorageDeviceList(model)
+                for count,dev in storageList:
+                    volSum += count*dev.cooler
+            
+            table.addRow([itemTranslate[itemOrder.index(item)],volSum],['c',1,1])    
+        else:
+            if attrRec[item] != '':
+                table.addRow([itemTranslate[itemOrder.index(item)],attrRec[item]],['c',1,1])
+#     for k,v in attrRec.items(): 
+#         sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
+#     sio.write("</table>\n")
+#     
+#     return sio.getvalue(), titleStr
+    return table.htmlString(),titleStr
 def getGenericTypeInfoHTML(db, uiSession, modelId, typeName):
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     category = typeInstance.shdType

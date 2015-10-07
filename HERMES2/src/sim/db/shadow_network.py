@@ -3279,7 +3279,18 @@ class ShdTruckType(ShdType):
 
         return vol
 
-
+    def getStorageDeviceList(self,model):
+        ### returns a list of ShdStorage Types of the storage List
+        
+        invList = parseInventoryString(self.Storage)
+        if len(invList) == 0:
+            return None
+        
+        returnList = []
+        for count, inv in invList:
+            returnList.append((count,model.types[inv]))
+        return returnList
+    
 _makeColumns(ShdTruckType)
 
 class ShdVaccineType(ShdType, ShdCopyable):
