@@ -127,7 +127,7 @@ def filteredWriteCSV( ofile, keyList, recDictListOriginal, delim=",", quoteStrin
                                                  'ratio_multival', 'times_multival',
                                                  'vol_used', 'vol_used_time',
                                                  'timestamp','availability','multival',
-                                                 '_min','_max','_q1','_q3','_median','_mean','_stdv']]):
+                                                 '_min','_max','_q1','_q3','_median','_mean','_stdv','rate']]):
             castColumn(recDictList, k, _castToFloatHighWater)
             revisedKeyList.append(k)
         elif any([lowerK.find(s)>=0 for s in ['name', 'type', 'note', 'word',

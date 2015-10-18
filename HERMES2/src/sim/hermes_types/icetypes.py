@@ -259,6 +259,10 @@ class IceType(abstractbaseclasses.ShippableType, abstractbaseclasses.NonScalingT
         if storageType == ST.STORE_FREEZE:
             return True
         return False
+    def preferredStore(self):
+        # really want to be stored frozen
+        return ST.STORE_FREEZE, {ST.STORE_WARM: 1000.1, ST.STORE_COOL: 1000.0, ST.STORE_FREEZE: 1.0}
+
     def canKeepOpenVials(self,howLongOpen):
         """
         If the first dose from a vial has been used, can the rest still be used after 'howLongOpen' days?  

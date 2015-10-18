@@ -33,6 +33,7 @@ import constants as C
 import warehouse
 import copy
 from csv_tools import castTypes
+from enums import StorageTypeEnums as ST
 
 #: energyTranslationDict maps the 'Energy' field of the type record to a tuple containing a short name, a longer name, a string 
 #: for rate units for that energy type, a string for scalar (non-rate) units, the fuel type string for costing purposes, and
@@ -228,6 +229,10 @@ class ShippableFridgeType(FridgeType, abstractbaseclasses.ShippableType, abstrac
 
     def wantStore(self, storageType):
         return True
+
+    def preferredStore(self):
+        # would prefer warm but mostly doesn't matter.
+        return ST.STORE_WARM, {ST.STORE_WARM: 1.0, ST.STORE_COOL: 1.01, ST.STORE_FREEZE: 1.02}
 
     def canKeepOpenVials(self,howLongOpen):
         """

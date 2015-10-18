@@ -469,17 +469,32 @@ class VaccineType(GroupedShippableType, HasOVW):
               ST.STORE_FREEZE : 'freezerFac',
           }
 
+    def getFac(self, storageType):
+        return getattr(self, self.stFac[storageType])
+
     def canStore(self, storageType):
         try:
-            return getattr(self, self.stFac[storageType]) < 10.0
+            return self.getFac(storageType) < 10.0
         except:
             return False
 
     def wantStore(self, storageType):
         try: 
-            return getattr(self, self.stFac[storageType]) < 1.5
+            return self.getFac(storageType) < 1.5
         except:
             return False
+
+    def preferredStore(self):
+        preferred = None
+        facDict = {}
+        for st in (ST.STORE_FREEZE, ST.STORE_COOL, ST.STORE_WARM):
+            fac = self.getFac(st)
+            if fac == 1.0:
+                preferred = st
+                continue;
+            facDict[st] = fac
+
+        return preferred, facDict
 
     def canKeepOpenVials(self,howLongOpen):
         if self.keepOpenVials:# and howLongOpen<2.0: # keep two days max

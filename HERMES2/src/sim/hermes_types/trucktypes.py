@@ -396,7 +396,16 @@ class TruckType(abstractbaseclasses.TrackableType):
         fridgeVC= self.sim.shippables.getCollection([(v,1.0) for v,n in incomingFridgeSC.items() if n>0.0])
         
         resultVC.replace(fridgeVC)
-        return (totVolCC/coldVolAvail, resultVC, totVolCC)
+        stats = { 'RouteFill' : 0.0, 
+                  'shipRate' : 0.0 }
+        if coldVolAvail:
+            stats['RouteFill'] = totVolCC / coldVolAvail
+
+        if totVolCC > 0.0:
+            stats['shipRate'] = r
+            
+
+        return (stats, resultVC, totVolCC)
 
     def share3_checkStorageCapacity(self, proposedVC, packagingModel, storageModel):
         myStorageSC= self.sim.fridges.getTotalVolumeSCFromFridgeTypeList(self.storageCapacityInfo,ignoreOutdoors=self.sim.limitedRoomTemp)
@@ -407,12 +416,12 @@ class TruckType(abstractbaseclasses.TrackableType):
         #print "volumes: %s, %s, %s"%(fV, cV, wV)
         fSV,cSV,wSV,fcSV,cwSV,fcwSV = packagingModel.getStorageVolumeHex(proposedVC, storageModel)
         #print  fSV,cSV,wSV,fcSV,cwSV,fcwSV
-        totVolProposed = sum((fSV,cSV,wSV,fcSV,cwSV,fcwSV))
+
         w_wR, w_wV, wc_wR, wc_wV, wcf_wR, wcf_wV, \
         c_cR, c_cV, wc_cR, wc_cV, cf_cR, cf_cV, wcf_cR, wcf_cV, \
         f_fR, f_fV, cf_fR, cf_fV, wcf_fR, wcf_fV = \
             calculateFill._share3(wV, cV, fV, wSV, cSV, fSV, cwSV, fcSV, fcwSV)
-        totVolFit = sum((w_wV, wc_wV, wcf_wV, c_cV, wc_cV, cf_cV, wcf_cV, f_fV, cf_fV, wcf_fV))
+
         fSC,cSC,wSC,fcSC,cwSC,fcwSC = packagingModel.getStorageVolumeSCHex(proposedVC, storageModel)
         #print fSC,cSC,wSC,fcSC,cwSC,fcwSC
         resultVC = self.sim.shippables.getCollection()
@@ -430,11 +439,24 @@ class TruckType(abstractbaseclasses.TrackableType):
             for v,n in collection.items():
                 resultVC += self.sim.shippables.getCollection([(v,ratio)])
 
-        # rid ourselves of pesky /0
-        if totVolFit < 0.01: totVolFit = 0.01
-        #print "request: %s"%proposedVC
-        #print "result: %s"%resultVC
-        return (totVolProposed/totVolFit, resultVC, totVolProposed)
+        stats = { 'freezerFill': 0.0,
+                  'coolerFill': 0.0,
+                  'roomTemperatureFill': 0.0,
+                  'shipRate': 0.0 }
+
+        if fV > 0.0:
+            stats['freezerFill'] = sum((f_fV, cf_fV, wcf_fV)) / fV
+        if cV > 0.0:
+            stats['coolerFill'] = sum((c_cV, wc_cV, cf_cV, wcf_cV)) / cV
+        if wV > 0.0:
+            stats['roomTemperatureFill'] = sum((w_wV, wc_wV, wcf_wV)) / wV
+
+        totVolProposed = sum((fSV,cSV,wSV,fcSV,cwSV,fcwSV))
+        if totVolProposed > 0.0:
+            totVolFit = sum((w_wV, wc_wV, wcf_wV, c_cV, wc_cV, cf_cV, wcf_cV, f_fV, cf_fV, wcf_fV))
+            stats['shipRate'] = totVolFit / totVolProposed
+
+        return (stats, resultVC, totVolProposed)
 
 
             

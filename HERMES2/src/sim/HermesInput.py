@@ -178,10 +178,14 @@ def smallerOutput(oldOutput, newOutput, hdataPrefix):
                 data = zi.read(fileName)
                 zo.writestr(fileName, data)
 
+
+HermesVersionFile = os.path.join("src", "version.txt")
+HermesVersionFileFullPath = os.path.join(HermesBaseDir, HermesVersionFile)
+
 def getHermesVersion():
     "get the hermes version out of HermesBaseDir/src/version.txt"
     try:
-        with open(os.path.join(HermesBaseDir, "src", "version.txt")) as f:
+        with open(HermesVersionFileFullPath) as f:
             while f.readline().strip() != "HERMES":
                 continue
             return f.readline().strip()

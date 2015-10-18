@@ -23,6 +23,8 @@ of multiple types of vaccines and to detect low or high reorder thresholds.
 
 _hermes_svn_id_="$Id$"
 
+import ipath
+
 import weakref
 import sys,os,string
 import types,math
@@ -209,7 +211,7 @@ def getStoreByName(storeDict,storeName):
 def calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
     if DEBUG:
         oldVal = shareCool_calculateOwnerStorageFillRatios(canOwn, thisVC, assumeEmpty)
-        newVal = share3_calculateOwnerStorageFillRatios(canOwn, thisVC, assumeEmpty)
+        newVal = share3_calculateOwnerStorageFillRatiosPreferred(canOwn, thisVC, assumeEmpty)
         print "**** do they match:  ****"
         print [old==new for (t, old, new) in zip(('freeze', 'cool', 'warm'), oldVal, newVal)]
         return newVal
@@ -803,6 +805,398 @@ def share3_calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
         #print "sum: %s\n"%repr(freezeVC + coolVC + warmVC)
         #print (freezeVC, coolVC, warmVC)
     return (freezeVC, coolVC, warmVC)
+
+
+def share3_calculateOwnerStorageFillRatiosPreferred(canOwn,thisVC,assumeEmpty):
+    """
+    This attempts to allocate space fairly between vaccines.  It's
+    very similar to the ARENA 'fair share' storage calculation.
+    The return value is a triple of VaccineCollections
+
+       freezeVC, coolVC, warmVC
+
+    where each vaccine's entry represents the fraction of the available
+    vials in the input VC to be stored in each medium.  These fractions
+    are truncated at 1.0.  If assumeEmpty is true, all the canOwn's resources 
+    are presumed to be included in thisVC; this includes both attached fridges
+    and all vaccine supplies.  If false, thisVC is assumed to be 'in addition to'
+    any existing fridges and supplies.
+    """
+    
+    if DEBUG:
+        print "**** new version ****"
+    # This method should be 'const' in the C++ sense- no modifying
+    # the canOwn!
+
+    # classify everything
+    freezeTuples= []
+    freezeCoolTuples = []
+    coolTuples= []
+    coolWarmTuples = []
+    warmTuples= []
+    anyTuples = []
+    ignoreTuples = []
+    incomingStorageBlocks= []
+    roomtempStorage= canOwn.sim.storage.roomtempStorage() # cache for speed
+    frozenStorage= canOwn.sim.storage.frozenStorage() # cache for speed
+    coolStorageList= canOwn.sim.storage.coolStorageList() # cache for speed
+    sM = canOwn.getStorageModel()
+    noShippables = True
+    for v,n in thisVC.getTupleList():
+        if isinstance(v,abstractbaseclasses.ShippableType):
+            noShippables = False
+            (warm, cool, freeze) = [sM.canStoreShippableType(v, st) for st in ST.wcfList]
+            
+            if warm and cool and freeze: anyTuples.append((v,n))
+            elif warm and cool: coolWarmTuples.append((v,n))
+            elif cool and freeze: freezeCoolTuples.append((v,n))
+            elif warm: warmTuples.append((v,n))
+            elif cool: coolTuples.append((v,n))
+            elif freeze: freezeTuples.append((v,n))
+            else: anyTuples.append((v,n))
+        else:
+            ignoreTuples.append((v,n)) # Things like trucks and fridges get stored outside the constraints
+
+        if isinstance(v,abstractbaseclasses.CanStoreType):
+            assert n==int(n), "Non-integral number of fridges"
+            storageCapacityInfo= v.getStorageCapacityInfo()
+            for st,vol in storageCapacityInfo:
+                for _ in xrange(int(n)):
+                    incomingStorageBlocks.append(fridgetypes.Fridge.StorageBlock(canOwn,st,vol))
+
+    if noShippables:
+        freezeVC = canOwn.sim.shippables.getCollection()
+        coolVC = canOwn.sim.shippables.getCollection()
+        warmVC= canOwn.sim.shippables.getCollection([(v,1.0) for v,n in ignoreTuples])        
+        return (freezeVC, coolVC, warmVC)
+
+    if DEBUG:
+        print "ignoreTuples: %s"%repr(ignoreTuples)
+        print "any: %s"%repr(anyTuples)
+        print "freezeCool: %s"%repr(freezeCoolTuples)
+        print "coolWarm: %s"%repr(coolWarmTuples)
+        print "freeze: %s"%repr(freezeTuples)
+        print "cool: %s"%repr(coolTuples)
+        print "warm: %s"%repr(warmTuples)
+
+    incomingStorageBlocks= canOwn.filterStorageBlocks(incomingStorageBlocks)
+
+    # Count up storage in each category
+    #freezeTotalVol,coolTotalVol,warmTotalVol = \
+    #    canOwn.getPackagingModel().getStorageVolumeTriple(thisVC,canOwn.getStorageModel())
+
+    freezeTotalVol,coolTotalVol,warmTotalVol,freezeCoolTotalVol,coolWarmTotalVol,anyTotalVol = \
+        canOwn.getPackagingModel().getStorageVolumeHex(thisVC,canOwn.getStorageModel())
+
+    if DEBUG:
+        print "total volumes:"
+        print "any: %s"%anyTotalVol
+        print "freezeCool: %s"%freezeCoolTotalVol
+        print "coolWarm: %s"%coolWarmTotalVol
+        print "freeze: %s"%freezeTotalVol
+        print "cool: %s"%coolTotalVol
+        print "warm: %s"%warmTotalVol
+
+    warmVol= 0.0
+    warmVolUsed= 0.0
+    freezeVol= 0.0
+    freezeVolUsed= 0.0
+    coolVol= 0.0
+    coolVolUsed= 0.0
+    outdoorVol = 0.0
+    outdoorVolUsed = 0.0
+    if assumeEmpty:
+        for sb in incomingStorageBlocks:
+            if sb.storageType in coolStorageList:
+                coolVol += sb.volAvail
+            elif sb.storageType==roomtempStorage:
+                warmVol += sb.volAvail
+            else:
+                assert(sb.storageType==frozenStorage)
+                freezeVol += sb.volAvail
+    else:
+        for sb in canOwn.getStorageBlocks()+incomingStorageBlocks:
+            if sb.storageType in coolStorageList:
+                coolVol += sb.volAvail
+                coolVolUsed += sb.volUsed
+            elif sb.storageType==roomtempStorage:
+                if sb.volAvail == 1000000000000:
+                    outdoorVol += sb.volAvail
+                    outdoorVolUsed += sb.volUsed
+                else:
+                    warmVol += sb.volAvail
+                    warmVolUsed += sb.volUsed
+            else: 
+                assert(sb.storageType==frozenStorage)
+                freezeVol += sb.volAvail
+                freezeVolUsed += sb.volUsed
+
+    if DEBUG:
+        print "volume available: %s, %s, %s"%(freezeVol, coolVol, warmVol)
+
+
+    w_wR, w_wV, wc_wR, wc_wV, wcf_wR, wcf_wV, \
+    c_cR, c_cV, wc_cR, wc_cV, cf_cR, cf_cV, wcf_cR, wcf_cV, \
+    f_fR, f_fV, cf_fR, cf_fV, wcf_fR, wcf_fV = \
+        calculateFill._share3(warmVol, coolVol, freezeVol, 
+                              warmTotalVol, coolTotalVol, freezeTotalVol,
+                              coolWarmTotalVol, freezeCoolTotalVol, anyTotalVol)
+
+    spaceLeft = {ST.STORE_WARM : warmVol - w_wV - wc_wV - wcf_wV,
+                 ST.STORE_COOL : coolVol - c_cV - wc_cV - cf_cV - wcf_cV,
+                 ST.STORE_FREEZE : freezeVol - f_fV - cf_fV - wcf_fV}
+
+
+    warmVC = canOwn.sim.shippables.getCollection()
+    coolVC = canOwn.sim.shippables.getCollection()
+    freezeVC = canOwn.sim.shippables.getCollection()
+
+
+    for (tupleList, ratioList) in ((warmTuples, (w_wR, None, None)),
+                                   (coolWarmTuples, (wc_wR, wc_cR, None)),
+                                   (anyTuples, (wcf_wR, wcf_cR, wcf_fR)),
+                                   (coolTuples, (None, c_cR, None)),
+                                   (freezeCoolTuples, (None, cf_cR, cf_fR)),
+                                   (freezeTuples, (None, None, f_fR))):
+
+
+        for v,n in tupleList:
+            for ratio, vc in zip(ratioList, (warmVC, coolVC, freezeVC)):
+                if ratio is None:
+                    continue
+                if ratio == 0.0:
+                    continue
+                vc += canOwn.sim.shippables.getCollection([(v,ratio)])
+
+
+    # currently we've put our shippables into one of the optimal configurations that satisfies their minimum
+    # needs.  Now let's go through this and see which shippables would prefer to be elsewhere
+    # and then see if that can swap any of them around into a different, more optimal, optimal configuration.
+
+    # first generate two lists, a list of things that can be moved and still satisfy their "want" behavior
+    # and a list of things that want to be moved because currently their want behavior is not satisfied.
+    vcDict = {ST.STORE_WARM : warmVC, ST.STORE_COOL : coolVC, ST.STORE_FREEZE : freezeVC}
+    wantMoveList = []
+    canMoveList = []
+    for (tupleList, ratioList) in ((warmTuples, (w_wR, None, None)),
+                                   (coolWarmTuples, (wc_wR, wc_cR, None)),
+                                   (anyTuples, (wcf_wR, wcf_cR, wcf_fR)),
+                                   (coolTuples, (None, c_cR, None)),
+                                   (freezeCoolTuples, (None, cf_cR, cf_fR)),
+                                   (freezeTuples, (None, None, f_fR))):
+        for v,n in tupleList:
+            want = {}
+            wantCount = 0;
+            for st in ST.wcfList:
+                if sM.wantStoreShippableType(v, st):
+                    want[st] = True
+                    wantCount += 1
+                else:
+                    want[st] = False
+            for ratio, vc, st in zip(ratioList, (warmVC, coolVC, freezeVC), ST.wcfList):
+                if ratio is None:
+                    continue
+                if ratio > 0.0:
+                    if not want[st]:
+                        wantMoveList.append([st, v, ratio, ratio * n, want, wantCount])
+                    elif wantCount > 1:
+                        canMoveList.append([st, v, ratio, ratio * n, want, wantCount])
+        # add empty space to the canMoveList
+        openWant = {ST.STORE_WARM:True, ST.STORE_COOL:True,ST.STORE_FREEZE:True}
+        for st,amt in spaceLeft.items():
+            if amt <= 0.0:
+                continue
+            canMoveList.append([st, None, None, amt, openWant, 3])
+
+    # now let's try swapping things around!
+    #arguably we should randomize the wantMoveList so that no entity is favored.  Or maybe sort by preference.
+    #For now we're not going to bother.
+    while True:
+        try:
+            (wantSt, wantV, wantRatio, wantVol, wantWant, wantCount) = wantMoveList.pop()
+        except:
+            break
+        if wantVol <= 0.0:  #did we get to this one already?
+            continue
+        # might need to modify the list entry in place so grab list entry before expanding it
+        for canMove in wantMoveList + canMoveList:
+            (canSt, canV, canRatio, canVol, canWant, canCount) = canMove
+            # if can and want are in the same pool there's no swap possible
+            if wantSt == canSt:
+                continue
+            # can must be in a pool that want is ok with and vice versa
+            if not canWant[wantSt] or not wantWant[canSt]:
+                continue
+
+            # if we're here, we can swap some or all of want with can
+            if DEBUG:
+                print "swapping some %s with %s"%(wantV, canV)
+            if wantVol <= canVol:
+                # split the can entry
+                try: # the canMove entry might have None for its ratio
+                    swapRatio = canRatio/canVol * wantVol
+                    remainingRatio = canRatio - swapRatio
+                except: 
+                    swapRatio = remainingRatio = None
+                canMove[:] = [wantSt, canV, swapRatio, wantVol, canWant, canCount]
+                newCan = [canSt, canV, remainingRatio, canVol-wantVol, canWant, canCount]
+                canMoveList.append(newCan)
+
+                # we can swap all of want for part of can
+                vcDict[wantSt] -= canOwn.sim.shippables.getCollection([(wantV, wantRatio)])
+                vcDict[canSt] += canOwn.sim.shippables.getCollection([(wantV, wantRatio)])
+                if canV is not None: # don't need to formally move empty space
+                    vcDict[canSt] -= canOwn.sim.shippables.getCollection([(canV, swapRatio)])
+                    vcDict[wantSt] += canOwn.sim.shippables.getCollection([(canV, swapRatio)])
+                else: # but since it's convenient to keep tracking empty space to continue this thing:
+                    spaceLeft[wantSt] += wantVol
+                    spaceLeft[canSt] -= wantVol
+
+                # if wantCount > 1 then this should be added to the canMoveList because
+                # something else in the canMove list might still wish to swap with it.
+                if wantCount > 1:
+                    canMoveList.append([canSt, wantV, wantRatio, wantVol, wantWant, wantCount])
+
+                # since we're completely done with this want entry (and it has been disposed of) we can just
+                break # out of the canMove list and get a new wantMove entry.
+
+            else: # wantVol > canVol
+                # get the ratios.  The wantMove entry had better not have None for its ratio
+                swapRatio = wantRatio/wantVol * canVol
+                remainingRatio = wantRatio - swapRatio
+
+                # modify the canMove Entry
+                canMove[:] = [wantSt, canV, canRatio, canVol, canWant, canCount]
+
+                # now swap part of want for all of can
+                vcDict[wantSt] -= canOwn.sim.shippables.getCollection([(wantV, swapRatio)])
+                vcDict[canSt] += canOwn.sim.shippables.getCollection([(wantV, swapRatio)])
+                if canV is not None: # don't need to formally move empty space
+                    vcDict[canSt] -= canOwn.sim.shippables.getCollection([(canV, canRatio)])
+                    vcDict[wantSt] += canOwn.sim.shippables.getCollection([(canV, canRatio)])
+                else: # but since it's convenient to keep tracking empty space to continue this thing:
+                    spaceLeft[wantSt] += canVol
+                    spaceLeft[canSt] -= canVol
+
+                # if wantMove is happy to be in at least two places make a new canMove entry
+                if wantCount > 1:
+                    canMoveList.append([canSt, wantV, swapRatio, canVol, wantWant, wantCount])
+
+                # modify the want values before we continue
+                wantRatio = remainingRatio
+                wantVol = wantVol - canVol
+
+
+    # now let's do this again but moving things to their absolute preferred location
+    wantMoveList = []
+    canMoveList = []
+    for tupleList, st in zip((warmVC, coolVC, freezeVC), ST.wcfList):
+        #print tupleList
+        for v,ratio in tupleList.items():
+            preferredSt, facDict = sM.preferredStoreShippableType(v)
+            if ratio == 0.0:
+                continue
+            if preferredSt == st:
+                continue
+
+            # if here this vaccine would prefer to move.
+            wantMoveList.append([st, v, ratio, ratio*thisVC[v], preferredSt, facDict])
+
+        # add empty space to the canMoveList
+        openFac = {ST.STORE_WARM:1.0, ST.STORE_COOL:1.0,ST.STORE_FREEZE:1.0}
+        for st,amt in spaceLeft.items():
+            if amt <= 0.0:
+                continue
+            canMoveList.append([st, None, None, amt, 'any', openFac])
+
+    # now let's try swapping things around!
+    #arguably we should randomize the wantMoveList so that no entity is favored.  For now we're not going to bother.
+    while True:
+        try:
+            (wantSt, wantV, wantRatio, wantVol, wantPreferred, facDict) = wantMoveList.pop()
+        except:
+            break
+        if wantVol <= 0.0:  #did we get to this one already?
+            continue
+        # might need to modify the list entry in place so grab list entry before expanding it
+        for canMove in wantMoveList + canMoveList:
+            (canSt, canV, canRatio, canVol, canPreferred, canDict) = canMove
+            
+            # see if it's a good match for want
+            if wantPreferred != canSt:
+                continue
+            # see if it's a good match for can
+            if canPreferred != 'any':
+                if canPreferred != wantSt:
+                    continue
+
+            # if we're here, we can swap some or all of want with can
+            if DEBUG:
+                print "swapping some %s with %s"%(wantV, canV)
+            if wantVol <= canVol:
+                # modify the can entry.  If it's open space, then split it
+                if canV is not None:
+                    swapRatio = canRatio/canVol * wantVol
+                    remainingRatio = canRatio - swapRatio
+                    canMove[:] = [canSt, canV, remainingRatio, canVol-wantVol, canPreferred, canDict]
+                else:
+                    canMove[:] = [canSt, None, None, canVol-wantVol, canPreferred, canDict]
+                    newCan = [wantSt, None, None, wantVol, canPreferred, canDict]
+                    canMoveList.append(newCan)
+
+                # we can swap all of want for part of can
+                vcDict[wantSt] -= canOwn.sim.shippables.getCollection([(wantV, wantRatio)])
+                vcDict[canSt] += canOwn.sim.shippables.getCollection([(wantV, wantRatio)])
+                if canV is not None: # don't need to formally move empty space
+                    vcDict[canSt] -= canOwn.sim.shippables.getCollection([(canV, swapRatio)])
+                    vcDict[wantSt] += canOwn.sim.shippables.getCollection([(canV, swapRatio)])
+                else: # but since it's convenient to keep tracking empty space to continue this thing:
+                    spaceLeft[wantSt] += wantVol
+                    spaceLeft[canSt] -= wantVol
+
+                # since we're completely done with this want entry (and it has been disposed of) we can just
+                break # out of the canMove list and get a new wantMove entry.
+
+            else: # wantVol > canVol
+                # get the ratios.  The wantMove entry had better not have None for its ratio
+                swapRatio = wantRatio/wantVol * canVol
+                remainingRatio = wantRatio - swapRatio
+
+                # modify the canMove Entry
+                # for open space we wish to just make it available on a different st
+                if canV is None:
+                    canMove[0] = wantSt
+                else: # otherwise we wish to invalidate it by setting its volume to 0.0
+                    canMove[3] = 0.0
+
+                # now swap part of want for all of can
+                vcDict[wantSt] -= canOwn.sim.shippables.getCollection([(wantV, swapRatio)])
+                vcDict[canSt] += canOwn.sim.shippables.getCollection([(wantV, swapRatio)])
+                if canV is not None: # don't need to formally move empty space
+                    vcDict[canSt] -= canOwn.sim.shippables.getCollection([(canV, canRatio)])
+                    vcDict[wantSt] += canOwn.sim.shippables.getCollection([(canV, canRatio)])
+                else: # but since it's convenient to keep tracking empty space to continue this thing:
+                    spaceLeft[wantSt] += canVol
+                    spaceLeft[canSt] -= canVol
+
+                # modify the want values before we continue
+                wantRatio = remainingRatio
+                wantVol = wantVol - canVol
+
+
+
+    # since we don't yet have a proper place to put ignoreVC, put it in warm:
+    for v,n in ignoreTuples:
+        warmVC += canOwn.sim.shippables.getCollection([(v,1.0)])
+
+    if DEBUG:
+        print "freezeVC: %s\n"%repr(freezeVC)
+        print "coolVC: %s\n"%repr(coolVC)
+        print "warmVC: %s\n"%repr(warmVC)
+        #print "sum: %s\n"%repr(freezeVC + coolVC + warmVC)
+        #print (freezeVC, coolVC, warmVC)
+    return (freezeVC, coolVC, warmVC)
+
 
 def share3_allocateOwnerStorageSpace(canOwn,stockBuf):
     "New goods have been delivered; match to limited storage"
@@ -2563,7 +2957,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 truck.setStorageModel(truckStorageModel)
                 # Check against space in truck
                 logDebug(proc.sim,"%s: ----- ready to load %s at %s at %g"%(bName,truck.bName,supplierW.bName,proc.sim.now()))
-                loadFac,scaleVC,totVolCC= truckType.checkStorageCapacity(totalVC, truckPackagingModel, truckStorageModel)
+                stats,scaleVC,totVolCC= truckType.checkStorageCapacity(totalVC, truckPackagingModel, truckStorageModel)
                 logDebug(proc.sim,"%s: %s has %s"%(bName,supplierW.bName,supplierW.getSupplySummary()))
                 logDebug(proc.sim,"%s: requesting %s"%(bName,totalVC))
                 logDebug(proc.sim,"%s: yields scaleVC %s"%(bName,scaleVC))
@@ -2590,8 +2984,9 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                     if proc.noteHolder is not None:
                         nActualVaccines= sum([g.getCount() for g in gotThese if isinstance(g.getType(),vaccinetypes.VaccineType)])
                         if nActualVaccines>0: 
-                            proc.noteHolder.addNote({"RouteFill":StatVal(loadFac),
-                                                     "Route_L_vol_used_time":AccumVal(totVolCC/C.ccPerLiter)})                        
+                            for stat,val in stats.items():
+                                proc.noteHolder.addNote({stat:StatVal(val)})
+                            proc.noteHolder.addNote({"Route_L_vol_used_time":AccumVal(totVolCC/C.ccPerLiter)})                        
                             if truck.truckType.origStorageCapacityInfo is not None:
                                 storageSC = proc.sim.fridges.getTotalVolumeSCFromFridgeTypeList(truck.truckType.origStorageCapacityInfo)
                                 truckVolL = proc.sim.storage.getTotalRefrigeratedVol(storageSC)
@@ -2676,7 +3071,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 supplierW, truckPackagingModel, truckStorageModel, totalVC = paramTuple
                 totalVC = totalVC.copy() # preserve the parameter tuple
                 # Check against space in truck
-                loadFac,scaleVC,totVolCC= truckType.checkStorageCapacity(totalVC, truckPackagingModel, truckStorageModel)
+                stats,scaleVC,totVolCC= truckType.checkStorageCapacity(totalVC, truckPackagingModel, truckStorageModel)
                 logDebug(proc.sim,"%s: ----- ready to load at %s at %g"%(bName,supplierW.bName,proc.sim.now()))
                 logDebug(proc.sim,"%s: %s has %s"%(bName,supplierW.bName,supplierW.getSupplySummary()))
                 logDebug(proc.sim,"%s: requesting %s"%(bName,totalVC))                                                            
@@ -2717,8 +3112,9 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                     if proc.noteHolder is not None:
                         nActualVaccines= sum([g.getCount() for g in gotThese if isinstance(g.getType(),vaccinetypes.VaccineType)])
                         if nActualVaccines>0: 
-                            proc.noteHolder.addNote({"RouteFill":StatVal(loadFac),
-                                                     "Route_L_vol_used_time":AccumVal(totVolCC/C.ccPerLiter)})
+                            for stat,val in stats.items():
+                                proc.noteHolder.addNote({stat:StatVal(val)})
+                            proc.noteHolder.addNote({"Route_L_vol_used_time":AccumVal(totVolCC/C.ccPerLiter)})                        
                             #segmentFill.append(loadFac)
                         else:
                             proc.noteHolder.addNote({"RouteFill":StatVal(0.0),
@@ -2828,8 +3224,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
             elif op in deliveryStepNamesSet:
                 legStartTime = proc.sim.now()
                 w, vc, timeToNextShipment= paramTuple
-                if loadFac>1.0:
-                    vc = vc * scaleVC # effect of truck volume scaling
+                vc = vc * scaleVC # effect of truck volume scaling
                 gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
 
                 if op in ['alldeliver','allmarkanddeliver']:

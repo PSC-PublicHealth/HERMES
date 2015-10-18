@@ -100,6 +100,23 @@ class StorageModel:
             return shippableType.wantStore(storageType)
 
 
+    def preferredStoreShippableType(self, shippableType):
+        """
+        return whether a specific shippable type prefers to be stored in a specific storageType.  
+        If this returns true then this should be a nearly optimal storage type for this shippable.
+        """
+        if self.storeDiluentWithVaccines:
+            rBL = shippableType.getRequiredByList()
+            if len(rBL) == 0: 
+                # This is an actual deliverable
+                return shippableType.preferred()
+            else:
+                # 'storeDiluentWithVaccines' is interpreted to mean 'store this diluent like it were vaccine'
+                return rBL[0].preferredStore()
+        else:
+            return shippableType.preferredStore()
+
+
     
 class DummyStorageModel(StorageModel):
     """
