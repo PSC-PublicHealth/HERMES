@@ -1,11 +1,33 @@
+#! /usr/bin/env python
+
+###################################################################################
+# Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
+# =============================================================================== #
+#                                                                                 #
+# Permission to use, copy, and modify this software and its documentation without #
+# fee for personal use within your organization is hereby granted, provided that  #
+# the above copyright notice is preserved in all copies and that the copyright    #
+# and this permission notice appear in supporting documentation.  All other       #
+# restrictions and obligations are defined in the GNU Affero General Public       #
+# License v3 (AGPL-3.0) located at http://www.gnu.org/licenses/agpl-3.0.html  A   #
+# copy of the license is also provided in the top level of the source directory,  #
+# in the file LICENSE.txt.                                                        #
+#                                                                                 #
+###################################################################################
+
+"""
+This tool provides test routines for warehouse.share3_calculateOwnerStorageFillRatios
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+
 import ipath
 
 import warehouse
 
-
-
-
 "Provides a few test routines"
+import abstractbaseclasses
 import globals
 import sampler
 import typemanager
@@ -23,6 +45,8 @@ import storagemodel
 import packagingmodel
 import util
 #globals.deterministic = True
+
+warehouse.DEBUG = True
 
 
 def buildMockTypeManager(userInput, sim):
@@ -83,7 +107,7 @@ def buildMockTypeManager(userInput, sim):
                       "freezer":5.0, "cooler":3.0, "roomtemperature":6.0,
                       "Name":"coldbox_1", "ClassName":"ShippableFridge"},],
                     None, fridgetypes.FridgeType)]
-    
+
     sourceList += [([{"Name":"truck1", "CoolVolumeCC":0, "Storage":"1*coldbox_1"},],
                     None, trucktypes.TruckType)]
 
@@ -100,15 +124,10 @@ def buildMockTypeManager(userInput, sim):
     for name in tms['packaging'].getAllValidTypeNames():
         pkgType = tms['packaging'].getTypeByName(name, activateFlag=False)
         tms['shippables'].getTypeByName(pkgType.containsStr,
-                                            activateFlag=False).addPackageType(pkgType)
+                                        activateFlag=False).addPackageType(pkgType)
 
     return typeManager, tms
 
-
-
-
-
- 
 
 class _mockSim:
     """
@@ -118,7 +137,7 @@ class _mockSim:
         self.userInput = input.UserInput()
         self.userInput['limitedroomtemp'] = True
         self.typeManager, self.typeManagers = buildMockTypeManager(self.userInput, self)
-        
+
         for k,v in self.typeManagers.items():
             setattr(self, k, v)
 
@@ -129,15 +148,12 @@ class _mockSim:
         self.uniqueIdDict = {}
         self.perfect = False
 
-
-
-
     def buildTypeRecords(self, recList, whatType):
         for rec in recList: self.typeManager.addType(rec, whatType, False, False)
 
     def getUniqueString(self, base):
         """
-        This is used by various components to generate names, primarily for debugging.  
+        This is used by various components to generate names, primarily for debugging.
         If called with base='foo' (for example), it will return first 'foo0', then 'foo1',
         etc.
         """
@@ -149,6 +165,7 @@ class _mockSim:
 
     def now(self):
         return 1.2345
+
 
 def stringFromVC(vc):
     if vc is None:
@@ -163,6 +180,82 @@ def stringFromVC(vc):
         return s
 
 
+def calcAvailableVolumes(truck, vc):
+    incomingStorageBlocks = []
+    for v, n in vc.getTupleList():
+        if isinstance(v, abstractbaseclasses.CanStoreType):
+            assert n == int(n), "Non-integral number of fridges"
+            storageCapacityInfo = v.getStorageCapacityInfo()
+            for st, vol in storageCapacityInfo:
+                for _ in xrange(int(n)):
+                    incomingStorageBlocks.append(fridgetypes.Fridge.StorageBlock(truck, st, vol))
+    incomingStorageBlocks = truck.filterStorageBlocks(incomingStorageBlocks)
+
+    fAvail = 0.0
+    cAvail = 0.0
+    wAvail = 0.0
+    for sB in truck.getStorageBlocks() + incomingStorageBlocks:
+        if sB.volAvail < 100000000:  # avoid discard storage
+            if sB.storageType in truck.sim.storage.coolStorageList():
+                cAvail += sB.volAvail
+            elif sB.storageType == truck.sim.storage.roomtempStorage():
+                wAvail += sB.volAvail
+            else:
+                assert(sB.storageType == truck.sim.storage.frozenStorage())
+                fAvail += sB.volAvail
+
+    return fAvail, cAvail, wAvail
+
+
+def calcVolumesUsed(truck, sM, fVC, cVC, wVC):
+    fTot = 0
+    cTot = 0
+    wTot = 0
+    lifetimes = []
+    fFracs = []
+    fLabels = []
+    cFracs = []
+    cLabels = []
+    wFracs = []
+    wLabels = []
+    for v, frac in fVC.items():
+        volPerVial = v.dosesPerVial * v.ccPerDose
+        if sM.getStoreVaccinesWithDiluent(v):
+            volPerVial += v.dosesPerVial * v.ccDiluentPerDose
+        deltaV = frac * vc[v] * volPerVial
+        fTot += deltaV
+        if frac > 0.0:
+            lifetimes.append(1.0/v.freezerFac)
+            fFracs.append(deltaV)
+            fLabels.append(v.name)
+
+    for v, frac in cVC.items():
+        volPerVial = v.dosesPerVial * v.ccPerDose
+        if sM.getStoreVaccinesWithDiluent(v):
+            volPerVial += v.dosesPerVial * v.ccDiluentPerDose
+        deltaV = frac * vc[v] * volPerVial
+        cTot += deltaV
+        if frac > 0.0:
+            lifetimes.append(1.0/v.coolerFac)
+            cFracs.append(deltaV)
+            cLabels.append(v.name)
+
+    for v, frac in wVC.items():
+        volPerVial = v.dosesPerVial * v.ccPerDose
+        if sM.getStoreVaccinesWithDiluent(v):
+            volPerVial += v.dosesPerVial * v.ccDiluentPerDose
+        deltaV = frac * vc[v] * volPerVial
+        wTot += deltaV
+        if frac > 0.0:
+            lifetimes.append(1.0/v.roomtempFac)
+            wFracs.append(deltaV)
+            wLabels.append(v.name)
+
+    fFracs = [f/fTot for f in fFracs]
+    cFracs = [f/cTot for f in cFracs]
+    wFracs = [f/wTot for f in wFracs]
+
+    return fTot, cTot, wTot, min(lifetimes), fFracs, fLabels, cFracs, cLabels, wFracs, wLabels
 
 sim = _mockSim()
 sM = storagemodel.StorageModel(False)
@@ -181,12 +274,62 @@ v3 = tM.getTypeByName('VAC3')
 vc = sim.shippables.getCollection([(v1, 5000), (v2, 3333), (v3, 10555)])
 print vc
 
+figs1, axes1 = plt.subplots(nrows=1, ncols=1)
+figs2, axes2 = plt.subplots(nrows=2, ncols=3)
+xVals = []
+yVals = []
+areas = []
+colors = []
+
+fAvail, cAvail, wAvail = calcAvailableVolumes(truck, vc)
+
 fVC, cVC, wVC = warehouse.share3_calculateOwnerStorageFillRatios(truck, vc, False)
 print fVC
 print cVC
 print wVC
+fTot, cTot, wTot, minLifetime, fFracs, fLabels, cFracs, cLabels, wFracs, wLabels = \
+    calcVolumesUsed(truck, sM, fVC, cVC, wVC)
+
+xVals.append(cTot/cAvail)
+yVals.append(wTot/wAvail)
+areas.append(100*minLifetime)
+colors.append('blue')
+axes2[0, 0].pie(fFracs, labels=fLabels, autopct='%1.1f%%', startangle=90)
+axes2[0, 0].set_title('Freeze')
+axes2[0, 0].set_aspect('equal')
+axes2[0, 1].pie(cFracs, labels=cLabels, autopct='%1.1f%%', startangle=90)
+axes2[0, 1].set_title('Cold')
+axes2[0, 1].set_aspect('equal')
+axes2[0, 2].pie(wFracs, labels=wLabels, autopct='%1.1f%%', startangle=90)
+axes2[0, 2].set_title('Warm')
+axes2[0, 2].set_aspect('equal')
+
 fVC, cVC, wVC = warehouse.share3_calculateOwnerStorageFillRatiosPreferred(truck, vc, False)
 print fVC
 print cVC
 print wVC
+fTot, cTot, wTot, minLifetime, fFracs, fLabels, cFracs, cLabels, wFracs, wLabels = \
+    calcVolumesUsed(truck, sM, fVC, cVC, wVC)
+xVals.append(cTot/cAvail)
+yVals.append(wTot/wAvail)
+areas.append(100*minLifetime)
+colors.append('green')
+axes2[1, 0].pie(fFracs, labels=fLabels, autopct='%1.1f%%', startangle=90)
+axes2[1, 0].set_title('Freeze')
+axes2[1, 0].set_aspect('equal')
+axes2[1, 1].pie(cFracs, labels=cLabels, autopct='%1.1f%%', startangle=90)
+axes2[1, 1].set_title('Cold')
+axes2[1, 1].set_aspect('equal')
+axes2[1, 2].pie(wFracs, labels=wLabels, autopct='%1.1f%%', startangle=90)
+axes2[1, 2].set_title('Warm')
+axes2[1, 2].set_aspect('equal')
 
+axes1.scatter(xVals, yVals, s=areas, c=colors, marker='o')
+axes1.set_xlim(0.0, max(2.0, max(xVals)))
+axes1.set_ylim(0.0, max(2.0, max(yVals)))
+axes1.plot([0.0, 1.0, 1.0], [1.0, 1.0, 0.0], '--', color='black')
+axes1.set_aspect('equal')
+
+# figs1.tight_layout()
+# figs2.tight_layout()
+plt.show()
