@@ -212,11 +212,11 @@ def calcVolumesUsed(truck, sM, fVC, cVC, wVC):
     cTot = 0
     wTot = 0
     lifetimes = []
-    fFracs = []
+    fShares = []
     fLabels = []
-    cFracs = []
+    cShares = []
     cLabels = []
-    wFracs = []
+    wShares = []
     wLabels = []
     for v, frac in fVC.items():
         volPerVial = v.dosesPerVial * v.ccPerDose
@@ -226,7 +226,7 @@ def calcVolumesUsed(truck, sM, fVC, cVC, wVC):
         fTot += deltaV
         if frac > 0.0:
             lifetimes.append(1.0/v.freezerFac)
-            fFracs.append(deltaV)
+            fShares.append(deltaV)
             fLabels.append(v.name)
 
     for v, frac in cVC.items():
@@ -237,7 +237,7 @@ def calcVolumesUsed(truck, sM, fVC, cVC, wVC):
         cTot += deltaV
         if frac > 0.0:
             lifetimes.append(1.0/v.coolerFac)
-            cFracs.append(deltaV)
+            cShares.append(deltaV)
             cLabels.append(v.name)
 
     for v, frac in wVC.items():
@@ -248,14 +248,19 @@ def calcVolumesUsed(truck, sM, fVC, cVC, wVC):
         wTot += deltaV
         if frac > 0.0:
             lifetimes.append(1.0/v.roomtempFac)
-            wFracs.append(deltaV)
+            wShares.append(deltaV)
             wLabels.append(v.name)
 
-    fFracs = [f/fTot for f in fFracs]
-    cFracs = [f/cTot for f in cFracs]
-    wFracs = [f/wTot for f in wFracs]
+    return fTot, cTot, wTot, min(lifetimes), fShares, fLabels, cShares, cLabels, wShares, wLabels
 
-    return fTot, cTot, wTot, min(lifetimes), fFracs, fLabels, cFracs, cLabels, wFracs, wLabels
+
+def sharesToFracs(shares, totAvail, labels):
+    fracs = [s/totAvail for s in shares]
+    if sum(fracs) < 0.99999:
+        fracs += [1.0 - sum(fracs)]
+        labels += ['Empty']
+    return fracs, labels
+
 
 sim = _mockSim()
 sM = storagemodel.StorageModel(False)
@@ -287,9 +292,11 @@ fVC, cVC, wVC = warehouse.share3_calculateOwnerStorageFillRatios(truck, vc, Fals
 print fVC
 print cVC
 print wVC
-fTot, cTot, wTot, minLifetime, fFracs, fLabels, cFracs, cLabels, wFracs, wLabels = \
+fTot, cTot, wTot, minLifetime, fShares, fLabels, cShares, cLabels, wShares, wLabels = \
     calcVolumesUsed(truck, sM, fVC, cVC, wVC)
-
+fFracs, fLabels = sharesToFracs(fShares, fTot, fLabels)
+cFracs, cLabels = sharesToFracs(cShares, cTot, cLabels)
+wFracs, wLabels = sharesToFracs(wShares, wTot, wLabels)
 xVals.append(cTot/cAvail)
 yVals.append(wTot/wAvail)
 areas.append(100*minLifetime)
@@ -308,8 +315,11 @@ fVC, cVC, wVC = warehouse.share3_calculateOwnerStorageFillRatiosPreferred(truck,
 print fVC
 print cVC
 print wVC
-fTot, cTot, wTot, minLifetime, fFracs, fLabels, cFracs, cLabels, wFracs, wLabels = \
+fTot, cTot, wTot, minLifetime, fShares, fLabels, cShares, cLabels, wShares, wLabels = \
     calcVolumesUsed(truck, sM, fVC, cVC, wVC)
+fFracs, fLabels = sharesToFracs(fShares, fTot, fLabels)
+cFracs, cLabels = sharesToFracs(cShares, cTot, cLabels)
+wFracs, wLabels = sharesToFracs(wShares, wTot, wLabels)
 xVals.append(cTot/cAvail)
 yVals.append(wTot/wAvail)
 areas.append(100*minLifetime)
