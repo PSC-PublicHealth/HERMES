@@ -21,7 +21,7 @@ A kind of Store with enhancements to handle the storage requirements
 of multiple types of vaccines and to detect low or high reorder thresholds.
 """
 
-_hermes_svn_id_="$Id$"
+_hermes_svn_id_="$Id: warehouse.py 2331 2015-10-18 22:25:09Z jim $"
 
 import ipath
 
@@ -520,7 +520,7 @@ def shareCool_allocateOwnerStorageSpace(canOwn,stockBuf):
     
     return newlySplitGroups
 
-def share3_calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
+def share3_calculateOwnerStorageFillRatiosSimple(canOwn,thisVC,assumeEmpty):
     """
     This attempts to allocate space fairly between vaccines.  It's
     very similar to the ARENA 'fair share' storage calculation.
@@ -680,6 +680,175 @@ def share3_calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
                 if ratio == 0.0:
                     continue
                 vc += canOwn.sim.shippables.getCollection([(v,ratio)])
+    return (freezeVC, coolVC, warmVC)
+
+def share3_calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
+    """
+    This attempts to allocate space fairly between vaccines.  It's
+    very similar to the ARENA 'fair share' storage calculation.
+    The return value is a triple of VaccineCollections
+
+       freezeVC, coolVC, warmVC
+
+    where each vaccine's entry represents the fraction of the available
+    vials in the input VC to be stored in each medium.  These fractions
+    are truncated at 1.0.  If assumeEmpty is true, all the canOwn's resources 
+    are presumed to be included in thisVC; this includes both attached fridges
+    and all vaccine supplies.  If false, thisVC is assumed to be 'in addition to'
+    any existing fridges and supplies.
+    """
+    
+    if DEBUG:
+        print "**** new version ****"
+    # This method should be 'const' in the C++ sense- no modifying
+    # the canOwn!
+
+    # classify everything
+    freezeTuples= []
+    freezeCoolTuples = []
+    coolTuples= []
+    coolWarmTuples = []
+    warmTuples= []
+    anyTuples = []
+    ignoreTuples = []
+    incomingStorageBlocks= []
+    roomtempStorage= canOwn.sim.storage.roomtempStorage() # cache for speed
+    frozenStorage= canOwn.sim.storage.frozenStorage() # cache for speed
+    coolStorageList= canOwn.sim.storage.coolStorageList() # cache for speed
+    sM = canOwn.getStorageModel()
+    noShippables = True
+    for v,n in thisVC.getTupleList():
+        if isinstance(v,abstractbaseclasses.ShippableType):
+            noShippables = False
+            (warm, cool, freeze) = [sM.canStoreShippableType(v, st) for st in ST.wcfList]
+            
+            if warm and cool and freeze: anyTuples.append((v,n))
+            elif warm and cool: coolWarmTuples.append((v,n))
+            elif cool and freeze: freezeCoolTuples.append((v,n))
+            elif warm: warmTuples.append((v,n))
+            elif cool: coolTuples.append((v,n))
+            elif freeze: freezeTuples.append((v,n))
+            else: anyTuples.append((v,n))
+        else:
+            ignoreTuples.append((v,n)) # Things like trucks and fridges get stored outside the constraints
+
+        if isinstance(v,abstractbaseclasses.CanStoreType):
+            assert n==int(n), "Non-integral number of fridges"
+            storageCapacityInfo= v.getStorageCapacityInfo()
+            for st,vol in storageCapacityInfo:
+                for _ in xrange(int(n)):
+                    incomingStorageBlocks.append(fridgetypes.Fridge.StorageBlock(canOwn,st,vol))
+
+    if noShippables:
+        freezeVC = canOwn.sim.shippables.getCollection()
+        coolVC = canOwn.sim.shippables.getCollection()
+        warmVC= canOwn.sim.shippables.getCollection([(v,1.0) for v,n in ignoreTuples])        
+        return (freezeVC, coolVC, warmVC)
+
+    if DEBUG:
+        print "ignoreTuples: %s"%repr(ignoreTuples)
+        print "any: %s"%repr(anyTuples)
+        print "freezeCool: %s"%repr(freezeCoolTuples)
+        print "coolWarm: %s"%repr(coolWarmTuples)
+        print "freeze: %s"%repr(freezeTuples)
+        print "cool: %s"%repr(coolTuples)
+        print "warm: %s"%repr(warmTuples)
+
+    incomingStorageBlocks= canOwn.filterStorageBlocks(incomingStorageBlocks)
+
+    # Count up storage in each category
+    #freezeTotalVol,coolTotalVol,warmTotalVol = \
+    #    canOwn.getPackagingModel().getStorageVolumeTriple(thisVC,canOwn.getStorageModel())
+
+    freezeTotalVol,coolTotalVol,warmTotalVol,freezeCoolTotalVol,coolWarmTotalVol,anyTotalVol = \
+        canOwn.getPackagingModel().getStorageVolumeHex(thisVC,canOwn.getStorageModel())
+
+    (vols,vols2,vols3) = canOwn.getPackagingModel().getStorageVolumeSCTriple(thisVC, canOwn.getStorageModel())
+    vols += vols2
+    vols += vols3
+
+
+    if DEBUG:
+        print "total volumes:"
+        print "any: %s"%anyTotalVol
+        print "freezeCool: %s"%freezeCoolTotalVol
+        print "coolWarm: %s"%coolWarmTotalVol
+        print "freeze: %s"%freezeTotalVol
+        print "cool: %s"%coolTotalVol
+        print "warm: %s"%warmTotalVol
+
+    warmVol= 0.0
+    warmVolUsed= 0.0
+    freezeVol= 0.0
+    freezeVolUsed= 0.0
+    coolVol= 0.0
+    coolVolUsed= 0.0
+    outdoorVol = 0.0
+    outdoorVolUsed = 0.0
+    if assumeEmpty:
+        for sb in incomingStorageBlocks:
+            if sb.storageType in coolStorageList:
+                coolVol += sb.volAvail
+            elif sb.storageType==roomtempStorage:
+                warmVol += sb.volAvail
+            else:
+                assert(sb.storageType==frozenStorage)
+                freezeVol += sb.volAvail
+    else:
+        for sb in canOwn.getStorageBlocks()+incomingStorageBlocks:
+            if sb.storageType in coolStorageList:
+                coolVol += sb.volAvail
+                coolVolUsed += sb.volUsed
+            elif sb.storageType==roomtempStorage:
+                if sb.volAvail == 1000000000000:
+                    outdoorVol += sb.volAvail
+                    outdoorVolUsed += sb.volUsed
+                else:
+                    warmVol += sb.volAvail
+                    warmVolUsed += sb.volUsed
+            else: 
+                assert(sb.storageType==frozenStorage)
+                freezeVol += sb.volAvail
+                freezeVolUsed += sb.volUsed
+
+    if DEBUG:
+        print "volume available: %s, %s, %s"%(freezeVol, coolVol, warmVol)
+
+
+    w_wR, w_wV, wc_wR, wc_wV, wcf_wR, wcf_wV, \
+    c_cR, c_cV, wc_cR, wc_cV, cf_cR, cf_cV, wcf_cR, wcf_cV, \
+    f_fR, f_fV, cf_fR, cf_fV, wcf_fR, wcf_fV = \
+        calculateFill._share3(warmVol, coolVol, freezeVol, 
+                              warmTotalVol, coolTotalVol, freezeTotalVol,
+                              coolWarmTotalVol, freezeCoolTotalVol, anyTotalVol)
+
+    spaceLeft = {ST.STORE_WARM : warmVol - w_wV - wc_wV - wcf_wV,
+                 ST.STORE_COOL : coolVol - c_cV - wc_cV - cf_cV - wcf_cV,
+                 ST.STORE_FREEZE : freezeVol - f_fV - cf_fV - wcf_fV}
+
+
+    #print spaceLeft
+
+    warmVC = canOwn.sim.shippables.getCollection()
+    coolVC = canOwn.sim.shippables.getCollection()
+    freezeVC = canOwn.sim.shippables.getCollection()
+
+
+    for (tupleList, ratioList) in ((warmTuples, (w_wR, None, None)),
+                                   (coolWarmTuples, (wc_wR, wc_cR, None)),
+                                   (anyTuples, (wcf_wR, wcf_cR, wcf_fR)),
+                                   (coolTuples, (None, c_cR, None)),
+                                   (freezeCoolTuples, (None, cf_cR, cf_fR)),
+                                   (freezeTuples, (None, None, f_fR))):
+
+
+        for v,n in tupleList:
+            for ratio, vc in zip(ratioList, (warmVC, coolVC, freezeVC)):
+                if ratio is None:
+                    continue
+                if ratio == 0.0:
+                    continue
+                vc += canOwn.sim.shippables.getCollection([(v,ratio)])
 
 
     # currently we've put our shippables into one of the optimal configurations that satisfies their minimum
@@ -711,15 +880,15 @@ def share3_calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
                     continue
                 if ratio > 0.0:
                     if not want[st]:
-                        wantMoveList.append([st, v, ratio, ratio * n, want, wantCount])
+                        wantMoveList.append([st, v, ratio, ratio * vols[v], want, wantCount])
                     elif wantCount > 1:
-                        canMoveList.append([st, v, ratio, ratio * n, want, wantCount])
-        # add empty space to the canMoveList
-        openWant = {ST.STORE_WARM:True, ST.STORE_COOL:True,ST.STORE_FREEZE:True}
-        for st,amt in spaceLeft.items():
-            if amt <= 0.0:
-                continue
-            canMoveList.append([st, None, None, amt, openWant, 3])
+                        canMoveList.append([st, v, ratio, ratio * vols[v], want, wantCount])
+    # add empty space to the canMoveList
+    openWant = {ST.STORE_WARM:True, ST.STORE_COOL:True,ST.STORE_FREEZE:True}
+    for st,amt in spaceLeft.items():
+        if amt <= 0.0:
+            continue
+        canMoveList.append([st, None, None, amt, openWant, 3])
 
     # now let's try swapping things around!
     #arguably we should randomize the wantMoveList so that no entity is favored.  For now we're not going to bother.
@@ -732,6 +901,7 @@ def share3_calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
             continue
         # might need to modify the list entry in place so grab list entry before expanding it
         for canMove in wantMoveList + canMoveList:
+            #print canMove
             (canSt, canV, canRatio, canVol, canWant, canCount) = canMove
             # if can and want are in the same pool there's no swap possible
             if wantSt == canSt:
@@ -741,8 +911,8 @@ def share3_calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
                 continue
 
             # if we're here, we can swap some or all of want with can
-            if DEBUG:
-                print "swapping some %s with %s"%(wantV, canV)
+            if 1:
+                print "swapping some %s(%s,%s,%s,%s) with %s(%s,%s,%s,%s)"%(wantV, wantSt, wantVol, wantRatio, wantWant, canV, canSt, canVol, canRatio, canWant)
             if wantVol <= canVol:
                 # split the can entry
                 try: # the canMove entry might have None for its ratio
@@ -888,6 +1058,10 @@ def share3_calculateOwnerStorageFillRatiosPreferred(canOwn,thisVC,assumeEmpty):
     freezeTotalVol,coolTotalVol,warmTotalVol,freezeCoolTotalVol,coolWarmTotalVol,anyTotalVol = \
         canOwn.getPackagingModel().getStorageVolumeHex(thisVC,canOwn.getStorageModel())
 
+    (vols,vols2,vols3) = canOwn.getPackagingModel().getStorageVolumeSCTriple(thisVC, canOwn.getStorageModel())
+    vols += vols2
+    vols += vols3
+
     if DEBUG:
         print "total volumes:"
         print "any: %s"%anyTotalVol
@@ -998,15 +1172,15 @@ def share3_calculateOwnerStorageFillRatiosPreferred(canOwn,thisVC,assumeEmpty):
                     continue
                 if ratio > 0.0:
                     if not want[st]:
-                        wantMoveList.append([st, v, ratio, ratio * n, want, wantCount])
+                        wantMoveList.append([st, v, ratio, ratio * vols[v], want, wantCount])
                     elif wantCount > 1:
-                        canMoveList.append([st, v, ratio, ratio * n, want, wantCount])
-        # add empty space to the canMoveList
-        openWant = {ST.STORE_WARM:True, ST.STORE_COOL:True,ST.STORE_FREEZE:True}
-        for st,amt in spaceLeft.items():
-            if amt <= 0.0:
-                continue
-            canMoveList.append([st, None, None, amt, openWant, 3])
+                        canMoveList.append([st, v, ratio, ratio * vols[v], want, wantCount])
+    # add empty space to the canMoveList
+    openWant = {ST.STORE_WARM:True, ST.STORE_COOL:True,ST.STORE_FREEZE:True}
+    for st,amt in spaceLeft.items():
+        if amt <= 0.0:
+            continue
+        canMoveList.append([st, None, None, amt, openWant, 3])
 
     # now let's try swapping things around!
     #arguably we should randomize the wantMoveList so that no entity is favored.  Or maybe sort by preference.
@@ -1100,14 +1274,14 @@ def share3_calculateOwnerStorageFillRatiosPreferred(canOwn,thisVC,assumeEmpty):
                 continue
 
             # if here this vaccine would prefer to move.
-            wantMoveList.append([st, v, ratio, ratio*thisVC[v], preferredSt, facDict])
+            wantMoveList.append([st, v, ratio, ratio*vols[v], preferredSt, facDict])
 
-        # add empty space to the canMoveList
-        openFac = {ST.STORE_WARM:1.0, ST.STORE_COOL:1.0,ST.STORE_FREEZE:1.0}
-        for st,amt in spaceLeft.items():
-            if amt <= 0.0:
-                continue
-            canMoveList.append([st, None, None, amt, 'any', openFac])
+    # add empty space to the canMoveList
+    openFac = {ST.STORE_WARM:1.0, ST.STORE_COOL:1.0,ST.STORE_FREEZE:1.0}
+    for st,amt in spaceLeft.items():
+        if amt <= 0.0:
+            continue
+        canMoveList.append([st, None, None, amt, 'any', openFac])
 
     # now let's try swapping things around!
     #arguably we should randomize the wantMoveList so that no entity is favored.  For now we're not going to bother.
@@ -1122,6 +1296,8 @@ def share3_calculateOwnerStorageFillRatiosPreferred(canOwn,thisVC,assumeEmpty):
         for canMove in wantMoveList + canMoveList:
             (canSt, canV, canRatio, canVol, canPreferred, canDict) = canMove
             
+            if canVol == 0.0:
+                continue
             # see if it's a good match for want
             if wantPreferred != canSt:
                 continue
@@ -1131,13 +1307,15 @@ def share3_calculateOwnerStorageFillRatiosPreferred(canOwn,thisVC,assumeEmpty):
                     continue
 
             # if we're here, we can swap some or all of want with can
-            if DEBUG:
-                print "swapping some %s with %s"%(wantV, canV)
+            if 1:
+                print "2nd swapping some %s(%s,%s,%s) with %s(%s,%s,%s)"%(wantV, wantSt, wantVol, wantRatio, canV, canSt, canVol, wantRatio)
+                #print "swapping some %s with %s"%(wantV, canV)
             if wantVol <= canVol:
                 # modify the can entry.  If it's open space, then split it
                 if canV is not None:
                     swapRatio = canRatio/canVol * wantVol
                     remainingRatio = canRatio - swapRatio
+                    #print "remaining: %s, swap: %s"%(remainingRatio, swapRatio)
                     canMove[:] = [canSt, canV, remainingRatio, canVol-wantVol, canPreferred, canDict]
                 else:
                     canMove[:] = [canSt, None, None, canVol-wantVol, canPreferred, canDict]
