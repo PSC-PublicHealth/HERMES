@@ -15,7 +15,7 @@
 #                                                                                 #
 ###################################################################################
 
-_hermes_svn_id_="$Id$"
+_hermes_svn_id_="$Id: fridgehooks.py 2262 2015-02-09 14:38:25Z stbrown $"
 
 import sys,os,os.path,time,json,math,types
 import bottle
@@ -37,39 +37,35 @@ from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip,
 inlizer=session_support.inlizer
 _=session_support.translateString
 
-fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'string'},
-            {'row':1, 'label':_('DisplayName'), 'key':'DisplayName', 'id':'displayname', 'type':'string'},
-            {'row':1, 'label':_('Make'), 'key':'Make', 'id':'make', 'type':'string'},  
-            {'row':1, 'label':_('Model'), 'key':'Model', 'id':'model', 'type':'string'},  
-            {'row':2, 'label':_('Year'), 'key':'Year', 'id':'year', 'type':'string'},  
-            {'row':2, 'label':_('Cooler Volume (L)'), 'key':'cooler', 'id':'cooler', 'type':'float'},
-            {'row':2, 'label':_('Freezer Volume (L)'), 'key':'freezer', 'id':'freezer', 'type':'float'},
-            {'row':2, 'label':_('Room Temperature Volume (L)'), 'key':'roomtemperature', 'id':'roomtemperature', 
-             'type':'float'},
-            {'row':3, 'label':_('Category'), 'key':'Category', 'id':'category', 'type':'string'},  
-            {'row':3, 'label':_('Technology'), 'key':'Technology', 'id':'technology', 'type':'string'},  
-            {'row':3, 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'type':'string'},  
-            {'row':4, 'label':_('Base Cost'), 'key':'BaseCost', 'id':'basecost', 'type':'price'},  
-            {'row':4, 'label':_('Base Cost Year'), 'key':'BaseCostYear', 'id':'basecostyear', 'type':'int'},  
-            {'row':4, 'label':_('Currency'), 'key':'BaseCostCur', 'id':'basecostcur', 'type':'currency',
-             'price':'basecost','year':'basecostyear'},
-            {'row':4, 'label':_("Years To Amortize"), 'key':'AmortYears', 'id':'amortyears', 'type':'float'},
-            {'row':5, 'label':_('Energy'), 'key':'Energy', 'id':'energy', 'type':'energy'},
-            {'row':5, 'label':_('Power Rate'), 'key':'PowerRate', 'id':'powerrate', 'type':'float'},  
-            {'row':5, 'label':_('Power Rate Units'), 'key':'PowerRateUnits', 'id':'powerrateunits', 'type':'hide'},  
-            {'row':5, 'label':_('Holdover Days'), 'key':'NoPowerHoldoverDays', 'id':'nopowerholdoverdays', 'type':'float'},  
-            {'row':5, 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'type':'string'},
-            {'row':6, 'label':_('Behavior'), 'key':'ClassName', 'id':'classname', 'type':'select',
+fieldMap = [{ 'label':_('HERMES DB Id'), 'key':'Name', 'id':'name', 'type':'dbkey'},
+            { 'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info': True,'type':'string'},
+            { 'label':_('Make'), 'key':'Make', 'id':'make','info': True, 'type':'string'},  
+            { 'label':_('Model'), 'key':'Model', 'id':'model','info': True,'type':'string'},  
+            { 'label':_('Year'), 'key':'Year', 'id':'year','info': True, 'type':'string'},  
+            { 'label':_('Net Volume for 2-8C Storage (L)'), 'key':'cooler', 'id':'cooler','info': True, 'type':'float'},
+            { 'label':_('Net Volume for Below 0C Storage'), 'key':'freezer', 'id':'freezer','info': True, 'type':'float'},
+            { 'label':_('Net Volume for Room Temperature Storage (L)'), 'key':'roomtemperature', 'id':'roomtemperature', 
+            'info': True, 'type':'float'},
+            { 'label':_('Category of Device'), 'key':'Category', 'id':'category', 'info': True,'type':'string'},  
+            { 'label':_('Type of Technology'), 'key':'Technology', 'id':'technology','info': True, 'type':'string'},  
+            { 'label':_('Requires'), 'key':'Requires', 'id':'requires','info': True, 'type':'string'},  
+            {'label':_('Capital Cost of Device'),'key':'BaseCost','id':'basecost','info': True,'type':'cost','recMap':['BaseCost','BaseCostCurCode','BaseCostYear']},
+            { 'label':_("Years To Amortize"), 'key':'AmortYears', 'id':'amortyears', 'info': True,'type':'float'},
+            { 'label':_('Type of Energy Used'), 'key':'Energy', 'id':'energy', 'info': True,'type':'energy'},
+            { 'label':_('Rate of Energy Usage'), 'key':'PowerRate', 'id':'powerrate','info': True, 'type':'rate'},  
+            { 'label':_('Hold Days with No Power'), 'key':'NoPowerHoldoverDays', 'id':'nopowerholdoverdays', 'info': True,'type':'float'},  
+            { 'label':_('Behavior'), 'key':'ClassName', 'id':'classname','info': True, 'type':'select',
              'options':[('Fridge',_('standard non-portable'),[],['alarmdays','snoozedays','coldlifetime']),
                         ('ElectricFridge',_('electric non-portable'),[],['alarmdays','snoozedays','coldlifetime']),
                         ('ShippableFridge',_('portable'),[],['alarmdays','snoozedays','coldlifetime']),
                         ('IceFridge',_('ice-cooled portable'),['coldlifetime'],['alarmdays','snoozedays']),
                         ('AlarmedIceFridge',_('ice-cooled with pull support'),['alarmdays','snoozedays','coldlifetime'],[])
                         ]},  
-            {'row':6, 'label':_('ColdLifetime'), 'key':'ColdLifetime', 'id':'coldlifetime', 'type':'float',
+            { 'label':_('Hold Time of the Device'), 'key':'ColdLifetime', 'id':'coldlifetime','info': True, 'type':'float',
              'default':5.0},
-            {'row':6, 'label':_('AlarmDays'), 'key':'AlarmDays', 'id':'alarmdays', 'type':'float'},
-            {'row':6, 'label':_('SnoozeDays'), 'key':'SnoozeDays', 'id':'snoozedays', 'type':'float'},
+            { 'label':_('AlarmDays'), 'key':'AlarmDays', 'id':'alarmdays', 'info': True,'type':'float'},
+            { 'label':_('SnoozeDays'), 'key':'SnoozeDays', 'id':'snoozedays', 'info': True,'type':'float'},
+            { 'label':_('Notes'), 'key':'Notes', 'id':'notes','info': True, 'type':'stringBox'},
             ]
 
 @bottle.route('/fridge-edit')

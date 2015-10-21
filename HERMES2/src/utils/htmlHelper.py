@@ -79,7 +79,6 @@ class HTMLConstruct(HTMLPrimitive):
         self.footerStringList.append(text_)
         
     def htmlString(self):
-        print "SHIT"
         htmlStringList = []
         [htmlStringList.append(x) for x in self.headerStringList]
         htmlStringList.append(self.htmlStringLocal())
@@ -276,7 +275,6 @@ class HTMLForm(HTMLTable):
         
     def addElement(self,htmlElement_):
         if htmlElement_.styles.has_key('visibility') and htmlElement_.styles['visibility'] == 'hidden':
-            print "hidden"
             self.addRow([htmlElement_.title,htmlElement_.htmlString()],["h",1,1])
         elif hasattr(htmlElement_,'title') and htmlElement_.title is not None:
             self.addRow([htmlElement_.title,htmlElement_.htmlString()], ["N",1,1])
@@ -333,7 +331,7 @@ class HTMLFormSelectBox(HTMLElement):
             return u''.join(htmlList)
 
 class HTMLFormInputBox(HTMLElement):
-    _acceptableTypes = {'int':'number','string':'text','float':'number'}
+    _acceptableTypes = {'int':'number min="0" step="1"','string':'text','float':'number min="0" step="0.1"','dbkey':'text'}
     def __init__(self,name_,title_,default_=None,type_='int',pretty_=True,**kwargs):
         HTMLElement.__init__(self,name_,pretty_,**kwargs)
         self.title = title_
@@ -363,7 +361,7 @@ class HTMLFormInputBox(HTMLElement):
                         value = float(value)
                     except Exception,e:
                         raise Exception("HTMLFormInputBox %s: value %s not consistent with Float type"%(self.name,value))
-        elif self.type == 'string':
+        elif self.type in ['string','dbkey']:
             value = unicode(value)
         return value
     
@@ -399,6 +397,23 @@ class HTMLFormCheckBox(HTMLElement):
     def htmlString(self):
         return u'<input id=%s type="checkbox" %s %s %s>'%(self.name,self.default,
                                                          self.classString, self.styleString)
+        
+class HTMLFormTextArea(HTMLElement):
+    def __init__(self,name_,title_,default_='',rows_=4, cols_=100, pretty_=True,**kwargs):
+        HTMLElement.__init__(self,name_,pretty_,**kwargs)
+        self.title = title_
+        self.default = default_
+        self.rows=rows_
+        self.cols=cols_
+
+    def htmlString(self):
+        return u'<textarea id={0} rows="{1}" cols="{2}">{3}</textarea>'.format(self.name,
+                                                                                                                                                            self.rows,
+                                                                                                                                                             self.cols,
+                                                                                                                                                             self.default)
+    
+        
+
             
 def main():
     htmlDoc = HTMLDocument(name_="test_doc",title_="Test HTML Document",standAlone_=True)

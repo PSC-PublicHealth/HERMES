@@ -20,7 +20,7 @@
 # -A session could be hijacked just by grabbing the SessionID;
 #  should use an encrypted cookie to prevent this.
 ####################################
-_hermes_svn_id_="$Id$"
+_hermes_svn_id_="$Id: staffhooks.py 2262 2015-02-09 14:38:25Z stbrown $"
 
 import sys,os,os.path,time,json,math,types
 import bottle
@@ -39,15 +39,13 @@ from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip,
 inlizer=session_support.inlizer
 _=session_support.translateString
 
-fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'string'},
-            {'row':1, 'label':_('DisplayName'), 'key':'DisplayName', 'id':'displayname', 'type':'string'},
-            {'row':2, 'label':_('Base Salary'), 'key':'BaseSalary', 'id':'basesalary', 'type':'price'},  
-            {'row':2, 'label':_('Salary Units'), 'key':'BaseSalaryCur', 'id':'basesalarycur', 'type':'currency'},   
-            {'row':2, 'label':_('Salary Year'), 'key':'BaseSalaryYear', 'id':'basesalaryyear', 'type':'int'},  
-            {'row':3, 'label':_('Fraction EPI'), 'key':'FractionEPI', 'id':'fractionepi', 'type':'float'},  
-            {'row':3, 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'type':'string'},
-            {'row':3, 'label':_('SortOrder'), 'key':'SortOrder', 'id':'sortorder', 'type':'int'},                 
-            ]
+fieldMap = [{ 'label':_('HERMES DB ID'), 'key':'Name', 'id':'name', 'info':False, 'type':'string'},
+                        { 'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info':True,'type':'string'},
+                        { 'label':_('Yearly Salary'), 'key':'BaseSalary', 'id':'basesalary',  'info':True, 'type':'cost','recMap':['BaseSalary','BaseSalaryCurCode','BaseSalaryYear']},  
+                        { 'label':_('Fraction of Effort Dedicated to Supply Chain Logistics'), 'key':'FractionEPI', 'id':'fractionepi',  'info':True, 'type':'float'},  
+                        { 'label':_('Notes'), 'key':'Notes', 'id':'notes',  'info':True, 'type':'stringbox'},
+                        { 'label':_('SortOrder'), 'key':'SortOrder', 'id':'sortorder', 'info':False, 'type':'int'},                 
+                        ]
 
 @bottle.route('/staff-top')
 def staffTopPage(uiSession):

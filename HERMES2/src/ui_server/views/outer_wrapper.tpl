@@ -21,9 +21,10 @@
     <title>{{_('HERMES - Supply Chain Modeling for Public Health')}}</title>
 
 <link rel="shortcut icon" type="image/x-icon" href="{{rootPath}}static/icons/favicon2.ico">
-<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/themes/base/jquery-ui.css" />
+<!--<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/themes/base/jquery-ui.css" />-->
 
-<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/themes/base/jquery.ui.all.css" />
+<!--<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/themes/base/jquery.ui.all.css" />-->
+<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.11.4.custom/jquery-ui.css" />
 <link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/demos/demos.css" />
 <link rel="stylesheet" href="{{rootPath}}static/animate.css"/>
 <link rel="stylesheet" type="text/css" media="screen" href="{{rootPath}}static/jqGrid-4.4.4/css/ui.jqgrid.css" />
@@ -31,8 +32,9 @@
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/hermes_custom.css" />
 
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-rcrumbs-3234d9e/jquery.rcrumbs.css" />
-<script src="{{rootPath}}static/jquery-1.9.1.min.js"></script>
-<script src="{{rootPath}}static/jquery-ui-1.10.2/ui/jquery-ui.js"></script>
+<script src="{{rootPath}}static/jquery-1.11.3.js"></script>
+<script src="{{rootPath}}static/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+<!--<script src="{{rootPath}}static/jquery-ui-1.10.2/ui/jquery-ui.js"></script>-->
 
 <script type="text/javascript" src="{{rootPath}}static/jqGrid-4.4.4/js/i18n/grid.locale-en.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/jqGrid-4.4.4/js/jquery.jqGrid.src.js"></script>

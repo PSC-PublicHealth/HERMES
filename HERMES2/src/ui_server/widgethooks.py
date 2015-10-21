@@ -20,7 +20,7 @@
 # -A session could be hijacked just by grabbing the SessionID;
 #  should use an encrypted cookie to prevent this.
 ####################################
-_hermes_svn_id_="$Id$"
+_hermes_svn_id_="$Id: widgethooks.py 2262 2015-02-09 14:38:25Z stbrown $"
 
 import json, types, urllib
 from StringIO import StringIO
@@ -677,9 +677,9 @@ def _handleListThing(db, uiSession, thingName, thingDict):
                 foundSel = True
             else:
                 sio.write("  <option value='%s'>%s</option>\n" % (k, v))
-        if sel and not foundSel:
-            raise RuntimeError(_("The selected {0} type {1} is not a known type").format(thingName,
-                                                                                         sel))
+        #if sel and not foundSel:
+        #    raise RuntimeError(_("The selected {0} type {1} is not a known type").format(thingName,
+        #                                                                                 sel))
         # print 'handleListThing produced %s' % sio.getvalue()
 
         return {"success": True,

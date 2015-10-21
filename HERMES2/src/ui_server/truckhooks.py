@@ -20,7 +20,7 @@
 # -A session could be hijacked just by grabbing the SessionID;
 #  should use an encrypted cookie to prevent this.
 ####################################
-_hermes_svn_id_="$Id$"
+_hermes_svn_id_="$Id: truckhooks.py 2262 2015-02-09 14:38:25Z stbrown $"
 
 import sys,os,os.path,time,json,math,types
 import bottle
@@ -41,19 +41,20 @@ from ui_utils import _logMessage, _getOrThrowError, _smartStrip, _getAttrDict, _
 inlizer=session_support.inlizer
 _=session_support.translateString
 
-fieldMap = [{'row':1, 'label':_('Name'), 'key':'Name', 'id':'name', 'type':'string'},
-            {'row':1, 'label':_('DisplayName'), 'key':'DisplayName', 'id':'displayname', 'type':'string'},
-            {'row':1, 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'type':'string'},
-            {'row':2, 'label':_('Storage'), 'key':'Storage', 'id':'storage', 'type':'string'},  
-            {'row':2, 'label':_('CoolVolume (cc)'), 'key':'CoolVolumeCC', 'id':'coolvolumecc', 'type':'float'},
-            {'row':2, 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'type':'string'},
-            {'row':3, 'label':_('Base Price'), 'key':'BaseCost', 'id':'baseprice', 'type':'price'},  
-            {'row':3, 'label':_('Price Units'), 'key':'BaseCostCur', 'id':'basecostcur', 'type':'currency'},   
-            {'row':3, 'label':_('Price Year'), 'key':'BaseCostYear', 'id':'basecostyear', 'type':'int'},  
-            {'row':4, 'label':_('Km To Amortize'), 'key':'AmortizationKm', 'id':'amortkm', 'type':'float'},
-            {'row':4, 'label':_('Fuel'), 'key':'Fuel', 'id':'fuel', 'type':'fuel'},
-            {'row':4, 'label':_('Fuel Consumption'), 'key':'FuelRate', 'id':'fuelrate', 'type':'float'},
-            {'row':4, 'label':_('Units'), 'key':'FuelRateUnits', 'id':'fuelunits', 'type':'hide'},
+fieldMap = [{ 'label':_('HERMES DB ID'), 'key':'Name', 'id':'name', 'info':False,'type':'dbkey'},
+            { 'label':_('Name'), 'key':'DisplayName', 'id':'displayname',  'info':True,'type':'string'},  
+            { 'label':_('Net Storage at 2-8C (L) '), 'key':'CoolVolumeCC', 'id':'coolvolumecc', 'info':True, 'type':'custtruckstoresum'}, # Custom Type
+           
+            { 'label':_('Capital Cost'), 'key':'BaseCost', 'id':'baseprice', 'info':True, 'type':'cost','recMap':['BaseCost','BaseCostCurCode','BaseCostYear']},  
+            #{ 'label':_('Price Units'), 'key':'BaseCostCur', 'id':'basecostcur', 'info':True, 'type':'currency'},   
+            #{ 'label':_('Price Year'), 'key':'BaseCostYear', 'id':'basecostyear', 'info':True, 'type':'int'},  
+            { 'label':_('Lifetime of Vehicle (KM)'), 'key':'AmortizationKm', 'id':'amortkm', 'info':True, 'type':'float'},
+            { 'label':_('Fuel Type'), 'key':'Fuel', 'id':'fuel', 'info':True, 'type':'fuel'},
+            { 'label':_('Fuel Consumption Rate'), 'key':'FuelRate', 'id':'fuelrate', 'info':True, 'type':'rate'},
+            #{ 'label':_('Units'), 'key':'FuelRateUnits', 'id':'fuelunits', 'type':'hide'},
+             { 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'info':False, 'type':'string'},
+             { 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'info':True, 'type':'stringbox'},
+             { 'label':_('Storage'), 'key':'Storage', 'id':'storage', 'info':True,'type':'custtruckstoragetable'},
             ]
 
 @bottle.route('/truck-edit')

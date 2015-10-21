@@ -698,7 +698,137 @@ function addToggleExpansionButton($grid) {
 				$elem.currencySelector('rebuild');			
  			});
  		}
-
+ 		else if (settings['widget']=='timeFormInput'){
+ 			$.fn.timeFormInput = function(arg, arg2) {
+ 				var tId = this.attr('id');
+ 				if(tId==undefined) $.error('rate Form Input has no id');
+ 				
+ 				if(arg=='value'){
+ 					var timeValue = $("#"+tId+"_time").val();
+ 					var unitValue = $("#"+tId+"_unit").val();
+ 					return timeValue + ":" + unitValue;
+ 				}
+ 				if(arg=='valueJson'){
+ 					var fieldMap = $('#'+tId).data('fieldmap');
+ 					var returnJson = {};
+ 					returnJson[fieldMap.time] = $("#"+tId+"_time").val();
+ 					returnJson[fieldMap.unit] = $("#"+tId+"_unit").val();
+ 					
+ 					return returnJson;
+ 				}
+ 				
+ 				if(arg=='clean'){
+ 					var timeValue = $("#"+tId+"_time").val();
+ 					if(isNaN(parseFloat(timeValue))) $("#"+tId+"_time").val(0.0);
+ 				}
+ 			}
+	 		return this.each(function(index,elem){
+	 			var timeUnits = {'days':'D','months':'M','years':'Y'};
+	 			var $elem = $(elem);
+	 			var value = settings['value'];
+	 			var values = value.split(':');
+	 			
+	 			htmlString = '<div style="float:left;"><label>'+settings['label']+'</label>'
+	 			htmlString +='<input type="number" class="hrm_time_time" id="'+$(this).attr('id')+'_time"></input></div>';
+	 			htmlString +='<div style="float:right;"><select  class="hrm_time_unit" id="'+$(this).attr('id')+'_unit">';
+	 			for (unit in timeUnits){
+	 				if(timeUnits.hasOwnProperty(unit)){
+	 					if(values[1] == timeUnits[unit])
+	 						htmlString +='<option value = "'+timeUnits[unit]+'" selected>'+unit+'</option>';
+	 					else
+	 						htmlString +='<option value = "'+timeUnits[unit]+'">'+unit+'</option>';
+	 				}
+	 			}
+	 			htmlString += '</select></div>'
+	 			$elem.html(htmlString);
+	 			$("#"+$(this).attr('id')+'_time').val(parseFloat(values[0]));
+	 			$('#'+$(this).attr('id')+'_unit').selectmenu({
+	 				width:'auto',
+	 				height:'auto',
+	 			})
+	 			.selectmenu("menuWidget")
+	 			.addClass("overflow");
+	 		});
+    	}
+ 		else if (settings['widget']=='costFormInput'){
+ 			$.fn.costFormInput = function(arg, arg2) {
+ 				var tId = this.attr('id');
+ 				if(tId==undefined) $.error('cost Form Input has no id');
+ 				
+ 				if(arg=='value'){
+ 					var price = $("#"+tId+"_price").val();
+ 					var year = $("#"+tId+"_year").val();
+ 					var currency = $("#"+tId+"_currency").currencySelector('selId');
+ 					return price+":"+currency+":"+year;
+ 				}
+ 				if(arg=='valueJson'){
+ 					var fieldMap = $("#"+tId).data('fieldmap');
+ 					var returnJson = {};
+ 					returnJson[fieldMap.price] = $("#"+tId+"_price").val();
+ 					returnJson[fieldMap.currency] = $("#"+tId+"_currency").currencySelector('selId');
+ 					returnJson[fieldMap.year] = $("#"+tId+"_year").val();
+ 					
+ 					return returnJson;
+ 				}
+ 				if(arg=='clean'){
+ 					var price = $("#"+tId+"_price").val();
+ 					console.log(parseFloat(price));
+ 					if(isNaN(parseFloat(price))) $("#"+tId+"_price").val(0.0);
+ 				}
+ 			}
+ 			
+ 			return this.each(function(index,elem){
+ 				var allowedYears = [2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014];
+ 				var $elem  = $(elem);
+ 				var value = settings['value'];
+ 				var values = value.split(':');
+ 				$elem.data('fieldMap',settings['fieldMap']);
+ 				//console.log(settings);
+ 				//put error handling here to validate
+ 				htmlString = '<div style="float:left;"><label>'+settings['label']+'</label>';
+ 				htmlString += '<input type="number" class="hrm_cost_price" id="'+$(this).attr('id')+'_price"></input></div>';
+ 				htmlString += '<div style="float:left;" class="hrm_cost_div"> in </div>';
+ 				// replace with a year selector that takes into account available data
+ 				htmlString += '<div style="float:left;"> <select class="hrm_cost_year" id="'+ $(this).attr('id') + '_year">';
+ 				for (var i=0;i<allowedYears.length;i++){
+ 					if(parseInt(values[2]) == allowedYears[i]){
+ 						htmlString += '<option value='+allowedYears[i]+' selected>'+allowedYears[i]+'</option>';
+ 					}
+ 					else{
+ 						htmlString += '<option value='+allowedYears[i]+'>'+allowedYears[i]+'</option>';
+ 					}
+ 				}
+ 				htmlString += '</select></div>';
+ 				htmlString += '<div style="float:left;" class="hrm_cost_currencySelector" id="'+$(this).attr('id')+'_currency"></div>';
+ 				$elem.html(htmlString);
+ 				
+ 				$elem.find('.hrm_cost_price').each(function(idx){
+ 					$field = $(this);
+ 					$field.val(parseFloat(values[0]).formatMoney(2));
+ 					$elem.data('orgPrice',$field.val());
+ 					$elem.data('fieldMap',settings['fieldMap'])
+ 					console.log("It IS HERE " + $elem.data('fieldMap'));
+ 				});
+ 				$elem.find('.hrm_cost_currencySelector').each(function(idx){
+ 					$field = $(this);
+ 					var sel = values[1];
+ 					$field.hrmWidget({
+ 						widget:'currencySelector',
+ 						label:'',
+ 						modelId:settings.modelId,
+ 						selected:sel,
+ 					});
+ 				});
+ 				$elem.find('.hrm_cost_year').each(function(idx){
+ 						$(this).selectmenu({
+ 							width:'auto',
+ 							height:'auto',
+ 						})
+ 						.selectmenu("menuWidget")
+ 						.addClass("overflow");
+ 				});
+ 			});
+ 		}
  		else if (settings['widget']=='energySelector') {
 			$.fn.energySelector = function( arg, arg2 ) {
 				var sel = this.first().find("select");
@@ -1301,7 +1431,7 @@ function addToggleExpansionButton($grid) {
 			$.fn.editFormManager = function( arg, arg2 ) {
  				if (arg=='getEntries') {
  					var dict = {modelId:settings.modelId}
- 					$(this).find('input,select').each( function( index ) {
+ 					$(this).find('input,select,textarea').each( function( index ) {
  						var tj = $(this);
  						if (tj.hasClass('hrm_price')) {
  							dict[tj.attr('id')] = tj.val().unformatMoney()
@@ -1319,15 +1449,38 @@ function addToggleExpansionButton($grid) {
  					$(this).find('.hrm_currency').each(function() {
  						var tj = $(this);
  						dict[tj.attr('id')] = tj.currencySelector('selId');
- 					})
+ 					});
+ 					$(this).find('.hrm_costforminput').each(function(){
+ 						var tj = $(this);
+ 						tj.costFormInput('clean');
+ 						console.log("CGOSGTS");
+ 						value = tj.costFormInput('valueJson');
+ 						for (key in value){
+ 							if(value.hasOwnProperty(key)){
+ 								dict[key] = value[key];
+ 							}
+ 						}
+ 					});
+ 					$(this).find('.hrm_timeforminput').each(function(){
+ 						var tj = $(this);
+ 						tj.timeFormInput('clean');
+ 						value = tj.timeFormInput('valueJson');
+ 						for(key in value){
+ 							console.log(key);
+ 							if(value.hasOwnProperty(key)){
+ 								dict[key] = value[key];
+ 							}
+ 						}
+ 					});
  					$(this).find('.hrm_energy').each(function() {
  						var tj = $(this);
  						dict[tj.attr('id')] = tj.energySelector('selId');
- 					})
+ 					});
  					$(this).find('.hrm_fuel').each(function() {
  						var tj = $(this);
  						dict[tj.attr('id')] = tj.energySelector('selId');
- 					})
+ 					});
+ 					console.log(dict);
  					return dict;
  				}
 				else {
@@ -1375,6 +1528,29 @@ function addToggleExpansionButton($grid) {
  	 					$field = $(this);
  	 					$field.val( parseFloat($field.val()).formatMoney(2) );
  	 				})
+ 	 				$elem.find('.hrm_costforminput').each( function(idx) {
+ 	 					$field = $(this);
+ 	 					var val = $field.text();
+ 	 					$field.text('');
+ 	 					$field.hrmWidget({
+ 	 						widget:'costFormInput',
+ 	 						label:'',
+ 	 						value:val,
+ 	 						modelId:settings.modelId,
+ 	 						fieldMap:$field['recMap']
+ 	 					});
+ 	 				});
+ 	 				$elem.find('.hrm_timeforminput').each( function(idx){
+ 	 					$field=$(this);
+ 	 					var val = $field.text();
+ 	 					$field.text('');
+ 	 					$field.hrmWidget({
+ 	 						widget:'timeFormInput',
+ 	 						label:'',
+ 	 						value:val,
+ 	 						fieldMap:$field['recMap']
+ 	 					});
+ 	 				});
  	 				$elem.change( function( eventObj ) {
  	 					var elem = $(eventObj.target);
  	 					if (elem.is('select')) {

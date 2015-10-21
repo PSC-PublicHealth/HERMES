@@ -29,9 +29,6 @@ import htmlgenerator
 import privs
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults, b64D
 
-
-
-
 def typeEditPage(db, uiSession, typeClass):
     try:
         paramList = ['%s:%s'%(str(k),str(v)) for k,v in bottle.request.params.items()]
@@ -103,10 +100,11 @@ def jsonTypeEditForm(db, uiSession, typeClass, fieldMap, useInstance=False):
         htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,
                                                           typeClass,
                                                           modelId,
-                                                          protoname,
-                                                          typehelper.elaborateFieldMap(proposedName, 
-                                                                                       attrRec,
-                                                                                       fieldMap))
+                                                          protoname, fieldMap)
+                                                          #typehelper.
+                                                          #elaborateFieldMap(proposedName, 
+                                                         #                              attrRec,
+                                                          #                             fieldMap))
         result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
     except privs.PrivilegeException:
         result = {'success':False, 'msg':_('User cannot read this model')}

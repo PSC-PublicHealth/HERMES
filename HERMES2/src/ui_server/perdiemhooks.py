@@ -20,7 +20,7 @@
 # -A session could be hijacked just by grabbing the SessionID;
 #  should use an encrypted cookie to prevent this.
 ####################################
-_hermes_svn_id_ = "$Id$"
+_hermes_svn_id_ = "$Id: perdiemhooks.py 2262 2015-02-09 14:38:25Z stbrown $"
 
 import bottle
 import ipath
@@ -38,31 +38,25 @@ from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip,
 inlizer = session_support.inlizer
 _ = session_support.translateString
 
-fieldMap = [{'row': 1, 'label': _('Name'), 'key': 'Name', 'id': 'name', 'type': 'string'},
-            {'row': 1, 'label': _('DisplayName'), 'key': 'DisplayName',
-             'id': 'displayname', 'type': 'string'},
-            {'row': 2, 'label': _('Base Amount'), 'key': 'BaseAmount',
-             'id': 'baseamount', 'type': 'price'},
-            {'row': 2, 'label': _('Amount Units'), 'key': 'BaseAmountCur', 'id': 'baseamountcur',
-             'type': 'currency'},
-            {'row': 2, 'label': _('Amount Year'), 'key': 'BaseAmountYear',
-             'id': 'baseamountyear', 'type': 'int'},
-            {'row': 3, 'label': _('Must Be Overnight'), 'key': 'MustBeOvernight',
-             'id': 'mustbeovernight', 'type': 'bool'},
-            {'row': 3, 'label': _('Count First Day'), 'key': 'CountFirstDay',
-             'id': 'countfirstday', 'type': 'bool'},
-            {'row': 3, 'label': _('Minimum Km from Home'), 'key': 'MinKmHome', 'id': 'minkmhome',
-             'type': 'float'},
-            {'row': 4, 'label': _('Notes'), 'key': 'Notes', 'id': 'notes', 'type': 'string'},
-            {'row': 4, 'label': _('SortOrder'), 'key': 'SortOrder', 'id': 'sortorder',
-             'type': 'int'},
-            ]
+fieldMap = [{ 'label': _('Name'), 'key': 'Name', 'id': 'name', 'info':False, 'type': 'dbkey'},
+                        { 'label': _('DisplayName'), 'key': 'DisplayName', 'id': 'displayname', 'info':True, 'type': 'string'},
+                        { 'label': _('Base Amount'), 'key': 'BaseAmount', 'id': 'baseamount', 'info':True, 'type': 'cost', 'recMap':['BaseAmount', 'BaseAmountCurCode', 'BaseAmountYear']},
+                        { 'label': _('Must Be Overnight'), 'key': 'MustBeOvernight',
+                           'id': 'mustbeovernight',  'info':True,'type': 'bool'},
+                           { 'label': _('Count First Day'), 'key': 'CountFirstDay',
+                            'id': 'countfirstday',  'info':True,'type': 'bool'},
+                            { 'label': _('Minimum Km from Home'), 'key': 'MinKmHome', 'id': 'minkmhome',
+                             'info':True, 'type': 'float'},
+                             { 'label': _('Notes'), 'key': 'Notes', 'id': 'notes', 'info':True, 'type': 'stringbox'},
+                             { 'label': _('SortOrder'), 'key': 'SortOrder', 'id': 'sortorder',
+                              'info':False, 'type': 'int'},
+                      ]
 
 
 @bottle.route('/perdiem-top')
 def perDiemTopPage(uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path, _("PerDiems")))
-    return bottle.template("perdiem_top.tpl", {"breadcrumbPairs": crumbTrack},pagehelptag="database")
+    return bottle.template("perdiem_top.tpl", {"breadcrumbPairs": crumbTrack}, pagehelptag="database")
 
 
 @bottle.route('/perdiem-edit')
@@ -118,8 +112,8 @@ def jsonManagePerDiemTable(db, uiSession):
                                                            {'name': 'Name', 'usedin': 'modelId',
                                                             'dispnm': 'DisplayName'},
                                                            bottle.request)
-    result = {"total": nPages,    # total pages
-              "page": thisPageNum,     # which page is this
+    result = {"total": nPages,  # total pages
+              "page": thisPageNum,  # which page is this
               "records": totRecs,  # total records
               "rows": [{"name": t['Name'],
                         "cell":[t['Name'], t['_inmodel'], t['DisplayName'], t['Name']]}
@@ -168,9 +162,9 @@ def jsonPerDiemEditForm(db, uiSession):
                                                                 protoname)
         attrRec = {}
         shadow_network._copyAttrsToRec(attrRec, typeInstance)
-        elabMap = typehelper.elaborateFieldMap(proposedName, attrRec, fieldMap)
+        #elabMap = typehelper.elaborateFieldMap(proposedName, attrRec, fieldMap)
         htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db, uiSession, "perdiems",
-                                                          modelId, protoname, elabMap)
+                                                          modelId, protoname, fieldMap)
         result = {'success': True, "htmlstring": htmlStr, "title": titleStr}
     except privs.PrivilegeException:
         result = {'success': False, 'msg': _('User cannot read this model')}

@@ -15,7 +15,7 @@
 #                                                                                 #
 ###################################################################################
 
-_hermes_svn_id_="$Id$"
+_hermes_svn_id_="$Id: ui_utils.py 2262 2015-02-09 14:38:25Z stbrown $"
 
 import sys,os,time,traceback,types
 import site_info
@@ -75,18 +75,39 @@ def _getAttrDict(bottleRequest, db, uiSession, fMap, throwException=False):
     uiSession.getPrivs().mayReadModelId(db, modelId)
     attrRec = {'modelId':modelId}
     for field in fMap:
-        if field['type']=='int':
-            v = _safeGetReqParam(bottleRequest.params,field['id'],isInt=True)
-        elif field['type']=='float':
-            v = _safeGetReqParam(bottleRequest.params,field['id'],isFloat=True)
-        elif field['type']=='lifetime':
-            v = (_safeGetReqParam(bottleRequest.params,field['id'],isFloat=True),
-                 _safeGetReqParam(bottleRequest.params,field['id']+'_units'))
-        elif field['type']=='bool':
-            v = (_safeGetReqParam(bottleRequest.params, field['id']).lower() == 'true')
-        else:
-            v = _safeGetReqParam(bottleRequest.params,field['id'])
-        attrRec[field['key']] = v
+        if field['type'] in ['int']:
+            attrRec[field['key']] = _safeGetReqParam(bottleRequest.params,field['key'],isInt=True)
+        elif field['type'] in ['float']:
+            attrRec[field['key']] = _safeGetReqParam(bottleRequest.params,field['key'],isFloat=True)
+        elif field['type'] in ['bool']:
+            attrRec[field['key']] = (_safeGetReqParam(bottleRequest.params,field['key']).lower() == "true")
+        elif field['type'] in ['string','stringbox','dbkey','select']:
+            attrRec[field['key']] =  _safeGetReqParam(bottleRequest.params,field['key'])
+        elif field['type'] in ['time']:
+            print "HERE IN TIME"
+            print(_safeGetReqParam(bottleRequest.params,field['recMap'][0],isFloat=True))
+            attrRec[field['recMap'][0]] =  _safeGetReqParam(bottleRequest.params,field['recMap'][0],isFloat=True)
+            attrRec[field['recMap'][1]] = _safeGetReqParam(bottleRequest.params,field['recMap'][1])
+        elif field['type'] in ['cost']:
+            attrRec[field['recMap'][0]] =  _safeGetReqParam(bottleRequest.params,field['recMap'][0],isFloat=True)
+            attrRec[field['recMap'][1]] = _safeGetReqParam(bottleRequest.params,field['recMap'][1]) 
+            attrRec[field['recMap'][2]] =  _safeGetReqParam(bottleRequest.params,field['recMap'][2],isInt=True)
+        
+        
+#              v = _safeGetReqParam(bottleRequest.params,field['key'],isInt=True)
+#         
+#         if field['type']=='int':
+#             v = _safeGetReqParam(bottleRequest.params,field['key'],isInt=True)
+#         elif field['type']=='float':
+#             v = _safeGetReqParam(bottleRequest.params,field['key'],isFloat=True)
+#         elif field['type']=='lifetime':
+#             v = (_safeGetReqParam(bottleRequest.params,field[''],isFloat=True),
+#                  _safeGetReqParam(bottleRequest.params,field['id']+'_units'))
+#         elif field['type']=='bool':
+#             v = (_safeGetReqParam(bottleRequest.params, field['id']).lower() == 'true')
+#         else:
+#             v = _safeGetReqParam(bottleRequest.params,field['id'])
+#         attrRec[field['key']] = v
     if throwException:
         badParms = [ k for k,v in attrRec.items() if v is None ]
         if badParms:
@@ -102,6 +123,8 @@ def _mergeFormResults(bottleRequest, db, uiSession, fieldMap, allowNameCollision
     """
     fieldDict = dict([(r['id'],r) for r in fieldMap])
     attrRec = _getAttrDict(bottleRequest, db, uiSession, fieldMap)
+    print "AttrRec:"
+    print attrRec
     badStr = ""
     if 'modelId' in attrRec:
         m = shadow_network_db_api.ShdNetworkDB(db,attrRec['modelId'])
