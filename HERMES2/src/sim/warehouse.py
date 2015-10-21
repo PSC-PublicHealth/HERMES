@@ -911,7 +911,7 @@ def share3_calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
                 continue
 
             # if we're here, we can swap some or all of want with can
-            if 1:
+            if DEBUG:
                 print "swapping some %s(%s,%s,%s,%s) with %s(%s,%s,%s,%s)"%(wantV, wantSt, wantVol, wantRatio, wantWant, canV, canSt, canVol, canRatio, canWant)
             if wantVol <= canVol:
                 # split the can entry
@@ -1307,7 +1307,7 @@ def share3_calculateOwnerStorageFillRatiosPreferred(canOwn,thisVC,assumeEmpty):
                     continue
 
             # if we're here, we can swap some or all of want with can
-            if 1:
+            if DEBUG:
                 print "2nd swapping some %s(%s,%s,%s) with %s(%s,%s,%s)"%(wantV, wantSt, wantVol, wantRatio, canV, canSt, canVol, wantRatio)
                 #print "swapping some %s with %s"%(wantV, canV)
             if wantVol <= canVol:

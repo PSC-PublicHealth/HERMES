@@ -49,7 +49,7 @@ import random
 
 #globals.deterministic = True
 
-warehouse.DEBUG = True
+#warehouse.DEBUG = True
 
 
 def buildMockTypeManager(userInput, sim, vacList=None, 
@@ -189,6 +189,23 @@ def stringFromVC(vc):
         if len(s): s= s[:-1]
         return s
 
+
+    
+def calcTruckVolumes(truck):
+    fAvail = 0.0
+    cAvail = 0.0
+    wAvail = 0.0
+    for sB in truck.getStorageBlocks():
+        if sB.volAvail < 100000000:  # avoid discard storage
+            if sB.storageType in truck.sim.storage.coolStorageList():
+                cAvail += sB.volAvail
+            elif sB.storageType == truck.sim.storage.roomtempStorage():
+                wAvail += sB.volAvail
+            else:
+                assert(sB.storageType == truck.sim.storage.frozenStorage())
+                fAvail += sB.volAvail
+
+    return fAvail, cAvail, wAvail
 
 def calcAvailableVolumes(truck, vc):
     incomingStorageBlocks = []
@@ -341,14 +358,11 @@ def metrics(vc, fVc, cVc, wVc):
     pass
 
 
-def chartCollection(vcList, vcReq, axList):
-    for vc, ax, facAttr in zip(vcList, axList, ('freezerFac','coolerFac','roomtempFac')):
-        totVol = 0.0
-        for v,r in vc.items():
-            req = vcReq[v]
-            volPerVial = v.dosesPerVial * v.ccPerDose
-            vials = r * req
-            totVol += volPerVial * vials
+def chartCollection(truck, vcList, vcReq, axList):
+    for sVol, vc, ax, facAttr in zip(calcTruckVolumes(truck),
+                                     vcList, 
+                                     axList, 
+                                     ('freezerFac','coolerFac','roomtempFac')):
         
         theta = []
         volWid = []
@@ -361,7 +375,7 @@ def chartCollection(vcList, vcReq, axList):
             volPerVial = v.dosesPerVial * v.ccPerDose
             vials = r * req
             vol = volPerVial * vials
-            volWid.append(vol/totVol*2*pi)
+            volWid.append(vol/sVol*2*pi)
             height.append(1/getattr(v, facAttr))
         curT = 0.0
         for vw in volWid:
@@ -371,7 +385,7 @@ def chartCollection(vcList, vcReq, axList):
         for c, bar in zip(color, bars):
             bar.set_facecolor(cm.jet(c))
             bar.set_alpha(0.5)
-            
+        ax.set_xticklabels(['' for i in xrange(8)])
 
 def runRandomTestCase(vCt=10):
     """
@@ -504,7 +518,7 @@ def chartRandomTestCase(vCt=10, caseNum=1):
     print calcVols(vc, fVC)
     print calcVols(vc, cVC)
     print calcVols(vc, wVC)
-    chartCollection((fVC, cVC, wVC), vc, (axes[0,0], axes[0,1], axes[0,2]))
+    chartCollection(truck, (fVC, cVC, wVC), vc, (axes[0,0], axes[0,1], axes[0,2]))
     axes[0,0].set_title('simple freeze')
     axes[0,1].set_title('simple cool')
     axes[0,2].set_title('simple warm')
@@ -528,7 +542,7 @@ def chartRandomTestCase(vCt=10, caseNum=1):
         print("roomtemperature alloc too high")
         exit()
  
-    chartCollection((fVC, cVC, wVC), vc, (axes[1,0], axes[1,1], axes[1,2]))
+    chartCollection(truck, (fVC, cVC, wVC), vc, (axes[1,0], axes[1,1], axes[1,2]))
     axes[1,0].set_title('l1 freeze')
     axes[1,1].set_title('l1 cool')
     axes[1,2].set_title('l1 warm')
@@ -551,15 +565,108 @@ def chartRandomTestCase(vCt=10, caseNum=1):
     if calcVols(vc, wVC) > cbSizes['roomtemperature'] * 1000.1:
         print("roomtemperature alloc too high")
         exit()
-    chartCollection((fVC, cVC, wVC), vc, (axes[2,0], axes[2,1], axes[2,2]))
+    chartCollection(truck, (fVC, cVC, wVC), vc, (axes[2,0], axes[2,1], axes[2,2]))
     axes[2,0].set_title('l2 freeze')
     axes[2,1].set_title('l2 cool')
     axes[2,2].set_title('l2 warm')
-    figs.savefig('blah')
+    figs.savefig('calc_fill_%03d'%caseNum)
 
           
-#chartRandomTestCase()
 
+
+
+
+def old_main():
+    sim = _mockSim()
+    sM = storagemodel.StorageModel(False)
+    pM = packagingmodel.SimplePackagingModel()
+
+    tM = sim.typeManager
+
+    truckType = tM.getTypeByName("truck1", sim=sim)
+    truck = truckType.createInstance()
+    truck.storageModel = sM
+    truck.packagingModel = pM
+
+    v1 = tM.getTypeByName('VAC1')
+    v2 = tM.getTypeByName('VAC2')
+    v3 = tM.getTypeByName('VAC3')
+    vc = sim.shippables.getCollection([(v1, 5000), (v2, 3333), (v3, 10555)])
+    print vc
+
+
+
+    figs1, axes1 = plt.subplots(nrows=1, ncols=1)
+    figs2, axes2 = plt.subplots(nrows=2, ncols=3)
+    xVals = []
+    yVals = []
+    areas = []
+    colors = []
+
+    fAvail, cAvail, wAvail = calcAvailableVolumes(truck, vc)
+
+    fVC, cVC, wVC = warehouse.share3_calculateOwnerStorageFillRatios(truck, vc, False)
+    print fVC
+    print cVC
+    print wVC
+    fTot, cTot, wTot, minLifetime, fShares, fLabels, cShares, cLabels, wShares, wLabels = \
+        calcVolumesUsed(truck, sM, fVC, cVC, wVC)
+    fFracs, fLabels = sharesToFracs(fShares, fTot, fLabels)
+    cFracs, cLabels = sharesToFracs(cShares, cTot, cLabels)
+    wFracs, wLabels = sharesToFracs(wShares, wTot, wLabels)
+    xVals.append(cTot/cAvail)
+    yVals.append(wTot/wAvail)
+    areas.append(100*minLifetime)
+    colors.append('blue')
+    axes2[0, 0].pie(fFracs, labels=fLabels, autopct='%1.1f%%', startangle=90)
+    axes2[0, 0].set_title('Freeze')
+    axes2[0, 0].set_aspect('equal')
+    axes2[0, 1].pie(cFracs, labels=cLabels, autopct='%1.1f%%', startangle=90)
+    axes2[0, 1].set_title('Cold')
+    axes2[0, 1].set_aspect('equal')
+    axes2[0, 2].pie(wFracs, labels=wLabels, autopct='%1.1f%%', startangle=90)
+    axes2[0, 2].set_title('Warm')
+    axes2[0, 2].set_aspect('equal')
+
+    fVC, cVC, wVC = warehouse.share3_calculateOwnerStorageFillRatiosPreferred(truck, vc, False)
+    print fVC
+    print cVC
+    print wVC
+    fTot, cTot, wTot, minLifetime, fShares, fLabels, cShares, cLabels, wShares, wLabels = \
+        calcVolumesUsed(truck, sM, fVC, cVC, wVC)
+    fFracs, fLabels = sharesToFracs(fShares, fTot, fLabels)
+    cFracs, cLabels = sharesToFracs(cShares, cTot, cLabels)
+    wFracs, wLabels = sharesToFracs(wShares, wTot, wLabels)
+    xVals.append(cTot/cAvail)
+    yVals.append(wTot/wAvail)
+    areas.append(100*minLifetime)
+    colors.append('green')
+    axes2[1, 0].pie(fFracs, labels=fLabels, autopct='%1.1f%%', startangle=90)
+    axes2[1, 0].set_title('Freeze')
+    axes2[1, 0].set_aspect('equal')
+    axes2[1, 1].pie(cFracs, labels=cLabels, autopct='%1.1f%%', startangle=90)
+    axes2[1, 1].set_title('Cold')
+    axes2[1, 1].set_aspect('equal')
+    axes2[1, 2].pie(wFracs, labels=wLabels, autopct='%1.1f%%', startangle=90)
+    axes2[1, 2].set_title('Warm')
+    axes2[1, 2].set_aspect('equal')
+
+    axes1.scatter(xVals, yVals, s=areas, c=colors, marker='o')
+    axes1.set_xlim(0.0, max(2.0, max(xVals)))
+    axes1.set_ylim(0.0, max(2.0, max(yVals)))
+    axes1.plot([0.0, 1.0, 1.0], [1.0, 1.0, 0.0], '--', color='black')
+    axes1.set_aspect('equal')
+
+    # figs1.tight_layout()
+    # figs2.tight_layout()
+    #plt.show()
+    figs1.savefig('blah1')
+    figs2.savefig('blah2')
+
+
+for i in xrange(3):
+    chartRandomTestCase(caseNum=i)
+exit()
 
 sumFr10=0
 sumFr21=0
@@ -592,93 +699,3 @@ print sumFr21 / cases
 print sumFr20 / cases
 print float(betterCount) / cases
 
-
-
-
-exit()
-
-sim = _mockSim()
-sM = storagemodel.StorageModel(False)
-pM = packagingmodel.SimplePackagingModel()
-
-tM = sim.typeManager
-
-truckType = tM.getTypeByName("truck1", sim=sim)
-truck = truckType.createInstance()
-truck.storageModel = sM
-truck.packagingModel = pM
-
-v1 = tM.getTypeByName('VAC1')
-v2 = tM.getTypeByName('VAC2')
-v3 = tM.getTypeByName('VAC3')
-vc = sim.shippables.getCollection([(v1, 5000), (v2, 3333), (v3, 10555)])
-print vc
-
-
-
-figs1, axes1 = plt.subplots(nrows=1, ncols=1)
-figs2, axes2 = plt.subplots(nrows=2, ncols=3)
-xVals = []
-yVals = []
-areas = []
-colors = []
-
-fAvail, cAvail, wAvail = calcAvailableVolumes(truck, vc)
-
-fVC, cVC, wVC = warehouse.share3_calculateOwnerStorageFillRatios(truck, vc, False)
-print fVC
-print cVC
-print wVC
-fTot, cTot, wTot, minLifetime, fShares, fLabels, cShares, cLabels, wShares, wLabels = \
-    calcVolumesUsed(truck, sM, fVC, cVC, wVC)
-fFracs, fLabels = sharesToFracs(fShares, fTot, fLabels)
-cFracs, cLabels = sharesToFracs(cShares, cTot, cLabels)
-wFracs, wLabels = sharesToFracs(wShares, wTot, wLabels)
-xVals.append(cTot/cAvail)
-yVals.append(wTot/wAvail)
-areas.append(100*minLifetime)
-colors.append('blue')
-axes2[0, 0].pie(fFracs, labels=fLabels, autopct='%1.1f%%', startangle=90)
-axes2[0, 0].set_title('Freeze')
-axes2[0, 0].set_aspect('equal')
-axes2[0, 1].pie(cFracs, labels=cLabels, autopct='%1.1f%%', startangle=90)
-axes2[0, 1].set_title('Cold')
-axes2[0, 1].set_aspect('equal')
-axes2[0, 2].pie(wFracs, labels=wLabels, autopct='%1.1f%%', startangle=90)
-axes2[0, 2].set_title('Warm')
-axes2[0, 2].set_aspect('equal')
-
-fVC, cVC, wVC = warehouse.share3_calculateOwnerStorageFillRatiosPreferred(truck, vc, False)
-print fVC
-print cVC
-print wVC
-fTot, cTot, wTot, minLifetime, fShares, fLabels, cShares, cLabels, wShares, wLabels = \
-    calcVolumesUsed(truck, sM, fVC, cVC, wVC)
-fFracs, fLabels = sharesToFracs(fShares, fTot, fLabels)
-cFracs, cLabels = sharesToFracs(cShares, cTot, cLabels)
-wFracs, wLabels = sharesToFracs(wShares, wTot, wLabels)
-xVals.append(cTot/cAvail)
-yVals.append(wTot/wAvail)
-areas.append(100*minLifetime)
-colors.append('green')
-axes2[1, 0].pie(fFracs, labels=fLabels, autopct='%1.1f%%', startangle=90)
-axes2[1, 0].set_title('Freeze')
-axes2[1, 0].set_aspect('equal')
-axes2[1, 1].pie(cFracs, labels=cLabels, autopct='%1.1f%%', startangle=90)
-axes2[1, 1].set_title('Cold')
-axes2[1, 1].set_aspect('equal')
-axes2[1, 2].pie(wFracs, labels=wLabels, autopct='%1.1f%%', startangle=90)
-axes2[1, 2].set_title('Warm')
-axes2[1, 2].set_aspect('equal')
-
-axes1.scatter(xVals, yVals, s=areas, c=colors, marker='o')
-axes1.set_xlim(0.0, max(2.0, max(xVals)))
-axes1.set_ylim(0.0, max(2.0, max(yVals)))
-axes1.plot([0.0, 1.0, 1.0], [1.0, 1.0, 0.0], '--', color='black')
-axes1.set_aspect('equal')
-
-# figs1.tight_layout()
-# figs2.tight_layout()
-#plt.show()
-figs1.savefig('blah1')
-figs2.savefig('blah2')
