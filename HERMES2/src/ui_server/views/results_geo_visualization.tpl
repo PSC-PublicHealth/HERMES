@@ -1286,7 +1286,11 @@ function zoomed() {
 	  	.attr('r',function(d){return 15.0/(d.level+1)/d3.event.scale;})
 	  	.style('stroke-width',(1.0/d3.event.scale)+"px");
 	  features.selectAll(".va-circle")
-	  	.attr('r',function(d){return 3.0/d3.event.scale})
+	  	.attr('r',function(d){
+	  		var factor = 3.0/d3.event.scale;
+	  		return Math.max(factor,0.04);
+	  		//return 3.0/d3.event.scale})
+	  	})
 	  	.style('stroke-width',(1.0/d3.event.scale)+"px");
 	  features.selectAll(".util-circle")
 	  	.attr('r',function(d){return 3.0/d3.event.scale})
