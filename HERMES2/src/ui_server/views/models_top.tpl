@@ -144,6 +144,7 @@ $("#manage_models_grid").jqGrid({ //set your grid id
     sortname: 'name', //the column according to which data is to be sorted; optional
     viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� "optional
     sortorder: "asc", //sort order; optional
+    sortname:'id',
     shrinkToFit: true,
     gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
     ondblClickRow: function(id){
