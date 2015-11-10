@@ -127,7 +127,7 @@ def filteredWriteCSV( ofile, keyList, recDictListOriginal, delim=",", quoteStrin
 
         if lowerK in storagetypes.storageTypeNames \
             or any([lowerK.endswith(s) for s in ['vol', 'fill', 'frac',
-                                                 'km', 'days', 'ratio',
+                                                 'km', 'days', 'ratio','rate',
                                                  'ratio_multival', 'times_multival',
                                                  'vol_used', 'vol_used_time',
                                                  'timestamp','availability','multival',
