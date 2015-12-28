@@ -61,6 +61,12 @@ fieldMap = [{'label':_('Data Base ID'),'key':'Name','id':'name','info':False,'ed
                                                  ('Lyophilized',_('Lyophilized'),[],[]),
                                                  ('Liquid + Lyophilized',_('Liquid + Lyophilized'),[],[]),
                                                  ('Lyophilized + Diluent',_('Lyophilized + Diluent'),[],[]),
+                                                 ('Lyophilized + 0.4 % Sodium Chloride Diluent',_('Lyophilized + 0.4 % Sodium Chloride Diluent'),[],[]),
+                                                 ('Lyophilized + Buffered Saline Solution Diluent',_('Lyophilized + Buffered Saline Solution Diluent'),[],[]),
+                                                 ('Lyophilized + Diluted Sauton Diluent',_('Lyophilized + Diluted Sauton Diluent'),[],[]),
+                                                 ('Lyophilized + Specific Meningococcal Diluent In Vial',_('Lyophilized + Specific Meningococcal Diluent In Vial'),[],[]),
+                                                 ('Lyophilized + Water For Injection Diluent',_('Lyophilized + Water For Injection Diluent'),[],[]),
+                                                 ('Lyophilized + Wfi Diluent',_('Lyophilized + Wfi Diluent'),[],[]),
                                                  ('Lyophilized + 0.9% Sodium Chloride Diluent',_('Lyophilized + 0.9% Sodium Chloride Diluent'),[],[])
                             ],
                             'default':'Liquid'

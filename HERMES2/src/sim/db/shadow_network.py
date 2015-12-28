@@ -4745,7 +4745,20 @@ class ShdNetwork(Base):
                     totalPop += demand.count
         
         return totalPop
-                    
+             
+    def getTotalPopulationByTypeByWalkOfClients(self,idcode,excludeCategories=[]):
+        clientsToCalc = self.getWalkOfClientIds(idcode)
+        totalPop = {}
+        for client in clientsToCalc:
+            store = self.getStore(client)
+            if store.FUNCTION != "Surrogate" and store.CATEGORY not in excludeCategories:
+                for demand in store.demand:
+                    if demand.invName not in totalPop.keys():
+                        totalPop[demand.invName] = 0.0
+                    totalPop[demand.invName] += demand.count
+        
+        return totalPop
+    
     def trunkStore(self):
         """
         Start with the lowest value root store.  Recursively move to this stores child store if 

@@ -346,12 +346,12 @@ class HermesOutput():
                 self._xPlaceCell(cell, self.NA, fmt)
         self.cell[0] += 1
 
-    def _placeCell(self, val):
-        self._xPlaceCell(self.cell, val)
+    def _placeCell(self, val,fmt=None):
+        self._xPlaceCell(self.cell, val, fmt)
         self.cell[0] += 1
 
     # _xPlaceCell is intended as a lower level call used by the functions above.
-    def _xPlaceCell(self, cell, val, fmt):
+    def _xPlaceCell(self, cell, val, fmt=None):
         while len(self.rows) <= cell[1]:
             self.rows.append([])
         row = self.rows[cell[1]]

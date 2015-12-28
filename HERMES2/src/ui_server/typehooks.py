@@ -32,7 +32,7 @@ from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip,
 def typeEditPage(db, uiSession, typeClass):
     try:
         paramList = ['%s:%s'%(str(k),str(v)) for k,v in bottle.request.params.items()]
-        #_logMessage("Hit truck-edit; params=%s"%paramList)
+        _logMessage("Hit type-edit-page; params=%s"%paramList)
         modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
         uiSession.getPrivs().mayReadModelId(db, modelId)
         protoName = _getOrThrowError(bottle.request.params,'protoname')
@@ -87,16 +87,20 @@ def jsonTypeEditForm(db, uiSession, typeClass, fieldMap, useInstance=False):
         modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         protoname = _getOrThrowError(bottle.request.params, 'protoname')
+        print "in jsonTypeEditform params = {}".format(bottle.request.params)
         if 'overwrite' in bottle.request.params:
             proposedName = protoname
         else:
             proposedName = typehelper.getSuggestedName(db,modelId,typeClass, protoname, excludeATM=True)
+        print "protoname = {0}".format(protoname)
         canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, protoname) # @UnusedVariable
         if not useInstance:
             attrRec = {}
             shadow_network._copyAttrsToRec(attrRec,typeInstance)
+            print attrRec
         else:
             attrRec = typeInstance
+        print "attrRec = {0}".format(attrRec.presentation)
         htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,
                                                           typeClass,
                                                           modelId,

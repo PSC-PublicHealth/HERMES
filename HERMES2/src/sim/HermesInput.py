@@ -113,13 +113,13 @@ def gatherInputs(zipfileName, userInputList, gblInputs, unifiedInput, argv):
 def extractInputs(zipfileName):
     util.redirectInput(zipfileName=zipfileName)
 
-    try:
-        with openDataFullPath('input_stats') as f:
-            stats = pickle.loads(f.read())
-            if stats['version'] != getHermesVersion():
-                raise RuntimeError("version mismatch between hermes program and zip file")
-    except:
-        raise RuntimeError("version mismatch between hermes program and zip file")
+#     try:
+#         with openDataFullPath('input_stats') as f:
+#             stats = pickle.loads(f.read())
+#             if stats['version'] != getHermesVersion():
+#                 raise RuntimeError("version mismatch between hermes program and zip file")
+#     except:
+#         raise RuntimeError("version mismatch between hermes program and zip file")
 
     with openDataFullPath('argv.pkl') as f:
         myArgv = pickle.loads(f.read())

@@ -131,7 +131,8 @@ class MinionFactory():
         env = os.environ.copy()
         env['HERMES_DATA_PATH'] = os.path.join(self.siteInfo.srcDir(),'master_data','unified')
         mainSrc = os.path.join(self.siteInfo.srcDir(),'main.py')
-        argList = ['python', '-u', mainSrc, '--minion', '--average', "--out=%s"%runName]
+        #argList = ['python', '-u', mainSrc, '--minion', '--average', "--out=%s"%runName]
+        argList = ['pypy', '-u', mainSrc, '--minion', '--average', "--out=%s"%runName]
         import platform
         if platform.system() == "Windows": argList[0] = "pythonw"  #one liner fix to hide minion terminal in Windows
         if optList is not None:
