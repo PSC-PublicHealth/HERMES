@@ -15,7 +15,7 @@
 ###################################################################################
 
 __doc__ = """htmlgenerator
-This module provides routines to generate html from database 
+This module provides routines to gene html from database 
 information on the server side, for example model description 
 information.
 
@@ -639,9 +639,17 @@ def _buildTypeInfoBox(fieldMap,typeInstance,typeName="Type",model=None):
         else:
             recKey = rec['key']
       
-        if recType in ['string','int','float','select','stringbox']:
+        if recType in ['string','int','float','stringbox']:
             if getattr(typeInstance,recKey):
                 infoTable.addRow([rec['label'],getattr(typeInstance,recKey)],['c',1,1])
+        elif recType == "select":
+            if getattr(typeInstance,recKey):
+                ## find the option data
+                selOpt = ('None','',[],[])
+                for option in rec['options']:
+                    if getattr(typeInstance,recKey) == option[0]:
+                        selOpt = option
+                infoTable.addRow([rec['label'],selOpt[1]],['c',1,1])
         elif recType == 'cost':
             if len(recKey) != 3:
                 _logMessage("Unsupported dbKey in cost type in creating info page for {0}: ignoring".format(typeName))
@@ -669,22 +677,20 @@ def _buildTypeInfoBox(fieldMap,typeInstance,typeName="Type",model=None):
                             unitStr = "Days"
                         timeValue = "{0} {1}".format(timeValue, unitStr)
             infoTable.addRow([rec['label'], timeValue], ['c', 1, 1])
-        elif recType == 'rate':
-            if getattr(typeInstance, recKey):
-                rateValue = getattr(typeInstance,recKey)
-                unitStr = ""
-                if getattr(typeInstance, "{0}Units".format(recKey)):
-                    if  getattr(typeInstance, "{0}Units".format(recKey)):
-                        rateValue = "{0} {1}".format(rateValue,getattr(typeInstance,"{0}Units".format(recKey)))
-                infoTable.addRow([rec['label'], rateValue], ['c', 1, 1])
+        elif recType == 'dynamicunit':
+            if getattr(typeInstance, recKey[0]):
+                Value = "{0}".format(getattr(typeInstance,recKey[0]))
+                if getattr(typeInstance,recKey[1]):
+                    Value += " {0}".format(getattr(typeInstance,recKey[1]))
+                infoTable.addRow([rec['label'], Value], ['c', 1, 1])
         elif recType == 'energy':
             from fridgetypes import energyTranslationDict
             if getattr(typeInstance,recKey):
                 infoTable.addRow([rec['label'],energyTranslationDict[getattr(typeInstance,recKey)][1]],['c',1,1])
         elif recType == 'fuel':
-            from trucktypes import fuelTranslationDict
+            #from trucktypes import fuelTranslationDict
             if getattr(typeInstance,recKey):
-                infoTable.addRow([rec['label'],fuelTranslationDict[getattr(typeInstance,recKey)][1]],['c',1,1])
+                infoTable.addRow([rec['label'] + _(" Type"),rec['fuelDict'][getattr(typeInstance,recKey)][1]],['c',1,1])
         elif recType == 'custtruckstoresum':
             from shadow_network import ShdTruckType
             if not isinstance(typeInstance,ShdTruckType):
@@ -768,7 +774,7 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None):
     
     disabledItems = set()
     htmlDoc = HTMLDocument(name_='typeForm',
-                                                      title_='TypeForm')
+                                                title_='TypeForm')
     editTable = HTMLForm("edit_table", title_="")
     
     ### if typeInstance is none, then we should create a new type instance for this model
@@ -782,6 +788,7 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None):
                 rowStyleString = "h"
         
         ## Which hrmwidget to use
+        print rec
         recType = rec['type']
         formKey = None
         #which database key does this belong to... if this is a complex type, there will be a recmap
@@ -793,12 +800,13 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None):
           
         label = rec['label']  
         if recType in ['int','float','string','dbkey']:
+            
             formElement = HTMLFormInputBox(name_=recKey,
-                                                                                      title_="",
-                                                                                      default_=getattr(typeInstance,recKey),
-                                                                                      type_=recType,
-                                                                                      width='350px',
-                                                                                      )
+                                                                    title_="",
+                                                                    default_=getattr(typeInstance,recKey),
+                                                                    type_=recType,
+                                                                    width='350px',
+                                                                    )
                                                                                       
             editTable.addRow([label,formElement.htmlString()],[rowStyleString,1,1])
         elif recType =='select':
@@ -842,13 +850,15 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None):
                 if getattr(typeInstance,key): defaults.append(getattr(typeInstance,key))
                 else: break
             
+            #print "Default here = '{0}'".format(defaults[0])
             if len(defaults) == 1:
                 defaultValue = "{0}:USD:2011".format(defaults[0])
             elif len(defaults) == 3:
                 defaultValue = "{0}:{1}:{2}".format(defaults[0],defaults[1],defaults[2])
              
+            print "Default Value = {0}".format(defaultValue)
             dataDict= {'price':recKey[0],'currency':recKey[1],'year':recKey[2]}
-            divString = "<div class='hrm_costforminput' id='{0}' data-fieldmap='{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)   
+            divString = "<div class='hrm_costforminput' id='{0}' data-fieldMap='{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)   
             
             editTable.addRow([label,divString],[rowStyleString,1,1])
         
@@ -866,9 +876,33 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None):
                 
             dataDict = {'time':recKey[0],'unit':recKey[1]}
             divString = "<div class='hrm_timeforminput' id='{0}' data-fieldmap='{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)
-            
             editTable.addRow([label,divString],[rowStyleString,1,1])
+        
+        elif recType == 'dynamicunit':
+            defaultValue = '0:Unknown'
+            # # will write a validator for the field maps sepaly
+            defaults = []
+            for key in recKey:
+                if getattr(typeInstance,key):defaults.append(getattr(typeInstance,key))
+                else: break
                 
+            if len(defaults) == 1:
+                defaultValue = "{0}:None".format(defaults[0])
+            elif len(defaults) == 2:
+                defaultValue = "{0}:{1}".format(defaults[0], defaults[1])
+            
+            dataDict = {'value':recKey[0], 'unit':recKey[1], 'lookup':None, 'lookupdict':None}
+            
+            if rec.has_key('lookup'):
+                dataDict['lookup'] = rec['lookup']
+                dataDict['lookupdict'] = rec['lookupDict']
+                   
+            divString = "<div class='hrm_dynamicunitforminput' id = '{0}' data-fieldmap = '{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)
+            print divString
+            editTable.addRow([label,divString],[rowStyleString,1,1])
+               # # find lookup record
+               
+             
                 
              
                     

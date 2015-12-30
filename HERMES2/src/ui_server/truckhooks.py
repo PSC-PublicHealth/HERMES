@@ -41,20 +41,18 @@ from ui_utils import _logMessage, _getOrThrowError, _smartStrip, _getAttrDict, _
 inlizer=session_support.inlizer
 _=session_support.translateString
 
-fieldMap = [{ 'label':_('HERMES DB ID'), 'key':'Name', 'id':'name', 'info':False,'type':'dbkey'},
-            { 'label':_('Name'), 'key':'DisplayName', 'id':'displayname',  'info':True,'type':'string'},  
-            { 'label':_('Net Storage at 2-8C (L) '), 'key':'CoolVolumeCC', 'id':'coolvolumecc', 'info':True, 'type':'custtruckstoresum'}, # Custom Type
-           
-            { 'label':_('Capital Cost'), 'key':'BaseCost', 'id':'baseprice', 'info':True, 'type':'cost','recMap':['BaseCost','BaseCostCurCode','BaseCostYear']},  
-            #{ 'label':_('Price Units'), 'key':'BaseCostCur', 'id':'basecostcur', 'info':True, 'type':'currency'},   
-            #{ 'label':_('Price Year'), 'key':'BaseCostYear', 'id':'basecostyear', 'info':True, 'type':'int'},  
-            { 'label':_('Lifetime of Vehicle (KM)'), 'key':'AmortizationKm', 'id':'amortkm', 'info':True, 'type':'float'},
-            { 'label':_('Fuel Type'), 'key':'Fuel', 'id':'fuel', 'info':True, 'type':'fuel'},
-            { 'label':_('Fuel Consumption Rate'), 'key':'FuelRate', 'id':'fuelrate', 'info':True, 'type':'rate'},
-            #{ 'label':_('Units'), 'key':'FuelRateUnits', 'id':'fuelunits', 'type':'hide'},
-             { 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'info':False, 'type':'string'},
-             { 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'info':True, 'type':'stringbox'},
-             { 'label':_('Storage'), 'key':'Storage', 'id':'storage', 'info':True,'type':'custtruckstoragetable'},
+fuelOptions = [(x,y[1],[],[]) for  x,y in fuelTranslationDict.items()]
+fieldMap = [{ 'label':_('Data Base ID'), 'key':'Name', 'id':'name', 'info':False, 'edit':True, 'type':'dbkey', 'default':None},
+                   { 'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info':True, 'edit':True, 'type':'string', 'default':None},
+                   { 'label':_('Net Storage at 2-8C (L) '), 'key':'CoolVolumeCC', 'id':'coolvolumecc', 'info':True, 'edit':False, 'type':'custtruckstoresum'},  # Custom Type
+                   { 'label':_('Capital Cost'), 'key':'BaseCost', 'id':'baseprice', 'info':True, 'edit':True, 'type':'cost', 'recMap':['BaseCost', 'BaseCostCurCode', 'BaseCostYear']},
+                   { 'label':_('Lifetime of Vehicle (KM)'), 'key':'AmortizationKm', 'id':'amortkm', 'info':True, 'edit':True, 'type':'float'},
+                   { 'label':_('Fuel Type'), 'key':'Fuel', 'id':'fuel', 'info':True, 'edit':True, 'type':'select','options':fuelOptions},
+                   { 'label':_('Fuel Consumption Rate'), 'key':'FuelRate', 'id':'fuelrate', 'info':True, 'edit':True, 
+                        'type':'dynamicunit', 'lookup':'Fuel','lookupDict':fuelTranslationDict,'recMap':['FuelRate','FuelRateUnits']},
+                   { 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'info':False, 'edit':False, 'type':'string'},
+                   { 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'info':True, 'edit':True, 'type':'stringbox'},
+                   { 'label':_('Storage'), 'key':'Storage', 'id':'storage', 'info':True, 'edit':False, 'type':'custtruckstoragetable'},
             ]
 
 @bottle.route('/truck-edit')

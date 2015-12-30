@@ -455,6 +455,10 @@ class VaccineType(GroupedShippableType, HasOVW):
                    freezerFac,coolerFac,roomtempFac,openVialFac,maxAge,
                    lifetimeOpenDays,mdvp,rand_key=rand_key,recDict=recDict)
 
+    def toJson(self):
+        import json
+        return json.dumps(self,default=lambda o:o.__dict__)
+    
     def __repr__(self):
         return "<VaccineType(%s,%d,%g,%d,%s,%g,%g,%g,%g,%g)>"%\
                (self.name,self.dosesPerVial,self.ccPerDose,self.dosesPerPerson,

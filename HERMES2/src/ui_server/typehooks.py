@@ -100,7 +100,7 @@ def jsonTypeEditForm(db, uiSession, typeClass, fieldMap, useInstance=False):
             print attrRec
         else:
             attrRec = typeInstance
-        print "attrRec = {0}".format(attrRec.presentation)
+        #print "attrRec = {0}".format(attrRec.presentation)
         htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,
                                                           typeClass,
                                                           modelId,
@@ -128,13 +128,19 @@ def jsonTypeEditVerifyAndCommit(db, uiSession, typeClass, fieldMap, classEditFn=
                                                       uiSession, 
                                                       fieldMap,
                                                       allowNameCollisions=anc)
+#         print "AttRec in Type EditVer:"
+#         print attrRec
         if badStr and badStr!="":
             result = {'success':True, 'value':False, 'msg':badStr}
         else:
             if classEditFn is not None:
+#                 print "setting classEditFn"
+#                 print classEditFn
                 attrRec = classEditFn(attrRec, m)
+#            print "typeClass = {0}".format(typeClass)
             shdTypesClass = shadow_network.ShdTypes.typesMap[typeClass]
             newType = shdTypesClass(attrRec.copy()) 
+#           print "newType Presentation = {0}".format(newType.presentation)
             db.add(newType)
             m.types[attrRec['Name']] = newType
             crumbTrack = uiSession.getCrumbs()

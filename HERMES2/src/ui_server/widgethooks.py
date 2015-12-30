@@ -531,11 +531,13 @@ def handleListCurrency(db, uiSession):
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayReadModelId(db, modelId)
         selectedCurrencyId = _safeGetReqParam(bottle.request.params, 'idstring')
+        print "selected = {0}".format(selectedCurrencyId)
         if 'defaultCurrencyId' not in uiSession:
             uiSession['defaultCurrencyId'] = None
         if ((selectedCurrencyId is None or selectedCurrencyId == '')
                 and 'defaultCurrencyId' in uiSession):
             selectedCurrencyId = uiSession['defaultCurrencyId']
+        print "selected = {0}".format(selectedCurrencyId)
         selectedCurrencyName = ''
         orderedPairs = [(b, a) for a, b in currencyhelper.getCurrencyDict(db, modelId).items()]
         orderedPairs.sort()
@@ -553,6 +555,7 @@ def handleListCurrency(db, uiSession):
             else:
                 s += '<option value="%s">"%s"</option>\n' % (thisId, name)
         quotedPairs = [(a, b) for a, b in orderedPairs]
+        print "Default Cur = {0}".format(uiSession['defaultCurrencyId'] )
         return {"menustr": s,
                 "pairs": quotedPairs,
                 "selid": selectedCurrencyId,

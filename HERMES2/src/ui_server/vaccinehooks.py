@@ -41,47 +41,51 @@ from util import listify
 inlizer=session_support.inlizer
 _=session_support.translateString
 
-fieldMap = [{'label':_('Data Base ID'),'key':'Name','id':'name','info':False,'edit':True,'type':'dbkey','default':None},
-                        {'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info': True, 'edit':True, 'type':'string','default':None},
-                        {'label':_('Abbreviation'), 'key':'Abbreviation', 'id':'abbreviation', 'info': True,'edit':True, 'type':'string','default':None},  
-                        {'label':_('Doses per vial'), 'key':'dosesPerVial', 'id':'dosespervial', 'info': True,'edit':True,'type':'int','default':1},  
-                        { 'label':_('Method of administration'),'key':'administration', 'info': True, 'edit':True,'none':True,
+fieldMap = [{'label':_('Data Base ID'), 'key':'Name', 'id':'name', 'info':False, 'edit':True, 'type':'dbkey', 'default':None},
+                        {'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info': True, 'edit':True, 'type':'string', 'default':None},
+                        {'label':_('Abbreviation'), 'key':'Abbreviation', 'id':'abbreviation', 'info': True, 'edit':True, 'type':'string', 'default':None},
+                        {'label':_('Manufacturer'),'key':'Manufacturer','id':'manufacturer','info': True,'edit':True, 'type':'string','default':None},
+                        {'label':_('Doses per vial'), 'key':'dosesPerVial', 'id':'dosespervial', 'info': True, 'edit':True, 'type':'int', 'default':1},
+                        { 'label':_('Method of administration'), 'key':'administration', 'info': True, 'edit':True, 'none':True,
                             'id':'methodofadministration', 'type':'select',
-                            'options':[('IM',_('Intramuscular (IM)'),[],[]),
-                                                 ('ID',_('Intradermal (ID)'),[],[]),
-                                                 ('SC',_('Subcutaneous (SC)'),[],[]),
-                                                 ('Oral',_('Oral'),[],[])
+                            'options':[('IM', _('Intramuscular (IM)'), [], []),
+                                                 ('ID', _('Intradermal (ID)'), [], []),
+                                                 ('SC', _('Subcutaneous (SC)'), [], []),
+                                                 ('Oral', _('Oral'), [], [])
                             ],
                             'default':'IM'
-                         },  
-                        { 'label':_('Vaccine presentation'), 'key':'presentation', 'id':'vaccinepresentation', 'info': True,'edit':True,'none':True,
-                            'type':'select',
-                            'options':[('Liquid',_('Liquid'),[],[]),
-                                                 ('Freeze Dried',_('Freeze Dried'),[],[]),
-                                                 ('Lyophilized',_('Lyophilized'),[],[]),
-                                                 ('Liquid + Lyophilized',_('Liquid + Lyophilized'),[],[]),
-                                                 ('Lyophilized + Diluent',_('Lyophilized + Diluent'),[],[]),
-                                                 ('Lyophilized + 0.4 % Sodium Chloride Diluent',_('Lyophilized + 0.4 % Sodium Chloride Diluent'),[],[]),
-                                                 ('Lyophilized + Buffered Saline Solution Diluent',_('Lyophilized + Buffered Saline Solution Diluent'),[],[]),
-                                                 ('Lyophilized + Diluted Sauton Diluent',_('Lyophilized + Diluted Sauton Diluent'),[],[]),
-                                                 ('Lyophilized + Specific Meningococcal Diluent In Vial',_('Lyophilized + Specific Meningococcal Diluent In Vial'),[],[]),
-                                                 ('Lyophilized + Water For Injection Diluent',_('Lyophilized + Water For Injection Diluent'),[],[]),
-                                                 ('Lyophilized + Wfi Diluent',_('Lyophilized + Wfi Diluent'),[],[]),
-                                                 ('Lyophilized + 0.9% Sodium Chloride Diluent',_('Lyophilized + 0.9% Sodium Chloride Diluent'),[],[])
-                            ],
-                            'default':'Liquid'
                          },
-                         { 'label':_('Length of time vaccine can be used after opening vial'),'key':'openLifetime', 'id':'lifetimeopen', 'info': True,'edit':True,'type':'time','recMap':['openLifetime','openLifetimeUnits']},
-                         { 'label':_('Length of time vaccine  can be stored at Room Temperature'), 'key':'roomtempLifetime', 'id':'lifetimeroomtemp', 'info': True,'edit':True,'type':'time','recMap':['roomtempLifetime','roomtempLifetimeUnits']},
-                         { 'label':_('Length of time vaccine  can be stored at 2-8 C'), 'key':'coolerLifetime', 'id':'lifetimecooler', 'info': True,'edit':True,'type':'time','recMap':['coolerLifetime','coolerLifetimeUnits']},
-                         { 'label':_('Length of time vaccine  can be stored at Below 0 C'), 'key':'freezerLifetime', 'id':'lifetimefreezer','info': True,'edit':True, 'type':'time','recMap':['freezerLifetime','freezerLifetimeUnits']},         
-                         { 'label':_('Packed Volume per Dose of Vaccine (mL)'), 'key':'volPerDose', 'id':'volperdosevac','info': True,'edit':True, 'type':'float'},  
-                         { 'label':_('Packed Volume per Dose of Diluent (mL)'), 'key':'diluentVolPerDose', 'id':'volperdosedil','info': True,'edit':True, 'type':'float'},
-                         {'label':_('Price of Vaccine Per Vial'),'key':'vaccinePricePerVial','id':'vaccineprice','info': True,'edit':True,'type':'cost','recMap':['pricePerVial','priceUnits','priceBaseYear']},
-                         { 'label':_('Price of Vaccine Per Dose'), 'key':'vaccinePricePerDose', 'id':'priceperdose', 'info': True,'edit':False,'type':'cost','recMap':['pricePerDose','priceUnits','priceBaseYear']},
-                         { 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'info': True,'edit':False,'type':'string'},  
-                         { 'label':_('RandomKey'), 'key':'RandomKey', 'id':'randomkey', 'info':False,'edit':False, 'type':'int'},     
-                         { 'label':_('Doses/person'), 'key':'dosesPerPerson', 'id':'dosesperperson', 'info':False,'edit':False, 'type':'int', 'default':1},
+                        {'label':_('Vaccine presentation'),'key':'presentation','id':'vaccinepresentation','info':True,'edit':True, 'type':'string','none':True, 'default':u'Liquid'},
+#                         { 'label':_('Vaccine presentation'), 'key':'presentation', 'id':'vaccinepresentation', 'info': True, 'edit':True, 'none':True,
+#                             'type':'select',
+#                             'options':[('Liquid', _('Liquid'), [], []),
+#                                                  ('Freeze Dried', _('Freeze Dried'), [], []),
+#                                                  ('Lyophilized', _('Lyophilized'), [], []),
+#                                                  ('Liquid + Lyophilized', _('Liquid + Lyophilized'), [], []),
+#                                                  ('Lyophilized + Diluent', _('Lyophilized + Diluent'), [], []),
+#                                                  ('Lyophilized + 0.4% Sodium Chloride Diluent', _('Lyophilized + 0.4% Sodium Chloride Diluent'), [], []),
+#                                                  ('Lyophilized + Buffered Saline Solution Diluent', _('Lyophilized + Buffered Saline Solution Diluent'), [], []),
+#                                                  ('Lyophilized + Diluted Sauton Diluent', _('Lyophilized + Diluted Sauton Diluent'), [], []),
+#                                                  ('Lyophilized + Specific Meningococcal Diluent In Vial', _('Lyophilized + Specific Meningococcal Diluent In Vial'), [], []),
+#                                                  ('Lyophilized + Water For Injection Diluent', _('Lyophilized + Water For Injection Diluent'), [], []),
+#                                                  ('Lyophilized + Wfi Diluent', _('Lyophilized + Wfi Diluent'), [], []),
+#                                                  ('Lyophilized + 0.4% Sodium Chloride In Ampoule Diluent')
+#                                                  ('Lyophilized + 0.9% Sodium Chloride Diluent', _('Lyophilized + 0.9% Sodium Chloride Diluent'), [], [])
+#                             ],
+#                             'default':'Liquid'
+#                          },
+                         { 'label':_('Length of time vaccine can be used after opening vial'), 'key':'openLifetime', 'id':'lifetimeopen', 'info': True, 'edit':True, 'type':'time', 'recMap':['openLifetime', 'openLifetimeUnits']},
+                         { 'label':_('Length of time vaccine  can be stored at Room Temperature'), 'key':'roomtempLifetime', 'id':'lifetimeroomtemp', 'info': True, 'edit':True, 'type':'time', 'recMap':['roomtempLifetime', 'roomtempLifetimeUnits']},
+                         { 'label':_('Length of time vaccine  can be stored at 2-8 C'), 'key':'coolerLifetime', 'id':'lifetimecooler', 'info': True, 'edit':True, 'type':'time', 'recMap':['coolerLifetime', 'coolerLifetimeUnits']},
+                         { 'label':_('Length of time vaccine  can be stored at Below 0 C'), 'key':'freezerLifetime', 'id':'lifetimefreezer', 'info': True, 'edit':True, 'type':'time', 'recMap':['freezerLifetime', 'freezerLifetimeUnits']},
+                         { 'label':_('Packed Volume per Dose of Vaccine (mL)'), 'key':'volPerDose', 'id':'volperdosevac', 'info': True, 'edit':True, 'type':'float'},
+                         { 'label':_('Packed Volume per Dose of Diluent (mL)'), 'key':'diluentVolPerDose', 'id':'volperdosedil', 'info': True, 'edit':True, 'type':'float'},
+                         { 'label':_('Price of Vaccine Per Vial'), 'key':'vaccinePricePerVial', 'id':'vaccineprice', 'info': True, 'edit':True, 'type':'cost', 'recMap':['pricePerVial', 'priceUnits', 'priceBaseYear']},
+                         #{ 'label':_('Price of Vaccine Per Dose'), 'key':'vaccinePricePerDose', 'id':'priceperdose', 'info': True, 'edit':False, 'type':'cost', 'recMap':['pricePerDose', 'priceUnits', 'priceBaseYear']},
+                         { 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'info': True, 'edit':False, 'type':'string'},
+                         { 'label':_('Secondary Packaging'), 'key':'secondaryPackaging', 'id':'secondarypackaging', 'info': True, 'edit':False, 'type':'string','default':None},
+                         { 'label':_('RandomKey'), 'key':'RandomKey', 'id':'randomkey', 'info':False, 'edit':False, 'type':'int'},
+                         { 'label':_('Doses/person'), 'key':'dosesPerPerson', 'id':'dosesperperson', 'info':False, 'edit':False, 'type':'int', 'default':1},
                          { 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'info': True, 'edit':True, 'type':'stringbox'},
                     ]
 
@@ -94,6 +98,7 @@ def editVaccine(db, uiSession):
     return typehooks.editType(db, uiSession, 'vaccines')
 
 def jsonVaccineEditFn(attrRec, m):
+    ### We need to capture the price per dose if the price per vial is there
     if attrRec['pricePerVial'] is None or attrRec['dosesPerVial'] is None:
         attrRec['pricePerDose'] = None
     else:
@@ -107,6 +112,8 @@ def jsonVaccineEditFn(attrRec, m):
             filtAttr[k+'Units'] = b
         else:
             filtAttr[k] = v
+    print "FiltAttr:"
+    print filtAttr
     return filtAttr
 
 @bottle.route('/json/vaccine-edit-verify-commit')
