@@ -14,6 +14,7 @@
 #                                                                                 #
 ###################################################################################
 -->
+<script type="text/javascript" src="{{rootPath}}static/editor-widgets/inventory_grid.js"></script>
 <div id='store_edit_wgt_{{unique}}'>
 <form id='store_edit_wgt_form_{{unique}}' action='json/throw-error'>
 <ul>
@@ -92,8 +93,9 @@
 </table>
 </div>
 <div id='store_edit_wgt_{{unique}}_tab2'>
-	<table id='store_edit_wgt_fridges_tbl_{{unique}}'></table>
-	<div id='store_edit_wgt_fridges_tbl_pager_{{unique}}'></div>
+	<div id='store_edit_wgt_fridges_div_{{unique}}'></div>
+	<!--<table id='store_edit_wgt_fridges_tbl_{{unique}}'></table>
+	<div id='store_edit_wgt_fridges_tbl_pager_{{unique}}'></div>-->
 </div>
 <!--
 <div id='store_edit_wgt_{{unique}}_tab3'>
@@ -102,8 +104,9 @@
 </div>
 -->
 <div id='store_edit_wgt_{{unique}}_tab4'>
-	<table id='store_edit_wgt_trucks_tbl_{{unique}}'></table>
-	<div id='store_edit_wgt_trucks_tbl_pager_{{unique}}'></div>
+	<div id='store_edit_wgt_trucks_div_{{unique}}'></div>
+	<!--<table id='store_edit_wgt_trucks_tbl_{{unique}}'></table>
+	<div id='store_edit_wgt_trucks_tbl_pager_{{unique}}'></div>-->
 </div>
 <div id='store_edit_wgt_{{unique}}_tab5'>
 	<table id='store_edit_wgt_people_tbl_{{unique}}'></table>
@@ -121,8 +124,8 @@
 <script>
 % tS = _
 % if defined('simpleTemplateDict'): _ = simpleTemplateDict
-% include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='fridges',caption=tS('Cold Storage'),customCols=[(tS('Freezer (L)'),'freezer','freezer'), (tS('Cooler (L)'),'cooler','cooler'), (tS('Warm (L)'),'warm','roomtemperature')],loadonce=True,hiddengrid=False	
-% include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='trucks',caption=tS('Transport'),customCols=[(tS('Cold Volume (L)'),'cooler','CoolVolumeL'), (tS('Storage'),'storage','Storage')],loadonce=True,hiddengrid=False
+//% include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='fridges',caption=tS('Cold Storage'),customCols=[(tS('Freezer (L)'),'freezer','freezer'), (tS('Cooler (L)'),'cooler','cooler'), (tS('Warm (L)'),'warm','roomtemperature')],loadonce=True,hiddengrid=False	
+//% include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='trucks',caption=tS('Transport'),customCols=[(tS('Cold Volume (L)'),'cooler','CoolVolumeL'), (tS('Storage'),'storage','Storage')],loadonce=True,hiddengrid=False
 //% include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='vaccines',caption=tS('Vaccines'),customCols=[(tS('Doses per vial'),'dosespervial','dosespervial'),(tS('Requires'),'requires','Requires')],loadonce=True,hiddengrid=False
 % include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='people',caption=tS('Client Population'),customCols=[],loadonce=True,hiddengrid=False
 % include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='staff',caption=tS('Local Staff'),customCols=[],loadonce=True,hiddengrid=False
@@ -133,7 +136,7 @@ $(function() {
 	$('#store_edit_wgt_{{unique}}').tabs()
 
 	$("#store_type_info_dialog_{{unique}}").dialog({autoOpen:false, height:"auto", width:"auto"});
-	
+	console.log("fuck");
 	$("#store_edit_wgt_cost_div_{{unique}}").hrmWidget({
 		 widget:'currencySelector',
 		 modelId:{{modelId}},
@@ -141,6 +144,37 @@ $(function() {
 		 selected:"{{costCur}}"
 	})
 	
+	$("#store_edit_wgt_fridges_div_{{unique}}").grid({
+		modelId:{{modelId}},
+		invType:"fridges",
+		customCols:[
+		            ['Freeser (L)','freezer','freezer'],
+		            ['Cooler (L)','cooler','cooler'],
+		            ['Warm (L)','warm','roomtemperature']
+		           ],
+		rootPath:'{{rootPath}}',
+		idcode:{{idcode}},
+		loadonce:true,
+		//pagerId: 'store_edit_wgt_fridges_tbl_pager_{{unique}}',
+		//infoDialogId:'store_type_info_dialog_{{unique}}',
+		unique:{{unique}},
+		editurl: '{{rootPath}}edit/store-edit-edit'
+	});
+	$("#store_edit_wgt_trucks_div_{{unique}}").grid({
+		modelId:{{modelId}},
+		invType:"trucks",
+		customCols:[
+		            ["Cold Volume (L)",'cooler','CoolVolumeL'],
+		            ["Storage",'storage','Storage']
+		           ],
+		rootPath:'{{rootPath}}',
+		idcode:{{idcode}},
+		loadonce:true,
+		//pagerId: 'store_edit_wgt_fridges_tbl_pager_{{unique}}',
+		//infoDialogId:'store_type_info_dialog_{{unique}}',
+		unique:{{unique}},
+		editurl: '{{rootPath}}edit/store-edit-edit'
+	});
 	function getTypeData(grid) {
 		var l = [];
 		

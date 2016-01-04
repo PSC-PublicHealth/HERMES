@@ -29,6 +29,19 @@ import htmlgenerator
 import privs
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults, b64D
 
+from HermesServiceException import HermesServiceException
+from ui_utils import _logMessage, _logStacktrace, _safeGetReqParam, _getOrThrowError
+
+## If executing under mod_wsgi, we need to add the path to the source
+## directory of this script.
+import site_info
+import session_support_wrapper as session_support
+
+sI = site_info.SiteInfo()
+
+inlizer=session_support.inlizer
+_=session_support.translateString
+
 def typeEditPage(db, uiSession, typeClass):
     try:
         paramList = ['%s:%s'%(str(k),str(v)) for k,v in bottle.request.params.items()]
@@ -183,3 +196,11 @@ def jsonGetAllTypesModelID(db,uiSession):
         return {'success':True,'id':m.modelId}
     except Exception, e:
         result = {'success':False, 'msg':str(e)}
+
+@bottle.route('/test-inv-grid')
+def testInventoryGrid(db,uiSession):
+    
+    m = int(bottle.request.params['modelId'])
+    crumbTrack = uiSession.getCrumbs()
+    idcode = 100000
+    return bottle.template('inventory_grid_test.tpl',title=_('Test Grid'),_=_,inlizer=inlizer,modelId=m,idcode=idcode)
