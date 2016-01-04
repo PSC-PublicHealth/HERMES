@@ -52,7 +52,7 @@ fieldMap = [{ 'label':_('Data Base ID'), 'key':'Name', 'id':'name', 'info':False
                         'type':'dynamicunit', 'lookup':'Fuel','lookupDict':fuelTranslationDict,'recMap':['FuelRate','FuelRateUnits']},
                    { 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'info':False, 'edit':False, 'type':'string'},
                    { 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'info':True, 'edit':True, 'type':'stringbox'},
-                   { 'label':_('Storage'), 'key':'Storage', 'id':'storage', 'info':True, 'edit':False, 'type':'custtruckstoragetable'},
+                   { 'label':_('Storage'), 'key':'Storage', 'id':'storage', 'info':True, 'edit':True, 'type':'custtruckstoragetable'},
             ]
 
 @bottle.route('/truck-edit')

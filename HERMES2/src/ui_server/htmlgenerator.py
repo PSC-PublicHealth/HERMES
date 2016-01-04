@@ -735,7 +735,7 @@ def _buildTypeInfoBox(fieldMap,typeInstance,typeName="Type",model=None):
             _logMessage("Unsupported Field Type, will be ignored in creating info page for {0}".format(typeName))
             
     return infoTable.htmlString()
-def _buildEditFieldTableNew(fieldMap,typeInstance=None):
+def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
     """
      fieldMap defines the layout of form fields on a page.  It is a 
     list of elements, each of which is a dict.  The following dict 
@@ -900,10 +900,36 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None):
             divString = "<div class='hrm_dynamicunitforminput' id = '{0}' data-fieldmap = '{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)
             print divString
             editTable.addRow([label,divString],[rowStyleString,1,1])
-               # # find lookup record
-               
-             
-                
+        
+        elif recType == "custtruckstoragetable":
+            from shadow_network import ShdTruckType,ShdStorageType
+            if not isinstance(typeInstance,ShdTruckType):
+                _logMessage("Cannot use custtruckstoragetable  as a field type for anything other than transport: Ignoring")
+                continue
+            if model is None:
+                _logMessage("Cannot use custtruckstoragetable as a field type without specifying a model in the _build call: Ignoring")
+                continue
+            # first get the current storage the transport device has
+            
+            if getattr(typeInstance,"Storage") != '':
+                truckstorageList = typeInstance.getStorageDeviceList(model)
+            
+            trucknameDict = {x[1].Name:x[0] for x in truckstorageList}
+#             print "------"
+#             print trucknameDict
+            modelstorageList = sorted([y for x,y in model.types.items() if isinstance(y,ShdStorageType) and y.cooler > 0.0],
+                                      key=lambda x: x.cooler, reverse=False)
+            
+            # construct the json to pass to the widget
+            dataDict = {}
+            for s in modelstorageList:
+                count = 0
+                if s.Name in trucknameDict.keys():
+                    count = trucknameDict[s.Name]
+                dataDict[s.Name] = {'vol':s.cooler,'dispname':s.DisplayName,'count':count}
+            #print "dataDict = {0}".format(dataDict)       
+            divString = "<div class='hrm_simplestorageselect' id = '{0}' data-dataMap = '{1}'></div>".format(formKey,json.dumps(dataDict))
+            editTable.addRow([label,divString],[rowStyleString,1,1])
              
                     
                 
@@ -1139,7 +1165,7 @@ def getTypeEditHTML(db,uiSession,wireType,modelId,protoname,fieldMap):
     
     titleStr = _("This will go in model {0}").format(model.name)
     
-    return _buildEditFieldTableNew(fieldMap,typeInstance), titleStr
+    return _buildEditFieldTableNew(fieldMap,typeInstance,model=model), titleStr
 
 def getRouteDialogHTML(db,uiSession,name="model_route_dialog",genInfo=True,util=True,tripMan=True):
     tabCount =1

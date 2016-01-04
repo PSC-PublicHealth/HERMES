@@ -887,6 +887,38 @@ function addToggleExpansionButton($grid) {
  				});
  			});
  		}
+ 		else if (settings['widget']=='simpleStorageSelector'){
+ 			$.fn.simpleStorageSelector = function( arg, arg2 ) {
+ 				var tId = this.attr('id');
+ 				if(tId==undefined) $.error('simpleStorageSelector has no id');
+ 				
+ 				if(arg=='value'){
+ 					// will figure out shortly
+ 				}
+ 				if(arg=='valueJson'){
+ 					//will figure out shortly
+ 				}
+ 				if(arg=='clean'){
+ 					//will figure out shortly
+ 				}
+ 			}
+ 			return this.each(function(index,elem){
+ 				var $elem = $(elem);
+ 				$elem.data('dataMap',JSON.parse(settings['dataMap']));
+ 				
+ 				// first parse the values for selector
+ 				var dataMap = $elem.data('dataMap');
+ 				
+ 				optionsList = [];
+ 				for(data in dataMap){
+ 					if(dataMap[data].count == 0){
+ 						optionsList.push(dataMap[data]);
+ 					}
+ 				}
+ 				console.log(optionsList);
+ 			});
+ 			
+ 		}
  		else if (settings['widget']=='energySelector') {
 			$.fn.energySelector = function( arg, arg2 ) {
 				var sel = this.first().find("select");
@@ -948,7 +980,7 @@ function addToggleExpansionButton($grid) {
 					$.error('Unknown operation '+arg.toString());
 				}
 			}
-
+		
  			return this.each(function(index,elem) {
  				var $elem = $(elem);
  				$elem.html('<label>'+settings['label']+'</label>');
@@ -1541,6 +1573,16 @@ function addToggleExpansionButton($grid) {
  							}
  						}
  					});
+ 					$(this).find('.hrm_simplestorageselector').each(function(){
+ 						var tj = $(this);
+ 						tj.simpleStorageSelector('clean');
+ 						value = tj.simpleStoreSelector('valueJson');
+ 						for(key in value){
+ 							if(value.hasOwnProperty(key)){
+ 								dict[key]=value[key];
+ 							}
+ 						}
+ 					});
  					$(this).find('.hrm_energy').each(function() {
  						var tj = $(this);
  						dict[tj.attr('id')] = tj.energySelector('selId');
@@ -1629,6 +1671,14 @@ function addToggleExpansionButton($grid) {
  	 						label:'',
  	 						value:val,
  	 						fieldMap:$field.attr("data-fieldMap")
+ 	 					});
+ 	 				});
+ 	 				$elem.find('.hrm_simplestorageselect').each(function(idx){
+ 	 					$field=$(this);
+ 	 					$field.hrmWidget({
+ 	 						widget:'simpleStorageSelector',
+ 	 						label:'',
+ 	 						dataMap:$field.attr("data-dataMap")
  	 					});
  	 				});
  	 				$elem.change( function( eventObj ) {
