@@ -94,8 +94,6 @@
 </div>
 <div id='store_edit_wgt_{{unique}}_tab2'>
 	<div id='store_edit_wgt_fridges_div_{{unique}}'></div>
-	<!--<table id='store_edit_wgt_fridges_tbl_{{unique}}'></table>
-	<div id='store_edit_wgt_fridges_tbl_pager_{{unique}}'></div>-->
 </div>
 <!--
 <div id='store_edit_wgt_{{unique}}_tab3'>
@@ -105,16 +103,12 @@
 -->
 <div id='store_edit_wgt_{{unique}}_tab4'>
 	<div id='store_edit_wgt_trucks_div_{{unique}}'></div>
-	<!--<table id='store_edit_wgt_trucks_tbl_{{unique}}'></table>
-	<div id='store_edit_wgt_trucks_tbl_pager_{{unique}}'></div>-->
 </div>
 <div id='store_edit_wgt_{{unique}}_tab5'>
-	<table id='store_edit_wgt_people_tbl_{{unique}}'></table>
-	<div id='store_edit_wgt_people_tbl_pager_{{unique}}'></div>
+	<div id='store_edit_wgt_people_div_{{unique}}'></div>
 </div>
 <div id='store_edit_wgt_{{unique}}_tab6'>
-	<table id='store_edit_wgt_staff_tbl_{{unique}}'></table>
-	<div id='store_edit_wgt_staff_tbl_pager_{{unique}}'></div>
+	<div id='store_edit_wgt_staff_div_{{unique}}'></div>
 </div>
 </form>
 </div> 
@@ -124,19 +118,14 @@
 <script>
 % tS = _
 % if defined('simpleTemplateDict'): _ = simpleTemplateDict
-//% include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='fridges',caption=tS('Cold Storage'),customCols=[(tS('Freezer (L)'),'freezer','freezer'), (tS('Cooler (L)'),'cooler','cooler'), (tS('Warm (L)'),'warm','roomtemperature')],loadonce=True,hiddengrid=False	
-//% include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='trucks',caption=tS('Transport'),customCols=[(tS('Cold Volume (L)'),'cooler','CoolVolumeL'), (tS('Storage'),'storage','Storage')],loadonce=True,hiddengrid=False
-//% include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='vaccines',caption=tS('Vaccines'),customCols=[(tS('Doses per vial'),'dosespervial','dosespervial'),(tS('Requires'),'requires','Requires')],loadonce=True,hiddengrid=False
-% include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='people',caption=tS('Client Population'),customCols=[],loadonce=True,hiddengrid=False
-% include flat_inventory_grid modelId=modelId,idcode=idcode,unique=unique,invtype='staff',caption=tS('Local Staff'),customCols=[],loadonce=True,hiddengrid=False
 % simpleTemplateDict = _
 % _ = tS
 
 $(function() {
-	$('#store_edit_wgt_{{unique}}').tabs()
+	$('#store_edit_wgt_{{unique}}').tabs();
 
 	$("#store_type_info_dialog_{{unique}}").dialog({autoOpen:false, height:"auto", width:"auto"});
-	console.log("fuck");
+
 	$("#store_edit_wgt_cost_div_{{unique}}").hrmWidget({
 		 widget:'currencySelector',
 		 modelId:{{modelId}},
@@ -148,15 +137,15 @@ $(function() {
 		modelId:{{modelId}},
 		invType:"fridges",
 		customCols:[
-		            ['Freeser (L)','freezer','freezer'],
-		            ['Cooler (L)','cooler','cooler'],
-		            ['Warm (L)','warm','roomtemperature']
+		            ['Freeser (L)','freezer','freezer',true],
+		            ['Cooler (L)','cooler','cooler',true],
+		            ['Warm (L)','warm','roomtemperature',true]
 		           ],
 		rootPath:'{{rootPath}}',
 		idcode:{{idcode}},
-		loadonce:true,
-		//pagerId: 'store_edit_wgt_fridges_tbl_pager_{{unique}}',
 		//infoDialogId:'store_type_info_dialog_{{unique}}',
+		caption:"{{tS('Storage Devices')}}",
+		loadonce:true,
 		unique:{{unique}},
 		editurl: '{{rootPath}}edit/store-edit-edit'
 	});
@@ -164,40 +153,41 @@ $(function() {
 		modelId:{{modelId}},
 		invType:"trucks",
 		customCols:[
-		            ["Cold Volume (L)",'cooler','CoolVolumeL'],
-		            ["Storage",'storage','Storage']
+		            ["Cold Volume (L)",'cooler','CoolVolumeL',true],
+		            ["Storage",'storage','Storage',false]
 		           ],
 		rootPath:'{{rootPath}}',
 		idcode:{{idcode}},
-		loadonce:true,
-		//pagerId: 'store_edit_wgt_fridges_tbl_pager_{{unique}}',
 		//infoDialogId:'store_type_info_dialog_{{unique}}',
+		caption:"{{tS('Transport Vehicles')}}",
+		loadonce:true,
 		unique:{{unique}},
 		editurl: '{{rootPath}}edit/store-edit-edit'
 	});
-	function getTypeData(grid) {
-		var l = [];
-		
-		// Force a local save if necessary 
-		var selrow = grid.jqGrid('getGridParam','selrow');
-		if (selrow) grid.jqGrid("saveRow", selrow);
-			
-		var gridData = grid.jqGrid('getGridParam','data');
-		var delData = grid.data('deletedRowList')
-		for (var i in gridData) {
-			var o = gridData[i];
-			l.push( {typename:o['typestring'], visibletypename:o['visibletypestring'],
-						count:o['count'], origcount:o['origcount']} );
-		};
-		if (typeof delData === "object") {
-			for (var i in delData) {
-				var o = delData[i];
-				l.push( {typename:o, visibletypename:o, count:0} ); // fake a delete request
-			};
-			grid.data('deletedRowList',[]);
-		}
-		return l;
-	};
+	$("#store_edit_wgt_people_div_{{unique}}").grid({
+		modelId:{{modelId}},
+		invType:"people",
+		customCols:[],
+		rootPath:'{{rootPath}}',
+		idcode:{{idcode}},
+		//infoDialogId:'store_type_info_dialog_{{unique}}',
+		caption:"{{tS('Population to Serve')}}",
+		loadonce:true,
+		unique:{{unique}},
+		editurl: '{{rootPath}}edit/store-edit-edit'
+	});
+	$("#store_edit_wgt_staff_div_{{unique}}").grid({
+		modelId:{{modelId}},
+		invType:"staff",
+		customCols:[],
+		rootPath:'{{rootPath}}',
+		idcode:{{idcode}},
+		//infoDialogId:'store_type_info_dialog_{{unique}}',
+		caption:"{{tS('Staff')}}",
+		loadonce:true,
+		unique:{{unique}},
+		editurl: '{{rootPath}}edit/store-edit-edit'
+	});
 	
 	$("#store_edit_wgt_form_{{unique}}").submit( function(event) {
 		event.preventDefault();
@@ -205,10 +195,10 @@ $(function() {
 			data:{
 				modelId:{{modelId}}, idcode:{{idcode}}, unique:{{unique}},
 				costcur:$('#store_edit_wgt_cost_div_{{unique}}').currencySelector('selId'),
-				fridgedata:getTypeData( $("#store_edit_wgt_fridges_tbl_{{unique}}") ),
-				peopledata:getTypeData( $("#store_edit_wgt_people_tbl_{{unique}}") ),
-				truckdata:getTypeData( $("#store_edit_wgt_trucks_tbl_{{unique}}") ),
-				staffdata:getTypeData( $("#store_edit_wgt_staff_tbl_{{unique}}") )
+				fridgedata:$('#store_edit_wgt_fridges_div_{{unique}}').grid("data"),
+				peopledata:$('#store_edit_wgt_people_div_{{unique}}').grid("data"),
+				truckdata: $('#store_edit_wgt_trucks_div_{{unique}}').grid("data"),
+				staffdata: $('#store_edit_wgt_staff_div_{{unique}}').grid("data")
 			},
 			url:'{{rootPath}}json/store-update',
 			dataType:'json',

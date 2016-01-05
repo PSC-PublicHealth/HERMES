@@ -15,7 +15,7 @@
 ###################################################################################
 */
 ;(function($){
-	
+
 	$.widget("inventory_grid.grid",{
 		options:{
 			rootPath:'',
@@ -37,21 +37,71 @@
 			}
 		},
 		
+		data:function(){
+			var l = [];
+			var thisGrid = $("#"+this.options.tableId);
+			// Force a local save if necessary 
+			var selrow = thisGrid.jqGrid('getGridParam','selrow');
+			if (selrow) thisGrid.jqGrid("saveRow", selrow);
+				
+			var gridData = thisGrid.jqGrid('getGridParam','data');
+			var delData = thisGrid.data('deletedRowList')
+			for (var i in gridData) {
+				var o = gridData[i];
+				console.log(o);
+				var addflag = true;
+				for(var j in l){
+					if(l[j]['typename']==o['visibletypestring']){
+						console.log(l[j]['typename'] + " count = "+o['count']);
+						l[j]['count'] += parseInt(o['count']);
+						addflag = false;
+					}
+				}
+				if(addflag){
+					l.push( {typename:o['typestring'], visibletypename:o['visibletypestring'],
+								count:o['count'], origcount:o['origcount']} );
+				}
+			};
+			if (typeof delData === "object") {
+				for (var i in delData) {
+					var o = delData[i];
+					l.push( {typename:o, visibletypename:o, count:0} ); // fake a delete request
+				};
+				grid.data('deletedRowList',[]);
+			}
+
+			console.log(l);
+			return l;
+		},
 		_create:function(){
 			trant = this.options.trant;
 			
 			this.containerID = $(this.element).attr('id');
 			var thiscontainerID = this.containerID;
 			
-			var thisTableID = this.containerID + "_table";
+			var thisTableID = this.containerID + "_tbl";
 			var thisPagerID = this.containerID + "_pager";
-			var thisDialogID = this.containerID + "_dialog";
+			var thisDialogID = this.options.infoDialogId;
 			
-			$("#"+thiscontainerID).html("<table id='"+thisTableID+"'></table>"+
-										"<div id='"+thisPagerID+"'></div>"+
-										"<div id='"+thisDialogID+"'></div>");
+			this.options.tableId = thisTableID;
 			
-			$("#"+thisDialogID).dialog({autoOpen:false, height:"auto", width:"auto"});
+			var htmlString = "<table id='"+thisTableID+"'></table>"+
+							 "<div id='"+thisPagerID+"'></div>";
+			
+			if(this.options.infoDialogId == ''){
+				thisDialogID = this.containerID + "_dialog";
+				htmlString += "<div id='"+thisDialogID+"'></div>";
+			}
+			
+			$("#"+thiscontainerID).html(htmlString);
+			
+			console.log(this.options.infoDialogId == '');
+			console.log(this.options.infoDialogId);
+			if(this.options.infoDialogId == ''){
+				$("#"+thisDialogID).dialog({autoOpen:false, height:"auto", width:"auto"});
+			}
+			
+			
 			
 			var thisoptions = this.options;
 			
@@ -67,6 +117,7 @@
 			var idcode = this.options.idcode;
 			var invType = this.options.invType;
 			var customCols = this.options.customCols;
+			var infoButtonClassName = "hermes_info_button_"+invType+"_"+ Math.floor((Math.random()*1000000) + 1);
 			// Will do translate_phrases after this works
 			
 			//build colNames
@@ -170,10 +221,10 @@
 				       		{name:'info', index:'info', width:110, align:'center', sortable:false,
 				       		 formatter:function(cellvalue, options, rowObject) {
 				       		 	if (cellvalue) {
-				       				return "<button type=\"button\" class=\"hermes_info_button\" id="+escape(cellvalue)+">Info</button>";
+				       				return "<button type='button' class='"+infoButtonClassName+"' id="+escape(cellvalue)+">Info</button>";
 				       			}
 				       			else {
-				       				return "<button type=\"button\" class=\"hermes_info_button\"  id=\"_undefined\" disabled>Info</button>";
+				       				return "<button type=\"button\" class='"+infoButtonClassName+"'  id=\"_undefined\" disabled>Info</button>";
 				       			}
 				       		}}
 	
@@ -230,23 +281,34 @@
 					var $this = $(this);
 					var oldRowId = $this.getGridParam('selrow');
 			        if (oldRowId && (oldRowId != rowId)) {
-			        	$this.jqGrid("saveRow", oldRowId, {extraparam: { modelId:modelId, idcode:idcode, invtype:invType }});
+			        	$this.jqGrid("saveRow", oldRowId, 
+			        			{
+			        				extraparam: { modelId:modelId, idcode:idcode, invtype:invType},
+			        				aftersavefunc:function(rowId, response ){
+			        					$("#"+thisTableID).trigger("reloadGrid");
+			        				}
+			        			}
+			        	);
 					}
 			        return true;
 				},
 				onSelectRow: function(resultsid, status){
 			   		if (status) {
 			   			if (resultsid) {
-							jQuery("#"+thisTableID).jqGrid('editRow',resultsid,{
-								keys:true,
-								extraparam: { modelId:modelId, idcode:idcode, invtype:invType },
-								aftersavefunc: function( rowId, response ) {
-				    				$("#"+thisTableID).trigger("reloadGrid"); // to update checkboxes
-								},
-								afterrestorefunc: function(rowId) {
-				    				$("#"+thisTableID).trigger("reloadGrid"); // to update checkboxes
-								}
-							});
+							jQuery("#"+thisTableID).jqGrid('editRow',resultsid,
+									{
+										keys:true,
+										extraparam: { modelId:modelId, idcode:idcode, invtype:invType },
+										aftersavefunc: function( rowId, response ) {
+											updateColSums();
+											$("#"+thisTableID).trigger("reloadGrid"); // to update checkboxes
+										},
+										afterrestorefunc: function(rowId) {
+											updateColSums();
+						    				$("#"+thisTableID).trigger("reloadGrid"); // to update checkboxes
+										}
+									}
+							);
 			   			}
 					}
 					else {
@@ -254,21 +316,22 @@
 					}
 				},
 				gridComplete: function(){
-			   		$(".hermes_info_button").click(function(event) {
+			   		$("."+infoButtonClassName).click(function(event) {
 			    		$.getJSON(rootPath+'json/type-info', {
 			    			modelId:modelId, 
 			    			typestring:unescape($(this).attr('id'))
 			    		})
 			    		.done(function(data) {
 			        		if (data.success) {
-			        			if (data.success) {
+			        			//if (data.success) {
+			        				console.log(thisDialogID);
 			        				$("#"+thisDialogID).html(data['htmlstring']);
 			        				$("#"+thisDialogID).dialog('option','title',data['title']);
 			        				$("#"+thisDialogID).dialog("open");
-			        			}
-			    				else {
-			        				alert('{{_("Failed: ")}}'+data.msg);
-			    				}
+			        			//}
+			    				//else {
+			        			//	alert('{{_("Failed: ")}}'+data.msg);
+			    				//}
 			        		}
 			        		else {
 			        			alert('{{_("Failed: ")}}'+data.msg);
@@ -286,8 +349,13 @@
 			        		$this.jqGrid("saveRow", oldRowId, {extraparam: { 
 			        														modelId:modelId, 
 			        														idcode:idcode, 
-			        														invtype:invType 
-			        														}
+			        														invtype:invType, 
+			        														},
+			        											aftersavefunc:function(rowid, response){
+			        												alert("Fuck");
+			        												updateColSums();
+			        												$("#"+thisTableID).trigger("reloadGrid");
+			        											}
 			        										  }
 			        		);
 							// Manually re-enable add button
@@ -319,9 +387,16 @@
 					}
 				},
 			});
+			
+			var urlHere = rootPath+"clientArray";
+			if(thisoptions.loadonce == false){
+				urlHere = '';
+			}
+			
 			$("#"+thisTableID).jqGrid('navGrid','#'+thisPagerID,
-					{edit:false,add:false,del:true,save:false,cancel:false
-						,delfunc:function(rowId) { 
+					{
+						edit:false,add:false,del:true,save:false,cancel:false,
+						delfunc:function(rowId) { 
 							if(thisoptions.loadonce){
 								var $this = $( this );
 								if (typeof $this.data('deletedRowList') === "undefined")
@@ -329,24 +404,47 @@
 								$this.data( 'deletedRowList' ).push( rowId );
 								$this.jqGrid('delRowData', rowId);
 							}
-						}
+						},
 					},
 					{}, // edit params
-					{keys:true}, // add params
-					{delData:{modelId:modelId, idcode:idcode, unique:thisoptions.unique, invtype:invType },		
-						url:function(){ 
-							if(thisoptions.loadonce){
-								return rootPath+"clientArray";
-							}
-							else{ 
-								return '';
-								}
+					{
+						keys:true,
+						afterSubmit:function(response){
+							alert("I AM HERE " + response);
 						}
+					}, // add params
+					{
+						delData:{modelId:modelId, idcode:idcode, unique:thisoptions.unique, invtype:invType },		
+						url:urlHere
 					} 
 				);
 				$("#"+thisTableID).jqGrid('inlineNav','#'+thisPagerID,
-					{edit:false,add:true,del:true,save:false,cancel:false,restoreAfterSelect:false,addParams:{keys:true}
+					{edit:false,add:true,del:true,save:false,cancel:false,restoreAfterSelect:false,
+					addParams:{
+						keys:true,
+						position:'last'
+					}
 				});
+				
+				function updateColSums(){
+					var countSum = $("#"+thisTableID).jqGrid('getCol','count',false,'sum');
+					$("#"+thisTableID).jqGrid('footerData','set',{count:countSum});
+					var cusSums = {};
+					for(var i=0;i<thisoptions.customCols.length;++i){
+						var entryName = thisoptions.customCols[i][1];
+						var sum = 0.0;
+						var ids = $("#"+thisTableID).jqGrid('getDataIDs');
+						for(var j = 0; j < ids.length;++j){
+							var rowData = $("#"+thisTableID).jqGrid('getRowData',ids[j]);
+							sum += parseFloat(rowData[entryName])*parseFloat(rowData['count']);
+						}
+						if(! isNaN(sum)){
+							var obj = JSON.parse('[{"'+entryName+'":'+parseFloat(sum).toFixed(2) + '}]');
+							
+							$("#"+thisTableID).jqGrid('footerData','set',obj[0]);
+						}
+					}
+				}
 
 		}
 	});		
