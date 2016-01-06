@@ -147,7 +147,9 @@ $(function() {
 		caption:"{{tS('Storage Devices')}}",
 		loadonce:true,
 		unique:{{unique}},
-		editurl: '{{rootPath}}edit/store-edit-edit'
+		editurl: '{{rootPath}}edit/store-edit-edit',
+		gridurl: '{{rootPath}}json/store-edit-manage-table',
+		gridpostdata: {"modelId":{{modelId}},"idcode":{{idcode}}, "unique": {{unique}}, "invtype":"fridges"}
 	});
 	$("#store_edit_wgt_trucks_div_{{unique}}").grid({
 		modelId:{{modelId}},
@@ -162,7 +164,9 @@ $(function() {
 		caption:"{{tS('Transport Vehicles')}}",
 		loadonce:true,
 		unique:{{unique}},
-		editurl: '{{rootPath}}edit/store-edit-edit'
+		editurl: '{{rootPath}}edit/store-edit-edit',
+		gridurl: '{{rootPath}}json/store-edit-manage-table',
+		gridpostdata: {"modelId":{{modelId}},"idcode":{{idcode}}, "unique": {{unique}}, "invtype":"trucks"}
 	});
 	$("#store_edit_wgt_people_div_{{unique}}").grid({
 		modelId:{{modelId}},
@@ -174,7 +178,9 @@ $(function() {
 		caption:"{{tS('Population to Serve')}}",
 		loadonce:true,
 		unique:{{unique}},
-		editurl: '{{rootPath}}edit/store-edit-edit'
+		editurl: '{{rootPath}}edit/store-edit-edit',
+		gridurl: '{{rootPath}}json/store-edit-manage-table',
+		gridpostdata: {"modelId":{{modelId}},"idcode":{{idcode}}, "unique": {{unique}}, "invtype":"people"}
 	});
 	$("#store_edit_wgt_staff_div_{{unique}}").grid({
 		modelId:{{modelId}},
@@ -186,7 +192,9 @@ $(function() {
 		caption:"{{tS('Staff')}}",
 		loadonce:true,
 		unique:{{unique}},
-		editurl: '{{rootPath}}edit/store-edit-edit'
+		editurl: '{{rootPath}}edit/store-edit-edit',
+		gridurl: '{{rootPath}}json/store-edit-manage-table',
+		gridpostdata: {"modelId":{{modelId}},"idcode":{{idcode}}, "unique": {{unique}}, "invtype":"staff"}
 	});
 	
 	$("#store_edit_wgt_form_{{unique}}").submit( function(event) {

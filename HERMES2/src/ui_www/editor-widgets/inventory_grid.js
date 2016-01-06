@@ -32,6 +32,9 @@
 			infoDialogId:'',
 			width:800,
 			caption:'Test',
+			gridUrl:'',
+			gridpostdata:'',
+			editUrl:'',
 			trant:{
 				title:"Inventory Grid"
 			}
@@ -40,7 +43,7 @@
 		data:function(){
 			var l = [];
 			var thisGrid = $("#"+this.options.tableId);
-			// Force a local save if necessary 
+			// Force a local save if necessary
 			var selrow = thisGrid.jqGrid('getGridParam','selrow');
 			if (selrow) thisGrid.jqGrid("saveRow", selrow);
 				
@@ -48,11 +51,12 @@
 			var delData = thisGrid.data('deletedRowList')
 			for (var i in gridData) {
 				var o = gridData[i];
-				console.log(o);
+				// console.log(o);
 				var addflag = true;
 				for(var j in l){
 					if(l[j]['typename']==o['visibletypestring']){
-						console.log(l[j]['typename'] + " count = "+o['count']);
+						// console.log(l[j]['typename'] + " count =
+						// "+o['count']);
 						l[j]['count'] += parseInt(o['count']);
 						addflag = false;
 					}
@@ -65,7 +69,10 @@
 			if (typeof delData === "object") {
 				for (var i in delData) {
 					var o = delData[i];
-					l.push( {typename:o, visibletypename:o, count:0} ); // fake a delete request
+					l.push( {typename:o, visibletypename:o, count:0} ); // fake
+																		// a
+																		// delete
+																		// request
 				};
 				grid.data('deletedRowList',[]);
 			}
@@ -120,7 +127,7 @@
 			var infoButtonClassName = "hermes_info_button_"+invType+"_"+ Math.floor((Math.random()*1000000) + 1);
 			// Will do translate_phrases after this works
 			
-			//build colNames
+			// build colNames
 			colNamesBeg = [
 			            "",
 			            "",
@@ -138,7 +145,6 @@
 			}
 			
 			colNames = colNamesBeg.concat(colNamesMiddle,colNamesEnd);
-			console.log(colNames);
 			colModelBeg = [
 			               	{name:'typestring', index:'typestring', key:true, editable:false, hidden:true},
 			               	{name:'origcount', indexx:'origcount', editable:false, hidden:true},
@@ -146,48 +152,47 @@
 			               		editable:true, edittype:'select', 
 			               		editoptions:{ 
 			               			dataUrl:rootPath + 'list/select-type-full',
-			               			dataInit: function(elt) { 
-			               				console.log($(elt).val());
-			               				elt.focus(); 
-			               			},
+			               			dataInit: function(elt) { elt.focus(); },
 			               			beforeProcessing:function(data,status,xhr){
-			               				// This will populate the row with the information from the 
-			               				// first option that pops up in the select box.
-										$.getJSON(rootPath+'json/type-dict', {
-											modelId:modelId, 
-											typestring:$(this).val()
-										})
-										.done(function(data) {
-											if (data.success) {
-												var grid = $("#"+thisTableID);
-												var rowId = grid.getGridParam('selrow');
-												grid.setCell(rowId,"description",data.value["DisplayName"]);
-												for(var i = 0;i<customCols.length;++i){
-													grid.setCell(rowId,customCols[i][1],data.value[customCols[i][2]]);
-												}
-												var infoButton = grid.find("button#"+escape(rowId))[0];
-												if (infoButton) {
-													infoButton.disabled = false;
-													$(infoButton).attr('id',escape(data.value['Name']));
+			               				// This will populate the row with the
+										// information from the
+			               				// first option that pops up in the
+										// select box.
+			               				var grid = $("#"+thisTableID);
+			               				var rowId = grid.getGridParam('selrow');
+			               				var typestringval = grid.getRowData(rowId).typestring;
+			               				console.log("Type String = " + typestringval)
+			               				if(typestringval == ''){
+											$.getJSON(rootPath+'json/type-dict', {
+												modelId:modelId, 
+												typestring:$(this).val()
+											})
+											.done(function(data) {
+												if (data.success) {
+													console.log("VAlue = "+data.value["DisplayName"]);
+													
+													var grid = $("#"+thisTableID);
+													var rowId = grid.getGridParam('selrow');
+													
+													grid.setCell(rowId,"description",data.value["DisplayName"]);
+													for(var i = 0;i<customCols.length;++i){
+														grid.setCell(rowId,customCols[i][1],data.value[customCols[i][2]]);
+													}
+													grid.setCell(rowId,"info",data.value["Name"]);
+													attachClickEventToInfoButtons();
 												}
 												else {
-													infoButton = grid.find("button#_undefined")[0];
-													if (infoButton) {
-														infoButton.disabled = false;
-														$(infoButton).attr('id',escape(data.value['Name']));
-													}
+													alert('{{_("Failed: ")}}'+data.msg);
 												}
-											}
-											else {
-												alert('{{_("Failed: ")}}'+data.msg);
-											}
-							    		})
-										.fail(function(jqxhr, textStatus, error) {
-											alert('{{_("Error: ")}}'+jqxhr.responseText);
-										});
+								    		})
+											.fail(function(jqxhr, textStatus, error) {
+												alert('{{_("Error: ")}}'+jqxhr.responseText);
+											});
+			               				}
 			               			},
 							 		dataEvents: [
-							 		    // This will reupdate the information when the select box is changed.
+							 		    // This will reupdate the information
+										// when the select box is changed.
 							 			{ type: 'change',
 							 				fn: function(e) {
 												$.getJSON(rootPath+'json/type-dict', {
@@ -198,22 +203,13 @@
 													if (data.success) {
 														var grid = $("#"+thisTableID);
 														var rowId = grid.getGridParam('selrow');
+														console.log("change value = " + data.value["DisplayName"]);
 														grid.setCell(rowId,"description",data.value["DisplayName"]);
 														for(var i = 0;i<customCols.length;++i){
 															grid.setCell(rowId,customCols[i][1],data.value[customCols[i][2]]);
 														}
-														var infoButton = grid.find("button#"+escape(rowId))[0];
-														if (infoButton) {
-															infoButton.disabled = false;
-															$(infoButton).attr('id',escape(data.value['Name']));
-														}
-														else {
-															infoButton = grid.find("button#_undefined")[0];
-															if (infoButton) {
-																infoButton.disabled = false;
-																$(infoButton).attr('id',escape(data.value['Name']));
-															}
-														}
+														grid.setCell(rowId,"info",data.value["Name"]);
+														attachClickEventToInfoButtons();
 													}
 													else {
 														alert('{{_("Failed: ")}}'+data.msg);
@@ -221,7 +217,7 @@
 									    		})
 												.fail(function(jqxhr, textStatus, error) {
 													alert('{{_("Error: ")}}'+jqxhr.responseText);
-												});
+												});		
 							 				}
 							 			}
 							 		]
@@ -246,7 +242,11 @@
 				       		 					var indexHere = $grid.jqGrid('getInd',rowId) - 1;
 				       		 					var newIndex = (indexHere + 1) % ids.length;
 				       		 					if (newIndex == indexHere) {
-				       		 						e.preventDefault(); // only one row, so do nothing
+				       		 						e.preventDefault(); // only
+																		// one
+																		// row,
+																		// so do
+																		// nothing
 				       		 					}
 				       		 					else {
 				       								$grid.jqGrid("saveRow", rowId, 
@@ -276,7 +276,7 @@
 			}
 			
 			colModels = colModelBeg.concat(colModelMiddle,colModelEnd);
-			console.log(colModels);
+			// console.log(colModels);
 			
 			var editURLHere = "clientArray";
 			if(thisoptions.loadonce == false){
@@ -284,14 +284,18 @@
 			}
 			
 			$("#"+thisTableID).jqGrid({
-				url:rootPath + 'json/store-edit-manage-table',
+				url:thisoptions.gridurl,
 				datatype:'json',
-				postData: {
-					modelId:modelId, idcode:idcode, unique:thisoptions.unique, invtype:invType
-				},
-				inlineData: {
-					modelId:modelId, idcode:idcode, unique:thisoptions.unique, invtype:invType
-				},
+				postData: thisoptions.gridpostdata,
+				// {
+				// modelId:modelId, idcode:idcode, unique:thisoptions.unique,
+				// invtype:invType
+				// },
+				inlineData: thisoptions.gridpostdata,
+				// {
+				// modelId:modelId, idcode:idcode, unique:thisoptions.unique,
+				// invtype:invType
+				// },
 				ajaxSelectOptions: { 
 					data:{
 						modelId:modelId, 
@@ -311,23 +315,28 @@
 				colNames:colNames,
 				colModel:colModels,
 				hiddengrid:thisoptions.hiddengrid,
-				pager: '#'+thisPagerID, //set your pager div id
-				sortname: 'typestring', //the column according to which data is to be sorted; optional
-				sortorder: "asc", //sort order; optional
-				viewrecords: false, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� optional
-				gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
+				pager: '#'+thisPagerID, // set your pager div id
+				sortname: 'typestring', // the column according to which data is
+										// to be sorted; optional
+				sortorder: "asc", // sort order; optional
+				viewrecords: false, // if true, displays the total number of
+									// records, etc. as: "View X to Y out of
+									// Zâ€� optional
+				gridview: true, // speeds things up- turn off for treegrid,
+								// subgrid, or afterinsertrow
 				userDataOnFooter: true,
 				beforeSelectRow: function(rowId, evt) {
 					var $this = $(this);
 					var oldRowId = $this.getGridParam('selrow');
-					console.log("rowId = "+ rowId + " oldRowId = " + oldRowId);
+					// console.log("rowId = "+ rowId + " oldRowId = " +
+					// oldRowId);
 			        if (oldRowId && (oldRowId != rowId)) {
 			        	$this.jqGrid("saveRow", oldRowId, 
 			        			{
 			        				extraparam: { modelId:modelId, idcode:idcode, invtype:invType},
 			        				aftersavefunc:function(rowId, response ){
 			        					updateColSums();
-			        					//$("#"+thisTableID).trigger("reloadGrid");
+			        					// $("#"+thisTableID).trigger("reloadGrid");
 			        				}
 			        			}
 			        	);
@@ -345,12 +354,14 @@
 										aftersavefunc: function( rowId, response ) {
 											updateColSums();
 											$("#"+thisTableID).jqGrid("resetSelection");
-											//$("#"+thisTableID).trigger("reloadGrid"); // to update checkboxes
+//											
+// //$("#"+thisTableID).trigger("reloadGrid"); // to update checkboxes
 										},
 										afterrestorefunc: function(rowId) {
 											updateColSums();
 											$("#"+thisTableID).jqGrid("resetSelection");
-						    				//$("#"+thisTableID).trigger("reloadGrid"); // to update checkboxes
+						    				// $("#"+thisTableID).trigger("reloadGrid");
+											// // to update checkboxes
 										}
 									}
 							);
@@ -358,36 +369,11 @@
 			   			}
 					}
 					else {
-						//alert('outside click '+resultsid);
+						// alert('outside click '+resultsid);
 					}
 				},
 				gridComplete: function(){
-			   		$("."+infoButtonClassName).click(function(event) {
-			    		$.getJSON(rootPath+'json/type-info', {
-			    			modelId:modelId, 
-			    			typestring:unescape($(this).attr('id'))
-			    		})
-			    		.done(function(data) {
-			        		if (data.success) {
-			        			//if (data.success) {
-			        				console.log(thisDialogID);
-			        				$("#"+thisDialogID).html(data['htmlstring']);
-			        				$("#"+thisDialogID).dialog('option','title',data['title']);
-			        				$("#"+thisDialogID).dialog("open");
-			        			//}
-			    				//else {
-			        			//	alert('{{_("Failed: ")}}'+data.msg);
-			    				//}
-			        		}
-			        		else {
-			        			alert('{{_("Failed: ")}}'+data.msg);
-			        		}
-			    		})
-			    		.fail(function(jqxhr, textStatus, error) {
-			    			alert('{{_("Error: ")}}'+jqxhr.responseText);
-			    		});
-			    		event.stopPropagation();
-			    	});
+					attachClickEventToInfoButtons();
 			   		var $this = $(this);
 			    	$this.keypress( function(event) {
 			    		if (event.which == 13) { // user hit return
@@ -399,32 +385,35 @@
 			        														},
 			        											aftersavefunc:function(rowid, response){
 			        												updateColSums();
-			        												//$("#"+thisTableID).trigger("reloadGrid");
+			        												// $("#"+thisTableID).trigger("reloadGrid");
 			        											}
 			        										  }
 			        		);
 							// Manually re-enable add button
 							$("#"+thisTableID+"_iladd").removeClass('ui-state-disabled');
 							lastsel = oldRowId;
-							console.log("resetting");
+							// console.log("resetting");
 							$("#"+thisTableID).jqGrid("resetSelection");
 			    		}
 			    	});
 			      // resize grid to fit dialog
-			    	//var gridParentDialog = $(this).parent().parent().parent().parent().parent().parent().parent().parent().parent();
-			    	var uaSpecificWidth = 0; //default tested on Firefox
+			    	// var gridParentDialog =
+					// $(this).parent().parent().parent().parent().parent().parent().parent().parent().parent();
+			    	var uaSpecificWidth = 0; // default tested on Firefox
 			    	var uaSpecificHeight = 0;
 			    	if (navigator.userAgent.match(/webkit/i)) {
-				        uaSpecificWidth = 0;   //Webkit specific
+				        uaSpecificWidth = 0;   // Webkit specific
 				        uaSpecificHeight = 5;
 			    	} else if (navigator.userAgent.match(/trident/i) || navigator.userAgent.match(/msie/i)) {
-				        uaSpecificWidth = 0;   //IE specific
+				        uaSpecificWidth = 0;   // IE specific
 				        uaSpecificHeight = 8;
 			    	}
-			    	//gridParentDialog.bind("dialogresize", function () {
-				    //    $this.jqGrid('setGridWidth', gridParentDialog.width()-uaSpecificWidth-40);
-				    //    $this.jqGrid('setGridHeight', gridParentDialog.height()-uaSpecificHeight-150);
-			    	//});
+			    	// gridParentDialog.bind("dialogresize", function () {
+				    // $this.jqGrid('setGridWidth',
+					// gridParentDialog.width()-uaSpecificWidth-40);
+				    // $this.jqGrid('setGridHeight',
+					// gridParentDialog.height()-uaSpecificHeight-150);
+			    	// });
 				},
 				loadError: function(xhr,status,error){
 			    	alert('{{_("Error: ")}}'+status);
@@ -457,9 +446,7 @@
 					{}, // edit params
 					{
 						keys:true,
-						afterSubmit:function(response){
-							alert("I AM HERE " + response);
-						}
+						afterSubmit:function(response){}
 					}, // add params
 					{
 						delData:{modelId:modelId, idcode:idcode, unique:thisoptions.unique, invtype:invType },		
@@ -473,6 +460,34 @@
 						position:'last'
 					}
 				});
+				function attachClickEventToInfoButtons(){
+					$("."+infoButtonClassName).click(function(event) {
+			    		$.getJSON(rootPath+'json/type-info', {
+			    			modelId:modelId, 
+			    			typestring:unescape($(this).attr('id'))
+			    		})
+			    		.done(function(data) {
+			        		if (data.success) {
+			        			// if (data.success) {
+			        				// console.log(thisDialogID);
+			        				$("#"+thisDialogID).html(data['htmlstring']);
+			        				$("#"+thisDialogID).dialog('option','title',data['title']);
+			        				$("#"+thisDialogID).dialog("open");
+			        			// }
+			    				// else {
+			        			// alert('{{_("Failed: ")}}'+data.msg);
+			    				// }
+			        		}
+			        		else {
+			        			alert('{{_("Failed: ")}}'+data.msg);
+			        		}
+			    		})
+			    		.fail(function(jqxhr, textStatus, error) {
+			    			alert('{{_("Error: ")}}'+jqxhr.responseText);
+			    		});
+			    		event.stopPropagation();
+			    	});
+				};
 				
 				function updateColSums(){
 					var countSum = $("#"+thisTableID).jqGrid('getCol','count',false,'sum');
