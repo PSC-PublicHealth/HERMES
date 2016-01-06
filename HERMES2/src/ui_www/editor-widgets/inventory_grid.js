@@ -146,8 +146,48 @@
 			               		editable:true, edittype:'select', 
 			               		editoptions:{ 
 			               			dataUrl:rootPath + 'list/select-type-full',
-			               			dataInit: function(elt) { elt.focus(); },
+			               			dataInit: function(elt) { 
+			               				console.log($(elt).val());
+			               				elt.focus(); 
+			               			},
+			               			beforeProcessing:function(data,status,xhr){
+			               				// This will populate the row with the information from the 
+			               				// first option that pops up in the select box.
+										$.getJSON(rootPath+'json/type-dict', {
+											modelId:modelId, 
+											typestring:$(this).val()
+										})
+										.done(function(data) {
+											if (data.success) {
+												var grid = $("#"+thisTableID);
+												var rowId = grid.getGridParam('selrow');
+												grid.setCell(rowId,"description",data.value["DisplayName"]);
+												for(var i = 0;i<customCols.length;++i){
+													grid.setCell(rowId,customCols[i][1],data.value[customCols[i][2]]);
+												}
+												var infoButton = grid.find("button#"+escape(rowId))[0];
+												if (infoButton) {
+													infoButton.disabled = false;
+													$(infoButton).attr('id',escape(data.value['Name']));
+												}
+												else {
+													infoButton = grid.find("button#_undefined")[0];
+													if (infoButton) {
+														infoButton.disabled = false;
+														$(infoButton).attr('id',escape(data.value['Name']));
+													}
+												}
+											}
+											else {
+												alert('{{_("Failed: ")}}'+data.msg);
+											}
+							    		})
+										.fail(function(jqxhr, textStatus, error) {
+											alert('{{_("Error: ")}}'+jqxhr.responseText);
+										});
+			               			},
 							 		dataEvents: [
+							 		    // This will reupdate the information when the select box is changed.
 							 			{ type: 'change',
 							 				fn: function(e) {
 												$.getJSON(rootPath+'json/type-dict', {
@@ -280,18 +320,21 @@
 				beforeSelectRow: function(rowId, evt) {
 					var $this = $(this);
 					var oldRowId = $this.getGridParam('selrow');
+					console.log("rowId = "+ rowId + " oldRowId = " + oldRowId);
 			        if (oldRowId && (oldRowId != rowId)) {
 			        	$this.jqGrid("saveRow", oldRowId, 
 			        			{
 			        				extraparam: { modelId:modelId, idcode:idcode, invtype:invType},
 			        				aftersavefunc:function(rowId, response ){
-			        					$("#"+thisTableID).trigger("reloadGrid");
+			        					updateColSums();
+			        					//$("#"+thisTableID).trigger("reloadGrid");
 			        				}
 			        			}
 			        	);
 					}
-			        return true;
+				    return true;
 				},
+
 				onSelectRow: function(resultsid, status){
 			   		if (status) {
 			   			if (resultsid) {
@@ -301,14 +344,17 @@
 										extraparam: { modelId:modelId, idcode:idcode, invtype:invType },
 										aftersavefunc: function( rowId, response ) {
 											updateColSums();
-											$("#"+thisTableID).trigger("reloadGrid"); // to update checkboxes
+											$("#"+thisTableID).jqGrid("resetSelection");
+											//$("#"+thisTableID).trigger("reloadGrid"); // to update checkboxes
 										},
 										afterrestorefunc: function(rowId) {
 											updateColSums();
-						    				$("#"+thisTableID).trigger("reloadGrid"); // to update checkboxes
+											$("#"+thisTableID).jqGrid("resetSelection");
+						    				//$("#"+thisTableID).trigger("reloadGrid"); // to update checkboxes
 										}
 									}
 							);
+							lastsel=resultsid;
 			   			}
 					}
 					else {
@@ -352,14 +398,16 @@
 			        														invtype:invType, 
 			        														},
 			        											aftersavefunc:function(rowid, response){
-			        												alert("Fuck");
 			        												updateColSums();
-			        												$("#"+thisTableID).trigger("reloadGrid");
+			        												//$("#"+thisTableID).trigger("reloadGrid");
 			        											}
 			        										  }
 			        		);
 							// Manually re-enable add button
 							$("#"+thisTableID+"_iladd").removeClass('ui-state-disabled');
+							lastsel = oldRowId;
+							console.log("resetting");
+							$("#"+thisTableID).jqGrid("resetSelection");
 			    		}
 			    	});
 			      // resize grid to fit dialog
