@@ -112,3 +112,19 @@ def jsonManageTruckTable(db, uiSession):
                        for t in tList ]
               }
     return result
+
+@bottle.route('/json/manage-truck-storage-table')
+def jsonManageTruckStorageTable(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId', isInt=True)
+        uiSession.getPrivs().mayModifyModelId(db,modelId)
+        typename = _getOrThrowError(bottle.request.params,'typename')
+        unique = _getOrThrowError(bottle.request.params,'unique')
+        
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        truck = typehelper.getTypeWithFallback(db, modelId, typename)
+        
+        
+    except Exception,e:
+        result = {'success':False,'msg':str(e)}
+        return result
