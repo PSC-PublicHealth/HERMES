@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from sqlalchemy.orm.exc import _safe_cls_name
 
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
@@ -36,7 +37,8 @@ import typehelper
 from trucktypes import fuelTranslationDict
 import typehooks
 
-from ui_utils import _logMessage, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults
+from ui_utils import _logMessage, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults,\
+    _safeGetReqParam
 
 inlizer=session_support.inlizer
 _=session_support.translateString
@@ -116,15 +118,117 @@ def jsonManageTruckTable(db, uiSession):
 @bottle.route('/json/manage-truck-storage-table')
 def jsonManageTruckStorageTable(db,uiSession):
     try:
+        from widgethooks import _typeCategoryNameMap
+        
         modelId = _getOrThrowError(bottle.request.params,'modelId', isInt=True)
         uiSession.getPrivs().mayModifyModelId(db,modelId)
         typename = _getOrThrowError(bottle.request.params,'typename')
         unique = _getOrThrowError(bottle.request.params,'unique')
         
+        ### These are hear to make sure they are present
+        #sord = _getOrThrowError(bottle.request.params,'sord')
+        #page = _getOrThrowError(bottle.request.params,'page',isInt=True)
+        #rowsPerPage = _getOrThrowError(bottle.request.params,'rows',isInt=True)
+        #sidx = _getOrThrowError(bottle.request.params,'sidx')
+        
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
-        truck = typehelper.getTypeWithFallback(db, modelId, typename)
-        
-        
+        truck = typehelper.getTypeWithFallback(db, modelId, typename)[1]
+     
+        storageList = truck.getStorageDeviceList(m)
+        tDictDict= {}
+        for count,dev in storageList:
+            print dev.Name
+            if count > 0:
+                if dev.Name in tDictDict:
+                    d = tDictDict[dev.Name]
+                    d['count'] += count
+                    d['freezer'] += dev.freezer
+                    d['cooler'] += dev.cooler
+                    d['roomtemperature'] += dev.roomtemperature
+                else:
+                    tDictDict[dev.Name] = {'Name':dev.Name,
+                                              'count':count, 
+                                              'category':"fridges",
+                                              'description':dev.getDisplayName(),
+                                              'freezer':dev.freezer,
+                                              'cooler':dev.cooler,
+                                              'roomtemperature':dev.roomtemperature}
+                    
+            totals = {"description":"Totals","freezer":0.0, "cooler":0.0, "warm":0.0, "count":0}
+            for dev in tDictDict.values():
+                totals['freezer'] += dev['count']*dev['freezer']
+                totals['cooler'] += dev['count']*dev['cooler']
+                totals['warm'] += dev['count']*dev['roomtemperature']
+                totals['count'] += dev['count'] 
+            
+            totals['freezer'] = round(totals['freezer'],2)
+            totals['cooler'] = round(totals['cooler'],2)
+            totals['warm'] = round(totals['warm'],2)
+            nPages,thisPageNum,totRecs,tList = orderAndChopPage(tDictDict.values(),
+                                                                {'typestring':'Name', 'count':'count',
+                                                                 'category':'category',
+                                                                 'cool':'cooler','freeze':'freezer',
+                                                                 'warm':'roomtemperature'},
+                                                                bottle.request,
+                                                                defaultSortIndex='typestring')
+            
+            
+            print "{0} {1} {2} {3}".format(nPages,thisPageNum,totRecs,tList)
+            result = {
+                      "success":True,
+                      "total":nPages,    # total pages
+                      "page":thisPageNum,     # which page is this
+                      "records":totRecs,  # total records
+                      "rows": [ {"name":t['Name'], 
+                                 "cell":[t['Name'], t['count'], t['Name'],t['description'], t['freezer'], t['cooler'],
+                                         t['roomtemperature'], t['count'], t['Name']]}
+                               for t in tList ],
+                      "userdata":totals
+                      }
+            
+            return result
+            
     except Exception,e:
         result = {'success':False,'msg':str(e)}
         return result
+
+@bottle.route('/json/update-truck-storage',method='POST')
+def updateTruckStrorage(db,uiSession):
+    import json
+    from sqlalchemy.orm.exc import NoResultFound
+    
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        uiSession.getPrivs().mayModifyModelId(db, modelId)
+        typename = _getOrThrowError(bottle.request.params, 'typename')
+        unique = _safeGetReqParam(bottle.request.params, 'unique', isInt=True)
+        
+        try:
+            m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        except NoResultFound:
+            raise bottle.BottleException(_("No such model {0}").format(modelId))
+        
+        truckTup = typehelper.getTypeWithFallback(db, modelId, typename)
+        if truckTup[0]:
+            truck = truckTup[1]
+        storeString = ""
+        offset = 0
+        while True:
+            count = _safeGetReqParam(bottle.request.params,"storedata[%d][%s]"%(offset,'count'),isInt=True)
+            if count is not None:
+                name = _getOrThrowError(bottle.request.params,"storedata[%d][%s]"%(offset,'visibletypename'))
+                countString = ''
+                if count > 1:
+                    countString = "{0}*".format(count)
+                storeString += "{0}{1}+".format(countString,name)
+                offset+=1
+            else:
+                break
+        storeString = storeString[:-1]
+        truck.Storage = storeString
+        
+        return {'success':True,'msg':'Truck type {0} for modelId {1} has been successfully updated'.format(typename,modelId) }    
+    except Exception,e:
+        result = {'success':False,'msg':str(e)}
+        return result
+    

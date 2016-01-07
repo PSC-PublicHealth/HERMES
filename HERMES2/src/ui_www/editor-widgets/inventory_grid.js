@@ -77,7 +77,7 @@
 				grid.data('deletedRowList',[]);
 			}
 
-			console.log(l);
+			//console.log(l);
 			return l;
 		},
 		_create:function(){
@@ -272,7 +272,16 @@
 			
 			colModelMiddle = [];
 			for(var i=0;i<customCols.length;++i){
-				colModelMiddle.push({name:customCols[i][1],index:customCols[i][1],editble:false,align:'right'});
+				console.log(customCols[i]);
+				if(customCols[i][3] == "float"){
+					colModelMiddle.push({name:customCols[i][1],index:customCols[i][1],
+						editble:false,align:'right',formatter:'number',formatoptions:{decimalPlaces:2}});
+				}
+				else{
+					colModelMiddle.push({name:customCols[i][1],index:customCols[i][1],
+						editble:false,align:'right'});
+				}
+			
 			}
 			
 			colModels = colModelBeg.concat(colModelMiddle,colModelEnd);

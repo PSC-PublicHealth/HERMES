@@ -29,22 +29,71 @@
 <script type="text/javascript" src="{{rootPath}}static/jquery-rcrumbs-3234d9e/jquery.rcrumbs.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/jqGrid-4.4.4/js/jquery.jqGrid.min.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/jQuery-File-Upload-7.4.1/js/jquery.fileupload.js"></script>
+<script type="text/javascript" src="{{rootPath}}static/jquery-form-3.45.0.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/editor-widgets/inventory_grid.js"></script>
 </head>
 <body>
-
+<form id='grid_test_form' action='json/throw-error'>
+<div>
 <div id="test_grid"></div>
+</div>
+<div>
+<div id="test_grid_submit_button" style="float:right">Submit</div>
+<div id="test_grid_cancel_button" style="fload:right">Cancel</div>
+</div>
+</form>
 
 </body>
 <script>
 $("#test_grid").grid({
 	modelId:{{modelId}},
 	invType:"fridges",
-	customCols:[['Freeser (L)','freezer','freezer'],['Coolder (L)','cooler','cooler'],['Warm (L)','warm','roomtemperature']],
+	customCols:[['Freeser (L)','freezer','freezer','float'],['Coolder (L)','cooler','cooler','float'],['Warm (L)','warm','roomtemperature','float']],
 	rootPath:'{{rootPath}}',
-	idcode:{{idcode}},
-	loadonce:false,
+	caption:'Storage Devices',
+	loadonce:true,
+	unique:2,
+	idcode:"truck_district",
+	gridurl:"{{rootPath}}json/manage-truck-storage-table",
+	gridpostdata:{"modelId":{{modelId}},"typename":"truck_district","unique":2},
 	editurl: '{{rootPath}}edit/store-edit-edit',
+});
+
+$("#test_grid_submit_button").button();
+$("#test_grid_cancel_button").button();
+
+$("#test_grid_submit_button").click(function(e){
+	$("#grid_test_form").submit();
+});
+
+$("#grid_test_form").submit( function(event){
+	event.preventDefault();
+	console.log('data here');
+	console.log($('#test_grid').grid("data"));
+	$(this).ajaxSubmit({
+		data:{
+			modelId:{{modelId}},
+			typename:"truck_district",
+			unique:2,
+			storedata:$('#test_grid').grid("data"),
+		},
+		url:'{{rootPath}}json/update-truck-storage',
+		dataType:'json',
+		type:'POST',
+		success:(function(data){
+			if(data.success){
+				alert("truck updated successfully");
+			}
+			else {
+				alert(data['msg']);
+				//if (opFuncs && opFuncs.onServerError) opFuncs.onServerError.bind(home.first())(data,opFuncs.callbackData);
+			}
+		
+		}),
+		error:  (function(jqxhr, textStatus, error) {
+			alert('{{_("Error: ")}}'+jqxhr.responseText);
+		}),
+	})
 });
 </script>
 </html>
