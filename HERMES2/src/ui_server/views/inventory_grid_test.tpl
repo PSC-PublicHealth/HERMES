@@ -45,7 +45,7 @@
 
 </body>
 <script>
-$("#test_grid").grid({
+$("#test_grid").inventory_grid({
 	modelId:{{modelId}},
 	invType:"fridges",
 	customCols:[['Freeser (L)','freezer','freezer','float'],['Coolder (L)','cooler','cooler','float'],['Warm (L)','warm','roomtemperature','float']],
@@ -69,13 +69,13 @@ $("#test_grid_submit_button").click(function(e){
 $("#grid_test_form").submit( function(event){
 	event.preventDefault();
 	console.log('data here');
-	console.log($('#test_grid').grid("data"));
+	console.log($('#test_grid').inventory_grid("data"));
 	$(this).ajaxSubmit({
 		data:{
 			modelId:{{modelId}},
 			typename:"truck_district",
 			unique:2,
-			storedata:$('#test_grid').grid("data"),
+			storedata:$('#test_grid').inventory_grid("data"),
 		},
 		url:'{{rootPath}}json/update-truck-storage',
 		dataType:'json',

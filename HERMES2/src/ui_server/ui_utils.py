@@ -83,16 +83,15 @@ def _getAttrDict(bottleRequest, db, uiSession, fMap, throwException=False):
             attrRec[field['key']] = (_safeGetReqParam(bottleRequest.params,field['key']).lower() == "true")
         elif field['type'] in ['string','stringbox','dbkey','select']:
             attrRec[field['key']] =  _safeGetReqParam(bottleRequest.params,field['key'])
-        elif field['type'] in ['time']:
-            print "HERE IN TIME"
-            print(_safeGetReqParam(bottleRequest.params,field['recMap'][0],isFloat=True))
+        elif field['type'] in ['time','dynamicunit']:
             attrRec[field['recMap'][0]] =  _safeGetReqParam(bottleRequest.params,field['recMap'][0],isFloat=True)
             attrRec[field['recMap'][1]] = _safeGetReqParam(bottleRequest.params,field['recMap'][1])
         elif field['type'] in ['cost']:
             attrRec[field['recMap'][0]] =  _safeGetReqParam(bottleRequest.params,field['recMap'][0],isFloat=True)
             attrRec[field['recMap'][1]] = _safeGetReqParam(bottleRequest.params,field['recMap'][1]) 
             attrRec[field['recMap'][2]] =  _safeGetReqParam(bottleRequest.params,field['recMap'][2],isInt=True)
-        
+        elif field['type'] in ['custtruckstoragetable']:
+            attrRec[field['key']] = _safeGetReqParam(bottleRequest.params,field['key'])
         
 #              v = _safeGetReqParam(bottleRequest.params,field['key'],isInt=True)
 #         

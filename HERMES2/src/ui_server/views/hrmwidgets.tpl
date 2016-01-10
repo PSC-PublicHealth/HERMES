@@ -1,4 +1,3 @@
-// Thanks to Patrick Desjardins http://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-money-in-javascript
 /*
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
@@ -887,15 +886,17 @@ function addToggleExpansionButton($grid) {
  				});
  			});
  		}
- 		else if (settings['widget']=='simpleStorageSelector'){
- 			$.fn.simpleStorageSelector = function( arg, arg2 ) {
+ 		else if (settings['widget']=='truckInventoryGrid'){
+ 			$.fn.truckInventoryGrid = function( arg, arg2 ) {
  				var tId = this.attr('id');
- 				if(tId==undefined) $.error('simpleStorageSelector has no id');
+ 				if(tId==undefined) $.error('i has no id');
  				
  				if(arg=='value'){
+ 					return $("#"+$(this).attr('id')+"_invGrid").inventory_grid("hermesStorageString");
  					// will figure out shortly
  				}
  				if(arg=='valueJson'){
+ 					return $("#"+$(this).attr('id')+"_invGrid").inventory_grid("data");
  					//will figure out shortly
  				}
  				if(arg=='clean'){
@@ -904,18 +905,33 @@ function addToggleExpansionButton($grid) {
  			}
  			return this.each(function(index,elem){
  				var $elem = $(elem);
- 				$elem.data('dataMap',JSON.parse(settings['dataMap']));
+ 				$elem.data('data-fieldMap',JSON.parse(settings['fieldMap']));
+ 				htmlString = '<div style="float:left;"><label>'+settings['label']+'</label>';
+ 				htmlString = '<div id="'+$(this).attr('id')+'_invGrid" ></div>';
  				
- 				// first parse the values for selector
- 				var dataMap = $elem.data('dataMap');
- 				
- 				optionsList = [];
- 				for(data in dataMap){
- 					if(dataMap[data].count == 0){
- 						optionsList.push(dataMap[data]);
- 					}
- 				}
- 				console.log(optionsList);
+ 				$elem.html(htmlString);
+ 				var data_modelId = $elem.data('data-fieldMap')['modelId'];
+ 				var data_typename = $elem.data('data-fieldMap')['typename'];
+ 				var data_unique = Math.floor((Math.random()*1000000) + 1);
+ 				$("#"+$(this).attr('id')+'_invGrid').inventory_grid({
+ 					modelId:data_modelId,
+ 					typename:data_typename,
+ 					unique:data_unique,
+ 					caption:'',
+ 					customCols:[
+ 					            ["{{_('Freeser (L)')}}",'freezer','freezer','float'],
+ 					            ["{{_('Coolder (L)')}}",'cooler','cooler','float'],
+ 					            ["{{_('Warm (L)')}}",'warm','roomtemperature','float']
+ 					           ],
+ 					rootPath:'{{rootPath}}',
+ 					loadonce:true,
+ 					gridurl:"{{rootPath}}json/manage-truck-storage-table",
+ 					gridpostdata:{
+ 								  "modelId":data_modelId,
+ 								  "typename":data_typename,
+ 								  "unique":data_unique
+ 								 }
+ 				});
  			});
  			
  		}
@@ -1564,7 +1580,6 @@ function addToggleExpansionButton($grid) {
  					});
  					$(this).find('.hrm_dynamicunitforminput').each(function(){
  						var tj = $(this);
- 						console.log(tj);
  						tj.rateFormInput('clean');
  						value = tj.rateFormInput('valueJson');
  						for(key in value){
@@ -1573,15 +1588,13 @@ function addToggleExpansionButton($grid) {
  							}
  						}
  					});
- 					$(this).find('.hrm_simplestorageselector').each(function(){
+ 					$(this).find('.hrm_truckinventorygrid').each(function(){
  						var tj = $(this);
- 						tj.simpleStorageSelector('clean');
- 						value = tj.simpleStoreSelector('valueJson');
- 						for(key in value){
- 							if(value.hasOwnProperty(key)){
- 								dict[key]=value[key];
- 							}
- 						}
+ 						
+ 						tj.truckInventoryGrid('clean');
+ 						// The widget can return a hermesStorageString
+ 						value = tj.truckInventoryGrid('value');
+ 						dict[tj.attr('id')]=value;
  					});
  					$(this).find('.hrm_energy').each(function() {
  						var tj = $(this);
@@ -1673,12 +1686,12 @@ function addToggleExpansionButton($grid) {
  	 						fieldMap:$field.attr("data-fieldMap")
  	 					});
  	 				});
- 	 				$elem.find('.hrm_simplestorageselect').each(function(idx){
+ 	 				$elem.find('.hrm_truckinventorygrid').each(function(idx){
  	 					$field=$(this);
  	 					$field.hrmWidget({
- 	 						widget:'simpleStorageSelector',
+ 	 						widget:'truckInventoryGrid',
  	 						label:'',
- 	 						dataMap:$field.attr("data-dataMap")
+ 	 						fieldMap:$field.attr("data-fieldMap")
  	 					});
  	 				});
  	 				$elem.change( function( eventObj ) {

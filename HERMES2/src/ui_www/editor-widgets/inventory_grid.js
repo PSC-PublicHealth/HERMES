@@ -16,7 +16,7 @@
 */
 ;(function($){
 
-	$.widget("inventory_grid.grid",{
+	$.widget("inventory_grid.inventory_grid",{
 		options:{
 			rootPath:'',
 			modelId:'',
@@ -55,8 +55,6 @@
 				var addflag = true;
 				for(var j in l){
 					if(l[j]['typename']==o['visibletypestring']){
-						// console.log(l[j]['typename'] + " count =
-						// "+o['count']);
 						l[j]['count'] += parseInt(o['count']);
 						addflag = false;
 					}
@@ -79,6 +77,42 @@
 
 			//console.log(l);
 			return l;
+		},
+		hermesStorageString:function(){
+			var thisGrid = $("#"+this.options.tableId);
+			// Force a local save if necessary
+			var selrow = thisGrid.jqGrid('getGridParam','selrow');
+			if (selrow) thisGrid.jqGrid("saveRow", selrow);
+				
+			var gridData = thisGrid.jqGrid('getGridParam','data');
+			var delData = thisGrid.data('deletedRowList')
+			var storeString = ''
+			for (var i in gridData) {
+				var o = gridData[i];
+				// console.log(o);
+				var count = parseInt(o['count']);
+				var typename = o['visibletypestring'];
+				if(count <= 1){
+					storeString += typename;
+				}
+				else{
+					storeString += count + "*" + typename;
+				}
+				if(i < gridData.length - 1){
+					storeString += "+";
+				}
+			}
+			if (typeof delData === "object") {
+				for (var i in delData) {
+					var o = delData[i];
+					l.push( {typename:o, visibletypename:o, count:0} ); // fake
+																		// a
+																		// delete
+																		// request
+				};
+				grid.data('deletedRowList',[]);
+			}
+			return storeString;
 		},
 		_create:function(){
 			trant = this.options.trant;

@@ -46,6 +46,7 @@
 <script type="text/javascript" src="{{rootPath}}static/jquery.printElement.min.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/Jit-2.0.1/jit.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/hermes-ui-utils.js"></script>
+<script type="text/javascript" src="{{rootPath}}static/editor-widgets/inventory_grid.js" ></script>
 <script src="{{rootPath}}static/jquery.corner.js"></script>
 
 <script src="{{rootPath}}static/jQuery-contextMenu-master/src/jquery.ui.position.js" type="text/javascript"></script>

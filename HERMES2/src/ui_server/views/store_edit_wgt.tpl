@@ -133,7 +133,7 @@ $(function() {
 		 selected:"{{costCur}}"
 	})
 	
-	$("#store_edit_wgt_fridges_div_{{unique}}").grid({
+	$("#store_edit_wgt_fridges_div_{{unique}}").inventory_grid({
 		modelId:{{modelId}},
 		invType:"fridges",
 		customCols:[
@@ -151,7 +151,7 @@ $(function() {
 		gridurl: '{{rootPath}}json/store-edit-manage-table',
 		gridpostdata: {"modelId":{{modelId}},"idcode":{{idcode}}, "unique": {{unique}}, "invtype":"fridges"}
 	});
-	$("#store_edit_wgt_trucks_div_{{unique}}").grid({
+	$("#store_edit_wgt_trucks_div_{{unique}}").inventory_grid({
 		modelId:{{modelId}},
 		invType:"trucks",
 		customCols:[
@@ -168,7 +168,7 @@ $(function() {
 		gridurl: '{{rootPath}}json/store-edit-manage-table',
 		gridpostdata: {"modelId":{{modelId}},"idcode":{{idcode}}, "unique": {{unique}}, "invtype":"trucks"}
 	});
-	$("#store_edit_wgt_people_div_{{unique}}").grid({
+	$("#store_edit_wgt_people_div_{{unique}}").inventory_grid({
 		modelId:{{modelId}},
 		invType:"people",
 		customCols:[],
@@ -182,7 +182,7 @@ $(function() {
 		gridurl: '{{rootPath}}json/store-edit-manage-table',
 		gridpostdata: {"modelId":{{modelId}},"idcode":{{idcode}}, "unique": {{unique}}, "invtype":"people"}
 	});
-	$("#store_edit_wgt_staff_div_{{unique}}").grid({
+	$("#store_edit_wgt_staff_div_{{unique}}").inventory_grid({
 		modelId:{{modelId}},
 		invType:"staff",
 		customCols:[],
@@ -203,10 +203,10 @@ $(function() {
 			data:{
 				modelId:{{modelId}}, idcode:{{idcode}}, unique:{{unique}},
 				costcur:$('#store_edit_wgt_cost_div_{{unique}}').currencySelector('selId'),
-				fridgedata:$('#store_edit_wgt_fridges_div_{{unique}}').grid("data"),
-				peopledata:$('#store_edit_wgt_people_div_{{unique}}').grid("data"),
-				truckdata: $('#store_edit_wgt_trucks_div_{{unique}}').grid("data"),
-				staffdata: $('#store_edit_wgt_staff_div_{{unique}}').grid("data")
+				fridgedata:$('#store_edit_wgt_fridges_div_{{unique}}').inventory_grid("data"),
+				peopledata:$('#store_edit_wgt_people_div_{{unique}}').inventory_grid("data"),
+				truckdata: $('#store_edit_wgt_trucks_div_{{unique}}').inventory_grid("data"),
+				staffdata: $('#store_edit_wgt_staff_div_{{unique}}').inventory_grid("data")
 			},
 			url:'{{rootPath}}json/store-update',
 			dataType:'json',

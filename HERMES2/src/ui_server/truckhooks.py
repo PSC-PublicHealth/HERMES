@@ -46,15 +46,16 @@ _=session_support.translateString
 fuelOptions = [(x,y[1],[],[]) for  x,y in fuelTranslationDict.items()]
 fieldMap = [{ 'label':_('Data Base ID'), 'key':'Name', 'id':'name', 'info':False, 'edit':True, 'type':'dbkey', 'default':None},
                    { 'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info':True, 'edit':True, 'type':'string', 'default':None},
-                   { 'label':_('Net Storage at 2-8C (L) '), 'key':'CoolVolumeCC', 'id':'coolvolumecc', 'info':True, 'edit':False, 'type':'custtruckstoresum'},  # Custom Type
                    { 'label':_('Capital Cost'), 'key':'BaseCost', 'id':'baseprice', 'info':True, 'edit':True, 'type':'cost', 'recMap':['BaseCost', 'BaseCostCurCode', 'BaseCostYear']},
                    { 'label':_('Lifetime of Vehicle (KM)'), 'key':'AmortizationKm', 'id':'amortkm', 'info':True, 'edit':True, 'type':'float'},
                    { 'label':_('Fuel Type'), 'key':'Fuel', 'id':'fuel', 'info':True, 'edit':True, 'type':'select','options':fuelOptions},
                    { 'label':_('Fuel Consumption Rate'), 'key':'FuelRate', 'id':'fuelrate', 'info':True, 'edit':True, 
                         'type':'dynamicunit', 'lookup':'Fuel','lookupDict':fuelTranslationDict,'recMap':['FuelRate','FuelRateUnits']},
+                   { 'label':_('Net Storage at 2-8C <br>Outside of Storage Devices (L)'), 'key':'CoolVolumeCC', 'id':'coolvolumecc', 'info':True, 'edit':True, 'type':'float'},
+                   { 'label':_('Storage on Vehicle'), 'key':'Storage', 'id':'storage', 'info':True, 'edit':True, 'type':'custtruckstoragetable'},
                    { 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'info':False, 'edit':False, 'type':'string'},
                    { 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'info':True, 'edit':True, 'type':'stringbox'},
-                   { 'label':_('Storage'), 'key':'Storage', 'id':'storage', 'info':True, 'edit':True, 'type':'custtruckstoragetable'},
+                   
             ]
 
 @bottle.route('/truck-edit')
@@ -68,6 +69,8 @@ def editTruck(db,uiSession):
 
 def jsonTruckEditFn(attrRec, m):
 # FuelRateUnits is completely determined by energy type
+    print "Truck AttrRec-----------------------------------------"
+    print attrRec
     if attrRec['Fuel']:
         attrRec['FuelRateUnits'] = fuelTranslationDict[attrRec['Fuel'].encode('utf-8')][2]
     else:
@@ -136,57 +139,58 @@ def jsonManageTruckStorageTable(db,uiSession):
      
         storageList = truck.getStorageDeviceList(m)
         tDictDict= {}
-        for count,dev in storageList:
-            print dev.Name
-            if count > 0:
-                if dev.Name in tDictDict:
-                    d = tDictDict[dev.Name]
-                    d['count'] += count
-                    d['freezer'] += dev.freezer
-                    d['cooler'] += dev.cooler
-                    d['roomtemperature'] += dev.roomtemperature
-                else:
-                    tDictDict[dev.Name] = {'Name':dev.Name,
-                                              'count':count, 
-                                              'category':"fridges",
-                                              'description':dev.getDisplayName(),
-                                              'freezer':dev.freezer,
-                                              'cooler':dev.cooler,
-                                              'roomtemperature':dev.roomtemperature}
+        if storageList is not None:
+            for count,dev in storageList:
+                print dev.Name
+                if count > 0:
+                    if dev.Name in tDictDict:
+                        d = tDictDict[dev.Name]
+                        d['count'] += count
+                        d['freezer'] += dev.freezer
+                        d['cooler'] += dev.cooler
+                        d['roomtemperature'] += dev.roomtemperature
+                    else:
+                        tDictDict[dev.Name] = {'Name':dev.Name,
+                                                  'count':count, 
+                                                  'category':"fridges",
+                                                  'description':dev.getDisplayName(),
+                                                  'freezer':dev.freezer,
+                                                  'cooler':dev.cooler,
+                                                  'roomtemperature':dev.roomtemperature}
                     
-            totals = {"description":"Totals","freezer":0.0, "cooler":0.0, "warm":0.0, "count":0}
-            for dev in tDictDict.values():
-                totals['freezer'] += dev['count']*dev['freezer']
-                totals['cooler'] += dev['count']*dev['cooler']
-                totals['warm'] += dev['count']*dev['roomtemperature']
-                totals['count'] += dev['count'] 
+        totals = {"description":"Totals","freezer":0.0, "cooler":0.0, "warm":0.0, "count":0}
+        for dev in tDictDict.values():
+            totals['freezer'] += dev['count']*dev['freezer']
+            totals['cooler'] += dev['count']*dev['cooler']
+            totals['warm'] += dev['count']*dev['roomtemperature']
+            totals['count'] += dev['count'] 
+        
+        totals['freezer'] = round(totals['freezer'],2)
+        totals['cooler'] = round(totals['cooler'],2)
+        totals['warm'] = round(totals['warm'],2)
+        nPages,thisPageNum,totRecs,tList = orderAndChopPage(tDictDict.values(),
+                                                            {'typestring':'Name', 'count':'count',
+                                                             'category':'category',
+                                                             'cool':'cooler','freeze':'freezer',
+                                                             'warm':'roomtemperature'},
+                                                            bottle.request,
+                                                            defaultSortIndex='typestring')
             
-            totals['freezer'] = round(totals['freezer'],2)
-            totals['cooler'] = round(totals['cooler'],2)
-            totals['warm'] = round(totals['warm'],2)
-            nPages,thisPageNum,totRecs,tList = orderAndChopPage(tDictDict.values(),
-                                                                {'typestring':'Name', 'count':'count',
-                                                                 'category':'category',
-                                                                 'cool':'cooler','freeze':'freezer',
-                                                                 'warm':'roomtemperature'},
-                                                                bottle.request,
-                                                                defaultSortIndex='typestring')
-            
-            
-            print "{0} {1} {2} {3}".format(nPages,thisPageNum,totRecs,tList)
-            result = {
-                      "success":True,
-                      "total":nPages,    # total pages
-                      "page":thisPageNum,     # which page is this
-                      "records":totRecs,  # total records
-                      "rows": [ {"name":t['Name'], 
-                                 "cell":[t['Name'], t['count'], t['Name'],t['description'], t['freezer'], t['cooler'],
-                                         t['roomtemperature'], t['count'], t['Name']]}
-                               for t in tList ],
-                      "userdata":totals
-                      }
-            
-            return result
+        
+        #print "{0} {1} {2} {3}".format(nPages,thisPageNum,totRecs,tList)
+        result = {
+                  "success":True,
+                  "total":nPages,    # total pages
+                  "page":thisPageNum,     # which page is this
+                  "records":totRecs,  # total records
+                  "rows": [ {"name":t['Name'], 
+                             "cell":[t['Name'], t['count'], t['Name'],t['description'], t['freezer'], t['cooler'],
+                                     t['roomtemperature'], t['count'], t['Name']]}
+                           for t in tList ],
+                  "userdata":totals
+                  }
+        
+        return result
             
     except Exception,e:
         result = {'success':False,'msg':str(e)}

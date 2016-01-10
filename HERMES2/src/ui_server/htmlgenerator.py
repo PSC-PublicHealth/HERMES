@@ -621,9 +621,9 @@ def _buildInterLevelTimingFormFromSession(prefix="",levelInfo={}):
 
 def _buildTypeInfoBox(fieldMap,typeInstance,typeName="Type",model=None):
     infoTable = HTMLTable(name="Type Info",
-                                                   title_=_("{0} Type Information".format(typeName)),
-                                                   minwidth='500px',maxwidth='700px',
-                                                   border='1px solid black')
+                          title_=_("{0} Type Information".format(typeName)),
+                          minwidth='500px',maxwidth='700px',
+                          border='1px solid black')
     
     
     for rec in fieldMap:
@@ -678,6 +678,11 @@ def _buildTypeInfoBox(fieldMap,typeInstance,typeName="Type",model=None):
                         timeValue = "{0} {1}".format(timeValue, unitStr)
             infoTable.addRow([rec['label'], timeValue], ['c', 1, 1])
         elif recType == 'dynamicunit':
+            print "RECKEY ==========="
+            print recKey
+            print dir(typeInstance)
+            print getattr(typeInstance,recKey[0])
+            print getattr(typeInstance,"FuelRate")
             if getattr(typeInstance, recKey[0]):
                 Value = "{0}".format(getattr(typeInstance,recKey[0]))
                 if getattr(typeInstance,recKey[1]):
@@ -902,41 +907,11 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             editTable.addRow([label,divString],[rowStyleString,1,1])
         
         elif recType == "custtruckstoragetable":
-            from shadow_network import ShdTruckType,ShdStorageType
-            if not isinstance(typeInstance,ShdTruckType):
-                _logMessage("Cannot use custtruckstoragetable  as a field type for anything other than transport: Ignoring")
-                continue
-            if model is None:
-                _logMessage("Cannot use custtruckstoragetable as a field type without specifying a model in the _build call: Ignoring")
-                continue
-            # first get the current storage the transport device has
-            
-            if getattr(typeInstance,"Storage") != '':
-                truckstorageList = typeInstance.getStorageDeviceList(model)
-            
-            trucknameDict = {x[1].Name:x[0] for x in truckstorageList}
-#             print "------"
-#             print trucknameDict
-            modelstorageList = sorted([y for x,y in model.types.items() if isinstance(y,ShdStorageType) and y.cooler > 0.0],
-                                      key=lambda x: x.cooler, reverse=False)
-            
-            # construct the json to pass to the widget
-            dataDict = {}
-            for s in modelstorageList:
-                count = 0
-                if s.Name in trucknameDict.keys():
-                    count = trucknameDict[s.Name]
-                dataDict[s.Name] = {'vol':s.cooler,'dispname':s.DisplayName,'count':count}
-            #print "dataDict = {0}".format(dataDict)       
-            divString = "<div class='hrm_simplestorageselect' id = '{0}' data-dataMap = '{1}'></div>".format(formKey,json.dumps(dataDict))
+            ## Note, there is no default value for this type
+            dataDict = {'key':recKey,'modelId':model.modelId,'typename':typeInstance.Name}
+            divString = "<div class='hrm_truckinventorygrid' id = '{0}' data-fieldmap = '{1}'></div>".format(recKey,json.dumps(dataDict))
             editTable.addRow([label,divString],[rowStyleString,1,1])
              
-                    
-                
-            
-            
-            
-            
                                                                                             
 #     for d in fieldMap:
 #         recKey = 
