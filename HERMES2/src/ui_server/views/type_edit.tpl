@@ -19,30 +19,37 @@
 %        'editForm'      : 'json/truck-edit-form',
 %        'commitForm'    : 'json/truck-edit-verify-commit',
 %        'slogan'        : _("Modify Transport Type"),
-% 	 'editHeader'    : _("Edit Your Transport Type"),
+% 	     'editHeader'    : _("Edit Your Transport Type"),
 %        'createHeader'  : _("Creating Your Transport Type"),
 %        },
 %    'fridges' : { 
 %        'editForm'      : 'json/fridge-edit-form',
 %        'commitForm'    : 'json/fridge-edit-verify-commit',
 %        'slogan'        : _("Modify Cold Storage Type"),
-% 	 'editHeader'    : _("Edit Your Cold Storage Type"),
+% 	     'editHeader'    : _("Edit Your Cold Storage Type"),
 %        'createHeader'  : _("Creating Your Cold Storage Type"),
 %        },
 %    'vaccines' : { 
 %        'editForm'      : 'json/vaccine-edit-form',
 %        'commitForm'    : 'json/vaccine-edit-verify-commit',
 %        'slogan'        : _("Modify Vaccine Type"),
-% 	 'editHeader'    : _("Edit Your Vaccine Type"),
+% 	     'editHeader'    : _("Edit Your Vaccine Type"),
 %        'createHeader'  : _("Creating Your Vaccine Type"),
 %        },
 %    'people' : { 
 %        'editForm'      : 'json/people-edit-form',
 %        'commitForm'    : 'json/people-edit-verify-commit',
 %        'slogan'        : _("Modify Population Type"),
-% 	 'editHeader'    : _("Edit Your Population Type"),
+% 	     'editHeader'    : _("Edit Your Population Type"),
 %        'createHeader'  : _("Creating Your Population Type"),
 %        },
+%    'staff': {
+%        'editForm'      : 'json/staff-edit-form',
+%        'commitForm'    : 'json/staff-edit-verify-commit',
+%        'slogan'        : _("Modify Staff Type"),
+%        'editHeader'    : _("Edit Your Staff Type"),
+%        'createHeader'  : _("Creating Your Staff Type")
+%        }
 % }
 % attr = attrs[typeClass]
 

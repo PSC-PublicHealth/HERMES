@@ -45,7 +45,7 @@
 
 </body>
 <script>
-$("#test_grid").inventory_grid({
+$("#test_grid").grid({
 	modelId:{{modelId}},
 	invType:"fridges",
 	customCols:[['Freeser (L)','freezer','freezer','float'],['Coolder (L)','cooler','cooler','float'],['Warm (L)','warm','roomtemperature','float']],

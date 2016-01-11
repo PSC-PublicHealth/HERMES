@@ -255,11 +255,14 @@ def elaborateFieldMap(proposedName, instanceOrValDict, fieldMap):
             elif outRec['type'] == 'cost':
                 print "THERE!!!"
                 if not outRec.has_key('recMap'):
+                    print "HERE!!!!"
                     pass # NEED To throw an error
                 print instanceOrValDict.keys()
+                print rec['recMap']
+                print instanceOrValDict.keys()
                 outRec['value'] =  (instanceOrValDict[rec['recMap'][0]],
-                                                     instanceOrValDict[rec['recMap'][1]],
-                                                     instanceOrValDict[rec['recMap'][2]])
+                                    instanceOrValDict[rec['recMap'][1]],
+                                    instanceOrValDict[rec['recMap'][2]])
             else:
                 outRec['value'] = instanceOrValDict[rec['key']]
         elif hasattr(instanceOrValDict,rec['key']):
