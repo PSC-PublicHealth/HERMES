@@ -79,6 +79,7 @@
 			return l;
 		},
 		hermesStorageString:function(){
+			var l = [];
 			var thisGrid = $("#"+this.options.tableId);
 			// Force a local save if necessary
 			var selrow = thisGrid.jqGrid('getGridParam','selrow');
@@ -110,7 +111,7 @@
 																		// delete
 																		// request
 				};
-				grid.data('deletedRowList',[]);
+				thisGrid.data('deletedRowList',[]);
 			}
 			return storeString;
 		},
