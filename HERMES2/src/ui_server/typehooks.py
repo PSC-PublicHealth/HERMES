@@ -141,8 +141,8 @@ def jsonTypeEditVerifyAndCommit(db, uiSession, typeClass, fieldMap, classEditFn=
                                                       uiSession, 
                                                       fieldMap,
                                                       allowNameCollisions=anc)
-#         print "AttRec in Type EditVer:"
-#         print attrRec
+       # print "AttRec in Type EditVer:"
+        #print attrRec
         if badStr and badStr!="":
             result = {'success':True, 'value':False, 'msg':badStr}
         else:
@@ -150,6 +150,7 @@ def jsonTypeEditVerifyAndCommit(db, uiSession, typeClass, fieldMap, classEditFn=
 #                 print "setting classEditFn"
 #                 print classEditFn
                 attrRec = classEditFn(attrRec, m)
+                #print "ATTREC after classEdit: {0}".format(attrRec)
 #            print "typeClass = {0}".format(typeClass)
             shdTypesClass = shadow_network.ShdTypes.typesMap[typeClass]
             newType = shdTypesClass(attrRec.copy()) 

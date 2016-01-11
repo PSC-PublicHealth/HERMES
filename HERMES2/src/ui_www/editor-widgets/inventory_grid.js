@@ -330,15 +330,7 @@
 				url:thisoptions.gridurl,
 				datatype:'json',
 				postData: thisoptions.gridpostdata,
-				// {
-				// modelId:modelId, idcode:idcode, unique:thisoptions.unique,
-				// invtype:invType
-				// },
 				inlineData: thisoptions.gridpostdata,
-				// {
-				// modelId:modelId, idcode:idcode, unique:thisoptions.unique,
-				// invtype:invType
-				// },
 				ajaxSelectOptions: { 
 					data:{
 						modelId:modelId, 

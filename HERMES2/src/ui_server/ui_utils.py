@@ -81,7 +81,7 @@ def _getAttrDict(bottleRequest, db, uiSession, fMap, throwException=False):
             attrRec[field['key']] = _safeGetReqParam(bottleRequest.params,field['key'],isFloat=True)
         elif field['type'] in ['bool']:
             attrRec[field['key']] = (_safeGetReqParam(bottleRequest.params,field['key']).lower() == "true")
-        elif field['type'] in ['string','stringbox','dbkey','select']:
+        elif field['type'] in ['string','stringbox','dbkey','select','scaledfloat']:
             attrRec[field['key']] =  _safeGetReqParam(bottleRequest.params,field['key'])
         elif field['type'] in ['time','dynamicunit']:
             attrRec[field['recMap'][0]] =  _safeGetReqParam(bottleRequest.params,field['recMap'][0],isFloat=True)

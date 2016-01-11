@@ -626,6 +626,7 @@ def _buildTypeInfoBox(fieldMap,typeInstance,typeName="Type",model=None):
                           border='1px solid black')
     
     
+    #print fieldMap
     for rec in fieldMap:
         ### Do we show this field in the info table
         if rec.has_key('info'):
@@ -875,7 +876,7 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             print recKey
             if getattr(typeInstance,recKey): defaultValue = float(getattr(typeInstance,recKey))
             dataDict = {'value':defaultValue,'scalefactor':float(rec['scale'])}
-            divString = "<div class='hrm_scalefloatinput' id='{0}' data-fieldMap='{1}'></div>".format(formKey,json.dumps(dataDict))
+            divString = "<div class='hrm_scalefloatinput' id='{0}' data-fieldMap='{1}'></div>".format(recKey,json.dumps(dataDict))
             
             editTable.addRow([label,divString],[rowStyleString,1,1])
         elif recType == 'time':

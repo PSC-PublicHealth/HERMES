@@ -70,8 +70,8 @@ def editTruck(db,uiSession):
 
 def jsonTruckEditFn(attrRec, m):
 # FuelRateUnits is completely determined by energy type
-    print "Truck AttrRec-----------------------------------------"
-    print attrRec
+    #print "Truck AttrRec-----------------------------------------"
+    #print attrRec
     if attrRec['Fuel']:
         attrRec['FuelRateUnits'] = fuelTranslationDict[attrRec['Fuel'].encode('utf-8')][2]
     else:

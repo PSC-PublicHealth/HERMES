@@ -714,6 +714,7 @@ function addToggleExpansionButton($grid) {
  				if(arg=='valueJson'){
  					var scalefactor = parseFloat($("#" + tId).data("fieldMap").scalefactor);
  					var returnJson = {}
+ 					returnJson['key'] = tId;
  					returnJson['value'] = $("#" + tId + "_float").val()/scalefactor; 
  					return returnJson;
  				}
@@ -1625,8 +1626,8 @@ function addToggleExpansionButton($grid) {
  					$(this).find('.hrm_scalefloatinput').each(function(){
  						var tj = $(this);
  						tj.scaledFloatInput('clean');
- 						value = tj.scaledFloatInput('value');
- 						dict[tj.attr('id')] = value;
+ 						value = tj.scaledFloatInput('valueJson');
+ 						dict[value.key] = value.value;
  					});
  					$(this).find('.hrm_truckinventorygrid').each(function(){
  						var tj = $(this);
@@ -1644,7 +1645,11 @@ function addToggleExpansionButton($grid) {
  						var tj = $(this);
  						dict[tj.attr('id')] = tj.energySelector('selId');
  					});
- 					console.log(dict);
+ 					//dictString = "";
+ 					//for (var item in dict){
+ 					//	dictString += item + " " + dict[item]+"\n";
+ 					//}
+ 					//alert(dictString);
  					return dict;
  				}
 				else {
