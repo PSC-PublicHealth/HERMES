@@ -702,6 +702,40 @@ function addToggleExpansionButton($grid) {
 				$elem.currencySelector('rebuild');			
  			});
  		}
+ 		else if (settings['widget']=='scaledFloatInput'){
+ 			$.fn.scaledFloatInput = function(arg,arg2){
+ 				var tId = this.attr('id');
+ 				if(tId==undefined) $.error('scaled Float Input has no id');
+ 				
+ 				if(arg=='value'){
+ 					var scalefactor = parseFloat($("#" + tId).data("fieldMap").scalefactor);
+ 					return $("#" + tId + "_float").val()/scalefactor; 
+ 				}
+ 				if(arg=='valueJson'){
+ 					var scalefactor = parseFloat($("#" + tId).data("fieldMap").scalefactor);
+ 					var returnJson = {}
+ 					returnJson['value'] = $("#" + tId + "_float").val()/scalefactor; 
+ 					return returnJson;
+ 				}
+ 				if(arg=='clean'){
+ 					var value = $("#"+tId+"_float").val();
+ 					if(isNaN(parseFloat(value))){
+ 						$("#"+tId+"_float").val(0.0);
+ 					}
+ 				}
+ 			}
+ 			return this.each(function(index,elem){
+ 				var $elem = $(elem);
+ 				$elem.data('fieldMap',JSON.parse(settings['fieldMap']));
+ 				console.log($elem.data('fieldMap'));
+ 				var value = parseFloat($elem.data('fieldMap').value) * parseFloat($elem.data('fieldMap').scalefactor);
+ 				htmlString = '<div style="float:left;"><label>'+settings['label'] + '</label>';
+ 				htmlString += '<input type="number" class="hrm_scaledfloatinput_value" id="' + $(this).attr('id') + '_float"></input></div>';
+ 				
+ 				$elem.html(htmlString);
+ 				$("#"+$(this).attr('id') + "_float").val(value);
+ 			})
+ 		}
  		else if (settings['widget']=='timeFormInput'){
  			$.fn.timeFormInput = function(arg, arg2) {
  				var tId = this.attr('id');
@@ -1588,6 +1622,12 @@ function addToggleExpansionButton($grid) {
  							}
  						}
  					});
+ 					$(this).find('.hrm_scalefloatinput').each(function(){
+ 						var tj = $(this);
+ 						tj.scaledFloatInput('clean');
+ 						value = tj.scaledFloatInput('value');
+ 						dict[tj.attr('id')] = value;
+ 					});
  					$(this).find('.hrm_truckinventorygrid').each(function(){
  						var tj = $(this);
  						
@@ -1684,6 +1724,14 @@ function addToggleExpansionButton($grid) {
  	 						label:'',
  	 						value:val,
  	 						fieldMap:$field.attr("data-fieldMap")
+ 	 					});
+ 	 				});
+ 	 				$elem.find('.hrm_scalefloatinput').each(function(idx){
+ 	 					$field=$(this);
+ 	 					$field.hrmWidget({
+ 	 						widget:'scaledFloatInput',
+ 	 						label:'',
+ 	 						fieldMap:$field.attr('data-fieldMap')
  	 					});
  	 				});
  	 				$elem.find('.hrm_truckinventorygrid').each(function(idx){

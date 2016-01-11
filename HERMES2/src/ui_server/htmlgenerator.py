@@ -642,6 +642,9 @@ def _buildTypeInfoBox(fieldMap,typeInstance,typeName="Type",model=None):
         if recType in ['string','int','float','stringbox']:
             if getattr(typeInstance,recKey):
                 infoTable.addRow([rec['label'],getattr(typeInstance,recKey)],['c',1,1])
+        if recType in ['scaledfloat']:
+            if getattr(typeInstance,recKey):
+                infoTable.addRow([rec['label'],float(getattr(typeInstance,recKey))*float(rec['scale'])],['c',1,1])
         elif recType == "select":
             if getattr(typeInstance,recKey):
                 ## find the option data
@@ -866,7 +869,15 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             divString = "<div class='hrm_costforminput' id='{0}' data-fieldMap='{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)   
             
             editTable.addRow([label,divString],[rowStyleString,1,1])
-        
+        elif recType == 'scaledfloat':
+            defaultValue = 0.0
+            print "Key --------------------"
+            print recKey
+            if getattr(typeInstance,recKey): defaultValue = float(getattr(typeInstance,recKey))
+            dataDict = {'value':defaultValue,'scalefactor':float(rec['scale'])}
+            divString = "<div class='hrm_scalefloatinput' id='{0}' data-fieldMap='{1}'></div>".format(formKey,json.dumps(dataDict))
+            
+            editTable.addRow([label,divString],[rowStyleString,1,1])
         elif recType == 'time':
             defaultValue = '0:days'
             defaults = []
