@@ -682,11 +682,6 @@ def _buildTypeInfoBox(fieldMap,typeInstance,typeName="Type",model=None):
                         timeValue = "{0} {1}".format(timeValue, unitStr)
             infoTable.addRow([rec['label'], timeValue], ['c', 1, 1])
         elif recType == 'dynamicunit':
-            print "RECKEY ==========="
-            print recKey
-            print dir(typeInstance)
-            print getattr(typeInstance,recKey[0])
-            print getattr(typeInstance,"FuelRate")
             if getattr(typeInstance, recKey[0]):
                 Value = "{0}".format(getattr(typeInstance,recKey[0]))
                 if getattr(typeInstance,recKey[1]):
