@@ -49,6 +49,13 @@
 %        'slogan'        : _("Modify Staff Type"),
 %        'editHeader'    : _("Edit Your Staff Type"),
 %        'createHeader'  : _("Creating Your Staff Type")
+%        },
+%    'perdiems': {
+%        'editForm'      : 'json/perdiem-edit-form',
+%        'commitForm'    : 'json/perdiem-edit-verify-commit',
+%        'slogan'        : _("Modify PerDiem Type"),
+%        'editHeader'    : _("Edit Your PerDiem Type"),
+%        'createHeader'  : _("Creating Your PerDiem Type")
 %        }
 % }
 % attr = attrs[typeClass]

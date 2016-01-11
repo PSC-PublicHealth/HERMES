@@ -31,6 +31,8 @@ from gridtools import orderAndChopPage
 import privs
 import htmlgenerator
 import typehelper
+from currencyhelper import getCurrencyDict
+import typehooks
 
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, \
     _mergeFormResults
@@ -38,18 +40,19 @@ from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip,
 inlizer = session_support.inlizer
 _ = session_support.translateString
 
-fieldMap = [{ 'label': _('Name'), 'key': 'Name', 'id': 'name', 'info':False, 'type': 'dbkey'},
-                        { 'label': _('DisplayName'), 'key': 'DisplayName', 'id': 'displayname', 'info':True, 'type': 'string'},
-                        { 'label': _('Base Amount'), 'key': 'BaseAmount', 'id': 'baseamount', 'info':True, 'type': 'cost', 'recMap':['BaseAmount', 'BaseAmountCurCode', 'BaseAmountYear']},
+fieldMap = [{ 'label': _('Name'), 'key': 'Name', 'id': 'name', 'info':False, 'edit':False, 'type': 'dbkey'},
+                        { 'label': _('DisplayName'), 'key': 'DisplayName', 'id': 'displayname', 'info':True, 'edit': True, 'type': 'string'},
+                        { 'label': _('Base Amount'), 'key': 'BaseAmount', 'id': 'baseamount', 'info':True, 'edit': True,
+                         'type': 'cost', 'recMap':['BaseAmount', 'BaseAmountCurCode', 'BaseAmountYear']},
                         { 'label': _('Must Be Overnight'), 'key': 'MustBeOvernight',
-                           'id': 'mustbeovernight',  'info':True,'type': 'bool'},
-                           { 'label': _('Count First Day'), 'key': 'CountFirstDay',
-                            'id': 'countfirstday',  'info':True,'type': 'bool'},
-                            { 'label': _('Minimum Km from Home'), 'key': 'MinKmHome', 'id': 'minkmhome',
-                             'info':True, 'type': 'float'},
-                             { 'label': _('Notes'), 'key': 'Notes', 'id': 'notes', 'info':True, 'type': 'stringbox'},
-                             { 'label': _('SortOrder'), 'key': 'SortOrder', 'id': 'sortorder',
-                              'info':False, 'type': 'int'},
+                         'id': 'mustbeovernight',  'info':True, 'edit':True, 'type': 'bool'},
+                        { 'label': _('Count First Day'), 'key': 'CountFirstDay',
+                         'id': 'countfirstday',  'info':True, 'edit': True, 'type': 'bool'},
+                        { 'label': _('Minimum Km from Home'), 'key': 'MinKmHome', 'id': 'minkmhome',
+                         'info':True, 'edit': True, 'type': 'float'},
+                        { 'label': _('Notes'), 'key': 'Notes', 'id': 'notes', 'info':True, 'edit':True, 'type': 'stringbox'},
+                        { 'label': _('SortOrder'), 'key': 'SortOrder', 'id': 'sortorder',
+                         'info':False, 'edit':False, 'type': 'int'},
                       ]
 
 
@@ -58,47 +61,13 @@ def perDiemTopPage(uiSession):
     crumbTrack = uiSession.getCrumbs().push((bottle.request.path, _("PerDiems")))
     return bottle.template("perdiem_top.tpl", {"breadcrumbPairs": crumbTrack}, pagehelptag="database")
 
-
 @bottle.route('/perdiem-edit')
 def perDiemEditPage(db, uiSession):
-    try:
-        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
-        uiSession.getPrivs().mayReadModelId(db, modelId)
-        protoName = _getOrThrowError(bottle.request.params, 'protoname')
-        protoName = _smartStrip(protoName)
-        crumbTracks = uiSession.getCrumbs().push((bottle.request.path,
-                                                  _("Create Modified Version")))
-        return bottle.template("perdiem_edit.tpl", {"breadcrumbPairs": crumbTracks,
-                               "protoname": protoName, "modelId": modelId})
-    except Exception, e:
-        _logMessage(str(e))
-        _logStacktrace()
-        return bottle.template("error.tpl", {"breadcrumbPairs": uiSession.getCrumbs(),
-                               "bugtext": str(e)})
-
+    return typehooks.typeEditPage(db,uiSession,'perdiems')
 
 @bottle.route('/edit/edit-perdiem.json', method='POST')
 def editPerDiem(db, uiSession):
-    if bottle.request.params['oper'] == 'edit':
-        if 'modelId' not in bottle.request.params.keys():
-            return {}
-        modelId = int(bottle.request.params['modelId'])
-        _logMessage("editing modelId: %d" % modelId)
-        uiSession.getPrivs().mayModifyModelId(db, modelId)
-        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-        name = bottle.request.params['name']
-        _logMessage("changed name")
-        pT = m.perdiems[name]
-        if 'dispnm' in bottle.request.params:
-            _logMessage("Changing Display Name")
-            pT.DisplayName = bottle.request.params['dispnm']
-            _logMessage("Changed DisplayName")
-        return {}
-    elif bottle.request.params['oper'] == 'add':
-        raise bottle.BottleException(_('unsupported operation'))
-    elif bottle.request.params['oper'] == 'del':
-        raise bottle.BottleException(_('unsupported operation'))
-
+    return typehooks.typeEditPage(db,uiSession,'perdiems')
 
 @bottle.route('/json/manage-perdiem-table')
 def jsonManagePerDiemTable(db, uiSession):
@@ -121,55 +90,20 @@ def jsonManagePerDiemTable(db, uiSession):
               }
     return result
 
+def jsonPerDiemEditFn(attrRec, m):
+    return attrRec
 
 @bottle.route('/json/perdiem-edit-verify-commit')
 def jsonPerDiemEditVerifyCommit(db, uiSession):
-    m, attrRec, badParms, badStr = _mergeFormResults(bottle.request,  # @UnusedVariable
-                                                     db, uiSession, fieldMap)
-    if badStr and badStr != "":
-        result = {'success': True, 'value': False, 'msg': badStr}
-    else:
-        newPerDiem = shadow_network.ShdPerDiemType(attrRec.copy())
-        db.add(newPerDiem)
-        m.types[attrRec['Name']] = newPerDiem
-        crumbTrack = uiSession.getCrumbs()
-        result = {'success': True, 'value': True, 'goto': crumbTrack.getDoneURL()}
-    return result
+    return typehooks.jsonTypeEditVerifyAndCommit(db,uiSession,'perdiems',fieldMap,jsonPerDiemEditFn)
 
 
 @bottle.route('/json/perdiem-info')
 def jsonPerDiemInfo(db, uiSession):
-    try:
-        modelId = int(bottle.request.params['modelId'])
-        name = bottle.request.params['name']
-        htmlStr, titleStr = htmlgenerator.getPerDiemInfoHTML(db, uiSession, modelId, name)
-        result = {'success': True, "htmlstring": htmlStr, "title": titleStr}
-        return result
-    except Exception, e:
-        result = {'success': False, 'msg': str(e)}
-        return result
+    return typehooks.jsonTypeInfo(db,uiSession,htmlgenerator.getPerDiemInfoHTML)
+
 
 
 @bottle.route('/json/perdiem-edit-form')
 def jsonPerDiemEditForm(db, uiSession):
-    try:
-        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
-        uiSession.getPrivs().mayModifyModelId(db, modelId)
-        protoname = _getOrThrowError(bottle.request.params, 'protoname')
-        proposedName = typehelper.getSuggestedName(db, modelId, "perdiems", protoname,
-                                                   excludeATM=True)
-        canWrite, typeInstance = typehelper.getTypeWithFallback(db, modelId,  # @UnusedVariable
-                                                                protoname)
-        attrRec = {}
-        shadow_network._copyAttrsToRec(attrRec, typeInstance)
-        #elabMap = typehelper.elaborateFieldMap(proposedName, attrRec, fieldMap)
-        htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db, uiSession, "perdiems",
-                                                          modelId, protoname, fieldMap)
-        result = {'success': True, "htmlstring": htmlStr, "title": titleStr}
-    except privs.PrivilegeException:
-        result = {'success': False, 'msg': _('User cannot read this model')}
-    except Exception, e:
-        _logMessage(str(e))
-        _logStacktrace()
-        result = {'success': False, 'msg': str(e)}
-    return result
+    return typehooks.jsonTypeEditForm(db, uiSession, 'perdiems', fieldMap)
