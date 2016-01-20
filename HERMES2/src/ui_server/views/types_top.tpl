@@ -26,12 +26,12 @@
 </script>
 
 % typesEntries = [
-%    ['vaccines', _('Vaccines'),    'json/vaccine-info', 'vaccine-edit'],
-%    ['trucks',   _('Transport'),   'json/truck-info',   'truck-edit'],
-%    ['fridges',  _('Storage'),     'json/fridge-info',  'fridge-edit'],
-%    ['people', _('Population'),    'json/people-info',  'people-edit'],
-%    ['perdiems', _('PerDiem Rules'),    'json/perdiem-info',  'perdiem-edit'],
-%    ['staff', _('Staff'),    'json/staff-info',  'staff-edit'],
+%    ['vaccines', _('Vaccines'),      'json/vaccine-info', 'vaccine-edit'],
+%    ['trucks',   _('Transport'),     'json/truck-info',   'truck-edit'],
+%    ['fridges',  _('Storage'),       'json/fridge-info',  'fridge-edit'],
+%    ['people',   _('Population'),    'json/people-info',  'people-edit'],
+%    ['perdiems', _('PerDiem Rules'), 'json/perdiem-info', 'perdiem-edit'],
+%    ['staff',    _('Staff'),         'json/staff-info',   'staff-edit'],
 % ]
 
 % def unpackTypesEntry(te):
@@ -56,55 +56,76 @@
 </p>
 
 <table>
-  <tr>
-    <td>
-      <table> 
-        <tr><td style="height:20px">
-        </td></tr>
-        % for te in typesEntries:
-	%     t = unpackTypesEntry(te)
-	<tr><td>
-	    <button id="{{t['type']}}_button" style="width:100%">{{t['name']}}</button>
-	</td></tr>
-	% end
-      </table>
-    </td>
-    <td>
-      <table>
-	<tr><td style="height:20px" id='dest_header'>
-          {{_('Current type') }}
-	</td></tr>
-	<tr><td>
-	    <table id='dest_grid'></table>
-	</td></tr>
-	<tr><td>
-	    <div id='dest_pager'></div>
-	</td></tr>
-      </table>
-    </td>
-    <td>
-      <table id='middle'>
-        <tr><td style="height:80px"></td></tr>
-        <tr><td>
-	  <button id="copy_to_model_button">{{_('<--')}}</button>
-        </td></tr>
-        <tr><td></td></tr>
-      </table>
-    </td>
-    <td>
-      <table>
-	<tr><td style="height:20px" id='src_header'>
-	    <label for="src_model_select">{{_('source')}}</label>
-	    <select name="src_model_select" id="src_model_select"></select>
-	</td></tr>
-	<tr><td>
-	    <table id='src_grid'></table>
-	</td></tr>
-	<tr><td>
-	    <div id='src_pager'></div>
-	</td></tr>
-      </table>
-    </td>
+	<tr>
+    	<td>
+    		<table> 
+	    		<tr>
+	    			<td style="height:20px"></td>
+	    		</tr>
+	        %   for te in typesEntries:
+	        % 		t = unpackTypesEntry(te)
+	        	<tr>
+	        		<td>
+	        			<button id="{{t['type']}}_button" style="width:100%">{{t['name']}}</button>
+	        		</td>
+	    		</tr>
+    		%   end
+  			</table>
+		</td>
+		<td>
+			<table>
+				<tr>
+					<td style="height:20px" id='dest_header'>
+						{{_('Current type') }}
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table id='dest_grid'></table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div id='dest_pager'></div>
+					</td>
+				</tr>
+			</table>
+		</td>
+	    <td>
+	    	<table id='middle'>
+	    		<tr>
+	    			<td style="height:80px"></td>
+	    		</tr>
+	    		<tr>
+	    			<td>
+	    				<button id="copy_to_model_button">{{_('<--')}}</button>
+    				</td>
+				</tr>
+				<tr>
+					<td></td>
+				</tr>
+	      </table>
+	    </td>
+		<td>
+	    	<table>
+				<tr>
+					<td style="height:20px" id='src_header'>
+				    	<label for="src_model_select">{{_('source')}}</label>
+				    	<select name="src_model_select" id="src_model_select"></select>
+			    	</td>
+		    	</tr>
+				<tr>
+					<td>
+				    	<table id='src_grid'></table>
+			    	</td>
+		    	</tr>
+				<tr>
+					<td>
+				    	<div id='src_pager'></div>
+			    	</td>
+		    	</tr>
+	      </table>
+	    </td>
 % if 0: # until this button has functionality, hide it
     <td>
       <table>
@@ -116,24 +137,25 @@
       </table>
     </td>
 % end
-  </tr>
-</table>
-<!--
-<table id="nextback" width=100%>
-	<tr>
-		<td width=10%>
-			<input type="button" id="back_button" value='{{_("Previous Screen")}}'>
-		</td>
-		<td width=70%>
-		</td>
-		<td width=10%>
-			<input type="button" id="expert_button" value='{{_("Skip to Model Editor")}}'>
-		</td>
-		<td width=10%>
-			<input type="button" id="next_button" value='{{_("Next Screen")}}'>
-		</td>
 	</tr>
 </table>
+
+<!--
+	<table id="nextback" width=100%>
+		<tr>
+			<td width=10%>
+				<input type="button" id="back_button" value='{{_("Previous Screen")}}'>
+			</td>
+			<td width=70%>
+			</td>
+			<td width=10%>
+				<input type="button" id="expert_button" value='{{_("Skip to Model Editor")}}'>
+			</td>
+			<td width=10%>
+				<input type="button" id="next_button" value='{{_("Next Screen")}}'>
+			</td>
+		</tr>
+	</table>
 <table id="doneback" width=100%>
 <tr>
 	<td width=90%>
@@ -147,8 +169,16 @@
 -->
 
 <div id="info_modal">
-	<div class="modal-dialog"
-<div id="info_dialog" title='replace me'></div>
+	<div class="modal-dialog">
+		<div id="info_dialog" title='replace me'></div>
+	</div>
+</div>
+<div id="edit_modal">
+	<div class="modal-dialog">
+		<div id="edit_dialog" title='replace me'></div>
+	</div>
+</div>
+
 <script>
 console.log('point 1');
 // many characters in a jquery id need escaped.
@@ -209,6 +239,7 @@ $(function() {
 
     // info dialog
     $("#info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
+    $("#edit_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
     
     if(createOn){
 		var btn = $("#wrappage_bn_misc_button");
@@ -450,19 +481,20 @@ function infoType(id) {
 }
 
 function editType(id) {
-    
-
-    upId = unpackId(id);
-    var modelId = upId.modelId;
-    var name = upId.name;
-    var grid = upId.grid;
-
-    var url = typesMap[currentType].editUrl;
-    var parms = '?modelId=' + modelId;
-    parms += "&protoname='" + name + "'";
-    parms += "&overwrite=1";
-    parms += "&backURL=" + B64.encode(myURL + "&startClass=" + currentType)
-    window.location = url + parms;
+	upId = unpackId(id); 
+	var modelId = upId.modelId;
+	var name = upId.name; 
+	var grid = upId.grid;
+ 
+	var url = typesMap[currentType].editUrl;
+	var parms = '?modelId=' + modelId;
+	parms += "&protoname=" + name + "";
+	parms += "&overwrite=1";
+	parms += "&backURL=" + B64.encode(myURL + "&startClass=" + currentType)
+	console.log(parms);
+	$("#edit_dialog").load(url + parms); 
+	$("#edit_dialog").dialog("open");
+//window.location = url + parms;
 }
 	    
 console.log('point 4');

@@ -59,7 +59,7 @@ def typeEditPage(db, uiSession, typeClass):
         else:
             backURL = 'query'
         crumbTracks = uiSession.getCrumbs().push((bottle.request.path,_("Create Modified Version")))
-        return bottle.template("type_edit.tpl",{"breadcrumbPairs":crumbTracks,
+        return bottle.template("type_edit_dialog.tpl",{"breadcrumbPairs":crumbTracks,
                                                 "protoname":protoName,
                                                 "modelId":modelId,
                                                 "typeClass":typeClass,
