@@ -1,4 +1,4 @@
-<!---
+<!--
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
 # =============================================================================== #
@@ -14,37 +14,7 @@
 #                                                                                 #
 ###################################################################################
 -->
-<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.11.4.custom/jquery-ui.css" />
-	<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/demos/demos.css" />
-	<link rel="stylesheet" href="{{rootPath}}static/animate.css"/>
-	<link rel="stylesheet" type="text/css" media="screen" href="{{rootPath}}static/jqGrid-4.4.4/css/ui.jqgrid.css" />
-	<link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-svg-1.4.5/jquery.svg.css" />
-	<link rel="stylesheet" type="text/css" href="{{rootPath}}static/hermes_custom.css" />
 
-	<link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-rcrumbs-3234d9e/jquery.rcrumbs.css" />
-	<script src="{{rootPath}}static/jquery-1.11.3.js"></script>
-	<script src="{{rootPath}}static/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
-	<!--<script src="{{rootPath}}static/jquery-ui-1.10.2/ui/jquery-ui.js"></script>-->
-
-	<script type="text/javascript" src="{{rootPath}}static/jqGrid-4.4.4/js/i18n/grid.locale-en.js"></script>
-	<script type="text/javascript" src="{{rootPath}}static/jqGrid-4.4.4/js/jquery.jqGrid.src.js"></script>
-	<script type="text/javascript" src="{{rootPath}}static/jQuery-File-Upload-7.4.1/js/jquery.fileupload.js"></script>
-
-	<script type="text/javascript" src="{{rootPath}}static/jquery-rcrumbs-3234d9e/jquery.rcrumbs.js"></script>
-	<script type="text/javascript" src="{{rootPath}}static/jquery-form-3.45.0.js"></script>
-	<script type="text/javascript" src="{{rootPath}}static/jquery-migrate-1.2.1.js"></script>
-	<script type="text/javascript" src="{{rootPath}}static/jquery.printElement.min.js"></script>
-	<script type="text/javascript" src="{{rootPath}}static/Jit-2.0.1/jit.js"></script>
-	<script type="text/javascript" src="{{rootPath}}static/hermes-ui-utils.js"></script>
-	<script type="text/javascript" src="{{rootPath}}static/editor-widgets/inventory_grid.js" ></script>
-	<script src="{{rootPath}}static/jquery.corner.js"></script>
-
-	<script src="{{rootPath}}static/jQuery-contextMenu-master/src/jquery.ui.position.js" type="text/javascript"></script>
-	<script src="{{rootPath}}static/jQuery-contextMenu-master/src/jquery.contextMenu.js" type="text/javascript"></script>
-	    
-	<link href="{{rootPath}}static/jQuery-contextMenu-master/src/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
-
-	<script src="{{rootPath}}hrmwidgets.js" type="text/javascript"></script>
 % attrs = {
 %    'trucks' : { 
 %        'editForm'      : 'json/truck-edit-form',
@@ -96,9 +66,9 @@
 % _=_
 % inlizer=inlizer
 
-<form id="edit_form">
-    <div id="edit_form_div"></div>
-</form>
+
+<div id="edit_form_div"></div>
+
 
 <script>
 $(function() {
@@ -129,23 +99,23 @@ $(function() {
 	.fail(function(jqxhr, textStatus, error) {
 	    alert("Error: "+jqxhr.responseText);
 	});
-});
 
-$(function() {
-	$(document).hrmWidget({widget:'stdCancelSaveButtons',
-		getParms:function(){
-			var dict = $('#edit_form_div').editFormManager('getEntries');
-			% if overwrite:
-			dict['overwrite'] = 1;
-			% end
-			return dict;
-		},
-		checkParms:function(parmDict) {
-			return ($.getJSON("{{rootPath}}{{attr['commitForm']}}",parmDict)
-					.promise());
-		},
-		doneURL:'{{! breadcrumbPairs.getDoneURL() }}'
-	});
+//	console.log("setting");
+//	alert("shit");
+//	$("#edit_form_buttons_div").hrmWidget({widget:'stdCancelSaveButtons',
+//		getParms:function(){
+//			var dict = $('#edit_form_div').editFormManager('getEntries');
+//			% if overwrite:
+//			dict['overwrite'] = 1;
+//			% end
+//			return dict;
+//		},
+//		checkParms:function(parmDict) {
+//			return ($.getJSON("{{rootPath}}{{attr['commitForm']}}",parmDict)
+//					.promise());
+//		},
+//		doneURL:'{{! breadcrumbPairs.getDoneURL() }}'
+//	});
 });
 
 
