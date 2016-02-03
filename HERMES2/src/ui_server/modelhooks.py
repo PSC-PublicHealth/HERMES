@@ -136,7 +136,7 @@ def modelsAddTypes(db, uiSession):
         else:
             startClass = 'vaccines'
     
-        return bottle.template("types_top.tpl",
+        return bottle.template("types_top_new.tpl",
                                {"modelId":modelId,
                                 "modelName":model.name,
                                 "startClass":startClass,
