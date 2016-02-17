@@ -4224,13 +4224,9 @@ class ShdNetwork(Base):
         ### This only works with one root
         modelJson = json.dumps(self.getWalkOfClientsDictForJson(self.rootStores()[0].idcode))
         
-        print modelJson
-        print "--------DONE-----"
         if self.modelD3Json is None:
-            print "!!!! HERE"
             self.modelD3Json = ModelD3JsonBlobHolder(modelJson)
             print self.modelD3Json.blob
-            print "$$$$$ HJERES"
         else:
             bh = self.modelD3Json
             bh.blob = modelJson

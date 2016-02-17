@@ -300,7 +300,7 @@ function addToggleExpansionButton($grid) {
 
 // This defines the hrmWidget jquery plugin
 (function( $ ) {
-    
+    console.log("HEREEEEE!");
     $.fn.hrmWidget = function(options) {
  	
         var settings = $.extend({
@@ -1571,6 +1571,7 @@ function addToggleExpansionButton($grid) {
  		else if (settings['widget']=='editFormManager') {
 			$.fn.editFormManager = function( arg, arg2 ) {
  				if (arg=='getEntries') {
+ 					
  					var dict = {modelId:settings.modelId}
  					$(this).find('input,select,textarea').each( function( index ) {
  						var tj = $(this);

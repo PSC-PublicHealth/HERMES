@@ -779,7 +779,7 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
     disabledItems = set()
     htmlDoc = HTMLDocument(name_='typeForm',
                                                 title_='TypeForm')
-    editTable = HTMLForm("edit_table", title_="")
+    editTable = HTMLForm("edit_table", title_=None)
     
     ### if typeInstance is none, then we should create a new type instance for this model
     ## STB do later
@@ -806,11 +806,11 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
         if recType in ['int','float','string','dbkey']:
             
             formElement = HTMLFormInputBox(name_=recKey,
-                                                                    title_="",
-                                                                    default_=getattr(typeInstance,recKey),
-                                                                    type_=recType,
-                                                                    width='350px',
-                                                                    )
+                                           title_="",
+                                           default_=getattr(typeInstance,recKey),
+                                           type_=recType,
+                                           width='350px',
+                                           )
                                                                                       
             editTable.addRow([label,formElement.htmlString()],[rowStyleString,1,1])
         elif recType =='select':

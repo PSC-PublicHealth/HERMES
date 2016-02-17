@@ -198,6 +198,23 @@ def jsonGetAllTypesModelID(db,uiSession):
     except Exception, e:
         result = {'success':False, 'msg':str(e)}
 
+@bottle.route('/json/check-if-type-exists-for-model')
+def jsonCheckIfTypeNameExistsForModel(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
+        typeName = _getOrThrowError(bottle.request.params,'typename')
+        
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        result = {}
+        if typeName in m.types:
+            result = {'success':True,'exists':True}
+        else:
+            result = {'success':True,'exists':False}
+        return result
+    except Exception, e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+    
 @bottle.route('/test-inv-grid')
 def testInventoryGrid(db,uiSession):
     

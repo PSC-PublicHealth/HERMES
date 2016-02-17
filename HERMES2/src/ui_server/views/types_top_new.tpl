@@ -99,6 +99,8 @@ var typesMap = {
                    'editUrl'  : '{{rootPath}}{{t["editUrl"]}}',
                    'commitUrl': '{{rootPath}}{{t["commitForm"]}}',
                    'editFormUrl': '{{rootPath}}{{t["editForm"]}}',
+                   'editHeader':'{{t["editHeader"]}}',
+                   'createHeader':'{{t["createHeader"]}}'
                  },
 % end
 };
@@ -237,6 +239,28 @@ var typesMap = {
 <div id="edit_dialog" title='replace me'>
 	<div id="edit_form_content"></div>
 </div>
+<div id="save_name_modal">
+	<form>
+		<fieldset>
+			<table>
+				<tr>
+					<td>
+						{{_("What would you like to name your new type?")}}
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="text" name="new_type_name_text" 
+							id="new_type_name_text" style="width:100%" 
+							class="text ui-widget-content ui-corner-all" />
+					</td>
+				</tr>
+			</table>
+		</fieldset>
+	</form>
+</div>
+
+<div id="save_name_exists_modal" title='{{_("Notification")}}'></div>
 
 <script>
 console.log('point 1');
@@ -296,36 +320,13 @@ $(function() {
     	width:"auto"
     });
     
-    if(createOn){
-		var btn = $("#wrappage_bn_misc_button");
-		btn.button();
-		btn.click( function() {
-			window.location = "{{rootPath}}model-create/next?expert=true";
-		});
-
-		//		var btn = $("#back_button");
+//    if(createOn){
+//		var btn = $("#wrappage_bn_misc_button");
 //		btn.button();
 //		btn.click( function() {
-//			window.location = "{{rootPath}}model-create/back"
+//			window.location = "{{rootPath}}model-create/next?expert=true";
 //		});
-//		
-//		var btn = $("#next_button");
-//		btn.button();
-//		btn.click( function() {
-//			window.location = "{{rootPath}}model-create/next";
-//		});
-//		
-//		$("#doneback").remove();
-    }
-//    else{
-//		var btn = $("#done_button");
-//		btn.button();
-//		btn.click( function() {
-//			window.location = "javascript:history.back()";
-//		})
-//		
-//		$("#nextback").remove();
-//	}
+//    }
 });
 
 // dest and src jqGrids
@@ -535,49 +536,118 @@ function infoType(id) {
     
 }
 
+function doesTypeExistInModel(typename){
+	return $.ajax({
+		url:'{{rootPath}}json/check-if-type-exists-for-model',
+		data:{
+			'modelId':{{modelId}},
+			'typename':typename
+		}
+	}).promise();
+}
+
+$("#save_name_exists_modal").dialog({
+	autoOpen:false,
+	modal:true,
+	buttons:{
+		'{{_("OK")}}':function(){
+			$(this).dialog("close");
+		}
+	}
+});
+
+$("#save_name_modal").dialog({
+	autoOpen:false,
+	height: 300,
+	width: 400,
+	modal: true,
+	buttons:{
+		'{{_("OK")}}':function(){
+			doesTypeExistInModel($("#new_type_name_text").val())
+			.done(function(result){
+				if(result.success){
+					if(result.exists){
+						$("#save_name_exists_modal").text();
+						$("#save_name_exists_modal").dialog("open");
+					}
+					else{
+						alert("GOOD!!!!!!");
+					}
+				}
+				else{
+					alert(result.msg);
+				}
+			})
+			.fail(function(jqxhr, textStatus, error) {
+				alert("Error: "+jqxhr.responseText);
+			});
+		}
+	}
+});
+
+
+
 function editType(id) {
 	upId = unpackId(id); 
 	var modelId = upId.modelId;
 	var name = upId.name; 
 	var grid = upId.grid;
+    $.ajax({
+    	url:typesMap[currentType].editFormUrl,
+    	data:{
+    		'modelId':modelId,
+    		'protoname':name,
+    		'overwrite':1,
+    		'backUrl':B64.encode(myURL + "&startClass=" + currentType)
+    	}
+    })
+    .done(function(data){
+    	if(data.success){
+    		$("#edit_form_content").hrmWidget({
+    			widget:'editFormManager',
+    			html:data['htmlstring'],
+    			modelId:modelId
+    		});
+    		$("#edit_dialog").dialog({
+    			title:typesMap[currentType].editHeader,
+    			buttons:{
+    				'{{_("Cancel")}}':function(){
+    					$(this).dialog("close");
+    				},
+    				'{{_("Save")}}':function(){
+    					var dict = $('#edit_form_content').editFormManager('getEntries');
+    					dict['overwrite'] = 1;
+    					$.ajax({
+    						url:typesMap[currentType].commitUrl,
+    						data:dict,
+    					})
+    					.done(function(result){
+    						if(result.success && (result.value == undefined || result.value)) {
+    							$("#edit_dialog").dialog("close");
+    						}
+    						else{
+    							alert(result.msg);
+    						}
+    					}); 
+    				},
+    				'{{_("Save As New Type")}}':function(){
+    					var dict = $('#edit_form_content').editFormManager('getEntries');
+    					$("#new_type_name_text").val(name);
+    					$("#save_name_modal").dialog("open");
+    				}
+    			}
+    		});
+    		$("#edit_dialog").dialog("open");
  
-	var url = typesMap[currentType].editUrl;
-	var parms = '?modelId=' + modelId;
-	parms += "&protoname=" + name + "";
-	parms += "&overwrite=1";
-	parms += "&backURL=" + B64.encode(myURL + "&startClass=" + currentType)
-	console.log("parms = " +parms);
-	$("#edit_dialog").dialog({
-		buttons:{
-    		Cancel:function(){
-    			$(this).dialog("close");
-    		},
-    		Save:function(){
-    			var dict = $('#edit_form_div').editFormManager('getEntries');
-    			
-       			$.ajax({
-    				url:typesMap[currentType].commitUrl,
-    				data:dict
-    				})
-    				.done(function(result){
-    					if result.success && (result.value == undefined || result.value)) {
-    					}
-    				}); 
-    					
-    				}
-    				}
-    			//}
-    		}
-		}
-    });
-	//$("#edit_dialog").dialog("destroy");
-	$("#edit_dialog").load(url + parms); 
-	$("#edit_dialog").dialog("open")
-	
-//window.location = url + parms;
+    	}
+    	else{
+    		alert('{{_("Failed: ")}}'+data.msg);
+	    }  
+	})
+	.fail(function(jqxhr, textStatus, error) {
+	    alert("Error: "+jqxhr.responseText);
+	});
 };
-	    
-console.log('point 4');
 
 function setupButtonTriples() {
 //    $('.new_hermes_button_triple').each(function() {
