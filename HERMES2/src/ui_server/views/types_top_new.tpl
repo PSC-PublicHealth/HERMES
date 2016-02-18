@@ -26,7 +26,7 @@
 </script>
 % typesEntries = {
 %    'vaccines' : {
-%        'label'         : _('Vaccines'),
+%        'label'         : _('Vaccine'),
 %        'infoUrl'       : 'json/vaccine-info',
 %        'editUrl'       : 'vaccine-edit',
 %        'editForm'      : 'json/vaccine-edit-form',
@@ -250,6 +250,8 @@ var typesMap = {
 				</tr>
 				<tr>
 					<td>
+						<input type="hidden" name="new_type_dbname_text"
+							id="new_type_dbname_text" />
 						<input type="text" name="new_type_name_text" 
 							id="new_type_name_text" style="width:100%" 
 							class="text ui-widget-content ui-corner-all" />
@@ -536,12 +538,13 @@ function infoType(id) {
     
 }
 
-function doesTypeExistInModel(typename){
+function doesTypeExistInModel(typename,displayname){
 	return $.ajax({
 		url:'{{rootPath}}json/check-if-type-exists-for-model',
 		data:{
 			'modelId':{{modelId}},
-			'typename':typename
+			'typename':typename,
+			'displayname':displayname
 		}
 	}).promise();
 }
@@ -562,16 +565,50 @@ $("#save_name_modal").dialog({
 	width: 400,
 	modal: true,
 	buttons:{
-		'{{_("OK")}}':function(){
-			doesTypeExistInModel($("#new_type_name_text").val())
+		'{{_("Save")}}':function(){
+			doesTypeExistInModel($("#new_type_dbname_text").val(),$("#new_type_name_text").val())
 			.done(function(result){
 				if(result.success){
 					if(result.exists){
-						$("#save_name_exists_modal").text();
+						// Need to figure out how to translate this, think I know, but will leave it for now
+						// STB TODO TRANSLATE
+						if (result.which == 'type'){
+							var textString = "The " + typesMap[currentType].dispName + " type " + $("#new_type_dbname_text").val() 
+											+ " you shouldn't see this.";
+						}
+						else{
+							var textString = "The " + typesMap[currentType].dispName + " type " + $("#new_type_name_text").val() 
+								+ " already exists in this Model, please provide a new name.";
+						}
+						$("#save_name_exists_modal").text(textString);
 						$("#save_name_exists_modal").dialog("open");
 					}
 					else{
-						alert("GOOD!!!!!!");
+						//var value = $("#new_type_name_text").val();
+						if(!$("#new_type_name_text").val()){
+							var textString = '{{_("The new type name cannot be left blank.")}}';
+							$("#save_name_exists_modal").text(textString);
+							$("#save_name_exists_modal").dialog("open");
+						}
+						else{
+							$("#save_name_exists_modal").dialog("close");
+							var dict = $("#edit_form_content").editFormManager('getEntries');
+							dict['Name'] = $("#new_type_dbname_text").val();
+							dict['DisplayName'] = $("#new_type_name_text").val();
+							$.ajax({
+	    						url:typesMap[currentType].commitUrl,
+	    						data:dict,
+	    					})
+	    					.done(function(result){
+	    						if(result.success && (result.value == undefined || result.value)) {
+	    							$("#save_name_exists_modal").dialog("close");
+	    							$("#edit_dialog").dialog("close");
+	    						}
+	    						else{
+	    							alert(result.msg);
+	    						}
+	    					}); 
+						}
 					}
 				}
 				else{
@@ -581,6 +618,9 @@ $("#save_name_modal").dialog({
 			.fail(function(jqxhr, textStatus, error) {
 				alert("Error: "+jqxhr.responseText);
 			});
+		},
+		'{{_("Cancel")}}':function(){
+			$(this).dialog("close");
 		}
 	}
 });
@@ -632,7 +672,8 @@ function editType(id) {
     				},
     				'{{_("Save As New Type")}}':function(){
     					var dict = $('#edit_form_content').editFormManager('getEntries');
-    					$("#new_type_name_text").val(name);
+    					$("#new_type_dbname_text").val(dict['Name'] + "m");
+    					$("#new_type_name_text").val(dict['DisplayName'] + " (modified)");
     					$("#save_name_modal").dialog("open");
     				}
     			}

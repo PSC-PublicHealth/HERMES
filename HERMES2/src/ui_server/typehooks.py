@@ -203,17 +203,22 @@ def jsonCheckIfTypeNameExistsForModel(db,uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
         typeName = _getOrThrowError(bottle.request.params,'typename')
+        displayName = _getOrThrowError(bottle.request.params,'displayname')
         
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         result = {}
+        displayNames = [typehelper.getTypeWithFallback(db, modelId, x)[1].DisplayName for x in m.types]
         if typeName in m.types:
-            result = {'success':True,'exists':True}
+            result = {'success':True,'exists':True,'which':'type'}
+        elif displayName in displayNames:
+            result = {'success':True,'exists':True,'which':'disp'}
         else:
             result = {'success':True,'exists':False}
         return result
     except Exception, e:
         result = {'success':False, 'msg':str(e)}
         return result
+    
     
 @bottle.route('/test-inv-grid')
 def testInventoryGrid(db,uiSession):

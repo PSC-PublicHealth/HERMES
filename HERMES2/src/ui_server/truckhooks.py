@@ -44,7 +44,7 @@ inlizer=session_support.inlizer
 _=session_support.translateString
 
 fuelOptions = [(x,y[1],[],[]) for  x,y in fuelTranslationDict.items()]
-fieldMap = [{ 'label':_('Data Base ID'), 'key':'Name', 'id':'name', 'info':False, 'edit':True, 'type':'dbkey', 'default':None},
+fieldMap = [{ 'label':_('Data Base ID'), 'key':'Name', 'id':'name', 'info':False, 'edit':False, 'type':'dbkey', 'default':None},
                    { 'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info':True, 'edit':True, 'type':'string', 'default':None},
                    { 'label':_('Capital Cost'), 'key':'BaseCost', 'id':'baseprice', 'info':True, 'edit':True, 'type':'cost', 'recMap':['BaseCost', 'BaseCostCurCode', 'BaseCostYear']},
                    { 'label':_('Lifetime of Vehicle (KM)'), 'key':'AmortizationKm', 'id':'amortkm', 'info':True, 'edit':True, 'type':'float'},
