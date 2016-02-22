@@ -152,6 +152,11 @@ var typesMap = {
 						<div id='dest_pager'></div>
 					</td>
 				</tr>
+				<tr>
+					<td>
+						<div id='create_new_type_button'>{{_('Create a New Type')}}</div>
+					</td>
+				</tr>
 			</table>
 		</td>
 	    <td>
@@ -483,7 +488,6 @@ function getRemoveConfirm(data, name) {
 	});
     return defer.promise();
 }
-console.log('point 3');
 
 function delType(id) {
     //event.stopPropagation();
@@ -548,6 +552,12 @@ function doesTypeExistInModel(typename,displayname){
 		}
 	}).promise();
 }
+
+$("#create_new_type_button").button();
+$("#create_new_type_button").click(function(){
+	console.log("here1");
+	editType("new");
+});
 
 $("#save_name_exists_modal").dialog({
 	autoOpen:false,
@@ -628,66 +638,142 @@ $("#save_name_modal").dialog({
 
 
 function editType(id) {
-	upId = unpackId(id); 
-	var modelId = upId.modelId;
-	var name = upId.name; 
-	var grid = upId.grid;
-    $.ajax({
-    	url:typesMap[currentType].editFormUrl,
-    	data:{
-    		'modelId':modelId,
-    		'protoname':name,
-    		'overwrite':1,
-    		'backUrl':B64.encode(myURL + "&startClass=" + currentType)
-    	}
-    })
-    .done(function(data){
-    	if(data.success){
-    		$("#edit_form_content").hrmWidget({
-    			widget:'editFormManager',
-    			html:data['htmlstring'],
-    			modelId:modelId
-    		});
-    		$("#edit_dialog").dialog({
-    			title:typesMap[currentType].editHeader,
-    			buttons:{
-    				'{{_("Cancel")}}':function(){
-    					$(this).dialog("close");
-    				},
-    				'{{_("Save")}}':function(){
-    					var dict = $('#edit_form_content').editFormManager('getEntries');
-    					dict['overwrite'] = 1;
-    					$.ajax({
-    						url:typesMap[currentType].commitUrl,
-    						data:dict,
-    					})
-    					.done(function(result){
-    						if(result.success && (result.value == undefined || result.value)) {
-    							$("#edit_dialog").dialog("close");
-    						}
-    						else{
-    							alert(result.msg);
-    						}
-    					}); 
-    				},
-    				'{{_("Save As New Type")}}':function(){
-    					var dict = $('#edit_form_content').editFormManager('getEntries');
-    					$("#new_type_dbname_text").val(dict['Name'] + "m");
-    					$("#new_type_name_text").val(dict['DisplayName'] + " (modified)");
-    					$("#save_name_modal").dialog("open");
-    				}
-    			}
-    		});
-    		$("#edit_dialog").dialog("open");
- 
-    	}
-    	else{
-    		alert('{{_("Failed: ")}}'+data.msg);
-	    }  
-	})
-	.fail(function(jqxhr, textStatus, error) {
-	    alert("Error: "+jqxhr.responseText);
-	});
+	console.log("new HERE!!!!");
+	if(id == "new"){
+		var new_inc = 0;
+		$.ajax({
+			url:'{{rootPath}}json/get-new-type-number',
+			data:{
+				'modelId':{{modelId}},
+				'type':currentType
+				}
+			})
+			.done(function(result){
+				if(result.success){
+					new_inc = result.inc;
+					var modelId = {{modelId}};
+					var name = "model_"+modelId+"_"+currentType+"_"+new_inc;
+					$.ajax({
+						url:typesMap[currentType].editFormUrl,
+						data:{
+							'modelId':modelId,
+							'protoname':'new_type'
+						}
+					})
+					.done(function(data){
+						console.log(data);
+						$("#edit_form_content").hrmWidget({
+			    			widget:'editFormManager',
+			    			html:data['htmlstring'],
+			    			modelId:modelId
+			    		});
+						$("#edit_dialog").dialog({
+			    			title:typesMap[currentType].editHeader,
+			    			buttons:{
+			    				'{{_("Cancel")}}':function(){
+			    					$(this).dialog("close");
+			    				},
+			    				'{{_("Save")}}':function(){
+			    					var dict = $('#edit_form_content').editFormManager('getEntries');
+			    					dict['overwrite'] = 1;
+			    					$.ajax({
+			    						url:typesMap[currentType].commitUrl,
+			    						data:dict,
+			    					})
+			    					.done(function(result){
+			    						if(result.success && (result.value == undefined || result.value)) {
+			    							$("#edit_dialog").dialog("close");
+			    						}
+			    						else{
+			    							alert(result.msg);
+			    						}
+			    					}); 
+			    				},
+			    				'{{_("Save As New Type")}}':function(){
+			    					var dict = $('#edit_form_content').editFormManager('getEntries');
+			    					$("#new_type_dbname_text").val(dict['Name'] + "m");
+			    					$("#new_type_name_text").val(dict['DisplayName'] + " (modified)");
+			    					$("#save_name_modal").dialog("open");
+			    				}
+			    			}
+			    		});
+					})
+					.fail(function(jqxhr, textStatus, error) {
+						alert("Error: "+jqxhr.responseText);
+					});
+					$("#edit_dialog").dialog("open");
+				}
+				else{
+					alert('{{_("There was a problem getting the new increment for the new type name")}}');
+				}
+			})
+			.fail(function(jqxhr, textStatus, error) {
+				alert("Error: "+jqxhr.responseText);
+			});
+		
+	}
+	else{
+		upId = unpackId(id); 
+		var modelId = upId.modelId;
+		var name = upId.name; 
+		var grid = upId.grid;
+	    $.ajax({
+	    	url:typesMap[currentType].editFormUrl,
+	    	data:{
+	    		'modelId':modelId,
+	    		'protoname':name,
+	    		'overwrite':1,
+	    		'backUrl':B64.encode(myURL + "&startClass=" + currentType)
+	    	}
+	    })
+	    .done(function(data){
+	    	if(data.success){
+	    		$("#edit_form_content").hrmWidget({
+	    			widget:'editFormManager',
+	    			html:data['htmlstring'],
+	    			modelId:modelId
+	    		});
+	    		$("#edit_dialog").dialog({
+	    			title:typesMap[currentType].editHeader,
+	    			buttons:{
+	    				'{{_("Cancel")}}':function(){
+	    					$(this).dialog("close");
+	    				},
+	    				'{{_("Save")}}':function(){
+	    					var dict = $('#edit_form_content').editFormManager('getEntries');
+	    					dict['overwrite'] = 1;
+	    					$.ajax({
+	    						url:typesMap[currentType].commitUrl,
+	    						data:dict,
+	    					})
+	    					.done(function(result){
+	    						if(result.success && (result.value == undefined || result.value)) {
+	    							$("#edit_dialog").dialog("close");
+	    						}
+	    						else{
+	    							alert(result.msg);
+	    						}
+	    					}); 
+	    				},
+	    				'{{_("Save As New Type")}}':function(){
+	    					var dict = $('#edit_form_content').editFormManager('getEntries');
+	    					$("#new_type_dbname_text").val(dict['Name'] + "m");
+	    					$("#new_type_name_text").val(dict['DisplayName'] + " (modified)");
+	    					$("#save_name_modal").dialog("open");
+	    				}
+	    			}
+	    		});
+	    		$("#edit_dialog").dialog("open");
+	 
+	    	}
+	    	else{
+	    		alert('{{_("Failed: ")}}'+data.msg);
+		    }  
+		})
+		.fail(function(jqxhr, textStatus, error) {
+		    alert("Error: "+jqxhr.responseText);
+		});
+	}
 };
 
 function setupButtonTriples() {
@@ -869,8 +955,6 @@ function copyType(name) {
     });
 
 }
-console.log('point 6');
-
 
 $(function() {
 	% if defined('createpipe') and createpipe:

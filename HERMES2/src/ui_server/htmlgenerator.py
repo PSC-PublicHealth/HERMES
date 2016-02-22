@@ -1,3 +1,4 @@
+from views import obsolete
 7#!/usr/bin/env python
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
@@ -774,8 +775,7 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
                   This provides a mechanism to have form entries appear 
                   and disappear in response to select box settings.
       """
-     # Pre-scan to find anything which starts out disabled
-    
+    # Pre-scan to find anything which starts out disabled
     disabledItems = set()
     htmlDoc = HTMLDocument(name_='typeForm',
                                                 title_='TypeForm')
@@ -792,7 +792,7 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
                 rowStyleString = "h"
         
         ## Which hrmwidget to use
-        print rec
+        
         recType = rec['type']
         formKey = None
         #which database key does this belong to... if this is a complex type, there will be a recmap
@@ -801,57 +801,67 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             formKey = rec['key']
         else:
             recKey = rec['key']
-          
-        label = rec['label']  
+        
+        label = rec['label'] 
+        if rec['req']:
+            requiredString = "<span style='color:red;font-weight:bold;'>*</span>" 
+        else:
+            requiredString = "";
         if recType in ['int','float','string','dbkey']:
+            default = None
+            if recType in ['int','float']:
+                default = 0
+            else:
+                default = ""
+            if typeInstance is not None:
+                default = getattr(typeInstance,recKey)
             
             formElement = HTMLFormInputBox(name_=recKey,
                                            title_="",
-                                           default_=getattr(typeInstance,recKey),
+                                           default_=default,
                                            type_=recType,
                                            width='350px',
                                            )
                                                                                       
-            editTable.addRow([label,formElement.htmlString()],[rowStyleString,1,1])
+            editTable.addRow([label,formElement.htmlString(),requiredString],[rowStyleString,1,1,1])
         elif recType =='select':
             defaultValue = "none"
-            if getattr(typeInstance,recKey): defaultValue = getattr(typeInstance,recKey)
-            print "DEFAULT = {0}".format(defaultValue)
+            if typeInstance is not None and getattr(typeInstance,recKey): defaultValue = getattr(typeInstance,recKey)
             formOptions = [(x[1],x[0]) for x in rec['options']]
             if rec.has_key('none'):
                 if rec['none']:
                     formOptions.append(('No Selection','none'))
             formElement = HTMLFormSelectBox(name_=recKey,
-                                                                                        title_="",
-                                                                                        options_=formOptions,
-                                                                                        default_=defaultValue,
-                                                                                        width='350px')
-            editTable.addRow([label,formElement.htmlString()],[rowStyleString,1,1])
+                                            title_="",
+                                            options_=formOptions,
+                                            default_=defaultValue,
+                                            width='350px')
+            editTable.addRow([label,formElement.htmlString(),requiredString],[rowStyleString,1,1,1])
             
         elif recType == 'bool':
             defaultValue = False
-            if getattr(typeInstance,recKey): defaultValue=getattr(typeInstance,recKey)
+            if typeInstance is not None and getattr(typeInstance,recKey): defaultValue=getattr(typeInstance,recKey)
             
             formElement = HTMLFormCheckBox(name_=recKey,
-                                                                                        title_="",
-                                                                                        default_=defaultValue)
-            editTable.addRow([label,formElement.htmlString()],[rowStyleString,1,1])
+                                           title_="",
+                                           default_=defaultValue)
+            editTable.addRow([label,formElement.htmlString(),requiredString],[rowStyleString,1,1])
             
         elif recType == 'stringbox':
             defaultValue = ""
-            if getattr(typeInstance,recKey): defaultValue = getattr(typeInstance,recKey)
+            if typeInstance is not None and getattr(typeInstance,recKey): defaultValue = getattr(typeInstance,recKey)
             formElement = HTMLFormTextArea(name_=recKey,
-                                                                                        title_="",
-                                                                                         rows_=4,cols_=52,
-                                                                                         default_=defaultValue)
+                                           title_="",
+                                           rows_=4,cols_=52,
+                                           default_=defaultValue)
             
-            editTable.addRow([label,formElement.htmlString()],[rowStyleString,1,1])
+            editTable.addRow([label,formElement.htmlString(),requiredString],[rowStyleString,1,1,1])
             
         elif recType == 'cost':
             defaultValue = "0.0:USD:2011"
             defaults = []
             for key in recKey:
-                if getattr(typeInstance,key): defaults.append(getattr(typeInstance,key))
+                if typeInstance is not None and getattr(typeInstance,key): defaults.append(getattr(typeInstance,key))
                 else: break
             
             #print "Default here = '{0}'".format(defaults[0])
@@ -860,25 +870,22 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             elif len(defaults) == 3:
                 defaultValue = "{0}:{1}:{2}".format(defaults[0],defaults[1],defaults[2])
              
-            print "Default Value = {0}".format(defaultValue)
             dataDict= {'price':recKey[0],'currency':recKey[1],'year':recKey[2]}
             divString = "<div class='hrm_costforminput' id='{0}' data-fieldMap='{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)   
             
-            editTable.addRow([label,divString],[rowStyleString,1,1])
+            editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
         elif recType == 'scaledfloat':
             defaultValue = 0.0
-            print "Key --------------------"
-            print recKey
-            if getattr(typeInstance,recKey): defaultValue = float(getattr(typeInstance,recKey))
+            if typeInstance is not None and getattr(typeInstance,recKey): defaultValue = float(getattr(typeInstance,recKey))
             dataDict = {'value':defaultValue,'scalefactor':float(rec['scale'])}
             divString = "<div class='hrm_scalefloatinput' id='{0}' data-fieldMap='{1}'></div>".format(recKey,json.dumps(dataDict))
             
-            editTable.addRow([label,divString],[rowStyleString,1,1])
+            editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
         elif recType == 'time':
             defaultValue = '0:days'
             defaults = []
             for key in recKey:
-                if getattr(typeInstance,key):defaults.append(getattr(typeInstance,key))
+                if typeInstance is not None and getattr(typeInstance,key):defaults.append(getattr(typeInstance,key))
                 else: break
                 
             if len(defaults) == 1:
@@ -888,14 +895,14 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
                 
             dataDict = {'time':recKey[0],'unit':recKey[1]}
             divString = "<div class='hrm_timeforminput' id='{0}' data-fieldmap='{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)
-            editTable.addRow([label,divString],[rowStyleString,1,1])
+            editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
         
         elif recType == 'dynamicunit':
             defaultValue = '0:Unknown'
             # # will write a validator for the field maps sepaly
             defaults = []
             for key in recKey:
-                if getattr(typeInstance,key):defaults.append(getattr(typeInstance,key))
+                if typeInstance is not None and getattr(typeInstance,key):defaults.append(getattr(typeInstance,key))
                 else: break
                 
             if len(defaults) == 1:
@@ -910,240 +917,27 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
                 dataDict['lookupdict'] = rec['lookupDict']
                    
             divString = "<div class='hrm_dynamicunitforminput' id = '{0}' data-fieldmap = '{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)
-            print divString
-            editTable.addRow([label,divString],[rowStyleString,1,1])
+            editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
         
         elif recType == "custtruckstoragetable":
             ## Note, there is no default value for this type
             dataDict = {'key':recKey,'modelId':model.modelId,'typename':typeInstance.Name}
             divString = "<div class='hrm_truckinventorygrid' id = '{0}' data-fieldmap = '{1}'></div>".format(recKey,json.dumps(dataDict))
-            editTable.addRow([label,divString],[rowStyleString,1,1])
-             
-                                                                                            
-#     for d in fieldMap:
-#         recKey = 
-#         if d['type'] in ['int','float']:
-#             if getattr(typeInstance)
-#             if getattr(typeInstance,recKey):
-#                 infoTable.addRow([rec['label'],getattr(typeInstance,recKey)],['c',1,1])
-#         
-#         if d['type'] == 'select':
-#             if 'value' in d:
-#                 for val,txt,enabledList,disabledList in d['options']:      # @UnusedVariable
-#                     if val==d['value']: disabledItems.update(disabledList)
-#             elif 'default' in d:
-#                 for val,txt,enabledList,disabledList in d['options']:      # @UnusedVariable
-#                     if val==d['default']: disabledItems.update(disabledList)
-#             elif len(d['options'])>0:
-#                 val,txt,enabledList,disabledList = d['options'][0] # first entry selected by default @UnusedVariable
-#                 disabledItems.update(disabledList)
-#                 
+            editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
     
-    
-#     for field in fieldMap:
-#         if 'value' in field and field['value'] is not None and field['value']!="":
-#             oldVal = field['value']
-#         elif 'default' in field:
-#             oldVal = field['default']
-#         else:
-#             oldVal = None
-#         print "Type = {0}".format(field['type'])
-#         if field['type']  in ['int','string','float']:
-#             print 'oldVal = {0}'.format(oldVal)
-#             table.addRow([field['label'],HTMLFormInputBox(name_=field['key'],
-#                                                                                                 title_= '',
-#                                                                                                 default_=oldVal,
-#                                                                                                 type_=field['type'],width='350px').htmlString()],['c',1,1])
-#         elif field['type'] in ['cost']:
-#             #special case where the old value needs to be parsed
-#             print oldVal
-#             dataDict= {'price':field['recMap'][0],'currency':field['recMap'][1],'year':field['recMap'][2]}
-#             divString = "<div class='hrm_costforminput' id='{0}' data-fieldmap='{1}' {2}>0.5:USD:2001</div>".format(field['key'],json.dumps(dataDict),'')
-#             table.addRow(
-#                          [field['label'],divString],
-#                          ['c',1,1])
-            
-        
-        
-    
+    reqstr = '<span style="color:red;font-weight:bold">*</span>' + _(' indicates a required field')      
+    editTable.addRow([reqstr],['c',3])                                                                                    
     htmlDoc.addConstruct(editTable)
-    #print htmlDoc.htmlString()
     return htmlDoc.htmlString()
     
-def _buildEditFieldTable(fieldMap):
-    """
-    fieldMap defines the layout of form fields on a page.  It is a 
-    list of elements, each of which is a dict.  The following dict 
-    elements are recognized:
-    
-       'row':   a 1-based integer indicating which row on the page 
-                should include the field.  Within a row, fields are 
-                displayed in list order.
-                
-       'label': the label string to be used for the field
-       
-       'key':   a string used to index fields, and to associate values 
-                with this field in JSON transactions
-       
-       'id':    this string becomes the html id of the field on the 
-                field on the client side
-       
-       'type':  one of ['string','float','int','bool','lifetime','hide',
-                'select', 'energy', 'fuel', 'price', 'currency']
-       
-       'default': default value
-       
-       'options': if 'type' is 'select', this provides a list of entries 
-                  for the select box. Each element of the list is a tuple 
-                  of the form:
-                  
-                      (value,label,enableList,disableList)
-                      
-                  enableList and disableList are lists of the key strings 
-                  of other dicts in the fieldMap that will be enabled or 
-                  disabled by setting the select to this particular option.  
-                  This provides a mechanism to have form entries appear 
-                  and disappear in response to select box settings.
-      """
-    
-    # Pre-scan to find anything which starts out disabled
-    disabledItems = set()
-    for d in fieldMap:
-        if d['type'] == 'select':
-            if 'value' in d:
-                for val,txt,enabledList,disabledList in d['options']:      # @UnusedVariable
-                    if val==d['value']: disabledItems.update(disabledList)
-            elif 'default' in d:
-                for val,txt,enabledList,disabledList in d['options']:      # @UnusedVariable
-                    if val==d['default']: disabledItems.update(disabledList)
-            elif len(d['options'])>0:
-                val,txt,enabledList,disabledList = d['options'][0] # first entry selected by default @UnusedVariable
-                disabledItems.update(disabledList)
-        
-    maxRow = max([d['row'] for d in fieldMap])
-    sio = StringIO()
-    sio.write("<table class='hrm_edittype'>\n")
-    for row in xrange(1,maxRow+1):
-        subSlots = [d for d in fieldMap if d['row']==row and d['type']!='hide']
-        sio.write("<tr>\n")
-        for d in subSlots: sio.write("  <th>%s</th>\n"%d['label'])
-        sio.write("</tr>\n")
-        sio.write("<tr>\n")
-        for d in subSlots:
-            if d['id'] in disabledItems: hideStr = 'style="display:none"'
-            else: hideStr = ""
-            if 'value' in d and d['value'] is not None and d['value']!="": oldVal = d['value']
-            elif 'default' in d: oldVal = d['default']
-            else: oldVal = None
-            
-            if d['type'] == 'int':
-                if oldVal is not None:
-                    sio.write('  <td><input type=number value="%s" id="%s" %s></td>\n'%(oldVal,d['id'],hideStr))
-                else:
-                    sio.write('  <td><input type=number value="0" id="%s" %s></td>\n'%(d['id'],hideStr))
-                    
-            elif d['type'] == 'string':
-                if oldVal is not None:
-                    if isinstance(oldVal,types.ListType) :
-                        s = ",".join([str(v).replace('"','&quot;') for v in oldVal])
-                        escapedStr= str(s)
-                    else:
-                        #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
-                        escapedStr = oldVal.replace('"','&quot;')
-                    sio.write('  <td><input type=text value="%s" id="%s" %s></td>\n'%(escapedStr,d['id'],hideStr))
-                else:
-                    sio.write('  <td><input type=text id="%s" %s></td>\n'%(d['id'],hideStr))
-                    
-            elif d['type'] == 'float':
-                if oldVal is not None:
-                    sio.write('  <td><input type=text value="%s" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%\
-                              (oldVal,d['id'],hideStr))
-                else:
-                    sio.write('  <td><input type=text value="0.0" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(d['id'],hideStr))
-                    
-            elif d['type'] == 'price':
-                if oldVal is not None:
-                    sio.write(' <td><div class="hrm_costforminput" id="%s" %s>0.5:USD:2001</div></td>\n'%(d['id'],hideStr))
-                   # sio.write('  <td><input class="hrm_price" type=text value="%s" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(oldVal,d['id'],hideStr))
-                else:
-                    sio.write(' <td><div class="hrm_costforminput" id="%s" %s>0.5:USD:2001</td>\n'%(d['id'],hideStr))
-                   # sio.write('  <td><input class="hrm_price" type=text value="0.0" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(d['id'],hideStr))
-                    
-            elif d['type'] == 'bool':
-                if oldVal: # True
-                    sio.write('  <td><input type=checkbox checked id="%s" %s></td>\n'%(d['id'],hideStr))
-                else: # False, or default
-                    sio.write('  <td><input type=checkbox id="%s" %s></td>\n'%(d['id'],hideStr))
-                    
-            elif d['type'] == 'select':
-                sio.write('<td><select id="%s" %s>\n'%(d['id'],hideStr))
-                for val,txt,enableList,disableList in d['options']:
-                    if oldVal==val:
-                        sio.write('  <option value="%s" selected data-enable="%s" data-disable="%s">%s</option>\n'%\
-                                  (val, ','.join(enableList), ','.join(disableList), txt))
-                    else:
-                        sio.write('  <option value="%s" data-enable="%s" data-disable="%s">%s</option>\n'%\
-                                  (val, ','.join(enableList), ','.join(disableList), txt))
-                sio.write('</select></td>\n')
-            elif d['type'] == 'lifetime':
-                if oldVal is not None:
-                    val,units = oldVal
-                    sio.write('  <td><div class="hrm_lifetime" %s><input type=text value="%s" id="%s" onkeypress="validateFloat(event)" >\n'%\
-                              (hideStr,val,d['id']))
-                    if units=='D':
-                        sio.write('  <select id="%s_units"><option value="D" selected>%s</option><option value="W">%s</option><option value="M">%s</option></select></div></td>\n'%\
-                                  (d['id'],_("Days"),_("Weeks"),_("Months")))
-                    elif units=='W':
-                        sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W" selected>%s</option><option value="M">%s</option></select></div></td>\n'%\
-                                  (d['id'],_("Days"),_("Weeks"),_("Months")))
-                    elif units=='M':
-                        sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W">%s</option><option value="M" selected>%s</option></select></div></td>\n'%\
-                                  (d['id'],_("Days"),_("Weeks"),_("Months")))
-                    else:
-                        raise RuntimeError("Nonsense lifetime units code %s"+units)
-                else:
-                    sio.write('  <td><div %s class="hrm_lifetime"><input type=text id="%s" onkeypress="validateFloat(event)" %s>\n'%\
-                              (hideStr,d['id'],hideStr))
-                    sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W">%s</option><option value="M">%s</option></select></div></td>\n'%\
-                              (d['id'],_("Days"),_("Weeks"),_("Months")))
-            elif d['type'] == 'currency':
-                if oldVal is None:
-                    sio.write('  <td><div class="hrm_costforminput" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
-                   # sio.write('  <td><div class="hrm_costformInput" id="%s" %s> 1.0:USD:2003 </td>\n'%(d['id'],hideStr,''))
 
-                else:
-                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
-                    #sio.write(' <td><div class="hrm_costforminput" id="%s" %s>0.5:USD:2001</td>\n'%(d['id'],hideStr))
-                    sio.write('  <td><div class="hrm_currency" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
-                if 'price' in d and 'year' in d:
-                    # We have enough info to make a cost editing triple
-                    pass
-            elif d['type'] == 'energy':
-                if oldVal is None:
-                    sio.write('  <td><div class="hrm_energy" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
-
-                else:
-                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
-                    sio.write('  <td><div class="hrm_energy" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
-            elif d['type'] == 'fuel':
-                if oldVal is None:
-                    sio.write('  <td><div class="hrm_fuel" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
-
-                else:
-                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
-                    sio.write('  <td><div class="hrm_fuel" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
-            else:
-                raise HermesServiceException(_("Unknown type {0} in fieldmap entry for {1}".format(d['type'],d['key'])))
-            
-        sio.write("</tr>\n")
-    sio.write("</table>\n")
-    # print sio.getvalue()
-    return sio.getvalue()
 
 def getTypeEditHTML(db,uiSession,wireType,modelId,protoname,fieldMap):
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
-    
-    canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, protoname)
+    if(protoname != "new_type"):
+        canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, protoname)
+    else:
+        typeInstance = None
     
     titleStr = _("This will go in model {0}").format(model.name)
     
@@ -1328,3 +1122,177 @@ def getStoreDialogHTML(db,uiSession,name="model_store_dialog",buttonName=None,ge
     if availPlot: stringList.append("%s_meta['availPlot'] = true;%s_meta['getResults'] = true;"%(name,name))
     stringList.append("</script>")
     return "".join(stringList)
+
+
+''''
+obsolete
+def _buildEditFieldTable(fieldMap):
+    """
+    fieldMap defines the layout of form fields on a page.  It is a 
+    list of elements, each of which is a dict.  The following dict 
+    elements are recognized:
+    
+       'row':   a 1-based integer indicating which row on the page 
+                should include the field.  Within a row, fields are 
+                displayed in list order.
+                
+       'label': the label string to be used for the field
+       
+       'key':   a string used to index fields, and to associate values 
+                with this field in JSON transactions
+       
+       'id':    this string becomes the html id of the field on the 
+                field on the client side
+       
+       'type':  one of ['string','float','int','bool','lifetime','hide',
+                'select', 'energy', 'fuel', 'price', 'currency']
+       
+       'default': default value
+       
+       'options': if 'type' is 'select', this provides a list of entries 
+                  for the select box. Each element of the list is a tuple 
+                  of the form:
+                  
+                      (value,label,enableList,disableList)
+                      
+                  enableList and disableList are lists of the key strings 
+                  of other dicts in the fieldMap that will be enabled or 
+                  disabled by setting the select to this particular option.  
+                  This provides a mechanism to have form entries appear 
+                  and disappear in response to select box settings.
+      """
+    
+    # Pre-scan to find anything which starts out disabled
+    disabledItems = set()
+    for d in fieldMap:
+        if d['type'] == 'select':
+            if 'value' in d:
+                for val,txt,enabledList,disabledList in d['options']:      # @UnusedVariable
+                    if val==d['value']: disabledItems.update(disabledList)
+            elif 'default' in d:
+                for val,txt,enabledList,disabledList in d['options']:      # @UnusedVariable
+                    if val==d['default']: disabledItems.update(disabledList)
+            elif len(d['options'])>0:
+                val,txt,enabledList,disabledList = d['options'][0] # first entry selected by default @UnusedVariable
+                disabledItems.update(disabledList)
+        
+    maxRow = max([d['row'] for d in fieldMap])
+    sio = StringIO()
+    sio.write("<table class='hrm_edittype'>\n")
+    for row in xrange(1,maxRow+1):
+        subSlots = [d for d in fieldMap if d['row']==row and d['type']!='hide']
+        sio.write("<tr>\n")
+        for d in subSlots: sio.write("  <th>%s</th>\n"%d['label'])
+        sio.write("</tr>\n")
+        sio.write("<tr>\n")
+        for d in subSlots:
+            if d['id'] in disabledItems: hideStr = 'style="display:none"'
+            else: hideStr = ""
+            if 'value' in d and d['value'] is not None and d['value']!="": oldVal = d['value']
+            elif 'default' in d: oldVal = d['default']
+            else: oldVal = None
+            
+            if d['type'] == 'int':
+                if oldVal is not None:
+                    sio.write('  <td><input type=number value="%s" id="%s" %s></td>\n'%(oldVal,d['id'],hideStr))
+                else:
+                    sio.write('  <td><input type=number value="0" id="%s" %s></td>\n'%(d['id'],hideStr))
+                    
+            elif d['type'] == 'string':
+                if oldVal is not None:
+                    if isinstance(oldVal,types.ListType) :
+                        s = ",".join([str(v).replace('"','&quot;') for v in oldVal])
+                        escapedStr= str(s)
+                    else:
+                        #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
+                        escapedStr = oldVal.replace('"','&quot;')
+                    sio.write('  <td><input type=text value="%s" id="%s" %s></td>\n'%(escapedStr,d['id'],hideStr))
+                else:
+                    sio.write('  <td><input type=text id="%s" %s></td>\n'%(d['id'],hideStr))
+                    
+            elif d['type'] == 'float':
+                if oldVal is not None:
+                    sio.write('  <td><input type=text value="%s" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%\
+                              (oldVal,d['id'],hideStr))
+                else:
+                    sio.write('  <td><input type=text value="0.0" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(d['id'],hideStr))
+                    
+            elif d['type'] == 'price':
+                if oldVal is not None:
+                    sio.write(' <td><div class="hrm_costforminput" id="%s" %s>0.5:USD:2001</div></td>\n'%(d['id'],hideStr))
+                   # sio.write('  <td><input class="hrm_price" type=text value="%s" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(oldVal,d['id'],hideStr))
+                else:
+                    sio.write(' <td><div class="hrm_costforminput" id="%s" %s>0.5:USD:2001</td>\n'%(d['id'],hideStr))
+                   # sio.write('  <td><input class="hrm_price" type=text value="0.0" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(d['id'],hideStr))
+                    
+            elif d['type'] == 'bool':
+                if oldVal: # True
+                    sio.write('  <td><input type=checkbox checked id="%s" %s></td>\n'%(d['id'],hideStr))
+                else: # False, or default
+                    sio.write('  <td><input type=checkbox id="%s" %s></td>\n'%(d['id'],hideStr))
+                    
+            elif d['type'] == 'select':
+                sio.write('<td><select id="%s" %s>\n'%(d['id'],hideStr))
+                for val,txt,enableList,disableList in d['options']:
+                    if oldVal==val:
+                        sio.write('  <option value="%s" selected data-enable="%s" data-disable="%s">%s</option>\n'%\
+                                  (val, ','.join(enableList), ','.join(disableList), txt))
+                    else:
+                        sio.write('  <option value="%s" data-enable="%s" data-disable="%s">%s</option>\n'%\
+                                  (val, ','.join(enableList), ','.join(disableList), txt))
+                sio.write('</select></td>\n')
+            elif d['type'] == 'lifetime':
+                if oldVal is not None:
+                    val,units = oldVal
+                    sio.write('  <td><div class="hrm_lifetime" %s><input type=text value="%s" id="%s" onkeypress="validateFloat(event)" >\n'%\
+                              (hideStr,val,d['id']))
+                    if units=='D':
+                        sio.write('  <select id="%s_units"><option value="D" selected>%s</option><option value="W">%s</option><option value="M">%s</option></select></div></td>\n'%\
+                                  (d['id'],_("Days"),_("Weeks"),_("Months")))
+                    elif units=='W':
+                        sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W" selected>%s</option><option value="M">%s</option></select></div></td>\n'%\
+                                  (d['id'],_("Days"),_("Weeks"),_("Months")))
+                    elif units=='M':
+                        sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W">%s</option><option value="M" selected>%s</option></select></div></td>\n'%\
+                                  (d['id'],_("Days"),_("Weeks"),_("Months")))
+                    else:
+                        raise RuntimeError("Nonsense lifetime units code %s"+units)
+                else:
+                    sio.write('  <td><div %s class="hrm_lifetime"><input type=text id="%s" onkeypress="validateFloat(event)" %s>\n'%\
+                              (hideStr,d['id'],hideStr))
+                    sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W">%s</option><option value="M">%s</option></select></div></td>\n'%\
+                              (d['id'],_("Days"),_("Weeks"),_("Months")))
+            elif d['type'] == 'currency':
+                if oldVal is None:
+                    sio.write('  <td><div class="hrm_costforminput" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
+                   # sio.write('  <td><div class="hrm_costformInput" id="%s" %s> 1.0:USD:2003 </td>\n'%(d['id'],hideStr,''))
+
+                else:
+                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
+                    #sio.write(' <td><div class="hrm_costforminput" id="%s" %s>0.5:USD:2001</td>\n'%(d['id'],hideStr))
+                    sio.write('  <td><div class="hrm_currency" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
+                if 'price' in d and 'year' in d:
+                    # We have enough info to make a cost editing triple
+                    pass
+            elif d['type'] == 'energy':
+                if oldVal is None:
+                    sio.write('  <td><div class="hrm_energy" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
+
+                else:
+                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
+                    sio.write('  <td><div class="hrm_energy" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
+            elif d['type'] == 'fuel':
+                if oldVal is None:
+                    sio.write('  <td><div class="hrm_fuel" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
+
+                else:
+                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
+                    sio.write('  <td><div class="hrm_fuel" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
+            else:
+                raise HermesServiceException(_("Unknown type {0} in fieldmap entry for {1}".format(d['type'],d['key'])))
+            
+        sio.write("</tr>\n")
+    sio.write("</table>\n")
+    # print sio.getvalue()
+    return sio.getvalue()
+    '''

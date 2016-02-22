@@ -100,19 +100,21 @@ def jsonTypeEditForm(db, uiSession, typeClass, fieldMap, useInstance=False):
         modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         protoname = _getOrThrowError(bottle.request.params, 'protoname')
-        print "in jsonTypeEditform params = {}".format(bottle.request.params)
-        if 'overwrite' in bottle.request.params:
-            proposedName = protoname
-        else:
-            proposedName = typehelper.getSuggestedName(db,modelId,typeClass, protoname, excludeATM=True)
-        print "protoname = {0}".format(protoname)
-        canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, protoname) # @UnusedVariable
-        if not useInstance:
-            attrRec = {}
-            shadow_network._copyAttrsToRec(attrRec,typeInstance)
-            print attrRec
-        else:
-            attrRec = typeInstance
+#         print "in jsonTypeEditform params = {}".format(bottle.request.params)
+#         if 'overwrite' in bottle.request.params:
+#             proposedName = protoname
+#         else:
+#             proposedName = typehelper.getSuggestedName(db,modelId,typeClass, protoname, excludeATM=True)
+#         print "protoname = {0}".format(protoname)
+#         attrRec = {}
+#         if protoname != 'new_type':
+#             canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, protoname) # @UnusedVariable
+#             if not useInstance:
+#                 attrRec = {}
+#                 shadow_network._copyAttrsToRec(attrRec,typeInstance)
+#             else:
+#                 attrRec = typeInstance
+            
         #print "attrRec = {0}".format(attrRec.presentation)
         htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,
                                                           typeClass,
@@ -133,6 +135,7 @@ def jsonTypeEditForm(db, uiSession, typeClass, fieldMap, useInstance=False):
 
 def jsonTypeEditVerifyAndCommit(db, uiSession, typeClass, fieldMap, classEditFn=None):
     try:
+        print "SEEING IF I GET HERE !!!!!!!!!"
         anc = False
         if 'overwrite' in bottle.request.params:
             anc = True
@@ -219,7 +222,26 @@ def jsonCheckIfTypeNameExistsForModel(db,uiSession):
         result = {'success':False, 'msg':str(e)}
         return result
     
-    
+@bottle.route('/json/get-new-type-number')
+def jsonGetNewTypeNumber(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
+        typeT = _getOrThrowError(bottle.request.params, 'type')
+        
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        newTypes = [x for x in m.types if x.startswith("model_{0}_{1}_type".format(modelId,typeT))]
+        
+        newTypeNums = [int(x.split('_')[-1]) for x in newTypes]
+        
+        if len(newTypeNums) == 0:
+            result = {'success':True,'inc':0}
+        else:    
+            result = {'success':True,'inc':max(newTypeNums)+1}
+        return result
+    except Exception, e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+        
 @bottle.route('/test-inv-grid')
 def testInventoryGrid(db,uiSession):
     
