@@ -146,6 +146,7 @@ def jsonTypeEditVerifyAndCommit(db, uiSession, typeClass, fieldMap, classEditFn=
                                                       allowNameCollisions=anc)
        # print "AttRec in Type EditVer:"
         #print attrRec
+        print "I AM NOW HERE !!!!!!!!!!!!!!!!!"
         if badStr and badStr!="":
             result = {'success':True, 'value':False, 'msg':badStr}
         else:

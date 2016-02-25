@@ -112,8 +112,6 @@ def jsonVaccineEditFn(attrRec, m):
             filtAttr[k+'Units'] = b
         else:
             filtAttr[k] = v
-    print "FiltAttr:"
-    print filtAttr
     return filtAttr
 
 @bottle.route('/json/vaccine-edit-verify-commit')

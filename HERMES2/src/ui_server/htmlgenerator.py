@@ -816,11 +816,16 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             if typeInstance is not None:
                 default = getattr(typeInstance,recKey)
             
+            recclass ='notrequired'
+            
+            if rec['req']: recclass = 'required_{0}_input'.format(recType)
+            
             formElement = HTMLFormInputBox(name_=recKey,
                                            title_="",
                                            default_=default,
                                            type_=recType,
                                            width='350px',
+                                           cssclass=recclass
                                            )
                                                                                       
             editTable.addRow([label,formElement.htmlString(),requiredString],[rowStyleString,1,1,1])

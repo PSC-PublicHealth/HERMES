@@ -300,7 +300,6 @@ function addToggleExpansionButton($grid) {
 
 // This defines the hrmWidget jquery plugin
 (function( $ ) {
-    console.log("HEREEEEE!");
     $.fn.hrmWidget = function(options) {
  	
         var settings = $.extend({
@@ -1660,7 +1659,15 @@ function addToggleExpansionButton($grid) {
 
  			return this.each(function(index,elem) {
  				$elem = $(elem);
- 				$elem.html(settings.html);
+ 				var htmlString = settings.html + "<div id='req_modal'></div>";
+ 				$elem.html(htmlString);
+ 				$("#req_modal").dialog({autoOpen:false, height:"auto", width:"auto", modal:true,
+ 					buttons:{
+ 						'{{_("OK")}}':function(){
+ 							$(this).dialog("close");
+ 						}
+ 					}
+ 				});
  				$(document).ready( function() {
  	 				$elem.find('.hrm_currency').each( function(idx) {
  	 					$field = $(this);
@@ -1766,6 +1773,27 @@ function addToggleExpansionButton($grid) {
  	 	 							$("#"+id).hide(); 
  	 	 						};
  	 						}
+ 	 					}
+ 	 				});
+// 	 				$('.required_string_input').change( function (eventObj) {
+// 	 					var value = $(this).val();
+// 	 					if(!value || value.length === 0 || !value.trim()){
+// 	 						$(this).css("border-color","red");
+// 	 						$("#req_modal").text('{{_("Value cannot be left blank")}}');
+// 	 						$("#req_modal").dialog("open");
+// 	 						
+// 	 					}
+// 	 				});
+ 	 				$('.required_string_input').blur( function (eventObj) {
+ 	 					var value = $(this).val();
+ 	 					if(!value || value.length === 0 || !value.trim()){
+ 	 						$(this).focus();
+ 	 						$(this).css("border-color","red");
+ 	 						$("#req_modal").text('{{_("Value cannot be left blank")}}');
+ 	 						$("#req_modal").dialog("open");
+ 	 					}
+ 	 					else{
+ 	 						$(this).css("border-color","");
  	 					}
  	 				});
 	    			if ('afterBuild' in settings && settings.afterBuild != null) {
