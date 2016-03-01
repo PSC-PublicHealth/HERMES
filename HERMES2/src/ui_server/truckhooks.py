@@ -44,18 +44,18 @@ inlizer=session_support.inlizer
 _=session_support.translateString
 
 fuelOptions = [(x,y[1],[],[]) for  x,y in fuelTranslationDict.items()]
-fieldMap = [{ 'label':_('Data Base ID'), 'key':'Name', 'id':'name', 'info':False, 'edit':False, 'type':'dbkey', 'default':None},
-                   { 'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info':True, 'edit':True, 'type':'string', 'default':None},
-                   { 'label':_('Capital Cost'), 'key':'BaseCost', 'id':'baseprice', 'info':True, 'edit':True, 'type':'cost', 'recMap':['BaseCost', 'BaseCostCurCode', 'BaseCostYear']},
-                   { 'label':_('Lifetime of Vehicle (KM)'), 'key':'AmortizationKm', 'id':'amortkm', 'info':True, 'edit':True, 'type':'float'},
-                   { 'label':_('Fuel Type'), 'key':'Fuel', 'id':'fuel', 'info':True, 'edit':True, 'type':'select','options':fuelOptions},
-                   { 'label':_('Fuel Consumption Rate'), 'key':'FuelRate', 'id':'fuelrate', 'info':True, 'edit':True, 
+fieldMap = [{ 'label':_('Data Base ID'), 'key':'Name', 'id':'name', 'info':False, 'edit':False,'req':True, 'type':'dbkey', 'default':None},
+                   { 'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info':True, 'edit':True,'req':True, 'type':'string', 'default':None},
+                   { 'label':_('Capital Cost'), 'key':'BaseCost', 'id':'baseprice', 'info':True, 'edit':True, 'type':'cost','req':True, 'recMap':['BaseCost', 'BaseCostCurCode', 'BaseCostYear']},
+                   { 'label':_('Lifetime of Vehicle (KM)'), 'key':'AmortizationKm', 'id':'amortkm', 'info':True, 'edit':True, 'req':True, 'type':'float'},
+                   { 'label':_('Fuel Type'), 'key':'Fuel', 'id':'fuel', 'info':True, 'edit':True, 'req':True, 'type':'select','options':fuelOptions,'default':'P'},
+                   { 'label':_('Fuel Consumption Rate'), 'key':'FuelRate', 'id':'fuelrate', 'info':True, 'edit':True, 'req':True,
                         'type':'dynamicunit', 'lookup':'Fuel','lookupDict':fuelTranslationDict,'recMap':['FuelRate','FuelRateUnits']},
                    { 'label':_('Net Storage at 2-8C <br>Outside of Storage Devices (L)'),
-                     'key':'CoolVolumeCC', 'id':'coolvolumecc', 'info':True, 'edit':True, 'type':'scaledfloat','scale':1.0/1000.0},
-                   { 'label':_('Storage on Vehicle'), 'key':'Storage', 'id':'storage', 'info':True, 'edit':True, 'type':'custtruckstoragetable'},
-                   { 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'info':False, 'edit':False, 'type':'string'},
-                   { 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'info':True, 'edit':True, 'type':'stringbox'},
+                     'key':'CoolVolumeCC', 'id':'coolvolumecc', 'info':True, 'edit':True, 'req':False, 'type':'scaledfloat','scale':1.0/1000.0},
+                   { 'label':_('Storage on Vehicle'), 'key':'Storage', 'id':'storage', 'info':True, 'edit':True, 'req':False, 'type':'custtruckstoragetable'},
+                   { 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'info':False, 'edit':False, 'req':False, 'type':'string'},
+                   { 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'info':True, 'edit':True, 'req':False, 'type':'stringbox'},
                    
             ]
 

@@ -204,7 +204,7 @@
 											})
 											.done(function(data) {
 												if (data.success) {
-													console.log("VAlue = "+data.value["DisplayName"]);
+													console.log("Value = "+data.value["DisplayName"]);
 													
 													var grid = $("#"+thisTableID);
 													var rowId = grid.getGridParam('selrow');
@@ -217,7 +217,7 @@
 													attachClickEventToInfoButtons();
 												}
 												else {
-													alert('{{_("Failed: ")}}'+data.msg);
+													alert('{{_("Failed4: ")}}'+data.msg);
 												}
 								    		})
 											.fail(function(jqxhr, textStatus, error) {
@@ -247,7 +247,7 @@
 														attachClickEventToInfoButtons();
 													}
 													else {
-														alert('{{_("Failed: ")}}'+data.msg);
+														alert('{{_("Failed1: ")}}'+data.msg);
 													}
 									    		})
 												.fail(function(jqxhr, textStatus, error) {
@@ -456,7 +456,7 @@
 				},
 				beforeProcessing: function(data,status,xhr) {
 					if (!data.success) {
-			        	alert('{{_("Failed: ")}}'+data.msg);
+			        	alert('{{_("Failed2: ")}}'+data.msg);
 					}
 				},
 			});
@@ -515,7 +515,7 @@
 			    				// }
 			        		}
 			        		else {
-			        			alert('{{_("Failed: ")}}'+data.msg);
+			        			alert('{{_("Failed3: ")}}'+data.msg);
 			        		}
 			    		})
 			    		.fail(function(jqxhr, textStatus, error) {

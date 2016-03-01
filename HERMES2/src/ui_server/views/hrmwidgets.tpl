@@ -162,7 +162,7 @@ function addToggleExpansionButton($grid) {
 					loadError: function(xhr,status,error){ alert('{{_("Error: ")}}'+status); },
 					beforeProcessing: function(data,status,xhr) {
 						if (typeof(data.success) != 'undefined' && !data.success) {
-							if (data.msg) alert('{{_("Failed: ")}}'+data.msg);
+							if (data.msg) alert('{{_("Failede: ")}}'+data.msg);
 							else alert('{{_("Failed: No information about the error is available")}}');
 						}
 					},
@@ -428,7 +428,7 @@ function addToggleExpansionButton($grid) {
  							}
  						}
  						else {
- 							alert('{{_("Failed: ")}}'+data.msg);
+ 							alert('{{_("Failedf: ")}}'+data.msg);
  						}
  					})
  					.fail(function(jqxhr, textStatus, error) {
@@ -576,7 +576,7 @@ function addToggleExpansionButton($grid) {
 		    			});
 					}
 					else {
-							alert('{{_("Failed: ")}}'+data.msg.htmlEscape());
+							alert('{{_("Failedg: ")}}'+data.msg.htmlEscape());
 					}
 				})
 					.fail(function(jqxhr, textStatus, error) {
@@ -727,10 +727,14 @@ function addToggleExpansionButton($grid) {
  			return this.each(function(index,elem){
  				var $elem = $(elem);
  				$elem.data('fieldMap',JSON.parse(settings['fieldMap']));
- 				console.log($elem.data('fieldMap'));
+ 				
  				var value = parseFloat($elem.data('fieldMap').value) * parseFloat($elem.data('fieldMap').scalefactor);
+ 				var req_string = "";
+	 			if($elem.data("fieldMap").required){
+	 				req_string = ' required_float_input';
+	 			}
  				htmlString = '<div style="float:left;"><label>'+settings['label'] + '</label>';
- 				htmlString += '<input type="number" class="hrm_scaledfloatinput_value" id="' + $(this).attr('id') + '_float"></input></div>';
+ 				htmlString += '<input type="number" class="hrm_scaledfloatinput_value '+req_string + '" id="' + $(this).attr('id') + '_float"></input></div>';
  				
  				$elem.html(htmlString);
  				$("#"+$(this).attr('id') + "_float").val(value);
@@ -763,11 +767,15 @@ function addToggleExpansionButton($grid) {
 	 		return this.each(function(index,elem){
 	 			var timeUnits = {'days':'D','months':'M','years':'Y'};
 	 			var $elem = $(elem);
+	 			$elem.data('fieldMap',JSON.parse(settings['fieldMap']));
 	 			var value = settings['value'];
 	 			var values = value.split(':');
-	 			
+	 			var req_string = "";
+	 			if($elem.data("fieldMap").required){
+	 				req_string = ' required_float_input';
+	 			}
 	 			htmlString = '<div style="float:left;"><label>'+settings['label']+'</label>'
-	 			htmlString +='<input type="number" class="hrm_time_time" id="'+$(this).attr('id')+'_time"></input></div>';
+	 			htmlString +='<input type="number" class="hrm_time_time '+req_string+'" id="'+$(this).attr('id')+'_time"></input></div>';
 	 			htmlString +='<div style="float:right;"><select  class="hrm_time_unit" id="'+$(this).attr('id')+'_unit">';
 	 			for (unit in timeUnits){
 	 				if(timeUnits.hasOwnProperty(unit)){
@@ -818,9 +826,12 @@ function addToggleExpansionButton($grid) {
 	 			var values = value.split(':');
 	 			var eId = $elem.attr('id');
 	 			$elem.data('fieldMap',JSON.parse(settings['fieldMap']));
-	 			
+	 			var req_string = "";
+	 			if($elem.data("fieldMap").required){
+	 				req_string = ' required_float_input';
+	 			}
 	 			htmlString = '<div style="float:left;"><label>'+settings['label']+'</label>';
-	 			htmlString +='<input type="number" class="hrm_dynamicunit_value" id="'+$(this).attr('id')+'_value"></input></div>';
+	 			htmlString +='<input type="number" class="hrm_dynamicunit_value '+req_string+'" id="'+$(this).attr('id')+'_value"></input></div>';
 	 			htmlString +='<div style="float:left;padding-left:10px;" class="hrm_dynamicunit_unit" id="'+$(this).attr('id')+'_unit"></div>';
 	 			htmlString +='</div>';
 	 				
@@ -874,10 +885,14 @@ function addToggleExpansionButton($grid) {
  				var value = settings['value'];
  				var values = value.split(':');
  				$elem.data('fieldMap',$elem.attr("data-fieldMap"));
+ 				var req_string = "";
+	 			if($elem.data("fieldMap").required){
+	 				req_string = ' required_float_input';
+	 			}
  				//console.log(settings);
  				//put error handling here to validate
  				htmlString = '<div style="float:left;"><label>'+settings['label']+'</label>';
- 				htmlString += '<input type="number" class="hrm_cost_price" id="'+$(this).attr('id')+'_price"></input></div>';
+ 				htmlString += '<input type="number" class="hrm_cost_price '+req_string+'" id="'+$(this).attr('id')+'_price"></input></div>';
  				htmlString += '<div style="float:left;" class="hrm_cost_div"> in </div>';
  				// replace with a year selector that takes into account available data
  				htmlString += '<div style="float:left;"> <select class="hrm_cost_year" id="'+ $(this).attr('id') + '_year">';
@@ -1016,7 +1031,7 @@ function addToggleExpansionButton($grid) {
 							if ($(document).tooltips) $(document).tooltips('applyTips');
 						}
 						else {
-							alert('{{_("Failed: ")}}'+data.msg);
+							alert('{{_("Faileda: ")}}'+data.msg);
 						}
     				})
   					.fail(function(jqxhr, textStatus, error) {
@@ -1103,7 +1118,7 @@ function addToggleExpansionButton($grid) {
 	    					if ($(document).tooltips) $(document).tooltips('applyTips');							
 						}
 						else {
-							alert('{{_("Failed: ")}}'+data.msg);
+							alert('{{_("Failedb: ")}}'+data.msg);
 						}
     				})
   					.fail(function(jqxhr, textStatus, error) {
@@ -1661,13 +1676,6 @@ function addToggleExpansionButton($grid) {
  				$elem = $(elem);
  				var htmlString = settings.html + "<div id='req_modal'></div>";
  				$elem.html(htmlString);
- 				$("#req_modal").dialog({autoOpen:false, height:"auto", width:"auto", modal:true,
- 					buttons:{
- 						'{{_("OK")}}':function(){
- 							$(this).dialog("close");
- 						}
- 					}
- 				});
  				$(document).ready( function() {
  	 				$elem.find('.hrm_currency').each( function(idx) {
  	 					$field = $(this);
@@ -1784,18 +1792,19 @@ function addToggleExpansionButton($grid) {
 // 	 						
 // 	 					}
 // 	 				});
- 	 				$('.required_string_input').blur( function (eventObj) {
- 	 					var value = $(this).val();
- 	 					if(!value || value.length === 0 || !value.trim()){
- 	 						$(this).focus();
- 	 						$(this).css("border-color","red");
- 	 						$("#req_modal").text('{{_("Value cannot be left blank")}}');
- 	 						$("#req_modal").dialog("open");
- 	 					}
- 	 					else{
- 	 						$(this).css("border-color","");
- 	 					}
- 	 				});
+// 	 				$('.required_string_input').focusout( function (eventObj) {
+// 	 					var value = $(this).val();
+// 	 					if("#")
+// 	 					if(!value || value.length === 0 || !value.trim()){
+// 	 						$(this).focus();
+// 	 						$(this).css("border-color","red");
+// 	 						$("#req_modal").text('{{_("Value cannot be left blank")}}');
+// 	 						$("#req_modal").dialog("open");
+// 	 					}
+// 	 					else{
+// 	 						$(this).css("border-color","");
+// 	 					}
+// 	 				});
 	    			if ('afterBuild' in settings && settings.afterBuild != null) {
 	 	    			settings.afterBuild.bind($elem)($elem);
 	 	    		};
@@ -1861,7 +1870,7 @@ function addToggleExpansionButton($grid) {
                                 }
                             }
                             else {
-                            alert('{{_("Failed: ")}}'+data.msg);
+                            alert('{{_("Failedc: ")}}'+data.msg);
                             }
                         })
                         .fail(function(jqxhr, textStatus, error) {
@@ -1938,7 +1947,7 @@ function addToggleExpansionButton($grid) {
 					}
 				})
 				.fail(function(jqxhdr, textStatus, error) {
-					alert('{{("Failed: ")}}' + jqxhdr.responseText);
+					alert('{{("Failedd: ")}}' + jqxhdr.responseText);
 				});
 			});
  		};

@@ -268,7 +268,7 @@ var typesMap = {
 </div>
 
 <div id="save_name_exists_modal" title='{{_("Notification")}}'></div>
-
+<div id="req_modal">{{_('There are required entries that have invalid values, please correct the fields that are highlighted in red.')}}</div>
 <script>
 console.log('point 1');
 // many characters in a jquery id need escaped.
@@ -276,6 +276,13 @@ function jId(i) {
     return '#' + i.replace( /(:|\.|\[|\]|\+|\=|\/)/g, "\\$1");
 }
 
+$("#req_modal").dialog({autoOpen:false, height:"auto", width:"auto", modal:true,
+		buttons:{
+			'{{_("OK")}}':function(){
+				$(this).dialog("close");
+			}
+		}
+	});
 
 console.log(typesMap);
 var currentType = '{{startClass}}';
@@ -533,7 +540,7 @@ function infoType(id) {
 		$("#info_dialog").dialog("open");	
 	    }
 	    else {
-    		alert('{{_("Failed: ")}}'+data.msg);
+    		alert('{{_("Failed33: ")}}'+data.msg);
 	    }
 	})
 	.fail(function(jqxhr, textStatus, error) {
@@ -638,7 +645,7 @@ $("#save_name_modal").dialog({
 
 
 function editType(id) {
-	console.log("new HERE!!!!");
+	//console.log("new HERE!!!!");
 	if(id == "new"){
 		var new_inc = 0;
 		$.ajax({
@@ -674,26 +681,47 @@ function editType(id) {
 			    					$(this).dialog("close");
 			    				},
 			    				'{{_("Save")}}':function(){
-			    					var dict = $('#edit_form_content').editFormManager('getEntries');
-			    					dict['overwrite'] = 1;
-			    					$.ajax({
-			    						url:typesMap[currentType].commitUrl,
-			    						data:dict,
-			    					})
-			    					.done(function(result){
-			    						if(result.success && (result.value == undefined || result.value)) {
-			    							$("#edit_dialog").dialog("close");
+			    					var flag = false;
+			    					$(".required_string_input").each(function(){
+			    						var value = $(this).val();
+			    						if(!value || value.length === 0 || !value.trim()){
+			    							$(this).css("border-color","red");
+			    							flag=true;
 			    						}
-			    						else{
-			    							alert(result.msg);
+			    					});
+			    					$(".required_int_input").each(function(){
+			    						var value = $(this).val();
+			    						if(!value || value.length === 0 || !value.trim() || value <= 0){
+			    							$(this).css("border-color","red");
+			    							flag=true;
 			    						}
-			    					}); 
-			    				},
-			    				'{{_("Save As New Type")}}':function(){
-			    					var dict = $('#edit_form_content').editFormManager('getEntries');
-			    					$("#new_type_dbname_text").val(dict['Name'] + "m");
-			    					$("#new_type_name_text").val(dict['DisplayName'] + " (modified)");
-			    					$("#save_name_modal").dialog("open");
+			    					});
+			    					$(".required_float_input").each(function(){
+			    						var value = $(this).val();
+			    						if(!value || value.length === 0 || !value.trim() || value <= 0.0){
+			    							$(this).css("border-color","red");
+			    							flag=true;
+			    						}
+			    					});
+			    					if(!flag){
+				    					var dict = $('#edit_form_content').editFormManager('getEntries');
+				    					dict['overwrite'] = 1;
+				    					$.ajax({
+				    						url:typesMap[currentType].commitUrl,
+				    						data:dict,
+				    					})
+				    					.done(function(result){
+				    						if(result.success && (result.value == undefined || result.value)) {
+				    							$("#edit_dialog").dialog("close");
+				    						}
+				    						else{
+				    							alert(result.msg);
+				    						}
+				    					}); 
+				    				}
+			    					else{
+			    						$("#req_modal").dialog("open");
+			    					}
 			    				}
 			    			}
 			    		});
@@ -767,7 +795,7 @@ function editType(id) {
 	 
 	    	}
 	    	else{
-	    		alert('{{_("Failed: ")}}'+data.msg);
+	    		alert('{{_("Failed11: ")}}'+data.msg);
 		    }  
 		})
 		.fail(function(jqxhr, textStatus, error) {
@@ -946,7 +974,7 @@ function copyType(name) {
         	    reloadGrid(dest);        		
         	}
         	else {
-				alert('{{_("Failed: ")}}'+data.msg);        		
+				alert('{{_("Failed22: ")}}'+data.msg);        		
         	}
         },
         error: function(jqxhr, textStatus, errorThrown) {

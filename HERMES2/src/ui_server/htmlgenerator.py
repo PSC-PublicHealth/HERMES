@@ -803,8 +803,10 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             recKey = rec['key']
         
         label = rec['label'] 
+        reqFlag = False
         if rec['req']:
             requiredString = "<span style='color:red;font-weight:bold;'>*</span>" 
+            reqFlag = True
         else:
             requiredString = "";
         if recType in ['int','float','string','dbkey']:
@@ -830,12 +832,15 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
                                                                                       
             editTable.addRow([label,formElement.htmlString(),requiredString],[rowStyleString,1,1,1])
         elif recType =='select':
-            defaultValue = "none"
+            defaultValue = rec['default']
             if typeInstance is not None and getattr(typeInstance,recKey): defaultValue = getattr(typeInstance,recKey)
             formOptions = [(x[1],x[0]) for x in rec['options']]
             if rec.has_key('none'):
                 if rec['none']:
                     formOptions.append(('No Selection','none'))
+            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11"
+            print formOptions
+            print defaultValue
             formElement = HTMLFormSelectBox(name_=recKey,
                                             title_="",
                                             options_=formOptions,
@@ -856,9 +861,9 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             defaultValue = ""
             if typeInstance is not None and getattr(typeInstance,recKey): defaultValue = getattr(typeInstance,recKey)
             formElement = HTMLFormTextArea(name_=recKey,
-                                           title_="",
-                                           rows_=4,cols_=52,
-                                           default_=defaultValue)
+                                                                   title_="",
+                                                                   rows_=4,cols_=52,
+                                                                   default_=defaultValue)
             
             editTable.addRow([label,formElement.htmlString(),requiredString],[rowStyleString,1,1,1])
             
@@ -875,14 +880,14 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             elif len(defaults) == 3:
                 defaultValue = "{0}:{1}:{2}".format(defaults[0],defaults[1],defaults[2])
              
-            dataDict= {'price':recKey[0],'currency':recKey[1],'year':recKey[2]}
+            dataDict= {'price':recKey[0],'currency':recKey[1],'year':recKey[2],'required':reqFlag}
             divString = "<div class='hrm_costforminput' id='{0}' data-fieldMap='{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)   
             
             editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
         elif recType == 'scaledfloat':
             defaultValue = 0.0
             if typeInstance is not None and getattr(typeInstance,recKey): defaultValue = float(getattr(typeInstance,recKey))
-            dataDict = {'value':defaultValue,'scalefactor':float(rec['scale'])}
+            dataDict = {'value':defaultValue,'scalefactor':float(rec['scale']),'required':reqFlag}
             divString = "<div class='hrm_scalefloatinput' id='{0}' data-fieldMap='{1}'></div>".format(recKey,json.dumps(dataDict))
             
             editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
@@ -898,7 +903,7 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             elif len(defaults) == 2:
                 defaultValue = "{0}:{1}".format(defaults[0],defaults[1])
                 
-            dataDict = {'time':recKey[0],'unit':recKey[1]}
+            dataDict = {'time':recKey[0],'unit':recKey[1],'required':reqFlag}
             divString = "<div class='hrm_timeforminput' id='{0}' data-fieldmap='{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)
             editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
         
@@ -915,7 +920,7 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             elif len(defaults) == 2:
                 defaultValue = "{0}:{1}".format(defaults[0], defaults[1])
             
-            dataDict = {'value':recKey[0], 'unit':recKey[1], 'lookup':None, 'lookupdict':None}
+            dataDict = {'value':recKey[0], 'unit':recKey[1], 'lookup':None, 'lookupdict':None,'required':reqFlag}
             
             if rec.has_key('lookup'):
                 dataDict['lookup'] = rec['lookup']
@@ -926,7 +931,10 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
         
         elif recType == "custtruckstoragetable":
             ## Note, there is no default value for this type
-            dataDict = {'key':recKey,'modelId':model.modelId,'typename':typeInstance.Name}
+            tName = 'new'
+            if typeInstance is not None and getattr(typeInstance,'Name'):
+                tName = typeInstance.Name
+            dataDict = {'key':recKey,'modelId':model.modelId,'typename':tName,'required':reqFlag}
             divString = "<div class='hrm_truckinventorygrid' id = '{0}' data-fieldmap = '{1}'></div>".format(recKey,json.dumps(dataDict))
             editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
     
