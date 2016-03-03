@@ -819,9 +819,12 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
                 default = getattr(typeInstance,recKey)
             
             recclass ='notrequired'
-            
+            print rec
             if rec['req']: recclass = 'required_{0}_input'.format(recType)
+            if rec.has_key('canzero'):
+                if rec['canzero']:recclass += ' canzero'
             
+            print recclass
             formElement = HTMLFormInputBox(name_=recKey,
                                            title_="",
                                            default_=default,
@@ -838,9 +841,6 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             if rec.has_key('none'):
                 if rec['none']:
                     formOptions.append(('No Selection','none'))
-            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11"
-            print formOptions
-            print defaultValue
             formElement = HTMLFormSelectBox(name_=recKey,
                                             title_="",
                                             options_=formOptions,
@@ -926,7 +926,7 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
                 dataDict['lookup'] = rec['lookup']
                 dataDict['lookupdict'] = rec['lookupDict']
                    
-            divString = "<div class='hrm_dynamicunitforminput' id = '{0}' data-fieldmap = '{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)
+            divString = "<div class='hrm_dynamicunitforminput "+ recclass +"' id = '{0}' data-fieldmap = '{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)
             editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
         
         elif recType == "custtruckstoragetable":

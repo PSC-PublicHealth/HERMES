@@ -691,16 +691,41 @@ function editType(id) {
 			    					});
 			    					$(".required_int_input").each(function(){
 			    						var value = $(this).val();
-			    						if(!value || value.length === 0 || !value.trim() || value <= 0){
+			    						if(!value || value.length === 0 || !value.trim()){
 			    							$(this).css("border-color","red");
 			    							flag=true;
+			    						}
+			    						if($(this).hasClass("canzero")){
+			    							if(value < 0.0){
+			    								$(this).css("border-color","red");
+			    								flag=true;
+			    							}
+			    						}
+			    						else{
+			    							if(value <= 0.0){
+			    								$(this).css("border-color","red");
+			    								flag=true;
+			    							}
 			    						}
 			    					});
 			    					$(".required_float_input").each(function(){
 			    						var value = $(this).val();
-			    						if(!value || value.length === 0 || !value.trim() || value <= 0.0){
+			    						//alert("could be zero");}
+			    						if(!value || value.length === 0 || !value.trim()){
 			    							$(this).css("border-color","red");
 			    							flag=true;
+			    						}
+			    						if($(this).hasClass("canzero")){
+			    							if(value < 0.0){
+			    								$(this).css("border-color","red");
+			    								flag=true;
+			    							}
+			    						}
+			    						else{
+			    							if(value <= 0.0){
+			    								$(this).css("border-color","red");
+			    								flag=true;
+			    							}
 			    						}
 			    					});
 			    					if(!flag){

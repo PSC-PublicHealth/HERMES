@@ -45,17 +45,17 @@ _=session_support.translateString
 
 fuelOptions = [(x,y[1],[],[]) for  x,y in fuelTranslationDict.items()]
 fieldMap = [{ 'label':_('Data Base ID'), 'key':'Name', 'id':'name', 'info':False, 'edit':False,'req':True, 'type':'dbkey', 'default':None},
-                   { 'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info':True, 'edit':True,'req':True, 'type':'string', 'default':None},
-                   { 'label':_('Capital Cost'), 'key':'BaseCost', 'id':'baseprice', 'info':True, 'edit':True, 'type':'cost','req':True, 'recMap':['BaseCost', 'BaseCostCurCode', 'BaseCostYear']},
-                   { 'label':_('Lifetime of Vehicle (KM)'), 'key':'AmortizationKm', 'id':'amortkm', 'info':True, 'edit':True, 'req':True, 'type':'float'},
-                   { 'label':_('Fuel Type'), 'key':'Fuel', 'id':'fuel', 'info':True, 'edit':True, 'req':True, 'type':'select','options':fuelOptions,'default':'P'},
-                   { 'label':_('Fuel Consumption Rate'), 'key':'FuelRate', 'id':'fuelrate', 'info':True, 'edit':True, 'req':True,
-                        'type':'dynamicunit', 'lookup':'Fuel','lookupDict':fuelTranslationDict,'recMap':['FuelRate','FuelRateUnits']},
-                   { 'label':_('Net Storage at 2-8C <br>Outside of Storage Devices (L)'),
-                     'key':'CoolVolumeCC', 'id':'coolvolumecc', 'info':True, 'edit':True, 'req':False, 'type':'scaledfloat','scale':1.0/1000.0},
-                   { 'label':_('Storage on Vehicle'), 'key':'Storage', 'id':'storage', 'info':True, 'edit':True, 'req':False, 'type':'custtruckstoragetable'},
-                   { 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'info':False, 'edit':False, 'req':False, 'type':'string'},
-                   { 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'info':True, 'edit':True, 'req':False, 'type':'stringbox'},
+            { 'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info':True, 'edit':True,'req':True, 'type':'string', 'default':None},
+            { 'label':_('Capital Cost'), 'key':'BaseCost', 'id':'baseprice', 'info':True, 'edit':True, 'type':'cost','req':True, 'recMap':['BaseCost', 'BaseCostCurCode', 'BaseCostYear']},
+            { 'label':_('Lifetime of Vehicle (KM)'), 'key':'AmortizationKm', 'id':'amortkm', 'info':True, 'edit':True, 'req':True, 'type':'float'},
+            { 'label':_('Fuel Type'), 'key':'Fuel', 'id':'fuel', 'info':True, 'edit':True, 'req':True, 'type':'select','options':fuelOptions,'default':'P'},
+            { 'label':_('Fuel Consumption Rate'), 'key':'FuelRate', 'id':'fuelrate', 'info':True, 'edit':True, 'req':True,
+             'type':'dynamicunit', 'lookup':'Fuel','lookupDict':fuelTranslationDict,'recMap':['FuelRate','FuelRateUnits']},
+            { 'label':_('Net Storage at 2-8C <br>Outside of Storage Devices (L)'),
+             'key':'CoolVolumeCC', 'id':'coolvolumecc', 'info':True, 'edit':True, 'req':False, 'type':'scaledfloat','scale':1.0/1000.0},
+            { 'label':_('Storage on Vehicle'), 'key':'Storage', 'id':'storage', 'info':True, 'edit':True, 'req':False, 'type':'custtruckstoragetable'},
+            { 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'info':False, 'edit':False, 'req':False, 'type':'string'},
+            { 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'info':True, 'edit':True, 'req':False, 'type':'stringbox'},
                    
             ]
 
@@ -99,25 +99,30 @@ def truckTopPage(uiSession):
 
 @bottle.route('/json/manage-truck-table')
 def jsonManageTruckTable(db, uiSession):
-    modelId = int(bottle.request.params['modelId'])
     try:
-        uiSession.getPrivs().mayReadModelId(db, modelId)
-    except privs.PrivilegeException:
-        raise bottle.BottleException('User may not read model %d'%modelId)
-    tList = typehelper.getTypeList(db,modelId,'trucks')
-    nPages,thisPageNum,totRecs,tList = orderAndChopPage(tList,
-                                                        {'name':'Name', 'usedin':'modelId', 'dispnm':'DisplayName'},
-                                                        bottle.request)
-    result = {
-              "success":True,
-              "total":nPages,    # total pages
-              "page":thisPageNum,     # which page is this
-              "records":totRecs,  # total records
-              "rows": [ {"name":t['Name'], 
-                         "cell":[t['Name'], t['_inmodel'], t['DisplayName'], t['Name']]}
-                       for t in tList ]
-              }
-    return result
+        modelId = int(bottle.request.params['modelId'])
+        try:
+            uiSession.getPrivs().mayReadModelId(db, modelId)
+        except privs.PrivilegeException:
+            raise bottle.BottleException('User may not read model %d'%modelId)
+        tList = typehelper.getTypeList(db,modelId,'trucks')
+        nPages,thisPageNum,totRecs,tList = orderAndChopPage(tList,
+                                                            {'name':'Name', 'usedin':'modelId', 'dispnm':'DisplayName'},
+                                                            bottle.request)
+        result = {
+                  "success":True,
+                  "total":nPages,    # total pages
+                  "page":thisPageNum,     # which page is this
+                  "records":totRecs,  # total records
+                  "rows": [ {"name":t['Name'], 
+                             "cell":[t['Name'], t['_inmodel'], t['DisplayName'], t['Name']]}
+                           for t in tList ]
+                  }
+        return result
+    except Exception,e:
+        result = {'success':False,'msg':"Manage-Truck-table: " + str(e)}
+        return result
+
 
 @bottle.route('/json/manage-truck-storage-table')
 def jsonManageTruckStorageTable(db,uiSession):
@@ -136,46 +141,56 @@ def jsonManageTruckStorageTable(db,uiSession):
         #sidx = _getOrThrowError(bottle.request.params,'sidx')
         
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
-        truck = typehelper.getTypeWithFallback(db, modelId, typename)[1]
-     
-        storageList = truck.getStorageDeviceList(m)
-        tDictDict= {}
-        if storageList is not None:
-            for count,dev in storageList:
-                print dev.Name
-                if count > 0:
-                    if dev.Name in tDictDict:
-                        d = tDictDict[dev.Name]
-                        d['count'] += count
-                        d['freezer'] += dev.freezer
-                        d['cooler'] += dev.cooler
-                        d['roomtemperature'] += dev.roomtemperature
-                    else:
-                        tDictDict[dev.Name] = {'Name':dev.Name,
-                                                  'count':count, 
-                                                  'category':"fridges",
-                                                  'description':dev.getDisplayName(),
-                                                  'freezer':dev.freezer,
-                                                  'cooler':dev.cooler,
-                                                  'roomtemperature':dev.roomtemperature}
-                    
-        totals = {"description":"Totals","freezer":0.0, "cooler":0.0, "warm":0.0, "count":0}
-        for dev in tDictDict.values():
-            totals['freezer'] += dev['count']*dev['freezer']
-            totals['cooler'] += dev['count']*dev['cooler']
-            totals['warm'] += dev['count']*dev['roomtemperature']
-            totals['count'] += dev['count'] 
-        
-        totals['freezer'] = round(totals['freezer'],2)
-        totals['cooler'] = round(totals['cooler'],2)
-        totals['warm'] = round(totals['warm'],2)
-        nPages,thisPageNum,totRecs,tList = orderAndChopPage(tDictDict.values(),
-                                                            {'typestring':'Name', 'count':'count',
-                                                             'category':'category',
-                                                             'cool':'cooler','freeze':'freezer',
-                                                             'warm':'roomtemperature'},
-                                                            bottle.request,
-                                                            defaultSortIndex='typestring')
+        if typename != "new":    
+            truck = typehelper.getTypeWithFallback(db, modelId, typename)[1]
+            storageList = truck.getStorageDeviceList(m)
+            tDictDict= {}
+            if storageList is not None:
+                for count,dev in storageList:
+                    print dev.Name
+                    if count > 0:
+                        if dev.Name in tDictDict:
+                            d = tDictDict[dev.Name]
+                            d['count'] += count
+                            d['freezer'] += dev.freezer
+                            d['cooler'] += dev.cooler
+                            d['roomtemperature'] += dev.roomtemperature
+                        else:
+                            tDictDict[dev.Name] = {'Name':dev.Name,
+                                                      'count':count, 
+                                                      'category':"fridges",
+                                                      'description':dev.getDisplayName(),
+                                                      'freezer':dev.freezer,
+                                                      'cooler':dev.cooler,
+                                                      'roomtemperature':dev.roomtemperature}
+                        
+            totals = {"description":"Totals","freezer":0.0, "cooler":0.0, "warm":0.0, "count":0}
+            for dev in tDictDict.values():
+                totals['freezer'] += dev['count']*dev['freezer']
+                totals['cooler'] += dev['count']*dev['cooler']
+                totals['warm'] += dev['count']*dev['roomtemperature']
+                totals['count'] += dev['count'] 
+            
+            totals['freezer'] = round(totals['freezer'],2)
+            totals['cooler'] = round(totals['cooler'],2)
+            totals['warm'] = round(totals['warm'],2)
+            nPages,thisPageNum,totRecs,tList = orderAndChopPage(tDictDict.values(),
+                                                                {'typestring':'Name', 'count':'count',
+                                                                 'category':'category',
+                                                                 'cool':'cooler','freeze':'freezer',
+                                                                 'warm':'roomtemperature'},
+                                                                bottle.request,
+                                                                defaultSortIndex='typestring')
+            rows = [ {"name":t['Name'], 
+                             "cell":[t['Name'], t['count'], t['Name'],t['description'], t['freezer'], t['cooler'],
+                                     t['roomtemperature'], t['count'], t['Name']]}
+                           for t in tList ]
+        else:
+            nPages = 1
+            thisPageNum = 1
+            totRecs = 0
+            rows = []
+            totals = {"description":"Totals","freezer":0.0, "cooler":0.0, "warm":0.0, "count":0}
             
         
         #print "{0} {1} {2} {3}".format(nPages,thisPageNum,totRecs,tList)
@@ -184,17 +199,14 @@ def jsonManageTruckStorageTable(db,uiSession):
                   "total":nPages,    # total pages
                   "page":thisPageNum,     # which page is this
                   "records":totRecs,  # total records
-                  "rows": [ {"name":t['Name'], 
-                             "cell":[t['Name'], t['count'], t['Name'],t['description'], t['freezer'], t['cooler'],
-                                     t['roomtemperature'], t['count'], t['Name']]}
-                           for t in tList ],
+                  "rows": rows,
                   "userdata":totals
                   }
         
         return result
             
     except Exception,e:
-        result = {'success':False,'msg':str(e)}
+        result = {'success':False,'msg':"Manage-Truck-Storage-Table: {0}".format(str(e))}
         return result
 
 @bottle.route('/json/update-truck-storage',method='POST')

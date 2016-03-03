@@ -2515,3 +2515,6 @@ div.ui-jqgrid-view table.ui-jqgrid-btable th
 .hermes-top-sub{
     font-size:12px;
 }
+.hrm_selectmenu_overflow{
+	height: 100px;
+}
