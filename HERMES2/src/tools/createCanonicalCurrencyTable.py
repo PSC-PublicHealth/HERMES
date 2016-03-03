@@ -2,6 +2,7 @@
 import requests,cgi,sysconfig,sys
 from datetime import date
 import pprint
+import codecs
 
 pp = pprint.PrettyPrinter(indent=1, width=40)
 def main():
@@ -47,10 +48,13 @@ def main():
                         conversionDict[code1][code2][year] = -1.0
                 
     #pp.pprint(conversionDict)
-    
-    for currency,converts in conversionDict.items():
-        curInfo = currencies[currency]
-        print curInfo   
+    with codecs.open("currency.csv",'wb',encoding='utf8') as f:
+        for currency,converts in conversionDict.items():
+            curInfo = currencies[currency]
+            f.write(u"{0},\n".format(curInfo))
+            #pp.pprint(curInfo)
+            #f.write(pp.pformat(curInfo))
+        
         
 
 if __name__ == '__main__':
