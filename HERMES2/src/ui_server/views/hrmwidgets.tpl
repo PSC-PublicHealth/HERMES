@@ -470,9 +470,10 @@ function addToggleExpansionButton($grid) {
  				if(tId==undefined) $.error('currencySelectorSimple has no id');
  				
  				if(arg=='value'){
- 					
+ 					return $("#"+tId+"_currency_selector").val();
  				}
  				if(arg=='valueJson'){
+ 					return {'currency':$("#"+tId+"_currency_selector").val()};
  					
  				}
  				if(arg=='clean'){
@@ -494,7 +495,7 @@ function addToggleExpansionButton($grid) {
  					if(result.success){
  						console.log(result);
  						if(result.defaultid){
- 							$elem.data('default',data.defaultid.htmlEscape());
+ 							$elem.data('default',result.defaultid);
  						}
  						else{
  							$elem.data('default','None');
@@ -507,7 +508,7 @@ function addToggleExpansionButton($grid) {
 	 					}
 	 					console.log("0000000");
 	 					// create the select box
-	 					htmlString = "<select id='"+$(this).attr('id')+"_currency_selector'>";
+	 					htmlString = "<select id='"+$elem.attr('id')+"_currency_selector'>";
 	 					for(option in optionsList){
 	 						if(optionsList.hasOwnProperty(option)){
 	 							if(optionsList[option][0]==$elem.data('selected')){
@@ -523,7 +524,7 @@ function addToggleExpansionButton($grid) {
 	 					
 	 					htmlString +='</select>';
 	 					$elem.html(htmlString);
-	 					$("#"+$(this).attr('id')+"_currency_selector").selectmenu({
+	 					$("#"+$elem.attr('id')+"_currency_selector").selectmenu({
 	 						width:'auto',
 	 						height:'auto',
 	 					})
@@ -935,14 +936,14 @@ function addToggleExpansionButton($grid) {
  				if(arg=='value'){
  					var price = $("#"+tId+"_price").val();
  					var year = $("#"+tId+"_year").val();
- 					var currency = $("#"+tId+"_currency").currencySelector('selId');
+ 					var currency = $("#"+tId+"_currency").currencySelectorSimple('value');
  					return price+":"+currency+":"+year;
  				}
  				if(arg=='valueJson'){
  					var fieldMap = $("#"+tId).data('fieldmap');
  					var returnJson = {};
  					returnJson[fieldMap.price] = $("#"+tId+"_price").val();
- 					returnJson[fieldMap.currency] = $("#"+tId+"_currency").currencySelector('selId');
+ 					returnJson[fieldMap.currency] = $("#"+tId+"_currency").currencySelectorSimple('value');
  					returnJson[fieldMap.year] = $("#"+tId+"_year").val();
  					
  					return returnJson;
@@ -959,7 +960,7 @@ function addToggleExpansionButton($grid) {
  				var allowedYears = [];
  				for(var i=0;i<15;++i){
  					allowedYears.push(currentYear - i);
- 				}
+				}
  				//var allowedYears = [2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014];
  				var $elem  = $(elem);
  				var value = settings['value'];
@@ -988,13 +989,14 @@ function addToggleExpansionButton($grid) {
  				htmlString += '<div style="float:left;" class="hrm_cost_currencySelector" id="'+$(this).attr('id')+'_currency"></div>';
  				$elem.html(htmlString);
  				
- 				$elem.find('.hrm_cost_price').each(function(idx){
+ 				//$elem.find('.hrm_cost_price').each(function(idx){
+ 				$("#"+$(this).attr('id')+"_price").each(function(){
  					$field = $(this);
  					$field.val(parseFloat(values[0]).toFixed(2));
  					$elem.data('orgPrice',$field.val());
- 					console.log("It IS HERE " + $elem.data('fieldMap'));
  				});
- 				$elem.find('.hrm_cost_currencySelector').each(function(idx){
+ 				//$elem.find('.hrm_cost_currencySelector').each(function(idx){
+ 				$("#"+$(this).attr('id')+"_currency").each(function(){
  					$field = $(this);
  					var sel = values[1];
  					console.log("Value = " + values);
@@ -1005,7 +1007,8 @@ function addToggleExpansionButton($grid) {
  						selected:sel,
  					});
  				});
- 				$elem.find('.hrm_cost_year').each(function(idx){
+ 				//$elem.find('.hrm_cost_year').each(function(idx){
+ 				$("#"+$(this).attr('id')+"_year").each(function(){
  						$(this).selectmenu({
  							width:'auto',
  						})

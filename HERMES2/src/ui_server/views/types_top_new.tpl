@@ -154,7 +154,7 @@ var typesMap = {
 				</tr>
 				<tr>
 					<td>
-						<div id='create_new_type_button'>{{_('Create a New Type')}}</div>
+						<div id='create_new_type_button'>{{_('Create a New Component')}}</div>
 					</td>
 				</tr>
 			</table>
@@ -562,7 +562,6 @@ function doesTypeExistInModel(typename,displayname){
 
 $("#create_new_type_button").button();
 $("#create_new_type_button").click(function(){
-	console.log("here1");
 	editType("new");
 });
 
@@ -738,6 +737,7 @@ function editType(id) {
 				    					.done(function(result){
 				    						if(result.success && (result.value == undefined || result.value)) {
 				    							$("#edit_dialog").dialog("close");
+				    							reloadGrid(dest);
 				    						}
 				    						else{
 				    							alert(result.msg);
@@ -808,7 +808,7 @@ function editType(id) {
 	    						}
 	    					}); 
 	    				},
-	    				'{{_("Save As New Type")}}':function(){
+	    				'{{_("Save As New Component")}}':function(){
 	    					var dict = $('#edit_form_content').editFormManager('getEntries');
 	    					$("#new_type_dbname_text").val(dict['Name'] + "m");
 	    					$("#new_type_name_text").val(dict['DisplayName'] + " (modified)");

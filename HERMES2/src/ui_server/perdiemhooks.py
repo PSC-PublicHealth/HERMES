@@ -40,20 +40,20 @@ from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip,
 inlizer = session_support.inlizer
 _ = session_support.translateString
 
-fieldMap = [{ 'label': _('Name'), 'key': 'Name', 'id': 'name', 'info':False, 'edit':False, 'type': 'dbkey'},
-                        { 'label': _('DisplayName'), 'key': 'DisplayName', 'id': 'displayname', 'info':True, 'edit': True, 'type': 'string'},
-                        { 'label': _('Base Amount'), 'key': 'BaseAmount', 'id': 'baseamount', 'info':True, 'edit': True,
-                         'type': 'cost', 'recMap':['BaseAmount', 'BaseAmountCurCode', 'BaseAmountYear']},
-                        { 'label': _('Must Be Overnight'), 'key': 'MustBeOvernight',
-                         'id': 'mustbeovernight',  'info':True, 'edit':True, 'type': 'bool'},
-                        { 'label': _('Count First Day'), 'key': 'CountFirstDay',
-                         'id': 'countfirstday',  'info':True, 'edit': True, 'type': 'bool'},
-                        { 'label': _('Minimum Km from Home'), 'key': 'MinKmHome', 'id': 'minkmhome',
-                         'info':True, 'edit': True, 'type': 'float'},
-                        { 'label': _('Notes'), 'key': 'Notes', 'id': 'notes', 'info':True, 'edit':True, 'type': 'stringbox'},
-                        { 'label': _('SortOrder'), 'key': 'SortOrder', 'id': 'sortorder',
-                         'info':False, 'edit':False, 'type': 'int'},
-                      ]
+fieldMap = [{ 'label': _('Name'), 'key': 'Name', 'id': 'name', 'info':False, 'edit':False, 'req':True, 'type': 'dbkey'},
+            { 'label': _('DisplayName'), 'key': 'DisplayName', 'id': 'displayname', 'info':True, 'edit': True, 'req':True, 'type': 'string'},
+            { 'label': _('Base Amount'), 'key': 'BaseAmount', 'id': 'baseamount', 'info':True, 'edit': True, 'req':True, 'canzero':True,
+             'type': 'cost', 'recMap':['BaseAmount', 'BaseAmountCurCode', 'BaseAmountYear']},
+            { 'label': _('Must Be Overnight'), 'key': 'MustBeOvernight',
+             'id': 'mustbeovernight', 'info':True, 'edit':True, 'req':False, 'type': 'bool'},
+            { 'label': _('Count First Day'), 'key': 'CountFirstDay',
+             'id': 'countfirstday', 'info':True, 'edit': True, 'req':False, 'type': 'bool'},
+            { 'label': _('Minimum Km from Home'), 'key': 'MinKmHome', 'id': 'minkmhome',
+             'info':True, 'edit': True, 'req':False, 'type': 'float'},
+            { 'label': _('Notes'), 'key': 'Notes', 'id': 'notes', 'info':True, 'edit':True, 'req':False, 'type': 'stringbox'},
+            { 'label': _('SortOrder'), 'key': 'SortOrder', 'id': 'sortorder',
+             'info':False, 'edit':False, 'req':False, 'type': 'int'},
+            ]
 
 
 @bottle.route('/perdiem-top')

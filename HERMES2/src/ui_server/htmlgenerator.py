@@ -855,7 +855,7 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             formElement = HTMLFormCheckBox(name_=recKey,
                                            title_="",
                                            default_=defaultValue)
-            editTable.addRow([label,formElement.htmlString(),requiredString],[rowStyleString,1,1])
+            editTable.addRow([label,formElement.htmlString(),requiredString],[rowStyleString,1,1,1])
             
         elif recType == 'stringbox':
             defaultValue = ""

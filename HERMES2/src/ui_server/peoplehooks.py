@@ -40,10 +40,10 @@ from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip,
 inlizer=session_support.inlizer
 _=session_support.translateString
 
-fieldMap = [{'label':_('HERMES DB ID'), 'key':'Name', 'id':'name', 'info':False,'edit':'false','type':'dbkey'},
-                        {'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info':True,'edit':True,'type':'string'},
-                        {'label':_('SortOrder'), 'key':'SortOrder', 'id':'sortorder','info':False,'type':'int'},         
-                        {'label':_('Notes'), 'key':'Notes', 'id':'notes','info':True, 'edit':True, 'type':'stringbox'},        
+fieldMap = [{'label':_('HERMES DB ID'), 'key':'Name', 'id':'name', 'info':False,'edit':False,'req':True,'type':'dbkey'},
+                        {'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info':True,'edit':True,'req':True,'type':'string'},
+                        {'label':_('SortOrder'), 'key':'SortOrder', 'id':'sortorder','info':False, 'edit':False, 'req':False,'type':'int'},         
+                        {'label':_('Notes'), 'key':'Notes', 'id':'notes','info':True, 'edit':True, 'req':False,'type':'stringbox'},        
                         ]
 
 @bottle.route('/people-edit')

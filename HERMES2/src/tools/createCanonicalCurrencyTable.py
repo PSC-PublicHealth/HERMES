@@ -17,45 +17,39 @@ def main():
         raise RuntimeError("There was a problem accessing the currency json")
     
     currencies = r.json()
-    print currencies
+    sortedKeys = sorted(currencies.keys())
+    
     conversionDict = {x:{} for x in currencies}
-    print conversionDict
-    for year in range(2008,date.today().year):
-        print year
+    
+    for year in range(2000,date.today().year):
         url = "{0}/historical/{1}-06-01.json?app_id={2}".format(beginUrl,year,app_id)
         try:
             r = requests.get(url) 
         except requests.exceptions.RequestException as e:    
             print "Problem: {0}".format(e)
-            #sys.exit(1) 
-#         if r.status_code != requests.codes.ok:
-#             raise RuntimeError("There was a problem getting the currencies")
           
         jsonDict = r.json() 
         
         baseCurrency = jsonDict['base']
         for code1 in conversionDict.keys():
             if jsonDict['rates'].has_key(code1):
-                for code2 in currencies.keys():
-                    if not conversionDict[code1].has_key(code2):
-                        conversionDict[code1][code2]={}
-                    if jsonDict['rates'].has_key(code2):
-                        rate1 = jsonDict['rates'][code1]
-                        rate2 = jsonDict['rates'][code2]
-                        rate = rate2/rate1
-                        conversionDict[code1][code2][year] = rate
-                    else:
-                        conversionDict[code1][code2][year] = -1.0
+                conversionDict[code1][year] = jsonDict['rates'][code1]
+            else:
+                conversionDict[code1][year] = -1.0
                 
     #pp.pprint(conversionDict)
-    with codecs.open("currency.csv",'wb',encoding='utf8') as f:
-        for currency,converts in conversionDict.items():
-            curInfo = currencies[currency]
-            f.write(u"{0},\n".format(curInfo))
-            #pp.pprint(curInfo)
-            #f.write(pp.pformat(curInfo))
-        
-        
+    with codecs.open("../../master_data/unified/CurrencyConversionTable.csv",'wb',encoding='utf8') as f:
+        f.write(u"Country Name, Currency Name, Currency Code")
+        for year in range(2000,date.today().year):
+            f.write(u",{0}".format(year))
+        f.write(u"\n")
+        #for currency,converts in conversionDict.items():
+        for code in sortedKeys:
+            curInfo = currencies[code]
+            f.write(u",{0},{1}".format(curInfo,code))
+            for year in range(2000,date.today().year):
+                f.write(u",{0}".format(conversionDict[code][year]))
+            f.write(u"\n")
 
 if __name__ == '__main__':
     main()      

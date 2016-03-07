@@ -531,14 +531,14 @@ def handleListCurrency(db, uiSession):
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayReadModelId(db, modelId)
         selectedCurrencyId = _safeGetReqParam(bottle.request.params, 'idstring')
-        print "selected = {0}".format(selectedCurrencyId)
+        #print "selected = {0}".format(selectedCurrencyId)
         if 'defaultCurrencyId' not in uiSession:
             uiSession['defaultCurrencyId'] = None
         if ((selectedCurrencyId is None or selectedCurrencyId == '')
                 and 'defaultCurrencyId' in uiSession):
             selectedCurrencyId = uiSession['defaultCurrencyId']
-        print "selected = {0}".format(selectedCurrencyId)
-        selectedCurrencyName = ''
+        #print "selected = {0}".format(selectedCurrencyId)
+        selectedCurrencyName = u''
         orderedPairs = [(b, a) for a, b in currencyhelper.getCurrencyDict(db, modelId).items()]
         orderedPairs.sort()
         orderedPairs = [(_('--No Selection--'), '???')] + orderedPairs
@@ -547,15 +547,15 @@ def handleListCurrency(db, uiSession):
             if selectedCurrencyId is None:
                 # print thisId
                 uiSession['defaultCurrencyId'] = selectedCurrencyId = thisId
-                s += "<option value=%s selected>%s</option>\n" % (thisId, name)
+                s += u"<option value={0} selected>{1}</option>\n".format(thisId, name)
                 selectedCurrencyName = name
             elif thisId == selectedCurrencyId:
-                s += "<option value=%s selected>%s</option>\n" % (thisId, name)
+                s += u"<option value={0} selected>{1}</option>\n".format(thisId, name)
                 selectedCurrencyName = name
             else:
-                s += '<option value="%s">"%s"</option>\n' % (thisId, name)
+                s += u'<option value="{0}">"{1}"</option>\n'.format(thisId, name)
         quotedPairs = [(a, b) for a, b in orderedPairs]
-        print "Default Cur = {0}".format(uiSession['defaultCurrencyId'] )
+        #print "Default Cur = {0}".format(uiSession['defaultCurrencyId'] )
         return {"menustr": s,
                 "pairs": quotedPairs,
                 "selid": selectedCurrencyId,
@@ -565,7 +565,34 @@ def handleListCurrency(db, uiSession):
         _logStacktrace()
         return {"success": False, "msg": str(e)}
 
-
+@bottle.route('/json/get-available-currency-year')
+def getAvailableCurrencyYears(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        currencyId = _getOrThrowError(bottle.request.params, 'currencyId')
+        
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        availableYears = []
+        returnJson = {}
+        for rec in m.currencyTable:
+            if rec.code == currencyId:
+                if rec.value > 0:
+                    availableYears.append(rec.year)
+        
+        if len(availableYears) == 0:
+            returnJson = {'success':False,'msg':_('Currency: {0} has no conversions available'.format(currencyId))}
+        else:
+            ordAvailableYears = sorted(availableYears)
+            
+            returnJson = {'success':True,'years':ordAvailableYears[::-1],'code':currencyId}
+        return returnJson
+    except Exception, e:
+        _logStacktrace()
+        return {'success':False,"msg":_('Problem with get-available-currency-year: {0})'.format(e))}
+        
+        
 def getCurrencyFromRequest(db, m, key):
     """
     This is intended to a partner to handleListCurrency, translating the currency selection

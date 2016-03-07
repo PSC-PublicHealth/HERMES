@@ -54,7 +54,7 @@ def upgrade():
     recsToInsert = []
     for rec in recs:
         for k in rec.keys():
-            if type(rec[k]) == types.StringType: rec[k] = rec[k].decode('utf8')
+            if type(rec[k]) == types.StringType: rec[k] = rec[k]#rec[k].decode('utf8')
         for year in yearList:
             for id in idList:
                 val = rec[str(year)]
