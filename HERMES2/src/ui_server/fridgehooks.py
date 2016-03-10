@@ -38,7 +38,7 @@ inlizer=session_support.inlizer
 _=session_support.translateString
 
 energyOptions = [(x, y[1], [], []) for x,y in energyTranslationDict.items()]
-fieldMap = [{ 'label':_('HERMES DB Id'), 'key':'Name', 'id':'name', 'info':False, 'edit':True, 'req':True, 'type':'dbkey'},
+fieldMap = [{ 'label':_('HERMES DB Id'), 'key':'Name', 'id':'name', 'info':False, 'edit':False, 'req':True, 'type':'dbkey'},
             { 'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info': True, 'edit':True, 'req':True, 'type':'string'},
             { 'label':_('Make'), 'key':'Make', 'id':'make', 'info': True, 'edit':True, 'req':False, 'type':'string'},
             { 'label':_('Model'), 'key':'Model', 'id':'model', 'info': True, 'edit':True, 'req':False, 'type':'string'},
