@@ -5030,7 +5030,7 @@ class ShdNetwork(Base):
         this network in the first place.  It uses util.openOutputFile, and so will respect the
         os.environ['HERMES_DATA_OUTPUT protocol'] for creating files within zip files.
         """
-
+        
         fakeParms = {}
         storesKeyOrder = ["CATEGORY","FUNCTION","NAME","idcode","Device Utilization Rate",
                           "UseVialsLatency","UseVialsInterval","Latitude","Longitude"]
@@ -5182,6 +5182,10 @@ class ShdNetwork(Base):
         with util.openOutputFile('argv.pkl') as f:
             pickle.dump(fakeCmdLine, f)
 
+        stats = {}
+        stats['version'] = HermesInput.getHermesVersion()
+        with util.openOutputFile('input_stats') as f:
+            pickle.dump(stats,f) 
 
     def copy(self, name=None):
         """
