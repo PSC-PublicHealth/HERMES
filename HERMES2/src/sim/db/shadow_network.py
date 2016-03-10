@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from datetime import datetime
 
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
@@ -3875,6 +3876,26 @@ class ShdParameter(Base):
 _makeColumns(ShdParameter)
 
 
+class RunTable(Base):
+    import datetime
+    
+    # Table to hold running job information
+    __tablename__= "runs"
+    runId = Column(Integer,primary_key=True)
+    startTime = Column(sqlalchemy.types.DateTime(timezone=True))
+    endTime = Column (sqlalchemy.types.DateTime(timezone=True))
+    
+    attrs = [('name', STRING),
+             ('modelId', DataType(INTEGER, foreignKey='models.modelId'), 'noInputRec', True),
+             ('status', STRING),
+             ('run_location', STRING),
+             ('logFileLocation',STRING),
+             ('stderrLocation',STRING)
+             ]
+    
+_makeColumns(RunTable)
+    
+    
 class ShdDemand(Base):
     # need to build relationship between vaccineStr and peopleStr with their associated types.
     __tablename__ = "demand"
