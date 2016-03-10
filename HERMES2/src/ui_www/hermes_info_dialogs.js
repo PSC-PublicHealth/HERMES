@@ -104,7 +104,7 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 		$("#"+divName+"_GenInfo").parents("div.ui-jqgrid-view").children("div.ui-jqgrid-hdiv").hide();
 		
 	}
-	
+	console.log(meta['utilInfo']);
 	if (meta['utilInfo']){
 		var phrases = {0:'Information',1:'Placemark',2:'Category',3:'Data',4:'Utilization Statistics'};
 		// var phrase = {'Name','Count','2-8C Net Storage','Below 2C Net
@@ -116,6 +116,8 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 			type:"post",
 			async:false,
 			success:function(data){
+					console.log(data);
+					console.log($("#"+divName+"_Utilization"));
 					$("#"+divName+"_Utilization").jqGrid({
 						url:rootPath + 'json/get-storage-utilization-for-store',
 						datatype: 'json',
@@ -156,8 +158,8 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 						grouping : true,
 						groupingView : {
 							groupField : ['info'],
-							groupColumnShow : false,
-							groupOrder : ['desc'],
+							groupColumnShow : [false],
+							//groupOrder : ['desc'],
 						},
 						caption : data.translated_phrases[4]
 					});

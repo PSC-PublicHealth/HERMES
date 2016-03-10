@@ -81,7 +81,7 @@ class DelayInfo:
                 if sigma:
                     delay = rndm.normalvariate(mag,sigma)
                 else:
-                    delay = rndm.random() * mag
+                    delay = mag#rndm.random() * mag
                 if delay < 0:
                     delay = 0.0
                 return delay

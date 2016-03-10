@@ -19,7 +19,7 @@ __doc__ = """typehelper
 This module provides routines to generate information about managed types, including support for
 fallback to the AllTypesModel.
 """
-_hermes_svn_id_="$Id$"
+_hermes_svn_id_="$Id: typehelper.py 2315 2015-07-29 22:25:46Z stbrown $"
 
 import types
 from collections import defaultdict
@@ -245,17 +245,36 @@ def getSuggestedName(db, modelId, target, proposedName, excludeATM=False):
     
 def elaborateFieldMap(proposedName, instanceOrValDict, fieldMap):
     outMap = []
+    print fieldMap
     for rec in fieldMap:
         outRec = rec.copy()
         if rec['key'] == 'Name': outRec['value'] = proposedName
         elif isinstance(instanceOrValDict,types.DictType) and rec['key'] in instanceOrValDict:
             if outRec['type'] == 'lifetime':
                 outRec['value'] = (instanceOrValDict[rec['key']], instanceOrValDict[rec['key'+'Units']] )
+            elif outRec['type'] == 'cost':
+                print "THERE!!!"
+                if not outRec.has_key('recMap'):
+                    print "HERE!!!!"
+                    pass # NEED To throw an error
+                print instanceOrValDict.keys()
+                print rec['recMap']
+                print instanceOrValDict.keys()
+                outRec['value'] =  (instanceOrValDict[rec['recMap'][0]],
+                                    instanceOrValDict[rec['recMap'][1]],
+                                    instanceOrValDict[rec['recMap'][2]])
             else:
                 outRec['value'] = instanceOrValDict[rec['key']]
         elif hasattr(instanceOrValDict,rec['key']):
             if outRec['type'] == 'lifetime':
                 outRec['value'] = (getattr(instanceOrValDict,rec['key']),getattr(instanceOrValDict,rec['key']+'Units'))
+            elif outRec['type'] == 'cost':
+                print "HERE!!!"
+                if not outRec.has_key('recMap'):
+                    pass # NEED To throw an error
+                outRec['value'] =  (getattr(instanceOrValDict,rec['recMap'][0]),
+                                                    getattr(instanceOrValDict,rec['recMap'][1]),
+                                                    getattr(instanceOrValDict,rec['recMap'][2]))
             else:
                 outRec['value'] = getattr(instanceOrValDict,rec['key'])
         outMap.append(outRec)

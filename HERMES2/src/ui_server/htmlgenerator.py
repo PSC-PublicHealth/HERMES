@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+from views import obsolete
+7#!/usr/bin/env python
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
 # =============================================================================== #
@@ -15,14 +16,14 @@
 ###################################################################################
 
 __doc__ = """htmlgenerator
-This module provides routines to generate html from database 
+This module provides routines to gene html from database 
 information on the server side, for example model description 
 information.
 
 Several functions in this module take fieldMap parameters. See
 the documentation for _buildEditFieldTable for details.
 """
-_hermes_svn_id_="$Id$"
+_hermes_svn_id_="$Id: htmlgenerator.py 2330 2015-10-07 20:54:08Z stbrown $"
 
 import sys,os,types
 from StringIO import StringIO
@@ -180,11 +181,8 @@ def getModelRouteInfoHTML(db, uiSession, modelId, routeName):
     return sio.getvalue(), titleStr
 
 def getPeopleInfoHTML(db,uiSession, modelId, typeName):
-    itemOrder = ['DisplayName',
-                 'Notes']
-    itemTranslate = [_('Name'),
-                     _('Notes')]
-    
+    from peoplehooks import fieldMap
+
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
 
@@ -192,228 +190,54 @@ def getPeopleInfoHTML(db,uiSession, modelId, typeName):
         titleStr = _("Population Type '{0}' in '{1}'").format(typeName,model.name)
     else:
         titleStr = _("Population Type '{0}'").format(typeName)
-#     sio = StringIO()
-#     sio.write("<h3>\n")
-#     sio.write("{0}\n".format(typeName))
-#     sio.write("</h3>\n")
-#     sio.write("<table>\n")
-    attrRec = {}
-    shadow_network._copyAttrsToRec(attrRec,typeInstance)
-    
-    table = HTMLTable(name="Population Type Info",
-                      title_=_("Population Type Information"),
-                      #width='100%',height='100%',
-                      border='1px solid black')
-    
-    for item in itemOrder:
-        if attrRec[item] != '':
-            table.addRow([itemTranslate[itemOrder.index(item)],attrRec[item]],['c',1,1])
-    
-    return table.htmlString(),titleStr
-#     for k,v in attrRec.items(): 
-#         sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
-#     sio.write("</table>\n")
-#     
-#     return sio.getvalue(), titleStr
+        
+    return _buildTypeInfoBox(fieldMap, typeInstance, "Population"),titleStr
 
 def getStaffInfoHTML(db,uiSession, modelId, typeName):
+    from staffhooks import fieldMap
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
-
-    itemOrder =['DisplayName',
-                'salaryCustom',
-                'FractionEPI']
-    
-    itemTranslate = [_("Name"),
-                     _("Yearly Salary"),
-                     _("Fraction dedicated to Supply Chain Logistics")]
-    
-    
-                
-                
+           
     if canWrite:
         titleStr = _("Staff Type {0} in {1}").format(typeName,model.name)
     else:
         titleStr = _("Staff Type {0}").format(typeName)
-        
-    table = HTMLTable(name="Staff Type Info",
-                      title_=_("Staff Type Information"),
-                      #width='100%',height='100%',
-                      border='1px solid black')
-    
-        
-    attrRec = {}
-    shadow_network._copyAttrsToRec(attrRec,typeInstance)
-    for item in itemOrder:
-        if item == 'salaryCustom':
-            if attrRec['BaseSalary'] != '' and attrRec['BaseSalaryCur'] != '' \
-                and attrRec['BaseSalaryYear'] != '':
-                salString = '{0} in {1} {2}'.format(attrRec['BaseSalary'],
-                                                    attrRec['BaseSalaryYear'],
-                                                    attrRec['BaseSalaryCur'])
-                table.addRow([itemTranslate[itemOrder.index(item)],salString],['c',1,1])
-        else:
-            if attrRec[item] != '':
-                table.addRow([itemTranslate[itemOrder.index(item)],attrRec[item]],['c',1,1])
-               
-    return table.htmlString(),titleStr
+    return _buildTypeInfoBox(fieldMap,typeInstance,"Staff"),titleStr   
                              
 def getPerDiemInfoHTML(db,uiSession, modelId, typeName):
+    from perdiemhooks import fieldMap
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
-
-    itemOrder = ['DisplayName',
-                 'MinKmHome',
-                 'MustBeOvernight',
-                 'CountFirstDay',
-                 'costCustom',
-                 'Notes']
-    itemTranslate = [_('Name'),
-                     _('Minimum Kilometers from Origin Before Charging PerDiem'),
-                     _('Charge PerDiem for Overnight Trips'),
-                     _('Count the First Day of Transit in PerDiem'),
-                     _('Cost of PerDiem per Instance (i.e. Each Time a PerDiem is Given'),
-                     _('Notes')]
-    
     
     if canWrite:
         titleStr = _("PerDiem Type '{0}' in '{1}'").format(typeName,model.name)
     else:
         titleStr = _("PerDiem Type '{0}'").format(typeName)
-        
-    table = HTMLTable(name="PerDiem Type Info",
-                      title_=_("PerDiem Type Information"),
-                      #width='100%',height='100%',
-                      border='1px solid black')
     
-    attrRec = {}
-    shadow_network._copyAttrsToRec(attrRec,typeInstance)
-    for item in itemOrder:
-        if item == 'costCustom':
-            if attrRec['BaseAmount'] != '' and attrRec['BaseAmountYear'] != '' and attrRec['BaseAmountCur'] !='':
-                capString = "{0} in {1} {2}".format(attrRec['BaseAmount'],attrRec['BaseAmountYear'],
-                                                    attrRec['BaseAmountCur'])
-                table.addRow([itemTranslate[itemOrder.index(item)],capString],['c',1,1])
-        else:
-            if attrRec[item] != '':
-                table.addRow([itemTranslate[itemOrder.index(item)],attrRec[item]],['c',1,1])
-               
-    return table.htmlString(),titleStr
-
+    return _buildTypeInfoBox(fieldMap, typeInstance, _("Per Deim")),titleStr
+            
 def getVaccineInfoHTML(db, uiSession, modelId, typeName):
-    itemOrder = ['DisplayName',
-                 'Abbreviation',
-                 'Manufacturer',
-                 'Vaccine presentation',
-                 'Doses per vial',
-                 'Packed vol/dose(cc) of vaccine',
-                 'Packed vol/dose(cc) of diluent',
-                 'Secondary Packaging',
-                 'Method of administration',
-                 'LifetimeCoolerMonths',
-                 'LifetimeFreezerMonths',
-                 'LifetimeOpenMonths',
-                 'LifetimeRoomTempMonths',
-                 'Notes'
-                 ]
-    itemTranslate = [_('Name'),
-                     _('Abbreviation'),
-                     _('Manufacturer'),
-                     _('Presentation'),
-                     _('Doses per Vial'),
-                     _('Packed Volume per Dose of Vaccine (mL)'),
-                     _('Packed Volume per Dose of Diluent (mL)'),
-                     _('Secondary Packaging'),
-                     _('Method of Administration'),
-                     _('Months Vaccine can be stored in 2-8 C'),
-                     _('Months Vaccine can be stored in Below 0C'),
-                     _('Months Vaccine can be used once opened'),
-                     _('Months Vaccine can be stored at Room Temperature'),
-                     _('Notes')
-                     ]
-    
+    from vaccinehooks import fieldMap
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
-
+    
     if canWrite:
         titleStr = _("Vaccine Type {0} in {1}").format(typeName,model.name)
     else:
         titleStr = _("Vaccine Type {0}").format(typeName)
-        
-    table = HTMLTable(name="Vaccine Info",
-                      title_=_("Vaccine Type Information"),
-                      minwidth='500px',maxwidth='700px',
-                      border='1px solid black')
-    
-    sio = StringIO()
-    attrRec = {}
-    shadow_network._copyAttrsToRec(attrRec,typeInstance)
-    for item in itemOrder:
-        if attrRec[item] != '':
-            table.addRow([itemTranslate[itemOrder.index(item)],attrRec[item]],['c',1,1])
-        
-    return table.htmlString(),titleStr
+    return _buildTypeInfoBox(fieldMap, typeInstance, "Vaccine"),titleStr
       
 def getFridgeInfoHTML(db, uiSession, modelId, typeName):
-    itemOrder = ['DisplayName',
-                 'Make',
-                 'Model',
-                 'cooler',
-                 'freezer',
-                 'powerTypeCustom',
-                 'powerRateCustom',
-                 'capitalExpCustom',
-                 'Notes',
-                 #'AmortYears',
-                 #'capitalExpCustom'
-                 ]
-    
-    itemTranslate = [_('Name'),
-                     _('Make'),
-                     _('Model'),
-                     _('Net Volume for 2-8C Storage'),
-                     _('Net Volume for Below 0C Storage'),
-                     _('Energy Type'),
-                     _('Power Rate'),
-                     _('Capital Cost'),
-                     _('Notes'),
-                     ]       
-    energyTypes = {'E':_('Electricity'),
-                   'I':_('Ice Packs'),
-                   'K':_('Kerosene'),
-                   'S':_('Solar'),
-                   'EK':_('Electricity / Kerosene')}
-            
+    from fridgehooks import fieldMap
     canWrite,typeInstance = typehelper.getTypeWithFallback(db, modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db, modelId)
 
     if canWrite:
-        titleStr = _("Cold Storage Type {0} in {1}").format(typeName,model.name)
+        titleStr = _("Storage Device Type {0} in {1}").format(typeName,model.name)
     else:
-        titleStr = _("Cold Storage Type {0}").format(typeName)
+        titleStr = _("Storage Device Type {0}").format(typeName)
     
-    table = HTMLTable(name="Storage Device Info",
-                      title_=_("Storage Device Information"),
-                      #width='100%',height='100%',
-                      border='1px solid black')
-    attrRec = {}
-    shadow_network._copyAttrsToRec(attrRec,typeInstance)
-    for item in itemOrder:
-        if item == "powerRateCustom":
-            powerRateString = "{0} {1}".format(attrRec['PowerRate'],attrRec['PowerRateUnits'])
-            table.addRow([itemTranslate[itemOrder.index(item)],powerRateString],['c',1,1])
-        elif item == "powerTypeCustom":
-            if attrRec['Energy'] in energyTypes.keys():
-                table.addRow([itemTranslate[itemOrder.index(item)],energyTypes[attrRec['Energy']]],['c',1,1])
-        elif item == "capitalExpCustom":
-            if attrRec['BaseCost'] != '' and attrRec['BaseCostYear'] != '' and attrRec['BaseCostCur'] !='':
-                capString = "{0} in {1} {2}".format(attrRec['BaseCost'],attrRec['BaseCostYear'],
-                                                    attrRec['BaseCostCur'])
-                table.addRow([itemTranslate[itemOrder.index(item)],capString],['c',1,1])
-        else:
-            if attrRec[item] != '':
-                table.addRow([itemTranslate[itemOrder.index(item)],attrRec[item]],['c',1,1])
-    return table.htmlString(),titleStr
+    return _buildTypeInfoBox(fieldMap,typeInstance,"Storage Device"),titleStr
 
 def getIceInfoHTML(db, uiSession, modelId, typeName):
     canWrite,typeInstance = typehelper.getTypeWithFallback(db, modelId, typeName)
@@ -458,93 +282,17 @@ def getPackagingInfoHTML(db, uiSession, modelId, typeName):
     return sio.getvalue(), titleStr
 
 def getTruckInfoHTML(db, uiSession, modelId, typeName):
-    from trucktypes import fuelTranslationDict
-    from util import parseInventoryString
+    from truckhooks import fieldMap
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
-    
-    itemOrder = ['DisplayName',
-                 'CoolVolumeCC',
-                 'capCustom',
-                 'AmortizationKm',
-                 'fuelCustom',
-                 'storeCustom']
-    
-    itemTranslate = [_('Name'),
-                     _('2-8C Net Storage Volume (L)'),
-                     _('Capital Cost'),
-                     _('Lifetime Distance (KM)'),
-                     _('Fuel Usage'),
-                     _('Storage Devices'),
-                     _('Notes')]
     
     if canWrite:
         titleStr = _("Transport Type {0} in {1}").format(typeName,model.name)
     else:
         titleStr = _("Transport Type {0}").format(typeName)
     
-    table = HTMLTable(name="Transport Type Info",
-                  title_=_("Transport Type Information"),
-                  minwidth="500px",maxwidth="700px",
-                  #width='100%',height='100%',
-                  border='1px solid black')   
+    return _buildTypeInfoBox(fieldMap, typeInstance, _("Transport"),model=model),titleStr
 
-
-#     sio = StringIO()
-#     sio.write("<h3>\n")
-#     sio.write("{0}\n".format(typeName))
-#     sio.write("</h3>\n")
-#     sio.write("<table>\n")
-    attrRec = {}
-    shadow_network._copyAttrsToRec(attrRec,typeInstance)
-    
-    for item in itemOrder:
-        if item == 'capCustom':
-            if attrRec['BaseCost'] != '' and attrRec['BaseCostYear'] != '' and attrRec['BaseCostCur'] !='':
-                capString = "{0} in {1} {2}".format(attrRec['BaseCost'],attrRec['BaseCostYear'],
-                                                    attrRec['BaseCostCur'])
-                table.addRow([itemTranslate[itemOrder.index(item)],capString],['c',1,2])
-        elif item == 'fuelCustom':
-            if attrRec['Fuel'] != '' and attrRec['FuelRateUnits'] != '' \
-                and attrRec['FuelRate'] != '':
-                fuelString = "{0} {1} of {2}".format(attrRec['FuelRate'],
-                                                    attrRec['FuelRateUnits'],
-                                                    fuelTranslationDict[attrRec['Fuel']][1])
-                
-                table.addRow([itemTranslate[itemOrder.index(item)],fuelString],['c',1,2])
-        elif item == 'storeCustom':
-            if attrRec['Storage'] != '':
-                storageList = typeInstance.getStorageDeviceList(model)
-                
-                table.addRow([itemTranslate[itemOrder.index(item)],'Device','Count'],['c',1,1,1])
-                two8Sum = 0.0
-                for count,dev in storageList:
-                    #print("{0} L".format(dev.cooler))
-                    '''
-                    STB - Need to make flexible for all storage types
-                    '''
-                    two8Sum += dev.cooler
-                    table.addRow(['',dev.DisplayName,"{0}".format(count)],['c',1,1,1])
-        elif item == 'CoolVolumeCC':
-            volSum = 0.0
-            if attrRec['CoolVolumeCC']!='':
-                volSum+= attrRec['CoolVolumeCC']/1000.0
-            
-            if attrRec['Storage']!='':
-                storageList = typeInstance.getStorageDeviceList(model)
-                for count,dev in storageList:
-                    volSum += count*dev.cooler
-            
-            table.addRow([itemTranslate[itemOrder.index(item)],volSum],['c',1,1])    
-        else:
-            if attrRec[item] != '':
-                table.addRow([itemTranslate[itemOrder.index(item)],attrRec[item]],['c',1,1])
-#     for k,v in attrRec.items(): 
-#         sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
-#     sio.write("</table>\n")
-#     
-#     return sio.getvalue(), titleStr
-    return table.htmlString(),titleStr
 def getGenericTypeInfoHTML(db, uiSession, modelId, typeName):
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     category = typeInstance.shdType
@@ -871,9 +619,130 @@ def _buildInterLevelTimingFormFromSession(prefix="",levelInfo={}):
     sio.write(u'{0}'.format(thisString))
     
     return sio.getvalue()
-def _buildEditFieldTable(fieldMap):
+
+def _buildTypeInfoBox(fieldMap,typeInstance,typeName="Type",model=None):
+    infoTable = HTMLTable(name="Type Info",
+                          title_=_("{0} Type Information".format(typeName)),
+                          minwidth='500px',maxwidth='700px',
+                          border='1px solid black')
+    
+    
+    #print fieldMap
+    for rec in fieldMap:
+        ### Do we show this field in the info table
+        if rec.has_key('info'):
+            if rec['info'] is False:
+                continue
+    
+        recType = rec['type']
+        ### Map to HERMES DB for this type (i.e. what it is called in the database
+        if rec.has_key('recMap'):
+            recKey = rec['recMap']
+        else:
+            recKey = rec['key']
+      
+        if recType in ['string','int','float','stringbox']:
+            if getattr(typeInstance,recKey):
+                infoTable.addRow([rec['label'],getattr(typeInstance,recKey)],['c',1,1])
+        if recType in ['scaledfloat']:
+            if getattr(typeInstance,recKey):
+                infoTable.addRow([rec['label'],float(getattr(typeInstance,recKey))*float(rec['scale'])],['c',1,1])
+        elif recType == "select":
+            if getattr(typeInstance,recKey):
+                ## find the option data
+                selOpt = ('None','',[],[])
+                for option in rec['options']:
+                    if getattr(typeInstance,recKey) == option[0]:
+                        selOpt = option
+                infoTable.addRow([rec['label'],selOpt[1]],['c',1,1])
+        elif recType == 'cost':
+            if len(recKey) != 3:
+                _logMessage("Unsupported dbKey in cost type in creating info page for {0}: ignoring".format(typeName))
+                continue
+            if getattr(typeInstance,recKey[0]):
+                    if getattr(typeInstance,recKey[1]) and getattr(typeInstance,recKey[2]):
+                        costString = "{0} in {2} {1}".format(getattr(typeInstance,recKey[0]), getattr(typeInstance,recKey[1]), getattr(typeInstance,recKey[2]))
+                    else:
+                        costString = "{0}".format(getattr(typeInstance,recKey[0]))  
+                    infoTable.addRow([rec['label'],costString],['c',1,1])
+        elif recType == "bool":
+            if getattr(typeInstance,recKey):
+                infoTable.addRow([rec['label'],'True'],['c',1,1])
+            else:
+                infoTable.addRow([rec['label'],'False'],['c',1,1])
+        elif recType == 'time':
+            if getattr(typeInstance, recKey[0]):
+                timeValue = getattr(typeInstance,recKey[0])
+                unitStr = "Months"
+                if timeValue < 0.1:
+                    timeValue = "No Lifetime"
+                else:
+                    if getattr(typeInstance, "{0}".format(recKey[1])):
+                        if  getattr(typeInstance, "{0}".format(recKey[1])) == "D":
+                            unitStr = "Days"
+                        timeValue = "{0} {1}".format(timeValue, unitStr)
+            infoTable.addRow([rec['label'], timeValue], ['c', 1, 1])
+        elif recType == 'dynamicunit':
+            if getattr(typeInstance, recKey[0]):
+                Value = "{0}".format(getattr(typeInstance,recKey[0]))
+                if getattr(typeInstance,recKey[1]):
+                    Value += " {0}".format(getattr(typeInstance,recKey[1]))
+                infoTable.addRow([rec['label'], Value], ['c', 1, 1])
+        elif recType == 'energy':
+            from fridgetypes import energyTranslationDict
+            if getattr(typeInstance,recKey):
+                infoTable.addRow([rec['label'],energyTranslationDict[getattr(typeInstance,recKey)][1]],['c',1,1])
+        elif recType == 'fuel':
+            #from trucktypes import fuelTranslationDict
+            if getattr(typeInstance,recKey):
+                infoTable.addRow([rec['label'] + _(" Type"),rec['fuelDict'][getattr(typeInstance,recKey)][1]],['c',1,1])
+        elif recType == 'custtruckstoresum':
+            from shadow_network import ShdTruckType
+            if not isinstance(typeInstance,ShdTruckType):
+                _logMessage("Cannot use custtruckstoresum as a field type for anything other than transport: Ignoring")
+                continue
+            if model is None:
+                _logMessage("Cannot use custtruckstoresum as a field type without specifying a model in the _build call: Ignoring")
+                continue
+            ### This is a custom type that only works for transport types
+            volSum = 0.0
+            if getattr(typeInstance,'CoolVolumeCC') != '':
+                volSum+= getattr(typeInstance,'CoolVolumeCC')/1000.0
+             
+            if getattr(typeInstance,'Storage')!='':
+                storageList = typeInstance.getStorageDeviceList(model)
+                for count,dev in storageList:
+                    volSum += count*dev.cooler
+             
+            infoTable.addRow([rec['label'],"{0}".format(volSum)],['c',1,1])
+        
+        elif recType == 'custtruckstoragetable':
+            from shadow_network import ShdTruckType
+            if not isinstance(typeInstance,ShdTruckType):
+                _logMessage("Cannot use custtruckstoragetable  as a field type for anything other than transport: Ignoring")
+                continue
+            if model is None:
+                _logMessage("Cannot use custtruckstoragetable as a field type without specifying a model in the _build call: Ignoring")
+                continue
+            if getattr(typeInstance,"Storage") != '':
+                storageList = typeInstance.getStorageDeviceList(model)
+                firstRow = True
+                for count,dev in storageList:
+                    '''
+                    STB - Need to make flexible for all storage types
+                    '''
+                    if firstRow:
+                        infoTable.addRow(['Storage Devices',"{0} {1}".format("{0}".format(count),dev.DisplayName)],['c',1,1])            
+                        firstRow = False
+                    else:
+                        infoTable.addRow(['',"{0} {1}".format("{0}".format(count),dev.DisplayName)],['c',1,1])
+        else:
+            _logMessage("Unsupported Field Type, will be ignored in creating info page for {0}".format(typeName))
+            
+    return infoTable.htmlString()
+def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
     """
-    fieldMap defines the layout of form fields on a page.  It is a 
+     fieldMap defines the layout of form fields on a page.  It is a 
     list of elements, each of which is a dict.  The following dict 
     elements are recognized:
     
@@ -906,143 +775,186 @@ def _buildEditFieldTable(fieldMap):
                   This provides a mechanism to have form entries appear 
                   and disappear in response to select box settings.
       """
-    
     # Pre-scan to find anything which starts out disabled
     disabledItems = set()
-    for d in fieldMap:
-        if d['type'] == 'select':
-            if 'value' in d:
-                for val,txt,enabledList,disabledList in d['options']:      # @UnusedVariable
-                    if val==d['value']: disabledItems.update(disabledList)
-            elif 'default' in d:
-                for val,txt,enabledList,disabledList in d['options']:      # @UnusedVariable
-                    if val==d['default']: disabledItems.update(disabledList)
-            elif len(d['options'])>0:
-                val,txt,enabledList,disabledList = d['options'][0] # first entry selected by default @UnusedVariable
-                disabledItems.update(disabledList)
+    htmlDoc = HTMLDocument(name_='typeForm',
+                                                title_='TypeForm')
+    editTable = HTMLForm("edit_table", title_=None)
+    
+    ### if typeInstance is none, then we should create a new type instance for this model
+    ## STB do later
+    
+    for rec in fieldMap:
+        ### Do we show this field or not in the edit table
+        rowStyleString = "c"
+        if rec.has_key('edit'):
+            if rec['edit'] is False:
+                rowStyleString = "h"
         
-    maxRow = max([d['row'] for d in fieldMap])
-    sio = StringIO()
-    sio.write("<table class='hrm_edittype'>\n")
-    for row in xrange(1,maxRow+1):
-        subSlots = [d for d in fieldMap if d['row']==row and d['type']!='hide']
-        sio.write("<tr>\n")
-        for d in subSlots: sio.write("  <th>%s</th>\n"%d['label'])
-        sio.write("</tr>\n")
-        sio.write("<tr>\n")
-        for d in subSlots:
-            if d['id'] in disabledItems: hideStr = 'style="display:none"'
-            else: hideStr = ""
-            if 'value' in d and d['value'] is not None and d['value']!="": oldVal = d['value']
-            elif 'default' in d: oldVal = d['default']
-            else: oldVal = None
-            
-            if d['type'] == 'int':
-                if oldVal is not None:
-                    sio.write('  <td><input type=number value="%s" id="%s" %s></td>\n'%(oldVal,d['id'],hideStr))
-                else:
-                    sio.write('  <td><input type=number value="0" id="%s" %s></td>\n'%(d['id'],hideStr))
-                    
-            elif d['type'] == 'string':
-                if oldVal is not None:
-                    if isinstance(oldVal,types.ListType) :
-                        s = ",".join([str(v).replace('"','&quot;') for v in oldVal])
-                        escapedStr= str(s)
-                    else:
-                        #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
-                        escapedStr = oldVal.replace('"','&quot;')
-                    sio.write('  <td><input type=text value="%s" id="%s" %s></td>\n'%(escapedStr,d['id'],hideStr))
-                else:
-                    sio.write('  <td><input type=text id="%s" %s></td>\n'%(d['id'],hideStr))
-                    
-            elif d['type'] == 'float':
-                if oldVal is not None:
-                    sio.write('  <td><input type=text value="%s" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%\
-                              (oldVal,d['id'],hideStr))
-                else:
-                    sio.write('  <td><input type=text value="0.0" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(d['id'],hideStr))
-                    
-            elif d['type'] == 'price':
-                if oldVal is not None:
-                    sio.write('  <td><input class="hrm_price" type=text value="%s" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(oldVal,d['id'],hideStr))
-                else:
-                    sio.write('  <td><input class="hrm_price" type=text value="0.0" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(d['id'],hideStr))
-                    
-            elif d['type'] == 'bool':
-                if oldVal: # True
-                    sio.write('  <td><input type=checkbox checked id="%s" %s></td>\n'%(d['id'],hideStr))
-                else: # False, or default
-                    sio.write('  <td><input type=checkbox id="%s" %s></td>\n'%(d['id'],hideStr))
-                    
-            elif d['type'] == 'select':
-                sio.write('<td><select id="%s" %s>\n'%(d['id'],hideStr))
-                for val,txt,enableList,disableList in d['options']:
-                    if oldVal==val:
-                        sio.write('  <option value="%s" selected data-enable="%s" data-disable="%s">%s</option>\n'%\
-                                  (val, ','.join(enableList), ','.join(disableList), txt))
-                    else:
-                        sio.write('  <option value="%s" data-enable="%s" data-disable="%s">%s</option>\n'%\
-                                  (val, ','.join(enableList), ','.join(disableList), txt))
-                sio.write('</select></td>\n')
-            elif d['type'] == 'lifetime':
-                if oldVal is not None:
-                    val,units = oldVal
-                    sio.write('  <td><div class="hrm_lifetime" %s><input type=text value="%s" id="%s" onkeypress="validateFloat(event)" >\n'%\
-                              (hideStr,val,d['id']))
-                    if units=='D':
-                        sio.write('  <select id="%s_units"><option value="D" selected>%s</option><option value="W">%s</option><option value="M">%s</option></select></div></td>\n'%\
-                                  (d['id'],_("Days"),_("Weeks"),_("Months")))
-                    elif units=='W':
-                        sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W" selected>%s</option><option value="M">%s</option></select></div></td>\n'%\
-                                  (d['id'],_("Days"),_("Weeks"),_("Months")))
-                    elif units=='M':
-                        sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W">%s</option><option value="M" selected>%s</option></select></div></td>\n'%\
-                                  (d['id'],_("Days"),_("Weeks"),_("Months")))
-                    else:
-                        raise RuntimeError("Nonsense lifetime units code %s"+units)
-                else:
-                    sio.write('  <td><div %s class="hrm_lifetime"><input type=text id="%s" onkeypress="validateFloat(event)" %s>\n'%\
-                              (hideStr,d['id'],hideStr))
-                    sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W">%s</option><option value="M">%s</option></select></div></td>\n'%\
-                              (d['id'],_("Days"),_("Weeks"),_("Months")))
-            elif d['type'] == 'currency':
-                if oldVal is None:
-                    sio.write('  <td><div class="hrm_currency" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
-
-                else:
-                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
-                    sio.write('  <td><div class="hrm_currency" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
-                if 'price' in d and 'year' in d:
-                    # We have enough info to make a cost editing triple
-                    pass
-            elif d['type'] == 'energy':
-                if oldVal is None:
-                    sio.write('  <td><div class="hrm_energy" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
-
-                else:
-                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
-                    sio.write('  <td><div class="hrm_energy" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
-            elif d['type'] == 'fuel':
-                if oldVal is None:
-                    sio.write('  <td><div class="hrm_fuel" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
-
-                else:
-                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
-                    sio.write('  <td><div class="hrm_fuel" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
+        ## Which hrmwidget to use
+        
+        recType = rec['type']
+        formKey = None
+        #which database key does this belong to... if this is a complex type, there will be a recmap
+        if rec.has_key('recMap'):
+            recKey = rec['recMap']
+            formKey = rec['key']
+        else:
+            recKey = rec['key']
+        
+        label = rec['label'] 
+        reqFlag = False
+        if rec['req']:
+            requiredString = "<span style='color:red;font-weight:bold;'>*</span>" 
+            reqFlag = True
+        else:
+            requiredString = "";
+        if recType in ['int','float','string','dbkey']:
+            default = None
+            if recType in ['int','float']:
+                default = 0
             else:
-                raise HermesServiceException(_("Unknown type {0} in fieldmap entry for {1}".format(d['type'],d['key'])))
+                default = ""
+            if typeInstance is not None:
+                default = getattr(typeInstance,recKey)
             
-        sio.write("</tr>\n")
-    sio.write("</table>\n")
-    # print sio.getvalue()
-    return sio.getvalue()
+            recclass ='notrequired'
+            print rec
+            if rec['req']: recclass = 'required_{0}_input'.format(recType)
+            if rec.has_key('canzero'):
+                if rec['canzero']:recclass += ' canzero'
+            
+            print recclass
+            formElement = HTMLFormInputBox(name_=recKey,
+                                           title_="",
+                                           default_=default,
+                                           type_=recType,
+                                           width='350px',
+                                           cssclass=recclass
+                                           )
+                                                                                      
+            editTable.addRow([label,formElement.htmlString(),requiredString],[rowStyleString,1,1,1])
+        elif recType =='select':
+            defaultValue = rec['default']
+            if typeInstance is not None and getattr(typeInstance,recKey): defaultValue = getattr(typeInstance,recKey)
+            formOptions = [(x[1],x[0]) for x in rec['options']]
+            if rec.has_key('none'):
+                if rec['none']:
+                    formOptions.append(('No Selection','none'))
+            formElement = HTMLFormSelectBox(name_=recKey,
+                                            title_="",
+                                            options_=formOptions,
+                                            default_=defaultValue,
+                                            width='350px')
+            editTable.addRow([label,formElement.htmlString(),requiredString],[rowStyleString,1,1,1])
+            
+        elif recType == 'bool':
+            defaultValue = False
+            if typeInstance is not None and getattr(typeInstance,recKey): defaultValue=getattr(typeInstance,recKey)
+            
+            formElement = HTMLFormCheckBox(name_=recKey,
+                                           title_="",
+                                           default_=defaultValue)
+            editTable.addRow([label,formElement.htmlString(),requiredString],[rowStyleString,1,1,1])
+            
+        elif recType == 'stringbox':
+            defaultValue = ""
+            if typeInstance is not None and getattr(typeInstance,recKey): defaultValue = getattr(typeInstance,recKey)
+            formElement = HTMLFormTextArea(name_=recKey,
+                                                                   title_="",
+                                                                   rows_=4,cols_=52,
+                                                                   default_=defaultValue)
+            
+            editTable.addRow([label,formElement.htmlString(),requiredString],[rowStyleString,1,1,1])
+            
+        elif recType == 'cost':
+            defaultValue = "0.0:USD:2011"
+            defaults = []
+            for key in recKey:
+                if typeInstance is not None and getattr(typeInstance,key): defaults.append(getattr(typeInstance,key))
+                else: break
+            
+            #print "Default here = '{0}'".format(defaults[0])
+            if len(defaults) == 1:
+                defaultValue = "{0}:USD:2011".format(defaults[0])
+            elif len(defaults) == 3:
+                defaultValue = "{0}:{1}:{2}".format(defaults[0],defaults[1],defaults[2])
+             
+            dataDict= {'price':recKey[0],'currency':recKey[1],'year':recKey[2],'required':reqFlag}
+            divString = "<div class='hrm_costforminput' id='{0}' data-fieldMap='{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)   
+            
+            editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
+        elif recType == 'scaledfloat':
+            defaultValue = 0.0
+            if typeInstance is not None and getattr(typeInstance,recKey): defaultValue = float(getattr(typeInstance,recKey))
+            dataDict = {'value':defaultValue,'scalefactor':float(rec['scale']),'required':reqFlag}
+            divString = "<div class='hrm_scalefloatinput' id='{0}' data-fieldMap='{1}'></div>".format(recKey,json.dumps(dataDict))
+            
+            editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
+        elif recType == 'time':
+            defaultValue = '0:days'
+            defaults = []
+            for key in recKey:
+                if typeInstance is not None and getattr(typeInstance,key):defaults.append(getattr(typeInstance,key))
+                else: break
+                
+            if len(defaults) == 1:
+                defaultValue = "{0}:days".format(defaults[0])
+            elif len(defaults) == 2:
+                defaultValue = "{0}:{1}".format(defaults[0],defaults[1])
+                
+            dataDict = {'time':recKey[0],'unit':recKey[1],'required':reqFlag}
+            divString = "<div class='hrm_timeforminput' id='{0}' data-fieldmap='{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)
+            editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
+        
+        elif recType == 'dynamicunit':
+            defaultValue = '0:Unknown'
+            # # will write a validator for the field maps sepaly
+            defaults = []
+            for key in recKey:
+                if typeInstance is not None and getattr(typeInstance,key):defaults.append(getattr(typeInstance,key))
+                else: break
+                
+            if len(defaults) == 1:
+                defaultValue = "{0}:None".format(defaults[0])
+            elif len(defaults) == 2:
+                defaultValue = "{0}:{1}".format(defaults[0], defaults[1])
+            
+            dataDict = {'value':recKey[0], 'unit':recKey[1], 'lookup':None, 'lookupdict':None,'required':reqFlag}
+            
+            if rec.has_key('lookup'):
+                dataDict['lookup'] = rec['lookup']
+                dataDict['lookupdict'] = rec['lookupDict']
+                   
+            divString = "<div class='hrm_dynamicunitforminput "+ recclass +"' id = '{0}' data-fieldmap = '{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)
+            editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
+        
+        elif recType == "custtruckstoragetable":
+            ## Note, there is no default value for this type
+            tName = 'new'
+            if typeInstance is not None and getattr(typeInstance,'Name'):
+                tName = typeInstance.Name
+            dataDict = {'key':recKey,'modelId':model.modelId,'typename':tName,'required':reqFlag}
+            divString = "<div class='hrm_truckinventorygrid' id = '{0}' data-fieldmap = '{1}'></div>".format(recKey,json.dumps(dataDict))
+            editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
+    
+    reqstr = '<span style="color:red;font-weight:bold">*</span>' + _(' indicates a required field')      
+    editTable.addRow([reqstr],['c',3])                                                                                    
+    htmlDoc.addConstruct(editTable)
+    return htmlDoc.htmlString()
+    
+
 
 def getTypeEditHTML(db,uiSession,wireType,modelId,protoname,fieldMap):
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
+    if(protoname != "new_type"):
+        canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, protoname)
+    else:
+        typeInstance = None
     
     titleStr = _("This will go in model {0}").format(model.name)
     
-    return _buildEditFieldTable(fieldMap), titleStr
+    return _buildEditFieldTableNew(fieldMap,typeInstance,model=model), titleStr
 
 def getRouteDialogHTML(db,uiSession,name="model_route_dialog",genInfo=True,util=True,tripMan=True):
     tabCount =1
@@ -1223,3 +1135,177 @@ def getStoreDialogHTML(db,uiSession,name="model_store_dialog",buttonName=None,ge
     if availPlot: stringList.append("%s_meta['availPlot'] = true;%s_meta['getResults'] = true;"%(name,name))
     stringList.append("</script>")
     return "".join(stringList)
+
+
+''''
+obsolete
+def _buildEditFieldTable(fieldMap):
+    """
+    fieldMap defines the layout of form fields on a page.  It is a 
+    list of elements, each of which is a dict.  The following dict 
+    elements are recognized:
+    
+       'row':   a 1-based integer indicating which row on the page 
+                should include the field.  Within a row, fields are 
+                displayed in list order.
+                
+       'label': the label string to be used for the field
+       
+       'key':   a string used to index fields, and to associate values 
+                with this field in JSON transactions
+       
+       'id':    this string becomes the html id of the field on the 
+                field on the client side
+       
+       'type':  one of ['string','float','int','bool','lifetime','hide',
+                'select', 'energy', 'fuel', 'price', 'currency']
+       
+       'default': default value
+       
+       'options': if 'type' is 'select', this provides a list of entries 
+                  for the select box. Each element of the list is a tuple 
+                  of the form:
+                  
+                      (value,label,enableList,disableList)
+                      
+                  enableList and disableList are lists of the key strings 
+                  of other dicts in the fieldMap that will be enabled or 
+                  disabled by setting the select to this particular option.  
+                  This provides a mechanism to have form entries appear 
+                  and disappear in response to select box settings.
+      """
+    
+    # Pre-scan to find anything which starts out disabled
+    disabledItems = set()
+    for d in fieldMap:
+        if d['type'] == 'select':
+            if 'value' in d:
+                for val,txt,enabledList,disabledList in d['options']:      # @UnusedVariable
+                    if val==d['value']: disabledItems.update(disabledList)
+            elif 'default' in d:
+                for val,txt,enabledList,disabledList in d['options']:      # @UnusedVariable
+                    if val==d['default']: disabledItems.update(disabledList)
+            elif len(d['options'])>0:
+                val,txt,enabledList,disabledList = d['options'][0] # first entry selected by default @UnusedVariable
+                disabledItems.update(disabledList)
+        
+    maxRow = max([d['row'] for d in fieldMap])
+    sio = StringIO()
+    sio.write("<table class='hrm_edittype'>\n")
+    for row in xrange(1,maxRow+1):
+        subSlots = [d for d in fieldMap if d['row']==row and d['type']!='hide']
+        sio.write("<tr>\n")
+        for d in subSlots: sio.write("  <th>%s</th>\n"%d['label'])
+        sio.write("</tr>\n")
+        sio.write("<tr>\n")
+        for d in subSlots:
+            if d['id'] in disabledItems: hideStr = 'style="display:none"'
+            else: hideStr = ""
+            if 'value' in d and d['value'] is not None and d['value']!="": oldVal = d['value']
+            elif 'default' in d: oldVal = d['default']
+            else: oldVal = None
+            
+            if d['type'] == 'int':
+                if oldVal is not None:
+                    sio.write('  <td><input type=number value="%s" id="%s" %s></td>\n'%(oldVal,d['id'],hideStr))
+                else:
+                    sio.write('  <td><input type=number value="0" id="%s" %s></td>\n'%(d['id'],hideStr))
+                    
+            elif d['type'] == 'string':
+                if oldVal is not None:
+                    if isinstance(oldVal,types.ListType) :
+                        s = ",".join([str(v).replace('"','&quot;') for v in oldVal])
+                        escapedStr= str(s)
+                    else:
+                        #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
+                        escapedStr = oldVal.replace('"','&quot;')
+                    sio.write('  <td><input type=text value="%s" id="%s" %s></td>\n'%(escapedStr,d['id'],hideStr))
+                else:
+                    sio.write('  <td><input type=text id="%s" %s></td>\n'%(d['id'],hideStr))
+                    
+            elif d['type'] == 'float':
+                if oldVal is not None:
+                    sio.write('  <td><input type=text value="%s" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%\
+                              (oldVal,d['id'],hideStr))
+                else:
+                    sio.write('  <td><input type=text value="0.0" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(d['id'],hideStr))
+                    
+            elif d['type'] == 'price':
+                if oldVal is not None:
+                    sio.write(' <td><div class="hrm_costforminput" id="%s" %s>0.5:USD:2001</div></td>\n'%(d['id'],hideStr))
+                   # sio.write('  <td><input class="hrm_price" type=text value="%s" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(oldVal,d['id'],hideStr))
+                else:
+                    sio.write(' <td><div class="hrm_costforminput" id="%s" %s>0.5:USD:2001</td>\n'%(d['id'],hideStr))
+                   # sio.write('  <td><input class="hrm_price" type=text value="0.0" id="%s" onkeypress="validateFloat(event)" %s></td>\n'%(d['id'],hideStr))
+                    
+            elif d['type'] == 'bool':
+                if oldVal: # True
+                    sio.write('  <td><input type=checkbox checked id="%s" %s></td>\n'%(d['id'],hideStr))
+                else: # False, or default
+                    sio.write('  <td><input type=checkbox id="%s" %s></td>\n'%(d['id'],hideStr))
+                    
+            elif d['type'] == 'select':
+                sio.write('<td><select id="%s" %s>\n'%(d['id'],hideStr))
+                for val,txt,enableList,disableList in d['options']:
+                    if oldVal==val:
+                        sio.write('  <option value="%s" selected data-enable="%s" data-disable="%s">%s</option>\n'%\
+                                  (val, ','.join(enableList), ','.join(disableList), txt))
+                    else:
+                        sio.write('  <option value="%s" data-enable="%s" data-disable="%s">%s</option>\n'%\
+                                  (val, ','.join(enableList), ','.join(disableList), txt))
+                sio.write('</select></td>\n')
+            elif d['type'] == 'lifetime':
+                if oldVal is not None:
+                    val,units = oldVal
+                    sio.write('  <td><div class="hrm_lifetime" %s><input type=text value="%s" id="%s" onkeypress="validateFloat(event)" >\n'%\
+                              (hideStr,val,d['id']))
+                    if units=='D':
+                        sio.write('  <select id="%s_units"><option value="D" selected>%s</option><option value="W">%s</option><option value="M">%s</option></select></div></td>\n'%\
+                                  (d['id'],_("Days"),_("Weeks"),_("Months")))
+                    elif units=='W':
+                        sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W" selected>%s</option><option value="M">%s</option></select></div></td>\n'%\
+                                  (d['id'],_("Days"),_("Weeks"),_("Months")))
+                    elif units=='M':
+                        sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W">%s</option><option value="M" selected>%s</option></select></div></td>\n'%\
+                                  (d['id'],_("Days"),_("Weeks"),_("Months")))
+                    else:
+                        raise RuntimeError("Nonsense lifetime units code %s"+units)
+                else:
+                    sio.write('  <td><div %s class="hrm_lifetime"><input type=text id="%s" onkeypress="validateFloat(event)" %s>\n'%\
+                              (hideStr,d['id'],hideStr))
+                    sio.write('  <select id="%s_units"><option value="D">%s</option><option value="W">%s</option><option value="M">%s</option></select></div></td>\n'%\
+                              (d['id'],_("Days"),_("Weeks"),_("Months")))
+            elif d['type'] == 'currency':
+                if oldVal is None:
+                    sio.write('  <td><div class="hrm_costforminput" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
+                   # sio.write('  <td><div class="hrm_costformInput" id="%s" %s> 1.0:USD:2003 </td>\n'%(d['id'],hideStr,''))
+
+                else:
+                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
+                    #sio.write(' <td><div class="hrm_costforminput" id="%s" %s>0.5:USD:2001</td>\n'%(d['id'],hideStr))
+                    sio.write('  <td><div class="hrm_currency" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
+                if 'price' in d and 'year' in d:
+                    # We have enough info to make a cost editing triple
+                    pass
+            elif d['type'] == 'energy':
+                if oldVal is None:
+                    sio.write('  <td><div class="hrm_energy" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
+
+                else:
+                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
+                    sio.write('  <td><div class="hrm_energy" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
+            elif d['type'] == 'fuel':
+                if oldVal is None:
+                    sio.write('  <td><div class="hrm_fuel" id="%s" %s> %s </td>\n'%(d['id'],hideStr,''))
+
+                else:
+                    #print 'oldVal: %s <%s>'%(type(oldVal),oldVal)
+                    sio.write('  <td><div class="hrm_fuel" id="%s" %s>%s</td>\n'%(d['id'],hideStr,oldVal))
+            else:
+                raise HermesServiceException(_("Unknown type {0} in fieldmap entry for {1}".format(d['type'],d['key'])))
+            
+        sio.write("</tr>\n")
+    sio.write("</table>\n")
+    # print sio.getvalue()
+    return sio.getvalue()
+    '''

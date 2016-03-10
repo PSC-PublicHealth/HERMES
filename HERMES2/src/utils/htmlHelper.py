@@ -79,7 +79,6 @@ class HTMLConstruct(HTMLPrimitive):
         self.footerStringList.append(text_)
         
     def htmlString(self):
-        print "SHIT"
         htmlStringList = []
         [htmlStringList.append(x) for x in self.headerStringList]
         htmlStringList.append(self.htmlStringLocal())
@@ -139,7 +138,6 @@ class HTMLTableRow(HTMLElement):
         htmlStringList.append(u'</tr>')
         
         if self.pretty:
-            #print str(htmlStringList)
             return u'\n'.join(htmlStringList)
         else:
             return u''.join(htmlStringList)
@@ -149,7 +147,6 @@ class HTMLTableColumn(HTMLElement):
     def __init__(self,name_="TableColumn",value_=None,colspan_=1,header_=False,pretty_=True,**kwargs):
         HTMLElement.__init__(self,name_,pretty_,**kwargs)
         ### Add a formatting parameter so that I can control the look of numbers such as currency
-        
         self.value = " "
         if value_ is not None:
             self.value = value_  
@@ -188,8 +185,6 @@ class HTMLTable(HTMLConstruct):
     def addRow(self,rowList,rowFormats):
         print "F"
         if len(rowList)+1 != len(rowFormats):
-            #print "RowList: " + str(rowList)
-            #print "RowFormats: " + str(rowFormats)
             raise RuntimeError("In Table %s, incorrect list being passed to add row"%self.name)
         
         ### Create the HTML Row and fill it with data
@@ -209,15 +204,6 @@ class HTMLTable(HTMLConstruct):
             rowData = self.data[i]
             rowFormat = self.rowFormats[i]
             rowStyle = rowFormat.pop(0)
-            #if rowStyle == 'h':#print "row hidden"
-            #    display = "none"
-                #visibility='hidden'
-            #else:
-            #    display = "inline"
-                #visibility='visible'
-            #if self.styles.has_key("width"):
-            #    row = HTMLTableRow("%s_row_%d"%(self.name,i),self.pretty,display=display,width=self.styles['width'])
-            #else:
             if rowStyle == 'h':
                 row = HTMLTableRow(u"%s_row_%d"%(self.name,i),self.pretty,display=u'none')
             elif rowStyle == 'm':
@@ -239,21 +225,12 @@ class HTMLTable(HTMLConstruct):
             self.rows.append(row)   
                 
     def htmlStringLocal(self):
-        #print "Rows = " + str(self.data)
-        #print "RowForms = " + str(self.rowFormats)
         style = self.styleString[:-2] + u'table-layout:fixed;"'
-        #print type(style)
         htmlList = [u'<table id="%s" %s %s>'%(self.name,self.classString,style)]
         self.createTableElements()
-        #print len(self.rows)
         for row in self.rows:
-        #    print 'row {0}'.format(type(row.htmlString()))
             htmlList.append(row.htmlString())
         htmlList.append(u"</table>")
-        #for s in htmlList:
-        #    print "R: "#{0}".format(type(s))
-        htmlstring = u''.join(htmlList)
-        #print "table {0}".format(type(htmlstring))
         if self.pretty:
             return u'\n'.join(htmlList)
         else:
@@ -261,8 +238,6 @@ class HTMLTable(HTMLConstruct):
         
 class HTMLForm(HTMLTable):
     def __init__(self,name_,title_=None, action_=None, pretty_=True, **kwargs):
-        #self.name = name_
-        #self.title = title_
         HTMLTable.__init__(self, name_+"_table", title_, pretty_,**kwargs)
         self.action = action_
         
@@ -270,13 +245,10 @@ class HTMLForm(HTMLTable):
             self._addHeader(u'<form id="%s" action=%s method="GET">'%(self.name,self.action))
         else:
             self._addHeader(u'<form id=%s method="GET">'%(self.name))
-        #self._addFooter('<input type="submit" id="%s" value="%s">'%("submit-%s"%self.name,"Save"))
         self._addFooter(u'</form>')
-        #self.elementList = []
         
     def addElement(self,htmlElement_):
         if htmlElement_.styles.has_key('visibility') and htmlElement_.styles['visibility'] == 'hidden':
-            print "hidden"
             self.addRow([htmlElement_.title,htmlElement_.htmlString()],["h",1,1])
         elif hasattr(htmlElement_,'title') and htmlElement_.title is not None:
             self.addRow([htmlElement_.title,htmlElement_.htmlString()], ["N",1,1])
@@ -289,7 +261,6 @@ class HTMLFormSelectBox(HTMLElement):
         HTMLElement.__init__(self,name_,pretty_,**kwargs)
         self.title = title_
         self.options = options_ # options is a list of tuples (name,value)
-        print "TTTTT"
         ### argument checking 
         if len(options_) > 0:
             for option in options_:
@@ -333,8 +304,8 @@ class HTMLFormSelectBox(HTMLElement):
             return u''.join(htmlList)
 
 class HTMLFormInputBox(HTMLElement):
-    _acceptableTypes = {'int':'number','string':'text','float':'number'}
-    def __init__(self,name_,title_,default_=None,type_='int',pretty_=True,**kwargs):
+    _acceptableTypes = {'int':'number min="0" step="1"','string':'text','float':'number min="0" step="0.1"','dbkey':'text'}
+    def __init__(self,name_,title_,default_=None,type_='int',data_=None,pretty_=True,**kwargs):
         HTMLElement.__init__(self,name_,pretty_,**kwargs)
         self.title = title_
         
@@ -342,6 +313,7 @@ class HTMLFormInputBox(HTMLElement):
             raise Exception("HTMLFormInputBox %s: undefined type %s specified"%(self.name,str(type_)))
         self.type = type_
         self.pretty = pretty_
+        self.data = data_
         
         self.default = None
         if default_ is not None:
@@ -363,16 +335,19 @@ class HTMLFormInputBox(HTMLElement):
                         value = float(value)
                     except Exception,e:
                         raise Exception("HTMLFormInputBox %s: value %s not consistent with Float type"%(self.name,value))
-        elif self.type == 'string':
+        elif self.type in ['string','dbkey']:
             value = unicode(value)
         return value
     
     def htmlString(self):
         parsedType = self._acceptableTypes[self.type]
         thisString = u''
+#         dataString = ''
+#         if self.data is not None:
+#             dataString = u'data self.data-fieldmap
         if self.default is not None:
-            thisString = u'<input id=%s type=%s value="%s" %s %s>'%(self.name,parsedType,self.default,
-                                                             self.classString,self.styleString)
+            thisString = u'<input id={0} type={1} value="{2}" {3} {4}>'.format(self.name,parsedType,self.default,
+                                                                               self.classString,self.styleString)
         else:
             thisString = u'<input id=%s type=%s %s %s>'%(self.name,parsedType,
                                                   self.classString,self.styleString)
@@ -399,6 +374,23 @@ class HTMLFormCheckBox(HTMLElement):
     def htmlString(self):
         return u'<input id=%s type="checkbox" %s %s %s>'%(self.name,self.default,
                                                          self.classString, self.styleString)
+        
+class HTMLFormTextArea(HTMLElement):
+    def __init__(self,name_,title_,default_='',rows_=4, cols_=100, pretty_=True,**kwargs):
+        HTMLElement.__init__(self,name_,pretty_,**kwargs)
+        self.title = title_
+        self.default = default_
+        self.rows=rows_
+        self.cols=cols_
+
+    def htmlString(self):
+        return u'<textarea id={0} rows="{1}" cols="{2}">{3}</textarea>'.format(self.name,
+                                                                                                                                                            self.rows,
+                                                                                                                                                             self.cols,
+                                                                                                                                                             self.default)
+    
+        
+
             
 def main():
     htmlDoc = HTMLDocument(name_="test_doc",title_="Test HTML Document",standAlone_=True)

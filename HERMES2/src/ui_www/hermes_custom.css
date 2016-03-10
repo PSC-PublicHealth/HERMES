@@ -196,6 +196,28 @@ button.hrm_cur_sel_btn {
 	
 }
 
+.hrm_cost_div{
+	padding-left:10px;
+	padding-right:10px;
+	padding-top:4px;
+}
+
+.hrm_cost_price{
+	padding-top:3px;
+}
+
+
+
+.hrm_time_time{
+	padding-top:3px;
+	width:500px;
+	max-width:250px;
+}
+
+span.ui-selectmenu-text{
+	line-height:normal !important;
+}
+
 ul.ui-menu {
 	z-index: 9999;
 }
@@ -2492,4 +2514,7 @@ div.ui-jqgrid-view table.ui-jqgrid-btable th
 }
 .hermes-top-sub{
     font-size:12px;
+}
+.hrm_selectmenu_overflow{
+	height: 100px;
 }

@@ -15,7 +15,7 @@
 #                                                                                 #
 ###################################################################################
 -->
-<h1>{{_('Creating Your Cold Storage Type')}}</h1>
+<h1>{{_('Creating Your Cold juicy Storage Type')}}</h1>
 {{_("The fields have been filled out with values from the cold storage type you selected.  When you are finished, select the 'Done' button at the bottom right.")}}
 <p>
 {{_("Your prototype was named {0}").format(protoname)}}

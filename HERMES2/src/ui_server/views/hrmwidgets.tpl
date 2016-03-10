@@ -1,4 +1,3 @@
-// Thanks to Patrick Desjardins http://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-money-in-javascript
 /*
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
@@ -15,6 +14,7 @@
 #                                                                                 #
 ###################################################################################
 */
+
 Number.prototype.formatMoney = function(c, d, t){
 var n = this, 
     c = isNaN(c = Math.abs(c)) ? 2 : c, 
@@ -163,7 +163,7 @@ function addToggleExpansionButton($grid) {
 					loadError: function(xhr,status,error){ alert('{{_("Error: ")}}'+status); },
 					beforeProcessing: function(data,status,xhr) {
 						if (typeof(data.success) != 'undefined' && !data.success) {
-							if (data.msg) alert('{{_("Failed: ")}}'+data.msg);
+							if (data.msg) alert('{{_("Failede: ")}}'+data.msg);
 							else alert('{{_("Failed: No information about the error is available")}}');
 						}
 					},
@@ -301,7 +301,6 @@ function addToggleExpansionButton($grid) {
 
 // This defines the hrmWidget jquery plugin
 (function( $ ) {
-    
     $.fn.hrmWidget = function(options) {
  	
         var settings = $.extend({
@@ -430,7 +429,7 @@ function addToggleExpansionButton($grid) {
  							}
  						}
  						else {
- 							alert('{{_("Failed: ")}}'+data.msg);
+ 							alert('{{_("Failedf: ")}}'+data.msg);
  						}
  					})
  					.fail(function(jqxhr, textStatus, error) {
@@ -463,6 +462,81 @@ function addToggleExpansionButton($grid) {
  					}
  				});
  				$elem.currencySelector1('rebuild');
+ 			});
+ 		}
+ 		else if (settings['widget']=='currencySelectorSimple'){
+ 			$.fn.currencySelectorSimple = function(arg, arg2){
+ 				var tId = this.attr('id');
+ 				if(tId==undefined) $.error('currencySelectorSimple has no id');
+ 				
+ 				if(arg=='value'){
+ 					return $("#"+tId+"_currency_selector").val();
+ 				}
+ 				if(arg=='valueJson'){
+ 					return {'currency':$("#"+tId+"_currency_selector").val()};
+ 					
+ 				}
+ 				if(arg=='clean'){
+ 					
+ 				}
+ 			}
+ 			return this.each(function(index,elem){
+ 				var $elem = $(elem);
+ 				$elem.data('modelId',settings['modelId']);
+ 				//$elem.data('default',settings['default']);
+ 				$elem.data('selected',settings['selected']);
+ 				
+ 				// get the currency values
+ 				$.ajax({
+ 					url:'{{rootPath}}list/select-currency',
+ 					data:{modelId:modelId,idstring:encodeURIComponent(settings['selected'])}
+ 				})
+ 				.done(function(result){
+ 					if(result.success){
+ 						console.log(result);
+ 						if(result.defaultid){
+ 							$elem.data('default',result.defaultid);
+ 						}
+ 						else{
+ 							$elem.data('default','None');
+ 						}
+ 						console.log($elem.data('selected'));
+ 						console.log(settings['selected']);
+	 					var optionsList = [];
+	 					for(var i=0;i<result.pairs.length;++i){
+	 						optionsList.push([result.pairs[i][1],result.pairs[i][0]]);
+	 					}
+	 					console.log("0000000");
+	 					// create the select box
+	 					htmlString = "<select id='"+$elem.attr('id')+"_currency_selector'>";
+	 					for(option in optionsList){
+	 						if(optionsList.hasOwnProperty(option)){
+	 							if(optionsList[option][0]==$elem.data('selected')){
+	 								htmlString += "<option value = '"+optionsList[option][0]+"' selected>"
+	 									+optionsList[option][0]+" - " +optionsList[option][1]+"</option>";
+	 							}
+	 							else{
+	 								htmlString += "<option value = '"+optionsList[option][0]+"'>"
+	 									+optionsList[option][0]+" - " +optionsList[option][1]+"</option>";
+	 							}
+	 						}
+	 					}
+	 					
+	 					htmlString +='</select>';
+	 					$elem.html(htmlString);
+	 					$("#"+$elem.attr('id')+"_currency_selector").selectmenu({
+	 						width:'auto',
+	 						height:'auto',
+	 					})
+	 					.selectmenu("menuWidget").addClass("hrm_selectmenu_overflow");
+ 					}
+ 					else{
+ 						alert("{{('Failed in currency selector getting select-currency list')}}" + data.msg.htmlEscape());
+ 					}
+ 				})
+ 				.fail(function(jqxhr, textStatus, error){
+ 					alert("{{('Error in currency selector getting select-currency list')}}" + jqxhr.responseText.htmlEscape());
+ 				});
  			});
  		}
  		else if (settings['widget']=='currencySelector') {
@@ -520,7 +594,12 @@ function addToggleExpansionButton($grid) {
 				.done(function(data) {
 					if (data.success) {
 						//$dlgDiv.data('defaultSelection',decodeURIComponent(data.defaultid));
-						$dlgDiv.data('defaultSelection',data.defaultid.htmlEscape());
+						if(data.defaultid){
+							$dlgDiv.data('defaultSelection',data.defaultid.htmlEscape());
+						}
+						else{
+							$dlgDiv.data('defaultSelection','None');
+						}
 						$dlgDiv.html("");
 	    				//var selId = decodeURIComponent(data.selid);
 	    				var selId = data.selid.htmlEscape();
@@ -573,7 +652,7 @@ function addToggleExpansionButton($grid) {
 		    			});
 					}
 					else {
-							alert('{{_("Failed: ")}}'+data.msg.htmlEscape());
+							alert('{{_("Failedg: ")}}'+data.msg.htmlEscape());
 					}
 				})
 					.fail(function(jqxhr, textStatus, error) {
@@ -698,7 +777,295 @@ function addToggleExpansionButton($grid) {
 				$elem.currencySelector('rebuild');			
  			});
  		}
+ 		else if (settings['widget']=='scaledFloatInput'){
+ 			$.fn.scaledFloatInput = function(arg,arg2){
+ 				var tId = this.attr('id');
+ 				if(tId==undefined) $.error('scaled Float Input has no id');
+ 				
+ 				if(arg=='value'){
+ 					var scalefactor = parseFloat($("#" + tId).data("fieldMap").scalefactor);
+ 					return $("#" + tId + "_float").val()/scalefactor; 
+ 				}
+ 				if(arg=='valueJson'){
+ 					var scalefactor = parseFloat($("#" + tId).data("fieldMap").scalefactor);
+ 					var returnJson = {}
+ 					returnJson['key'] = tId;
+ 					returnJson['value'] = $("#" + tId + "_float").val()/scalefactor; 
+ 					return returnJson;
+ 				}
+ 				if(arg=='clean'){
+ 					var value = $("#"+tId+"_float").val();
+ 					if(isNaN(parseFloat(value))){
+ 						$("#"+tId+"_float").val(0.0);
+ 					}
+ 				}
+ 			}
+ 			return this.each(function(index,elem){
+ 				var $elem = $(elem);
+ 				$elem.data('fieldMap',JSON.parse(settings['fieldMap']));
+ 				
+ 				var value = parseFloat($elem.data('fieldMap').value) * parseFloat($elem.data('fieldMap').scalefactor);
+ 				var req_string = "";
+	 			if($elem.data("fieldMap").required){
+	 				req_string = ' required_float_input';
+	 			}
+ 				htmlString = '<div style="float:left;"><label>'+settings['label'] + '</label>';
+ 				htmlString += '<input type="number" class="hrm_scaledfloatinput_value '+req_string + '" id="' + $(this).attr('id') + '_float"></input></div>';
+ 				
+ 				$elem.html(htmlString);
+ 				$("#"+$(this).attr('id') + "_float").val(value);
+ 			})
+ 		}
+ 		else if (settings['widget']=='timeFormInput'){
+ 			$.fn.timeFormInput = function(arg, arg2) {
+ 				var tId = this.attr('id');
+ 				if(tId==undefined) $.error('time Form Input has no id');
+ 				
+ 				if(arg=='value'){
+ 					var timeValue = $("#"+tId+"_time").val();
+ 					var unitValue = $("#"+tId+"_unit").val();
+ 					return timeValue + ":" + unitValue;
+ 				}
+ 				if(arg=='valueJson'){
+ 					var fieldMap = $('#'+tId).data('fieldmap');
+ 					var returnJson = {};
+ 					returnJson[fieldMap.time] = $("#"+tId+"_time").val();
+ 					returnJson[fieldMap.unit] = $("#"+tId+"_unit").val();
+ 					
+ 					return returnJson;
+ 				}
+ 				
+ 				if(arg=='clean'){
+ 					var timeValue = $("#"+tId+"_time").val();
+ 					if(isNaN(parseFloat(timeValue))) $("#"+tId+"_time").val(0.0);
+ 				}
+ 			}
+	 		return this.each(function(index,elem){
+	 			var timeUnits = {'days':'D','months':'M','years':'Y'};
+	 			var $elem = $(elem);
+	 			$elem.data('fieldMap',JSON.parse(settings['fieldMap']));
+	 			var value = settings['value'];
+	 			var values = value.split(':');
+	 			var req_string = "";
+	 			if($elem.data("fieldMap").required){
+	 				req_string = ' required_float_input';
+	 			}
+	 			htmlString = '<div style="float:left;"><label>'+settings['label']+'</label>'
+	 			htmlString +='<input type="number" class="hrm_time_time '+req_string+'" id="'+$(this).attr('id')+'_time"></input></div>';
+	 			htmlString +='<div style="float:right;"><select  class="hrm_time_unit" id="'+$(this).attr('id')+'_unit">';
+	 			for (unit in timeUnits){
+	 				if(timeUnits.hasOwnProperty(unit)){
+	 					if(values[1] == timeUnits[unit])
+	 						htmlString +='<option value = "'+timeUnits[unit]+'" selected>'+unit+'</option>';
+	 					else
+	 						htmlString +='<option value = "'+timeUnits[unit]+'">'+unit+'</option>';
+	 				}
+	 			}
+	 			htmlString += '</select></div>'
+	 			$elem.html(htmlString);
+	 			$("#"+$(this).attr('id')+'_time').val(parseFloat(values[0]));
+	 			$('#'+$(this).attr('id')+'_unit').selectmenu({
+	 				width:'auto',
+	 				height:'auto',
+	 			})
+	 			.selectmenu("menuWidget")
+	 			.addClass("overflow");
+	 		});
+    	}
+ 		else if(settings['widget']=='dynamicUnitFormInput'){
+ 			$.fn.rateFormInput = function(arg, arg2) {
+ 				var tId = this.attr('id');
+ 				if(tId==undefined) $.error('dynamicUnit Form Input has no id');
+ 				
+ 				if(arg=='value'){
+ 					var valueValue = $("#"+tId+"_value").val();
+ 					var unitValue = $("#"+tId+"_unit").val();
+ 					return valueValue + ":" + unitValue;
+ 				}
+ 				if(arg=='valueJson'){
+ 					var fieldMap = $('#'+tId).data('fieldmap');
+ 					var returnJson = {};
+ 					returnJson[fieldMap.value] = $("#"+tId+"_value").val();
+ 					returnJson[fieldMap.unit] = $("#"+tId+"_unit").val();
+ 					
+ 					return returnJson;
+ 				}
+ 				if(arg=='clean'){
+ 					var valueValue = $("#"+tId+"_value").val();
+ 					if(isNaN(parseFloat(valueValue))) $("#"+tId+"_value").val(0.0);
+ 				}
+ 			}
+ 			
+ 			return this.each(function(index,elem){
+	 			var $elem = $(elem);
+	 			var value = settings['value'];
+	 			var values = value.split(':');
+	 			var eId = $elem.attr('id');
+	 			$elem.data('fieldMap',JSON.parse(settings['fieldMap']));
+	 			var req_string = "";
+	 			if($elem.data("fieldMap").required){
+	 				req_string = ' required_float_input';
+	 			}
+	 			htmlString = '<div style="float:left;"><label>'+settings['label']+'</label>';
+	 			htmlString +='<input type="number" class="hrm_dynamicunit_value '+req_string+'" id="'+$(this).attr('id')+'_value"></input></div>';
+	 			htmlString +='<div style="float:left;padding-left:10px;" class="hrm_dynamicunit_unit" id="'+$(this).attr('id')+'_unit"></div>';
+	 			htmlString +='</div>';
+	 				
+	 			$elem.html(htmlString);
+	 			
+	 			//get current value of the look up
+	 			var $lookupfield = $("#" + $elem.data("fieldMap").lookup);
+	 			var lookvalue = $lookupfield.val();
+	 			var initUnitValue = $elem.data("fieldMap").lookupdict[lookvalue][2];
+	 			
+	 			$("#" + eId + "_value").val(parseFloat(values[0]));
+	 			$("#" + eId + "_unit").text(initUnitValue);
+	 			
+	 			$lookupfield.change(function(){
+		 			$("#" + eId + "_unit").text($elem.data("fieldMap").lookupdict[$lookupfield.val()][2]);
+	 			});
+	 			
+	 			//console.log($("#"+$elem.data('fieldMap').lookup).val());
+ 			});
+ 		}
+ 		else if (settings['widget']=='costFormInput'){
+ 			$.fn.costFormInput = function(arg, arg2) {
+ 				var tId = this.attr('id');
+ 				if(tId==undefined) $.error('cost Form Input has no id');
+ 				
+ 				if(arg=='value'){
+ 					var price = $("#"+tId+"_price").val();
+ 					var year = $("#"+tId+"_year").val();
+ 					var currency = $("#"+tId+"_currency").currencySelectorSimple('value');
+ 					return price+":"+currency+":"+year;
+ 				}
+ 				if(arg=='valueJson'){
+ 					var fieldMap = $("#"+tId).data('fieldmap');
+ 					var returnJson = {};
+ 					returnJson[fieldMap.price] = $("#"+tId+"_price").val();
+ 					returnJson[fieldMap.currency] = $("#"+tId+"_currency").currencySelectorSimple('value');
+ 					returnJson[fieldMap.year] = $("#"+tId+"_year").val();
+ 					
+ 					return returnJson;
+ 				}
+ 				if(arg=='clean'){
+ 					var price = $("#"+tId+"_price").val();
+ 					console.log(parseFloat(price));
+ 					if(isNaN(parseFloat(price))) $("#"+tId+"_price").val(0.0);
+ 				}
+ 			}
 
+ 			return this.each(function(index,elem){
+ 				var currentYear = (new Date).getFullYear();
+ 				var allowedYears = [];
+ 				for(var i=0;i<15;++i){
+ 					allowedYears.push(currentYear - i);
+				}
+ 				//var allowedYears = [2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014];
+ 				var $elem  = $(elem);
+ 				var value = settings['value'];
+ 				var values = value.split(':');
+ 				$elem.data('fieldMap',$elem.attr("data-fieldMap"));
+ 				var req_string = "";
+	 			if($elem.data("fieldMap").required){
+	 				req_string = ' required_float_input';
+	 			}
+ 				//console.log(settings);
+ 				//put error handling here to validate
+ 				htmlString = '<div style="float:left;"><label>'+settings['label']+'</label>';
+ 				htmlString += '<input type="number" class="hrm_cost_price '+req_string+'" id="'+$(this).attr('id')+'_price"></input></div>';
+ 				htmlString += '<div style="float:left;" class="hrm_cost_div"> in </div>';
+ 				// replace with a year selector that takes into account available data
+ 				htmlString += '<div style="float:left;"> <select class="hrm_cost_year" size=15 id="'+ $(this).attr('id') + '_year">';
+ 				for (var i=0;i<allowedYears.length;i++){
+ 					if(parseInt(values[2]) == allowedYears[i]){
+ 						htmlString += '<option value='+allowedYears[i]+' selected>'+allowedYears[i]+'</option>';
+ 					}
+ 					else{
+ 						htmlString += '<option value='+allowedYears[i]+'>'+allowedYears[i]+'</option>';
+ 					}
+ 				}
+ 				htmlString += '</select></div>';
+ 				htmlString += '<div style="float:left;" class="hrm_cost_currencySelector" id="'+$(this).attr('id')+'_currency"></div>';
+ 				$elem.html(htmlString);
+ 				
+ 				//$elem.find('.hrm_cost_price').each(function(idx){
+ 				$("#"+$(this).attr('id')+"_price").each(function(){
+ 					$field = $(this);
+ 					$field.val(parseFloat(values[0]).toFixed(2));
+ 					$elem.data('orgPrice',$field.val());
+ 				});
+ 				//$elem.find('.hrm_cost_currencySelector').each(function(idx){
+ 				$("#"+$(this).attr('id')+"_currency").each(function(){
+ 					$field = $(this);
+ 					var sel = values[1];
+ 					console.log("Value = " + values);
+ 					$field.hrmWidget({
+ 						widget:'currencySelectorSimple',
+ 						label:'',
+ 						modelId:settings.modelId,
+ 						selected:sel,
+ 					});
+ 				});
+ 				//$elem.find('.hrm_cost_year').each(function(idx){
+ 				$("#"+$(this).attr('id')+"_year").each(function(){
+ 						$(this).selectmenu({
+ 							width:'auto',
+ 						})
+ 						.selectmenu("menuWidget")
+ 							.addClass("hrm_selectmenu_overflow");
+ 				});
+ 			});
+ 		}
+ 		else if (settings['widget']=='truckInventoryGrid'){
+ 			$.fn.truckInventoryGrid = function( arg, arg2 ) {
+ 				var tId = this.attr('id');
+ 				if(tId==undefined) $.error('i has no id');
+ 				
+ 				if(arg=='value'){
+ 					return $("#"+$(this).attr('id')+"_invGrid").inventory_grid("hermesStorageString");
+ 					// will figure out shortly
+ 				}
+ 				if(arg=='valueJson'){
+ 					return $("#"+$(this).attr('id')+"_invGrid").inventory_grid("data");
+ 					//will figure out shortly
+ 				}
+ 				if(arg=='clean'){
+ 					//will figure out shortly
+ 				}
+ 			}
+ 			return this.each(function(index,elem){
+ 				var $elem = $(elem);
+ 				$elem.data('data-fieldMap',JSON.parse(settings['fieldMap']));
+ 				htmlString = '<div style="float:left;"><label>'+settings['label']+'</label>';
+ 				htmlString = '<div id="'+$(this).attr('id')+'_invGrid" ></div>';
+ 				
+ 				$elem.html(htmlString);
+ 				var data_modelId = $elem.data('data-fieldMap')['modelId'];
+ 				var data_typename = $elem.data('data-fieldMap')['typename'];
+ 				var data_unique = Math.floor((Math.random()*1000000) + 1);
+ 				$("#"+$(this).attr('id')+'_invGrid').inventory_grid({
+ 					modelId:data_modelId,
+ 					typename:data_typename,
+ 					unique:data_unique,
+ 					caption:'',
+ 					customCols:[
+ 					            ["{{_('Freeser (L)')}}",'freezer','freezer','float'],
+ 					            ["{{_('Coolder (L)')}}",'cooler','cooler','float'],
+ 					            ["{{_('Warm (L)')}}",'warm','roomtemperature','float']
+ 					           ],
+ 					rootPath:'{{rootPath}}',
+ 					loadonce:true,
+ 					gridurl:"{{rootPath}}json/manage-truck-storage-table",
+ 					gridpostdata:{
+ 								  "modelId":data_modelId,
+ 								  "typename":data_typename,
+ 								  "unique":data_unique
+ 								 }
+ 				});
+ 			});
+ 			
+ 		}
  		else if (settings['widget']=='energySelector') {
 			$.fn.energySelector = function( arg, arg2 ) {
 				var sel = this.first().find("select");
@@ -746,7 +1113,7 @@ function addToggleExpansionButton($grid) {
 							if ($(document).tooltips) $(document).tooltips('applyTips');
 						}
 						else {
-							alert('{{_("Failed: ")}}'+data.msg);
+							alert('{{_("Faileda: ")}}'+data.msg);
 						}
     				})
   					.fail(function(jqxhr, textStatus, error) {
@@ -760,7 +1127,7 @@ function addToggleExpansionButton($grid) {
 					$.error('Unknown operation '+arg.toString());
 				}
 			}
-
+		
  			return this.each(function(index,elem) {
  				var $elem = $(elem);
  				$elem.html('<label>'+settings['label']+'</label>');
@@ -833,7 +1200,7 @@ function addToggleExpansionButton($grid) {
 	    					if ($(document).tooltips) $(document).tooltips('applyTips');							
 						}
 						else {
-							alert('{{_("Failed: ")}}'+data.msg);
+							alert('{{_("Failedb: ")}}'+data.msg);
 						}
     				})
   					.fail(function(jqxhr, textStatus, error) {
@@ -1300,8 +1667,9 @@ function addToggleExpansionButton($grid) {
  		else if (settings['widget']=='editFormManager') {
 			$.fn.editFormManager = function( arg, arg2 ) {
  				if (arg=='getEntries') {
+ 					
  					var dict = {modelId:settings.modelId}
- 					$(this).find('input,select').each( function( index ) {
+ 					$(this).find('input,select,textarea').each( function( index ) {
  						var tj = $(this);
  						if (tj.hasClass('hrm_price')) {
  							dict[tj.attr('id')] = tj.val().unformatMoney()
@@ -1318,16 +1686,67 @@ function addToggleExpansionButton($grid) {
  					});
  					$(this).find('.hrm_currency').each(function() {
  						var tj = $(this);
- 						dict[tj.attr('id')] = tj.currencySelector('selId');
- 					})
+ 						dict[tj.attr('id')] = tj.currencySelectorSimple('selId');
+ 					});
+ 					$(this).find('.hrm_costforminput').each(function(){
+ 						var tj = $(this);
+ 						tj.costFormInput('clean');
+ 						console.log("CGOSGTS");
+ 						value = tj.costFormInput('valueJson');
+ 						for (key in value){
+ 							if(value.hasOwnProperty(key)){
+ 								dict[key] = value[key];
+ 							}
+ 						}
+ 					});
+ 					$(this).find('.hrm_timeforminput').each(function(){
+ 						var tj = $(this);
+ 						tj.timeFormInput('clean');
+ 						value = tj.timeFormInput('valueJson');
+ 						for(key in value){
+ 							console.log(key);
+ 							if(value.hasOwnProperty(key)){
+ 								dict[key] = value[key];
+ 							}
+ 						}
+ 					});
+ 					$(this).find('.hrm_dynamicunitforminput').each(function(){
+ 						var tj = $(this);
+ 						tj.rateFormInput('clean');
+ 						value = tj.rateFormInput('valueJson');
+ 						for(key in value){
+ 							if(value.hasOwnProperty(key)){
+ 								dict[key] = value[key];
+ 							}
+ 						}
+ 					});
+ 					$(this).find('.hrm_scalefloatinput').each(function(){
+ 						var tj = $(this);
+ 						tj.scaledFloatInput('clean');
+ 						value = tj.scaledFloatInput('valueJson');
+ 						dict[value.key] = value.value;
+ 					});
+ 					$(this).find('.hrm_truckinventorygrid').each(function(){
+ 						var tj = $(this);
+ 						
+ 						tj.truckInventoryGrid('clean');
+ 						// The widget can return a hermesStorageString
+ 						value = tj.truckInventoryGrid('value');
+ 						dict[tj.attr('id')]=value;
+ 					});
  					$(this).find('.hrm_energy').each(function() {
  						var tj = $(this);
  						dict[tj.attr('id')] = tj.energySelector('selId');
- 					})
+ 					});
  					$(this).find('.hrm_fuel').each(function() {
  						var tj = $(this);
  						dict[tj.attr('id')] = tj.energySelector('selId');
- 					})
+ 					});
+ 					//dictString = "";
+ 					//for (var item in dict){
+ 					//	dictString += item + " " + dict[item]+"\n";
+ 					//}
+ 					//alert(dictString);
  					return dict;
  				}
 				else {
@@ -1337,7 +1756,8 @@ function addToggleExpansionButton($grid) {
 
  			return this.each(function(index,elem) {
  				$elem = $(elem);
- 				$elem.html(settings.html);
+ 				var htmlString = settings.html + "<div id='req_modal'></div>";
+ 				$elem.html(htmlString);
  				$(document).ready( function() {
  	 				$elem.find('.hrm_currency').each( function(idx) {
  	 					$field = $(this);
@@ -1375,6 +1795,56 @@ function addToggleExpansionButton($grid) {
  	 					$field = $(this);
  	 					$field.val( parseFloat($field.val()).formatMoney(2) );
  	 				})
+ 	 				$elem.find('.hrm_costforminput').each( function(idx) {
+ 	 					$field = $(this);
+ 	 					var val = $field.text();
+ 	 					$field.text('');
+ 	 					$field.hrmWidget({
+ 	 						widget:'costFormInput',
+ 	 						label:'',
+ 	 						value:val,
+ 	 						modelId:settings.modelId,
+ 	 						fieldMap:$field['recMap']
+ 	 					});
+ 	 				});
+ 	 				$elem.find('.hrm_timeforminput').each( function(idx){
+ 	 					$field=$(this);
+ 	 					var val = $field.text();
+ 	 					$field.text('');
+ 	 					$field.hrmWidget({
+ 	 						widget:'timeFormInput',
+ 	 						label:'',
+ 	 						value:val,
+ 	 						fieldMap:$field.attr("data-fieldMap")
+ 	 					});
+ 	 				});
+ 	 				$elem.find('.hrm_dynamicunitforminput').each( function(idx){
+ 	 					$field=$(this);
+ 	 					var val = $field.text();
+ 	 					$field.text('');
+ 	 					$field.hrmWidget({
+ 	 						widget:'dynamicUnitFormInput',
+ 	 						label:'',
+ 	 						value:val,
+ 	 						fieldMap:$field.attr("data-fieldMap")
+ 	 					});
+ 	 				});
+ 	 				$elem.find('.hrm_scalefloatinput').each(function(idx){
+ 	 					$field=$(this);
+ 	 					$field.hrmWidget({
+ 	 						widget:'scaledFloatInput',
+ 	 						label:'',
+ 	 						fieldMap:$field.attr('data-fieldMap')
+ 	 					});
+ 	 				});
+ 	 				$elem.find('.hrm_truckinventorygrid').each(function(idx){
+ 	 					$field=$(this);
+ 	 					$field.hrmWidget({
+ 	 						widget:'truckInventoryGrid',
+ 	 						label:'',
+ 	 						fieldMap:$field.attr("data-fieldMap")
+ 	 					});
+ 	 				});
  	 				$elem.change( function( eventObj ) {
  	 					var elem = $(eventObj.target);
  	 					if (elem.is('select')) {
@@ -1395,6 +1865,28 @@ function addToggleExpansionButton($grid) {
  	 						}
  	 					}
  	 				});
+// 	 				$('.required_string_input').change( function (eventObj) {
+// 	 					var value = $(this).val();
+// 	 					if(!value || value.length === 0 || !value.trim()){
+// 	 						$(this).css("border-color","red");
+// 	 						$("#req_modal").text('{{_("Value cannot be left blank")}}');
+// 	 						$("#req_modal").dialog("open");
+// 	 						
+// 	 					}
+// 	 				});
+// 	 				$('.required_string_input').focusout( function (eventObj) {
+// 	 					var value = $(this).val();
+// 	 					if("#")
+// 	 					if(!value || value.length === 0 || !value.trim()){
+// 	 						$(this).focus();
+// 	 						$(this).css("border-color","red");
+// 	 						$("#req_modal").text('{{_("Value cannot be left blank")}}');
+// 	 						$("#req_modal").dialog("open");
+// 	 					}
+// 	 					else{
+// 	 						$(this).css("border-color","");
+// 	 					}
+// 	 				});
 	    			if ('afterBuild' in settings && settings.afterBuild != null) {
 	 	    			settings.afterBuild.bind($elem)($elem);
 	 	    		};
@@ -1460,7 +1952,7 @@ function addToggleExpansionButton($grid) {
                                 }
                             }
                             else {
-                            alert('{{_("Failed: ")}}'+data.msg);
+                            alert('{{_("Failedc: ")}}'+data.msg);
                             }
                         })
                         .fail(function(jqxhr, textStatus, error) {
@@ -1537,7 +2029,7 @@ function addToggleExpansionButton($grid) {
 					}
 				})
 				.fail(function(jqxhdr, textStatus, error) {
-					alert('{{("Failed: ")}}' + jqxhdr.responseText);
+					alert('{{("Failedd: ")}}' + jqxhdr.responseText);
 				});
 			});
  		};

@@ -29,13 +29,23 @@ import htmlgenerator
 import privs
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults, b64D
 
+from HermesServiceException import HermesServiceException
+from ui_utils import _logMessage, _logStacktrace, _safeGetReqParam, _getOrThrowError
 
+## If executing under mod_wsgi, we need to add the path to the source
+## directory of this script.
+import site_info
+import session_support_wrapper as session_support
 
+sI = site_info.SiteInfo()
+
+inlizer=session_support.inlizer
+_=session_support.translateString
 
 def typeEditPage(db, uiSession, typeClass):
     try:
         paramList = ['%s:%s'%(str(k),str(v)) for k,v in bottle.request.params.items()]
-        #_logMessage("Hit truck-edit; params=%s"%paramList)
+        _logMessage("Hit type-edit-page; params=%s"%paramList)
         modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
         uiSession.getPrivs().mayReadModelId(db, modelId)
         protoName = _getOrThrowError(bottle.request.params,'protoname')
@@ -49,7 +59,7 @@ def typeEditPage(db, uiSession, typeClass):
         else:
             backURL = 'query'
         crumbTracks = uiSession.getCrumbs().push((bottle.request.path,_("Create Modified Version")))
-        return bottle.template("type_edit.tpl",{"breadcrumbPairs":crumbTracks,
+        return bottle.template("type_edit_dialog.tpl",{"breadcrumbPairs":crumbTracks,
                                                 "protoname":protoName,
                                                 "modelId":modelId,
                                                 "typeClass":typeClass,
@@ -90,23 +100,30 @@ def jsonTypeEditForm(db, uiSession, typeClass, fieldMap, useInstance=False):
         modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         protoname = _getOrThrowError(bottle.request.params, 'protoname')
-        if 'overwrite' in bottle.request.params:
-            proposedName = protoname
-        else:
-            proposedName = typehelper.getSuggestedName(db,modelId,typeClass, protoname, excludeATM=True)
-        canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, protoname) # @UnusedVariable
-        if not useInstance:
-            attrRec = {}
-            shadow_network._copyAttrsToRec(attrRec,typeInstance)
-        else:
-            attrRec = typeInstance
+#         print "in jsonTypeEditform params = {}".format(bottle.request.params)
+#         if 'overwrite' in bottle.request.params:
+#             proposedName = protoname
+#         else:
+#             proposedName = typehelper.getSuggestedName(db,modelId,typeClass, protoname, excludeATM=True)
+#         print "protoname = {0}".format(protoname)
+#         attrRec = {}
+#         if protoname != 'new_type':
+#             canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, protoname) # @UnusedVariable
+#             if not useInstance:
+#                 attrRec = {}
+#                 shadow_network._copyAttrsToRec(attrRec,typeInstance)
+#             else:
+#                 attrRec = typeInstance
+            
+        #print "attrRec = {0}".format(attrRec.presentation)
         htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,
                                                           typeClass,
                                                           modelId,
-                                                          protoname,
-                                                          typehelper.elaborateFieldMap(proposedName, 
-                                                                                       attrRec,
-                                                                                       fieldMap))
+                                                          protoname, fieldMap)
+                                                          #typehelper.
+                                                          #elaborateFieldMap(proposedName, 
+                                                         #                              attrRec,
+                                                          #                             fieldMap))
         result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
     except privs.PrivilegeException:
         result = {'success':False, 'msg':_('User cannot read this model')}
@@ -118,6 +135,7 @@ def jsonTypeEditForm(db, uiSession, typeClass, fieldMap, useInstance=False):
 
 def jsonTypeEditVerifyAndCommit(db, uiSession, typeClass, fieldMap, classEditFn=None):
     try:
+        print "SEEING IF I GET HERE !!!!!!!!!"
         anc = False
         if 'overwrite' in bottle.request.params:
             anc = True
@@ -126,13 +144,21 @@ def jsonTypeEditVerifyAndCommit(db, uiSession, typeClass, fieldMap, classEditFn=
                                                       uiSession, 
                                                       fieldMap,
                                                       allowNameCollisions=anc)
+       # print "AttRec in Type EditVer:"
+        #print attrRec
+        print "I AM NOW HERE !!!!!!!!!!!!!!!!!"
         if badStr and badStr!="":
             result = {'success':True, 'value':False, 'msg':badStr}
         else:
             if classEditFn is not None:
+#                 print "setting classEditFn"
+#                 print classEditFn
                 attrRec = classEditFn(attrRec, m)
+                #print "ATTREC after classEdit: {0}".format(attrRec)
+#            print "typeClass = {0}".format(typeClass)
             shdTypesClass = shadow_network.ShdTypes.typesMap[typeClass]
             newType = shdTypesClass(attrRec.copy()) 
+#           print "newType Presentation = {0}".format(newType.presentation)
             db.add(newType)
             m.types[attrRec['Name']] = newType
             crumbTrack = uiSession.getCrumbs()
@@ -175,3 +201,52 @@ def jsonGetAllTypesModelID(db,uiSession):
         return {'success':True,'id':m.modelId}
     except Exception, e:
         result = {'success':False, 'msg':str(e)}
+
+@bottle.route('/json/check-if-type-exists-for-model')
+def jsonCheckIfTypeNameExistsForModel(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
+        typeName = _getOrThrowError(bottle.request.params,'typename')
+        displayName = _getOrThrowError(bottle.request.params,'displayname')
+        
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        result = {}
+        displayNames = [typehelper.getTypeWithFallback(db, modelId, x)[1].DisplayName for x in m.types]
+        if typeName in m.types:
+            result = {'success':True,'exists':True,'which':'type'}
+        elif displayName in displayNames:
+            result = {'success':True,'exists':True,'which':'disp'}
+        else:
+            result = {'success':True,'exists':False}
+        return result
+    except Exception, e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+    
+@bottle.route('/json/get-new-type-number')
+def jsonGetNewTypeNumber(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
+        typeT = _getOrThrowError(bottle.request.params, 'type')
+        
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        newTypes = [x for x in m.types if x.startswith("model_{0}_{1}_type".format(modelId,typeT))]
+        
+        newTypeNums = [int(x.split('_')[-1]) for x in newTypes]
+        
+        if len(newTypeNums) == 0:
+            result = {'success':True,'inc':0}
+        else:    
+            result = {'success':True,'inc':max(newTypeNums)+1}
+        return result
+    except Exception, e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+        
+@bottle.route('/test-inv-grid')
+def testInventoryGrid(db,uiSession):
+    
+    m = int(bottle.request.params['modelId'])
+    crumbTrack = uiSession.getCrumbs()
+    idcode = 100000
+    return bottle.template('inventory_grid_test.tpl',title=_('Test Grid'),_=_,inlizer=inlizer,modelId=m,idcode=idcode)

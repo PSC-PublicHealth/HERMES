@@ -20,7 +20,7 @@ This module holds miscellaneous utility functions that do not have
 a natural home elsewhere.
 """
 
-_hermes_svn_id_="$Id$"
+_hermes_svn_id_="$Id: util.py 2262 2015-02-09 14:38:25Z stbrown $"
 
 import sys,os,os.path,math,types,random,StringIO,re,weakref,unittest,cStringIO,cPickle,json
 import codecs,locale
@@ -37,15 +37,19 @@ import string
 
 _poissonApproxLimit= 50
 
-def getGoogleDirectionsDistanceLatLon(lat1,lng1,lat2,lng2,fallback=True,factor=1.60,speed=50):
+def getGoogleDirectionsDistanceLatLon(lat1,lng1,lat2,lng2,fallback=True,factor=1.60,speed=50,debug=False):
     import simplejson,urllib,time
     
-    url = 'http://maps.googleapis.com/maps/api/directions/json?origin='+\
-	  str(lat1)+','+str(lng1)+'&destination='+str(lat2)+','+str(lng2)+'&sensor=false'
-    result = simplejson.load(urllib.urlopen(url))
-    #print url
-    #print result['status']
-    time.sleep(1.5)
+    result = {}
+    if not debug:
+        url = 'http://maps.googleapis.com/maps/api/directions/json?origin='+\
+    	  str(lat1)+','+str(lng1)+'&destination='+str(lat2)+','+str(lng2)+'&sensor=false'
+        result = simplejson.load(urllib.urlopen(url))
+        #print url
+        #print result['status']
+        time.sleep(1.5)
+    else:
+        result['status'] = 'fubar'
     if result['status'] != "OK":
         print "%f,%f: %f,%f"%(lat1,lng1,lat2,lng2)
         print "Result is not ok" + str(result)
@@ -123,11 +127,11 @@ def filteredWriteCSV( ofile, keyList, recDictListOriginal, delim=",", quoteStrin
 
         if lowerK in storagetypes.storageTypeNames \
             or any([lowerK.endswith(s) for s in ['vol', 'fill', 'frac',
-                                                 'km', 'days', 'ratio',
+                                                 'km', 'days', 'ratio','rate',
                                                  'ratio_multival', 'times_multival',
                                                  'vol_used', 'vol_used_time',
                                                  'timestamp','availability','multival',
-                                                 '_min','_max','_q1','_q3','_median','_mean','_stdv','rate']]):
+                                                 '_min','_max','_q1','_q3','_median','_mean','_stdv']]):
             castColumn(recDictList, k, _castToFloatHighWater)
             revisedKeyList.append(k)
         elif any([lowerK.find(s)>=0 for s in ['name', 'type', 'note', 'word',

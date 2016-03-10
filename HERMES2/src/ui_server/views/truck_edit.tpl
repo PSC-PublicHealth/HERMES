@@ -49,7 +49,7 @@ $(function() {
 			});			
 		}
 		else {
-			alert('{{_("Failed: ")}}'+data.msg);
+			alert('{{_("Failedss: ")}}'+data.msg);
 		}
 
 	})

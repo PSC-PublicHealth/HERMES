@@ -141,11 +141,13 @@ def _moveAttrs(dest, rec, attrs = None, prefix = None, skip = None):
             if skip and name in skip: 
                 continue
             names = [a['name']]
+            #print "Names = {0}".format(names)
             if 'recordName' in a:
-                names = [a['recordName']]
+                #names = [a['recordName']]
+                names.append(a['recordName'])
             if 'synonym' in a:
                 names.extend(listify(a['synonym']))
-                
+            #print "Names2 = {0}".format(names)
             if prefix:
                 names = [prefix + n for n in names]
                 
@@ -293,12 +295,24 @@ def _initBasic(instance, args, kwargs, startAttr=1):
     data from it based on the attribute table.
 
     otherwise it will treat the attrs as a list of ordered or named arguments, skipping the 
-    first (assuming that that is modelId).
     """
+    '''
+    print "---------Inside initBasic------------"
+    print dir(instance)
+    for k in dir(instance):
+        if hasattr(instance,k):
+            print k
+            print getattr(instance,k)
+            print "--"
+    '''
     attrs = _attrsFromDest(instance)
-
+    
+    
     if len(args) > 0:
         if isinstance(args[0], collections.Mapping):
+            #print "I AM HERE"
+            #print "attrs = {0}".format(attrs)
+            #print "args[0] = {0}".format(args[0])
             return _moveAttrs(instance, args[0], attrs)
         
     for i,arg in enumerate(args, start=startAttr):
@@ -3433,10 +3447,16 @@ class ShdVaccineType(ShdType, ShdCopyable):
              ('link',          STRING_NONE,'recordName','link')]
     
     def __init__(self, *args, **kwargs):
+        #print "ARGS = {0}".format(args)
         _initShdType(self, args, kwargs)
 
     def copy(self):
+        #print "HITTING HERE"
         return ShdVaccineType(self.createRecord())
+
+    def toJson(self):
+        import json
+        return json.dumps(self.createRec(),default=lambda o:o.__dict__)
 
 _makeColumns(ShdVaccineType)
 
@@ -4204,13 +4224,9 @@ class ShdNetwork(Base):
         ### This only works with one root
         modelJson = json.dumps(self.getWalkOfClientsDictForJson(self.rootStores()[0].idcode))
         
-        print modelJson
-        print "--------DONE-----"
         if self.modelD3Json is None:
-            print "!!!! HERE"
             self.modelD3Json = ModelD3JsonBlobHolder(modelJson)
             print self.modelD3Json.blob
-            print "$$$$$ HJERES"
         else:
             bh = self.modelD3Json
             bh.blob = modelJson
@@ -4745,7 +4761,20 @@ class ShdNetwork(Base):
                     totalPop += demand.count
         
         return totalPop
-                    
+             
+    def getTotalPopulationByTypeByWalkOfClients(self,idcode,excludeCategories=[]):
+        clientsToCalc = self.getWalkOfClientIds(idcode)
+        totalPop = {}
+        for client in clientsToCalc:
+            store = self.getStore(client)
+            if store.FUNCTION != "Surrogate" and store.CATEGORY not in excludeCategories:
+                for demand in store.demand:
+                    if demand.invName not in totalPop.keys():
+                        totalPop[demand.invName] = 0.0
+                    totalPop[demand.invName] += demand.count
+        
+        return totalPop
+    
     def trunkStore(self):
         """
         Start with the lowest value root store.  Recursively move to this stores child store if 

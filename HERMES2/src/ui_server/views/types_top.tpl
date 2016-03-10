@@ -24,16 +24,70 @@
 	var createOn = false;
 %end
 </script>
-
-% typesEntries = [
-%    ['vaccines', _('Vaccines'),    'json/vaccine-info', 'vaccine-edit'],
-%    ['trucks',   _('Transport'),   'json/truck-info',   'truck-edit'],
-%    ['fridges',  _('Storage'),     'json/fridge-info',  'fridge-edit'],
-%    ['people', _('Population'),    'json/people-info',  'people-edit'],
-%    ['perdiems', _('PerDiem Rules'),    'json/perdiem-info',  'perdiem-edit'],
-%    ['staff', _('Staff'),    'json/staff-info',  'staff-edit'],
-% ]
-
+% typeEntries = {
+%    'trucks' : { 
+%        'label'         : _('Transport'),
+%        'infoUrl'       : 'json/truck-info',
+%        'editUrl'       : 'truck-edit',
+%        'editForm'      : 'json/truck-edit-form',
+%        'commitForm'    : 'json/truck-edit-verify-commit',
+%        'slogan'        : _("Modify Transport Type"),
+% 	     'editHeader'    : _("Edit Your Transport Type"),
+%        'createHeader'  : _("Creating Your Transport Type"),
+%        },
+%    'fridges' : { 
+%        'label'         : _('Storage'),
+%        'infoUrl'       : 'json/fridge-info',
+%        'editUrl'       : 'fridge-edit',
+%        'editForm'      : 'json/fridge-edit-form',
+%        'commitForm'    : 'json/fridge-edit-verify-commit',
+%        'slogan'        : _("Modify Cold Storage Type"),
+% 	     'editHeader'    : _("Edit Your Cold Storage Type"),
+%        'createHeader'  : _("Creating Your Cold Storage Type"),
+%        },
+%    'vaccines' : {
+%        'label'         : _('Vaccines'),
+%        'infoUrl'       : 'json/vaccine-info',
+%        'editUrl'       : 'vaccine-edit',
+%        'editForm'      : 'json/vaccine-edit-form',
+%        'commitForm'    : 'json/vaccine-edit-verify-commit',
+%        'slogan'        : _("Modify Vaccine Type"),
+% 	     'editHeader'    : _("Edit Your Vaccine Type"),
+%        'createHeader'  : _("Creating Your Vaccine Type"),
+%        },
+%    'people' : { 
+%        'label'         : _('Population'),
+%        'infoUrl'       : 'json/people-info',
+%        'editUrl'       : 'people-edit',
+%        'editForm'      : 'json/people-edit-form',
+%        'commitForm'    : 'json/people-edit-verify-commit',
+%        'slogan'        : _("Modify Population Type"),
+% 	     'editHeader'    : _("Edit Your Population Type"),
+%        'createHeader'  : _("Creating Your Population Type"),
+%        },
+%    'staff': {
+%        'label'         : _('Staff'),
+%        'infoUrl'       : 'json/staff-info',
+%        'editUrl'       : 'staff-edit',
+%        'editForm'      : 'json/staff-edit-form',
+%        'commitForm'    : 'json/staff-edit-verify-commit',
+%        'slogan'        : _("Modify Staff Type"),
+%        'editHeader'    : _("Edit Your Staff Type"),
+%        'createHeader'  : _("Creating Your Staff Type")
+%        },
+%    'perdiems': {
+%        'label'         : _('PerDiems'),
+%        'infoUrl'       : 'json/perdiem-info',
+%        'editUrl'       : 'perdiem-edit',
+%        'editForm'      : 'json/perdiem-edit-form',
+%        'commitForm'    : 'json/perdiem-edit-verify-commit',
+%        'slogan'        : _("Modify PerDiem Type"),
+%        'editHeader'    : _("Edit Your PerDiem Type"),
+%        'createHeader'  : _("Creating Your PerDiem Type")
+%        }
+% }
+% typeHere = typeEntries[typeClass]
+               
 % def unpackTypesEntry(te):
 %    ret = {}
 %    ret['type'] = te[0]
@@ -56,55 +110,76 @@
 </p>
 
 <table>
-  <tr>
-    <td>
-      <table> 
-        <tr><td style="height:20px">
-        </td></tr>
-        % for te in typesEntries:
-	%     t = unpackTypesEntry(te)
-	<tr><td>
-	    <button id="{{t['type']}}_button" style="width:100%">{{t['name']}}</button>
-	</td></tr>
-	% end
-      </table>
-    </td>
-    <td>
-      <table>
-	<tr><td style="height:20px" id='dest_header'>
-          {{_('Current type') }}
-	</td></tr>
-	<tr><td>
-	    <table id='dest_grid'></table>
-	</td></tr>
-	<tr><td>
-	    <div id='dest_pager'></div>
-	</td></tr>
-      </table>
-    </td>
-    <td>
-      <table id='middle'>
-        <tr><td style="height:80px"></td></tr>
-        <tr><td>
-	  <button id="copy_to_model_button">{{_('<--')}}</button>
-        </td></tr>
-        <tr><td></td></tr>
-      </table>
-    </td>
-    <td>
-      <table>
-	<tr><td style="height:20px" id='src_header'>
-	    <label for="src_model_select">{{_('source')}}</label>
-	    <select name="src_model_select" id="src_model_select"></select>
-	</td></tr>
-	<tr><td>
-	    <table id='src_grid'></table>
-	</td></tr>
-	<tr><td>
-	    <div id='src_pager'></div>
-	</td></tr>
-      </table>
-    </td>
+	<tr>
+    	<td>
+    		<table> 
+	    		<tr>
+	    			<td style="height:20px"></td>
+	    		</tr>
+	        %   for te in typesEntries:
+	        % 		t = unpackTypesEntry(te)
+	        	<tr>
+	        		<td>
+	        			<button id="{{t['type']}}_button" style="width:100%">{{t['name']}}</button>
+	        		</td>
+	    		</tr>
+    		%   end
+  			</table>
+		</td>
+		<td>
+			<table>
+				<tr>
+					<td style="height:20px" id='dest_header'>
+						{{_('Current type') }}
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table id='dest_grid'></table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div id='dest_pager'></div>
+					</td>
+				</tr>
+			</table>
+		</td>
+	    <td>
+	    	<table id='middle'>
+	    		<tr>
+	    			<td style="height:80px"></td>
+	    		</tr>
+	    		<tr>
+	    			<td>
+	    				<button id="copy_to_model_button">{{_('<--')}}</button>
+    				</td>
+				</tr>
+				<tr>
+					<td></td>
+				</tr>
+	      </table>
+	    </td>
+		<td>
+	    	<table>
+				<tr>
+					<td style="height:20px" id='src_header'>
+				    	<label for="src_model_select">{{_('source')}}</label>
+				    	<select name="src_model_select" id="src_model_select"></select>
+			    	</td>
+		    	</tr>
+				<tr>
+					<td>
+				    	<table id='src_grid'></table>
+			    	</td>
+		    	</tr>
+				<tr>
+					<td>
+				    	<div id='src_pager'></div>
+			    	</td>
+		    	</tr>
+	      </table>
+	    </td>
 % if 0: # until this button has functionality, hide it
     <td>
       <table>
@@ -116,24 +191,25 @@
       </table>
     </td>
 % end
-  </tr>
-</table>
-<!--
-<table id="nextback" width=100%>
-	<tr>
-		<td width=10%>
-			<input type="button" id="back_button" value='{{_("Previous Screen")}}'>
-		</td>
-		<td width=70%>
-		</td>
-		<td width=10%>
-			<input type="button" id="expert_button" value='{{_("Skip to Model Editor")}}'>
-		</td>
-		<td width=10%>
-			<input type="button" id="next_button" value='{{_("Next Screen")}}'>
-		</td>
 	</tr>
 </table>
+
+<!--
+	<table id="nextback" width=100%>
+		<tr>
+			<td width=10%>
+				<input type="button" id="back_button" value='{{_("Previous Screen")}}'>
+			</td>
+			<td width=70%>
+			</td>
+			<td width=10%>
+				<input type="button" id="expert_button" value='{{_("Skip to Model Editor")}}'>
+			</td>
+			<td width=10%>
+				<input type="button" id="next_button" value='{{_("Next Screen")}}'>
+			</td>
+		</tr>
+	</table>
 <table id="doneback" width=100%>
 <tr>
 	<td width=90%>
@@ -147,8 +223,18 @@
 -->
 
 <div id="info_modal">
-	<div class="modal-dialog"
-<div id="info_dialog" title='replace me'></div>
+	<div class="modal-dialog">
+		<div id="info_dialog" title='replace me'></div>
+	</div>
+</div>
+<!--<div id="edit_modal">
+	<div class="modal-dialog">-->
+		<div id="edit_dialog" title='replace me'>
+			<div id="edit_form_content"></div>
+		</div>
+	<!--</div>
+</div>-->
+
 <script>
 console.log('point 1');
 // many characters in a jquery id need escaped.
@@ -192,6 +278,7 @@ function setSetCurrentType(t) {
     return function() { setCurrentType(t); };
 }
 
+
 $(function() {
     // startup stuff
     // set up our left hand buttons
@@ -209,7 +296,22 @@ $(function() {
 
     // info dialog
     $("#info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
-    
+    //$("#edit_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
+    $("#edit_dialog").dialog({
+    	autoOpen:false, 
+    	modal:true,
+    	height:"auto", 
+    	width:"auto",
+    	buttons:{
+    		Cancel:function(){
+    			console.log($(this));
+    			$(this).dialog("close");
+    		}
+    		Save:function(){
+    			
+    		}
+    	}
+    });
     if(createOn){
 		var btn = $("#wrappage_bn_misc_button");
 		btn.button();
@@ -450,20 +552,23 @@ function infoType(id) {
 }
 
 function editType(id) {
-    
-
-    upId = unpackId(id);
-    var modelId = upId.modelId;
-    var name = upId.name;
-    var grid = upId.grid;
-
-    var url = typesMap[currentType].editUrl;
-    var parms = '?modelId=' + modelId;
-    parms += "&protoname='" + name + "'";
-    parms += "&overwrite=1";
-    parms += "&backURL=" + B64.encode(myURL + "&startClass=" + currentType)
-    window.location = url + parms;
-}
+	upId = unpackId(id); 
+	var modelId = upId.modelId;
+	var name = upId.name; 
+	var grid = upId.grid;
+ 
+	var url = typesMap[currentType].editUrl;
+	var parms = '?modelId=' + modelId;
+	parms += "&protoname=" + name + "";
+	parms += "&overwrite=1";
+	parms += "&backURL=" + B64.encode(myURL + "&startClass=" + currentType)
+	console.log("parms = " +parms);
+	//$("#edit_dialog").dialog("destroy");
+	$("#edit_dialog").load(url + parms); 
+	$("#edit_dialog").dialog("open")
+	
+//window.location = url + parms;
+};
 	    
 console.log('point 4');
 
