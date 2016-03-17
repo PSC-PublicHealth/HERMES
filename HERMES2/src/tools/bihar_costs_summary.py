@@ -26,16 +26,27 @@ costPerOutreach = 82.0
 
 vaccineList = ['I_DTP','I_HepB','I_HepB_birth','I_JE','I_Measles',
                'I_Oral_Polio','I_Tetanus_Toxoid','I_Tuberculosis','I_DTP_HepB_Hib',
-               'I_Rotavac','X_IPV10','X_PCV']
+               'I_Rotavac','X_IPV10','X_IPV25','X_IPV5','X_IPV55','X_PCV']
 vaccineMonDict = {'I_DTP':'DTP','I_HepB':'HepB','I_HepB_birth':'HepB Birth Dose','I_JE':'JE','I_Measles':'Measles',
                'I_Oral_Polio':'OPV','I_Tetanus_Toxoid':'TT','I_Tuberculosis':'BCG','I_DTP_HepB_Hib':'Penta',
-               'I_Rotavac':'Rotavac','X_IPV10':'IPV','X_PCV':'PCV'}
+               'I_Rotavac':'Rotavac','X_IPV10':'IPV10','X_IPV25':'IPV10(50)',
+                'X_IPV5':'IPV5','X_IPV55':'IVP5(25)','X_PCV':'PCV'}
 vaccineDoseDict = {'I_DTP':5,'I_HepB':3,'I_HepB_birth':1,'I_Measles':2,
                'I_Oral_Polio':5,'I_Tetanus_Toxoid':4,'I_Tuberculosis':1,'I_DTP_HepB_Hib':3,
-               'I_Rotavac':3,'X_IPV10':1,'X_PCV':3}
+               'I_Rotavac':3,'X_IPV10':1,'X_IPV25':2,'X_IPV5':1,'X_IPV55':2,'X_PCV':3}
 
-baseDir = None
-directories = [{'Title':'Baseline UIP','dir':baseDir+"Kerala - attached outreach",'outPre':'output'},
+baseDir = './'
+directories = [
+               {'Title':'UIP','dir':baseDir+"Bihar",'outPre':'output10'},
+               {'Title':'IPV 10 Dose','dir':baseDir+"Bihar-10dose",'outPre':'output10'},
+               {'Title':'IPV 25 Partial Dose','dir':baseDir+"Bihar-25dose",'outPre':'output25'},
+               {'Title':'IPV 5 Dose','dir':baseDir+"\Bihar-5dose",'outPre':'output10'},
+               {'Title':'IPV 5 Dose (25 Partial Doses)','dir':baseDir+"\Bihar-55dose",'outPre':'output10'},
+               {'Title':'IPV 10 Dose NoMDVP','dir':baseDir+"\NoMDVP\Bihar-10dose",'outPre':'output10'},
+               {'Title':'IPV 25 Partial Dose NoMDVP','dir':baseDir+"\NoMDVP\Bihar-25dose",'outPre':'output25'},
+               #{'Title':'IPV 5 Dose NoMDVP','dir':baseDir+"\NoMDVP\Bihar-5dose",'outPre':'output10'},
+               {'Title':'IPV 5 Dose (25 Partial Doses) NoMDVP','dir':baseDir+"\NoMDVP\Bihar-55dose",'outPre':'output10'},
+
 #               {'Title':'Penta Introduction','dir':baseDir + "Penta", 'outPre':'output'},
 #	       {'Title':'Rotavac Introduction','dir':baseDir+"Rotavac",'outPre':'output'},
 #	       {'Title':'IPV Introduction','dir':baseDir+"IPV-Birth",'outPre':'output'},
@@ -76,6 +87,7 @@ def main():
                 dosesPerVial[rec["Name"]] = float(rec["DosesPerVial"])
 
         resultDict = {'Avail':{},'OverAllVA':0.0,'Wastage':{},'FIC':0.0,'Doses':0.0,'StorageCost':{},
+                      'DosesByAntigen':{},'VialsUsed':{},
                       'Maintanence':{'State':0.0,'Division':0.0,'District':180000,'PHC':120750,'OutreachClinic':0.0},
                       'CB':{'State':0.0,'Division':99707,'District':75967,'PHC':729779,'OutreachClinic':0.0},
                       'LaborCost':{},'BuildingCost':{},'TransportCost':{},
@@ -86,11 +98,14 @@ def main():
         vaccine_keys = [x[:-13] for x in resultKeys if x[-12:-4] == "patients"]
     
         availDict = {x:[0.0,0.0] for x in vaccine_keys}
-    
+        dosesDict = {x:[0.0] for x in vaccine_keys}
+        vialUsedDict = {x:0.0 for x in vaccine_keys}
+        
         for rec in resultRecs:
             for key in vaccine_keys:
                 if rec['function'] != 'Surrogate':
                     availDict[key][0] += float(rec[key+"_treated_ave"])
+                    vialUsedDict[key] += float(rec[key+"_vials_ave"])
                     availDict[key][1] += float(rec[key+"_patients_ave"])
 
 
@@ -101,6 +116,10 @@ def main():
             tot_treated += valList[0]
             tot_patients += valList[1]
             resultDict['Avail'][vacc] = valList[0]/valList[1]
+            resultDict['DosesByAntigen'][vacc] = valList[0]
+
+        for vacc,val in vialUsedDict.items():
+            resultDict['VialsUsed'][vacc] = val
 
         resultDict['OverAllVA'] = (tot_treated/tot_patients)
         resultDict['Doses'] = tot_treated
@@ -256,7 +275,37 @@ def main():
                 ws0.write(row,col,(expt[1]['Wastage'][vacc]),plain_percent_xf)            
             col+=1
         row+=1
-    
+
+    row+=1
+    col=0
+    ws0.write_merge(row,row,0,len(results),'Doses Administered By Antigen',divider_1_xf)
+    row+=1
+
+    for vacc in vaccineList:
+        col=0
+        ws0.write(row,col,vaccineMonDict[vacc],plain_label_xf)
+        col+=1
+        for expt in results:
+            if vacc in expt[1]['DosesByAntigen'].keys():
+                ws0.write(row,col,(expt[1]['DosesByAntigen'][vacc]),plain_xf)            
+            col+=1
+        row+=1
+
+    row+=1
+    col=0
+    ws0.write_merge(row,row,0,len(results),'Vials Used By Antigen',divider_1_xf)
+    row+=1
+
+    for vacc in vaccineList:
+        col=0
+        ws0.write(row,col,vaccineMonDict[vacc],plain_label_xf)
+        col+=1
+        for expt in results:
+            if vacc in expt[1]['VialsUsed'].keys():
+                ws0.write(row,col,(expt[1]['VialsUsed'][vacc]),plain_xf)            
+            col+=1
+        row+=1
+        
     col=0
     ws0.write(row,col,'Doses Administered',doses_label_xf)
     col+=1
