@@ -240,11 +240,13 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None):
         for i in xrange(int(count)):
             userInputList.append(input.UserInput(inputFile, gblDict['use_dbmodel']))
 
-
-    if gblDict['use_dbmodel'] and opts.minion == False:
+    print "HERE = {0}".format(gblDict['use_dbmodel'])
+    print "HERE2 = {0}".format(opts.minion)
+    if gblDict['use_dbmodel'] and not opts.minion:
         from shadow_db_routines import addResultsGroup
         if opts.out is None:
             raise RuntimeError("--out must be set with a descriptive name when hermes is run against the DB")
+        print "adding resultGroup {0}".format(opts.out)
         resultsGroupId = addResultsGroup(firstInputFile, opts.out)
     # not sure where to put this but I think this gets it as far as I need it.
     #gblDict['resultsGroupId'] = resultsGroupId
@@ -529,7 +531,7 @@ def main():
             #for i in xrange(runCount):
             #     outputList.append(outputQueue.get())
             # plus any finalize processing
-            if finalizeOutputs or (gapFinalize):
+            if (finalizeOutputs or (gapFinalize) and not gblInputs['use_dbmodel']):
                 for i in xrange(runCount):
                     mergedOutput = _mergeOutput(mergedOutput, outputQueue.get(), i)
             else:
