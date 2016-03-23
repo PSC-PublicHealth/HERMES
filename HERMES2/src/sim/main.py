@@ -358,6 +358,7 @@ def workerRun(arg):
                     if gblInputs['save_hdata'] is not None:
                         output.save(gblInputs['save_hdata'])
                     if gblInputs['use_dbmodel']:
+                        print "HERE!!!!!!!"
                         commitResults(r.results)
                     print 'Process %s finished a task'%multiprocessing.current_process().name
                 except Exception as e:
@@ -370,6 +371,7 @@ def workerRun(arg):
                         output.strengthenRefs()
                     outQ.put(output)
             q.task_done()
+            #outQ.task_done()
 	    #return
     except Queue.Empty,e:
         pass
@@ -540,6 +542,7 @@ def main():
 
             # this is probably no longer critical but one could call this proper.
             workQueue.join()
+            #outputQueue.join()
 
 
         
@@ -551,6 +554,7 @@ def main():
                 if gblInputs['use_dbmodel'] == True:
                     from shadow_db_routines import averageResultsGroup
                     if len(userInputList):
+                        print userInputList[0]['resultsGroupId']
                         averageResultsGroup(userInputList[0].definitionFileName,userInputList[0]['resultsGroupId'])
                 else:
                     outputFileRoot = userInputList[0]['outputfile']

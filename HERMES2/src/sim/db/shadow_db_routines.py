@@ -60,7 +60,7 @@ def getNetwork(model, session_in=None):
 
 def addResultsGroup(modelId, name, session_in=None):
     "create, attach and return a new results group id from a db model."
-
+    print "CALLING THIS"
     if session_in is None:
         session = iface.Session()
     else:
@@ -75,7 +75,7 @@ def addResultsGroup(modelId, name, session_in=None):
     
     session.add(aveResults)
     session.commit()
-    resultsGroup.results.append(aveResults)
+    #resultsGroup.results.append(aveResults)
     # Once committed this will be reloaded with a resultsGroupId.
     # We're going to let the session be reaped by GC so we're only
     # going to return the id rather than the entire structure.
@@ -90,7 +90,15 @@ def averageResultsGroup(modelId, resultsGroupId, session_in=None):
     
     net = session.query(shd.ShdNetwork).filter_by(modelId=modelId).one()
     resultsGroup = session.query(shd.HermesResultsGroup).filter_by(modelId=modelId,resultsGroupId=resultsGroupId).one()
-    
+    results = session.query(shd.HermesResults).filter_by(resultsGroupId=resultsGroupId)
+    for result in resultsGroup.results:
+        print "exists = {0}".format(result.resultsId)
+    #resultsGroup.results = []
+#     for result in results:
+#         if result.resultsType != "average":
+#             print "RES = {0}".format(result.resultsId)
+#             resultsGroup.results.append(result)
+#         
     resultsGroup._mergeResults(net)
     
     session.commit()
@@ -104,3 +112,5 @@ def commitResultsEntry(results, session_in=None):
         session = session_in
     session.add(results)
     session.commit()
+    
+    #resultsGroup = session.query(shd.HermesResultsGroup).filter_by(modelId=modelId,resultsGroupId=results.resultsGroupIdlt).one())

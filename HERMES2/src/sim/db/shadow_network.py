@@ -761,9 +761,9 @@ class ShdStore(Base, ShdCopyable):
             else:
                 self._addInvRec(invType, count)
             return
-        print "{0}: count {1}".format(item.count,count)
+        #print "{0}: count {1}".format(item.count,count)
         if item.count + count == 0:
-            print "popping this bitch"
+            #print "popping this bitch"
             invList.pop(i)
             return
 
@@ -2001,7 +2001,11 @@ class HermesResultsGroup(Base):
             return self._cached_inputDefault.processKeywordValue(token,None)
 
     def _mergeResults(self, net):
-
+        print len(self.results)
+        for result in self.results:
+            print result.runNumber
+            print result.resultsType
+            print result.resultsGroupId
         resultsToParse = [x for x in self.results if x.resultsType == 'single']
         firstResult = resultsToParse[0]
 
@@ -2074,7 +2078,7 @@ class HermesResultsGroup(Base):
             summaryRec /= float(len(resultsToParse))
 
         aveResult.addHistograms(net)
-        print "Trying to add Geo"
+        #print "Trying to add Geo"
         aveResult.addGeoResultsJson()
         costSummaryRecList = aveResult.costSummaryRecs[:]
         for rslt in resultsToParse:
@@ -4226,7 +4230,7 @@ class ShdNetwork(Base):
         
         if self.modelD3Json is None:
             self.modelD3Json = ModelD3JsonBlobHolder(modelJson)
-            print self.modelD3Json.blob
+            #print self.modelD3Json.blob
         else:
             bh = self.modelD3Json
             bh.blob = modelJson
@@ -5013,7 +5017,7 @@ class ShdNetwork(Base):
     def hasGeoCoordinates(self):
         hasCoords = False
         for storeId,store in self.stores.items():
-            print "store Lat {0} Lon {1}".format(store.Latitude,store.Longitude)
+            #print "store Lat {0} Lon {1}".format(store.Latitude,store.Longitude)
             if store.Latitude is not None:
                 if store.Longitude is not None:
                     if store.Latitude != 0.0 and store.Longitude != 0.0:
