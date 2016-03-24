@@ -38,7 +38,8 @@ def getDbInputRecs(model, resultsGroup=None, session_in=None):
         session = iface.Session()
     else:
         session = session_in
-
+    
+    print "ResultsGroup = {0}".format(resultsGroup)
     parms = session.query(shd.ShdParameter).filter_by(modelId=model,resultsGroupId=resultsGroup)
     return map(lambda p: p.toStr(), parms)
 

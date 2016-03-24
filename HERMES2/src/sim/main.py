@@ -226,7 +226,18 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None):
     ### Make a results Group
     resultsGroupId = None
     
+    print "HERE = {0}".format(gblDict['use_dbmodel'])
+    print "HERE2 = {0}".format(opts.minion)
     
+    if gblDict['use_dbmodel'] and not opts.minion:
+        from shadow_db_routines import addResultsGroup
+        if opts.out is None:
+            raise RuntimeError("--out must be set with a descriptive name when hermes is run against the DB")
+        print "adding resultGroup {0}".format(opts.out)
+        resultsGroupId = addResultsGroup(firstInputFile, opts.out)
+    elif opts.minion:
+        resultsGroupId = opts.out
+
     for inputString in inputFiles:
         inputFile,sep,count = inputString.partition(':')
         if firstInputFile is None:
@@ -240,19 +251,11 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None):
         for i in xrange(int(count)):
             userInputList.append(input.UserInput(inputFile, gblDict['use_dbmodel']))
 
-    print "HERE = {0}".format(gblDict['use_dbmodel'])
-    print "HERE2 = {0}".format(opts.minion)
-    if gblDict['use_dbmodel'] and not opts.minion:
-        from shadow_db_routines import addResultsGroup
-        if opts.out is None:
-            raise RuntimeError("--out must be set with a descriptive name when hermes is run against the DB")
-        print "adding resultGroup {0}".format(opts.out)
-        resultsGroupId = addResultsGroup(firstInputFile, opts.out)
+  
+    
     # not sure where to put this but I think this gets it as far as I need it.
     #gblDict['resultsGroupId'] = resultsGroupId
-    elif opts.minion:
-        resultsGroupId = opts.out
-
+    
     for userInput in userInputList:
         if opts.minion: 
             userInput['minion'] = True
