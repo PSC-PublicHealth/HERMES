@@ -20,11 +20,11 @@ from logging.config import fileConfig
 # this is the Alembic Config https://alembic.readthedocs.orgobject, which provides
 # access to the values within the .ini file in use.
 config = context.config
-
+print config.config_file_name
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
-
+#print config.get_main_option('sqlalchemy.url')
 # add your model's MetaData object here
 # for 'autogenerate' support
 import ipath
@@ -50,6 +50,7 @@ def run_migrations_offline():
 
     """
     url = config.get_main_option("sqlalchemy.url")
+    print "URL = {0}".format(url)
     context.configure(url=url)
 
     with context.begin_transaction():
@@ -62,11 +63,13 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
+    print config.get_section(config.config_ini_section).values()
     engine = engine_from_config(
                 config.get_section(config.config_ini_section),
                 prefix='sqlalchemy.',
                 poolclass=pool.NullPool)
 
+    
     connection = engine.connect()
     context.configure(
         connection=connection,

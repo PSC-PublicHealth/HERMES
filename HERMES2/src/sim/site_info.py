@@ -18,9 +18,10 @@
 _hermes_svn_id_="$Id$"
 
 import os, os.path, platform
-import kvp_tools
 import ipath
 from full_import_paths import HermesBaseDir
+import kvp_tools
+
 
 class SiteInfo:
     def __init__(self):

@@ -51,11 +51,11 @@ except:
 
 class DbInterface:
     def __init__(self, 
-                 dbType = None, 
+                 dbType = "mysql",
                  name = 'hermes', 
-                 user = 'hermes', 
-                 password = 'hermes_pass', 
-                 host = '127.0.0.1',
+                 user = 'apolloint', 
+                 password = 'int4p011o', 
+                 host = 'pha-db.psc.edu',
                  echo = False,
                  dbLoc = None):
         sI = site_info.SiteInfo()
