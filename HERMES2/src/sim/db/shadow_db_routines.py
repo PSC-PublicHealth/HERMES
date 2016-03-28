@@ -40,8 +40,18 @@ def getDbInputRecs(model, resultsGroup=None, session_in=None):
         session = session_in
     
     print "ResultsGroup = {0}".format(resultsGroup)
-    parms = session.query(shd.ShdParameter).filter_by(modelId=model,resultsGroupId=resultsGroup)
-    return map(lambda p: p.toStr(), parms)
+    print "ModelId = {0}".format(model)
+    ## first, get default paramters from the model
+    parms = session.query(shd.ShdParameter).filter_by(modelId=model,resultsGroupId=None)
+    parmMap = map(lambda p: p.toStr(), parms)
+    
+    ### now see  if there is a resultsGroup specific one
+    if resultsGroup is not None:
+        parmsSpec = session.query(shd.ShdParameter).filter_by(modelId=model,resultsGroupId=None)
+        mapSpec = map(lambda p: p.toStr(), parmsSpec)
+        for mS in mapSpec:
+            parmMap.append(mS)
+    return parmMap
 
 def getNetwork(model, session_in=None):
     "get a shadow network from a db model id."
