@@ -319,11 +319,11 @@ class HermesOutput():
 
         with openOutputFile(outputName) as f:
             for row in scp.rows:
-                fmtd = ""
+                fmtd = u""
                 for i,val in enumerate(row):
-                    if i > 0: fmtd += ','
-                    fmtd += str(val)
-                fmtd += '\n'
+                    if i > 0: fmtd += u','
+                    fmtd += unicode(val)
+                fmtd += u'\n'
                 f.write(fmtd)
 
 

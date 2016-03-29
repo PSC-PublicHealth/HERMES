@@ -228,28 +228,54 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None):
     
     print "HERE = {0}".format(gblDict['use_dbmodel'])
     print "HERE2 = {0}".format(opts.minion)
-    
-    if gblDict['use_dbmodel'] and not opts.minion:
-        from shadow_db_routines import addResultsGroup
-        if opts.out is None:
-            raise RuntimeError("--out must be set with a descriptive name when hermes is run against the DB")
-        print "adding resultGroup {0}".format(opts.out)
-        resultsGroupId = addResultsGroup(firstInputFile, opts.out)
-    elif opts.minion:
-        resultsGroupId = opts.out
-
+    inputList = []
     for inputString in inputFiles:
         inputFile,sep,count = inputString.partition(':')
+        if count == '':
+            count = 1
+        inputList.append((inputFile,int(count)))
         if firstInputFile is None:
             firstInputFile = inputFile
         else:
-            print "First = %s, input = %s"%(firstInputFile,inputFile)
+            #print "First = %s, input = %s"%(firstInputFile,inputFile)
             if firstInputFile != inputFile:
                 if gblDict['use_dbmodel']:  # I really think we should get rid of this if statement
                     raise RuntimeError("Hermes should not be run with multiple models against the DB")
-        if count == '': count = 1
-        for i in xrange(int(count)):
-            userInputList.append(input.UserInput(inputFile, gblDict['use_dbmodel']))
+   
+    if len(inputList) == 0:
+        raise RuntimeError("HERMES needs an inputfile to run")
+    
+    ### We need to add the resultsGroup if we are using a database         
+    resultsGroupId = None
+    
+    if gblDict['use_dbmodel']:
+        if not opts.minion:
+            from shadow_db_routines import addResultsGroup
+            if opts.out is None:
+                raise RuntimeError("--out must be set with a descriptive name when hermes is run against the DB")
+            resultsGroupId = addResultsGroup(int(inputList[0][0]), opts.out)
+        else:
+            resultsGroupId = opts.out
+     
+    for inputFile,count in inputList:
+        for i in xrange(count):
+            userInputList.append(input.UserInput(inputFile, resultsGroupId=resultsGroupId,useDb=gblDict['use_dbmodel']))
+#             for i in xrange(int(count)):
+#                 userInputList.append(input.UserInput(modelId, resultsGroupId=resultsGroupId,useDb=gblDict['use_dbmodel']))
+#     else:
+#         for inputString in inputFiles:
+#             inputFile,sep,count = inputString.partition(':')
+#             if firstInputFile is None:
+#                 firstInputFile = inputFile
+#             else:
+#                 print "First = %s, input = %s"%(firstInputFile,inputFile)
+#                 if firstInputFile != inputFile:
+#                     if gblDict['use_dbmodel']:  # I really think we should get rid of this if statement
+#                         raise RuntimeError("Hermes should not be run with multiple models against the DB")
+#                     
+#             if count == '': count = 1
+#             for i in xrange(int(count)):
+#                 userInputList.append(input.UserInput(inputFile))
 
   
     

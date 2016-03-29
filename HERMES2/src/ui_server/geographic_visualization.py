@@ -107,7 +107,7 @@ def createGeographicVizLeila(db,uiSession):
 def jsonModelStructureTreeD3(db,uiSession):
     try:
         import locale
-        print locale.getdefaultlocale()[1]
+        #print locale.getdefaultlocale()[1]
         modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
         resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
         uiSession.getPrivs().mayReadModelId(db,modelId)
@@ -309,7 +309,7 @@ def generateRouteUtilizationLinesJSONNoSession(m,r):
         
         maxCount = count - 1
         
-        print routeIndexDict
+        #print routeIndexDict
         for routeId,route in m.routes.items():
             if route.Type != 'attached':
                 if len(route.stops) == 2:
@@ -328,7 +328,7 @@ def generateRouteUtilizationLinesJSONNoSession(m,r):
                                          id=routeId,onIds=[x.store.idcode for x in route.stops],
                                          util=fill,rindex=routeIndexDict[routeId],maxcount=maxCount,bold=bold))
                 else:
-                    print routeId
+                    #print routeId
                     for i in range(0,len(route.stops)):
                         start = route.stops[i].store
                         if i == len(route.stops)-1:

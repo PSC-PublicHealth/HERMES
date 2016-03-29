@@ -86,6 +86,7 @@ def addResultsGroup(modelId, name, session_in=None):
     
     session.add(aveResults)
     session.commit()
+    session.flush()
     #resultsGroup.results.append(aveResults)
     # Once committed this will be reloaded with a resultsGroupId.
     # We're going to let the session be reaped by GC so we're only
@@ -99,11 +100,16 @@ def averageResultsGroup(modelId, resultsGroupId, session_in=None):
     else:
         session = session_in
     
+    session.commit()
+    session.flush()
+    print "In Average Result Group {0} {1}".format(resultsGroupId,modelId)
     net = session.query(shd.ShdNetwork).filter_by(modelId=modelId).one()
     resultsGroup = session.query(shd.HermesResultsGroup).filter_by(modelId=modelId,resultsGroupId=resultsGroupId).one()
     results = session.query(shd.HermesResults).filter_by(resultsGroupId=resultsGroupId)
     for result in resultsGroup.results:
         print "exists = {0}".format(result.resultsId)
+    for result in results:
+        print "to use = {0}".format(result.resultsId)
     #resultsGroup.results = []
 #     for result in results:
 #         if result.resultsType != "average":

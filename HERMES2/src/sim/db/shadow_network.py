@@ -42,6 +42,7 @@ import struct
 import operator
 from kvp_tools import KVPParser
 import json, StringIO
+from sqlalchemy.dialects import mysql
 
 #import sys
 #sys.setrecursionlimit(1500)
@@ -2159,12 +2160,16 @@ class GeoResultsBlobHolder(Base):
     This class adds a layer of abstraction so that Blobs are only accessed when specifically desired
     and don't clutter up table displays or increase DB usage.
     """
+    from sqlalchemy.dialects.mysql import LONGBLOB
     __tablename__ = 'geoResultsBlobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(LargeBinary)
+    #blob = Column(LargeBinary)
+    blob = Column(LONGBLOB)
     
     def __init__(self, blob):
         self.blob = blob
+
+
 
 class CostSummaryResultsBlobHolder(Base):
     """
@@ -2192,9 +2197,11 @@ class HierarchicalCostSummaryTreeMapBlobHolder(Base):
     '''
     This class will hold the json for the cost tree map
     '''
+    from sqlalchemy.dialects.mysql import LONGBLOB
     __tablename__= 'hierarchicalCostSummaryTreeMapBlobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(LargeBinary)
+    #blob = Column(LargeBinary)
+    blob = Column(LONGBLOB)
     
     def __init__(self, blob):
         self.blob = blob
@@ -2203,9 +2210,10 @@ class HierarchicalCostSummaryBarChartBlobHolder(Base):
     '''
     This class will hold the json for the cost bar chart
     '''
+    from sqlalchemy.dialects.mysql import LONGBLOB
     __tablename__= 'hierarchicalCostSummaryBarChartBlobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(LargeBinary)
+    blob = Column(LONGBLOB)
     
     def __init__(self, blob):
         self.blob = blob
@@ -4243,7 +4251,7 @@ class ShdNetwork(Base):
             self.addModelSummaryJson()
             
         #print self.modelSummaryJson.blob
-        print json.loads(self.modelSummaryJson.blob)['name']
+        #print json.loads(self.modelSummaryJson.blob)['name']
         return json.loads(self.modelSummaryJson.blob)
     
     def getModelD3Json(self):
