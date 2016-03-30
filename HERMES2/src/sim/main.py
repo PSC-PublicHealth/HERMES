@@ -330,9 +330,15 @@ def loadShadowNetwork(userInput, unifiedInput):
 def commitResults(results):
     from shadow_db_routines import commitResultsEntry
     commitResultsEntry(results)
+    
+def resetEngine():
+    from shadow_db_routines import resetInterface
+    resetInterface()
+    
 
 def workerRun(arg):
     import hermes
+    resetEngine()
     q,outQ = arg
     print 'Process %s run'%multiprocessing.current_process().name
     try:

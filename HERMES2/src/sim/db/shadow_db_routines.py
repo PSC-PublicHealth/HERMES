@@ -31,6 +31,9 @@ except:
     pass
 
 
+def resetInterface():
+    iface.engine.dispose()
+        
 def getDbInputRecs(model, resultsGroup=None, session_in=None):
     "get the input records from a db model id."
 
@@ -82,11 +85,14 @@ def addResultsGroup(modelId, name, session_in=None):
     return  resultsGroup.resultsGroupId
 
 def averageResultsGroup(modelId, resultsGroupId, session_in=None):
-     
+    
     if session_in is None:
         session = iface.Session()
     else:
         session = session_in
+    
+    session.commit()
+    session.flush()
     
     net = session.query(shd.ShdNetwork).filter_by(modelId=modelId).one()
     resultsGroup = session.query(shd.HermesResultsGroup).filter_by(modelId=modelId,resultsGroupId=resultsGroupId).one()
