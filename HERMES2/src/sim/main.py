@@ -248,6 +248,7 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None):
             raise RuntimeError("--out must be set with a descriptive name when hermes is run against the DB")
         print "adding resultGroup {0}".format(opts.out)
         resultsGroupId = addResultsGroup(firstInputFile, opts.out)
+        gblDict['modelId'] = firstInputFile
     # not sure where to put this but I think this gets it as far as I need it.
     #gblDict['resultsGroupId'] = resultsGroupId
     elif opts.minion:
@@ -338,18 +339,25 @@ def resetEngine():
 
 def workerRun(arg):
     import hermes
-    resetEngine()
+    from db_routines import DbInterface
+    import shadow_network_db_api
     q,outQ = arg
     print 'Process %s run'%multiprocessing.current_process().name
     try:
         while True:
+            db = DbInterface()
+            dbSession = db.Session()
+            
             userInput, unifiedInput, gblInputs, runNumber, doGraphics, perfect= q.get()
             with OutputRedirector(runNumber) as o:
                 try:
                     output = None
                     shdNet = None
-                    if gblInputs['use_shadow']:
-                        shdNet = loadShadowNetwork(userInput, unifiedInput)
+                    #if gblInputs['use_shadow']:
+                        #resetEngine()
+                        #shdNet = loadShadowNetwork(userInput, unifiedInput)
+                    if gblInputs['use_dbmodel']:
+                        shdNet = shadow_network_db_api.ShdNetworkDB(dbSession,gblInputs['modelId'])
                     time.sleep(runNumber)
                     r = hermes.HermesSim(userInput, unifiedInput, 
                                          runNumber=runNumber, perfect=perfect, shdNet=shdNet)
