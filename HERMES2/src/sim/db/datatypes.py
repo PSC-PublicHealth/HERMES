@@ -14,7 +14,7 @@
 ###################################################################################
 
 try:
-    from sqlalchemy import Integer, String, Float, Boolean, LargeBinary, ForeignKey
+    from sqlalchemy import Integer, String, Float, Boolean, LargeBinary, Text, ForeignKey
     import sqlalchemy
 except:
     class EmptyClass:
@@ -103,6 +103,5 @@ FLOAT_NONE = DataType(FLOAT, emptyCast = castTypes.EMPTY_IS_NONE)
 FLOAT_ZERO = DataType(FLOAT, emptyCast = castTypes.EMPTY_IS_ZERO)
 
 BLOB = DataType(dbType=LargeBinary)
-
 CHAR = DataType(dbType=sqlalchemy.CHAR(length=1), cast = castTypes.STRING)
 

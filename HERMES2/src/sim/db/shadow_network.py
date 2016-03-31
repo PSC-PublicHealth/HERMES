@@ -2159,9 +2159,10 @@ class GeoResultsBlobHolder(Base):
     This class adds a layer of abstraction so that Blobs are only accessed when specifically desired
     and don't clutter up table displays or increase DB usage.
     """
+    from sqlalchemy.dialects import mysql
     __tablename__ = 'geoResultsBlobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(LargeBinary)
+    blob = Column(mysql.LONGBLOB)
     
     def __init__(self, blob):
         self.blob = blob
@@ -2170,9 +2171,10 @@ class CostSummaryResultsBlobHolder(Base):
     """
     This class will hold the cost summary blob for quick loading
     """
+    from sqlalchemy.dialects import mysql
     __tablename__= 'costSummaryResultsBlobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(LargeBinary)
+    blob = Column(mysql.LONGBLOB)
     
     def __init__(self, blob):
         self.blob = blob
@@ -2181,9 +2183,10 @@ class CostSummaryKeyPointsBlobHolder(Base):
     """
     This class will hold the cost summary key points blob for quick loading
     """
+    from sqlalchemy.dialects import mysql
     __tablename__= 'costSummaryKeyPointsBlobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(LargeBinary)
+    blob = Column(mysql.LONGBLOB)
     
     def __init__(self, blob):
         self.blob = blob
@@ -2192,9 +2195,10 @@ class HierarchicalCostSummaryTreeMapBlobHolder(Base):
     '''
     This class will hold the json for the cost tree map
     '''
+    from sqlalchemy.dialects import mysql
     __tablename__= 'hierarchicalCostSummaryTreeMapBlobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(LargeBinary)
+    blob = Column(mysql.LONGBLOB)
     
     def __init__(self, blob):
         self.blob = blob
@@ -2203,9 +2207,10 @@ class HierarchicalCostSummaryBarChartBlobHolder(Base):
     '''
     This class will hold the json for the cost bar chart
     '''
+    from sqlalchemy.dialects import mysql
     __tablename__= 'hierarchicalCostSummaryBarChartBlobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(LargeBinary)
+    blob = Column(mysql.LONGBLOB)
     
     def __init__(self, blob):
         self.blob = blob

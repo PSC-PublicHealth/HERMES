@@ -335,9 +335,9 @@ def loadShadowNetwork(userInput, unifiedInput):
     return loadShdNetwork(userInput, 
                           loadShdTypes(userInput, unifiedInput))
 
-def commitResults(results):
+def commitResults(results,session_in=None):
     from shadow_db_routines import commitResultsEntry
-    commitResultsEntry(results)
+    commitResultsEntry(results,session_in=session_in)
     
 def resetEngine():
     from shadow_db_routines import resetInterface
