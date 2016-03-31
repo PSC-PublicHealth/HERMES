@@ -365,10 +365,10 @@ def workerRun(arg):
                         output = r.runModelStep()
                     else:
                         output = r.runModel()
-                    r.printStatistics()
+                    #r.printStatistics()
                     r.checkSummary(graph=doGraphics) 
-                    r.cleanupOutputs()
-                    output.writeOutputs()
+                    #r.cleanupOutputs()
+                    #output.writeOutputs()
                     if gblInputs['save_hdata'] is not None:
                         output.save(gblInputs['save_hdata'])
                     if gblInputs['use_dbmodel']:

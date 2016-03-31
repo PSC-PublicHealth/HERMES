@@ -31,6 +31,7 @@ try:
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker, scoped_session
     from sqlalchemy.sql import text
+    from sqlalchemy.pool import AssertionPool,QueuePool
 
     # 'Base' is the superclass from which our db schema is derived.
     # Any classes  that will be a part of the db schema needs to inherit Base

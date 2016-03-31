@@ -102,7 +102,9 @@ def main():
         #conn.execute(ins)
         session.add(net)
         session.commit()
+	session.flush()
         Privileges(2).registerModelId(session,net.modelId,2,2)
+	print net.modelId
 ############
 # Main hook
 ############

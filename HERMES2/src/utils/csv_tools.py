@@ -263,14 +263,14 @@ def writeCSV( ofile, keyList, recDictList, delim=",", quoteStrings=False, sortCo
     with openFileOrHandle(ofile, 'w') as rawO:
         o = codecs.getwriter(getPreferredOutputEncoding(rawO.encoding))(rawO,'replace')
         if quoteStrings:
-            o.write('"%s"'%keyList[0])
+            o.write(u'"%s"'%keyList[0])
             for key in keyList[1:]:
-                o.write('%s"%s"'%(delim,key))
+                o.write(u'%s"%s"'%(delim,key))
         else:
-            o.write("%s"%keyList[0])
+            o.write(u"%s"%keyList[0])
             for key in keyList[1:]:
-                o.write("%s%s"%(delim,key))
-        o.write("\n")
+                o.write(u"%s%s"%(delim,key))
+        o.write(u"\n")
         if sortColumn is not None:
             if sortColumn not in keyList:
                 print "Warning: sortColumn specified in  writeCSV is not a valid column, no sorting will be performed."
@@ -286,9 +286,9 @@ def writeCSV( ofile, keyList, recDictList, delim=",", quoteStrings=False, sortCo
             elif isinstance(val,float): o.write("%r"%val)
             elif quoteStrings:
                 if val.startswith('"') and val.endswith('"'): o.write('%s'%val)
-                else: o.write('"%s"'%val)
+                else: o.write(u'"%s"'%val)
             else:
-                o.write("%s"%val)
+                o.write(u"%s"%val)
             for key in keyList[1:]:
                 try:
                     val= rD[key]
@@ -298,10 +298,10 @@ def writeCSV( ofile, keyList, recDictList, delim=",", quoteStrings=False, sortCo
                 elif isinstance(val,float): o.write("%s%r"%(delim,val))
                 elif quoteStrings:
                     if val.startswith('"') and val.endswith('"'): o.write('%s%s'%(delim,val))
-                    else: o.write('%s"%s"'%(delim,val))
+                    else: o.write(u'%s"%s"'%(delim,val))
                 else:
-                    o.write("%s%s"%(delim,val))
-            o.write("\n")
+                    o.write(u"%s%s"%(delim,val))
+            o.write(u"\n")
     if debug:
         print "Wrote %d recs, delim=<%s>, quoteStrings= %s"%\
                   (len(recDictList),delim,quoteStrings)

@@ -2424,11 +2424,11 @@ class HermesResults(Base):
                 raiseRuntimeError("invalid record in report records")
         
         self.addHistograms(net)
-        self.addGeoResultsJson()
+        #self.addGeoResultsJson()
         self.addCostSummaryResultsJson()
         self.addCostSummaryKeyPointsJson()
-        self.addHierarchicalCostSummaryTreeMapJson()
-        self.addHierarchicalCostSummaryBarChartJson()
+        #self.addHierarchicalCostSummaryTreeMapJson()
+        #self.addHierarchicalCostSummaryBarChartJson()
             
             
     def addSummaryRecs(self, net, summaryRecDicts):

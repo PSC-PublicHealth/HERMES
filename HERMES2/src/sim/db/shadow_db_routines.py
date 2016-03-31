@@ -32,6 +32,7 @@ except:
 
 
 def resetInterface():
+    print "!!!!!! Resetting Interface"
     iface.engine.dispose()
         
 def getDbInputRecs(model, resultsGroup=None, session_in=None):
