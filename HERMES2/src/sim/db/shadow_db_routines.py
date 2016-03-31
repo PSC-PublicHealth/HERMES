@@ -119,5 +119,5 @@ def commitResultsEntry(results, session_in=None):
         session = session_in
     session.add(results)
     session.commit()
-    
+    session.flush()
     #resultsGroup = session.query(shd.HermesResultsGroup).filter_by(modelId=modelId,resultsGroupId=results.resultsGroupIdlt).one())
