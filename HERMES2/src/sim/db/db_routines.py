@@ -31,7 +31,6 @@ try:
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker, scoped_session
     from sqlalchemy.sql import text
-    from sqlalchemy.pool import AssertionPool,QueuePool
 
     # 'Base' is the superclass from which our db schema is derived.
     # Any classes  that will be a part of the db schema needs to inherit Base
@@ -53,10 +52,10 @@ except:
 class DbInterface:
     def __init__(self, 
                  dbType = None, 
-                 name = 'hermes', 
-                 user = 'hermes', 
-                 password = 'hermes_pass', 
-                 host = '127.0.0.1',
+                 name = None, 
+                 user = None, 
+                 password = None, 
+                 host = None,
                  echo = False,
                  dbLoc = None):
         sI = site_info.SiteInfo()
@@ -64,7 +63,15 @@ class DbInterface:
             dbType = sI.dbType()
         if dbLoc is None: 
             dbLoc = sI.dbLoc()
-
+        if user is None:
+            user = sI.dbUser()
+        if password is None:
+            password = sI.dbPword()
+        if host is None:
+            host = sI.dbHost()
+        if name is None:
+            name = sI.dbName()
+        
         self.dbType = dbType
 
         if dbType == 'mysql':

@@ -226,33 +226,40 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None):
     ### Make a results Group
     resultsGroupId = None
     
-    
+    inputList = []
     for inputString in inputFiles:
         inputFile,sep,count = inputString.partition(':')
+        if count == '':
+            count = 1
+        inputList.append((inputFile,int(count)))
         if firstInputFile is None:
             firstInputFile = inputFile
+            if gblDict['use_dbmodel']:
+                gblDict['modelId'] = firstInputFile
         else:
-            print "First = %s, input = %s"%(firstInputFile,inputFile)
+            #print "First = %s, input = %s"%(firstInputFile,inputFile)
             if firstInputFile != inputFile:
                 if gblDict['use_dbmodel']:  # I really think we should get rid of this if statement
                     raise RuntimeError("Hermes should not be run with multiple models against the DB")
-        if count == '': count = 1
-        for i in xrange(int(count)):
-            userInputList.append(input.UserInput(inputFile, gblDict['use_dbmodel']))
-
-    print "HERE = {0}".format(gblDict['use_dbmodel'])
-    print "HERE2 = {0}".format(opts.minion)
-    if gblDict['use_dbmodel'] and not opts.minion:
-        from shadow_db_routines import addResultsGroup
-        if opts.out is None:
-            raise RuntimeError("--out must be set with a descriptive name when hermes is run against the DB")
-        print "adding resultGroup {0}".format(opts.out)
-        resultsGroupId = addResultsGroup(firstInputFile, opts.out)
-        gblDict['modelId'] = firstInputFile
-    # not sure where to put this but I think this gets it as far as I need it.
-    #gblDict['resultsGroupId'] = resultsGroupId
-    elif opts.minion:
-        resultsGroupId = opts.out
+   
+    if len(inputList) == 0:
+        raise RuntimeError("HERMES needs an inputfile to run")
+    
+    ### We need to add the resultsGroup if we are using a database         
+    resultsGroupId = None
+    
+    if gblDict['use_dbmodel']:
+        if not opts.minion:
+            from shadow_db_routines import addResultsGroup
+            if opts.out is None:
+                raise RuntimeError("--out must be set with a descriptive name when hermes is run against the DB")
+            resultsGroupId = addResultsGroup(int(inputList[0][0]), opts.out)
+        else:
+            resultsGroupId = opts.out
+     
+    for inputFile,count in inputList:
+        for i in xrange(count):
+            userInputList.append(input.UserInput(inputFile, resultsGroupId=resultsGroupId,useDb=gblDict['use_dbmodel']))
 
     for userInput in userInputList:
         if opts.minion: 
@@ -365,10 +372,10 @@ def workerRun(arg):
                         output = r.runModelStep()
                     else:
                         output = r.runModel()
-                    #r.printStatistics()
+                    r.printStatistics()
                     r.checkSummary(graph=doGraphics) 
-                    #r.cleanupOutputs()
-                    #output.writeOutputs()
+                    r.cleanupOutputs()
+                    output.writeOutputs()
                     if gblInputs['save_hdata'] is not None:
                         output.save(gblInputs['save_hdata'])
                     if gblInputs['use_dbmodel']:

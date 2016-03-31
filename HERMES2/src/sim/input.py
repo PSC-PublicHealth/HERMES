@@ -314,7 +314,7 @@ This class will hold all of the user defined inputs
 class UserInput:
     defaultInput = InputDefault()
     
-    def __init__(self,userInputFileName=None, useDb=None, dbSession=None):
+    def __init__(self,userInputFileName=None, resultsGroupId=None, useDb=None, dbSession=None):
         self.definitionFileName = userInputFileName
         self.fromDb = useDb
 
@@ -339,7 +339,7 @@ class UserInput:
 
         if useDb:
             import shadow_db_routines as shd_db
-            strRecs = shd_db.getDbInputRecs(userInputFileName, session_in=dbSession)
+            strRecs = shd_db.getDbInputRecs(userInputFileName, resultsGroup=None, session_in=dbSession)
             self.addValues(strRecs, replace=True, vtype="kvp")
             return
         
