@@ -380,7 +380,8 @@ def workerRun(arg):
                         output.save(gblInputs['save_hdata'])
                     if gblInputs['use_dbmodel']:
                         print "HERE!!!!!!!"
-                        commitResults(r.results)
+                        #results = shd.HermesResults(userInput['resultsGroupId'],resultsType='single',runNumber=runNumber)
+                        commitResults(r.results,session_in=dbSession)
                     print 'Process %s finished a task'%multiprocessing.current_process().name
                 except Exception as e:
                     print '-'*60
