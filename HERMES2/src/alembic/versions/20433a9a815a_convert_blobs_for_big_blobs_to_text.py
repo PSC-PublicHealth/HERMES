@@ -36,6 +36,31 @@ def upgrade():
                existing_type=sa.BLOB(),
                type_=mysql.LONGBLOB(),
                existing_nullable=True)
+    op.alter_column('storeVialsBlobHolder', 'blob',
+               existing_type=sa.BLOB(),
+               type_=mysql.LONGBLOB(),
+               existing_nullable=True)
+    op.alter_column('storeCapHistBlobHolder', 'blob',
+               existing_type=sa.BLOB(),
+               type_=mysql.LONGBLOB(),
+               existing_nullable=True)
+    op.alter_column('modelD3JsonBlobHolder', 'blob',
+               existing_type=sa.BLOB(),
+               type_=mysql.LONGBLOB(),
+               existing_nullable=True)
+    op.alter_column('vaHistBlobHolder', 'blob',
+               existing_type=sa.BLOB(),
+               type_=mysql.LONGBLOB(),
+               existing_nullable=True)
+    op.alter_column('modelSummaryBlobHolder', 'blob',
+               existing_type=sa.BLOB(),
+               type_=mysql.LONGBLOB(),
+               existing_nullable=True)
+    op.alter_column('transCapHistBlobHolder', 'blob',
+               existing_type=sa.BLOB(),
+               type_=mysql.LONGBLOB(),
+               existing_nullable=True)
+
     op.alter_column('models', 'refOnly',
                existing_type=mysql.TINYINT(display_width=1),
                type_=sa.Boolean(),
@@ -93,5 +118,26 @@ def downgrade():
                existing_type=mysql.LONGBLOB(),
                type_=sa.BLOB(),
                existing_nullable=True)
+    op.alter_column('modelD3JsonBlobHolder', 'blob',
+               existing_type=mysql.LONGBLOB(),
+               type_=sa.BLOB(),
+               existing_nullable=True)
+    op.alter_column('modelSummaryBlobHolder', 'blob',
+               existing_type=mysql.LONGBLOB(),
+               type_=sa.BLOB(),
+               existing_nullable=True)
+    op.alter_column('storeCapHistBlobHolder', 'blob',
+               existing_type=mysql.LONGBLOB(),
+               type_=sa.BLOB(),
+               existing_nullable=True)
+    op.alter_column('storeVialsBlobHolder', 'blob',
+               existing_type=mysql.LONGBLOB(),
+               type_=sa.BLOB(),
+               existing_nullable=True)
+    op.alter_column('transCapHistBlobHolder', 'blob',
+               existing_type=mysql.LONGBLOB(),
+               type_=sa.BLOB(),
+               existing_nullable=True)
+
 
     ### end Alembic commands ###

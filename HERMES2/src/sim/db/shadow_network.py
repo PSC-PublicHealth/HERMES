@@ -1560,9 +1560,10 @@ class BlobHolder(Base):
     This class adds a layer of abstraction so that Blobs are only accessed when specifically desired
     and don't clutter up table displays or increase DB usage.
     """
+    from sqlalchemy.dialects import mysql
     __tablename__ = 'blobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(LargeBinary)
+    blob = Column(mysql.LONGBLOB)
 
     def __init__(self, blob):
         self.blob = blob
@@ -1573,9 +1574,10 @@ class StoreVialsBlobHolder(Base):
     This class adds a layer of abstraction so that Blobs are only accessed when specifically desired
     and don't clutter up table displays or increase DB usage.
     """
+    from sqlalchemy.dialects import mysql
     __tablename__ = 'storeVialsBlobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(LargeBinary)
+    blob = Column(mysql.LONGBLOB)
     
     def __init__(self, blob):
         self.blob = blob
@@ -2123,9 +2125,10 @@ class VAHistBlobHolder(Base):
     This class adds a layer of abstraction so that Blobs are only accessed when specifically desired
     and don't clutter up table displays or increase DB usage.
     """
+    from sqlalchemy.dialects import mysql
     __tablename__ = 'vaHistBlobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(LargeBinary)
+    blob = Column(mysql.LONGBLOB)
     
     def __init__(self, blob):
         self.blob = blob
@@ -2135,9 +2138,10 @@ class TransCapHistBlobHolder(Base):
     This class adds a layer of abstraction so that Blobs are only accessed when specifically desired
     and don't clutter up table displays or increase DB usage.
     """
+    from sqlalchemy.dialects import mysql
     __tablename__ = 'transCapHistBlobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(LargeBinary)
+    blob = Column(mysql.LONGBLOB)
     
     def __init__(self, blob):
         self.blob = blob
@@ -2147,9 +2151,10 @@ class StoreCapHistBlobHolder(Base):
     This class adds a layer of abstraction so that Blobs are only accessed when specifically desired
     and don't clutter up table displays or increase DB usage.
     """
+    from sqlalchemy.dialects import mysql
     __tablename__ = 'storeCapHistBlobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(LargeBinary)
+    blob = Column(mysql.LONGBLOB)
     
     def __init__(self, blob):
         self.blob = blob
@@ -3956,9 +3961,10 @@ class ModelSummaryBlobHolder(Base):
     This class holds the model Summary json as a blob so that it does not
     have to be created everytime it is used as it is very costly
     """
+    from sqlalchemy.dialects import mysql
     __tablename__ = 'modelSummaryBlobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(LargeBinary)
+    blob = Column(mysql.LONGBLOB)
     
     def __init__(self,blob):
         self.blob = blob
@@ -3967,9 +3973,10 @@ class ModelD3JsonBlobHolder(Base):
     """ 
     This class holds the model json for displaying te collapsible diagram.
     """
+    from sqlalchemy.dialects import mysql
     __tablename__ = 'modelD3JsonBlobHolder'
     blobId = Column(Integer,primary_key=True)
-    blob = Column(LargeBinary)
+    blob = Column(mysql.LONGBLOB)
     
     def __init__(self,blob):
         self.blob = blob

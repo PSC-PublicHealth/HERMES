@@ -153,9 +153,17 @@ def createDBFromHistory(replace=True):
         sa.PrimaryKeyConstraint('blobId')
         )
     else:
-        print 'table storeVialsBlobHolder exists; not replacing'
-    
-    if replace or not existingTables.__contains__('BlobHolder'):
+        print 'table geoResultsBlobHolder exists; not replacing'
+    if replace or not existingTables.__contains__('modelD3JsonBlobHolder'):
+        geoResultsBlobHolder = sa.Table('modelD3JsonBlobHolder', md,
+        sa.Column('blobId', sa.Integer(), nullable=False),
+        sa.Column('blob', sa.LargeBinary(), nullable=True),
+        sa.PrimaryKeyConstraint('blobId')
+        )
+    else:
+        print 'table modelD3JsonBlobHolder exists; not replacing'
+
+    if replace or not existingTables.__contains__('storeVialsBlobHolder'):
         storeVialsBlobHolder = sa.Table('storeVialsBlobHolder', md,
         sa.Column('blobId', sa.Integer(), nullable=False),
         sa.Column('blob', sa.LargeBinary(), nullable=True),
@@ -229,7 +237,7 @@ def createDBFromHistory(replace=True):
         sa.Column('parmId', sa.Integer(), nullable=False),
         sa.Column('modelId', sa.Integer(), nullable=True),
         sa.Column('key', sa.String(length=250), nullable=True),
-        sa.Column('value', sa.String(length=250), nullable=True),
+        sa.Column('value', sa.String(length=1000), nullable=True),
         sa.ForeignKeyConstraint(['modelId'], ['models.modelId'], ),
         sa.PrimaryKeyConstraint('parmId')
         )
