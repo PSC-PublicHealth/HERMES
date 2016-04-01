@@ -6,4 +6,5 @@ geojson
 kitchen
 zest.pocompile
 xlwt
+MySQL-python==1.2.5
 openpyxl==2.1.1
