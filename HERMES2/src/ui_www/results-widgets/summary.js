@@ -54,26 +54,30 @@
 
         this.containerID = $(this.element).attr('id');
         var containerID = this.containerID;
-        this.vaccGridContainerID = this.containerID + "_vac_grid" + this.options.randMon;
-        this.costGridContainerID = this.containerID + "_cost_grid" + this.options.randMon;
+        this.vaccGridContainerID  = this.containerID + "_vac_grid" + this.options.randMon;
+        this.costGridContainerID  = this.containerID + "_cost_grid" + this.options.randMon;
         this.keypointsContainerID = this.containerID + "_keypoints" + this.options.randMon;
         this.vaccAvailContainerID = this.containerID + "_va_chart" + this.options.randMon;
         this.storeUtilContainerID = this.containerID + "_su_chart" + this.options.randMon;
         this.transUtilContainerID = this.containerID + "_tu_chart" + this.options.randMon;
 
-        this.buttonContainerID = this.containerID + "_buttons" + this.options.randMon;
-        this.geobuttonContainerID = this.containerID + "_geo_button" + this.options.randMon;
-        this.netbuttonContainerID = this.containerID + "_net_button" + this.options.randMon;
-        this.xlsbuttonContainerID = this.containerID + "_xls_button" + this.options.randMon;
-        this.xlsDialogContainerID = this.containerID + "_xls_dialog" + this.options.randMon;
+        this.buttonContainerID          = this.containerID + "_buttons" + this.options.randMon;
+        this.geobuttonContainerID       = this.containerID + "_geo_button" + this.options.randMon;
+        this.netbuttonContainerID       = this.containerID + "_net_button" + this.options.randMon;
+        this.xlsbuttonContainerID       = this.containerID + "_xls_button" + this.options.randMon;
+        this.xlsDialogContainerID       = this.containerID + "_xls_dialog" + this.options.randMon;
+        this.modelInfobuttonContainerID = this.containerID + "_mifo_button" + this.options.randMon;
+        this.modelInfoDialogContainerID = this.containerID + "_mifo_dialog" + this.options.randMon;
 
-        var vaccAvailContainerID = this.vaccAvailContainerID;
-        var storeUtilContainerID = this.storeUtilContainerID;
-        var transUtilContainerID = this.transUtilContainerID;
-        var geobuttonContainerID = this.geobuttonContainerID;
-        var netbuttonContainerID = this.netbuttonContainerID;
-        var xlsbuttonContainerID = this.xlsbuttonContainerID;
-        var xlsDialogContainerID = this.xlsDialogContainerID;
+        var vaccAvailContainerID   = this.vaccAvailContainerID;
+        var storeUtilContainerID   = this.storeUtilContainerID;
+        var transUtilContainerID   = this.transUtilContainerID;
+        var geobuttonContainerID   = this.geobuttonContainerID;
+        var netbuttonContainerID   = this.netbuttonContainerID;
+        var xlsbuttonContainerID   = this.xlsbuttonContainerID;
+        var xlsDialogContainerID   = this.xlsDialogContainerID;
+        var mInfobuttonContainerID = this.modelInfobuttonContainerID;
+        var mInfoDialogContainerID = this.modelInfoDialogContainerID
 
 
         // Add a div for the vaccine grid
@@ -95,6 +99,7 @@
         $("#"+this.containerID + "_buttons").append("<div id='"+this.geobuttonContainerID+"' class='rs_button'></div>");
         $("#"+this.containerID + "_buttons").append("<div id='"+this.netbuttonContainerID+"' class='rs_button'></div>");
         $("#"+this.containerID + "_buttons").append("<div id='"+this.xlsbuttonContainerID+"' class='rs_button'></div>");
+        $("#"+this.containerID + "_buttons").append("<div id='"+ mInfobuttonContainerID+"' class='rs_button'></div>");
         $("#"+this.containerID).append("<div id='"+this.vaccAvailContainerID + 
                 "' class='rs_chart'></div>");
         $("#"+this.containerID).append("<div id='"+this.storeUtilContainerID + 
@@ -122,6 +127,7 @@
         $("#"+geobuttonContainerID).button();
         $("#"+netbuttonContainerID).button();
         $("#"+xlsbuttonContainerID).button();
+        $("#"+mInfobuttonContainerID).button();
 
         var phrases = {0:'Open Geographic Visualization',
             1:'Open Network Visualization',
@@ -139,7 +145,8 @@
             12:'Total Costs By Supply Chain Level',
             13:'Currency',
             14:'Year',
-            15:'There are no costing results to display for this run'
+            15:'There are no costing results to display for this run',
+            16:'Get Model Summary Information'
         };
 
         // Handle everything that needs to be translated
@@ -179,6 +186,8 @@
                 $("#"+xlsDialogContainerID).append("<table><tr><td>"+tp[7]+"</td><td><input id='"+
                     downloadNameID+"' type='text'></td></tr></table>");
 
+                $("#"+mInfobuttonContainerID).button("option","label",tp[16]);
+                //$("#"+mInfobuttonContainerID).prop("title")
                 $("#"+xlsDialogContainerID).dialog({
                     autoOpen:false,
                     height: 300,
