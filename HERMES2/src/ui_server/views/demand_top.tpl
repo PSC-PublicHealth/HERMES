@@ -290,7 +290,7 @@ $(function() {
 			buildPage(modelId, modelName);
 %if defined('modelId'):
 			$("#model_sel_widget").modelSelector("setId",{{modelId}});
-			$("#model_sel_widget").modelSelector("deactivate");
+			//$("#model_sel_widget").modelSelector("deactivate");
 %end
 		//Set tooltips
 			$("#demand_scale_grid_scale").prop("title",'{{_("Proportion of population getting vaccinated: The number of people who show up to be vaccinated divided by the total population; if this value is less than 1, only a proportion of the total population arrive at clinics during the simulation.")}}');
@@ -397,7 +397,7 @@ function buildSideTable(modelId, modelName) {
 };
 
 function buildPage(modelId, modelName) {
-	$.getJSON('{{rootPath}}json/get-demand-table',{modelId:modelId})
+	$.getJSON('{{rootPath}}json/get-demand-table',{modelId:function(){ return $("#model_sel_widget").modelSelector('selId');}})
 	.done(function(data) {
 		if (data.success) {
 			if (data.supported) {
@@ -406,7 +406,9 @@ function buildPage(modelId, modelName) {
     				editurl:'{{rootPath}}edit/edit-demand',	
 					datatype: "json",
 					postData: {
-						modelId: modelId
+						modelId: function() { 
+							return $("#model_sel_widget").modelSelector('selId');
+						}
 					},
 					//width: 740, //deprecated with resize_grid
 					colNames:data.colNames,

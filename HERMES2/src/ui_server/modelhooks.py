@@ -939,7 +939,7 @@ def modelCreatePageNew(db,uiSession,step="unknown"):
                 del newModelJsonNCT['subCrumbTrack']
             newModelJson = json.dumps(newModelJsonNCT)
             if screen == "types":
-                return bottle.template('types_top.tpl',{'modelId':newModelInfoCN['modelId'],
+                return bottle.template('types_top_new.tpl',{'modelId':newModelInfoCN['modelId'],
                                                         'modelName':newModelInfoCN['name'],
                                                         'startClass':'vaccines',
                                                         'breadcrumbPairs':crumbTrack,
