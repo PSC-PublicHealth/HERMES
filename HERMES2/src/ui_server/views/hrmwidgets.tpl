@@ -1050,9 +1050,9 @@ function addToggleExpansionButton($grid) {
  					unique:data_unique,
  					caption:'',
  					customCols:[
- 					            ["{{_('Freeser (L)')}}",'freezer','freezer','float'],
- 					            ["{{_('Coolder (L)')}}",'cooler','cooler','float'],
- 					            ["{{_('Warm (L)')}}",'warm','roomtemperature','float']
+ 					            ["{{_('Below 0C (L)')}}",'freezer','freezer','float'],
+ 					            ["{{_('2-8C (L)')}}",'cooler','cooler','float'],
+ 					            ["{{_('Room Temperature (L)')}}",'warm','roomtemperature','float']
  					           ],
  					rootPath:'{{rootPath}}',
  					loadonce:true,

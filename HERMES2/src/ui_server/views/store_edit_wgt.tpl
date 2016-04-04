@@ -137,9 +137,9 @@ $(function() {
 		modelId:{{modelId}},
 		invType:"fridges",
 		customCols:[
-		            ['Freeser (L)','freezer','freezer',"float"],
-		            ['Cooler (L)','cooler','cooler',"float"],
-		            ['Warm (L)','warm','roomtemperature',"float"]
+		            ['Below 0C (L)','freezer','freezer',"float"],
+		            ['2-8 C (L)','cooler','cooler',"float"],
+		            ['Room Temperature (L)','warm','roomtemperature',"float"]
 		           ],
 		rootPath:'{{rootPath}}',
 		idcode:{{idcode}},
@@ -155,8 +155,8 @@ $(function() {
 		modelId:{{modelId}},
 		invType:"trucks",
 		customCols:[
-		            ["Cold Volume (L)",'cooler','CoolVolumeL',"float"],
-		            ["Storage",'storage','Storage',"storage"]
+		            ["2-8C Net Storage (L)",'cooler','CoolVolumeL',"float"],
+		            ["Storage Devices",'storage','Storage',"storage"]
 		           ],
 		rootPath:'{{rootPath}}',
 		idcode:{{idcode}},

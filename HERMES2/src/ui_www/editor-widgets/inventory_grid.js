@@ -238,7 +238,7 @@
 													if (data.success) {
 														var grid = $("#"+thisTableID);
 														var rowId = grid.getGridParam('selrow');
-														console.log("change value = " + data.value["DisplayName"]);
+														//console.log("change value = " + data.value["DisplayName"]);
 														grid.setCell(rowId,"description",data.value["DisplayName"]);
 														for(var i = 0;i<customCols.length;++i){
 															grid.setCell(rowId,customCols[i][1],data.value[customCols[i][2]]);
