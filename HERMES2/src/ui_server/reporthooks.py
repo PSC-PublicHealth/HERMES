@@ -127,6 +127,53 @@ def createModelSummaryJson(m):
     returnJSON['heirarchicalStores'] =  heirList
     return returnJSON
 
+@bottle.route('/json/model-vaccine-info-summary')
+def createModelVaccineInfoSummary(db,uiSession):
+    try:
+        modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
+        
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        returnJson = {'vaccines':{},'people':[]}
+        
+        demand = m.unifiedDemands
+        
+        for v in m.vaccines.values():
+            demandDict = {}
+            flag = False
+            print "For Vaccine {0}".format(v.Name)
+            for d in demand:
+                if d.peopleStr not in returnJson['people']:
+                    returnJson['people'].append(d.peopleStr)
+                print "   Demand for {0} {1}".format(d.vaccineStr,d.peopleStr)
+                if d.vaccineStr == v.Name:
+                    print "       In Demand, Count = {0}".format(d.count)
+                    demandDict[d.peopleStr] = d.count
+                    if d.count > 0:
+                        #demandDict[d.peopleStr] = d.count
+                        flag = True
+                        break
+            if flag:
+                returnJson['vaccines'][v.Name] = {'name':m.types[v.Name].getDisplayName(),
+                                      'dosesPerVial':v.dosesPerVial,
+                                      'volPerDose':v.volPerDose,
+                                      'dilVolPerDose':v.diluentVolPerDose,
+                                      'abbrev': v.Abbreviation,
+                                      'presentation':v.presentation,
+                                      'demands':demandDict
+                                      }
+                
+                
+                
+                
+#             returnJson[id]=typeInstance.DisplayName()
+        returnJson['success'] = True
+        return returnJson
+    
+    except Exception as e:
+        _logStacktrace()
+        return {'success':False,'msg':str(e)}
+        
+    
 def getNumberOfLocationsFromModel(model):
     placeCount = 0
     vaccinatingCount = 0
