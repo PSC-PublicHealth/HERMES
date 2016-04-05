@@ -207,9 +207,11 @@ def resultsTreeForAllModels(db,uiSession):
     ### go from Results Groups, as if there is no results, there is no reason
     try:
         rGrps = db.query(s_n.HermesResultsGroup)
+        print "rGrps = {0}".format(rGrps)
         mIdsParsed = []
         returnJson = []
         for rGp in rGrps:
+            print rGp.modelId
             if rGp.modelId in mIdsParsed:
                 continue
             mIdsParsed.append(rGp.modelId)

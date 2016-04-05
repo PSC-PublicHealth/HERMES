@@ -146,7 +146,8 @@
             13:'Currency',
             14:'Year',
             15:'There are no costing results to display for this run',
-            16:'Get Model Summary Information'
+            16:'Get Model Summary Information',
+            17:'Close'
         };
 
         // Handle everything that needs to be translated
@@ -187,12 +188,27 @@
                     downloadNameID+"' type='text'></td></tr></table>");
 
                 $("#"+mInfobuttonContainerID).button("option","label",tp[16]);
+                $("#"+containerID).append("<div id='"+mInfoDialogContainerID+"' titel='"+tp[16]+"'><div id='mInfoTabDiv'></div></div>");
+                
                 //$("#"+mInfobuttonContainerID).prop("title")
+                $("#"+mInfoDialogContainerID).dialog({
+                	autoOpen:false,
+                	modal: true,
+                	buttons:{
+                		'Close':{
+                			text:tp[17],
+                			click:function(){
+                				$(this).dialog("close");
+                			}
+                		}
+                	}
+                });
+                
                 $("#"+xlsDialogContainerID).dialog({
                     autoOpen:false,
                     height: 300,
                     width: 400,
-                    model: true,
+                    modal: true,
                     buttons:{
                         'Save':{
                             text:tp[8],
@@ -341,6 +357,14 @@
 
         $("#"+this.xlsbuttonContainerID).click(function(){
             $("#"+xlsDialogContainerID).dialog("open");
+        });
+        
+        $("#"+mInfobuttonContainerID).click(function(){
+        	$("#mInfoTabDiv").modelInfotabs({
+        		modelId:modelId,
+        		rootPath:rootPath
+        	});
+        	$("#"+mInfoDialogContainerID).dialog("open");
         });
     }
     });

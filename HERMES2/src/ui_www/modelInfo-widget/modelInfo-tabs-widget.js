@@ -16,11 +16,10 @@
 */
 ;(function($){
 
-	$.widget("modelInfo.modelInfo-tabs",{
+	$.widget("modelInfo.modelInfotabs",{
 		options:{
 			rootPath:'',
 			modelId:'',
-			idcode:'',
 			modelInfoJson:'',
 			trant:{
 				title:"Model Information"
@@ -30,7 +29,6 @@
 			trant = this.options.trant;
 			this.containerID = $(this.element).attr('id');
 			var thiscontainerID = this.containerID;
-			
 			var tabs = {
 						"gen":"General Information",
 					    "vac":"Vaccine Information",
@@ -39,17 +37,20 @@
 					    "trans":"Transport Inventory"
 						};
 		
-			$("#"+thiscontainerID).append("<ul>");
+			$("#"+thiscontainerID).append("<div id='modelInfoTabDiv'>")
+			
+			//$("#modelInfoTabDiv").append("<ul id='mIul'></ul>");
+			var ulString = "<ul>"
 			for (var key in tabs){
 				if(!tabs.hasOwnProperty(key)) continue;
-				
-				$("#"+thiscontainerID).append("<li><a href='#"+key+"'>"+tabs[key]+"</a></li>");
+				ulString += "<li><a href='#"+key+"'>"+tabs[key]+"</a></li>";
 			}
-			$("#"+thiscontainerID).append("</ul>");
+			ulString += "</ul>";
+			$("#modelInfoTabDiv").append(ulString);
 			for(var key in tabs){
-				$("#"+thiscontainerID).append("<div id ='"+key+" class='mi_tab'></div>");
+				$("#modelInfoTabDiv").append("<div id ='"+key+"' class='mi_tab'></div>");
 			}
-			$("#"+thiscontainerID).tabs();
+			$("#modelInfoTabDiv").tabs();
 			
 		}
 	});
