@@ -99,7 +99,7 @@
         $("#"+this.containerID + "_buttons").append("<div id='"+this.geobuttonContainerID+"' class='rs_button'></div>");
         $("#"+this.containerID + "_buttons").append("<div id='"+this.netbuttonContainerID+"' class='rs_button'></div>");
         $("#"+this.containerID + "_buttons").append("<div id='"+this.xlsbuttonContainerID+"' class='rs_button'></div>");
-        $("#"+this.containerID + "_buttons").append("<div id='"+ mInfobuttonContainerID+"' class='rs_button'></div>");
+        $("#"+this.containerID + "_buttons").append("<div id='"+ mInfobuttonContainerID+"' class='rs_button' style='display:none'></div>");
         $("#"+this.containerID).append("<div id='"+this.vaccAvailContainerID + 
                 "' class='rs_chart'></div>");
         $("#"+this.containerID).append("<div id='"+this.storeUtilContainerID + 
