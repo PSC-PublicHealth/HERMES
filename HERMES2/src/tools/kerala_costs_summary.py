@@ -11,26 +11,38 @@ costPerOutreach = 82.0
 
 vaccineList = ['I_DTP','I_HepB','I_HepB_birth','I_JE','I_Measles',
                'I_Oral_Polio','I_Tetanus_Toxoid','I_Tuberculosis','I_DTP_HepB_Hib',
-               'I_Rotavac','X_IPV10','X_IPV25','X_IPV5','X_IPV55','X_PCV']
+               'I_Rotavac','X_IPV1','X_IPV1f','X_IPV2','X_IPV2f','X_IPV10','X_IPV25','X_IPV5','X_IPV55','X_PCV']
 vaccineMonDict = {'I_DTP':'DTP','I_HepB':'HepB','I_HepB_birth':'HepB Birth Dose','I_JE':'JE','I_Measles':'Measles',
                'I_Oral_Polio':'OPV','I_Tetanus_Toxoid':'TT','I_Tuberculosis':'BCG','I_DTP_HepB_Hib':'Penta',
-               'I_Rotavac':'Rotavac','X_IPV10':'IPV10','X_IPV25':'IPV10(50)','X_IPV5':'IPV5','X_IPV55':'IVP5(25)',
+               'I_Rotavac':'Rotavac',
+               'X_IPV1':'IPV1','X_IPV1f':'IPV1(5)','X_IPV2':'IPV2','X_IPV2f':'IPV2(10)',
+               'X_IPV10':'IPV10','X_IPV25':'IPV10(50)','X_IPV5':'IPV5','X_IPV55':'IVP5(25)',
                'X_PCV':'PCV'}
 vaccineDoseDict = {'I_DTP':5,'I_HepB':3,'I_HepB_birth':1,'I_Measles':2,
                'I_Oral_Polio':5,'I_Tetanus_Toxoid':4,'I_Tuberculosis':1,'I_DTP_HepB_Hib':3,
-               'I_Rotavac':3,'X_IPV10':1,'X_IPV25':2,'X_IPV5':1,'X_IPV55':2,'X_PCV':3}
+               'I_Rotavac':3,
+               'X_IPV1':1,'X_IPV1f':2,'X_IPV2':1,'X_IPV2f':2,
+               'X_IPV10':1,'X_IPV25':2,'X_IPV5':1,'X_IPV55':2,'X_PCV':3}
 
-baseDir = 'C:\Users\stbrown\Box Sync\Shared HERMES\Project\IPV Partial Doses'
+baseDir = 'C:\Users\shawn\Box Sync\Shared HERMES\Project\IPV Partial Doses'
 directories = [
-               {'Title':'UIP','dir':baseDir+"\Kerala",'outPre':'output'},
-               {'Title':'IPV 10 Dose','dir':baseDir+"\Kerala-10Dose",'outPre':'output'},
-               {'Title':'IPV 10 Dose (50 Partial Doses)','dir':baseDir+"\Kerala-25Dose",'outPre':'output'},
-               {'Title':'IPV 5 Dose','dir':baseDir+"\Kerala-5Dose",'outPre':'output'},
-               {'Title':'IPV 5 Dose (25 Partial Doses)','dir':baseDir+"\Kerala-55Dose",'outPre':'output'},
-               {'Title':'IPV 10 Dose NoMDVP','dir':baseDir+"\NoMDVP\Kerala-10Dose",'outPre':'output'},
-               {'Title':'IPV 10 Dose (50 Partial Doses) NoMDVP','dir':baseDir+"\NoMDVP\Kerala-25Dose",'outPre':'output'},
-               {'Title':'IPV 5 Dose NoMDVP','dir':baseDir+"\NoMDVP\Kerala-5Dose",'outPre':'output'},
-               {'Title':'IPV 5 Dose (25 Partial Doses) NoMDVP','dir':baseDir+"\NoMDVP\Kerala-55Dose",'outPre':'output'},
+               #{'Title':'UIP','dir':baseDir+"\Kerala",'outPre':'output'},
+               #{'Title':'IPV 10 Dose','dir':baseDir+"\Kerala-10Dose",'outPre':'output'},
+               #{'Title':'IPV 10 Dose (50 Partial Doses)','dir':baseDir+"\Kerala-25Dose",'outPre':'output'},
+               #{'Title':'IPV 5 Dose','dir':baseDir+"\Kerala-5Dose",'outPre':'output'},
+               #{'Title':'IPV 5 Dose (25 Partial Doses)','dir':baseDir+"\Kerala-55Dose",'outPre':'output'},
+               #{'Title':'IPV 10 Dose NoMDVP','dir':baseDir+"\NoMDVP\Kerala-10Dose",'outPre':'output'},
+               #{'Title':'IPV 10 Dose (50 Partial Doses) NoMDVP','dir':baseDir+"\NoMDVP\Kerala-25Dose",'outPre':'output'},
+               #{'Title':'IPV 5 Dose NoMDVP','dir':baseDir+"\NoMDVP\Kerala-5Dose",'outPre':'output'},
+               #{'Title':'IPV 5 Dose (25 Partial Doses) NoMDVP','dir':baseDir+"\NoMDVP\Kerala-55Dose",'outPre':'output'},
+               {'Title':'IPV 1 Dose limit 50K','dir':baseDir+"\Kerala-1Dose-limit-50k",'outPre':'output'},
+               {'Title':'IPV 1 Dose (5 Partial Doses) limit 50k','dir':baseDir+"\Kerala-1fDose-limit-50k",'outPre':'output'},
+               {'Title':'IPV 2 Dose limit 50K','dir':baseDir+"\Kerala-2Dose-limit-50k",'outPre':'output'},
+               {'Title':'IPV 2 Dose (10 Partial Doses) limit 50k','dir':baseDir+"\Kerala-2fDose-limit-50k",'outPre':'output'},
+               {'Title':'IPV 5 Dose limit 50K','dir':baseDir+"\Kerala-5Dose-limit-50k",'outPre':'output'},
+               {'Title':'IPV 5 Dose (25 Partial Doses) limit 50k','dir':baseDir+"\Kerala-5fDose-limit-50k",'outPre':'output'},               
+               {'Title':'IPV 10 Dose limit 50K','dir':baseDir+"\Kerala-10Dose-limit-50k",'outPre':'output'},
+               {'Title':'IPV 10 Dose (50 Partial Doses) limit 50k','dir':baseDir+"\Kerala-10fDose-limit-50k",'outPre':'output'},
 #               {'Title':'Penta Introduction','dir':baseDir + "Penta", 'outPre':'output'},
 #	       {'Title':'Rotavac Introduction','dir':baseDir+"Rotavac",'outPre':'output'},
 #	       {'Title':'IPV Introduction','dir':baseDir+"IPV-Birth",'outPre':'output'},
@@ -89,7 +101,7 @@ def main():
             for key in vaccine_keys:
                 if rec['function'] != 'Surrogate':
                     availDict[key][0] += float(rec[key+"_treated_ave"])
-                    vialUsedDict[key] += float(rec[key+"_vials_ave"])
+#                    vialUsedDict[key] += float(rec[key+"_vials_ave"])
                     availDict[key][1] += float(rec[key+"_patients_ave"])
 
 
@@ -102,12 +114,26 @@ def main():
             resultDict['Avail'][vacc] = valList[0]/valList[1]
             resultDict['DosesByAntigen'][vacc] = valList[0]
 
-        for vacc,val in vialUsedDict.items():
-            resultDict['VialsUsed'][vacc] = val
-        
+        #for vacc,val in vialUsedDict.items():
+        #    resultDict['VialsUsed'][vacc] = val
+        print "tot_treated = {0}".format(tot_treated)
+        print "tot_patients = {0}".format(tot_patients)
         resultDict['OverAllVA'] = (tot_treated/tot_patients)
+        print resultDict['OverAllVA']
         resultDict['Doses'] = tot_treated
 
+    ### Determine Vials Procured
+        for vacc in vaccineList:
+            for rec in summaryRecs:
+                if rec['Name'] == vacc:
+                #print rec['VialsCreated_ave']
+                #print rec['Name']
+                    vialUsedDict[vacc] = rec['VialsCreated_ave']
+                    break
+        resultDict['VialsUsed'] = vialUsedDict
+        print "------"
+        print vialUsedDict
+        print "-----"
     ### Determine the FIC
         if 'I_DTP_HepB_Hib' in availDict.keys():
             vaccineDoseDict['I_DTP'] = 2

@@ -760,11 +760,20 @@ function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,route
 		.style("fill",function(d){
 			return "#"+rainbow.colourAt(100.0-d.va);
 		})
-		.style("fill-opacity",1.0)
+		.style("fill-opacity",function(d){
+			if(d.va<0.0){
+				return 0.0;
+			}
+			else{
+				return 1.0;
+			}
+		})
 		.style("stroke","black")
-		.style("stroke-width",0.010+"px")
+		.style("stroke-width",function(d){if(d.va<0.0){return 0.0+"px";}else{return 0.010+"px";}})
+		.style("stroke-opacity",function(d){if(d.va<0.0){return 0.0;}else{return 1.0;}})
 		.on("click",clickStoreDialog)
 		.on("mouseover",function(d){
+			if(d.va < 0.0){return;}
 			storeTipDiv.transition()
 				.duration(200)
 				.style("opacity",1.0);

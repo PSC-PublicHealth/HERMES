@@ -52,6 +52,8 @@
 			}
 			$("#modelInfoTabDiv").tabs();
 			
+			$("#vac").append("<table id = 'vaccTable'></table>");
+			
 		}
 	});
 })(jQuery);

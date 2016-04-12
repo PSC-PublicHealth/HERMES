@@ -26,27 +26,37 @@ costPerOutreach = 82.0
 
 vaccineList = ['I_DTP','I_HepB','I_HepB_birth','I_JE','I_Measles',
                'I_Oral_Polio','I_Tetanus_Toxoid','I_Tuberculosis','I_DTP_HepB_Hib',
-               'I_Rotavac','X_IPV10','X_IPV25','X_IPV5','X_IPV55','X_PCV']
+               'I_Rotavac','X_IPV1','X_IPV1f','X_IPV2','X_IPV2f','X_IPV5','X_IPV55','X_IPV10','X_IPV25','X_PCV']
 vaccineMonDict = {'I_DTP':'DTP','I_HepB':'HepB','I_HepB_birth':'HepB Birth Dose','I_JE':'JE','I_Measles':'Measles',
                'I_Oral_Polio':'OPV','I_Tetanus_Toxoid':'TT','I_Tuberculosis':'BCG','I_DTP_HepB_Hib':'Penta',
                'I_Rotavac':'Rotavac','X_IPV10':'IPV10','X_IPV25':'IPV10(50)',
+                'X_IPV1':'IPV1','X_IPV1f':'IPV1(5)','X_IPV2':'IPV2','X_IPV2f':'IPV2(10)',
                 'X_IPV5':'IPV5','X_IPV55':'IVP5(25)','X_PCV':'PCV'}
 vaccineDoseDict = {'I_DTP':5,'I_HepB':3,'I_HepB_birth':1,'I_Measles':2,
                'I_Oral_Polio':5,'I_Tetanus_Toxoid':4,'I_Tuberculosis':1,'I_DTP_HepB_Hib':3,
+               'X_IPV1':1,'X_IPV1f':2,'X_IPV2':1,'X_IPV2f':2,
                'I_Rotavac':3,'X_IPV10':1,'X_IPV25':2,'X_IPV5':1,'X_IPV55':2,'X_PCV':3}
 
 baseDir = './'
 directories = [
                {'Title':'UIP','dir':baseDir+"Bihar",'outPre':'output10'},
-               {'Title':'IPV 10 Dose','dir':baseDir+"Bihar-10dose",'outPre':'output10'},
-               {'Title':'IPV 25 Partial Dose','dir':baseDir+"Bihar-25dose",'outPre':'output25'},
-               {'Title':'IPV 5 Dose','dir':baseDir+"\Bihar-5dose",'outPre':'output10'},
-               {'Title':'IPV 5 Dose (25 Partial Doses)','dir':baseDir+"\Bihar-55dose",'outPre':'output10'},
-               {'Title':'IPV 10 Dose NoMDVP','dir':baseDir+"\NoMDVP\Bihar-10dose",'outPre':'output10'},
-               {'Title':'IPV 25 Partial Dose NoMDVP','dir':baseDir+"\NoMDVP\Bihar-25dose",'outPre':'output25'},
-               #{'Title':'IPV 5 Dose NoMDVP','dir':baseDir+"\NoMDVP\Bihar-5dose",'outPre':'output10'},
-               {'Title':'IPV 5 Dose (25 Partial Doses) NoMDVP','dir':baseDir+"\NoMDVP\Bihar-55dose",'outPre':'output10'},
-
+               
+#                {'Title':'IPV 10 Dose','dir':baseDir+"Bihar-10dose",'outPre':'output10'},
+#                {'Title':'IPV 25 Partial Dose','dir':baseDir+"Bihar-25dose",'outPre':'output25'},
+#                {'Title':'IPV 5 Dose','dir':baseDir+"\Bihar-5dose",'outPre':'output10'},
+#                {'Title':'IPV 5 Dose (25 Partial Doses)','dir':baseDir+"\Bihar-55dose",'outPre':'output10'},
+#                {'Title':'IPV 10 Dose NoMDVP','dir':baseDir+"\NoMDVP\Bihar-10dose",'outPre':'output10'},
+#                {'Title':'IPV 25 Partial Dose NoMDVP','dir':baseDir+"\NoMDVP\Bihar-25dose",'outPre':'output25'},
+#                #{'Title':'IPV 5 Dose NoMDVP','dir':baseDir+"\NoMDVP\Bihar-5dose",'outPre':'output10'},
+#                {'Title':'IPV 5 Dose (25 Partial Doses) NoMDVP','dir':baseDir+"\NoMDVP\Bihar-55dose",'outPre':'output10'},
+                {'Title':'IPV 1 Dose limit 100K','dir':baseDir+"\Bihar-1dose-limit-100k",'outPre':'output10'},
+               {'Title':'IPV 1 Dose (5 Partial Doses) limit 100k','dir':baseDir+"\Bihar-1fdose-limit-100k",'outPre':'output10'},
+               {'Title':'IPV 2 Dose limit 100K','dir':baseDir+"\Bihar-2dose-limit-100k",'outPre':'output10'},
+               {'Title':'IPV 2 Dose (10 Partial Doses) limit 100k','dir':baseDir+"\Bihar-2fdose-limit-100k",'outPre':'output10'},
+               {'Title':'IPV 5 Dose limit 100K','dir':baseDir+"\Bihar-5dose-limit-100k",'outPre':'output10'},
+               {'Title':'IPV 5 Dose (25 Partial Doses) limit 100k','dir':baseDir+"\Bihar-5fdose-limit-100k",'outPre':'output10'},               
+               {'Title':'IPV 10 Dose limit 100K','dir':baseDir+"\Bihar-10dose-limit-100K",'outPre':'output10'},
+               {'Title':'IPV 10 Dose (50 Partial Doses) limit 100k','dir':baseDir+"\Bihar-10fdose-limit-100k",'outPre':'output25'},
 #               {'Title':'Penta Introduction','dir':baseDir + "Penta", 'outPre':'output'},
 #	       {'Title':'Rotavac Introduction','dir':baseDir+"Rotavac",'outPre':'output'},
 #	       {'Title':'IPV Introduction','dir':baseDir+"IPV-Birth",'outPre':'output'},
@@ -105,7 +115,7 @@ def main():
             for key in vaccine_keys:
                 if rec['function'] != 'Surrogate':
                     availDict[key][0] += float(rec[key+"_treated_ave"])
-                    vialUsedDict[key] += float(rec[key+"_vials_ave"])
+                    #vialUsedDict[key] += float(rec[key+"_vials_ave"])
                     availDict[key][1] += float(rec[key+"_patients_ave"])
 
 
@@ -118,8 +128,22 @@ def main():
             resultDict['Avail'][vacc] = valList[0]/valList[1]
             resultDict['DosesByAntigen'][vacc] = valList[0]
 
-        for vacc,val in vialUsedDict.items():
-            resultDict['VialsUsed'][vacc] = val
+        #for vacc,val in vialUsedDict.items():
+        #    resultDict['VialsUsed'][vacc] = val
+        
+        ### Determine Vials Procured
+        for vacc in vaccineList:
+            for rec in summaryRecs:
+                if rec['Name'] == vacc:
+                #print rec['VialsCreated_ave']
+                #print rec['Name']
+                    vialUsedDict[vacc] = rec['VialsCreated_ave']
+                    break
+        resultDict['VialsUsed'] = vialUsedDict
+        print "------"
+        print vialUsedDict
+        print "-----"
+        
 
         resultDict['OverAllVA'] = (tot_treated/tot_patients)
         resultDict['Doses'] = tot_treated
@@ -518,7 +542,7 @@ def main():
 	col+=1
 
     
-    wb.save('Bihar_Summary.xls')
+    wb.save('Bihar_Summary_2.xls')
 '''
     resultStringList = []
     

@@ -490,7 +490,7 @@ def generateVaccineStatsForStore(m,r,storeId):
         if d['patients'] > 0.0:
             d['avail'] = (float(d['treated'])/float(d['patients']))*100.0
         else:
-            d['avail'] = 0.0
+            d['avail'] = -1.0
     
     return vacDict 
 

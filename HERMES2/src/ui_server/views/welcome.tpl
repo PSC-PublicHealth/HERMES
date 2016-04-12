@@ -85,8 +85,11 @@
 </div>
 
 <div id="sp_top_div" class="sp_top_div">
-	<div id="sp_content_div" class="content_div">
-		<div class = "options_div">
+	<div id="sp_content_div" class="content_div" style="width:1000px">
+		<div class="logo_div" style="float:left">
+			<img src="{{rootPath}}static/images/HERMES_color_logo.png" style="width:250px">
+		</div>
+		<div class = "options_div" style="float:left">
 			<div id="welcome_title">
 				<span class="big_title">
 					{{_("Welcome to HERMES")}}
@@ -96,7 +99,6 @@
 					{{_("What would you like to do?")}}
 				</span>
 			</div>
-			
 			<div id="welcome_options">
 				<p>
 					<span class="welcome_item">
@@ -135,6 +137,14 @@
 						<a href="{{rootPath}}tutorial" target=_blank
 							title='{{_("See a demonstration of the HERMES platform.")}}'>
 							{{_("HERMES Demo")}}
+						</a>
+					</span>
+				</p>
+				<p>
+					<span class="welcome_item">
+						<a href="http://hermes.psc.edu" target="blank"
+							title='{{_("Visit the HERMES Website to see team members, project details, and publications.")}}'>
+						{{_('Visit the HERMES Website for More Information about the Project')}}
 						</a>
 					</span>
 				</p>
@@ -225,6 +235,9 @@ $(function(){
 	setTimeout(function(){
 		$('#welcome_options').fadeTo(2000,1.0);
 	},1000);
+	setTimeout(function(){
+		$('#logo_div').fadeTo(2000,1.0);
+	},1500);
 	
 	$("#create_model_link").click(function(e){
 		e.preventDefault();
