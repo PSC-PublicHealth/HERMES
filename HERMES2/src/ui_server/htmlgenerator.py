@@ -817,7 +817,8 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
                 default = ""
             if typeInstance is not None:
                 default = getattr(typeInstance,recKey)
-                if recType == 'string':
+                if recType == 'string' and default is not None and len(default)>2:
+                    print default
                     if default[0] == '"':
                         default = default[1:]
                     if default[-1] =='"':
