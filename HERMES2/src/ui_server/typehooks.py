@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
 # =============================================================================== #
@@ -135,7 +134,6 @@ def jsonTypeEditForm(db, uiSession, typeClass, fieldMap, useInstance=False):
 
 def jsonTypeEditVerifyAndCommit(db, uiSession, typeClass, fieldMap, classEditFn=None):
     try:
-        print "SEEING IF I GET HERE !!!!!!!!!"
         anc = False
         if 'overwrite' in bottle.request.params:
             anc = True
@@ -146,7 +144,6 @@ def jsonTypeEditVerifyAndCommit(db, uiSession, typeClass, fieldMap, classEditFn=
                                                       allowNameCollisions=anc)
        # print "AttRec in Type EditVer:"
         #print attrRec
-        print "I AM NOW HERE !!!!!!!!!!!!!!!!!"
         if badStr and badStr!="":
             result = {'success':True, 'value':False, 'msg':badStr}
         else:
@@ -233,7 +230,7 @@ def jsonGetNewTypeNumber(db,uiSession):
         newTypes = [x for x in m.types if x.startswith("model_{0}_{1}_type".format(modelId,typeT))]
         
         newTypeNums = [int(x.split('_')[-1]) for x in newTypes]
-        
+        result = None
         if len(newTypeNums) == 0:
             result = {'success':True,'inc':0}
         else:    
@@ -242,7 +239,19 @@ def jsonGetNewTypeNumber(db,uiSession):
     except Exception, e:
         result = {'success':False, 'msg':str(e)}
         return result
+
+@bottle.route('/json/get-all-typenames-in-model')
+def jsonGetAllTypeNamesInModel(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)     
         
+        typeNames = [x for x in m.types]
+        result = {'success':True,'typenames':typeNames}
+        return result
+    except Exception, e:
+        result = {'success':False, 'msg':str(e)}
+        return result     
 @bottle.route('/test-inv-grid')
 def testInventoryGrid(db,uiSession):
     

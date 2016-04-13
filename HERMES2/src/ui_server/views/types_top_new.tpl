@@ -560,6 +560,31 @@ function doesTypeExistInModel(typename,displayname){
 	}).promise();
 }
 
+function findModifiedDBName(typename,displayname){
+	count = 0;
+	$.ajax({
+		url:'{{rootPath}}json/get-all-typenames-in-model',
+		data:{
+			'modelId':{{modelId}}
+		}
+	})
+	.done(function(result){
+		if(result.success){
+			while(result.typenames.indexOf(typename)!=0){
+				typename = typename.slice(typename.length-1)+count;
+				count++;
+			}
+			return typename;
+		}
+		else{
+			alert(result.msg);
+		}
+	})
+	.fail(function(jqxhr, textStatus, error) {
+		alert("Error: "+jqxhr.responseText);
+	});
+};
+
 $("#create_new_type_button").button();
 $("#create_new_type_button").click(function(){
 	editType("new");
@@ -617,8 +642,9 @@ $("#save_name_modal").dialog({
 	    					})
 	    					.done(function(result){
 	    						if(result.success && (result.value == undefined || result.value)) {
-	    							$("#save_name_exists_modal").dialog("close");
+	    							$("#save_name_modal").dialog("close");
 	    							$("#edit_dialog").dialog("close");
+	    							reloadGrid(dest);
 	    						}
 	    						else{
 	    							alert(result.msg);
@@ -802,6 +828,7 @@ function editType(id) {
 	    					.done(function(result){
 	    						if(result.success && (result.value == undefined || result.value)) {
 	    							$("#edit_dialog").dialog("close");
+	    							reloadGrid(dest);
 	    						}
 	    						else{
 	    							alert(result.msg);
@@ -810,9 +837,33 @@ function editType(id) {
 	    				},
 	    				'{{_("Save As New Component")}}':function(){
 	    					var dict = $('#edit_form_content').editFormManager('getEntries');
-	    					$("#new_type_dbname_text").val(dict['Name'] + "m");
-	    					$("#new_type_name_text").val(dict['DisplayName'] + " (modified)");
-	    					$("#save_name_modal").dialog("open");
+	    					$.ajax({
+	    						url:'{{rootPath}}json/get-all-typenames-in-model',
+	    						data:{
+	    							'modelId':{{modelId}}
+	    						}
+	    					})
+	    					.done(function(result){
+	    						if(result.success){
+	    							count=0;
+	    							typename = dict['Name'];
+	    							while(result.typenames.indexOf(typename)!=-1){
+	    								typename = typename.slice(0,typename.length-1)+count;
+	    								count++;
+	    							}
+	    							$("#new_type_dbname_text").val(typename);
+	    	    					$("#new_type_name_text").val(dict['DisplayName'] + " (modified)");
+	    	    					
+	    	    					$("#save_name_modal").dialog("open");
+	    						}
+	    						else{
+	    							alert(result.msg);
+	    						}
+	    					})
+	    					.fail(function(jqxhr, textStatus, error) {
+	    						alert("Error: "+jqxhr.responseText);
+	    					});
+	    					
 	    				}
 	    			}
 	    		});
