@@ -793,7 +793,7 @@ class ShdStore(Base, ShdCopyable):
             return
 
         if count == 0:
-            invList.pop(i)
+            del invList[i]
             return
 
         item.count = count
@@ -1402,7 +1402,6 @@ class ShdRoute(Base):
             _copyAttrsToRec(rec, stop)
             _copyAttrsToRec(rec, self)
             recs.append(rec)
-
         return recs
 
     def supplier(self):
@@ -4349,6 +4348,9 @@ class ShdNetwork(Base):
         
         return countDict
     
+#     def getStorageDevicesListInModel(self):
+#         storageDeviceList = []
+#         for t in self.types
     def getRoutesLevelCount(self):
         levelCount = {}
         countDict = {}
