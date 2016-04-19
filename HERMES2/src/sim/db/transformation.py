@@ -364,5 +364,101 @@ def makeLoopsOptimizedByDistanceBetweenLevels(shdNtwk,startLevel,endLevel,places
                         )
                     
                 shdNtwk.addRoute(newRoute)
+
+def setStorageForEntireLevel(shdNtwk, shdTypes, levelToChange=[],storageDeviceName=None,storageDeviceRec=None,addToReplace=True,
+                             daysPerMonth=28,powerCost=0.0):
+    import math
+    
+    if levelToChange is None:
+        raise RuntimeError("transformation.setStorageForEntireLevel called with no level name")
+    for level in levelToChange:
+        if level not in shdNtwk.getLevelList():
+            raise RuntimeError("transformation.setStorageForEntireLevel called with a level {0} that is not in the model".format(level))
+    if storageDeviceName is None and storageDeviceRec is None:
+        raise RuntimeError("transformation.setStorageForEntireLevel called with no storage device name or record")
+    newType = None
+    if storageDeviceName is not None:
+        if storageDeviceName not in shdNtwk.types.keys():
+            raise RuntimeError("transformation.setStorageForEntireLevel storage device {0} does not exist in this model,".format(storageDeviceName)\
+                                +"please choose something in the model or define the new device by storageDeviceRec")
+        newType = shdNtwk.fridges[storageDeviceName]    
+    else:
+        storeDeviceRecHere = None
+        if len(shdNtwk.priceTable) == 0:
+            ### we are good
+            storeDeviceRecHere = storageDeviceRec
+            pass
+        else:
+            capDep = float(storageDeviceRec['BaseCost'])/float(storageDeviceRec['AmortYears'])
+            powerUse = 0.0
+            if storageDeviceRec['PowerRateUnits'] == 'kWh/day':
+                powerUse=powerCost*float(storageDeviceRec['PowerRate'])*daysPerMonth*12
+            priceRec = {
+                        'Name':storageDeviceRec['Name'],
+                        'Currency':storageDeviceRec['BaseCostCurCode'],
+                        'PerKM':0,
+                        'PerYear':capDep*1.05 + powerUse,
+                        'PerTrip':0,
+                        'PerTreatmentDay':0,
+                        'PerDiem':0,
+                        'PerVial':0,
+                        'Level':'',
+                        'Conditions':'',
+                        'Notes':''
+                        }
+            costEntry = shadow_network.ShdCosts(priceRec)
+            shdNtwk.addPriceEntry(costEntry)
+            newStorageRec = {
+                            'Name':storageDeviceRec['Name'],
+                            'DisplayName':storageDeviceRec['DisplayName'],
+                            'Make':storageDeviceRec['Make'],
+                            'Model':storageDeviceRec['Model'],
+                            'Year':storageDeviceRec['Year'],
+                            'Energy':storageDeviceRec['Energy'],
+                            'Category':storageDeviceRec['Category'],
+                            'freezer':storageDeviceRec['freezer'],
+                            'cooler':storageDeviceRec['cooler'],
+                            'roomtemperature':storageDeviceRec['roomtemperature'],
+                            'Notes':storageDeviceRec['Notes']
+                            }
+            storeDeviceRecHere = newStorageRec
+
+        shdTypesClass = shadow_network.ShdTypes.typesMap['fridges']
+        newType = shdTypesClass(storageDeviceRec)
+        shdNtwk.fridges['help'] = newType
         
+    
+    for storeId,store in shdNtwk.stores.items():
+        if store.CATEGORY in levelToChange:
+        #if storeId == 110100:
+            inv = store.countAllInventory
+            ## get total volume of current cold storage
+            vols = {'cooler':0.0,
+                    'freezer':0.0}
+            toRem = []
+            for t in store.inventory:
+                print t.invName
+                print t.invType
+                if type(t.invType) == shadow_network.ShdStorageType and t.invName != "proxy":
+                    
+                    vols['cooler'] += t.invType.cooler*t.count
+                    vols['freezer'] += t.invType.freezer*t.count
+                    #store.updateInventory(t.invType,0)
+                    toRem.append(t.invType)
+            
+            for tr in toRem:
+                store.updateInventory(tr,0)
+                
+            newCount = math.ceil(vols['cooler']/float(newType.cooler))
+            store.addInventory(newType,newCount)
+            #print vols
+                
+        #shdNtwk.types.addType(newType)
+        #shdTypes.addType(newType)
+    
+    
+
+            
+        
+    
     
