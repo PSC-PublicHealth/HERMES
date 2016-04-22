@@ -422,7 +422,7 @@ def createExcelSummaryOpenPyXLForResult(uiSession, m,hr):
     for header, attr, fmt in vCols:
         ss.postNext(header, labelStyle)
     ss.nextRow()
-        
+    totals = {}    
     for rec in hr.summaryRecs.values():
         if not isinstance(rec, shd.ShdVaccineSummary):
             continue
@@ -431,15 +431,32 @@ def createExcelSummaryOpenPyXLForResult(uiSession, m,hr):
                 val = m.types[rec.Name].getDisplayName()
             else:
                 val = getattr(rec, attr)
+                if attr not in totals.keys():
+                    totals[attr] = 0.0
+                totals[attr] += val
+                    
             if fmt == '%':
                 val = round(100.0 * val, 3)
+                
             style = plainStyle
             if fmt == 'label':
                 style = levelStyle
-
+            
             ss.postNext(val, style)
         ss.nextRow()
 
+    ss.postNext("Totals",levelTotalStyle)
+    ss.postNext(round(100.0 * (totals["Treated"]/totals["Applied"]),3),totalStyle)
+    ss.postNext(totals["Applied"],totalStyle)
+    ss.postNext(totals["Treated"],totalStyle)
+    ss.postNext("-",totalStyle)
+    ss.postNext(totals["VialsUsed"],totalStyle)
+    ss.postNext(totals['VialsCreated'],totalStyle)
+    ss.postNext(totals['VialsExpired'],totalStyle)
+    ss.postNext("-",totalStyle)
+    ss.postNext("-",totalStyle)
+    ss.nextRow()
+    
 
 
     popLevelCount = modelJSON['populationLevelCount']
