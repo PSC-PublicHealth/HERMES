@@ -527,25 +527,52 @@ class ElectricFridge(Fridge):
     classPartner = FridgeType
     def __init__(self, fridgeType, name=None, currentAge=0.0, tracked=False):
         Fridge.__init__(self, fridgeType, name=name, currentAge=currentAge, tracked=tracked)
+        #if fridgeType.recDict['Now']
+        if fridgeType.recDict['NoPowerHoldoverDays'] == None or fridgeType.recDict['NoPowerHoldoverDays'] == 0.0 :
+            self.noPowerHoldoverDays = 0.00001
+        else:
+            self.noPowerHoldoverDays = float(fridgeType.recDict['NoPowerHoldoverDays'])
+        self.hasPower = True
+        self.closed = False
+        self.roomTempTimer = None# warehouse.TimerProcess(self.fridgeType.sim,"%s_RoomTempProc"%self.name,
+                                                    #self.noPowerHoldoverDays,self.ifStillNoPowerSetToRoomTemp,None)
+        #self.fridgeType.sim.activate(self.roomTempTimer,self.roomTempTimer.run())
+        #self.roomTempTimer.cancel
         
-    def powerFail(self):
+    def powerFail(self, duration):
         #print 'powerFail; my storage is %s'%self.getStorageBlocks()
         assert self.place is not None, "powerFail on a homeless fridge"
-        rtStorage= self.fridgeType.sim.storage.roomtempStorage()
-        for sb in self.allStorageBlocks:
-            if not hasattr(sb,'_realStorageType'): 
-                sb._realStorageType= sb.storageType
-            sb.storageType= rtStorage
-            for vg in sb.contents: vg.setStorage(rtStorage, vg.getStorageOtherData())
-            
+        #self.hasPower = False
+        #self.roomTempTimer = warehouse.TimerProcess(self.fridgeType.sim,"{0}_RoomTempProc_{1}".format(self.name,self.fridgeType.sim.now()),
+         #                                                    self.noPowerHoldoverDays,self.ifStillNoPowerSetToRoomTemp,None)
+        #self.fridgeType.sim.activate(self.roomTempTimer,self.roomTempTimer.run())
+        self.closed = False
+        if(duration > self.noPowerHoldoverDays):
+            self.hasPower = False
+            rtStorage= self.fridgeType.sim.storage.roomtempStorage()
+            for sb in self.allStorageBlocks:
+                if not hasattr(sb,'_realStorageType'): 
+                    sb._realStorageType= sb.storageType
+                sb.storageType= rtStorage
+                for vg in sb.contents: vg.setStorage(rtStorage, vg.getStorageOtherData())
+    
+#     def ifStillNoPowerSetToRoomTemp(self,timerProc,otherArg):
+#         if self.hasPower == False:
+#             print "This Shit worked on {0}".format(self.fridgeType.sim.now())
+#         else:
+#             print "This Shit doesn't work on {0}".format(self.fridgeType.sim.now())
+#         self.roomTempTimer = None
+
     def powerUnFail(self):
         #print 'powerUnFail; my storage is %s'%self.getStorageBlocks()
         assert self.place is not None, "powerFail on a homeless fridge"
-        for sb in self.allStorageBlocks:
-            if hasattr(sb,'_realStorageType'):
-                sb.storageType= sb._realStorageType
-                for vg in sb.contents: vg.setStorage(sb.storageType, vg.getStorageOtherData())
-                
+        if self.hasPower == False:
+            for sb in self.allStorageBlocks:
+                if hasattr(sb,'_realStorageType'):
+                    sb.storageType= sb._realStorageType
+                    for vg in sb.contents: vg.setStorage(sb.storageType, vg.getStorageOtherData())
+                self.hasPower = True
+        self.closed = False        
 abstractbaseclasses.CanStore.register(ElectricFridge) # @UndefinedVariable because PyDev can't see abc.register()
 abstractbaseclasses.Costable.register(ElectricFridge) # @UndefinedVariable because PyDev can't see abc.register()
 

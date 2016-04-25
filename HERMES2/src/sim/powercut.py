@@ -126,7 +126,7 @@ class PowerCut(Process):
                 continue
 
             for store in storesAffected:
-                store.cutGridPower()
+                store.cutGridPower(duration)
             yield hold, self, duration
             for store in storesAffected:
                 store.restoreGridPower()
