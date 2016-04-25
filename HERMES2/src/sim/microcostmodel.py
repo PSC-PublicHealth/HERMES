@@ -210,7 +210,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                                                                          self.intervalStartTime,
                                                                          self.intervalEndTime,
                                                                          costable.getType(),
-                                                                         inflation))
+                                                                         inflation,wh))
                             except Exception, e:
                                 errList.append("In End Costing: adding FidgeCosts 1:{0}".format(unicode(e)))
                         elif isinstance(costable, trucktypes.Truck):
@@ -554,7 +554,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         return {}
 
     def _generateFridgeCostNotes(self, level, conditions, startTime, endTime,
-                                 costable, inflation):
+                                 costable, inflation,wh=None):
         """
         This routine is called once per Fridge instance per reporting interval,
         and returns a Dict suitable for NoteHoder.addNote() containing cost
@@ -571,6 +571,8 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         else:
             fCur = fridge.recDict['BaseCostCur']
             fYear = fridge.recDict['BaseCostYear']
+            #f wh is not None:
+             #   print "Time without power = {0}".format(wh.timeWOPower)
             eTpl = fridgetypes.energyTranslationDict[fridge.recDict['Energy']]
             fuel = eTpl[4]
             costPattern = eTpl[5]
@@ -606,6 +608,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
             powerRate = fridge.recDict['PowerRate']
             ### STB, the power rate 
             powerRate = powerRate*(365.0/self.model.daysPerYear)
+            
             amortPeriod = fridge.recDict['AmortYears']*self.model.daysPerYear
             assert (baseCost is not None and powerRate is not None
                     and fridge.recDict['AmortYears'] is not None), \
@@ -635,8 +638,12 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                 #  already in run currency at the run year,
                 #  no inflation or currency conversion is needed.
                 #
-                fuelCost = powerRate*fuelPrice*(self.intervalEndTime
-                                                - self.intervalStartTime)
+                if wh is not None and fuel == "electric":
+                    fuelCost = powerRate*fuelPrice*((self.intervalEndTime
+                                                    - self.intervalStartTime)-wh.timeWOPower)
+                else:
+                    fuelCost = powerRate*fuelPrice*(self.intervalEndTime
+                                                    - self.intervalStartTime)
             return {"m1C_%s" % fuel: fuelCost, "m1C_FridgeAmort": amortCost,
                     "m1C_FridgeMaint": maintCost, "m1C_SolarMaint": solarMaintCost}
 

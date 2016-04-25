@@ -1465,6 +1465,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
         self.conditions = conditions
         self.origCapacityInfoOrInventory= origCapacityInfoOrInventory
         self.blockVaccinating = False
+        self.timeWOPower = 0.0
         self.buildFinished= False
         self.storageIntervalDict = {}
 
@@ -2124,11 +2125,19 @@ class Warehouse(Store, abstractbaseclasses.Place):
         return storageBlocks
         
     def cutGridPower(self,duration):
+        #print "burning = {0}".format(self.sim.model.burninDays)
         if not hasattr(self, "gridPowerCut"):
             self.gridPowerCut = 0
         self.gridPowerCut += 1
         if self.gridPowerCut == 1:
             print "%s: power cut at %f."%(self.bName,self.sim.now())
+            
+            if self.sim.now() < self.sim.model.burninDays:
+                dur_here = self.sim.now() + duration - self.sim.model.burninDays
+                if dur_here > 0.0:
+                    self.timeWOPower += dur_here
+            else:
+                self.timeWOPower += duration
             count= 0
             ## get maximumHoldTime
             maxHoldTime = 0
@@ -2137,12 +2146,14 @@ class Warehouse(Store, abstractbaseclasses.Place):
                     maxHoldTime = max(maxHoldTime,f.noPowerHoldoverDays)
             print "MaxHoldTime = {0}".format(maxHoldTime)
             if duration > maxHoldTime:
+                print "Failing the fridges"
                 for f in self.fridges:
                     if hasattr(f,"powerFail"): 
                         f.powerFail(duration)
                         count += 1
                     if count>0:
                         self.allocateStorageSpace()
+                        
             else:
                 self.blockVaccinating = True 
                 
@@ -5024,11 +5035,11 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
                    
             blockVaccinating = False
             
-            if self.clinic.idcode == 120101:
-                print "Block Chis = {0}".format(self.clinic.blockVaccinating)
+#             if self.clinic.idcode == 120101:
+#                 print "Block Chis = {0}".format(self.clinic.blockVaccinating)
             if isinstance(self.clinic,AttachedClinic):
-                if self.clinic._suppliers[0][0].idcode == 120101:
-                    print "Att Chis blockVaccinating = {0}".format(self.clinic._suppliers[0][0].blockVaccinating)
+                #if self.clinic._suppliers[0][0].idcode == 120101:
+                 #   print "Att Chis blockVaccinating = {0}".format(self.clinic._suppliers[0][0].blockVaccinating)
                 #print "This is attached {0}".format(self.clinic._suppliers[0][0].blockVaccinating)
                 blockVaccinating = self.clinic._suppliers[0][0].blockVaccinating
             else:
@@ -5107,8 +5118,8 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
                 if len(goBackList)>0:
                     yield put,self,self.clinic.getStore(),goBackList
             else:
-                if blockVaccinating:
-                    print "I am blocking vaccination"
+                #if blockVaccinating:
+                #    print "I am blocking vaccination"
                 # We've got nothing.
                 for v,nPatients,nVials in elaboratedTypeRateList:
                     treatmentTupleList.append((v,0,nPatients,0))

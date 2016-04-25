@@ -364,6 +364,7 @@ class Fridge(abstractbaseclasses.CanStore, abstractbaseclasses.Costable):
             self.volAvail= volAvail
             self.volUsed= 0.0
             self.contents= []
+           
         def store(self,vaccineGroup):
             assert self.fridge.place is not None, "Attempt to store in unattached fridge"
             withDiluent = self.fridge.place.getStorageModel().getStoreVaccinesWithDiluent(vaccineGroup.getType())
@@ -415,6 +416,7 @@ class Fridge(abstractbaseclasses.CanStore, abstractbaseclasses.Costable):
         self.tags= set()
         #if name[:18]=='N_LargeCarrier_U_I': self.tracked= True
         self.maybeTrack("creation")
+        self.timeWOPower = 0.0
     
     def getUniqueName(self):    
         """
@@ -534,7 +536,9 @@ class ElectricFridge(Fridge):
             self.noPowerHoldoverDays = float(fridgeType.recDict['NoPowerHoldoverDays'])
         self.hasPower = True
         self.closed = False
-        self.roomTempTimer = None# warehouse.TimerProcess(self.fridgeType.sim,"%s_RoomTempProc"%self.name,
+        self.roomTempTimer = None
+        #self.timeWOPower = 0.0
+        self._currentpowerStartTime = 0.0# warehouse.TimerProcess(self.fridgeType.sim,"%s_RoomTempProc"%self.name,
                                                     #self.noPowerHoldoverDays,self.ifStillNoPowerSetToRoomTemp,None)
         #self.fridgeType.sim.activate(self.roomTempTimer,self.roomTempTimer.run())
         #self.roomTempTimer.cancel
@@ -546,16 +550,15 @@ class ElectricFridge(Fridge):
         #self.roomTempTimer = warehouse.TimerProcess(self.fridgeType.sim,"{0}_RoomTempProc_{1}".format(self.name,self.fridgeType.sim.now()),
          #                                                    self.noPowerHoldoverDays,self.ifStillNoPowerSetToRoomTemp,None)
         #self.fridgeType.sim.activate(self.roomTempTimer,self.roomTempTimer.run())
-        self.closed = False
-        if(duration > self.noPowerHoldoverDays):
-            self.hasPower = False
-            rtStorage= self.fridgeType.sim.storage.roomtempStorage()
-            for sb in self.allStorageBlocks:
-                if not hasattr(sb,'_realStorageType'): 
-                    sb._realStorageType= sb.storageType
-                sb.storageType= rtStorage
-                for vg in sb.contents: vg.setStorage(rtStorage, vg.getStorageOtherData())
-    
+        self.timeWOPower += duration
+        self.hasPower = False
+        rtStorage= self.fridgeType.sim.storage.roomtempStorage()
+        for sb in self.allStorageBlocks:
+            if not hasattr(sb,'_realStorageType'): 
+                sb._realStorageType= sb.storageType
+            sb.storageType= rtStorage
+            for vg in sb.contents: vg.setStorage(rtStorage, vg.getStorageOtherData())
+        
 #     def ifStillNoPowerSetToRoomTemp(self,timerProc,otherArg):
 #         if self.hasPower == False:
 #             print "This Shit worked on {0}".format(self.fridgeType.sim.now())
