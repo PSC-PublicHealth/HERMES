@@ -2081,9 +2081,9 @@ class HermesResultsGroup(Base):
         for summaryId, summaryRec in aveResult.summaryRecs.items():
             summaryRec /= float(len(resultsToParse))
 
-        aveResult.addHistograms(net)
+        #aveResult.addHistograms(net)
         #print "Trying to add Geo"
-        aveResult.addGeoResultsJson()
+#        aveResult.addGeoResultsJson()
         costSummaryRecList = aveResult.costSummaryRecs[:]
         for rslt in resultsToParse:
             costSummaryRecList.extend(rslt.costSummaryRecs[:])
@@ -2113,8 +2113,8 @@ class HermesResultsGroup(Base):
         aveResult.costSummaryRecs = aveCostSummaryRecs
         aveResult.addCostSummaryResultsJson()
         aveResult.addCostSummaryKeyPointsJson()
-        aveResult.addHierarchicalCostSummaryTreeMapJson()
-        aveResult.addHierarchicalCostSummaryBarChartJson()
+#        aveResult.addHierarchicalCostSummaryTreeMapJson()
+#        aveResult.addHierarchicalCostSummaryBarChartJson()
         
 _makeColumns(HermesResultsGroup)
 
@@ -2435,7 +2435,7 @@ class HermesResults(Base):
             else:
                 raiseRuntimeError("invalid record in report records")
         
-        self.addHistograms(net)
+        #self.addHistograms(net)
         #self.addGeoResultsJson()
         self.addCostSummaryResultsJson()
         self.addCostSummaryKeyPointsJson()

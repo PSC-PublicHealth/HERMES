@@ -51,7 +51,7 @@ import calculateFill
 from enums import StorageTypeEnums as ST
 
 DEBUG = False
-
+powerCheck = 1.0
 """
 The class HDict will be an ordered dict if globals.deterministic is true
 and an appropriate implementation is available; otherwise a normal dict.
@@ -3609,8 +3609,10 @@ class ShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
                     yield hold, self, delay
 
             fromWHPow = self.fromW.hasPower
-            while fromWHPow is False:
-                    yield hold, self, 0.10
+	    if fromWHPow is False:
+            	print "In Here 20"
+                while fromWHPow is False:
+                    yield hold, self, powerCheck 
                     fromWHPow = self.fromW.hasPower
             
             logDebug(self.sim,"%s: my transit chain is %s"%(self.bName,self.transitChain))   
@@ -3687,10 +3689,12 @@ class AskOnDeliveryShipperProcess(ShipperProcess):
                     yield hold, self, delay
 
             fromWHPow = self.fromW.hasPower
-            print "-----------Checking power at {0} and it is {1}".format(self.fromW.name,fromWHPow)
-            while fromWHPow is False:
-                    print "!!!!!!! Power out from {0}".format(self.fromW.name)
-                    yield hold, self, 0.10
+            #print "-----------Checking power at {0} and it is {1}".format(self.fromW.name,fromWHPow)
+	    if fromWHPow is False:
+            	print "In here 30"
+                while fromWHPow is False:
+                    #print "!!!!!!! Power out from {0}".format(self.fromW.name)
+                    yield hold, self, powerCheck
                     fromWHPow = self.fromW.hasPower
             
             logDebug(self.sim,"%s: my transit chain is %s"%(self.bName,self.transitChain))   
@@ -3786,8 +3790,10 @@ class DropAndCollectShipperProcess(ShipperProcess, abstractbaseclasses.UnicodeSu
                     yield hold, self, delay
             
             fromWHPow = self.fromW.hasPower
-            while fromWHPow is False:
-                    yield hold, self, 0.10
+	    if fromWHPow is False:
+                print "In Here 6"
+            	while fromWHPow is False:
+                    yield hold, self,powerCheck 
                     fromWHPow = self.fromW.hasPower
             
             logDebug(self.sim,"%s: my transit chain is %s"%(self.bName,self.transitChain))   
@@ -3889,8 +3895,10 @@ class FetchShipperProcess(ShipperProcess):
                     yield hold, self, delay
             
             fromWHPow = self.fromW.hasPower
-            while fromWHPow is False:
-                    yield hold, self, 0.10
+	    if fromWHPow is False:
+                print "In Here 5"
+            	while fromWHPow is False:
+                    yield hold, self,powerCheck 
                     fromWHPow = self.fromW.hasPower
                     
             logDebug(self.sim,"%s: my transit chain is %s"%(self.bName,self.transitChain))
@@ -4073,10 +4081,12 @@ class OnDemandShipment(Process, abstractbaseclasses.UnicodeSupport):
                             if newTotalVC.totalCount > 0:
                                 totalVC = newTotalVC
                                 
-            fromWHPow = self.fromW.hasPower   
-            while fromWHPow is False:
-                yield hold, self, 0.10
-                fromWHPow = self.fromW.hasPower
+                    fromWHPow = self.fromW.hasPower   
+                    if fromWHPow is False:
+                        print "In Here 4"
+                        while fromWHPow is False:
+                            yield hold, self, powerCheck
+                            fromWHPow = self.fromW.hasPower
                     
                 # We're leaving now; when is the next permitted departure?
                 self.nextAllowedDeparture= self.sim.now()+self.minimumDaysBetweenShipments
@@ -4216,9 +4226,11 @@ class PersistentOnDemandShipment(OnDemandShipment):
                                 totalVC = newTotalVC
                                 
                 fromWHPow = self.fromW.hasPower
-                while fromWHPow is False:
-                    yield hold, self, 0.10
-                    fromWHPow = self.fromW.hasPower
+                if fromWHPow is False:
+                    print "In Here 3"
+                    while fromWHPow is False:
+                        yield hold, self, powerCheck
+                        fromWHPow = self.fromW.hasPower
                     
                 # We're leaving now; when is the next permitted departure?
                 self.nextAllowedDeparture= self.sim.now()+self.minimumDaysBetweenShipments
@@ -4346,11 +4358,13 @@ class FetchOnDemandShipment(OnDemandShipment):
                                 totalVC = newTotalVC
                 
                 fromWHPow = self.fromW.hasPower
-                #print "!!!!!!!!!!!!!!!!!From W = {0} to W = {1}".format(self.fromW.name,self.toW.name)
-                while fromWHPow is False:
-                    #print "fromW = {0} power out".format(self.fromW.name)
-                    yield hold, self, 0.10
-                    fromWHPow = self.fromW.hasPower
+                ##print "!!!!!!!!!!!!!!!!!From W = {0} to W = {1}".format(self.fromW.name,self.toW.name)
+                if fromWHPow is False:
+                    print "In here 2"
+                    while fromWHPow is False:
+                #    #print "fromW = {0} power out".format(self.fromW.name)
+                        yield hold, self, powerCheck
+                        fromWHPow = self.fromW.hasPower
                     
                 # We're leaving now; when is the next permitted departure?
                 self.nextAllowedDeparture= self.sim.now()+self.minimumDaysBetweenShipments
@@ -4489,9 +4503,12 @@ class PersistentFetchOnDemandShipment(OnDemandShipment):
                                 totalVC = newTotalVC
                                 
                 fromWHPow = self.fromW.hasPower
-                while fromWHPow is False:
-                    yield hold, self, 0.10
-                    fromWHPow = self.fromW.hasPower
+                if fromWHPow is False:
+                    print "in here 1"
+                    while fromWHPow is False:
+                        yield hold, self, powerCheck
+                        fromWHPow = self.fromW.hasPower
+                
                 # We're leaving now; when is the next permitted departure?
                 self.nextAllowedDeparture= self.sim.now()+self.minimumDaysBetweenShipments
 
