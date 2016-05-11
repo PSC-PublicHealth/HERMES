@@ -37,7 +37,17 @@
 			var thisoptions = this.options;
 			var rootPath = this.options.rootPath;
 			
+			if(rootPath == ''){
+				alert('Cannot use inventory_grid without a rootPath');
+				return;
+			}
 			
+			var modelId = this.options.modelId;
+			if(modelId == ''){
+				alert('Cannot use inventory_grid without a modelId');
+			}
+			
+			var colNames = ["idcode","Location Name","Supply Chain Level"]
 		}
 	});
 })(jQuery);
