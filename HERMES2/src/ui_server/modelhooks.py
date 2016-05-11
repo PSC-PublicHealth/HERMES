@@ -2608,6 +2608,16 @@ def assignVehiclesToRoutes(db,uiSession):
         return result  
 
         
+@bottle.route('/geoCoordTest')
+def geoCoordTes(db,uiSession):
+    crumbTrack = addCrumb(uiSession, "Params")
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        uiSession.getPrivs().mayModifyModelId(db, modelId)
+        model = shadow_network_db_api.ShdNetworkDB(db, modelId)        
         
-        
-        
+        return bottle.template("model_geocoords_edit.tpl",
+                               {"breadcrumbPairs":crumbTrack,
+                               'modelId':modelId})
+    except bottle.HTTPResponse:
+        raise 
