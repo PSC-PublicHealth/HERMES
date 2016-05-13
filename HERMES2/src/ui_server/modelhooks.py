@@ -14,7 +14,6 @@
 # in the file LICENSE.txt.                                                        #
 #                                                                                 #
 ###################################################################################
-
 _hermes_svn_id_="$Id$"
 
 import sys,os,os.path,time,json,math,types
@@ -2608,16 +2607,92 @@ def assignVehiclesToRoutes(db,uiSession):
         return result  
 
         
-@bottle.route('/geoCoordTest')
+@bottle.route('/model-edit-geocoords-tabular')
 def geoCoordTes(db,uiSession):
-    crumbTrack = addCrumb(uiSession, "Params")
+    crumbTrack = addCrumb(uiSession, _("Edit Geographic Coordinates (Tabular)"))
     try:
         modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
         uiSession.getPrivs().mayModifyModelId(db, modelId)
-        model = shadow_network_db_api.ShdNetworkDB(db, modelId)        
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)        
         
         return bottle.template("model_geocoords_edit.tpl",
                                {"breadcrumbPairs":crumbTrack,
                                'modelId':modelId})
     except bottle.HTTPResponse:
         raise 
+    
+@bottle.route('/json/manage-geocoord-storegrid')
+def jsonManageGeoCoordStorGrid(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        uiSession.getPrivs().mayModifyModelId(db, modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)    
+        
+        rowList = []
+        sortRowList = sorted([x for x,y in m.stores.items()])
+        for storeId in sortRowList:
+            store = m.stores[storeId]
+            if not store.isAttached() and not store.isSurrogate() and not store.isOutreachClinic():
+                row = {}
+                row['idcode'] = storeId,
+                row['name'] = store.NAME
+                row['level'] = store.CATEGORY
+                if store.hasGIS():
+                    row['latitude'] = store.Latitude
+                    row['longitude'] = store.Longitude
+                    row['oldlatitude'] = store.Latitude
+                    row['oldlongitude'] = store.Longitude
+                else:
+                    row['latitude'] = ""
+                    row['longitude'] = ""
+                    row['oldlatitude'] = ""
+                    row['oldlongitude'] = ""
+                
+                #row['modelId'] = modelId
+            rowList.append(row)
+            
+        results = {
+                   'success':True,
+                   'total':1,
+                   'page':1,
+                   'records':len(rowList),
+                   'rows':rowList
+                   }
+        
+        return results
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error','msg':str(e)}
+        return result             
+
+@bottle.route('/edit/verify-edit-geocoord-storegrid',method='post')
+def jsonStoreGridGeoCoordVerifyAndCommit(db, uiSession):
+    try:
+        if bottle.request.params['oper'] == 'edit':
+            modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+            idcode = _getOrThrowError(bottle.request.params,'idcode',isInt=True)
+            latitude = _getOrThrowError(bottle.request.params,'latitude',isInt=False)
+            longitude = _getOrThrowError(bottle.request.params,'longitude',isInt=False)
+            
+            uiSession.getPrivs().mayModifyModelId(db, modelId)
+            m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+            
+            store = m.stores[idcode]
+            store.Latitude = latitude
+            store.Longitude = longitude
+            
+            uiSession.commit()
+            
+            return {'success':True}
+        elif bottle.request.params['oper']=='add':
+            raise bottle.BottleException(_('unsupported operation'))
+        elif bottle.request.params['oper']=='del':
+            raise bottle.BottleException(_('unsupported operation'))
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        print str(e)
+        result = {'success':False, 'type':'error','msg':str(e)}
+        return result     

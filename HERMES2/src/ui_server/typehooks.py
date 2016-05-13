@@ -99,30 +99,11 @@ def jsonTypeEditForm(db, uiSession, typeClass, fieldMap, useInstance=False):
         modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         protoname = _getOrThrowError(bottle.request.params, 'protoname')
-#         print "in jsonTypeEditform params = {}".format(bottle.request.params)
-#         if 'overwrite' in bottle.request.params:
-#             proposedName = protoname
-#         else:
-#             proposedName = typehelper.getSuggestedName(db,modelId,typeClass, protoname, excludeATM=True)
-#         print "protoname = {0}".format(protoname)
-#         attrRec = {}
-#         if protoname != 'new_type':
-#             canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, protoname) # @UnusedVariable
-#             if not useInstance:
-#                 attrRec = {}
-#                 shadow_network._copyAttrsToRec(attrRec,typeInstance)
-#             else:
-#                 attrRec = typeInstance
-            
-        #print "attrRec = {0}".format(attrRec.presentation)
         htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,
                                                           typeClass,
                                                           modelId,
                                                           protoname, fieldMap)
-                                                          #typehelper.
-                                                          #elaborateFieldMap(proposedName, 
-                                                         #                              attrRec,
-                                                          #                             fieldMap))
+
         result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
     except privs.PrivilegeException:
         result = {'success':False, 'msg':_('User cannot read this model')}

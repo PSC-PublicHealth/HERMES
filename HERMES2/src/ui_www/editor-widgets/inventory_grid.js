@@ -182,7 +182,7 @@
 			colNames = colNamesBeg.concat(colNamesMiddle,colNamesEnd);
 			colModelBeg = [
 			               	{name:'typestring', index:'typestring', key:true, editable:false, hidden:true},
-			               	{name:'origcount', indexx:'origcount', editable:false, hidden:true},
+			               	{name:'origcount', index:'origcount', editable:false, hidden:true},
 			               	{name:'visibletypestring', index:'visibletypestring', width:275, 
 			               		editable:true, edittype:'select', 
 			               		editoptions:{ 

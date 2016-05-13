@@ -234,6 +234,11 @@ a.model-operation-item:hover{
 				</span>	
 				<li>
 				<span class="model-operation-item">
+					<a class="model-operation-item" href="#" title='{{_("Upload a spreadsheet or enter into a table the geographic coordinates of each location in the model")}}'
+						id="geocoord_model_link"><span class="action-underline">{{_('Edit Storage Location Geographic Coordinates')}} </span> </a>
+				</span>	
+				<li>
+				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Specify the vaccine dosage schedule for all population categories throughout the year.")}}'
 						id="dose_sched_link">{{_('Modify the')}} <span class="action-underline"> {{_('Vaccine Dose Schedule')}} </span></a>
 				</span>	
@@ -278,7 +283,6 @@ a.model-operation-item:hover{
 			</div>
 		</div>
 		<div id="model_show_diagram">
-			<div id="model_diagram_caption_top">
 			<p><span class="model-diagram-title">{{_("Supply Chain Network Diagram")}}</span></p>
 			<p><span class="model-diagram-note">{{_("This diagram depicts the structure of this supply chain.  Clicking on a location can expand or contract the routes and locations below the selected location. Right-clicking a location or route will bring up more detailed information.")}}</span></p>
 			</div>
@@ -485,6 +489,9 @@ $(document).ready(function(){
 		editTypes({{modelId}});
 	});
 	
+	$("#geocoord_model_link").click(function(){
+		editGeoCoords({{modelId}});
+	});
 	$("#dose_sched_link").click(function(){
 		editDoseSched({{modelId}});
 	});
@@ -704,6 +711,15 @@ function editCosts(modelId){
 function runHermes(modelId){
 	window.location = "{{rootPath}}model-run?modelId="+modelId;
 };
+
+function editGeoCoords(modelId){
+	if(!mayModify){
+		$("#model_dowantcopy_dialog").dialog("open");
+	}
+	else{
+		window.location='{{rootPath}}model-edit-geocoords-tabular?modelId='+modelId;
+	}
+}
 
 function createLoops(modelId){
 	if(!mayModify){

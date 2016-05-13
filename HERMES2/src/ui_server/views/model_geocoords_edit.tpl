@@ -1,4 +1,4 @@
-%rebase outer_wrapper title_slogan=_('Model'),breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId
+%rebase outer_wrapper title_slogan=_('Edit Model Geographic Coordinates'),breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId
 <!---
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
@@ -18,17 +18,19 @@
 <style>
 </style>
 <html>
-<head>
-<script type="text/javascript" src="{{rootPath}}static/editor-widgets/geoCoordinateGrid.js"></script>
-</head>
-<body>
-<div id = "test_grid"></div>
 
-</body>
+<script type="text/javascript" src="{{rootPath}}static/editor-widgets/geoCoordinateGrid.js"></script>
+<h2>{{_("Edit the Geographic Coordinates for ")}}</h2>
+<h4>
+{{_("Please enter in the geographic coordinates of individual locations in the table below. Your entries will be saved automatically as you add them.")}}
+<div id = "geo_grid"></div>
 
 <script>
-$("#test_grid").geoCoordinateGrid({
+$("#uploadSpreadSheetButton").button();
+$("#doneButton").button();
+$("#geo_grid").geoCoordinateGrid({
 	modelId:{{modelId}},
 	rootPath:'{{rootPath}}'
 });
+$(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); });
 </script>

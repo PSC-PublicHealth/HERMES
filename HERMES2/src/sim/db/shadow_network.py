@@ -1016,6 +1016,12 @@ class ShdStore(Base, ShdCopyable):
             return True
         return False
 
+    def isSurrogate(self):
+        return self.CATEGORY == "Surrogate"
+    
+    def isOutreachClinic(self):
+        return self.CATEGORY == "OutreachClinic"
+    
     def isVaccinating(self):
         #returnValue = False
         excludeList = ['Service1']
