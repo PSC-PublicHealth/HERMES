@@ -1169,7 +1169,6 @@ def downloadSVG(db,uiSession):
         print "Data = " + str(data)
         #print type(data.data)
         #svgXML = minidom.parse(str(data['data']))
-        print "Trying to save this fucking file!!!!!"
         with uiSession.getLockedState() as state:
             #fullname = "{0}/test.svg".format(state.fs().workDir)
             fullname = "test.svg"

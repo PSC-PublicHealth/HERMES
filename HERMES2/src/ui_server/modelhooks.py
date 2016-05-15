@@ -2627,45 +2627,51 @@ def jsonManageGeoCoordStorGrid(db,uiSession):
         modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)    
+    
+        result = createGeoCoordStorGridJSonFromModel(m)
         
-        rowList = []
-        sortRowList = sorted([x for x,y in m.stores.items()])
-        for storeId in sortRowList:
-            store = m.stores[storeId]
-            if not store.isAttached() and not store.isSurrogate() and not store.isOutreachClinic():
-                row = {}
-                row['idcode'] = storeId,
-                row['name'] = store.NAME
-                row['level'] = store.CATEGORY
-                if store.hasGIS():
-                    row['latitude'] = store.Latitude
-                    row['longitude'] = store.Longitude
-                    row['oldlatitude'] = store.Latitude
-                    row['oldlongitude'] = store.Longitude
-                else:
-                    row['latitude'] = ""
-                    row['longitude'] = ""
-                    row['oldlatitude'] = ""
-                    row['oldlongitude'] = ""
-                
-                #row['modelId'] = modelId
-            rowList.append(row)
-            
-        results = {
-                   'success':True,
-                   'total':1,
-                   'page':1,
-                   'records':len(rowList),
-                   'rows':rowList
-                   }
-        
-        return results
+        result['success'] = True
+        return result
+    
     except bottle.HTTPResponse:
         raise # bottle will handle this
     except Exception,e:
         result = {'success':False, 'type':'error','msg':str(e)}
         return result             
 
+def createGeoCoordStorGridJSonFromModel(m):
+    rowList = []
+    sortRowList = sorted([x for x,y in m.stores.items()])
+    for storeId in sortRowList:
+        store = m.stores[storeId]
+        if not store.isAttached() and not store.isSurrogate() and not store.isOutreachClinic():
+            row = {}
+            row['idcode'] = storeId,
+            row['name'] = store.NAME
+            row['level'] = store.CATEGORY
+            if store.hasGIS():
+                row['latitude'] = store.Latitude
+                row['longitude'] = store.Longitude
+                row['oldlatitude'] = store.Latitude
+                row['oldlongitude'] = store.Longitude
+            else:
+                row['latitude'] = ""
+                row['longitude'] = ""
+                row['oldlatitude'] = ""
+                row['oldlongitude'] = ""
+            
+            #row['modelId'] = modelId
+        rowList.append(row)
+        
+    results = {
+               'total':1,
+               'page':1,
+               'records':len(rowList),
+               'rows':rowList
+               }
+    
+    return results
+    
 @bottle.route('/edit/verify-edit-geocoord-storegrid',method='post')
 def jsonStoreGridGeoCoordVerifyAndCommit(db, uiSession):
     try:
@@ -2695,4 +2701,68 @@ def jsonStoreGridGeoCoordVerifyAndCommit(db, uiSession):
     except Exception,e:
         print str(e)
         result = {'success':False, 'type':'error','msg':str(e)}
-        return result     
+        return result  
+    
+def createGeoCoordTemplateSpreadsheet(m):
+    from openpyxl import Workbook
+    from results_excel_report import XLCell,plainStyle
+    try:
+        #modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        #uiSession.getPrivs().mayModifyModelId(db, modelId)
+        #m = shadow_network_db_api.ShdNetworkDB(db, modelId)  
+    
+        jsonList = createGeoCoordStorGridJSonFromModel(m)
+        
+        wb = Workbook()
+        sheet = wb.create_sheet(0)
+        sheet.title = _("Model GeoCoordinates")
+        
+        ss = XLCell(sheet)
+        ss.postNext(_("Location Name"),plainStyle)
+        ss.postNext(_("Supply Chain Level"),plainStyle)
+        ss.postNext(_("Latitude"),plainStyle)
+        ss.postNext(_("Longitude"),plainStyle)
+        
+        ss.nextRow()
+        
+        for row in jsonList['rows']:
+            ss.postNext(row['name'],plainStyle)
+            ss.postNext(row['level'],plainStyle)
+            ss.postNext(row['latitude'],plainStyle)
+            ss.postNext(row['longitude'],plainStyle)
+            ss.nextRow()
+        
+        return wb
+    
+    except Exception,e:
+        raise
+
+
+@bottle.route('/downloadTemplateGeoCoordXLS')
+def downloadTemplateGeoCoordXLS(db,uiSession):        
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        uiSession.getPrivs().mayModifyModelId(db, modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)    
+        
+        wb = createGeoCoordTemplateSpreadsheet(m)
+        xlsName = "model_{0}_geotemplat.xlsx".format(modelId)
+        with uiSession.getLockedState() as state:
+            (fileKey, fullFileName) = \
+                state.fs().makeNewFileInfo(shortName=xlsName,
+                                           fileType='application/vnd.ms-excel',
+                                           deleteIfPresent=True)
+        wb.save(fullFileName)
+        
+        return bottle.static_file(xlsName, os.path.dirname(fullFileName),
+                                  mimetype='application/vnd.ms-excel', download=xlsName)
+    except Exception as e:
+        print 'Exception: %s'%e
+        raise
+    
+        
+            
+
+       
+        
+           
