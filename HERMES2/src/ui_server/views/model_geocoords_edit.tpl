@@ -32,6 +32,8 @@ a.model-operation-item:visited{
 	color:#282A57;
 }
 </style>
+<input id="xlsupload" type="file" name="files[]" 
+	data-url="{{rootPath}}upload-geocoordspreadsheet" style="display:none">
 
 <script type="text/javascript" src="{{rootPath}}static/editor-widgets/geoCoordinateGrid.js"></script>
 <h2>{{_("Edit the Geographic Coordinates for ")}}</h2>
@@ -59,6 +61,25 @@ a.model-operation-item:visited{
 	</ul>
 </div>
 
+<div id="spreadupload-dialog" title='{{_("Upload Geocoordinate Spreadsheet")}}'>
+<p>{{_("Please tell us where the spreadsheet it.")}}
+	<form>
+		<fieldset>
+			<input type='hidden' name='shortname' id='shortname' />
+			<table>
+				<tr>
+					<td>
+						<label for="filename">{{_('File')}}</label>
+					</td>
+					<td>
+						<input id="xlsfilename" type="file" name="files[]" accept="application/vnd.ms-excel">
+					</td>
+				</tr>
+			</table>
+		</fieldset>
+	</form>
+</div>
+
 <script>
 
 $("#uploadSpreadsheetDialog").dialog({
@@ -80,6 +101,65 @@ $("#uploadSpreadsheetDialog").dialog({
 	}
 });
 
+$( "#spreadupload-dialog" ).dialog({
+	autoOpen: false,
+ 	height: 300,
+	width: 400,
+	modal: true,
+	buttons: {
+    	'OK': {
+    		text: '{{_("Upload XLS")}}',
+    		click: function() {
+    			//Error Checking
+    			if(!$("#xlsfilename").val()){
+    				alert("{{_('Must specify an excel file to upload.')}}");
+    			}
+    			else{
+    				var files = $("#xlsfilename").prop('files');
+    				$("")
+    			}
+    			$("#spreadupload-dialog").dialog("close");
+    		}
+    	},
+    	'CANCEL':{
+    		text:'{{_("Cancel")}}',
+    		click: function(){
+    			$(this).dialog("close");
+    		}
+    	}
+    },
+	close: function() {
+    	$("#xlsfilename").val('');
+	},
+	open: function(e,ui) {
+		$(this)[0].onkeypress = function(e) {
+			if (e.keyCode == $.ui.keyCode.ENTER) {
+				e.preventDefault();
+				$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+			}
+	    };
+	}
+});
+
+#("#xlsupload").fileupload({
+	dataType:'json',
+	formData:[],
+	autoUpload:true,
+	url: "{{rootPath}}upload-geocoordspreadsheet",
+	done: function(e,data){
+		if(typeof data.result.files == 'undefined'){
+			alert(data.result.message);
+		}
+		else{
+			$.each(data.result.files, function(index,file) {
+				alert(file.name +"{{_('successfully uploaded')}}");
+			});
+			$('#ajax_busy').hide();
+			
+					
+		}
+	}
+})
 $("#geo_grid").geoCoordinateGrid({
 	modelId:{{modelId}},
 	rootPath:'{{rootPath}}'

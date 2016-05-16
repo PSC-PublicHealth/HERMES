@@ -2688,7 +2688,7 @@ def jsonStoreGridGeoCoordVerifyAndCommit(db, uiSession):
             store.Latitude = latitude
             store.Longitude = longitude
             
-            uiSession.commit()
+            db.commit()
             
             return {'success':True}
         elif bottle.request.params['oper']=='add':
@@ -2760,6 +2760,19 @@ def downloadTemplateGeoCoordXLS(db,uiSession):
         print 'Exception: %s'%e
         raise
     
+@bottle.post('/upload-geocoordspreadsheet')
+def uploadGeoCoordSpreadsheet(db,uiSession):
+    fileKey = None
+    try:
+        info = uploadAndStore(bottle.request, uiSession)
+        clientData = makeClientFileInfo(info)
+        clientData['code']= 0
+        clientData['message'] = ''
+        clentData['files'] = [{
+                               'name':info['shortName'],
+                               'size':os.path.getsize(info['serverSideName'])
+                               }]
+        
         
             
 
