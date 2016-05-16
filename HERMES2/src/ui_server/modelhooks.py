@@ -421,7 +421,6 @@ class NumberedNameGenerator:
     totCount = 0
     def __init__(self,baseName,count=1):
         self.name = baseName
-        self.count = count
     def get(self):
         newName = "%s_%d"%(self.name,self.count)
         self.count += 1
@@ -2760,22 +2759,87 @@ def downloadTemplateGeoCoordXLS(db,uiSession):
         print 'Exception: %s'%e
         raise
     
+def validateGeoCoordSpreadsheet(fileName,m):
+    from openpyxl import load_workbook
+    try:
+        wb = load_workbook(filename=fileName)
+        ws = wb["Model GeoCoordinates"]
+    
+    except Exception,e:
+        return (False,"Cannot Load Workbook")
+    
+    # Check Headers
+    print ws['A1'].value == "Location Name"
+    #print ws['B12'].value == "Supply Chain Level"
+    #print ws["A3"].value == "Latitude"
+    #print ws['A4'].value == "Longitude"
+    
+    if not (ws['A1'].value =="Location Name" and \
+            ws['B1'].value =="Supply Chain Level" and \
+            ws["C1"].value =="Latitude" and \
+            ws['D1'].value =="Longitude"):
+        return (False,"Headers of Spreadsheet do not conform")
+    
+    badNames = []
+    modelNameTuples = [(x.NAME,x.CATEGORY for x in m.stores.values())]
+    print "IN HERE@!!#!@!!!!"
+    for row in ws.iter_rows(row_offset=1):
+        name = (row[0].value,row[1].value)
+        if name not in modelNameTuples:
+            badNames.append(name)
+    
+    print "BadNames"
+    print badNames
+    
+    
+        
+    
+    
+        
+    
 @bottle.post('/upload-geocoordspreadsheet')
 def uploadGeoCoordSpreadsheet(db,uiSession):
     fileKey = None
     try:
+        
         info = uploadAndStore(bottle.request, uiSession)
+        print "DFSDFADFASEFASDFSD INFO"
+        print info
+        modelId = info['modelId']
+        uiSession.getPrivs().mayModifyModelId(db, modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId) 
         clientData = makeClientFileInfo(info)
         clientData['code']= 0
         clientData['message'] = ''
-        clentData['files'] = [{
+        clientData['files'] = [{
                                'name':info['shortName'],
                                'size':os.path.getsize(info['serverSideName'])
                                }]
         
-        
-            
+        print "Validation!!!!"
+        validTup = validateGeoCoordSpreadsheet(info['serverSideName'], m)
+        print validTup
+        return json.dumps(clientData)
 
-       
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        _logMessage("\nException: %s"%e)
+        _logStacktrace()
+        # We could return text which would go into a browser window set as the 'target'
+        # for this upload, but there doesn't seem to be much point.
+        if fileKey:
+            try:
+                with uiSession.getLockedState() as state:
+                    try:
+                        os.remove(info['serverSideName'])
+                    except:
+                        pass
+                    state.fs().removeFileInfo(fileKey)
+            except:
+                pass
+        db.rollback()
+        mdata = { 'code': 1, 'message': str(e) }            
+        return json.dumps(mdata)   
         
            

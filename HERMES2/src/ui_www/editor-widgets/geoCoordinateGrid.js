@@ -24,6 +24,12 @@
 				title:"Geo Coordinate Editor"
 			}
 		},
+		reloadGrid:function(){
+			this.containerID = $(this.element).attr('id');
+			var thisTableID = thiscontainerID + "_tbl";
+			$("#"+thisTableId).trigger("reloadGrid");
+			
+		},
 		_create:function(){
 			trant = this.options.trant;
 			this.containerID = $(this.element).attr('id');

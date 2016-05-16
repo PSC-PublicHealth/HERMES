@@ -72,7 +72,7 @@ a.model-operation-item:visited{
 						<label for="filename">{{_('File')}}</label>
 					</td>
 					<td>
-						<input id="xlsfilename" type="file" name="files[]" accept="application/vnd.ms-excel">
+						<input id="xlsfilename" type="file" name="files[]" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
 					</td>
 				</tr>
 			</table>
@@ -116,7 +116,13 @@ $( "#spreadupload-dialog" ).dialog({
     			}
     			else{
     				var files = $("#xlsfilename").prop('files');
-    				$("")
+    				$("#shortname").val($("#xlsfilename").val().replace(/^.*[\\\/]/, ''));
+    				$("#xlsupload").fileupload('add',{files:files,
+    												 formData:[{name:'shortname',value:$("#shortname").val()},
+    												           {name:'modelId',value:{{modelId}}}]
+    												}
+    				);
+    				
     			}
     			$("#spreadupload-dialog").dialog("close");
     		}
@@ -141,7 +147,7 @@ $( "#spreadupload-dialog" ).dialog({
 	}
 });
 
-#("#xlsupload").fileupload({
+$("#xlsupload").fileupload({
 	dataType:'json',
 	formData:[],
 	autoUpload:true,
@@ -152,13 +158,13 @@ $( "#spreadupload-dialog" ).dialog({
 		}
 		else{
 			$.each(data.result.files, function(index,file) {
-				alert(file.name +"{{_('successfully uploaded')}}");
+				alert(file.name + "{{_('successfully uploaded')}}");
 			});
 			$('#ajax_busy').hide();
-			
-					
+			$()		
 		}
-	}
+	},
+	
 })
 $("#geo_grid").geoCoordinateGrid({
 	modelId:{{modelId}},
