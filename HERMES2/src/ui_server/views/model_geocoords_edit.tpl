@@ -38,7 +38,9 @@ a.model-operation-item:visited{
 <script type="text/javascript" src="{{rootPath}}static/editor-widgets/geoCoordinateGrid.js"></script>
 <h2>{{_("Edit the Geographic Coordinates for ")}}</h2>
 <h4>
-{{_("Please enter in the geographic coordinates of individual locations in the table below. Your entries will be saved automatically as you add them.")}}
+{{_("Please enter in the geographic coordinates of individual locations in the table below. Your entries will be saved automatically as you add them.")}}" +
+</h4>
+<br>
 <div id = "geo_grid"></div>
 
 <div id="uploadSpreadsheetDialog" href="#">
@@ -79,15 +81,61 @@ a.model-operation-item:visited{
 		</fieldset>
 	</form>
 </div>
-
+<div id="spreadsheetbuttondiv">
+	<button id="spreadsheetbutton">{{_('Upload a Spreadsheet')}}</button>
+</div>
+<div id="validSpread-dialog" title='{{_("Spreadsheet Validation Result")}}'> </div>
+<div id="success-dialog" title='{{_("Spreadsheet Update Successful")}}'>{{_('Updating Geocoordates via Spreadsheet Successful')}}</div>
 <script>
 
+$("#spreadsheetbutton").button();
 $("#uploadSpreadsheetDialog").dialog({
 	resizable:false,
 	model:true,
 	autoOpen:false,
 	buttons:{
 		'{{_("Close")}}':function(){
+			$(this).dialog("close");
+		}
+	},
+	open: function(e,ui) {
+	    $(this)[0].onkeypress = function(e) {
+			if (e.keyCode == $.ui.keyCode.ENTER) {
+			    e.preventDefault();
+			    $(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+			}
+	    };
+	}
+});
+
+$("#success-dialog").dialog({
+	resizable:false,
+	model:true,
+	autoOpen:false,
+	buttons:{
+		'{{_("OK")}}':function(){
+			$(this).dialog("close");
+		}
+	},
+	open: function(e,ui) {
+	    $(this)[0].onkeypress = function(e) {
+			if (e.keyCode == $.ui.keyCode.ENTER) {
+			    e.preventDefault();
+			    $(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+			}
+	    };
+	}
+});
+
+$("#validSpread-dialog").dialog({
+	resizable:false,
+	model:true,
+	autoOpen:false,
+	buttons:{
+		'{{_("Continue")}}':function(){
+			//$
+		},
+		'{{_("Cancel")}}':function(){
 			$(this).dialog("close");
 		}
 	},
@@ -153,19 +201,55 @@ $("#xlsupload").fileupload({
 	autoUpload:true,
 	url: "{{rootPath}}upload-geocoordspreadsheet",
 	done: function(e,data){
+		console.log(data.result);
 		if(typeof data.result.files == 'undefined'){
 			alert(data.result.message);
 		}
-		else{
-			$.each(data.result.files, function(index,file) {
-				alert(file.name + "{{_('successfully uploaded')}}");
-			});
-			$('#ajax_busy').hide();
-			$()		
+		else if(data.result.validResult.success == false){
+			alert("The Geographic Coordinate Spreadsheet failed validation: "+ data.result.validResult.message);
 		}
-	},
-	
-})
+		else{
+			if(data.result.validResult.success){
+				$.each(data.result.files, function(index,file) {
+					$.ajax({
+						url:'{{rootPath}}edit/verify-edit-geocoord-storegrid-from-json',
+						method:'post',
+						data:{
+							'modelId':{{modelId}},
+							'jsonStr':JSON.stringify(data.result.validResult.updates)
+							},
+						success: function(result){
+							if(result.success){
+								var htmlString = "<p>{{_('The updating of the geographic coordinates from the spreadsheet was successful')}}<p>";
+								if(data.result.validResult.badNames.length > 0){
+									htmlString += "<br><hr><br><p>There were some rows in the spreadsheet that were unable to be parsed:</p><br>";
+									htmlString += "<ul>";
+									for(var i=0;i<data.result.validResult.badNames.length;++i){
+										htmlString += "<li>" + data.result.validResult.badNames[i][1] +"(" + data.result.validResult.badNames[i][0] 
+													+ ") at level " + data.result.validResult.badNames[i][2] + "</li>";
+									}
+								}
+								$("#geo_grid").geoCoordinateGrid("reloadGrid");
+								$("#success-dialog").html(htmlString);
+								$("#success-dialog").dialog("open");
+							}
+							else{
+								alert("{{_('Didnot work')}}");
+							}
+						},
+						error: function(jqxhr, textStatus, errorThrown) {
+							alert('{{_("Error: ")}}'+jqxhr.responseText);
+				        }
+					});
+				});
+			}
+			$('#ajax_busy').hide();	
+		}
+	}
+});
+
+
+
 $("#geo_grid").geoCoordinateGrid({
 	modelId:{{modelId}},
 	rootPath:'{{rootPath}}'

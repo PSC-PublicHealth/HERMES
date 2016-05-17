@@ -26,8 +26,8 @@
 		},
 		reloadGrid:function(){
 			this.containerID = $(this.element).attr('id');
-			var thisTableID = thiscontainerID + "_tbl";
-			$("#"+thisTableId).trigger("reloadGrid");
+			var thisTableID = this.containerID + "_tbl";
+			$("#"+thisTableID).trigger("reloadGrid");
 			
 		},
 		_create:function(){

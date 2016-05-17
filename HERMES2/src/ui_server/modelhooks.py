@@ -2702,7 +2702,35 @@ def jsonStoreGridGeoCoordVerifyAndCommit(db, uiSession):
         print str(e)
         result = {'success':False, 'type':'error','msg':str(e)}
         return result  
-    
+
+@bottle.route('/edit/verify-edit-geocoord-storegrid-from-json',method='post')
+def jsonStoreGridGeoCoordVerifyAndCommitFromJson(db, uiSession):
+    import json
+    try:    
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        jsonStrToUpdate = _getOrThrowError(bottle.request.params,'jsonStr',isInt=False)
+        print jsonStrToUpdate
+        jsonToUpdate = json.loads(jsonStrToUpdate)
+        
+        uiSession.getPrivs().mayModifyModelId(db, modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        print jsonToUpdate[0]
+        for updateItem in jsonToUpdate:
+            idcode = updateItem[0]
+            storeToUpdate = m.stores[idcode]
+            storeToUpdate.Latitude = updateItem[1]
+            storeToUpdate.Longitude = updateItem[2]
+        
+        db.commit()
+            
+        return {'success':True}
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        print str(e)
+        result = {'success':False, 'type':'error','msg':str(e)}
+        return result  
+
 def createGeoCoordTemplateSpreadsheet(m):
     from openpyxl import Workbook
     from results_excel_report import XLCell,plainStyle
@@ -2727,7 +2755,7 @@ def createGeoCoordTemplateSpreadsheet(m):
         ss.nextRow()
         
         for row in jsonList['rows']:
-            print row['idcode']
+            #print row['idcode']
             ss.postNext(row['idcode'],plainStyle)
             ss.postNext(row['name'],plainStyle)
             ss.postNext(row['level'],plainStyle)
@@ -2766,7 +2794,7 @@ def downloadTemplateGeoCoordXLS(db,uiSession):
 def validateGeoCoordSpreadsheet(fileName,m):
     from collections import Counter
     from openpyxl import load_workbook
-    returnDict = {'success':True,'badNames':[],'dups':[],'message':''}
+    returnDict = {'success':True,'badNames':[],'dups':[],'updates':[],'message':''}
     try:
         wb = load_workbook(filename=fileName)
         ws = wb["Model GeoCoordinates"]
@@ -2777,39 +2805,48 @@ def validateGeoCoordSpreadsheet(fileName,m):
         return returnDict
     
     # Check Headers
-    if not (ws['A1'].value =="Location Name" and \
-            ws['B1'].value =="Supply Chain Level" and \
-            ws["C1"].value =="Latitude" and \
-            ws['D1'].value =="Longitude"):
+    if not (ws['A1'].value == "HERMES ID" and \
+            ws['B1'].value == "Location Name" and \
+            ws['C1'].value == "Supply Chain Level" and \
+            ws["D1"].value == "Latitude" and \
+            ws['E1'].value == "Longitude"):
         returnDict['success'] = False
         returnDict['message'] = "Headers of spreadsheet do not conform"
         return returnDict
     
     badNames = []
     dupNames = []
-    modelNameTuples = [(x.NAME, x.CATEGORY) for x in m.stores.values()]
-    spreadNameTuples = [(x[0].value,x[1].value) for x in ws.iter_rows(row_offset=1) if x[0].value is not None]
+    updateList = []
+    modelNameTuples = [(x.idcode,x.NAME, x.CATEGORY) for x in m.stores.values()]
+    spreadNameDict = {(x[0].value,x[1].value,x[2].value):(x[3].value,x[4].value)\
+                       for x in ws.iter_rows(row_offset=1) if x[0].value is not None}
     ## Find Bad Names
     
-    for name in spreadNameTuples:
-            if name not in modelNameTuples:
-                badNames.append(name)
+    for name in spreadNameDict.keys():
+        if name not in modelNameTuples:
+            badNames.append(name)
+                    
 
-    countsList = Counter(spreadNameTuples)
+    countsList = Counter(spreadNameDict.keys())
     for elem,count in countsList.items():
         if count > 1:
             dupNames.append(elem)
     
     if len(badNames) > 0:
         returnDict['badNames'] = badNames
-        returnDict['success'] = False
+        returnDict['success'] = True
     
     if len(dupNames) > 0:
         returnDict['dups'] = dupNames
-        returnDict['success'] = False
+        returnDict['success'] = True
     
+    for name,latlons in spreadNameDict.items():
+        if name not in badNames and name not in dupNames:
+            updateList.append((name[0],latlons[0],latlons[1]))
+    
+    returnDict['updates'] = updateList
     return returnDict
-            
+        
 @bottle.post('/upload-geocoordspreadsheet')
 def uploadGeoCoordSpreadsheet(db,uiSession):
     fileKey = None
@@ -2828,8 +2865,10 @@ def uploadGeoCoordSpreadsheet(db,uiSession):
                                }]
         
         print "Validation!!!!"
-        validTup = validateGeoCoordSpreadsheet(info['serverSideName'], m)
-        print validTup
+        validDict = validateGeoCoordSpreadsheet(info['serverSideName'], m)
+        print validDict
+        clientData['validResult'] = validDict
+        
         return json.dumps(clientData)
 
     except bottle.HTTPResponse:
