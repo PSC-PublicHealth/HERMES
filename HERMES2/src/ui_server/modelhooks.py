@@ -1809,6 +1809,7 @@ def makeLoopsForModel(db,uiSession):
         return {'success':False,'msg':str(e)}
 @bottle.post('/upload-model')
 def uploadModel(db,uiSession):
+    
     _logMessage('Model file upload is happening')
     #uiSession['notes'] += ', upload request'
     fileKey = None
@@ -2645,7 +2646,7 @@ def createGeoCoordStorGridJSonFromModel(m):
         store = m.stores[storeId]
         if not store.isAttached() and not store.isSurrogate() and not store.isOutreachClinic():
             row = {}
-            row['idcode'] = storeId,
+            row['idcode'] = storeId
             row['name'] = store.NAME
             row['level'] = store.CATEGORY
             if store.hasGIS():
@@ -2660,7 +2661,7 @@ def createGeoCoordStorGridJSonFromModel(m):
                 row['oldlongitude'] = ""
             
             #row['modelId'] = modelId
-        rowList.append(row)
+            rowList.append(row)
         
     results = {
                'total':1,
@@ -2717,6 +2718,7 @@ def createGeoCoordTemplateSpreadsheet(m):
         sheet.title = _("Model GeoCoordinates")
         
         ss = XLCell(sheet)
+        ss.postNext(_('HERMES ID'),plainStyle)
         ss.postNext(_("Location Name"),plainStyle)
         ss.postNext(_("Supply Chain Level"),plainStyle)
         ss.postNext(_("Latitude"),plainStyle)
@@ -2725,6 +2727,8 @@ def createGeoCoordTemplateSpreadsheet(m):
         ss.nextRow()
         
         for row in jsonList['rows']:
+            print row['idcode']
+            ss.postNext(row['idcode'],plainStyle)
             ss.postNext(row['name'],plainStyle)
             ss.postNext(row['level'],plainStyle)
             ss.postNext(row['latitude'],plainStyle)
@@ -2760,51 +2764,58 @@ def downloadTemplateGeoCoordXLS(db,uiSession):
         raise
     
 def validateGeoCoordSpreadsheet(fileName,m):
+    from collections import Counter
     from openpyxl import load_workbook
+    returnDict = {'success':True,'badNames':[],'dups':[],'message':''}
     try:
         wb = load_workbook(filename=fileName)
         ws = wb["Model GeoCoordinates"]
     
     except Exception,e:
-        return (False,"Cannot Load Workbook")
+        returnDict['success'] = False
+        returnDict['message'] = 'Cannot load notebook {0}'.format(fileName)
+        return returnDict
     
     # Check Headers
-    print ws['A1'].value == "Location Name"
-    #print ws['B12'].value == "Supply Chain Level"
-    #print ws["A3"].value == "Latitude"
-    #print ws['A4'].value == "Longitude"
-    
     if not (ws['A1'].value =="Location Name" and \
             ws['B1'].value =="Supply Chain Level" and \
             ws["C1"].value =="Latitude" and \
             ws['D1'].value =="Longitude"):
-        return (False,"Headers of Spreadsheet do not conform")
+        returnDict['success'] = False
+        returnDict['message'] = "Headers of spreadsheet do not conform"
+        return returnDict
     
     badNames = []
-    modelNameTuples = [(x.NAME,x.CATEGORY for x in m.stores.values())]
-    print "IN HERE@!!#!@!!!!"
-    for row in ws.iter_rows(row_offset=1):
-        name = (row[0].value,row[1].value)
-        if name not in modelNameTuples:
-            badNames.append(name)
+    dupNames = []
+    modelNameTuples = [(x.NAME, x.CATEGORY) for x in m.stores.values()]
+    spreadNameTuples = [(x[0].value,x[1].value) for x in ws.iter_rows(row_offset=1) if x[0].value is not None]
+    ## Find Bad Names
     
-    print "BadNames"
-    print badNames
+    for name in spreadNameTuples:
+            if name not in modelNameTuples:
+                badNames.append(name)
+
+    countsList = Counter(spreadNameTuples)
+    for elem,count in countsList.items():
+        if count > 1:
+            dupNames.append(elem)
     
+    if len(badNames) > 0:
+        returnDict['badNames'] = badNames
+        returnDict['success'] = False
     
-        
+    if len(dupNames) > 0:
+        returnDict['dups'] = dupNames
+        returnDict['success'] = False
     
-    
-        
-    
+    return returnDict
+            
 @bottle.post('/upload-geocoordspreadsheet')
 def uploadGeoCoordSpreadsheet(db,uiSession):
     fileKey = None
     try:
         
         info = uploadAndStore(bottle.request, uiSession)
-        print "DFSDFADFASEFASDFSD INFO"
-        print info
         modelId = info['modelId']
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId) 
