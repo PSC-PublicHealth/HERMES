@@ -74,14 +74,17 @@
 			                ]
 			
 			var gridHeight = 300;
-			var windowHeight = $(window).height()*.60;
+			var windowHeight = $(window).height()*.45;
 			console.log(windowHeight);
+			console.log(gridHeight);
 			if(windowHeight < gridHeight){
 				console.log("good");
 			}
 			else{
+				console.log("WTF?");
 				gridHeight = windowHeight;
 			}
+			console.log("gridHeight: " + gridHeight);
 			$('#'+ thisTableID).jqGrid({
 				url:rootPath + "json/manage-geocoord-storegrid",
 				datatype:'json',

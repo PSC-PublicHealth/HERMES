@@ -2784,9 +2784,14 @@ def downloadTemplateGeoCoordXLS(db,uiSession):
                                            fileType='application/vnd.ms-excel',
                                            deleteIfPresent=True)
         wb.save(fullFileName)
-        
-        return bottle.static_file(xlsName, os.path.dirname(fullFileName),
+        resp = bottle.static_file(xlsName, os.path.dirname(fullFileName),
                                   mimetype='application/vnd.ms-excel', download=xlsName)
+        resp.set_cookie("fileDownload","true",path='/')
+        return resp
+        #bottle.response.set_cookie("fileDownload","true",path='/')
+        #print bottle.response
+        #return bottle.static_file(xlsName, os.path.dirname(fullFileName),
+        #                          mimetype='application/vnd.ms-excel', download=xlsName)
     except Exception as e:
         print 'Exception: %s'%e
         raise

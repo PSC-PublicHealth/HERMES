@@ -15,6 +15,7 @@
 #                                                                                 #
 ###################################################################################
 -->
+<script type="text/javascript" src="{{rootPath}}static/jquery.fileDownload.js"></script>
 <style>
 .model-operation-title{
 	font-size:20px;
@@ -31,6 +32,14 @@ a.model-operation-item:visited{
 	font-size:14px;
 	color:#282A57;
 }
+.large_dialog_font{
+	font-size:16px;
+	font-family:'Century Gothic', Arial, 'Arial Unicode MS', Helvetica, Sans-Serif;
+}
+.large_dialog_font p{
+	padding:10px;
+	text-align:center;
+}
 </style>
 <input id="xlsupload" type="file" name="files[]" 
 	data-url="{{rootPath}}upload-geocoordspreadsheet" style="display:none">
@@ -38,29 +47,28 @@ a.model-operation-item:visited{
 <script type="text/javascript" src="{{rootPath}}static/editor-widgets/geoCoordinateGrid.js"></script>
 <h2>{{_("Edit the Geographic Coordinates for ")}}</h2>
 <h4>
-{{_("Please enter in the geographic coordinates of individual locations in the table below. Your entries will be saved automatically as you add them.")}}" +
-</h4>
+{{_("Please enter in the geographic coordinates of individual locations in the table below. Your entries will be saved automatically as you add them.")}}"</h4>
 <br>
 <div id = "geo_grid"></div>
 
-<div id="uploadSpreadsheetDialog" href="#">
-	<p>
-	{{_("You can upload an excel file that contains the geographic coordinates of locations in your model.")}}
-	{{_("Note, that this will be by location name, so if you have locations that have duplicate names, the algorithm will flag this and you will have to manually resolve.")}}
-	</p>
-	<p>{{_("Would you like to: ")}}
-	<ul>
-		<li>
-			<a class="model-operation-item" id="downloadSpreadsheetLink">
-				{{_("Download a preformated spreadhsheet for your model.")}}
-			</a>
-		</li>
-		<li>
-			<a class="model-operation-item" id="uploadSpreadsheetLink">
-				{{_("Upload a completed spreadhsheet for your model.")}}
-			</a>
-		</li>
-	</ul>
+<div id="uploadSpreadsheetDialog">
+	<span class="large_dialog_font">
+		<p>
+			{{_("You can upload an excel file that contains the geographic coordinates of locations in your model.")}}
+		</p>
+		<p> 
+			{{_('Would you like to')}} 
+		</p>
+		<p style="margin-left:10px;">
+			<a href="#" id="download_choice">{{_("Download a Preformated Spreadsheet")}}</a>
+		</p>
+		<p>	
+			{{_('or')}}
+		</p>
+		<p style="margin-left:10px;">
+			<a href="#" id="upload_choice">{{_("Upload a Completed Spreadsheet?")}} </a>
+		</p>
+	</span>
 </div>
 
 <div id="spreadupload-dialog" title='{{_("Upload Geocoordinate Spreadsheet")}}'>
@@ -86,13 +94,41 @@ a.model-operation-item:visited{
 </div>
 <div id="validSpread-dialog" title='{{_("Spreadsheet Validation Result")}}'> </div>
 <div id="success-dialog" title='{{_("Spreadsheet Update Successful")}}'>{{_('Updating Geocoordates via Spreadsheet Successful')}}</div>
+<div id="down-success-dialog" title="{{_('Template Download Successful')}}">
+	{{_("The Template Spreadsheet has been saved, please check your browser's Download folder to access and then upload when you are finished.")}}
+</div>
+
 <script>
 
 $("#spreadsheetbutton").button();
+
+$("#spreadsheetbutton").click(function(){
+		$("#uploadSpreadsheetDialog").dialog("open");
+});
+
+$("#upload_choice").click(function(){
+	$("#uploadSpreadsheetDialog").dialog("close");
+	$("#spreadupload-dialog").dialog("open");
+});
+
+$("#download_choice").click(function(){
+	$.fileDownload('{{rootPath}}downloadTemplateGeoCoordXLS?modelId={{modelId}}',{
+		successCallback: function(url){
+			$("#uploadSpreadsheetDialog").dialog("close");
+			$("#down-success-dialog").dialog("open");
+		},
+		failCallback: function(html,url){
+			alert('Your file download just failed for this URL:' + url + '\r\n' +
+	                'Here was the resulting error HTML: \r\n' + html);
+		}
+	});
+});
+
 $("#uploadSpreadsheetDialog").dialog({
 	resizable:false,
 	model:true,
 	autoOpen:false,
+	width:400,
 	buttons:{
 		'{{_("Close")}}':function(){
 			$(this).dialog("close");
@@ -108,6 +144,24 @@ $("#uploadSpreadsheetDialog").dialog({
 	}
 });
 
+$("#down-success-dialog").dialog({
+	resizable:false,
+	model:true,
+	autoOpen:false,
+	buttons:{
+		'{{_("OK")}}':function(){
+			$(this).dialog("close");
+		}
+	},
+	open: function(e,ui) {
+	    $(this)[0].onkeypress = function(e) {
+			if (e.keyCode == $.ui.keyCode.ENTER) {
+			    e.preventDefault();
+			    $(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+			}
+	    };
+	}
+});
 $("#success-dialog").dialog({
 	resizable:false,
 	model:true,
