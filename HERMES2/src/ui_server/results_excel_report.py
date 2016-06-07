@@ -501,6 +501,7 @@ def createExcelSummaryOpenPyXLForResult(uiSession, m,hr):
     for cat in popCats:
         ss.postNext(cat, levelStyle)
         for title, level in levelList:
+            print "Level = {0} and count = {1}".format(level,popLevelCount)
             for statLabel, stat in statList:
                 if cat in popLevelCount[level].keys():
                     val = round(popLevelCount[level][cat][stat])
