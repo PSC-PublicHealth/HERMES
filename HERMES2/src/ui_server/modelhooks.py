@@ -421,6 +421,7 @@ class NumberedNameGenerator:
     totCount = 0
     def __init__(self,baseName,count=1):
         self.name = baseName
+        self.count = count
     def get(self):
         newName = "%s_%d"%(self.name,self.count)
         self.count += 1

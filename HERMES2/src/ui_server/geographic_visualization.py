@@ -202,6 +202,7 @@ def generateStoreUtilInfoJSON(db, uiSession):
     uiSession.getPrivs().mayReadModelId(db,modelId)
     m = shadow_network_db_api.ShdNetworkDB(db,modelId)
     r = m.getResultById(resultsId)
+    print "HERE---------------------------------"
     returnJson = r.getGeoResultsJson()
     return returnJson['storejson']
 
