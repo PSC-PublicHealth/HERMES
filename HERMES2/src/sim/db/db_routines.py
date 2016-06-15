@@ -95,7 +95,7 @@ class DbInterface:
         self.uri = uri
         self.Base = Base
         self.engine = engine
-        self.SessionMaker = scoped_session(sessionmaker(bind=engine))
+        self.SessionMaker = scoped_session(sessionmaker(bind=engine,autoflush=False))
 
     def getURI(self):
         return self.uri
