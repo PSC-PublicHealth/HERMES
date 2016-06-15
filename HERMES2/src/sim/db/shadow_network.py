@@ -1602,6 +1602,7 @@ class StoresRpt(Base):
     storesRptId = Column(Integer, primary_key=True)
 
     def copyStorageRatio(self, mv):
+        import zlib
         if mv is None or mv == '':
             self.storageRatio_multival   = None
             self.storageRatio_packedMV   = None
@@ -1609,13 +1610,14 @@ class StoresRpt(Base):
         
         if isinstance(mv, util.AccumMultiVal):
             #print 'packing %s'%type(mv)            
-            self.storageRatio_packedMV   = BlobHolder(mv.pack())
+            self.storageRatio_packedMV   = BlobHolder(zlib.compress(mv.pack()))
         else:
             #print 'dropping %s'%type(mv)            
             self.storageRatio_multival   = None
             self.storageRatio_packedMV   = None
     
     def copyStoreVialCount(self, mv):
+        import zlib
         if mv is None or mv == '':
             self.storeVialCount_multival = None
             self.storeVialCount_packedMV = None
@@ -1623,7 +1625,7 @@ class StoresRpt(Base):
 
         if isinstance(mv, util.AccumMultiVal):
             #print 'packing %s'%type(mv)            
-            self.storeVialCount_packedMV = StoreVialsBlobHolder(mv.packWKeys())        
+            self.storeVialCount_packedMV = StoreVialsBlobHolder(zlib.compress(mv.packWKeys()))        
         else:
             #print 'dropping %s'%type(mv)            
             self.storeVialCount_multival = None
@@ -1664,10 +1666,11 @@ class StoresRpt(Base):
 
                                  
     def storageRatioMV(self):
+        import zlib
         packedMV = self.storageRatio_packedMV
         if packedMV is None:
             return None
-        packedMV = packedMV.blob
+        packedMV = zlib.decompress(packedMV.blob)
         
         # should we ever change storage types any previously stored results will _bomb_.
         nameList = copy.copy(storagetypes.storageTypeNames)
@@ -1676,10 +1679,11 @@ class StoresRpt(Base):
         return util.AccumMultiVal.fromPackedString(nameList, packedMV)
     
     def storeVialCountMV(self):
+        import zlib
         packedMV = self.storeVialCount_packedMV
         if packedMV is None:
             return None
-        packedMV = packedMV.blob
+        packedMV = zlib.decompress(packedMV.blob)
         
         # should we ever change storage types any previously stored results will _bomb_.
         return util.AccumMultiVal.fromPackedStringWHeaders(packedMV)
@@ -2583,62 +2587,68 @@ class HermesResults(Base):
     def addGeoResultsJson(self):
         from geographic_visualization import generateStoreUtilInfoJSONFromResult,generateRouteUtilizationLinesJSONFromResult
         import json
+        import zlib
+        
         geoJSON = {'storejson':generateStoreUtilInfoJSONFromResult(self),
                    'routejson':generateRouteUtilizationLinesJSONFromResult(self)}
         
         if self.geoResultsJson is None:
-            self.geoResultsJson = GeoResultsBlobHolder(json.dumps(geoJSON))
+            self.geoResultsJson = GeoResultsBlobHolder(zlib.compress(json.dumps(geoJSON)))
         else:
             bh = self.geoResultsJson
-            bh.blob = json.dumps(geoJSON)
+            bh.blob = zlib.compress(json.dumps(geoJSON))
     
     def addCostSummaryResultsJson(self):
         from resultshooks import generateCostsSummaryFromResult
         import json
+        import zlib
          
         costJson = generateCostsSummaryFromResult(self)
         
         if self.costSummaryResultsJson is None:
-            self.costSummaryResultsJson = CostSummaryResultsBlobHolder(json.dumps(costJson))
+            self.costSummaryResultsJson = CostSummaryResultsBlobHolder(zlib.compress(json.dumps(costJson)))
         else:
             bh = self.costSummaryResultsJson
-            bh.blob = json.dumps(costJson)
+            bh.blob = zlib.compress(json.dumps(costJson))
     
     def addCostSummaryKeyPointsJson(self):
         from resultshooks import generateCostsSummaryKeyPointsFromResult
         import json
+        import zlib
          
         costJson = generateCostsSummaryKeyPointsFromResult(self)
          
         if self.costSummaryKeyPointsJson is None:
-            self.costSummaryKeyPointsJson = CostSummaryKeyPointsBlobHolder(json.dumps(costJson))
+            self.costSummaryKeyPointsJson = CostSummaryKeyPointsBlobHolder(zlib.compress(json.dumps(costJson)))
         else:
             bh = self.costSummaryKeyPointsJson
-            bh.blob = json.dumps(costJson)
+            bh.blob = zlib.compress(json.dumps(costJson))
 
     def addHierarchicalCostSummaryTreeMapJson(self):
         from resultshooks import generateResultSummaryCostHierarchicalFromResult
         import json
+        import zlib
         
         costJson = generateResultSummaryCostHierarchicalFromResult(self,value_format="value",fmt='cllc')
         
         if self.hierarchicalCostSummaryTreeMapJson is None:
-            self.hierarchicalCostSummaryTreeMapJson = HierarchicalCostSummaryTreeMapBlobHolder(json.dumps(costJson))
+            self.hierarchicalCostSummaryTreeMapJson = HierarchicalCostSummaryTreeMapBlobHolder(zlib.compress(json.dumps(costJson)))
         else:
             bh = self.hierarchicalCostSummaryTreeMapJson
-            bh.blob = json.dumps(costJson)
+            bh.blob = zlib.compress(json.dumps(costJson))
     
     def addHierarchicalCostSummaryBarChartJson(self):
         from resultshooks import generateResultSummaryCostHierarchicalFromResult
         import json
+        import zlib
         
         costJson = generateResultSummaryCostHierarchicalFromResult(self,value_format="size",fmt=None)
         
         if self.hierarchicalCostSummaryBarChartJson is None:
-            self.hierarchicalCostSummaryBarChartJson = HierarchicalCostSummaryBarChartBlobHolder(json.dumps(costJson))
+            self.hierarchicalCostSummaryBarChartJson = HierarchicalCostSummaryBarChartBlobHolder(zlib.compress(json.dumps(costJson)))
         else:
             bh = self.hierarchicalCostSummaryBarChartJson
-            bh.blob = json.dumps(costJson)
+            bh.blob = zlib.compress(json.dumps(costJson))
     
     def getVAHistString(self):
         if self.vaAvailJson is None:
@@ -2699,24 +2709,29 @@ class HermesResults(Base):
     
     def getGeoResultsJson(self):
         import json
+        import zlib
         #print self.geoResultsJson.blob
-        return json.loads(self.geoResultsJson.blob)
+        return json.loads(zlib.decompress(self.geoResultsJson.blob))
     
     def getCostSummaryResultsJson(self):
         import json
-        return json.loads(self.costSummaryResultsJson.blob)
+        import zlib
+        return json.loads(zlib.decompress(self.costSummaryResultsJson.blob))
     
     def getCostSummaryKeyPointsJson(self):
         import json
-        return json.loads(self.costSummaryKeyPointsJson.blob)
+        import zlib
+        return json.loads(zlib.decompress(self.costSummaryKeyPointsJson.blob))
     
     def getHierarchicalCostSummaryTreeMapJson(self):
         import json
-        return json.loads(self.hierarchicalCostSummaryTreeMapJson.blob)
+        import zlib
+        return json.loads(zlib.decompress(self.hierarchicalCostSummaryTreeMapJson.blob))
     
     def getHierarchicalCostSummaryBarChartJson(self):
         import json
-        return json.loads(self.hierarchicalCostSummaryBarChartJson.blob)
+        import zlib
+        return json.loads(zlib.decompress(self.hierarchicalCostSummaryBarChartJson.blob))
     
     def getCostSummaryRecs(self):
         return self.costSummaryRecs
@@ -4245,15 +4260,16 @@ class ShdNetwork(Base):
     
     def addModelD3Json(self):
         import json
+        import zlib
         ### This only works with one root
         modelJson = json.dumps(self.getWalkOfClientsDictForJson(self.rootStores()[0].idcode))
         
         if self.modelD3Json is None:
-            self.modelD3Json = ModelD3JsonBlobHolder(modelJson)
+            self.modelD3Json = ModelD3JsonBlobHolder(zlib.compress(modelJson))
             #print self.modelD3Json.blob
         else:
             bh = self.modelD3Json
-            bh.blob = modelJson
+            bh.blob = zlib.compress(modelJson)
              
     def getModelSummaryJson(self):
         import json
@@ -4263,15 +4279,16 @@ class ShdNetwork(Base):
             self.addModelSummaryJson()
             
         #print self.modelSummaryJson.blob
-        print json.loads(self.modelSummaryJson.blob)['name']
+        #print json.loads(self.modelSummaryJson.blob)['name']
         return json.loads(self.modelSummaryJson.blob)
     
     def getModelD3Json(self):
         import json
+        import zlib
         if self.modelD3Json is None or self.modelD3Json.blob is None:
             self.addModelD3Json()
             
-        return json.loads(self.modelD3Json.blob)
+        return zlib.decompress(json.loads(self.modelD3Json.blob))
     
     ### The next set of members produce data in formats for reporting
     def getLevelList(self):
@@ -5118,7 +5135,7 @@ class ShdNetwork(Base):
 #                print "pName: %s, val: None"%pName
 #            elif len(val)>1:
 #                print "pName: %s, val: (%s , %s )"%(pName,type(val[0]),type(val[1]))
-#            else:
+#            else:G
 #                print "pName: %s, val: %s"%(pName, type(val[0]))
             if val is None:
                 logWarning('No file to play the role of %s in exported %s'%(pName,self.name))
