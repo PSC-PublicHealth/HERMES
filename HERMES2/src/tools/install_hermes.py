@@ -56,7 +56,7 @@ def getURI():
         _uri = DbInterface().getURI()
     return _uri
 
-def innerCreateAlembicIni(path):
+def innerCreateAlembicIni(path,newpath=None):
     """
     This routine unconditionally writes a new alembic.ini file
     """
@@ -64,37 +64,42 @@ def innerCreateAlembicIni(path):
     print 'url is '+url
 
     with open(os.path.join(path,'alembic.ini.prototype'),'r') as ifile:
-        with open(os.path.join(path,'alembic.ini'),'w') as ofile:
+        pathHere = path
+        if newpath:
+            pathHere = newpath     
+        with open(os.path.join(pathHere,'alembic.ini'),'w') as ofile:
             for rec in ifile:
                 if rec.strip().startswith('sqlalchemy.url ='):
                     ofile.write('sqlalchemy.url = %s\n'%url)
                 else:
                     ofile.write(rec)
 
-def createAlembicIni(replace=True):
+def createAlembicIni(replace=True,newpath=None):
     import site_info
     sI = site_info.SiteInfo()
 
     path = os.path.join(sI.srcDir(),'../..')
-    
-    if os.path.lexists(os.path.join(path,'alembic.ini')):
+    pathHere = path
+    if newpath:
+        pathHere = newpath
+    if os.path.lexists(os.path.join(pathHere,'alembic.ini')):
         if replace:
             count = 0
             while True:
                 if count==0: savName = 'alembic.ini.sav'
                 else: savName = 'alembic.ini.sav%d'%count
-                if os.path.lexists(os.path.join(path,savName)):
+                if os.path.lexists(os.path.join(pathHere,savName)):
                     count += 1
                 else:
                     break
-            os.rename(os.path.join(path,'alembic.ini'),os.path.join(path,savName))
+            os.rename(os.path.join(path,'alembic.ini'),os.path.join(pathHere,savName))
         
-            innerCreateAlembicIni(path)
+            innerCreateAlembicIni(path,pathHere)
         else:
             print 'alembic.ini exists and replace is false; not overwriting'
         
     else:
-        innerCreateAlembicIni(path)
+        innerCreateAlembicIni(path,pathHere)
 
 def createDBFromCode():
     from db_routines import DbInterface
@@ -813,7 +818,7 @@ def installRequirements(upgrade=False):
         pip_command.append('-U')
     subprocess.check_call(pip_command, cwd = pathBase)
 
-def callAlembicUpgrade():
+def callAlembicUpgrade(newpath=None):
     import site_info
     sI = site_info.SiteInfo()
 
@@ -833,7 +838,11 @@ def callAlembicUpgrade():
         os.environ['PYTHONPATH'] = '%s%s%s'%(os.path.join(pathBase,'src/sim'),
                                              sep,
                                              os.path.join(pathBase,'src/ui_server'))
-    subprocess.check_call([alembicproc,'upgrade','head'],cwd = pathBase)
+    if newpath:
+        pathHere = os.path.join(newpath,"alembic.ini")
+        subprocess.check_call([alembicproc,"-c","{0}".format(pathHere),"upgrade","head"],cwd = pathBase)
+    else:
+        subprocess.check_call([alembicproc,'upgrade','head'],cwd = pathBase)
 
 def addTypeHolderModel(replace=True):
     import shadow_network
@@ -917,7 +926,7 @@ def addInitialModels():
             subprocess.check_call(['python','add_model_to_db.py','--no_overwrite_db','--use_zip='+filePath],cwd = curWorkDir)
     
 
-def _install_hermes(overwrite = False):
+def _install_hermes(overwrite = False,alembicPath=None):
 
     import site_info
     sI = site_info.SiteInfo()
@@ -925,10 +934,10 @@ def _install_hermes(overwrite = False):
     scratchDir = sI.scratchDir()
     if not os.path.isdir(scratchDir): os.makedirs(scratchDir)
     
-    createAlembicIni(replace=overwrite)
+    createAlembicIni(replace=overwrite,newpath=alembicPath)
     
     createDBFromHistory(replace=overwrite)
-    callAlembicUpgrade()
+    callAlembicUpgrade(alembicPath)
      
     # This routine unconditionally creates the DB as embodied by the current code, but does not set an
     # appropriate Alembic version number.
@@ -966,6 +975,8 @@ def main():
                         help='Totally delete tables from existing HERMES database, including schemas')
     parser.add_argument('-R', '--rebuildalltypes', action='store_true',
                         help='Delete and rebuild the AllTypesModel, leaving everything else intact')
+    parser.add_argument('-a','--alembicpath',
+                         help='Specifies an alternative path for the alembic.ini')
 
     try:
         with open(os.path.join("..","version.txt"),"r") as f:
@@ -986,7 +997,7 @@ def main():
             dropAllTables()
 
         if not args.dependencies_only:
-            _install_hermes(overwrite=args.replace)
+            _install_hermes(overwrite=args.replace,alembicPath=args.alembicpath)
 
 
 ############
