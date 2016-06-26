@@ -1741,7 +1741,26 @@ def jsonModelStructureTreeD3(db,uiSession):
         return {'success':False,
                 'msg':str(e)
                 }
+
+@bottle.route('/json/model-geo-structure')
+def jsonModelGeoStructure(db,uiSession):
+    try:
+        modelId = _safeGetReqParam(bottle.request.params,'modelId')
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        model = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        json = model.getGeoJson()
+        if json is None:
+            model.addGeoJson()
+            db.commit()
+            json = model.getGeoJson()
+        json['success']=True
         
+        return json
+    except Exception,e:
+        return {'success':False,
+                'msg':str(e)
+                }
+
 @bottle.route('/json/model-structure-tree')
 def jsonModelStructureTree(db, uiSession):
     modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)

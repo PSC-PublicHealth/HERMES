@@ -20,74 +20,16 @@
 <script src="{{rootPath}}static/hermes-ui-utils.js"></script>
 <script src="{{rootPath}}static/collapsible-network-diagram/collapsible-network-diagram.js"></script>
 
-<script src="{{rootPath}}static/spin/spin.js"></script>
 <script src="{{rootPath}}static/vakata-jstree-841eee8/dist/jstree.min.js"></script>
-<!--<link rel="stylesheet" href="{{rootPath}}static/bootstrap-3.3.5-dist/css/bootstrap.css"/>-->
+<link rel="stylesheet" href="{{rootPath}}static/bootstrap-3.3.5-dist/css/bootstrap.css"/>
+<link rel="stylesheet" href="{{rootPath}}static/modelSummary-tab-widgets/modelSummary-tab.css"/>
+<script src="{{rootPath}}static/modelSummary-tab-widgets/modelSummary-tab.js"></script>
 <link rel="stylesheet" href="{{rootPath}}static/collapsible-network-diagram/collapsible-network-diagram.css"/>
 <link rel="stylesheet" href="{{rootPath}}static/vakata-jstree-841eee8/dist/themes/default/style.min.css"/>
-<script>
+<!--<link rel="stylesheet" href="{{rootPath}}static/geographic-map-widgets/geographicMap.css"/>-->
+<script src="{{rootPath}}static/geographic-map-widgets/geographicMap.js"></script>
 
-var mayModify = "{{maymodify}}" == "True" ? true : false ;
-
-//console.log(mayModify);
-function updateNetworkDiagram(){
-	$('#ajax_busy_image').show();
-	$('#model_operations_holder').fadeTo(500,1.0);
-	getModelJson().done(function(result){
-		if (!result.success){
-			alert(result.msg);
-		}
-		else{
-			//$("#collapsible-network-diagram").remove();
-			//$("#model_show_diagram").append("<div id='collapsible-network-diagram'/>");
-			$("#collapsible-network-diagram").diagram({
-				jsonData:result,
-				storeDialogDivID:'model_store_info',
-				rootPath:'{{rootPath}}',
-				modelId:'{{modelId}}',
-				minHeight:500,
-				minWidth:490,
-				resizeOn:false
-				//jsonUrl:'{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}'
-			});
-			$("#loading-notify").fadeTo(400,0.0).hide();
-			//$("#tooldiv").show();
-			$("#ajax_busy_image").hide();
-		}
-	});
-};
-
-function getModelJson(){
-	return $.ajax({
-		url:'{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}',
-		dataType:'json'
-	}).promise();
-};
-
-//$(document).ready(function(){
-//	//$("#model_diagram_holder").corner();
-//	$('#ajax_busy_image').show();
-//});
-
-//updateNetworkDiagram();
-</script>
 <style>
-#collapsible-network-diagram{
-	width:100%;
-	height:100%;
-	min-height:500px;
-	min-width:380px;
-	background:whitesmoke;
-}
-
-#model_holder{
-	#width:100%;
-	#height:100%;
-	min-height:500px;
-	max-height:700px;
-	min-width:800px;
-	max-width:1000px;
-}
 #model_operations_holder{
 	float:left;
 	#width:45%;
@@ -97,36 +39,18 @@ function getModelJson(){
 	opacity:0;
 	#display:none;
 }
+
 #model_diagram_holder{
 	float:left;
-	width:50%;
-	height:100%;
+	#width:50%;
+	#height:100%;
 	#background-color:;
-	padding:10px;
-	min-width:400px;
+	#padding:10px;
+	#min-width:400px;
 	z-index:5;
 	display:inline;
 }
-#model_show_diagram{
-	width:100%;
-	height:100%;
-	display:inline;
-}
-.model-operation-title{
-	font-size:20px;
-	font-weight:bold;
-}
-.model-operation-second{
-	font-size:11px;
-}
-a.model-operation-item:link{
-	font-size:14px;
-	color:#282A57;
-}
-a.model-operation-item:visited{
-	font-size:14px;
-	color:#282A57;
-}
+
 ul.option-list{
 	list-style-type:initial;
 	margin-left:20px;
@@ -146,63 +70,93 @@ ul.option-list li{
 ul.option-list-inner li{
 	margin:10px;
 }
-.model-diagram-title{
-	font-size:14px;
+
+.model-operation-title{
+	font-size:20px;
 	font-weight:bold;
 }
-.model-diagram-note{
+.model-operation-second{
 	font-size:11px;
-	font-weight:normal;
-	font-style:italics;
 }
-.notification{
-	padding:30px;
-	position:absolute;
-	top:40%;
-	left:40%;
-	background-color:#A0A3A6;
-	color:white;
-	font-weight:bold;
-	opacity:0;
-	z-index:100;
-	display:none;
+a.model-operation-item:link{
+	font-size:14px;
+	color:#282A57;
 }
-.action-underline{
-    border-bottom: 1px dashed;
-}
-a.model-operation-item:hover{
-    text-decoration: none;
-    /* border-bottom: none; */
-    border-bottom: thin solid;
-}
-#loading-notify{
-	display:inline;
-	opacity:0.0;
-	position:absolute;
-	padding:20px;
-	top: 55%;
-	left: 32%;
-	background:grey;
-	font-weight:bold;
-	color:white;
+a.model-operation-item:visited{
+	font-size:14px;
+	color:#282A57;
 }
 
-#note-update-notify{
-	display:inline;
-	#opacity:0.0;
-	position:absolute;
-	padding:20px;
-	top: 50%;
-	left: 36%;
-	background:grey;
-	font-weight:bold;
-	color:white;
-}
-#model_dialog_note_edit{
-	width:100%;
-	height:500px;
-}
 </style>
+
+<script>
+var mayModify = "{{maymodify}}" == "True" ? true : false ;
+
+//console.log(mayModify);
+//function updateNetworkDiagram(){
+//	$('#ajax_busy_image').show();
+//	$('#model_operations_holder').fadeTo(500,1.0);
+//	getModelJson().done(function(result){
+//		if (!result.success){
+//			alert(result.msg);
+//		}
+//		else{
+//			//$("#collapsible-network-diagram").remove();
+//			//$("#model_show_diagram").append("<div id='collapsible-network-diagram'/>");
+//			$("#collapsible-network-diagram").diagram({
+//				jsonData:result,
+//				storeDialogDivID:'model_store_info',
+//				rootPath:'{{rootPath}}',
+//				modelId:'{{modelId}}',
+//				minHeight:500,
+//				minWidth:490,
+//				resizeOn:false
+//				//jsonUrl:'{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}'
+//			});
+//			$("#loading-notify").fadeTo(400,0.0).hide();
+//			//$("#tooldiv").show();
+//			$("#ajax_busy_image").hide();
+//		}
+//	});
+//};
+//
+//function updateGeographicDiagram(){
+//	$('ajax_busy_image').show();
+//	//$('#model_operations_holder').fadeTo(500,1.0);
+//	getModelJson().done(function(result){
+//		if (!result.success){
+//			alert(result.msg);
+//		}
+//		else{
+//			//$("#collapsible-network-diagram").remove();
+//			//$("#model_show_diagram").append("<div id='collapsible-network-diagram'/>");
+//			$("#geographic-diagram").geographicMap({
+//				jsonData:result,
+//				rootPath:'{{rootPath}}',
+//				modelId:'{{modelId}}',
+//				//jsonUrl:'{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}'
+//			});
+//			$("#map-loading-notify").fadeTo(400,0.0).hide();
+//			//$("#tooldiv").show();
+//			$("#ajax_busy_image").hide();
+//		}
+//	});
+//	
+//};
+//function getModelJson(){
+//	return $.ajax({
+//		url:'{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}',
+//		dataType:'json'
+//	}).promise();
+//};
+
+//$(document).ready(function(){
+//	//$("#model_diagram_holder").corner();
+//	$('#ajax_busy_image').show();
+//});
+
+//updateNetworkDiagram();
+</script>
 
 <div id="model_holder">
 	<div id="model_operations_holder">
@@ -269,28 +223,7 @@ a.model-operation-item:hover{
 		</ul>
 	</div>
 	
-	<div id="model_diagram_holder">
-		<ul>
-			<li><a href="#model_show_diagram">{{_('Model Network')}}</a></li>
-			<li><a href="#model_test">{{_('Notes')}}</a></li>
-		</ul>
-		<div id="model_test">
-			<p><span class="model-diagram-title">{{_(u'Notes for {0} model'.format(name))}}</span></p>
-			<span class="model-diagram-note"><textarea rows="30" cols="55" id="model_dialog_note_edit"></textarea></span>
-			<button style="width:100%;" id="submit_note">{{_("Save Notes")}}</button>
-			<div id="note-update-notify">
-				<p>{{_("Note Updated")}}</p>
-			</div>
-		</div>
-		<div id="model_show_diagram">
-			<p><span class="model-diagram-title">{{_("Supply Chain Network Diagram")}}</span></p>
-			<p><span class="model-diagram-note">{{_("This diagram depicts the structure of this supply chain.  Clicking on a location can expand or contract the routes and locations below the selected location. Right-clicking a location or route will bring up more detailed information.")}}</span></p>
-			</div>
-			<div id="collapsible-network-diagram"></div>
-			<div id="loading-notify">{{_("Preparing Diagram")}}</div>
-		</div>
-	</div>
-</div>
+	<div id="model_diagram_holder"></div>
 
 <div id="result_dialog" title='{{_("Simulation Experiment Results")}}'>
 <div id="result"></div>
@@ -369,8 +302,16 @@ $(document).ready(function(){
 		}
 	});
 	
-	//$("#model_diagram_holder").corner();
-	$("#model_diagram_holder").tabs();
+	$("#model_diagram_holder").modelSummaryTabs({
+		modelId:{{modelId}},
+		rootPath:{{rootPath}},
+		width:550,
+		height:600,
+		notesOn:true,
+		diagramOn:true,
+		summaryOn:false
+	});
+
 	$(".notification").corner();
 	$("#note-update-notify").corner();
 	$("#note-update-notify").hide();
@@ -395,7 +336,9 @@ $(document).ready(function(){
     	alert("Error: " + jqxhr.responseText);
     });
 	
-	updateNetworkDiagram();
+	$("#model_operations_holder").fadeTo(500,1.0);
+	//updateNetworkDiagram();
+	//updateGeographicDiagram();
 });
 	
 	$("#submit_note").click(function(){

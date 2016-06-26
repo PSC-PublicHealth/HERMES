@@ -3994,7 +3994,7 @@ class ModelSummaryBlobHolder(Base):
 
 class ModelD3JsonBlobHolder(Base):
     """ 
-    This class holds the model json for displaying te collapsible diagram.
+    This class holds the model json for displaying the collapsible diagram.
     """
     from sqlalchemy.dialects import mysql
     __tablename__ = 'modelD3JsonBlobHolder'
@@ -4004,7 +4004,18 @@ class ModelD3JsonBlobHolder(Base):
     def __init__(self,blob):
         self.blob = blob
     
-
+class ModelGeoJsonBlobHolder(Base):
+    """ 
+    This class holds the model json for displaying the geographic diagram.
+    """
+    from sqlalchemy.dialects import mysql
+    __tablename__ = 'modelGeoJsonBlobHolder'
+    blobId = Column(Integer,primary_key=True)
+    blob = Column(mysql.LONGBLOB)
+    
+    def __init__(self,blob):
+        self.blob = blob
+        
 class ShdNetwork(Base):
     """
     This is the class that holds everything in one place.  Its primary purpose is to have
@@ -4060,6 +4071,12 @@ class ShdNetwork(Base):
             self.modelD3JsonRef = None
             return
         self.modelD3JsonRef = ModelD3JsonBlobHolder(tt)
+          
+    def copyModelGeoJson(self,tt):
+        if tt is None or tt == '':
+            self.modelGeoJsonRef = None
+            return
+        self.modelGeoJsonRef = ModelGeoJsonBlobHolder(tt)
     
     note = Column(String(4096))
     attrs = [('name',    STRING),
@@ -4069,7 +4086,11 @@ class ShdNetwork(Base):
               'copy',copyModelSummary),
              ('modelD3JsonRef',
               DataType(INTEGER, foreignKey='modelD3JsonBlobHolder.blobId'),
-              'copy',copyModelD3Json)]
+              'copy',copyModelD3Json),
+             ('modelGeoJsonRef',
+              DataType(INTEGER, foreignKey='modelGeoJsonBlobHolder.blobId'),
+              'copy',copyModelGeoJson),
+             ]
 
     factories = relationship('ShdFactory',
                             backref='model',
@@ -4182,6 +4203,7 @@ class ShdNetwork(Base):
 
     modelSummaryJson = relationship('ModelSummaryBlobHolder',uselist=False)
     modelD3Json = relationship('ModelD3JsonBlobHolder', uselist=False)
+    modelGeoJson = relationship('ModelGeoJsonBlobHolder', uselist=False)
     
     def __init__(self, storeRecs, routeRecs, factoryRecs, shdTypes, name=None, refOnly=False):
         """
@@ -4203,6 +4225,7 @@ class ShdNetwork(Base):
         self.resultsGroups = []
         self.modelSummaryJson = None
         self.modelD3Json = None
+        self.modelGeoJson = None
     
 
         # segregated copy of the types as well
@@ -4288,8 +4311,32 @@ class ShdNetwork(Base):
         if self.modelD3Json is None or self.modelD3Json.blob is None:
             self.addModelD3Json()
             
-        return zlib.decompress(json.loads(self.modelD3Json.blob))
+        return json.loads(zlib.decompress(self.modelD3Json.blob))
     
+    def addGeoJson(self):
+        from geographic_visualization import generateStoreInfoJSONFromModel,generateRouteLinesJSONFromModel
+        import json
+        import zlib
+        
+        geoJSON = {'storejson':generateStoreInfoJSONFromModel(self),
+                   'routejson':generateRouteLinesJSONFromModel(self)}
+        
+        if self.modelGeoJson is None:
+            self.modelGeoJson = ModelGeoJsonBlobHolder(zlib.compress(json.dumps(geoJSON)))
+        else:
+            bh = self.modelGeoJson
+            bh.blob = zlib.compress(json.dumps(geoJSON))
+            
+    def getGeoJson(self):
+        import json
+        import zlib
+        
+        print "!!!!!!!!!!!HERE"
+        if self.modelGeoJson is None or self.modelGeoJson.blob is None:
+            self.addGeoJson()
+        
+        return json.loads(zlib.decompress(self.modelGeoJson.blob))
+            
     ### The next set of members produce data in formats for reporting
     def getLevelList(self):
         countDict = {}
