@@ -304,9 +304,10 @@ $(document).ready(function(){
 	
 	$("#model_diagram_holder").modelSummaryTabs({
 		modelId:{{modelId}},
+		modelName:'{{name}}',
 		rootPath:{{rootPath}},
-		width:550,
-		height:600,
+		width:500,
+		height:500,
 		notesOn:true,
 		diagramOn:true,
 		summaryOn:false
@@ -317,51 +318,15 @@ $(document).ready(function(){
 	$("#note-update-notify").hide();
 	$("#loading-notify").corner();
 	$("#loading-notify").fadeTo(400,1.0);
-	$("#submit_note").button();
-	$.ajax({
-		url:'{{rootPath}}json/get-model-notes',
-		datatype:'json',
-		data:{'modelId':{{modelId}}},
-		method:'post'
-	})
-	.done(function(results){
-		if(!results.success){
-			alert(results.msg);
-		}
-		else{
-			$("#model_dialog_note_edit").val(results.notes);
-		}
-	})
-	.fail(function(jqxhr, textStatus, error) {
-    	alert("Error: " + jqxhr.responseText);
-    });
+	
+	
 	
 	$("#model_operations_holder").fadeTo(500,1.0);
 	//updateNetworkDiagram();
 	//updateGeographicDiagram();
 });
 	
-	$("#submit_note").click(function(){
-		$.ajax({
-			url:"{{rootPath}}edit/update-model-name-note",
-			method:"post",
-			datatype:"json",
-			data:{"modelId":{{modelId}},
-				  "newName":"{{name}}",
-				  "newNote":$("#model_dialog_note_edit").val()}
-		})
-		.done(function(results){
-			if(!results.success){
-				alert(results.msg);
-			}
-			else{
-				$("#note-update-notify").fadeIn(400).delay(200).fadeOut(400);
-			}
-		})
-		.fail(function(jqxhr, textStatus, error) {
-	    	alert("Error: " + jqxhr.responseText);
-	    });
-	});
+
 	
 	$("#not-implemented-modal").dialog({
 		resizable: false,
