@@ -59,9 +59,9 @@ class SupplyChain:
         self.energySources = self._fillEnergySources()
         self.equipmentTypes = self._fillEquipTypes()
         
-        #self.coldDevInv,self.ignoredDevs = self._populateColdDevInventoryAndAssignToFacilities()
-        self.transDevInv, self.ignoredTDevs = self._populateTransportDevInventoryAndAssignToFacilities()
-        
+        self.coldDevInv,self.ignoredDevs = self._populateColdDevInventoryAndAssignToFacilities()
+        #self.transDevInv, self.ignoredTDevs = self._populateTransportDevInventoryAndAssignToFacilities()
+        self.transDevInv = {}
         print self.levels
         self.facilityStructure = None
         
@@ -361,49 +361,59 @@ class SupplyChain:
                 self.facilitiesDict[facID].transportInv.append((ID,count))
                 
             
-        return transRInv,ignoredDevs
+        return transDevInv,ignoredDevs
                 
-    def determineFacilitySimpleHeirarchicalHeirarchical(self):
-        pass
+    def PakistanSpecificDetermineFacilitySimpleHeirarchicalHeirarchical(self):
         ## lets get the table of administrative levels
         ### find the National Stores
         ### We have to make some assumptions... not sure how to resolve them yet, but we will see
         
         
-#         self.facilitiesStructure = {}
-#         nationalFacId = None
-#         ### first add the National Store
-#         for fac,facData in self.facilitiesDict.items():
-#             if facData.facility_type == 1:
-#                 self.facilitiesStructure[fac] = {}
-#                 nationalFacId = fac
-#         
-#         ### now find the 2nd level
-#         for fac,facData in self.facilitiesDict.items():
-#             if facData.facility_type == 2:
-#                 self.facilitiesStructure[nationalFacId][fac] = {}
-#         
-#         ### now the third level
-#         for fac,facData in self.facilitiesDict.items():
-#             if facData.facility_type == 3:
-#                 for prov in self.facilitiesStructure[nationalFacId].keys():
-#                     provEntry = self.facilitiesDict[prov] 
-#                     if facData.admin_structure[0] == provEntry.admin_structure[0]:
-#                         self.facilitiesStructure[nationalFacId][prov][fac] = []
-#                  
-#          
-#         # Now we must fill the remaining levels with a recursive approach based on 
-#         # The number of levels 
-#         for fac,facData in self.facilitiesDict.items():
-#             if facData.facility_type > 3:
-#                 for prov,provData in self.facilitiesStructure[nationalFacId].items():
-#                     for dist in provData.keys():
-#                         distEntry = self.facilitiesDict[dist]
-#                         if distEntry.admin_structure[0]==facData.admin_structure[0] \
-#                             and distEntry.admin_structure[1] == facData.admin_structure[1]:
-#                             self.facilitiesStructure[nationalFacId][prov][dist].append(fac)
-#         
-#         return self.facilitiesStructure
+        self.facilitiesStructure = {}
+        nationalFacId = None
+        ### first add the National Store
+        for fac,facData in self.facilitiesDict.items():
+            if facData.facility_type == 1:
+                self.facilitiesStructure[fac] = {}
+                nationalFacId = fac
+         
+        ### now find the 2nd level
+        for fac,facData in self.facilitiesDict.items():
+            if facData.facility_type == 2:
+                self.facilitiesStructure[nationalFacId][fac] = {}
+         
+        ### now the third level
+        for fac,facData in self.facilitiesDict.items():
+            if facData.facility_type == 3:
+                if facData.admin_structure[0] == "ISLAMABAD":
+                    self.facilitiesStructure[nationalFacId][fac] = []
+                else:
+                    for prov in self.facilitiesStructure[nationalFacId].keys():
+                        provEntry = self.facilitiesDict[prov] 
+                        if facData.admin_structure[0] == provEntry.admin_structure[0]:
+                            self.facilitiesStructure[nationalFacId][prov][fac] = []
+                  
+          
+        # Now we must fill the remaining levels with a recursive approach based on 
+        # The number of levels 
+        for fac,facData in self.facilitiesDict.items():
+            if facData.facility_type > 3:
+                if facData.admin_structure[0] == "ISLAMABAD":
+                    for dist in self.facilitiesStructure[nationalFacId].keys():
+                        distEntry = self.facilitiesDict[dist]
+                        if distEntry.admin_structure[1] == facData.admin_structure[1]:
+                            self.facilitiesStructure[nationalFacId][dist].append(fac)
+                else:
+                    for prov,provData in self.facilitiesStructure[nationalFacId].items():
+                        if self.facilitiesDict[prov].admin_structure[0] == "ISLAMABAD":
+                            continue
+                        for dist in provData.keys():
+                            distEntry = self.facilitiesDict[dist]
+                            if distEntry.admin_structure[0]==facData.admin_structure[0] \
+                                and distEntry.admin_structure[1] == facData.admin_structure[1]:
+                                self.facilitiesStructure[nationalFacId][prov][dist].append(fac)
+         
+        return self.facilitiesStructure
                                
 class ColdDev:
     def __init__(self,_ccEntry,_eTypes,_pTypes,_coldRoomEntry=False):
@@ -527,40 +537,79 @@ class Facility:
         self.distanceToSupplier_KM = floatOrZero(_fEntry.fn_distance)
         self.resupply_interval = intOrZero(_fEntry.fi_resupp_interval)
         self.reserve_stock = intOrZero(_fEntry.fi_reserve_stock)
+        self.isVaccinating = False
+        if _fEntry.fi_cc_delivery == -1 or _fEntry.fi_cc_outreach == -1:
+            self.isVaccinating = True
+            
         self.inventory = []
         self.transportInv = []
-        if self.facility_type == 1:
-            self.level = self._supplyChain.levels[0]
-        elif self.facility_type == 2:
-            print self.find_level()
+        
+        self.level = None
+        if self.facility_type < 3:
+            self.level = _SC.levels[self.facility_type]
+        else:
+            self.level = u"Facility"
+    def inventoryToHERMESString(self):
+        inventoryString = u""
+        for inv in self.inventory:
+            inventoryString += u'{0}+'.format(self._supplyChain.coldDevInv[inv].ID)
+        for trans,count in self.transportInv:
+            inventoryString += u'{0}*{1}+'.format(count,self._supplyChain.transDevInv[trans].ID)
+        
+        return inventoryString[:-1]
+            
+    def toHERMESRec(self):
+        functionString = "Distribution"
+        if self.isVaccinating:
+            functionString = "Administration"
+            
+        return {'NAME':self.name,
+                'CATEGORY':self.level,
+                'FUNCTION':functionString,
+                'idcode':self.ID,
+                'Inventory':self.inventoryToHERMESString(),
+                'Device Utilization Rate':1.0,
+                'UseVialsInterval':1,
+                'UseVialsLatency':1,
+                'Newborn':self.population['newborns'] if self.isVaccinating else '',
+                'PW':self.population['pregnantWomen'] if self.isVaccinating else '',
+                'CBA': self.population['cba'] if self.isVaccinating else '',
+                '0-1Years':self.population['newborns'] if self.isVaccinating else '',
+                'Latitude':'',
+                'Longitude':'',
+                }
+#         if self.facility_type == 1:
+#             self.level = self._supplyChain.levels[0]
+#         elif self.facility_type == 2:
+#             print self.find_level()
         #if self.level == u'Union Council':
         #    print self.level
         
     
-    def find_level(self):
-        print "Beginning admin = {0}".format(self.admin_structure)
-        print self._supplyChain.administriveAreas['Federal'].keys()
-        numberOfLevels = len(self._supplyChain.levels)
-        thisLevel = self._supplyChain.levels[0]
-        dictHere = self._supplyChain.administriveAreas[thisLevel]
-        for i in range(1,numberOfLevels+1):
-            #print dictHere.keys()
-            print type(dictHere)
-            thisAdmin = self.admin_structure[i-1]
-            if i != numberOfLevels:
-                print i
-                if thisAdmin not in dictHere.keys():
-                    return thisLevel
-            else:
-                if u'{0}'.format(thisAdmin) in dictHere:
-                    return thisLevel   
-                else:
-                    return None 
-            dictHere = dictHere[thisAdmin]
-            thisLevel = self._supplyChain.levels[i]
-        
-        print thisLevel
-        sys.exit()
+#     def find_level(self):
+#         print "Beginning admin = {0}".format(self.admin_structure)
+#         print self._supplyChain.administriveAreas['Federal'].keys()
+#         numberOfLevels = len(self._supplyChain.levels)
+#         thisLevel = self._supplyChain.levels[0]
+#         dictHere = self._supplyChain.administriveAreas[thisLevel]
+#         for i in range(1,numberOfLevels+1):
+#             #print dictHere.keys()
+#             print type(dictHere)
+#             thisAdmin = self.admin_structure[i-1]
+#             if i != numberOfLevels:
+#                 print i
+#                 if thisAdmin not in dictHere.keys():
+#                     return thisLevel
+#             else:
+#                 if u'{0}'.format(thisAdmin) in dictHere:
+#                     return thisLevel   
+#                 else:
+#                     return None 
+#             dictHere = dictHere[thisAdmin]
+#             thisLevel = self._supplyChain.levels[i]
+#          
+#         print thisLevel
+#         sys.exit()
             
         
         
