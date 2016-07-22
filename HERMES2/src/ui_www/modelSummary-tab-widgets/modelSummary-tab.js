@@ -119,6 +119,8 @@ Please make sure that whatever tpl file that you put this widget in has the foll
 						
 						$("#"+divIds.noteAreaID).width($("#"+divIds.noteID).width()-5);
 						$("#"+divIds.noteAreaID).outerHeight($("#"+divIds.noteID).height()-$("#"+divIds.noteButtonID).outerHeight()-pHeights-20);
+						
+						// Load note if it exists
 						$.ajax({
 							url:rootPath+'json/get-model-notes',
 							datatype:'json',
@@ -137,6 +139,8 @@ Please make sure that whatever tpl file that you put this widget in has the foll
 					    	alert("Error: " + jqxhr.responseText);
 					    });
 						
+						
+						// Note tab save the note when done editing
 						$("#"+divIds.noteButtonID).button();
 						$("#"+divIds.noteButtonID).click(function(){
 							$.ajax({

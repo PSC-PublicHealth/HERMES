@@ -4960,6 +4960,7 @@ class ShdNetwork(Base):
         demand list based on demandType (defaulting to unified demands)
         """
         demandRecs = util.listify(demandRecs)
+        print demandRecs
         demandAttr = DemandEnums.eStr[demandType] + 'Demands'
         for rec in demandRecs:
             getattr(self, demandAttr).extend(ShdDemand.fromRec(rec, demandType))
@@ -5248,6 +5249,7 @@ class ShdNetwork(Base):
                  
                 ### Get the network sort
                 sortedList = self.createRouteListOrderdByWalkOfClients(self.rootStores()[0].idcode)
+                #print sortedList
                 newRecList = []
                 for ID in sortedList:
                     for rec in recs:

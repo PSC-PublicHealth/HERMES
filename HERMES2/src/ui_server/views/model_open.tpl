@@ -19,9 +19,7 @@
 <script src="{{rootPath}}static/hermes_info_dialogs.js"></script>
 <script src="{{rootPath}}static/hermes-ui-utils.js"></script>
 <script src="{{rootPath}}static/collapsible-network-diagram/collapsible-network-diagram.js"></script>
-
 <script src="{{rootPath}}static/vakata-jstree-841eee8/dist/jstree.min.js"></script>
-<link rel="stylesheet" href="{{rootPath}}static/bootstrap-3.3.5-dist/css/bootstrap.css"/>
 <link rel="stylesheet" href="{{rootPath}}static/modelSummary-tab-widgets/modelSummary-tab.css"/>
 <script src="{{rootPath}}static/modelSummary-tab-widgets/modelSummary-tab.js"></script>
 <link rel="stylesheet" href="{{rootPath}}static/collapsible-network-diagram/collapsible-network-diagram.css"/>

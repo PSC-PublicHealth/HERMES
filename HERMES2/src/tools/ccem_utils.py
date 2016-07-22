@@ -1,8 +1,8 @@
 import pyodbc
-import sys,os
+import sys, os
 from pprint import _id
 
-### utility FUNCTIONS
+# ## utility FUNCTIONS
 
 def floatOrZero(value):
     try:
@@ -25,13 +25,13 @@ def strOrUnknown(value):
         return value
     
 
-### Classes
+# ## Classes
 
 class AccessDB:
-    def __init__(self,_accessFile):
+    def __init__(self, _accessFile):
         try:
-        ## From https://github.com/mkleehammer/pyodbc/wiki/Connecting-to-Microsoft-Access
-            self.conn = pyodbc.connect(r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};' +
+        # # From https://github.com/mkleehammer/pyodbc/wiki/Connecting-to-Microsoft-Access
+            self.conn = pyodbc.connect(r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};' + 
                               r'DBQ={0}'.format(_accessFile))
             self.cursor = self.conn.cursor()
         
@@ -39,7 +39,7 @@ class AccessDB:
             raise RuntimeError("Problem connecting to the access database: {0}".format(err))
         
     
-    def execute(self,SQLStatement):
+    def execute(self, SQLStatement):
         try:
             self.cursor.execute(SQLStatement)
             rows = self.cursor.fetchall()
@@ -49,25 +49,25 @@ class AccessDB:
             raise RuntimeError("Problem executing {0} on accessDB: {1}".format(SQLStatement, err))
 
 class SupplyChain:
-    def __init__(self,_ccemDB,_name="Supply Chain"):
+    def __init__(self, _ccemDB, _name="Supply Chain"):
         self.name = _name
         self.ccemDB = _ccemDB
         self.levels = self._fillAdminLevels()
         self.administriveAreas = self._fillAdminAreas()
-        self.facilitiesDict,self.ignoredFacilties = self._populateFacilitiesDict()
+        self.facilitiesDict, self.ignoredFacilties = self._populateFacilitiesDict()
         self.facilityTypes = self._fillFacilityTypes()
         self.energySources = self._fillEnergySources()
         self.equipmentTypes = self._fillEquipTypes()
         
-        self.coldDevInv,self.ignoredDevs = self._populateColdDevInventoryAndAssignToFacilities()
-        #self.transDevInv, self.ignoredTDevs = self._populateTransportDevInventoryAndAssignToFacilities()
+        self.coldDevInv, self.ignoredDevs = self._populateColdDevInventoryAndAssignToFacilities()
+        # self.transDevInv, self.ignoredTDevs = self._populateTransportDevInventoryAndAssignToFacilities()
         self.transDevInv = {}
         print self.levels
         self.facilityStructure = None
         
     
     def _fillFacilityTypes(self):
-        ### Lets get location types
+        # ## Lets get location types
         SQLString = "SELECT * from TBL_FACILITY_TYPE"
         
         facCodes = {}
@@ -76,12 +76,12 @@ class SupplyChain:
         count = 1
         for fac in facTypes:
             facCodes[count] = fac
-            count +=1
+            count += 1
         
         return facCodes
     
     def _fillEnergySources(self):
-        ### Power Sources
+        # ## Power Sources
         SQLString = "SELECT * from TBL_POWER_SOURCE"
         rawData = self.ccemDB.execute(SQLString)
         powerSources = {x.ft_power_source:x for x in rawData}
@@ -90,14 +90,14 @@ class SupplyChain:
     
     
     def _fillEquipTypes(self):
-        ### Equipment types    
+        # ## Equipment types    
     
         SQLString = "SELECT * from TBL_EQUIPMENT_TYPE"
         
         rawData = self.ccemDB.execute(SQLString)
         equipTypes = {x.ft_code:x for x in rawData}
         
-        ### We need to figure out what to do with this.
+        # ## We need to figure out what to do with this.
         equipTypes['ColdBox'] = []
         
         return equipTypes
@@ -120,31 +120,31 @@ class SupplyChain:
         
         numberOfLevels = len(self.levels)
         
-        ### This will be a heirarchical structure
+        # ## This will be a heirarchical structure
         levelDict = {}
-        for n in range(1,numberOfLevels+1):
-            #print n
+        for n in range(1, numberOfLevels + 1):
+            # print n
             levelList = []
-            levelListRaw = [[getattr(x,"ft_level{0}".format(y+1)) for y in range(0,n)] for x in rawData]
+            levelListRaw = [[getattr(x, "ft_level{0}".format(y + 1)) for y in range(0, n)] for x in rawData]
             for l in levelListRaw:
                 if l not in levelList:
                     levelList.append(l)
             
-            #print levelList
+            # print levelList
             
             if len(levelList) == 1 and len(levelList[0]) == 1:
-                #print levelList
+                # print levelList
                 levelDict[levelList[0][0]] = {}
             else:
-                #print levelList
+                # print levelList
                 for l in levelList:
-                    #print l
+                    # print l
                     thisadmin = l[-1]
                     thisDict = levelDict
                     for k in l[:-1]:
-                        #print k
+                        # print k
                         thisDict = thisDict[k]
-                    if len(l) == numberOfLevels-1:
+                    if len(l) == numberOfLevels - 1:
                         if thisadmin not in thisDict.keys():
                             thisDict[thisadmin] = []
                     elif len(l) == numberOfLevels:
@@ -159,25 +159,26 @@ class SupplyChain:
                     
         
     def _populateFacilitiesDict(self):
-    ## Ok, lets try to devise a network from this mess
+    # # Ok, lets try to devise a network from this mess
          
         SQLString = "SELECT * from TBL_FACILITIES"
          
         facilitiesDict = {}
         ignoredFacs = []
         facilities = self.ccemDB.execute(SQLString)
-        
+        globalCount = 1
         for fac in facilities:
             if fac.ft_facility_type is not None:
-                facilitiesDict[fac.ft_facility_code] = Facility(fac,self)
+                facilitiesDict[globalCount] = Facility(fac, self,globalCount)
+                globalCount += 1
             else:
                 ignoredFacs.append(fac)
         
-        return facilitiesDict,ignoredFacs
+        return facilitiesDict, ignoredFacs
     
     def _populateColdDevInventoryAndAssignToFacilities(self):
         
-        ## first cold rooms
+        # # first cold rooms
         if len(self.facilitiesDict) == 0:
             raise RuntimeError("calling _populateColdDevInventoryAndAssignToFacilities before facilites have been assigned")
         
@@ -191,7 +192,7 @@ class SupplyChain:
         coldRInv = []
         assignmentsHere = []
         for dev in rawData:
-            ### First Determine if this device is already in the inventory
+            # ## First Determine if this device is already in the inventory
             devList = list(dev)
             ccEntry = [x for x in devList if devList.index(x) != 1 ]
             
@@ -202,18 +203,23 @@ class SupplyChain:
                 assignmentsHere[coldRInv.index(ccEntry)].append(dev.ft_facility_code)
          
      
-        ### Convert to ColdDevs
+        # ## Convert to ColdDevs
         for dev in coldRInv:
             ID = dev[0]
             facilities = assignmentsHere[coldRInv.index(dev)]
             count = 1
             while ID in coldDevInv.keys():
-                ID = "{0}_{1}".format(dev[0],count)
-                count+=1
+                ID = "{0}_{1}".format(dev[0], count)
+                count += 1
              
-            coldDevInv[ID] = ColdDev(dev,self.equipmentTypes,self.energySources,_coldRoomEntry=True)
+            coldDevInv[ID] = ColdDev(dev, self.equipmentTypes, self.energySources, _coldRoomEntry=True)
             for facID in facilities:
-                self.facilitiesDict[facID].inventory.append(ID) 
+                facility = None
+                for fac,facData in self.facilitiesDict.items():
+                    if facID == facData.ccemID:
+                        facility = self.facilitiesDict[fac]
+                        break
+                self.facilitiesDict[facility.ID].inventory.append(ID) 
         
 #         ### now the fridges 
 #         SQLString = "SELECT * from TBL_LIB_REFRIGERATORS"
@@ -224,7 +230,7 @@ class SupplyChain:
 #         for dev in rawData:
 #             coldDevInv[dev.ft_library_id] = ColdDev(dev,self.equipmentTypes,self.energySources,_coldRoomEntry=False)    
         
-        ### Now refrigerators 
+        # ## Now refrigerators 
         coldRInv = []
         assignmentsHere = []
         SQLString = "SELECT * FROM TBL_INV_REF"
@@ -234,9 +240,9 @@ class SupplyChain:
         for dev in rawData:
             devList = list(dev)[0:23]
             
-            ### Not working
+            # ## Not working
             if devList[22] == 3:
-                ignoredDevs.append((devList[1],"Refrigerator labeled as not working"))
+                ignoredDevs.append((devList[1], "Refrigerator labeled as not working"))
                 continue
             
             del devList[0]
@@ -244,35 +250,45 @@ class SupplyChain:
             del devList[4]
             
             ccEntry = devList
-            #ccEntry = [x for x in devList if (devList.index(x) not in [0,2,6])]
+            # ccEntry = [x for x in devList if (devList.index(x) not in [0,2,6])]
             if len(ccEntry) == 0:
                 continue
             if ccEntry[0] is None:
                 continue
             
-            #print ccEntry
+            # print ccEntry
             if ccEntry not in coldRInv:
                 coldRInv.append(ccEntry)
                 assignmentsHere.append([dev.ft_facility_code])
             else:
                 assignmentsHere[coldRInv.index(ccEntry)].append(dev.ft_facility_code)
         
-        ### Convert to ColdDevs
+        # ## Convert to ColdDevs
         for dev in coldRInv:
             ID = dev[0]
             facilities = assignmentsHere[coldRInv.index(dev)]
             count = 1
             while ID in coldDevInv.keys():
-                ID = "{0}_{1}".format(dev[0],count)
-                
-                count+=1
-            coldDevInv[ID] = ColdDev(dev,self.equipmentTypes,self.energySources,_coldRoomEntry=False)
+                ID = "{0}_{1}".format(dev[0], count)
+                count += 1
+            coldDevInv[ID] = ColdDev(dev, self.equipmentTypes, self.energySources, _coldRoomEntry=False)
             for facID in facilities:
-                if facID not in self.facilitiesDict.keys():
-                    ignoredDevs.append((ID,facID,"Facility Code Not Found in Database"))
-                #print "facID = {0} ID = {1}".format(facID,ID)
+                facility = None
+                for fac,facData in self.facilitiesDict.items():
+                    if facID == facData.ccemID:
+                        facility = self.facilitiesDict[fac]
+                        break
+                if facility is None:
+                    ignoredDevs.append((ID, facID, "Facility Code Not Found in Database"))
                 else:
-                    self.facilitiesDict[facID].inventory.append(ID)
+                    self.facilitiesDict[facility.ID].inventory.append(ID) 
+        
+                #if facID not in self.facilitiesDict.keys():
+                #    ignoredDevs.append((ID, facID, "Facility Code Not Found in Database"))
+                # print "facID = {0} ID = {1}".format(facID,ID)
+                #else:
+                #    self.facilitiesDict[facID].inventory.append(ID)
+        
         
         
 #         ### Now Coldboxes
@@ -293,9 +309,9 @@ class SupplyChain:
 #             
 #             devList[]
             
-        return coldDevInv,ignoredDevs    
+        return coldDevInv, ignoredDevs    
     
-    def _populateTransportDevInventoryAndAssignToFacilities(self,_includeNonWorking = True):
+    def _populateTransportDevInventoryAndAssignToFacilities(self, _includeNonWorking=True):
         
         if len(self.facilitiesDict) == 0:
             raise RuntimeError("calling _populateTransportDevInventoryAndAssignToFacilities before facilites have been assigned")
@@ -313,14 +329,14 @@ class SupplyChain:
         for dev in rawData:
             
             devList = list(dev)
-            #if devList[0] is None:
+            # if devList[0] is None:
             #    print "before {0}".format(devList)
             if dev.ft_facility_code is None:
-                ignoredDevs.append((devList,"No facility"))
+                ignoredDevs.append((devList, "No facility"))
                 continue
             
             if dev.ft_number is None:
-                ignoredDevs.append((devList,"Number of Devices missing"))
+                ignoredDevs.append((devList, "Number of Devices missing"))
                 continue 
             
             numberOfDevs = intOrZero(dev.ft_number)
@@ -330,93 +346,117 @@ class SupplyChain:
                 
                 numberOfWDevs = numberOfDevs - numberOfNWDevs
                 if numberOfWDevs <= 0:
-                    ignoredDevs.append((devList,"Non Working Devices more than working."))
+                    ignoredDevs.append((devList, "Non Working Devices more than working."))
                     continue
                     
-            ### going to assume that vehicles are all working for this purpose at the moment
+            # ## going to assume that vehicles are all working for this purpose at the moment
             
             del devList[6:9]
             del devList[0:2]
-            #print "after {0}".format(devList)
+            # print "after {0}".format(devList)
             if devList[0] is None:
-                ignoredDevs.append((devList,"no data on transport device"))
+                ignoredDevs.append((devList, "no data on transport device"))
                 continue
             
             if devList not in transRInv:
                 transRInv.append(devList)
-                assignmentsHere.append([(dev.ft_facility_code,numberOfWDevs)])
+                assignmentsHere.append([(dev.ft_facility_code, numberOfWDevs)])
             else:
-                assignmentsHere[transRInv.index(devList)].append((dev.ft_facility_code,numberOfWDevs))
+                assignmentsHere[transRInv.index(devList)].append((dev.ft_facility_code, numberOfWDevs))
                
         for dev in transRInv:
-            ID = "{0}_{1}".format(dev[2],dev[1])
+            ID = "{0}_{1}".format(dev[2], dev[1])
             facilities = assignmentsHere[transRInv.index(dev)]
             count = 1
             while ID in transDevInv.keys():
-                ID = "{0}_{1}_{2}".format(dev[2],dev[1],count)
+                ID = "{0}_{1}_{2}".format(dev[2], dev[1], count)
                 count += 1
-            transDevInv[ID] = TransportDev(ID,dev)
+            transDevInv[ID] = TransportDev(ID, dev)
             
-            for facID,count in facilities:
-                self.facilitiesDict[facID].transportInv.append((ID,count))
+            for facID, count in facilities:
+                self.facilitiesDict[facID].transportInv.append((ID, count))
                 
             
-        return transDevInv,ignoredDevs
+        return transDevInv, ignoredDevs
                 
     def PakistanSpecificDetermineFacilitySimpleHeirarchicalHeirarchical(self):
-        ## lets get the table of administrative levels
-        ### find the National Stores
-        ### We have to make some assumptions... not sure how to resolve them yet, but we will see
+        # # lets get the table of administrative levels
+        # ## find the National Stores
+        # ## We have to make some assumptions... not sure how to resolve them yet, but we will see
         
-        
+        storeCount = 0
         self.facilitiesStructure = {}
+        routes = []
         nationalFacId = None
-        ### first add the National Store
-        for fac,facData in self.facilitiesDict.items():
+        # ## first add the National Store
+        for fac, facData in self.facilitiesDict.items():
             if facData.facility_type == 1:
+                storeCount += 1
                 self.facilitiesStructure[fac] = {}
                 nationalFacId = fac
          
-        ### now find the 2nd level
-        for fac,facData in self.facilitiesDict.items():
+        # ## now find the 2nd level
+        for fac, facData in self.facilitiesDict.items():
             if facData.facility_type == 2:
+                storeCount += 1
                 self.facilitiesStructure[nationalFacId][fac] = {}
-         
-        ### now the third level
-        for fac,facData in self.facilitiesDict.items():
+                routes.append((nationalFacId,fac))
+
+        
+#         for route in routes:
+#             print "{0} to {1}".format(self.facilitiesDict[route[0]].name,self.facilitiesDict[route[1]].name)
+#         sys.exit()
+        # ## now the third level
+        
+        for fac, facData in self.facilitiesDict.items():
             if facData.facility_type == 3:
-                if facData.admin_structure[0] == "ISLAMABAD":
+                storeCount += 1
+                if facData.admin_structure[0] in ["ISLAMABAD","AJK"]:
                     self.facilitiesStructure[nationalFacId][fac] = []
+                    routes.append((nationalFacId, fac))
+                    
                 else:
                     for prov in self.facilitiesStructure[nationalFacId].keys():
                         provEntry = self.facilitiesDict[prov] 
                         if facData.admin_structure[0] == provEntry.admin_structure[0]:
                             self.facilitiesStructure[nationalFacId][prov][fac] = []
-                  
-          
+                            routes.append((prov, fac))
+                            break
         # Now we must fill the remaining levels with a recursive approach based on 
-        # The number of levels 
-        for fac,facData in self.facilitiesDict.items():
+        # The number of levels
+        for fac, facData in self.facilitiesDict.items():
             if facData.facility_type > 3:
-                if facData.admin_structure[0] == "ISLAMABAD":
+                storeCount += 1
+                if facData.admin_structure[0] in ["ISLAMABAD","AJK"]:
                     for dist in self.facilitiesStructure[nationalFacId].keys():
                         distEntry = self.facilitiesDict[dist]
                         if distEntry.admin_structure[1] == facData.admin_structure[1]:
                             self.facilitiesStructure[nationalFacId][dist].append(fac)
+                            routes.append((dist, fac))
+                            break
                 else:
-                    for prov,provData in self.facilitiesStructure[nationalFacId].items():
-                        if self.facilitiesDict[prov].admin_structure[0] == "ISLAMABAD":
+                    for prov, provData in self.facilitiesStructure[nationalFacId].items():
+                        if self.facilitiesDict[prov].admin_structure[0] in ["ISLAMABAD","AJK"]:
                             continue
                         for dist in provData.keys():
+                            provFlag = False
                             distEntry = self.facilitiesDict[dist]
-                            if distEntry.admin_structure[0]==facData.admin_structure[0] \
-                                and distEntry.admin_structure[1] == facData.admin_structure[1]:
-                                self.facilitiesStructure[nationalFacId][prov][dist].append(fac)
-         
-        return self.facilitiesStructure
+                            if distEntry.admin_structure[0] == facData.admin_structure[0]:
+                                if distEntry.admin_structure[1] == facData.admin_structure[1]:
+                                    self.facilitiesStructure[nationalFacId][prov][dist].append(fac)
+                                    routes.append((dist, fac))
+                                    provFlag = True
+                                    break
+                                    #self.facilitiesStructure[nationalFacId][prov].
+                        if not provFlag:
+                            if distEntry.admin_structure[0] == facData.admin_structure[0]:
+                                routes.append((prov,fac))
+                                break
+        #print storeCount
+        return self.facilitiesStructure, routes
                                
 class ColdDev:
-    def __init__(self,_ccEntry,_eTypes,_pTypes,_coldRoomEntry=False):
+    def __init__(self, _ccEntry, _eTypes, _pTypes, _coldRoomEntry=False):
         if _coldRoomEntry:
             self.ID = _ccEntry[0]
             self.name = _ccEntry[2]
@@ -445,11 +485,13 @@ class ColdDev:
             
             self.gross_C_volume_L = floatOrZero(_ccEntry[10])
             self.net_C_volume_L = floatOrZero(_ccEntry[11])
+            if self.net_C_volume_L == 0.0:
+                self.net_C_volume_L = 0.0001
             self.gross_F_volume_L = floatOrZero(_ccEntry[15])
             self.net_F_volume_L = floatOrZero(_ccEntry[16])
             
             self.year_purchased = strOrUnknown(_ccEntry[17])
-            #self.working_status = intOrZero(_ccEntry[21])
+            # self.working_status = intOrZero(_ccEntry[21])
             self.capitalPrice_USD = 0.0
             
 #             self.ID = _ccEntry.ft_library_id
@@ -492,7 +534,7 @@ transportDevTypes = ["motorbike",
                      "truck",
                      "other"]
 class TransportDev:
-    def __init__(self,_ID,_tEntry):
+    def __init__(self, _ID, _tEntry):
         self.ID = _ID
         self.make = strOrUnknown(_tEntry[2])
         self.model = strOrUnknown(_tEntry[1])
@@ -502,14 +544,14 @@ class TransportDev:
     
     
     def getType(self):
-        if self.type > len(transportDevTypes)-1:
+        if self.type > len(transportDevTypes) - 1:
             return "Other"
         else:
-            return transportDevTypes[self.type-1]
+            return transportDevTypes[self.type - 1]
         
     def toHERMESRec(self):
         return {'Name':self.ID,
-                'DisplayName':"{0} {1} {2}".format(self.make,self.model,self.getType()),
+                'DisplayName':"{0} {1} {2}".format(self.make, self.model, self.getType()),
                 'FuelRate':'',
                 'CoolVolumeCC':0.0,
                 'Storage':'',
@@ -520,14 +562,15 @@ class TransportDev:
                 'Fuel':'',
                 'Notes':'From CCEM'
                 }    
-        
+       
 class Facility:
-    def __init__(self,_fEntry,_SC):
+    def __init__(self, _fEntry, _SC,_globalCount):
         self._supplyChain = _SC
-        self.ID = _fEntry.fi_admin_code
+        self.ID = _globalCount
+        _globalCount += 1 #int(_fEntry.ft_facility_code.strip('-').strip('.'))
         self.ccemID = _fEntry.ft_facility_code
         self.name = u'{0}'.format(_fEntry.ft_facility_name)
-        self.admin_structure = (_fEntry.ft_level2,_fEntry.ft_level3,_fEntry.ft_level4,_fEntry.ft_level5)
+        self.admin_structure = (_fEntry.ft_level2, _fEntry.ft_level3, _fEntry.ft_level4, _fEntry.ft_level5)
         self.facility_type = _fEntry.ft_facility_type
         self.population = {'newborns':floatOrZero(_fEntry.fi_target_births),
                            'pregnantWomen':floatOrZero(_fEntry.fi_target_pw),
@@ -538,43 +581,53 @@ class Facility:
         self.resupply_interval = intOrZero(_fEntry.fi_resupp_interval)
         self.reserve_stock = intOrZero(_fEntry.fi_reserve_stock)
         self.isVaccinating = False
-        if _fEntry.fi_cc_delivery == -1 or _fEntry.fi_cc_outreach == -1:
+        if _fEntry.fi_cc_delivery == -1:  # or _fEntry.fi_cc_outreach == -1:
             self.isVaccinating = True
-            
+        self.isOutreach = False
+        if _fEntry.fi_cc_outreach == -1:
+            self.isOutreach = True 
         self.inventory = []
         self.transportInv = []
         
         self.level = None
-        if self.facility_type < 3:
-            self.level = _SC.levels[self.facility_type]
+        if self.facility_type < 4:
+            self.level = _SC.levels[self.facility_type - 1]
         else:
             self.level = u"Facility"
-    def inventoryToHERMESString(self):
+    def inventoryToHERMESString(self, proxyName):
         inventoryString = u""
-        for inv in self.inventory:
-            inventoryString += u'{0}+'.format(self._supplyChain.coldDevInv[inv].ID)
-        for trans,count in self.transportInv:
-            inventoryString += u'{0}*{1}+'.format(count,self._supplyChain.transDevInv[trans].ID)
+        if len(self.inventory) == 0:
+            inventoryString += u"{0},".format(proxyName)
+        else:
+            for inv in self.inventory:
+                inventoryString += u'{0}+'.format(self._supplyChain.coldDevInv[inv].ID)
+        for trans, count in self.transportInv:
+            inventoryString += u'{0}*{1}+'.format(count, self._supplyChain.transDevInv[trans].ID)
         
         return inventoryString[:-1]
             
-    def toHERMESRec(self):
+    def toHERMESRec(self, _proxyName):
         functionString = "Distribution"
         if self.isVaccinating:
             functionString = "Administration"
             
         return {'NAME':self.name,
                 'CATEGORY':self.level,
-                'FUNCTION':functionString,
+                'FUNCTION':'Administration' if self.level == 'Facility' or self.name == 'KHANEWAL' else 'Distribution',
+                #(self.isVaccinating or self.isOutreach or self.level == 'Facility') else 'Distribution',
                 'idcode':self.ID,
-                'Inventory':self.inventoryToHERMESString(),
+                'Inventory':self.inventoryToHERMESString(_proxyName),
                 'Device Utilization Rate':1.0,
                 'UseVialsInterval':1,
                 'UseVialsLatency':1,
-                'Newborn':self.population['newborns'] if self.isVaccinating else '',
-                'PW':self.population['pregnantWomen'] if self.isVaccinating else '',
-                'CBA': self.population['cba'] if self.isVaccinating else '',
-                '0-1Years':self.population['newborns'] if self.isVaccinating else '',
+                'Newborn':self.population['newborns'] if self.level == 'Facility' or self.name == 'KHANEWAL' else '',
+                'PW':self.population['pregnantWomen'] if self.level == 'Facility' or self.name == 'KHANEWAL' else '',
+                'CBA': self.population['cba'] if self.level == 'Facility' or self.name == 'KHANEWAL' else '',
+                '0-1Years':self.population['newborns'] if self.level == 'Facility' or self.name == 'KHANEWAL' else '',
+                #'Newborn':self.population['newborns'] if (self.isVaccinating or self.isOutreach or self.level == 'Facility') and (self.level == 'Facility') else '',
+                #'PW':self.population['pregnantWomen'] if (self.isVaccinating or self.isOutreach or self.level == 'Facility') else '',
+                #'CBA': self.population['cba'] if (self.isVaccinating or self.isOutreach or self.level == 'Facility') else '',
+                #'0-1Years':self.population['newborns'] if (self.isVaccinating or self.isOutreach or self.level == 'Facility') else '',
                 'Latitude':'',
                 'Longitude':'',
                 }
@@ -582,7 +635,7 @@ class Facility:
 #             self.level = self._supplyChain.levels[0]
 #         elif self.facility_type == 2:
 #             print self.find_level()
-        #if self.level == u'Union Council':
+        # if self.level == u'Union Council':
         #    print self.level
         
     

@@ -167,11 +167,11 @@ def convertToSurrogate(shdNtwk,storeId,connectToStore=None):
     ### NOw make the store a surrogate
     thisStore.clearInventory()
     supplyRoute = thisStore.supplierRoute()
-    thisStore.Latitude = 0.0
-    thisStore.Longitude = 0.0
+    thisStore.Latitude = -1.0
+    thisStore.Longitude = -1.0
     thisStore.FUNCTION = "Surrogate"
     if supplyRoute.Type in ['pull','demandfetch']:
-        thisStore.useVialsIntervalDays = supplyRoute.stops[0].PullOrderAmountDays
+        thisStore.UseVialsInterval = supplyRoute.stops[0].PullOrderAmountDays
     elif supplyRoute.Type in ['attached']:
         pass
     else:
