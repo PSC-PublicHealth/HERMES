@@ -108,6 +108,70 @@ class HermesOutput():
         self._sumVaxFields()
 #        self.notes.writeNotesAsCSV("NewNotes.csv")
 
+        ### Lets calculate Inventory Turns and add it here to the stores note
+        for storeId,store in self.stores.items():
+            if store['note'] is not None:
+                ### get the number of Vials Outshipped and at this location
+                outShipped = {}
+                vaxNames = [vax['Name'] for vax in self.vaxSummaryRecs]
+                for v in vaxNames:
+                    if store['note'].has_key('{0}_outshipped'.format(v)):
+                        outShipped[v] = store['note']['{0}_outshipped'.format(v)]
+                    else:
+                        outShipped[v] = 0.0
+                
+                ### Now get Vials used
+                ### this is a little trickier as we need to screen attached clinics as they 
+                ### should contribute to the inventory turns of the parent
+                
+                vialsUsed = {}
+                isAttached = False
+                storeWH = sim.storeDict[storeId]
+                print storeWH.function
+                if storeWH.function == "Surrogate":
+                    continue
+                #print self.routes.keys()
+                if len(storeWH.getSuppliers()) > 0:
+                    for supplier in storeWH.getSuppliers():
+                        if supplier[1] is not None:
+                            #print supplier[1]['Type']
+                            if supplier[1]['Type'] == "attached_clinic":
+                                isAttached = True
+                        #if store['note']['name'] == "Cabo Delgado":
+                        #    print [x['name'] for x in supplier['clientRoutes']]
+                        #    print "Attached_{0}".format(store['note']['name'])
+                        #if "Attached_{0}".format(store['note']['name']) in [x['name'] for x in supplier['clientRoutes']]:
+                        #    isAttached = True
+                print "Store: {0} isAttached: {1}".format(storeId,isAttached)
+#                 if not isAttached:
+#                     idsToInclude = [storeId]
+#                     storeWH = sim.storeDict[storeId]
+#                     print storeWH.getClients()
+#                     #    print clientR['clients']
+                    #    if clientR['name'][:9] == "Attached_":
+                    #        print store['clients'][store['clientRoutes'].index(clientR)]['notes']['idcode']
+                            #idsToInclude.append()
+                
+        sys.exit()
+#                 if not isAttached:
+#                     idsToInclude = [store.idcode]
+#                     for clientStore,clientRoute in store['clients']:
+#                         if clientRoute.Type == "attached" and clientStore['FUNCTION'] != 'Surrogate':
+#                             idsToInclude.append(clientStore['idcode'])
+#                     
+#                     for v in vaxNames:
+#                         vialsUsed[v] = 0.0
+#                     for storeId in idsToInclude:
+#                         storeHere = self.stores[storeId]
+#                         for v in vaxNames:
+#                             if storeHere['note'].has_key('{0}_vials_used'.format(v)):
+#                                 vialsUsed[v] += storeHere['note']['{0}_vials_used'.format(v)]
+#                             else:
+#                                 pass
+#                     
+            
+            #print "Store: {0} Outshipped {1}".format(storeId,outShipped)
+            #print "Store: {0} Vials_Used {1}".format(storeId,vialsUsed)
         # create a structure that can be better used for making custom output files
         self.recs = {'vax': self.vaxSummaryRecs,
                      'people': self.peopleSummaryRecs,
@@ -126,7 +190,7 @@ class HermesOutput():
 
 
         
-
+        
     def _addLevels(self, store = None, level = 0, memo = None):
         if store is None:
             for st in self.rootStores:
