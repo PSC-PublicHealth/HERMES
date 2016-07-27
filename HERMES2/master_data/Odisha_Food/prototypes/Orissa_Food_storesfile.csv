@@ -1,0 +1,6 @@
+"CATEGORY","FUNCTION","NAME","idcode","Device Utilization Rate","UseVialsLatency","UseVialsInterval","Latitude","Longitude","PowerOutageFrequencyPerYear","PowerOutageDurationSigma","SiteCostCur","PowerOutageDurationDays","SiteCostPerYear","SiteCostBaseYear","Inventory","Notes"
+"Farm","Distribution","Farm_1",1,1.0,0.0,1.0,"","","","","","","","","",""
+"Trader","Distribution","Trader_1",2,1.0,0.0,1.0,"","","","","","","","","",""
+"Storage","Distribution","Storage_1",3,1.0,0.0,1.0,"","","","","","","","","",""
+"Mandi","Distribution","Mandi_1",4,1.0,0.0,1.0,"","","","","","","","","",""
+"Retailer","Administration","Retailer_1",5,1.0,8.1,1.0,"","","","","","","","","",""

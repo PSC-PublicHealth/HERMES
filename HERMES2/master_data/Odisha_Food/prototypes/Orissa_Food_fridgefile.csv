@@ -1,0 +1,2 @@
+"Category","DisplayName","BaseCostCur","chain","Make","ColdLifetime","ClassName","BaseCostYear","AlarmDays","AmortYears","freezer","SnoozeDays","Name","Notes","PowerRateUnits","BaseCost","NoPowerHoldoverDays","Model","Requires","PowerRate","cooler","roomtemperature","Year","Technology","Energy"
+"outdoors","outdoors","EUR","","mothernature","","Fridge",2012,"",1.0,0.0,"","OUTDOORS","","kW",0.0,0.0,"outdoors","",0.0,0.0,1000000000.0,"YearUnk","none","S"

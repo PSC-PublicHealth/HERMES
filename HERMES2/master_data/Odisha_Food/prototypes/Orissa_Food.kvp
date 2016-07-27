@@ -1,0 +1,11 @@
+model = "model_generic"
+centrallevellist = "'Farm'"
+cliniclevellist = "'Retailer'"
+demandfile = "demand_from_db"
+levellist = "'Farm','Trader','Storage','Mandi','Retailer'"
+currencyconversionfile = 'Orissa_Food_currencyconversionfile.csv'
+fridgefile = 'Orissa_Food_fridgefile.csv'
+storesfile = 'Orissa_Food_storesfile.csv'
+perdiemfile = 'Orissa_Food_perdiemfile.csv'
+stafffile = 'Orissa_Food_stafffile.csv'
+routesfile = 'Orissa_Food_routesfile.csv'
