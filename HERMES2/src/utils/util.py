@@ -521,8 +521,16 @@ class TimeStampAccumVal:
     def minT(self):
         return min(self.t)
     def mean(self):
-        return sum(self.v)/len(self.v)
+        sum = 0.0
+        startTime = 0.0
+        for i in range(0,len(self.v)):
+            timeDiff = self.t[i]-startTime
+            sum += self.v[i]*timeDiff
+            startTime = self.t[i]
+        return sum/self.maxT
+    
     def stdv(self):
+        ### this is not right
         m = sum(self.v)/len(self.v)
         if len(self.v)>1:
             return math.sqrt(sum([(c-self.mean())*(c-self.mean()) for c in self.v])/(len(self.v)-1))

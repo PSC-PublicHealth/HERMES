@@ -107,9 +107,18 @@ class HermesOutput():
         self._addLevels()
         self._sumVaxFields()
 #        self.notes.writeNotesAsCSV("NewNotes.csv")
-
+        for storeId,store in self.stores.items():
+            storeWH = sim.storeDict[storeId]
+           # print storeWH.idcode
+            #print storeId
+            #print storeWH.name
+            #print "-------------------"
         ### Lets calculate Inventory Turns and add it here to the stores note
         for storeId,store in self.stores.items():
+            storeWH = sim.storeDict[storeId]
+            if str(type(storeWH)).find('Surrogate') > -1: 
+                    continue
+            #print storeWH.idcode
             if store['note'] is not None:
                 ### get the number of Vials Outshipped and at this location
                 outShipped = {}
@@ -127,9 +136,6 @@ class HermesOutput():
                 vialsUsed = {}
                 isAttached = False
                 storeWH = sim.storeDict[storeId]
-                print storeWH.function
-                if storeWH.function == "Surrogate":
-                    continue
                 #print self.routes.keys()
                 if len(storeWH.getSuppliers()) > 0:
                     for supplier in storeWH.getSuppliers():
@@ -142,36 +148,31 @@ class HermesOutput():
                         #    print "Attached_{0}".format(store['note']['name'])
                         #if "Attached_{0}".format(store['note']['name']) in [x['name'] for x in supplier['clientRoutes']]:
                         #    isAttached = True
-                print "Store: {0} isAttached: {1}".format(storeId,isAttached)
-#                 if not isAttached:
-#                     idsToInclude = [storeId]
-#                     storeWH = sim.storeDict[storeId]
-#                     print storeWH.getClients()
-#                     #    print clientR['clients']
-                    #    if clientR['name'][:9] == "Attached_":
-                    #        print store['clients'][store['clientRoutes'].index(clientR)]['notes']['idcode']
-                            #idsToInclude.append()
-                
-        sys.exit()
-#                 if not isAttached:
-#                     idsToInclude = [store.idcode]
-#                     for clientStore,clientRoute in store['clients']:
-#                         if clientRoute.Type == "attached" and clientStore['FUNCTION'] != 'Surrogate':
-#                             idsToInclude.append(clientStore['idcode'])
-#                     
-#                     for v in vaxNames:
-#                         vialsUsed[v] = 0.0
-#                     for storeId in idsToInclude:
-#                         storeHere = self.stores[storeId]
-#                         for v in vaxNames:
-#                             if storeHere['note'].has_key('{0}_vials_used'.format(v)):
-#                                 vialsUsed[v] += storeHere['note']['{0}_vials_used'.format(v)]
-#                             else:
-#                                 pass
-#                     
-            
-            #print "Store: {0} Outshipped {1}".format(storeId,outShipped)
-            #print "Store: {0} Vials_Used {1}".format(storeId,vialsUsed)
+                #print "Store: {0} isAttached: {1}".format(storeId,isAttached)
+                if not isAttached:
+                    idsToInclude = [storeId]
+                    storeWH = sim.storeDict[storeId]
+                    for client in storeWH.getClients():
+                        if str(type(client)).find("Attached") > -1:
+                            idsToInclude.append(client.idcode)
+                    
+                    for v in vaxNames:
+                            vialsUsed[v] = 0.0
+                    print idsToInclude
+                    for id in idsToInclude:
+                        storeHere = self.stores[id]
+                        #print 'Notes = {0}'.format(storeHere['note'])
+                        if storeHere['note'] is not None:
+                            for v in vaxNames:
+                                if storeHere['note'].has_key('{0}_vials'.format(v)) :
+                                    vialsUsed[v] += storeHere['note']['{0}_vials'.format(v)]
+                                else:
+                                    pass
+                    
+                    
+                    
+                        
+
         # create a structure that can be better used for making custom output files
         self.recs = {'vax': self.vaxSummaryRecs,
                      'people': self.peopleSummaryRecs,
