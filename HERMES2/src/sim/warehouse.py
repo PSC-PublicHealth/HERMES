@@ -40,7 +40,7 @@ import vaccinetypes
 import fridgetypes
 import packagingmodel
 import storagemodel
-from util import StatVal, AccumVal, TimeStampAccumVal, PushbackIterWrapper, AccumMultiVal, HistoVal
+from util import StatVal, AccumVal, ContinuousTimeStampAccumVal,SpanTimeStampAccumVal, PushbackIterWrapper, AccumMultiVal, HistoVal
 import trucktypes
 import constants as C
 import eventlog as evl
@@ -1727,7 +1727,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
             ## NOTE: This will not accurately record the storage ratio for mobile devices
             for st in storeRat.keys():
                 if 'vol_used' not in st:
-                    self.noteHolder.addNote({st+"_timestamp":TimeStampAccumVal(storeRat[st],self.sim.now())})             
+                    self.noteHolder.addNote({st+"_timestamp":ContinuousTimeStampAccumVal(storeRat[st],self.sim.now())})             
 
             if not hasattr(self, "storeRatioNotesKeys"):
                 nameList = copy.copy(storagetypes.storageTypeNames)
@@ -1779,7 +1779,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
             ## NOTE: This will not accurately record the storage ratio for mobile devices
             for st in storeRat.keys():
                 if 'vol_used' not in st:
-                    self.noteHolder.addNote({st+"_timestamp":TimeStampAccumVal(storeRat[st],self.sim.now())})                
+                    self.noteHolder.addNote({st+"_timestamp":ContinuousTimeStampAccumVal(storeRat[st],self.sim.now())})                
             if not hasattr(self, "storeRatioNotesKeys"):
                 nameList = copy.copy(storagetypes.storageTypeNames)
                 nameList.append('time')
@@ -3469,7 +3469,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                     if journalEntry[0] == "move":
                         #if journalEntry[6] > 1000.0:
                         #    print "Journ " + str(journalEntry[6])
-                        proc.noteHolder.addNote({"triptimes_timestamp":TimeStampAccumVal(journalEntry[6],(journalEntry[1],journalEntry[2]))})
+                        proc.noteHolder.addNote({"triptimes_timestamp":SpanTimeStampAccumVal(journalEntry[6],(journalEntry[1],journalEntry[2]))})
 
                         if not hasattr(proc, 'triptimeKeys'):
                             proc.triptimeKeys = ("volumeCarried", "startTime", "endTime")

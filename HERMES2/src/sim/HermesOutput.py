@@ -107,25 +107,23 @@ class HermesOutput():
         self._addLevels()
         self._sumVaxFields()
 #        self.notes.writeNotesAsCSV("NewNotes.csv")
-        for storeId,store in self.stores.items():
-            storeWH = sim.storeDict[storeId]
-           # print storeWH.idcode
-            #print storeId
-            #print storeWH.name
-            #print "-------------------"
+ 
         ### Lets calculate Inventory Turns and add it here to the stores note
         for storeId,store in self.stores.items():
+            
             storeWH = sim.storeDict[storeId]
             if str(type(storeWH)).find('Surrogate') > -1: 
                     continue
-            #print storeWH.idcode
+           
             if store['note'] is not None:
                 ### get the number of Vials Outshipped and at this location
-                outShipped = {}
+                outShipped = {'Total':0.0}
                 vaxNames = [vax['Name'] for vax in self.vaxSummaryRecs]
+                
                 for v in vaxNames:
                     if store['note'].has_key('{0}_outshipped'.format(v)):
                         outShipped[v] = store['note']['{0}_outshipped'.format(v)]
+                        outShipped['Total'] += outShipped[v]
                     else:
                         outShipped[v] = 0.0
                 
@@ -133,22 +131,18 @@ class HermesOutput():
                 ### this is a little trickier as we need to screen attached clinics as they 
                 ### should contribute to the inventory turns of the parent
                 
-                vialsUsed = {}
+                vialsUsed = {'Total':0.0}
+                vialsAverage = {'Total':0.0}
                 isAttached = False
                 storeWH = sim.storeDict[storeId]
-                #print self.routes.keys()
+               
                 if len(storeWH.getSuppliers()) > 0:
                     for supplier in storeWH.getSuppliers():
                         if supplier[1] is not None:
-                            #print supplier[1]['Type']
+                           
                             if supplier[1]['Type'] == "attached_clinic":
                                 isAttached = True
-                        #if store['note']['name'] == "Cabo Delgado":
-                        #    print [x['name'] for x in supplier['clientRoutes']]
-                        #    print "Attached_{0}".format(store['note']['name'])
-                        #if "Attached_{0}".format(store['note']['name']) in [x['name'] for x in supplier['clientRoutes']]:
-                        #    isAttached = True
-                #print "Store: {0} isAttached: {1}".format(storeId,isAttached)
+                
                 if not isAttached:
                     idsToInclude = [storeId]
                     storeWH = sim.storeDict[storeId]
@@ -157,11 +151,10 @@ class HermesOutput():
                             idsToInclude.append(client.idcode)
                     
                     for v in vaxNames:
-                            vialsUsed[v] = 0.0
+                        vialsUsed[v] = 0.0
                     print idsToInclude
                     for id in idsToInclude:
                         storeHere = self.stores[id]
-                        #print 'Notes = {0}'.format(storeHere['note'])
                         if storeHere['note'] is not None:
                             for v in vaxNames:
                                 if storeHere['note'].has_key('{0}_vials'.format(v)) :
@@ -169,10 +162,62 @@ class HermesOutput():
                                 else:
                                     pass
                     
+                    for v in vaxNames:
+                        vialsUsed['Total'] += vialsUsed[v]
                     
+                ## Now get the average storage levels         
+                if store['note'].has_key('storeVialCount_multival'):
+                    storeCount = store['note']['storeVialCount_multival']
+                    storeCountDict = storeCount.getDictFormat()
+                    times = storeCountDict['time']
+                    maxTime = sim.model.getTotalRunDays()
+                    divTime = sim.model.getRunDays()
+                    finalInc = maxTime - times[-1]
+                    total = 0.0
+                    for key in storeCountDict.keys():
+                        if key in vaxNames:
+                            #print key
+                            average = 0.0
+                            vaccineCounts = storeCountDict[key]
+                            for i in range(0,len(vaccineCounts)-1):
+                                contrib =  (times[i+1]-times[i])*vaccineCounts[i]
+                                average += contrib
+                                total += contrib
+                            average += finalInc*vaccineCounts[-1]
+                            total += finalInc*vaccineCounts[-1]
+                            
+                            if average > 0.0:
+                                average /= divTime
+                            
+                            vialsAverage[key] = average
+                    if total > 0.0:
+                        total /= divTime
+                    vialsAverage['Total'] = total
                     
-                        
-
+                    #print "{0}".format(vialsAverage)
+                
+                ### calculate the inventory turns and add notes for the results 
+                inventoryTurns = {'Total':0.0}
+                for v in vaxNames:
+                    outs = 0.0
+                    if outShipped.has_key(v):
+                        outs = outShipped[v]
+                    vUsed = 0.0
+                    if vialsUsed.has_key(v):
+                        vUsed = vialsUsed[v]
+                    vAve = 0.0
+                    if vialsAverage.has_key(v):
+                        vAve = vialsAverage[v]
+                    
+                    if vAve > 0.0:
+                        inventoryTurns[v] = (vUsed + outs)/vAve
+                    else:
+                        inventoryTurns[v] = 0.0
+                
+                if vialsAverage['Total'] > 0.0:
+                    inventoryTurns['Total'] = (vialsUsed['Total'] + outShipped['Total'])/vialsAverage['Total']
+                
+                print inventoryTurns
         # create a structure that can be better used for making custom output files
         self.recs = {'vax': self.vaxSummaryRecs,
                      'people': self.peopleSummaryRecs,
@@ -384,11 +429,11 @@ class HermesOutput():
 
         with openOutputFile(outputName) as f:
             for row in scp.rows:
-                fmtd = ""
+                fmtd = u""
                 for i,val in enumerate(row):
-                    if i > 0: fmtd += ','
-                    fmtd += str(val)
-                fmtd += '\n'
+                    if i > 0: fmtd += u','
+                    fmtd += u'{0}'.format(val)
+                fmtd += u'\n'
                 f.write(fmtd)
 
 

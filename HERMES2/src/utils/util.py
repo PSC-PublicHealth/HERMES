@@ -482,28 +482,103 @@ nested_pickle(HistoVal)
 def maxTimeStampAccumVal(av):
     return max(av.v)
 def textStrTimeStampAccumVal(av):
-    return "%r,%r: %r-%r"%(av.minT(),av.maxT(),av.mean(),av.stdv())
+    return "%r,%r: %r"%(av.minT(),av.maxT(),av.mean())
 
-class TimeStampAccumVal:
+class ContinuousTimeStampAccumVal:
+    ### This is similar to TimeStampAccumVal, except that it implies that the values are noted when it changes    
+    def __init__(self,v,t,defaultFn=maxTimeStampAccumVal,defaultStr=textStrTimeStampAccumVal):
+        self.v = [float(v)]
+        self.t = [float(t)]
+        
+        self.defaultFn = defaultFn
+        self.defaultStr = defaultStr
+        
+    def __iadd__(self,other):
+        if isinstance(other,ContinuousTimeStampAccumVal):
+            lastTime = self.t[-1]
+            if other.t < lastTime:
+                raise RuntimeError("ContinuousTimeStampAccumVal: trying to add a time that overlaps with previous times")
+            self.v += other.v
+            self.t += other.t
+        elif len(other) == 2:
+            if type(other[0]) in [types.IntType,types.FloatType,types.LongType]:
+                if type(other[1]) in [types.IntType,types.FloatType,types.LongType]:
+                    lastTime = self.t[-1]
+                    if other[1] < lastTime:
+                        raise RuntimeError("ContinuousTimeStampAccumVal: trying to add a time that overlaps with previous times")
+                    self.v.append(other[0])
+                    self.t.append(other[1])
+                else:
+                    raise RuntimeError("Tried to add %s to a TimeStampAccumVal"%repr(other))
+            else:
+                raise RuntimeError("Tried to add %s to a TimeStampAccumVal"%repr(other))
+        else:
+            raise RuntimeError("Tried to add %s to a TimeStampAccumVal"%repr(other))
+    
+        return self
+    
     def max(self):
         return max(self.v)
     def maxT(self):
         return max(self.t)
+    def min(self):
+        return min(self.v)
+    def minT(self):
+        return min(self.t)
+    
     def textStr(self):
-        return "%r,%r: %r-%r"%(self.minT(),self.maxT(),self.mean(),self.stdv())
-    def __init__(self,v,t,defaultFn=maxTimeStampAccumVal,defaultStr=textStrTimeStampAccumVal):
-        self.v = [float(v)]
-        if isinstance(t,tuple):
-            self.t = [(float(t[0]),(float(t[1])))]
+        return "{0},{1}: {2}".format(self.minT(),self.maxT(),self.mean())
+    
+    def mean(self):
+        sum = 0.0
+        startTime = 0.0
+        for i in range(0,len(self.v)-1):
+            timeDiff = self.t[i+1]-self.t[i]
+            sum += self.v[i]*timeDiff
+        
+        return sum/self.maxT()
+    
+    def count(self):
+        return len(self.v)
+    def __float__(self):
+        return float(0.0)
+    
+    def __str__(self):
+        if isiterable(self.defaultStr):
+            ret = self.defaultStr[0](self)
         else:
-            self.t = [float(t)]
+            ret = self.defaultStr(self)
+        return str(ret)
+    
+    def __repr__(self):
+        return "ContinuousTimeStampAccumVal(v:{0},t:{1})".format(self.v,self.t)
+    
+class SpanTimeStampAccumVal:
+    ### Note TimeStampAccumVal measures a single process, and so it must be checked:
+    ### it needs to meet two criteria
+    ###    1. The time array must be sequential forward in time
+    ###    2. Time periods cannot overlap
+    
+    def __init__(self,v,t,defaultFn=maxTimeStampAccumVal,defaultStr=textStrTimeStampAccumVal):
+        
+        if not isinstance(t,tuple) or len(t) != 2:
+            raise RuntimeError("SapnTimeStampAccumeVal: time argument must be a tuple of length 2")
+        
+        if float(t[0]) >= float(t[1]):
+            raise RuntimeError("SpanTimeStampAccumVal: time argument is a tuple with the second time less than the first")
+        
+        self.v = [float(v)]
+        self.t = [(float(t[0]),(float(t[1])))]
+       
         self.defaultFn = defaultFn
         self.defaultStr = defaultStr
+        
     def __iadd__(self,other):
-        if isinstance(other,TimeStampAccumVal):
+        if isinstance(other,SpanTimeStampAccumVal):
             self.v += other.v
             self.t += other.t
-        elif len(other)==2:
+            
+        elif isinstance(other,tuple) and len(other)==2:
             if type(other[0]) in [types.IntType,types.FloatType,types.LongType]:
                 if type(other[1]) in [types.IntType,types.FloatType,types.LongType]:
                     self.v.append(float(other[0]))
@@ -516,31 +591,29 @@ class TimeStampAccumVal:
             raise RuntimeError("Tried to add %s to a TimeStampAccumVal"%repr(other))
 
         return self
+    
+    def max(self):
+        return max(self.v)
+    def maxT(self):
+        return max([x[1] for x in self.t])
+    def textStr(self):
+        return "%r,%r"%(self.minT(),self.maxT())
+    
     def min(self):
         return min(self.v)
     def minT(self):
         return min(self.t)
     def mean(self):
-        sum = 0.0
-        startTime = 0.0
-        for i in range(0,len(self.v)):
-            timeDiff = self.t[i]-startTime
-            sum += self.v[i]*timeDiff
-            startTime = self.t[i]
-        return sum/self.maxT
+        raise RuntimeError("mean is not meaningful for a SpanTimeStampAccumVal")
     
     def stdv(self):
-        ### this is not right
-        m = sum(self.v)/len(self.v)
-        if len(self.v)>1:
-            return math.sqrt(sum([(c-self.mean())*(c-self.mean()) for c in self.v])/(len(self.v)-1))
-        else:
-            return 0.0
+        raise RuntimeError("stdv is not meaningful for a SpanTimeStampAccumVal")
+
     def count(self):
         return len(self.v)
     def __float__(self):
         return float(0.0)
-        #if isiterable(self.defaultFn):
+    
     def __str__(self):
         if isiterable(self.defaultStr):
             ret = self.defaultStr[0](self)
@@ -548,9 +621,9 @@ class TimeStampAccumVal:
             ret = self.defaultStr(self)
         return str(ret)
     def __repr__(self):
-        return "TimeStampAccumVal(v:%s,t:%s)"%(self.v,self.t)
+        return "SpanTimeStampAccumVal(v:{0},t:{1})".format(self.v,self.t)
 
-nested_pickle(TimeStampAccumVal)
+nested_pickle(SpanTimeStampAccumVal)
 
 class AccumMultiVal:
     def __init__(self, names, *args, **kwargs):
@@ -1617,23 +1690,45 @@ def main(myargv=None):
             print "Wrong number of arguments!"
             describeSelf()
 
-    elif myargv[1]=='testtimestampaccum':
+    elif myargv[1]=='testcontinuoustimestampaccum':
         if len(myargv)==2:
             _testrandreset()
-            s = TimeStampAccumVal(0.0,(1.0,4.0))
-            print s.t
+            
+            s = ContinuousTimeStampAccumVal(0.0,0.0)
             print repr(s)
-            for i in range(1,5):
-                s2 = TimeStampAccumVal(_testrand(),(i,i+1))
-                s += s2
+            s2 = ContinuousTimeStampAccumVal(4.0,3.0)
+#             for i in range(4,9):
+#                 s2 = TimeStampAccumVal(_testrand(),(i,i+1))
+#                 s += s2
+            print repr(s2)
+            
+            s += ContinuousTimeStampAccumVal(1.2,4.5)
+            s += ContinuousTimeStampAccumVal(2.5,3.8)
+            s += ContinuousTimeStampAccumVal(4.5,10.0)
+            s += (7.0,14.2)
             print repr(s)
-            for i in range(5,10):
-                s += (_testrand(),i)
-            print repr(s)
+            print s.mean()
+            print s.min()
+            print s.max()
+            print s.minT()
+            print s.maxT()
+#             for i in range(9,15):
+#                 s += (_testrand(),i)
+#             print repr(s)
+#             print s.mean()
         else:
             print "Wrong number of arguments!"
             describeSelf()
 
+    elif myargv[1]=='testspantimestampaccum':
+        if len(myargv)==2:
+            _testrandreset()
+            
+            s = SpanTimeStampAccumVal(1.2,(0.0,4.5))
+            s += SpanTimeStampAccumVal(3.4,(5.7,9.8))
+            
+            print repr(s)
+            
     elif myargv[1]=='testhisto':
         if len(myargv)==2:
             randState = random.getstate()
@@ -1998,16 +2093,16 @@ median: 0.505264
         for a,b in zip(readBack.readlines(), correctRecs.readlines()):
             self.assertTrue(a.strip() == b.strip())
 
-    def test_timestampaccum(self):
-        correctStr = """[(1.0, 4.0)]
-TimeStampAccumVal(v:[0.0],t:[(1.0, 4.0)])
-TimeStampAccumVal(v:[0.0, 0.57417, 0.33765, 0.58059, 0.67528],t:[(1.0, 4.0), (1.0, 2.0), (2.0, 3.0), (3.0, 4.0), (4.0, 5.0)])
-TimeStampAccumVal(v:[0.0, 0.57417, 0.33765, 0.58059, 0.67528, 0.61572, 0.74997, 0.83605, 0.70498, 0.2629],t:[(1.0, 4.0), (1.0, 2.0), (2.0, 3.0), (3.0, 4.0), (4.0, 5.0), 5.0, 6.0, 7.0, 8.0, 9.0])
-        """
-        readBack= self.getReadBackBuf(['dummy','testtimestampaccum'])
-        correctRecs = cStringIO.StringIO(correctStr)
-        for a,b in zip(readBack.readlines(), correctRecs.readlines()):
-            self.assertTrue(a.strip() == b.strip())
+#     def test_timestampaccum(self):
+#         correctStr = """[(1.0, 4.0)]
+# TimeStampAccumVal(v:[0.0],t:[(1.0, 4.0)])
+# TimeStampAccumVal(v:[0.0, 0.57417, 0.33765, 0.58059, 0.67528],t:[(1.0, 4.0), (1.0, 2.0), (2.0, 3.0), (3.0, 4.0), (4.0, 5.0)])
+# TimeStampAccumVal(v:[0.0, 0.57417, 0.33765, 0.58059, 0.67528, 0.61572, 0.74997, 0.83605, 0.70498, 0.2629],t:[(1.0, 4.0), (1.0, 2.0), (2.0, 3.0), (3.0, 4.0), (4.0, 5.0), 5.0, 6.0, 7.0, 8.0, 9.0])
+#         """
+#         readBack= self.getReadBackBuf(['dummy','testtimestampaccum'])
+#         correctRecs = cStringIO.StringIO(correctStr)
+#         for a,b in zip(readBack.readlines(), correctRecs.readlines()):
+#             self.assertTrue(a.strip() == b.strip())
 
     def test_filewithgrep(self):
         correctStr = """This line contains foo
