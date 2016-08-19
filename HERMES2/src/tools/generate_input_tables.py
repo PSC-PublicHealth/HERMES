@@ -34,7 +34,7 @@ storeConstants = {'SiteCostCur': 'INR',
                   "Device Utilization Rate": 1.0,
                   "UseVialsLatency": 0.0,
                   "UseVialsInterval": 7.0,
-                  'Inventory': 'Stc_SingleCabTruck'
+                  'Inventory': 'Std_SingleCabTruck'
                   }
 
 routeCatPairs = [('Farm', 'Trader', 'CLOSEST_SUPPLIER'),
