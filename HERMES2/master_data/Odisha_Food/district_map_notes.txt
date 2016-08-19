@@ -1,0 +1,11 @@
+Cuttack_district_map.png and Khorda_district_map.png are from
+http://www.mapsofindia.com/maps/orissa/tehsil/khordha.html
+etc. downloaded Aug. 1 2016.
+
+The geojson from gadm.org for Odisha has the following sub-geometries:
+For Khordha: Bhubaneshwar, Khordha
+For Cuttack: Athagarh, Banki, Cuttack
+
+Note that the map outlines for the geojson don't match the
+district_map.png files- some region has been mis-assigned in the north
+of Bhudaneshwar District.

@@ -1,0 +1,298 @@
+location ID,district,block,gram panchayat,village,display name,latitude,longitude,notes: re location,supply chain level,function,sector,fixed/mobile,operating schedule,hectares under cultivation for potatoes,total population in village
+1070001,Cuttack,Athagarh,0,0,Potato farms in Athagarh tehsil,20.5165688,85.6205534,????,Farm,Production,Private,Fixed,0,98,
+1070002,Cuttack,Badamba,0,0,Potato farms in Badamba tehsil,20.419374,85.3391281,0,Farm,Production,Private,Fixed,0,44,
+1070003,Cuttack,Banki,0,0,Potato farms in Banki tehsil,20.3778056,85.5241333,0,Farm,Production,Private,Fixed,0,11,
+1070004,Cuttack,Barang,0,0,Potato farms in Barang tehsil,20.4005671,85.8386277,0,Farm,Production,Private,Fixed,0,32,
+1070005,Cuttack,Cuttack Sadar,0,0,Potato farms in Cuttack Sadar tehsil,20.463178,85.8025072,0,Farm,Production,Private,Fixed,0,239,
+1070006,Cuttack,Dampada,0,0,Potato farms in Dampada tehsil,20.390944,85.616841,Dompada (alternate spelling),Farm,Production,Private,Fixed,0,65,
+1070007,Cuttack,Kantapada,0,0,Potato farms in Kantapada tehsil,20.2507349,85.9736186,????,Farm,Production,Private,Fixed,0,92,
+1070008,Cuttack,Mahanga,0,0,Potato farms in Mahanga tehsil,20.553542,86.177144,0,Farm,Production,Private,Fixed,0,54,
+1070009,Cuttack,Narasinghpur,0,0,Potato farms in Narasinghpur tehsil,20.4624592,85.0659798,0,Farm,Production,Private,Fixed,0,154,
+1070010,Cuttack,Niali,0,0,Potato farms in Niali tehsil,20.1396178,86.0496211,0,Farm,Production,Private,Fixed,0,81,
+1070011,Cuttack,Nischintakoili,0,0,Potato farms in Nischintakoili tehsil,20.479964,86.1826533,0,Farm,Production,Private,Fixed,0,103,
+1070012,Cuttack,Salipur,0,0,Potato farms in Salipur tehsil,20.4859392,86.0954604,0,Farm,Production,Private,Fixed,0,153,
+1070013,Cuttack,Tangi-Choudwar,0,0,Potato farms in Tangi-Choudwar tehsil,20.5608007,85.9904945,0,Farm,Production,Private,Fixed,0,100,
+1070014,Cuttack,Tigiria,0,0,Potato farms in Tigiria tehsil,20.4694154,85.5115834,0,Farm,Production,Private,Fixed,0,51,
+1150001,Khurda,Balianta,0,0,Potato farms in Balianta tehsil,20.3068913,85.8826348,0,Farm,Production,Private,Fixed,0,14,
+1150002,Khurda,Balipatana,0,0,Potato farms in Balipatana tehsil,20.2019765,85.9513664,0,Farm,Production,Private,Fixed,0,21,
+1150003,Khurda,Banapur,0,0,Potato farms in Banapur tehsil,19.77496,85.1473472,0,Farm,Production,Private,Fixed,0,0,
+1150004,Khurda,Begunia,0,0,Potato farms in Begunia tehsil,19.83368,85.3244626,0,Farm,Production,Private,Fixed,0,0,
+1150005,Khurda,Bhubaneswar,0,0,Potato farms in Bhubaneswar tehsil,20.3010311,85.750413,0,Farm,Production,Private,Fixed,0,23,
+1150006,Khurda,Bolagarh,0,0,Potato farms in Bolagarh tehsil,20.1747906,85.2665969,0,Farm,Production,Private,Fixed,0,0,
+1150007,Khurda,Chilika,0,0,Potato farms in Chilika tehsil,19.874611,85.480243,This is in a lake! Chilika tehsil is named after the lake in that tehsil,Farm,Production,Private,Fixed,0,0,
+1150008,Khurda,Jatani,0,0,Potato farms in Jatani tehsil,20.1612971,85.6782954,0,Farm,Production,Private,Fixed,0,0,
+1150009,Khurda,Khurda,0,0,Potato farms in Khurda tehsil,20.1796469,85.6243513,0,Farm,Production,Private,Fixed,0,3,
+1150010,Khurda,Tangi,0,0,Potato farms in Tangi tehsil,19.925275,85.3838936,0,Farm,Production,Private,Fixed,0,0,
+3070001,Cuttack,Athagad,Gobara,Gobara,"Weekly Market, Gobara",20.5993698,85.8204646,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4028
+3070002,Cuttack,Athagad,Khuntuni,Khuntuni,"Weekly Market, Khuntuni",20.5658083,85.7243546,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1609
+3070003,Cuttack,Athagad,Khuntuni,Rampei,"Weekly Market, Rampei",20.5554958,85.7282023,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3517
+3070004,Cuttack,Athagad,Kulailo,Radhakrushnapur,"Weekly Market, Radhakrushnapur",20.597879,85.7589743,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,289
+3070005,Cuttack,Athagad,Mohakalabasta,Madhabpur,"Weekly Market, Madhabpur",20.5058361,85.7038284,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1257
+3070006,Cuttack,Athagad,Radhakishorpur,Radhadamodarpur,"Weekly Market, Radhadamodarpur",20.5619454,85.748719,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1185
+3070007,Cuttack,Badamba,Gopapur,Gopapur,"Weekly Market, Gopapur",20.4084206,85.3013202,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1332
+3070008,Cuttack,Badamba,Gopinathpur,Gopinathapur,"Weekly Market, Gopinathapur",20.3836717,85.3723973,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,5791
+3070009,Cuttack,Badamba,Maniabandha,Maniabandha,"Weekly Market, Maniabandha",20.4410419,85.4349783,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4264
+3070010,Cuttack,Badamba,Ragadipada,Ragadipada,"Weekly Market, Ragadipada",20.4174978,85.3872426,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3676
+3070011,Cuttack,Badamba,Ratapat,Ratapat,"Weekly Market, Ratapat",20.4181122,85.2437841,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,6189
+3070012,Cuttack,Badamba,Sanabarsing,Nuataila,"Weekly Market, Nuataila",20.4337418,85.3833703,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,268
+3070013,Cuttack,Banki,Anuary,Anuary,"Weekly Market, Anuary",20.3446175,85.4414258,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,590
+3070014,Cuttack,Banki,Baraput,Pathuripada,"Weekly Market, Pathuripada",20.3274787,85.4378848,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2283
+3070015,Cuttack,Banki,Baunsaput,Baunsput,"Weekly Market, Baunsput",20.46546,85.501663,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4043
+3070016,Cuttack,Banki,Jaganathpur,Nandahatapalli,"Weekly Market, Nandahatapalli",20.3105123,85.3872426,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,473
+3070017,Cuttack,Banki,Kadalibadi,Kadalibadi,"Weekly Market, Kadalibadi",20.4841114,85.6075064,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4982
+3070018,Cuttack,Banki,Kalapathara,Kalapathar,"Weekly Market, Kalapathar",20.2895077,85.3794977,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2601
+3070019,Cuttack,Banki,Kalipoi,Kantakai,"Weekly Market, Kantakai",20.3275665,85.414341,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1845
+3070020,Cuttack,Banki,Kalipoi,Kantakaipatana,"Weekly Market, Kantakaipatana",20.3270854,85.4101481,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,370
+3070021,Cuttack,Banki,Kendupalli,Kendupalli,"Weekly Market, Kendupalli",20.3248947,85.3691695,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4256
+3070022,Cuttack,Banki,Puincha,Gahiragadia,"Weekly Market, Gahiragadia",20.462562,85.882836,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,712
+3070023,Cuttack,Banki,Puincha,Pandalam,"Weekly Market, Pandalam",20.2704563,85.4465833,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2143
+3070024,Cuttack,Banki,Puincha,Panigrahipurpatana,"Weekly Market, Panigrahipurpatana",20.2719243,85.4030516,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,243
+3070025,Cuttack,Banki-Dampara,Banara,Banara,"Weekly Market, Banara",20.4163161,85.751283,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4456
+3070026,Cuttack,Banki-Dampara,Dampada,Gadajit,"Weekly Market, Gadajit",20.3604118,85.6537627,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,5676
+3070027,Cuttack,Banki-Dampara,Durgapur,Durgapur,"Weekly Market, Durgapur",20.359688,85.5071469,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1917
+3070028,Cuttack,Banki-Dampara,Naraganga,Naraganga,"Weekly Market, Naraganga",20.3093105,85.5094841,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,5080
+3070029,Cuttack,Banki-Dampara,Pathapur,Pathapur,"Weekly Market, Pathapur",20.4378307,85.6588999,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4553
+3070030,Cuttack,Banki-Dampara,Similipur,Harirajpur,"Weekly Market, Harirajpur",20.3894007,85.5650695,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4443
+3070031,Cuttack,Banki-Dampara,Talabasta,Tala Basta,"Weekly Market, Tala Basta",20.3173879,85.5972218,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,11361
+3070032,Cuttack,Banki-Dampara,Tulasipur,Tulasipur,"Weekly Market, Tulasipur",20.306585,85.522599,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2387
+3070033,Cuttack,Barang,Belagachhia,Naranapur,"Weekly Market, Naranapur",20.4337022,85.8563007,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,610
+3070034,Cuttack,Barang,Harianta,Rahura,"Weekly Market, Rahura",20.3245592,85.9572775,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,505
+3070035,Cuttack,Barang,Khalarda,Maheshpur,"Weekly Market, Maheshpur",20.3470064,85.9636618,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1585
+3070036,Cuttack,Barang,Kunheipada,Kunheipara,"Weekly Market, Kunheipara",20.442097,85.8446526,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2768
+3070037,Cuttack,Barang,Kurangapadhan,Brahmanjharilo,"Weekly Market, Brahmanjharilo",20.317027,85.931804,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2390
+3070038,Cuttack,Barang,Kurungasasan,Kurangsasan,"Weekly Market, Kurangsasan",20.2991981,85.9534465,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2401
+3070039,Cuttack,Barang,Mundali,Chakradharpur,"Weekly Market, Chakradharpur",20.4257944,85.7743536,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,550
+3070040,Cuttack,Barang,Mundali,Mundali,"Weekly Market, Mundali",20.4430118,85.748719,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,5265
+3070041,Cuttack,Barang,Narajmarthapur,Narajmarthapur,"Weekly Market, Narajmarthapur",20.4762776,85.7717907,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3972
+3070042,Cuttack,Cuttack Sadar,Jaspada,Jasapada,"Weekly Market, Jasapada",20.4090411,86.0434001,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2290
+3070043,Cuttack,Cuttack Sadar,Kandarpur,Kamapur,"Weekly Market, Kamapur",20.3978495,86.0252305,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,831
+3070044,Cuttack,Cuttack Sadar,Kisannagar,Kesannagar,"Weekly Market, Kesannagar",20.4272154,86.091184,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2108
+3070045,Cuttack,Cuttack Sadar,Kisannagar,Santarapur,"Weekly Market, Santarapur",20.415401,86.084646,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1381
+3070046,Cuttack,Cuttack Sadar,Praharajpur,Praharajpur,"Weekly Market, Praharajpur",20.3860332,86.1115583,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4231
+3070047,Cuttack,Kantapada,Adaspur,Adaspur,"Weekly Market, Adaspur",20.2192754,86.016043,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4320
+3070048,Cuttack,Kantapada,Adaspur,Saleibedapur-III,"Weekly Market, Saleibedapur-III",20.2045132,86.038938,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1172
+3070049,Cuttack,Kantapada,Badapatsundarpur,Badapatasundarpur,"Weekly Market, Badapatasundarpur",20.2883565,85.9993997,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3152
+3070050,Cuttack,Kantapada,Bagalpur,Badakhalagan,"Weekly Market, Badakhalagan",20.2661438,86.0032273,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,763
+3070051,Cuttack,Kantapada,Bagalpur,Bagalpur,"Weekly Market, Bagalpur",20.2758811,85.9738752,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1775
+3070052,Cuttack,Kantapada,Bagalpur,Baghua,"Weekly Market, Baghua",20.253287,85.968959,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,599
+3070053,Cuttack,Kantapada,Bagalpur,Deuli,"Weekly Market, Deuli",20.2653874,85.9700454,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,442
+3070054,Cuttack,Kantapada,Bagalpur,Sundargram,"Weekly Market, Sundargram",20.2766938,85.9646269,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1156
+3070055,Cuttack,Kantapada,Brahmanabati,Badabil,"Weekly Market, Badabil",20.2713249,86.035113,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1165
+3070056,Cuttack,Kantapada,Dimiri,Dimiri,"Weekly Market, Dimiri",20.2224665,86.0440375,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1368
+3070057,Cuttack,Kantapada,Govindapur,Balipada,"Weekly Market, Balipada",20.322997,86.0162,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1114
+3070058,Cuttack,Kantapada,Govindapur,Majurai,"Weekly Market, Majurai",20.317214,86.026567,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1086
+3070059,Cuttack,Kantapada,Govindapur,Sankhua,"Weekly Market, Sankhua",20.311265,86.02168,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,387
+3070060,Cuttack,Kantapada,Govindapur,Simalda,"Weekly Market, Simalda",20.455665,85.79484,Using Govindapur as a proxy,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,352
+3070061,Cuttack,Kantapada,Kantapada,Kantapada,"Weekly Market, Kantapada",20.2510269,85.9825172,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2964
+3070062,Cuttack,Kantapada,Nahalpur,Nahalpur,"Weekly Market, Nahalpur",20.32841,85.9955719,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1935
+3070063,Cuttack,Kantapada,Uttarana,Babaja,"Weekly Market, Babaja",20.2287554,86.059333,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,570
+3070064,Cuttack,Kantapada,Uttarana,Uttarana,"Weekly Market, Uttarana",20.2314433,86.046587,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2365
+3070065,Cuttack,Mahanga,Bhadreswar,Gobindpur,"Weekly Market, Gobindpur",20.5301809,86.2425242,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1135
+3070066,Cuttack,Mahanga,Gokana,Sukuapada,"Weekly Market, Sukuapada",20.560749,86.2288711,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,477
+3070067,Cuttack,Mahanga,Haladia,Haladia,"Weekly Market, Haladia",20.5361304,86.2425242,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1826
+3070068,Cuttack,Mahanga,Jaleswarpur,Jalasarpur,"Weekly Market, Jalasarpur",20.583466,86.1624587,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2306
+3070069,Cuttack,Mahanga,Kuhunda,Kuhunda,"Weekly Market, Kuhunda",20.5952524,86.1573709,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2787
+3070070,Cuttack,Mahanga,Kundi,Jagannathpur,"Weekly Market, Jagannathpur",20.327984,85.912565,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,870
+3070071,Cuttack,Mahanga,Mahanga,Parsurampur,"Weekly Market, Parsurampur",20.5551751,86.1948813,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,593
+3070072,Cuttack,Mahanga,Pallisahi,Pallisahi,"Weekly Market, Pallisahi",20.5409202,86.1891612,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1430
+3070073,Cuttack,Mahanga,Podamarai,Podamarai,"Weekly Market, Podamarai",20.5673934,86.2437941,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,976
+3070074,Cuttack,Narasinghpur,Bandhahuda,Barakoli,"Weekly Market, Barakoli",20.4661376,85.1265423,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,334
+3070075,Cuttack,Narasinghpur,Basantapur,Janisahi,"Weekly Market, Janisahi",20.5419757,84.9466368,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1286
+3070076,Cuttack,Narasinghpur,Basantapur,Jayamangalpur(Ka),"Weekly Market, Jayamangalpur(Ka)",20.534374,84.96785,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,259
+3070077,Cuttack,Narasinghpur,Baselihat,Baselihata,"Weekly Market, Baselihata",20.4097293,85.2088319,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2772
+3070078,Cuttack,Narasinghpur,Kanpur,Mardanpatana,"Weekly Market, Mardanpatana",20.414812,85.190363,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,375
+3070079,Cuttack,Narasinghpur,Nizgarh,Harichandanpur,"Weekly Market, Harichandanpur",20.4689611,85.0947601,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,660
+3070080,Cuttack,Niali,Anlo,Anlo-1,"Weekly Market, Anlo-1",20.1942503,86.0453123,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2209
+3070081,Cuttack,Niali,Baharana,Barimundei,"Weekly Market, Barimundei",20.1420928,86.1064655,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1298
+3070082,Cuttack,Niali,Bilasuni,Bilasuni,"Weekly Market, Bilasuni",20.1708821,86.0806753,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2524
+3070083,Cuttack,Niali,Eranch,Erancha,"Weekly Market, Erancha",20.2423913,86.0708016,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2997
+3070084,Cuttack,Niali,Kasarda,Kasarada,"Weekly Market, Kasarada",20.206639,86.076545,New search yields same result as old search,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2163
+3070085,Cuttack,Niali,Kasarda,Patrakana,"Weekly Market, Patrakana",20.2200064,86.066979,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1555
+3070086,Cuttack,Niali,Krushnaprasad,Nuasatanga,"Weekly Market, Nuasatanga",20.0831914,86.1319245,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1144
+3070087,Cuttack,Niali,Krushnaprasad,Purunasatanga,"Weekly Market, Purunasatanga",20.0733491,86.1236517,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,196
+3070088,Cuttack,Niali,Madhab,Madhaba,"Weekly Market, Madhaba",20.1004714,86.1064655,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2048
+3070089,Cuttack,Niali,Niali,Niali,"Weekly Market, Niali",20.1410778,86.0606074,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,605
+3070090,Cuttack,Niali,Niali,Pubakhanda,"Weekly Market, Pubakhanda",20.1292996,86.0657047,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,6081
+3070091,Cuttack,Niali,Nivarana,Salapoi,"Weekly Market, Salapoi",20.0587771,86.1713611,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,181
+3070092,Cuttack,Niali,Nuagaon,Nuagan,"Weekly Market, Nuagan",20.2142,85.838587,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4105
+3070093,Cuttack,Niali,Pahanga,Pahanga,"Weekly Market, Pahanga",20.1544322,86.1268337,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3165
+3070094,Cuttack,Niali,Sithalo,Sithalo,"Weekly Market, Sithalo",20.2021156,86.1319245,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3256
+3070095,Cuttack,Nischintakoili,Bandhakatia,Mallikapur,"Weekly Market, Mallikapur",20.4196291,86.2196612,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1782
+3070096,Cuttack,Nischintakoili,Janardanpur,Janardanpur,"Weekly Market, Janardanpur",20.454225,86.126335,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1606
+3070097,Cuttack,Nischintakoili,Jhadeswarpur,Jhadeswarpur,"Weekly Market, Jhadeswarpur",20.5136281,86.2336343,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1023
+3070098,Cuttack,Nischintakoili,Katikata,Paschimakhandabhola,"Weekly Market, Paschimakhandabhola",20.4828045,86.2526823,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1124
+3070099,Cuttack,Nischintakoili,Mahammadpur,Mahammadpur,"Weekly Market, Mahammadpur",20.40036,86.26112,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3974
+3070100,Cuttack,Nischintakoili,Manpur,Manapur,"Weekly Market, Manapur",19.8985786,85.4048258,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1515
+3070101,Cuttack,Nischintakoili,Narendrapur,Rameswarpur,"Weekly Market, Rameswarpur",20.419313,86.2742614,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1167
+3070102,Cuttack,Nischintakoili,Nemala,Maligan,"Weekly Market, Maligan",20.4388359,86.1796262,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1816
+3070103,Cuttack,Nischintakoili,Nemala,Nemala,"Weekly Market, Nemala",20.4360527,86.1749083,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1217
+3070104,Cuttack,Nischintakoili,Nischintakoili,Nischintakoili,"Weekly Market, Nischintakoili",20.4791011,86.1847117,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2367
+3070105,Cuttack,Nischintakoili,Sukarpada,Sukarapada,"Weekly Market, Sukarapada",20.4897213,86.2285536,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3432
+3070106,Cuttack,Nischintakoili,Uttarkul,Muguria,"Weekly Market, Muguria",20.3784265,86.2399844,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,990
+3070107,Cuttack,Salepur,Balisahi,Balisahi,"Weekly Market, Balisahi",20.4689668,86.0962783,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4272
+3070108,Cuttack,Salepur,Bhimdaspur,Bhimdaspur,"Weekly Market, Bhimdaspur",20.5430505,86.1172871,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1227
+3070109,Cuttack,Salepur,Chandradeipur,Lunahar,"Weekly Market, Lunahar",20.4827769,86.1153776,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4715
+3070110,Cuttack,Salepur,Gopinathpur,Gopinathpur,"Weekly Market, Gopinathpur",20.4685112,85.9457837,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2186
+3070111,Cuttack,Salepur,Gopinathpur,Satyabhamapur,"Weekly Market, Satyabhamapur",20.2487514,85.8933908,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2080
+3070112,Cuttack,Salepur,Katarapa,Katarapa,"Weekly Market, Katarapa",20.521045,86.0975518,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1854
+3070113,Cuttack,Salepur,Mahajanpur,Kulinda,"Weekly Market, Kulinda",20.5026957,86.009606,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,300
+3070114,Cuttack,Salepur,Mahajanpur,Laxminarayanapur,"Weekly Market, Laxminarayanapur",20.4969808,86.0198103,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2163
+3070115,Cuttack,Salepur,Mahana,Basudeipur,"Weekly Market, Basudeipur",20.624892,86.152124,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,947
+3070116,Cuttack,Salepur,Malasasana,Malasasan,"Weekly Market, Malasasan",20.568464,86.0899103,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2177
+3070117,Cuttack,Salepur,Nandola,Nandola,"Weekly Market, Nandola",20.484007,86.120222,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4450
+3070118,Cuttack,Salepur,Narda,Narada,"Weekly Market, Narada",20.553093,86.07248,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1226
+3070119,Cuttack,Salepur,Odasingh,Odasingh,"Weekly Market, Odasingh",20.5396491,86.0981886,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1992
+3070120,Cuttack,Salepur,Raisunguda,Madhanga,"Weekly Market, Madhanga",20.5280705,86.1459216,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,522
+3070121,Cuttack,Salepur,Raisunguda,Raisunguda,"Weekly Market, Raisunguda",20.519226,86.148273,Alternate spelling: Rai Sunghra,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2632
+3070122,Cuttack,Salepur,Rameswar,Rameswar,"Weekly Market, Rameswar",20.0211929,85.5174488,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,696
+3070123,Cuttack,Salepur,Sauri,Kisinapur,"Weekly Market, Kisinapur",20.502051,86.046587,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1363
+3070124,Cuttack,Salepur,Sauri,Sauri,"Weekly Market, Sauri",20.5023395,86.059333,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,987
+3070125,Cuttack,Salepur,Sisua,Sapanapur,"Weekly Market, Sapanapur",20.61831,85.929177,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,905
+3070126,Cuttack,Salepur,Tarito,Gothamira,"Weekly Market, Gothamira",20.4584148,86.0899103,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,592
+3070127,Cuttack,Tangi choudwar,Agrahat,Agrahat,"Weekly Market, Agrahat",20.5538574,85.9074526,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4014
+3070128,Cuttack,Tangi choudwar,Badasamantarapur,Badapadagaon,"Weekly Market, Badapadagaon",20.5589593,85.8716515,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1962
+3070129,Cuttack,Tangi choudwar,Bhatimunda,Bhatimunda,"Weekly Market, Bhatimunda",20.5342447,86.0236364,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3214
+3070130,Cuttack,Tangi choudwar,Govindapur,Govindapur,"Weekly Market, Govindapur",20.5758523,86.0548722,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1873
+3070131,Cuttack,Tangi choudwar,Indranipatna,Bandalo,"Weekly Market, Bandalo",20.461356,85.528308,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2216
+3070132,Cuttack,Tangi choudwar,Kakhadi,Kakhadi,"Weekly Market, Kakhadi",20.5028512,85.7641013,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2737
+3070133,Cuttack,Tangi choudwar,Kakhadi,Mahalapada,"Weekly Market, Mahalapada",20.5023517,85.7435906,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1938
+3070134,Cuttack,Tangi choudwar,Nakhara,Garudgaon,"Weekly Market, Garudgaon",20.5534758,85.9547235,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,293
+3070135,Cuttack,Tangi choudwar,Nakhara,Nakhara,"Weekly Market, Nakhara",20.5614911,85.9476995,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1768
+3070136,Cuttack,Tangi choudwar,Safa,Karanji,"Weekly Market, Karanji",20.5496015,85.9751513,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3220
+3070137,Cuttack,Tangi choudwar,Sankarpur,Banto,"Weekly Market, Banto",20.5819596,85.9010613,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,266
+3070138,Cuttack,Tangi choudwar,Sankarpur,Sankarpur,"Weekly Market, Sankarpur",20.5817785,85.8933908,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4441
+3070139,Cuttack,Tigiria,Bindhanima,Bindhanima,"Weekly Market, Bindhanima",20.4488577,85.5071469,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,5151
+3070140,Cuttack,Tigiria,Panchagan,Panchagan,"Weekly Market, Panchagan",20.4793759,85.5380467,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,5199
+3150001,Khordha ,Balianta,Bainchua,Bhainchua,"Weekly Market, Bhainchua",20.2666296,85.8960049,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4320
+3150002,Khordha ,Balianta,Bainchua,Bhelurihat,"Weekly Market, Bhelurihat",20.2739914,85.8921123,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,867
+3150003,Khordha ,Balianta,Balianta,Andilo,"Weekly Market, Andilo",20.303055,85.891092,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2764
+3150004,Khordha ,Balianta,Balianta,Balianta,"Weekly Market, Balianta",20.308441,85.88654,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3556
+3150005,Khordha ,Balianta,Benupur,Benupur,"Weekly Market, Benupur",20.286238,85.9082341,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4111
+3150006,Khordha ,Balianta,Bhingarpur,Bhingarpur,"Weekly Market, Bhingarpur",20.266262,85.9316878,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4752
+3150007,Khordha ,Balianta,Jagannathpur,Jagannathpur,"Weekly Market, Jagannathpur",20.327984,85.912565,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1581
+3150008,Khordha ,Balianta,Jagannathpur,Jayarsasan,"Weekly Market, Jayarsasan",20.3223938,85.9278993,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2760
+3150009,Khordha ,Balianta,Jhinti Sasan,Jhintisasan,"Weekly Market, Jhintisasan",20.1717568,85.9061744,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4366
+3150010,Khordha ,Balianta,Sarakana,Sarakana,"Weekly Market, Sarakana",20.2209549,85.912565,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2571
+3150011,Khordha ,Balianta,Satyabhamapur,Gotalbindha,"Weekly Market, Gotalbindha",20.2549948,85.9061744,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,794
+3150012,Khordha ,Balipatna,Bhapur,Banamalipur,"Weekly Market, Banamalipur",20.1761368,86.0109629,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,362
+3150013,Khordha ,Balipatna,Deulidharpur,Abhaymukhi,"Weekly Market, Abhaymukhi",20.1133528,86.0172595,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3596
+3150014,Khordha ,Balipatna,Garedipanchan,Garedipanchan,"Weekly Market, Garedipanchan",20.1921688,85.9534465,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3424
+3150015,Khordha ,Balipatna,Kurunjipur,Badala Sasan,"Weekly Market, Badala Sasan",20.1156922,85.9891914,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2470
+3150016,Khordha ,Balipatna,Kurunjipur,Nagaseni,"Weekly Market, Nagaseni",20.1206482,85.9783429,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,85
+3150017,Khordha ,Balipatna,Kurunjipur,Odakhanda,"Weekly Market, Odakhanda",20.123664,85.97361,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,757
+3150018,Khordha ,Balipatna,Majhihara,Dhanahara,"Weekly Market, Dhanahara",20.1797511,85.9955719,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1211
+3150019,Khordha ,Balipatna,Nariso,Nariso,"Weekly Market, Nariso",20.1230134,86.0504111,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4300
+3150020,Khordha ,Balipatna,Rajas,Rajas,"Weekly Market, Rajas",20.1322461,85.9330098,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,6255
+3150021,Khordha ,Balipatna,Somanasasan,Adalabad,"Weekly Market, Adalabad",20.133461,85.912899,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,456
+3150022,Khordha ,Banapur,Bisnudiha,Kotari,"Weekly Market, Kotari",19.7771487,85.2114218,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,895
+3150023,Khordha ,Banapur,Damiabarabara,Baguda,"Weekly Market, Baguda",19.824477,84.983706,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,177
+3150024,Khordha ,Banapur,Damiabarabara,Bankiapali,"Weekly Market, Bankiapali",19.7793141,85.2300324,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,493
+3150025,Khordha ,Banapur,Damiabarabara,Bhujiabarabara,"Weekly Market, Bhujiabarabara",19.8342595,85.0194481,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,177
+3150026,Khordha ,Banapur,Damiabarabara,Katuala,"Weekly Market, Katuala",19.8514153,85.0493253,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,285
+3150027,Khordha ,Banapur,Galua,Galua,"Weekly Market, Galua",19.7831181,85.1848704,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4718
+3150028,Khordha ,Banapur,Galua,Naraharipursasan,"Weekly Market, Naraharipursasan",19.7891599,85.1887568,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,300
+3150029,Khordha ,Banapur,Kulei,Gotapalli,"Weekly Market, Gotapalli",19.8595214,85.2386074,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,743
+3150030,Khordha ,Banapur,Kumaranga  ,Champadeipurpatana,"Weekly Market, Champadeipurpatana",19.7639087,85.1330262,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,732
+3150031,Khordha ,Banapur,Kumaranga  ,Dandigadia,"Weekly Market, Dandigadia",19.7458641,85.1518254,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,770
+3150032,Khordha ,Banapur,Kumaranga  ,Ekadalia,"Weekly Market, Ekadalia",19.7609162,85.1596025,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1000
+3150033,Khordha ,Banapur,Kumaranga  ,Jhintikapalli,"Weekly Market, Jhintikapalli",19.7537648,85.1421025,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,542
+3150034,Khordha ,Banapur,Kumaranga  ,Kandhadulani,"Weekly Market, Kandhadulani",19.7549792,85.1596025,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,157
+3150035,Khordha ,Banapur,Kumaranga  ,Kandhapunjiama,"Weekly Market, Kandhapunjiama",19.7511699,85.1284876,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,121
+3150036,Khordha ,Banapur,Nachuni,Badapadar,"Weekly Market, Badapadar",19.8413516,85.2813006,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1690
+3150037,Khordha ,Banapur,Narendrapur,Arakhadihi,"Weekly Market, Arakhadihi",19.8324505,85.1578917,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,631
+3150038,Khordha ,Banapur,Niladriprasad,Aranga,"Weekly Market, Aranga",19.8652869,85.1220031,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1008
+3150039,Khordha ,Banapur,Niladriprasad,Jualiamba,"Weekly Market, Jualiamba",19.8442925,85.1142207,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,92
+3150040,Khordha ,Banapur,Tumuraputsasan,Bengarajapalli,"Weekly Market, Bengarajapalli",19.7792646,85.124597,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1460
+3150041,Khordha ,Banapur,Tumuraputsasan,Gangadharapur,"Weekly Market, Gangadharapur",19.8133682,85.1233,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,252
+3150042,Khordha ,Banapur,Tumuraputsasan,Gateswarpur,"Weekly Market, Gateswarpur",19.8052573,85.1252454,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,314
+3150043,Khordha ,Begunia,Begunia,Begunia,"Weekly Market, Begunia",20.2022439,85.4517403,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2948
+3150044,Khordha ,Begunia,Begunia,Odagan,"Weekly Market, Odagan",20.2111582,85.4517403,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,380
+3150045,Khordha ,Begunia,Botalama,Botalama,"Weekly Market, Botalama",20.0901266,85.4246606,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,577
+3150046,Khordha ,Begunia,Botalama,Manikpurpatna,"Weekly Market, Manikpurpatna",20.1058738,85.4304646,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,843
+3150047,Khordha ,Begunia,Haj,Baladhadi,"Weekly Market, Baladhadi",20.0777185,85.4620528,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,364
+3150048,Khordha ,Begunia,Haj,Haj,"Weekly Market, Haj",20.0435204,85.4607639,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2396
+3150049,Khordha ,Begunia,Haj,Nidhipur,"Weekly Market, Nidhipur",20.0670231,85.4504511,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1503
+3150050,Khordha ,Begunia,Kantabad,Kantabad,"Weekly Market, Kantabad",20.259458,85.449989,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,893
+3150051,Khordha ,Begunia,Kunjuri,Dalatola,"Weekly Market, Dalatola",20.141687,85.5238865,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,415
+3150052,Khordha ,Begunia,Kunjuri,Kokasingh,"Weekly Market, Kokasingh",20.1682342,85.5161612,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,607
+3150053,Khordha ,Begunia,Podadiha,Badatulasipur,"Weekly Market, Badatulasipur",20.3024219,85.5341852,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1638
+3150054,Khordha ,Begunia,Radhakantapur,Chakapada,"Weekly Market, Chakapada",20.1931884,85.4175661,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,732
+3150055,Khordha ,Begunia,Radhakantapur,Radhakantapur,"Weekly Market, Radhakantapur",20.2014432,85.420791,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,997
+3150056,Khordha ,Begunia,Siko,Chandrasekharpur,"Weekly Market, Chandrasekharpur",20.0363864,85.414341,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1234
+3150057,Khordha ,Bhubaneswar,Daruthenga,Bhuasuni,"Weekly Market, Bhuasuni",20.4022564,85.784604,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,176
+3150058,Khordha ,Bhubaneswar,Itipur,Itipur,"Weekly Market, Itipur",20.2018708,85.8275057,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,358
+3150059,Khordha ,Bhubaneswar,Itipur,Nistarinipur,"Weekly Market, Nistarinipur",20.2055107,85.8243053,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,121
+3150060,Khordha ,Bhubaneswar,Nanput,Mahura,"Weekly Market, Mahura",20.2108891,85.7384617,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,703
+3150061,Khordha ,Bhubaneswar,Nanput,Nandapur,"Weekly Market, Nandapur",20.2074367,85.74936,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,274
+3150062,Khordha ,Bhubaneswar,Nanput,Nanput,"Weekly Market, Nanput",20.2006408,85.7448727,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,571
+3150063,Khordha ,Bhubaneswar,Nanput,Narasinghpur,"Weekly Market, Narasinghpur",20.2037984,85.752565,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,269
+3150064,Khordha ,Bhubaneswar,Nanput,Pandiapada,"Weekly Market, Pandiapada",20.2126537,85.750001,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,179
+3150065,Khordha ,Bhubaneswar,Patrapada,Chhotraiypur,"Weekly Market, Chhotraiypur",20.222439,85.778265,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,770
+3150066,Khordha ,Bhubaneswar,Patrapada,Damodarpur,"Weekly Market, Damodarpur",20.2200955,85.781401,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,210
+3150067,Khordha ,Bhubaneswar,Tamando,Balipada,"Weekly Market, Balipada",20.2305498,85.752565,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,500
+3150068,Khordha ,Bhubaneswar,Tamando,Kasipur,"Weekly Market, Kasipur",20.2245432,85.750001,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,827
+3150069,Khordha ,Bolagod,Bolagad,Bolagad,"Weekly Market, Bolagad",20.175496,85.280501,Using Bolagarh (alternate spelling),Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3329
+3150070,Khordha ,Bolagod,Gediapalli,Somanathapur,"Weekly Market, Somanathapur",20.2498797,85.4265953,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,89
+3150071,Khordha ,Bolagod,Kadab,Sanakadab,"Weekly Market, Sanakadab",20.159712,85.4156311,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,351
+3150072,Khordha ,Bolagod,Khanguria,Khanguria,"Weekly Market, Khanguria",20.1885779,85.2709538,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1612
+3150073,Khordha ,Bolagod,Manibandha,mangarajpur,"Weekly Market, mangarajpur",20.2258588,85.3885333,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,359
+3150074,Khordha ,Chilika,Barkul,Boriasahi,"Weekly Market, Boriasahi",19.7134913,85.1621946,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,384
+3150075,Khordha ,Chilika,Barkul,Hatibari,"Weekly Market, Hatibari",19.7155606,85.1563621,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,245
+3150076,Khordha ,Chilika,Baulabandha,Baulabandha,"Weekly Market, Baulabandha",19.8082555,85.321376,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,6660
+3150077,Khordha ,Chilika,Haripur,Haripur,"Weekly Market, Haripur",19.8251096,85.3129755,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2422
+3150078,Khordha ,Chilika,Sananairi,Sananairi,"Weekly Market, Sananairi",19.8020918,85.3037937,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4410
+3150079,Khordha ,Chilika,Sorona,Bhagabatipur,"Weekly Market, Bhagabatipur",19.876446,85.3743339,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,5408
+3150080,Khordha ,Chilika,Sorona,Mansinghpur,"Weekly Market, Mansinghpur",19.8576421,85.3936958,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,6388
+3150081,Khordha ,Jatani,Benapanjari,Bisiapada,"Weekly Market, Bisiapada",20.1075552,85.6749501,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,639
+3150082,Khordha ,Jatani,Benapanjari,Ranipur,"Weekly Market, Ranipur",20.1008845,85.6755921,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,438
+3150083,Khordha ,Jatani,Chhanaghara,Chhelda,"Weekly Market, Chhelda",20.2028058,85.7115267,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,191
+3150084,Khordha ,Jatani,Jamukoli,Jamukoli,"Weekly Market, Jamukoli",20.1747514,85.7807603,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1644
+3150085,Khordha ,Jatani,Jamukoli,Mundala,"Weekly Market, Mundala",20.1701399,85.7743536,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,745
+3150086,Khordha ,Jatani,Jamukoli,Panchagaon,"Weekly Market, Panchagaon",20.1766955,85.7999758,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2125
+3150087,Khordha ,Jatani,Janla,Dakhinamundamuhan,"Weekly Market, Dakhinamundamuhan",20.2089994,85.7217892,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1452
+3150088,Khordha ,Jatani,Janla,Gopalpur,"Weekly Market, Gopalpur",20.2029927,85.7192238,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,335
+3150089,Khordha ,Jatani,Janla,Janla,"Weekly Market, Janla",20.216212,85.7128096,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1008
+3150090,Khordha ,Jatani,Janla,Uttarmundamuhan,"Weekly Market, Uttarmundamuhan",20.2209508,85.7243546,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1938
+3150091,Khordha ,Jatani,Panchupali,Beruan,"Weekly Market, Beruan",20.185903,85.750001,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,220
+3150092,Khordha ,Khordha,Bajapur,Bajapur,"Weekly Market, Bajapur",20.118646,85.610087,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4052
+3150093,Khordha ,Khordha,Bajapur,Nandapur,"Weekly Market, Nandapur",20.11297,85.626388,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1266
+3150094,Khordha ,Khordha,Garhhaldia,Garh-haladia,"Weekly Market, Garh-haladia",20.2782974,85.5792189,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1332
+3150095,Khordha ,Khordha,Golabai Sasan,Golabaisasan,"Weekly Market, Golabaisasan",20.0161561,85.55349,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2534
+3150096,Khordha ,Khordha,Kaipadar,Dadhimachhagadia,"Weekly Market, Dadhimachhagadia",20.1175634,85.5689288,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1815
+3150097,Khordha ,Khordha,Kanapur,Kanpur,"Weekly Market, Kanpur",20.0683112,85.5599234,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4624
+3150098,Khordha ,Khordha,Keranga,Keranga,"Weekly Market, Keranga",20.105584,85.632369,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4441
+3150099,Khordha ,Khordha,Mallipur,Muktapur,"Weekly Market, Muktapur",20.072545,85.440714,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2376
+3150100,Khordha ,Khordha,Nialipada -,Saradhapur,"Weekly Market, Saradhapur",20.188202,85.587884,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2500
+3150101,Khordha ,Khordha,Nialipada -,Taratua,"Weekly Market, Taratua",20.1968585,85.5907929,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3299
+3150102,Khordha ,Khordha,Tangiapada,Kumbharbasta,"Weekly Market, Kumbharbasta",20.2085057,85.6409178,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2653
+3150103,Khordha ,Tangi,Achutapurpatana,Buxipatana,"Weekly Market, Buxipatana",20.0188459,85.4688193,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,246
+3150104,Khordha ,Tangi,Achutapurpatana,Nuapatna,"Weekly Market, Nuapatna",20.0241116,85.4568968,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,207
+3150105,Khordha ,Tangi,Badapokharia,Badapokharia,"Weekly Market, Badapokharia",19.9847622,85.4865371,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4267
+3150106,Khordha ,Tangi,Kamaguru,Debarchan,"Weekly Market, Debarchan",20.0301848,85.4620528,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,801
+3150107,Khordha ,Tangi,Kuhudi,Gopalprasad,"Weekly Market, Gopalprasad",19.8703213,85.3386525,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4575
+3150108,Khordha ,Tangi,Kuhudi,Nizgarhkuhudi,"Weekly Market, Nizgarhkuhudi",19.8864406,85.3463116,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,4220
+3150109,Khordha ,Tangi,Kunjuri,Jariput,"Weekly Market, Jariput",19.8610271,85.2955242,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,239
+3150110,Khordha ,Tangi,Kunjuri,Talagadakuhudi,"Weekly Market, Talagadakuhudi",19.8978808,85.3420486,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,310
+3150111,Khordha ,Tangi,Nirakarpur,Nanapada,"Weekly Market, Nanapada",19.9920023,85.5380467,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3391
+3150112,Khordha ,Tangi,Nirakarpur,Nirakarpurpatna,"Weekly Market, Nirakarpurpatna",19.9877964,85.5332198,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,469
+3150113,Khordha ,Tangi,Nirakarpur,Pandepatna,"Weekly Market, Pandepatna",19.986311,85.5332198,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,482
+3150114,Khordha ,Tangi,Nirakarpur,Raulahaja,"Weekly Market, Raulahaja",19.9858023,85.5277488,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,1149
+3150115,Khordha ,Tangi,Nuagarh,Haripurpatana,"Weekly Market, Haripurpatana",19.9751893,85.4897579,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,520
+3150116,Khordha ,Tangi,Rameswar,Khajuripada,"Weekly Market, Khajuripada",19.9975559,85.522599,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,2395
+3150117,Khordha ,Tangi,Sundarpur,Mangalajodi,"Weekly Market, Mangalajodi",19.9194047,85.4254317,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,3972
+3150118,Khordha ,Tangi,Sundarpur,Sundarpur,"Weekly Market, Sundarpur",20.3633505,85.7894082,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,6593
+3150119,Khordha ,Tangi,Tangi,Balungadihipatna,"Weekly Market, Balungadihipatna",19.9233099,85.3941977,0,Village Trader,"Aggregation, Trade, Retail",Public,Fixed,Weekly Market,,320
+4070001,Cuttack,0,0,0,"Jayguru Cold Storage (P) Ltd., Industrial Estate, Jagatpur",20.4923,85.94578,Jagatpur (town),Cold storage,Cold storage,Private,Fixed,0,,
+4070002,Cuttack,0,0,0,"Sri Jagannath Cold Storage&Ice Plant, Nischintakali",20.4791,86.18471,Nischintakoili (town),Cold storage,Cold storage,Private,Fixed,0,,
+4070003,Cuttack,0,0,0,"Jagatpur Co-operative Cold Storage, (MARKFED) ",20.4923,85.94578,Jagatpur (town),Cold storage,Cold storage,Co-op ,Fixed,0,,
+4070004,Cuttack,0,0,0,"Surendra Agri Tech, Cold Storage, Trisulia",20.432312,85.831964,Trisulia (town),Cold storage,Cold storage,Private,Fixed,0,,
+4150001,Khurda,0,0,0,"Mahalaxmi Cold Storage (P) Ltd., Patrapara,Bhubaneswar",20.22958,85.77435,Patrapada (town),Cold storage,Cold storage,Private,Fixed,0,,
+4150002,Khurda,0,0,0,"Mahabir Ice & Cold Storage (P) Ltd.,Aiginia,Bhubaneswar ",20.25092,85.78108,Aiginia (town),Cold storage,Cold storage,Private,Fixed,0,,
+4150003,Khurda,0,0,0,"Bhubaneswar Co-op Cold Storage,, Bhubaneswar",20.29605,85.82453,Bhubaneswar (town),Cold storage,Cold storage,Co-op ,Fixed,0,,
+5070001,Cuttack,Banki,Banki,Baraput,Mandi: Banki,20.37659,85.52903,Banki (town),Mandi,Wholesale,"Public, Regulated Primary Market",Fixed,Mon through Sat 6am-6pm,,
+5070002,Cuttack,0,0,0,Mandi: Kendupatna,20.468661,86.146599,Kendupatna (town),Mandi,Wholesale,"Public, Regulated Primary Market",Fixed,9am to 8pm - days not specified,,
+5070003,Cuttack,0,0,0,Mandi: Kendupatna (Niali),20.14107,86.0606,Niali (town),Mandi,Wholesale,"Public, Regulated Market",Fixed,Not specified,,
+5150001,Khurda,0,0,0,Mandi: Aiginia,20.250793,85.781648,Aiginia (town),Mandi,Wholesale,"Public, Regulated Market",Fixed,Not specified,,
+5150002,Khurda,0,0,0,Mandi: Balugaon,19.74562,85.202794,Balugaon (town),Mandi,Wholesale,"Public, Regulated Market",Fixed,10 hours day 1 1 market holiday/week,,
+5150003,Khurda,0,0,0,Mandi: Damana Hat,20.33193,85.819482,Damana Haat Daily Market,Mandi,Wholesale,0,Fixed,0,,
+5150004,Khurda,0,0,0,Mandi: Jatni,20.170885,85.705933,Jatni (town),Mandi,Wholesale,"Public, Regulated Market",Fixed,10am to 5pm - days not specified,,
