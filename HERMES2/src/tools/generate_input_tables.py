@@ -32,8 +32,8 @@ storeConstants = {'SiteCostCur': 'INR',
                   'PowerOutageDurationSigma': 0.0,
                   'Inventory': '',
                   "Device Utilization Rate": 1.0,
-                  "UseVialsLatency": None,
-                  "UseVialsInterval": None,
+                  "UseVialsLatency": 0.0,
+                  "UseVialsInterval": 7.0,
                   }
 
 routeCatPairs = [('Farm', 'Trader', 'CLOSEST_SUPPLIER'),
@@ -173,11 +173,19 @@ def buildRouteRecList(pairSC, facDict):
     tmHours = pairSC['time']/3600.
     distKm = 0.001 * pairSC['dist']
     rRecs = [{'RouteName': rName, 'idcode': fmKey, 'LocName': facDict[fmKey]['NAME'],
-              'Type': 'SchedPush', 'RouteOrder': 0, 'TransitHours': tmHours,
-              'DistanceKM': distKm, 'ShipIntervalDays': 7},
+              'Type': 'varpush', 'RouteOrder': 0, 'TransitHours': tmHours,
+              'DistanceKM': distKm, 'ShipIntervalDays': 7, 'ShipLatencyDays': 0,
+              "PickupDelayMagnitude": 0.0, "PickupDelaySigma": 0.0,
+              "PickupDelayFrequency": 0.0, 'PullOrderAmountDays': 7,
+              "TruckType": "Std_SingleCabTruck"
+              },
              {'RouteName': rName, 'idcode': toKey, 'LocName': facDict[toKey]['NAME'],
-              'Type': 'SchedPush', 'RouteOrder': 1, 'TransitHours': tmHours,
-              'DistanceKM': distKm, 'ShipIntervalDays': 7}
+              'Type': 'varpush', 'RouteOrder': 1, 'TransitHours': tmHours,
+              'DistanceKM': distKm, 'ShipIntervalDays': 7, 'ShipLatencyDays': 0,
+              "PickupDelayMagnitude": 0.0, "PickupDelaySigma": 0.0,
+              "PickupDelayFrequency": 0.0, 'PullOrderAmountDays': 7,
+              "TruckType": "Std_SingleCabTruck"
+              }
              ]
     return rRecs
 
