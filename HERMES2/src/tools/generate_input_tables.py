@@ -178,14 +178,14 @@ def buildRouteRecList(pairSC, facDict):
               'DistanceKM': distKm, 'ShipIntervalDays': 7, 'ShipLatencyDays': 0,
               "PickupDelayMagnitude": 0.0, "PickupDelaySigma": 0.0,
               "PickupDelayFrequency": 0.0, 'PullOrderAmountDays': 7,
-              "TruckType": "Std_SingleCabTruck"
+              "TruckType": "Std_SingleCabTruck", 'PerDiemType': 'Std_PerDiem_None'
               },
              {'RouteName': rName, 'idcode': toKey, 'LocName': facDict[toKey]['NAME'],
               'Type': 'varpush', 'RouteOrder': 1, 'TransitHours': tmHours,
               'DistanceKM': distKm, 'ShipIntervalDays': 7, 'ShipLatencyDays': 0,
               "PickupDelayMagnitude": 0.0, "PickupDelaySigma": 0.0,
               "PickupDelayFrequency": 0.0, 'PullOrderAmountDays': 7,
-              "TruckType": "Std_SingleCabTruck"
+              "TruckType": "Std_SingleCabTruck", 'PerDiemType': 'Std_PerDiem_None'
               }
              ]
     return rRecs

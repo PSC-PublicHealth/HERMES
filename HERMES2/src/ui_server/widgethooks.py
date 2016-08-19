@@ -641,7 +641,8 @@ def handleListType(db, uiSession):
             else:
                 sio.write("  <option value='%s'>%s</option>\n" % (eName, eName))
         if typestring and not foundType:
-            raise RuntimeError(_("The selected type {0} is not a known type").format(typestring))
+            raise RuntimeError(_("The selected type {0} is not a known {1} type")
+                               .format(typestring, invtype))
 
         if typestring:
             selected = typestring
