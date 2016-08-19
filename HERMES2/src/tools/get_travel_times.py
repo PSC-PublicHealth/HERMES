@@ -13,6 +13,7 @@ import time
 import phacsl.utils.formats.csv_tools as csv_tools
 import datetime
 import pytz
+import ipath
 from util import longitudeLatitudeSep
 
 modelDir = '/home/welling/git/hermes/HERMES2/master_data/Odisha_Food'
@@ -74,7 +75,9 @@ def augmentRec(rec):
 #
 # pairsToConnectDict = {'Farm': 'WeeklyTrader', 'Storage': 'WeeklyTrader', 'Mandi': 'Storage',
 #                       'Retailer': 'Mandi'}
-pairsToConnectDict = {'Mandi':'Storage'}
+# pairsToConnectDict = {'Farm': 'WeeklyTrader', 'WeeklyTrader': 'Storage', 'Storage': 'Mandi',
+#                       'Mandi': 'Retailer'}
+pairsToConnectDict = {'Farm':'WeeklyTrader'}
 
 facFName = os.path.join(modelDir, coordFile)
 facKeys, facRecs = csv_tools.parseCSV(facFName)
@@ -140,6 +143,11 @@ else:
             for k in ['latitude', 'longitude']:
                 assert k in facDict[toLoc], '%s is missing %s data' % (toLoc, k)
             dstStr += '|%f,%f' % (facDict[toLoc]['latitude'], facDict[toLoc]['longitude'])
+#             print '%s -> %s: %s' % (fromLoc, toLoc,
+#                                     longitudeLatitudeSep(float(facDict[fromLoc]['longitude']),
+#                                                          float(facDict[fromLoc]['latitude']),
+#                                                          float(facDict[toLoc]['longitude']),
+#                                                          float(facDict[toLoc]['latitude'])))
         dstStr = dstStr[1:]
         query = {'arrival_time': int(targetTimestamp),
                  'origins': '%f,%f' % (facDict[fromLoc]['latitude'], facDict[fromLoc]['longitude']),
