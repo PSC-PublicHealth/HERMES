@@ -260,7 +260,7 @@ print 'wrote %d store records' % len(storeRecs)
 routeKeys = ["RouteName", "idcode", "LocName", "Type", "RouteOrder", "TransitHours",
              "TruckType", "ShipIntervalDays", "ShipLatencyDays", "PullOrderAmountDays",
              "DistanceKM", "Conditions", "Notes",
-             "PickupDelayMagnitude", "PickupDelaySigma"," PickupDelayFrequency",
+             "PickupDelayMagnitude", "PickupDelaySigma","PickupDelayFrequency",
              "PerDiemType"]
 firstCat, lastCat = getCategoryChainEnds(routeCatPairs)
 allCatSet = set([fm for fm, to, policy in routeCatPairs]
