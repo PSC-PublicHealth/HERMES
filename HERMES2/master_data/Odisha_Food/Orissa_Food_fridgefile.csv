@@ -1,0 +1,3 @@
+"Category","DisplayName","BaseCostCur","chain","Make","ColdLifetime","ClassName","BaseCostYear","AlarmDays","AmortYears","freezer","SnoozeDays","Name","Notes","PowerRateUnits","BaseCost","NoPowerHoldoverDays","Model","Requires","PowerRate","cooler","roomtemperature","Year","Technology","Energy"
+"ColdBox","CB RCW 25","EUR","","Dometic/Electrolux",5.6083,"ShippableFridge",2010,"",8.53,0.0,"","Std_CB_RCW25CF","PQS 2013","liters/charge",600.0,5.6083,"RCW25","",14.4,20.0,0.0,"YearUnk","ice","I"
+"outdoors","outdoors","EUR","","mothernature","","Fridge",2012,"",1.0,0.0,"","OUTDOORS","","kW",0.0,0.0,"outdoors","",0.0,0.0,1000000000.0,"YearUnk","none","S"
