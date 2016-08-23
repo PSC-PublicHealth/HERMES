@@ -22,7 +22,9 @@ storeNameMap = {'CATEGORY': 'CATEGORY',
                 'NAME': 'NAME',
                 "Latitude": 'latitude',
                 "Longitude": 'longitude',
-                "Notes": 'NOTES'
+                "Notes": 'NOTES',
+                'Consumer': 'Consumer',
+                'Inventory': 'Inventory'
                 }
 storeConstants = {'SiteCostCur': 'INR',
                   'SiteCostPerYear': 0.0,
@@ -30,11 +32,9 @@ storeConstants = {'SiteCostCur': 'INR',
                   'PowerOutageFrequencyPerYear': 0.0,
                   'PowerOutageDurationDays': 0.0,
                   'PowerOutageDurationSigma': 0.0,
-                  'Inventory': '',
                   "Device Utilization Rate": 1.0,
                   "UseVialsLatency": 0.0,
                   "UseVialsInterval": 7.0,
-                  'Inventory': 'Std_SingleCabTruck'
                   }
 
 routeCatPairs = [('Farm', 'Trader', 'CLOSEST_SUPPLIER'),
@@ -42,6 +42,18 @@ routeCatPairs = [('Farm', 'Trader', 'CLOSEST_SUPPLIER'),
                  ('Storage', 'Mandi', 'CLOSEST_CLIENT'),
 #                  ('Mandi', 'Retailer', 'CLOSEST_SUPPLIER')
                  ]
+
+routeKeys = ["RouteName", "idcode", "LocName", "Type", "RouteOrder", "TransitHours",
+             "TruckType", "ShipIntervalDays", "ShipLatencyDays", "PullOrderAmountDays",
+             "DistanceKM", "Conditions", "Notes",
+             "PickupDelayMagnitude", "PickupDelaySigma","PickupDelayFrequency",
+             "PerDiemType"]
+storeKeys = ["CATEGORY", "FUNCTION", "NAME", "idcode",
+             "Device Utilization Rate", "UseVialsLatency", "UseVialsInterval",
+             "Latitude", "Longitude",
+             "PowerOutageFrequencyPerYear", "PowerOutageDurationSigma", 
+             "SiteCostCur", "PowerOutageDurationDays", "SiteCostPerYear", "SiteCostBaseYear",
+             "Inventory","Consumer","Notes"]
 
 def getCategoryChainEnds(routeCatPairs):
     linkD = {}
@@ -121,7 +133,7 @@ def getWorkingName(baseStr):
     if 'market' in words[0].lower():
         nm = words[1].strip('"') + ' Market'
     else:
-        nm = words[0]
+        nm = words[0].strip('"')
     nm.strip('"')
     if nm.lower().startswith('mandi:'):
         nm = nm[len('mandi: '):] + ' Mandi'
@@ -135,7 +147,7 @@ def augmentRec(rec):
     newRec['NAME'] = getWorkingName(rec['display name'])
     newRec['idcode'] = rec['location ID']
     if 'mandi' in rec['supply chain level'].lower():
-        cat, func = 'Mandi', 'Distribution'
+        cat, func = 'Mandi', 'Administration'
     elif 'cold storage' in rec['supply chain level'].lower():
         cat, func = 'Storage', 'Distribution'
     elif 'village' in rec['supply chain level'].lower():
@@ -144,7 +156,7 @@ def augmentRec(rec):
         else:
             cat, func = 'Trader', 'Distribution'
     elif 'farm' in rec['supply chain level'].lower():
-        cat, func = 'Farm', 'Production'
+        cat, func = 'Farm', 'Distribution'
     elif 'retail' in rec['supply chain level'].lower():
         cat, func = 'Retailer', 'Administration'
     else:
@@ -155,6 +167,12 @@ def augmentRec(rec):
         newRec['NOTES'] = ''
     else:
         newRec['NOTES'] = rec['notes: re location']
+    if newRec['FUNCTION'] == 'Distribution':
+        newRec['Consumer'] = 0
+        newRec['Inventory'] = 'Std_CB_RCW25CF+Std_SingleCabTruck'
+    else:
+        newRec['Consumer'] = 1
+        newRec['Inventory'] = 'Std_CB_RCW25CF'
     
     return newRec
 
@@ -189,6 +207,47 @@ def buildRouteRecList(pairSC, facDict):
               }
              ]
     return rRecs
+
+def buildStraysRouteRecList(noClientList, noSupplierList, noNothingList, facDict):
+    straysList = noClientList + noSupplierList + noNothingList
+    straysList.sort()
+    fmKey = straysList[0]
+    rName = 'strays'
+    tmHours = 1.0
+    distKm = 1.0
+    rRecs = [{'RouteName': rName, 'idcode': fmKey, 'LocName': facDict[fmKey]['NAME'],
+              'Type': 'varpush', 'RouteOrder': 0, 'TransitHours': tmHours,
+              'DistanceKM': distKm, 'ShipIntervalDays': 7, 'ShipLatencyDays': 0,
+              "PickupDelayMagnitude": 0.0, "PickupDelaySigma": 0.0,
+              "PickupDelayFrequency": 0.0, 'PullOrderAmountDays': 7,
+              "TruckType": "Std_SingleCabTruck", 'PerDiemType': 'Std_PerDiem_None'
+              }]
+    for ind, toKey in enumerate(straysList[1:]):
+        rRecs.append({'RouteName': rName, 'idcode': toKey, 'LocName': facDict[toKey]['NAME'],
+                      'Type': 'varpush', 'RouteOrder': ind + 1, 'TransitHours': tmHours,
+                      'DistanceKM': distKm, 'ShipIntervalDays': 7, 'ShipLatencyDays': 0,
+                      "PickupDelayMagnitude": 0.0, "PickupDelaySigma": 0.0,
+                      "PickupDelayFrequency": 0.0, 'PullOrderAmountDays': 7,
+                      "TruckType": "Std_SingleCabTruck", 'PerDiemType': 'Std_PerDiem_None'
+                      })
+    return rRecs
+
+def mutateStrayStores(noClientList, noSupplierList, noNothingList, facDict):
+    straysList = noClientList + noSupplierList + noNothingList
+    straysList.sort()
+    if len(straysList) > 1:
+        newSupplierKey = straysList[0]
+        facDict[newSupplierKey]['FUNCTION'] = 'Distribution'
+        facDict[newSupplierKey]['Consumer'] = 0
+        facDict[newSupplierKey]['Inventory'] = 'Std_CB_RCW25CF+Std_SingleCabTruck'
+        if newSupplierKey in noClientList:
+            noClientList.remove(newSupplierKey)
+        elif newSupplierKey in noNothingList:
+            noNothingList.remove(newSupplierKey)
+    for idcode in noNothingList + noClientList:
+        facDict[idcode]['Consumer'] = 1
+        facDict[idcode]['Inventory'] = 'Std_CB_RCW25CF'
+        facDict[idcode]['FUNCTION'] = 'Administration'
 
 kvpParser = kvp_tools.KVPParser()
 with open(os.path.join(modelDir, defsFile), 'rU') as f:
@@ -242,27 +301,6 @@ for k1, d1 in transitDict.items():
         assert k1 in transitDict[k2],  '%s %s' % (k1, k2)
         assert transitDict[k2][k1] == rec,  '%s %s' % (k1, k2)
 
-storeKeys = ["CATEGORY", "FUNCTION", "NAME", "idcode",
-             "Device Utilization Rate", "UseVialsLatency", "UseVialsInterval",
-             "Latitude", "Longitude",
-             "PowerOutageFrequencyPerYear", "PowerOutageDurationSigma", 
-             "SiteCostCur", "PowerOutageDurationDays", "SiteCostPerYear", "SiteCostBaseYear",
-             "Inventory","Notes"]
-storeRecs = []
-for k, r in facDict.items():
-    storeRecs.append((k, buildStoreRec(r)))
-storeRecs.sort()
-storeRecs = [r for k, r in storeRecs]
-
-with open(os.path.join(modelDir, defsDict['storesfile']), 'w') as f:
-    csv_tools.writeCSV(f, storeKeys, storeRecs)
-print 'wrote %d store records' % len(storeRecs)
-
-routeKeys = ["RouteName", "idcode", "LocName", "Type", "RouteOrder", "TransitHours",
-             "TruckType", "ShipIntervalDays", "ShipLatencyDays", "PullOrderAmountDays",
-             "DistanceKM", "Conditions", "Notes",
-             "PickupDelayMagnitude", "PickupDelaySigma","PickupDelayFrequency",
-             "PerDiemType"]
 firstCat, lastCat = getCategoryChainEnds(routeCatPairs)
 allCatSet = set([fm for fm, to, policy in routeCatPairs]
                 + [to for fm, to, policy in routeCatPairs])
@@ -296,7 +334,7 @@ for fmCat, toCat, policy in routeCatPairs:
             noClientSet.discard(key)
             
     fullPairSCList.extend([p for p in pairSCList if p['from'] and p['to']])
-        
+
 noNothingList = list(noSupplierSet.intersection(noClientSet))
 noNothingList.sort()
 print 'The following unexpectedly have neither clients nor suppliers: %s' % noNothingList
@@ -310,7 +348,21 @@ print 'The following unexpectedly have no clients: %s' % noClientList
 routeRecs = []
 for pairSC in fullPairSCList:
     routeRecs.extend(buildRouteRecList(pairSC, facDict))
+routeRecs.extend(buildStraysRouteRecList(noClientList, noSupplierList, noNothingList, facDict))
 with open(os.path.join(modelDir, defsDict['routesfile']), 'w') as f:
     csv_tools.writeCSV(f, routeKeys, routeRecs)
 print 'wrote %d route records' % len(routeRecs)
+
+# Build a 'strays' route to cover the unconnected warehouses
+        
+storeRecs = []
+mutateStrayStores(noClientList, noSupplierList, noNothingList, facDict)
+for k, r in facDict.items():
+    storeRecs.append((k, buildStoreRec(r)))
+storeRecs.sort()
+storeRecs = [r for k, r in storeRecs]
+
+with open(os.path.join(modelDir, defsDict['storesfile']), 'w') as f:
+    csv_tools.writeCSV(f, storeKeys, storeRecs)
+print 'wrote %d store records' % len(storeRecs)
 

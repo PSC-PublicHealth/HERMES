@@ -494,7 +494,7 @@ class TabularDemandModel(DemandModel):
         name; the entries for each PeopleType are expected demand per
         year for that VaccineType and PeopleType.
         """
-        if isinstance(fnameOrFile,types.StringType):
+        if isinstance(fnameOrFile,types.StringTypes):
             self.demandFname= fnameOrFile
         else:
             self.demandFname= "*Unknown*"
