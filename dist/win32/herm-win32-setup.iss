@@ -103,11 +103,16 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\hermes-tray.exe"; Tasks: desktopicon
 ;Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\src\tools\start_hermes_ui.bat"; IconFilename: "{app}\win.ico"; Tasks: desktopicon
 
+[Dirs]
+Name: {commonappdata}\HERMES; permissions: everyone-modify admins-full;
+
+[INI]
+Filename: "hermes_conf.kvp"; Section: "Settings"; Key:"scratchdir"; String:"fuck"
 
 [Run]
 Filename: "{app}\python\pythonw.exe"; Parameters: "-m compileall ""{app}"""
 ;FIlename: "(cmd)"; Parameters: "/C ""(app)\src\tools\log_install_hermes.bat"""
-Filename: "{cmd}"; Parameters: "/C ""{app}\src\tools\log_install_hermes.bat"""; Flags: runhidden runasoriginaluser 
+Filename: "{cmd}"; Parameters: "/C ""{app}\src\tools\log_install_hermes.bat {commonappdata}"""; Flags: runhidden runasoriginaluser 
 Filename: "{app}\hermes-tray.exe"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 ;Filename: "{app}\src\tools\start_hermes_ui.bat"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
