@@ -804,17 +804,28 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
         
         label = rec['label'] 
         reqFlag = False
+        zeroFlag = False
         if rec['req']:
             requiredString = "<span style='color:red;font-weight:bold;'>*</span>" 
             reqFlag = True
+            if rec.has_key('canzero'):
+                if rec['canzero']:zeroFlag = True
         else:
             requiredString = "";
+        
+        defaultVal = None
+        if rec.has_key("default"):
+            defaultVal = rec['default']
+        
         if recType in ['int','float','string','dbkey']:
             default = None
-            if recType in ['int','float']:
-                default = 0
+            if defaultVal is None:
+                if recType in ['int','float']:
+                    default = 0
+                else:
+                    default = ""
             else:
-                default = ""
+                default = defaultVal
             if typeInstance is not None:
                 default = getattr(typeInstance,recKey)
                 if recType == 'string' and default is not None and len(default)>2:
@@ -825,7 +836,6 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
                         default = default[:-1]
             
             recclass ='notrequired'
-            print rec
             if rec['req']: recclass = 'required_{0}_input'.format(recType)
             if rec.has_key('canzero'):
                 if rec['canzero']:recclass += ' canzero'
@@ -886,14 +896,14 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             elif len(defaults) == 3:
                 defaultValue = "{0}:{1}:{2}".format(defaults[0],defaults[1],defaults[2])
              
-            dataDict= {'price':recKey[0],'currency':recKey[1],'year':recKey[2],'required':reqFlag}
+            dataDict= {'price':recKey[0],'currency':recKey[1],'year':recKey[2],'required':reqFlag,'canzero':zeroFlag}
             divString = "<div class='hrm_costforminput' id='{0}' data-fieldMap='{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)   
             
             editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
         elif recType == 'scaledfloat':
             defaultValue = 0.0
             if typeInstance is not None and getattr(typeInstance,recKey): defaultValue = float(getattr(typeInstance,recKey))
-            dataDict = {'value':defaultValue,'scalefactor':float(rec['scale']),'required':reqFlag}
+            dataDict = {'value':defaultValue,'scalefactor':float(rec['scale']),'required':reqFlag,'canzero':zeroFlag}
             divString = "<div class='hrm_scalefloatinput' id='{0}' data-fieldMap='{1}'></div>".format(recKey,json.dumps(dataDict))
             
             editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
@@ -909,7 +919,7 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             elif len(defaults) == 2:
                 defaultValue = "{0}:{1}".format(defaults[0],defaults[1])
                 
-            dataDict = {'time':recKey[0],'unit':recKey[1],'required':reqFlag}
+            dataDict = {'time':recKey[0],'unit':recKey[1],'required':reqFlag,'canzero':zeroFlag}
             divString = "<div class='hrm_timeforminput' id='{0}' data-fieldmap='{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)
             editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
         
@@ -926,13 +936,13 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             elif len(defaults) == 2:
                 defaultValue = "{0}:{1}".format(defaults[0], defaults[1])
             
-            dataDict = {'value':recKey[0], 'unit':recKey[1], 'lookup':None, 'lookupdict':None,'required':reqFlag}
+            dataDict = {'value':recKey[0], 'unit':recKey[1], 'lookup':None, 'lookupdict':None,'required':reqFlag,'canzero':zeroFlag}
             
             if rec.has_key('lookup'):
                 dataDict['lookup'] = rec['lookup']
                 dataDict['lookupdict'] = rec['lookupDict']
                    
-            divString = "<div class='hrm_dynamicunitforminput "+ recclass +"' id = '{0}' data-fieldmap = '{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)
+            divString = "<div class='hrm_dynamicunitforminput' id = '{0}' data-fieldmap = '{1}'>{2}</div>".format(formKey,json.dumps(dataDict),defaultValue)
             editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
         
         elif recType == "custtruckstoragetable":

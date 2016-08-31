@@ -905,6 +905,9 @@ function addToggleExpansionButton($grid) {
 	 			var req_string = "";
 	 			if($elem.data("fieldMap").required){
 	 				req_string = ' required_float_input';
+	 				if($elem.data("fieldMap").canzero){
+	 					req_string += ' canzero';
+	 				}
 	 			}
 	 			htmlString = '<div style="float:left;"><label>'+settings['label']+'</label>';
 	 			htmlString +='<input type="number" class="hrm_dynamicunit_value '+req_string+'" id="'+$(this).attr('id')+'_value"></input></div>';

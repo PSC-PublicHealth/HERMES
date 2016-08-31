@@ -707,10 +707,12 @@ function editType(id) {
 			    				},
 			    				'{{_("Save")}}':function(){
 			    					var flag = false;
+			    					var debug = true;
 			    					$(".required_string_input").each(function(){
 			    						var value = $(this).val();
 			    						if(!value || value.length === 0 || !value.trim()){
 			    							$(this).css("border-color","red");
+			    							if(debug) alert("String Bad " + $(this).attr('id'))
 			    							flag=true;
 			    						}
 			    					});
@@ -718,18 +720,21 @@ function editType(id) {
 			    						var value = $(this).val();
 			    						if(!value || value.length === 0 || !value.trim()){
 			    							$(this).css("border-color","red");
+			    							if(debug) alert("int Bad " + $(this).attr('id'))
 			    							flag=true;
 			    						}
 			    						if($(this).hasClass("canzero")){
 			    							if(value < 0.0){
 			    								$(this).css("border-color","red");
 			    								flag=true;
+			    								if(debug) alert("int zero Bad " + $(this).attr('id'))
 			    							}
 			    						}
 			    						else{
 			    							if(value <= 0.0){
 			    								$(this).css("border-color","red");
 			    								flag=true;
+			    								if(debug) alert("int eq zero Bad " + $(this).attr('id'))
 			    							}
 			    						}
 			    					});
@@ -738,17 +743,20 @@ function editType(id) {
 			    						//alert("could be zero");}
 			    						if(!value || value.length === 0 || !value.trim()){
 			    							$(this).css("border-color","red");
+			    							if(debug) alert("float Bad " + $(this).attr('id') + "Value = " + value)
 			    							flag=true;
 			    						}
 			    						if($(this).hasClass("canzero")){
 			    							if(value < 0.0){
 			    								$(this).css("border-color","red");
+			    								if(debug) alert("float zero Bad " + $(this).attr('id'))
 			    								flag=true;
 			    							}
 			    						}
 			    						else{
 			    							if(value <= 0.0){
 			    								$(this).css("border-color","red");
+			    								if(debug) alert("float eq zero Bad " + $(this).attr('id'))
 			    								flag=true;
 			    							}
 			    						}
