@@ -689,7 +689,7 @@ function editType(id) {
 						url:typesMap[currentType].editFormUrl,
 						data:{
 							'modelId':modelId,
-							'protoname':'new_type'
+							'protoname':name
 						}
 					})
 					.done(function(data){

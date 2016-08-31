@@ -908,7 +908,10 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             
             editTable.addRow([label,divString,requiredString],[rowStyleString,1,1,1])
         elif recType == 'time':
-            defaultValue = '0:days'
+            defaultValue = '0:D'
+            if defaultVal is not None:
+                defaultValue = defaultVal
+            
             defaults = []
             for key in recKey:
                 if typeInstance is not None and getattr(typeInstance,key):defaults.append(getattr(typeInstance,key))
