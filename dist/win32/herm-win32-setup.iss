@@ -71,9 +71,9 @@ Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
 Name: "ukrainian"; MessagesFile: "compiler:Languages\Ukrainian.isl"
 
 [CustomMessages]
-english.AskDelDB=Do you want to remove the {#MyAppName} database? This contains models you have created or modified while using {#MyAppName}.
-spanish.AskDelDB=¿Quiere eliminar la base de datos de {#MyAppName}? Este contiene los modelos que ha creado o modificado durante el uso de {#MyAppName}.
-russian.AskDelDB=Вы хотите удалить базу данных {#MyAppName}? Здесь находятся модели которые вы создали или модифицировали.
+english.AskDelDB=Would you like to save your current {#MyAppName} database? This contains models you have created or modified while using {#MyAppName}.
+;spanish.AskDelDB=¿Quiere eliminar la base de datos de {#MyAppName}? Este contiene los modelos que ha creado o modificado durante el uso de {#MyAppName}.
+;russian.AskDelDB=Вы хотите удалить базу данных {#MyAppName}? Здесь находятся модели которые вы создали или модифицировали.
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
@@ -86,7 +86,10 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ;   and not deleting the uninstaller .dat allows upgrades to keep track of old installed files
 
 [Files]
-Source: "..\..\HERMES2\*"; Excludes: "*.pyc,*.pyo,alembic.ini,install_hermes.log,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\demos\*,..\..\HERMES2\src\ui_www\jquery-ui-1.10.2\tests\*,..\..\HERMES2\master_data\*\regression-output\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\HERMES2\*"; Excludes: "*.accdb,*.pyc,*.pyo,alembic.ini,install_hermes.log,\performance,\examples,\dev_docs,\documentation,\src\ui_www\jquery-ui-1.10.2\demos\*,\src\ui_www\jquery-ui-1.10.2\tests\*,\master_data\*,\data,\src\obsolete,\src\appliance,\src\tools\CCEMs"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\HERMES2\master_data\unified\*"; DestDir: "{app}\master_data\unified"; Flags: ignoreversion
+Source: "..\..\HERMES2\master_data\standardtypes\*"; DestDir:"{app}\master_data\standardtypes"; Flags: ignoreversion
+Source: "..\..\HERMES2\master_data\automodels\*"; DestDir:"{app}\master_data\automodels"; Flags: ignoreversion
 Source: "misc\hermes-tray.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "misc\win.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "misc\log_install_hermes.bat"; DestDir: "{app}\src\tools"; Flags: ignoreversion
@@ -105,34 +108,49 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\hermes-tray.exe"; Tasks: 
 
 [Dirs]
 Name: {commonappdata}\HERMES; permissions: everyone-modify admins-full;
+Name: {app}\src; permissions: users-modify;
+Name: {app}\src\utils; permissions: users-modify;
+Name: {app}\python; permissions: users-modify;
 
 [INI]
-Filename: "hermes_conf.kvp"; Section: "Settings"; Key:"scratchdir"; String:"fuck"
+Filename: "{app}\hermes_conf.kvp"; Section:"settings"; Key:"scratchdir"; String:"'{commonappdata}\HERMES'"
+FIlename: "{app}\hermes_conf.kvp"; Section:"settings"; Key:"outtmpdir"; String:"'{commonappdata}\HERMES'"
+Filename: "{app}\hermes_conf.kvp"; Section:"settings"; Key:"alembicPath";String:"'{commonappdata}\HERMES'"
+Filename: "{app}\hermes_conf.kvp"; Section:"settings"; Key:"dbtype";String:"'sqlite'"
+Filename: "{app}\hermes_conf.kvp"; Section:"settings"; Key:"dbloc";String:"'{commonappdata}\HERMES\hermes.db'"
+Filename: "{app}\hermes_conf.kvp"; Section:"settings"; Key:"baseDir";String:"'{app}'"
 
 [Run]
-Filename: "{app}\python\pythonw.exe"; Parameters: "-m compileall ""{app}"""
-;FIlename: "(cmd)"; Parameters: "/C ""(app)\src\tools\log_install_hermes.bat"""
-Filename: "{cmd}"; Parameters: "/C ""{app}\src\tools\log_install_hermes.bat {commonappdata}"""; Flags: runhidden runasoriginaluser 
+Filename: "{cmd}"; Parameters: "/C """"{app}\python\pythonw.exe"" -m compileall ""{app}"""""
+Filename: "{cmd}"; Parameters: "/C """"{app}\src\tools\log_install_hermes.bat"" ""{commonappdata}\HERMES"""""; Flags: runhidden 
 Filename: "{app}\hermes-tray.exe"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 ;Filename: "{app}\src\tools\start_hermes_ui.bat"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
-Type: files; Name: "{%appdata}\HERMES\standalone.log"
-Type: dirifempty; Name: "{%appdata}\HERMES"
+;Type: files; Name: "{commonappdata}\HERMES\standalone.log"
+;Type: files; Name: "{commonappdata}\HERMES\alembic.ini"
+;Type: files; Name: "{commonappdata}\HERMES\install_hermes.log"
+Type: filesandordirs; Name: "{commonappdata}\HERMES"
 Type: filesandordirs; Name: "{app}"
 
 [Code]
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 var mRes : integer;
+var Filename : string;
 begin
-  case CurUninstallStep of
-    usUninstall:
-      begin
-        mRes := MsgBox(ExpandConstant('{cm:AskDelDB}'), mbConfirmation, MB_YESNO or MB_DEFBUTTON2)
-        if mRes = IDYES then
-          begin
-             DeleteFile(ExpandConstant('{%appdata}\HERMES\hermes.db'));
-          end;
-      end;
-  end;
+	case CurUninstallStep of
+    	usUninstall:
+      	begin
+        	mRes := MsgBox(ExpandConstant('{cm:AskDelDB}'), mbConfirmation, MB_YESNO or MB_DEFBUTTON2)
+        	if mRes = IDYES then
+          	begin
+          		Filename := '';
+        		if GetSaveFileName('', Filename, '', 'HERMES Database Files (*.db)|*.db|AllFiles|*.*', '.db') then
+      			begin
+      				FileCopy(ExpandConstant('{commonappdata}\HERMES\hermes.db'),Filename,False)
+      			end;
+          	end;
+      	end;
+  	end;
 end;
+
