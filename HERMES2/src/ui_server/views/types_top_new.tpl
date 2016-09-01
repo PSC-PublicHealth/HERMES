@@ -597,7 +597,15 @@ $("#save_name_exists_modal").dialog({
 		'{{_("OK")}}':function(){
 			$(this).dialog("close");
 		}
-	}
+	},
+	open: function(e,ui) {
+	    $(this)[0].onkeypress = function(e) {
+	    	if (e.keyCode == $.ui.keyCode.ENTER) {
+	    		e.preventDefault();
+	    		$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+	    	}
+	    };
+    },
 });
 
 $("#save_name_modal").dialog({
@@ -605,6 +613,14 @@ $("#save_name_modal").dialog({
 	height: 300,
 	width: 400,
 	modal: true,
+	open: function(e,ui) {
+	    $(this)[0].onkeypress = function(e) {
+	    	if (e.keyCode == $.ui.keyCode.ENTER) {
+	    		e.preventDefault();
+	    		$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+	    	}
+	    };
+    },
 	buttons:{
 		'{{_("Save")}}':function(){
 			doesTypeExistInModel($("#new_type_dbname_text").val(),$("#new_type_name_text").val())
@@ -689,7 +705,8 @@ function editType(id) {
 						url:typesMap[currentType].editFormUrl,
 						data:{
 							'modelId':modelId,
-							'protoname':name
+							'protoname':'new_type',
+							'newname':name
 						}
 					})
 					.done(function(data){
@@ -809,6 +826,7 @@ function editType(id) {
 	    	data:{
 	    		'modelId':modelId,
 	    		'protoname':name,
+	    		'newname':'None',
 	    		'overwrite':1,
 	    		'backUrl':B64.encode(myURL + "&startClass=" + currentType)
 	    	}

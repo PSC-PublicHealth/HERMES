@@ -45,7 +45,7 @@ fieldMap = [{'label':_('Data Base ID'), 'key':'Name', 'id':'name', 'info':False,
             {'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info': True, 'edit':True, 'type':'string', 'req':True, 'default':None},
             {'label':_('Abbreviation'), 'key':'Abbreviation', 'id':'abbreviation', 'info': True, 'edit':True, 'type':'string', 'req':True, 'default':None},
             {'label':_('Manufacturer'), 'key':'Manufacturer', 'id':'manufacturer', 'info': True, 'edit':True, 'type':'string', 'req':False, 'default':None},
-            {'label':_('Doses per vial'), 'key':'dosesPerVial', 'id':'dosespervial', 'info': True, 'edit':True, 'type':'int', 'req':True, 'default':1},
+            {'label':_('Doses per vial'), 'key':'dosesPerVial', 'id':'dosespervial', 'info': True, 'edit':True, 'type':'int', 'req':True, 'canzero':False, 'default':1},
             { 'label':_('Method of administration'), 'key':'administration', 'info': True, 'edit':True, 'none':True, 'req':False,
                 'id':'methodofadministration', 'type':'select',
                 'options':[('IM', _('Intramuscular (IM)'), [], []),
@@ -82,9 +82,9 @@ fieldMap = [{'label':_('Data Base ID'), 'key':'Name', 'id':'name', 'info':False,
                         'recMap':['coolerLifetime', 'coolerLifetimeUnits'],'default':'36:M'},
              { 'label':_('Length of time vaccine  can be stored at Below 0 C'), 'key':'freezerLifetime', 'id':'lifetimefreezer', 'info': True, 'edit':True, 'type':'time', 'req':True, 'canzero':True,
                         'recMap':['freezerLifetime', 'freezerLifetimeUnits'],'default':'0:D'},
-             { 'label':_('Packed Volume per Dose of Vaccine (mL)'), 'key':'volPerDose', 'id':'volperdosevac', 'info': True, 'edit':True, 'req':True, 'type':'float'},
-             { 'label':_('Packed Volume per Dose of Diluent (mL)'), 'key':'diluentVolPerDose', 'id':'volperdosedil', 'info': True, 'edit':True, 'req':True, 'type':'float'},
-             { 'label':_('Price of Vaccine Per Vial'), 'key':'vaccinePricePerVial', 'id':'vaccineprice', 'info': True, 'edit':True, 'type':'cost', 'req':False, 'recMap':['pricePerVial', 'priceUnits', 'priceBaseYear']},
+             { 'label':_('Packed Volume per Dose of Vaccine (mL)'), 'key':'volPerDose', 'id':'volperdosevac', 'info': True, 'edit':True, 'req':True, 'canzero':False, 'type':'float'},
+             { 'label':_('Packed Volume per Dose of Diluent (mL)'), 'key':'diluentVolPerDose', 'id':'volperdosedil', 'info': True, 'edit':True, 'req':True, 'canzero':True, 'type':'float'},
+             { 'label':_('Price of Vaccine Per Vial'), 'key':'vaccinePricePerVial', 'id':'vaccineprice', 'info': True, 'edit':True, 'type':'cost', 'req':False, 'canzero':True, 'recMap':['pricePerVial', 'priceUnits', 'priceBaseYear']},
              # { 'label':_('Price of Vaccine Per Dose'), 'key':'vaccinePricePerDose', 'id':'priceperdose', 'info': True, 'edit':False, 'type':'cost', 'recMap':['pricePerDose', 'priceUnits', 'priceBaseYear']},
              { 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'info': True, 'edit':False, 'req':False, 'type':'string'},
              { 'label':_('Secondary Packaging'), 'key':'secondaryPackaging', 'id':'secondarypackaging', 'info': True, 'edit':False, 'req':False, 'type':'string', 'default':None},
@@ -103,6 +103,7 @@ def editVaccine(db, uiSession):
 
 def jsonVaccineEditFn(attrRec, m):
     ### We need to capture the price per dose if the price per vial is there
+    lifetimes = {'coolerLifetime':0.003,'freezerLifetime':0.002,'roomtempLifetime':0.001,'openLifetime':0.01}
     if attrRec['pricePerVial'] is None or attrRec['dosesPerVial'] is None:
         attrRec['pricePerDose'] = None
     else:
@@ -116,10 +117,18 @@ def jsonVaccineEditFn(attrRec, m):
             filtAttr[k+'Units'] = b
         else:
             filtAttr[k] = v
+        
+        if k[-8:] == "Lifetime":
+            if v == 0:
+                if k in lifetimes:
+                    filtAttr[k] = lifetimes[k]
+                    filtAttr[k+'Units'] = 'D'    
+                
     return filtAttr
 
 @bottle.route('/json/vaccine-edit-verify-commit')
 def jsonVaccineEditVerifyCommit(db, uiSession):
+    # WE have to handle the lifetimes here, if we don't, the simulator will bomb
     return typehooks.jsonTypeEditVerifyAndCommit(db, uiSession, 'vaccines', fieldMap,
                                                  jsonVaccineEditFn)
             

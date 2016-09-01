@@ -672,7 +672,9 @@ def _buildTypeInfoBox(fieldMap,typeInstance,typeName="Type",model=None):
                 infoTable.addRow([rec['label'],'False'],['c',1,1])
         elif recType == 'time':
             if getattr(typeInstance, recKey[0]):
+                print "Getting recKey[0]: {0}".format(recKey[0])
                 timeValue = getattr(typeInstance,recKey[0])
+                print "Value = {0}".format(timeValue)
                 unitStr = "Months"
                 if timeValue < 0.1:
                     timeValue = "No Lifetime"
@@ -681,6 +683,8 @@ def _buildTypeInfoBox(fieldMap,typeInstance,typeName="Type",model=None):
                         if  getattr(typeInstance, "{0}".format(recKey[1])) == "D":
                             unitStr = "Days"
                         timeValue = "{0} {1}".format(timeValue, unitStr)
+            else:
+                timeValue = "No Lifetime"
             infoTable.addRow([rec['label'], timeValue], ['c', 1, 1])
         elif recType == 'dynamicunit':
             if getattr(typeInstance, recKey[0]):
@@ -740,7 +744,7 @@ def _buildTypeInfoBox(fieldMap,typeInstance,typeName="Type",model=None):
             _logMessage("Unsupported Field Type, will be ignored in creating info page for {0}".format(typeName))
             
     return infoTable.htmlString()
-def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
+def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None,newName=None):
     """
      fieldMap defines the layout of form fields on a page.  It is a 
     list of elements, each of which is a dict.  The following dict 
@@ -777,8 +781,7 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
       """
     # Pre-scan to find anything which starts out disabled
     disabledItems = set()
-    htmlDoc = HTMLDocument(name_='typeForm',
-                                                title_='TypeForm')
+    htmlDoc = HTMLDocument(name_='typeForm',title_='TypeForm')
     editTable = HTMLForm("edit_table", title_=None)
     
     ### if typeInstance is none, then we should create a new type instance for this model
@@ -818,6 +821,9 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
             defaultVal = rec['default']
         
         if recType in ['int','float','string','dbkey']:
+            if recType == 'dbkey':
+                if newName:
+                    defaultVal = newName
             default = None
             if defaultVal is None:
                 if recType in ['int','float']:
@@ -964,7 +970,7 @@ def _buildEditFieldTableNew(fieldMap,typeInstance=None,model=None):
     
 
 
-def getTypeEditHTML(db,uiSession,wireType,modelId,protoname,fieldMap):
+def getTypeEditHTML(db,uiSession,wireType,modelId,protoname,fieldMap,newName=None):
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
     if(protoname != "new_type"):
         canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, protoname)
@@ -973,7 +979,7 @@ def getTypeEditHTML(db,uiSession,wireType,modelId,protoname,fieldMap):
     
     titleStr = _("This will go in model {0}").format(model.name)
     
-    return _buildEditFieldTableNew(fieldMap,typeInstance,model=model), titleStr
+    return _buildEditFieldTableNew(fieldMap,typeInstance,model=model,newName=newName), titleStr
 
 def getRouteDialogHTML(db,uiSession,name="model_route_dialog",genInfo=True,util=True,tripMan=True):
     tabCount =1

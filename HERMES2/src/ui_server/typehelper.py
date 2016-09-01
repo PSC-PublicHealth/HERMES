@@ -253,9 +253,7 @@ def elaborateFieldMap(proposedName, instanceOrValDict, fieldMap):
             if outRec['type'] == 'lifetime':
                 outRec['value'] = (instanceOrValDict[rec['key']], instanceOrValDict[rec['key'+'Units']] )
             elif outRec['type'] == 'cost':
-                print "THERE!!!"
                 if not outRec.has_key('recMap'):
-                    print "HERE!!!!"
                     pass # NEED To throw an error
                 print instanceOrValDict.keys()
                 print rec['recMap']
@@ -269,7 +267,6 @@ def elaborateFieldMap(proposedName, instanceOrValDict, fieldMap):
             if outRec['type'] == 'lifetime':
                 outRec['value'] = (getattr(instanceOrValDict,rec['key']),getattr(instanceOrValDict,rec['key']+'Units'))
             elif outRec['type'] == 'cost':
-                print "HERE!!!"
                 if not outRec.has_key('recMap'):
                     pass # NEED To throw an error
                 outRec['value'] =  (getattr(instanceOrValDict,rec['recMap'][0]),

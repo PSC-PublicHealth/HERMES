@@ -99,10 +99,16 @@ def jsonTypeEditForm(db, uiSession, typeClass, fieldMap, useInstance=False):
         modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         protoname = _getOrThrowError(bottle.request.params, 'protoname')
+        newNameP = _safeGetReqParam(bottle.request.params,'newname')
+        if newNameP == "None":
+            newName = None
+        else:
+            newName = newNameP
+            
         htmlStr, titleStr = htmlgenerator.getTypeEditHTML(db,uiSession,
                                                           typeClass,
                                                           modelId,
-                                                          protoname, fieldMap)
+                                                          protoname, fieldMap,newName)
 
         result = {"success":True, "htmlstring":htmlStr, "title":titleStr}
     except privs.PrivilegeException:
@@ -123,7 +129,7 @@ def jsonTypeEditVerifyAndCommit(db, uiSession, typeClass, fieldMap, classEditFn=
                                                       uiSession, 
                                                       fieldMap,
                                                       allowNameCollisions=anc)
-       # print "AttRec in Type EditVer:"
+        #print "AttRec in Type EditVer:"
         #print attrRec
         if badStr and badStr!="":
             result = {'success':True, 'value':False, 'msg':badStr}
@@ -136,7 +142,7 @@ def jsonTypeEditVerifyAndCommit(db, uiSession, typeClass, fieldMap, classEditFn=
 #            print "typeClass = {0}".format(typeClass)
             shdTypesClass = shadow_network.ShdTypes.typesMap[typeClass]
             newType = shdTypesClass(attrRec.copy()) 
-#           print "newType Presentation = {0}".format(newType.presentation)
+            #print "newType Presentation = {0}".format(newType.freezerLifetime)
             db.add(newType)
             m.types[attrRec['Name']] = newType
             crumbTrack = uiSession.getCrumbs()
@@ -208,7 +214,7 @@ def jsonGetNewTypeNumber(db,uiSession):
         typeT = _getOrThrowError(bottle.request.params, 'type')
         
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
-        newTypes = [x for x in m.types if x.startswith("model_{0}_{1}_type".format(modelId,typeT))]
+        newTypes = [x for x in m.types if x.startswith("model_{0}_{1}_".format(modelId,typeT))]
         
         newTypeNums = [int(x.split('_')[-1]) for x in newTypes]
         result = None
