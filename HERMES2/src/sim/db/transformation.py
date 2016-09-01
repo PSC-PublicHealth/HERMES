@@ -137,7 +137,7 @@ def setRouteByPolicyBetweenLevels(shdNtwk,levelFrequencies):
 
 def convertToSurrogate(shdNtwk,storeId,connectToStore=None):
     (storesToConvert,routesToRemove,storesRejected) = shdNtwk.storesAndRoutesBelow(shdNtwk.stores[storeId])
-    
+    print storesToConvert
     thisStore = shdNtwk.stores[storeId]
     
     totDemandRec = thisStore.demandToRec()
@@ -146,8 +146,7 @@ def convertToSurrogate(shdNtwk,storeId,connectToStore=None):
         if store.idcode == storeId:
             continue
         storeDemRec = store.demandToRec()
-        if storeId == 1120108:
-            print storeDemRec
+        
         for k,v in storeDemRec.items():
             if k in totDemandRec.keys():
                 totDemandRec[k]+= v 
@@ -249,15 +248,17 @@ def makeLoopsOptimizedByDistanceBetweenLevels(shdNtwk,startLevel,endLevel,places
             locList = []
             
             for client in store.clients():
+                #print client
                 if client[0].CATEGORY == endLevel:
                     if client[1].Type != "attached":
                         locList.append([client[0].Longitude,client[0].Latitude,client[0]])
-                        shdNtwk.removeRoute(client[1])
+                        if client[0] == client[1].stops[:-1]:
+                            shdNtwk.removeRoute(client[1])
             
             print "Makeing Loops with Store %d as Hub"%hubLoc[2].idcode
             print "And..."
-            for loc in locList:
-                print "   %d"%loc[2].idcode
+            #for loc in locList:
+            #    print u"   %d"%loc[2].idcode
             
             (bestDistance,bestConnections) = findBestLoops(hubLoc,locList,placesPerLoop,iterations)
             
@@ -266,18 +267,18 @@ def makeLoopsOptimizedByDistanceBetweenLevels(shdNtwk,startLevel,endLevel,places
             
             ### Add vehicles to Place if they do not exist
             count = hubLoc[2].countInventory(vehicleType)
-            print "Count of Vehicle %s = %d %d %d"%(vehicleType,len(bestConnections),numberOfLoopsPerVehicle,count)
+            print u"Count of Vehicle %s = %d %d %d"%(vehicleType,len(bestConnections),numberOfLoopsPerVehicle,count)
             numVehiclesNeeded = int(math.ceil(float(len(bestConnections))/float(numberOfLoopsPerVehicle)))
-            print "Number of Vehicles Needed = %d"%numVehiclesNeeded
+            print u"Number of Vehicles Needed = %d"%numVehiclesNeeded
             if numVehiclesNeeded > count:
-                print "Adding %d %s to location %d"%(numVehiclesNeeded-count,vehicleType,hubLoc[2].idcode)
+                print u"Adding %d %s to location %d"%(numVehiclesNeeded-count,vehicleType,hubLoc[2].idcode)
                 hubLoc[2].addInventory(vehicleType,numVehiclesNeeded-count)
             ### convert best Connections to newRoutes
               
             for loop in bestConnections:
                 newLoopCount += 1
                 cumTime = 0.0
-                print "%d, %f,%f"%(loop[0],locList[loop[0]][0],locList[loop[0]][1])
+                print u"%d, %f,%f"%(loop[0],locList[loop[0]][0],locList[loop[0]][1])
                 distances = []
                 times = []
                 lat = locList[loop[0]][1]
