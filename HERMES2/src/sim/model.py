@@ -519,12 +519,74 @@ class Model:
                                                      self.sim.allReportingHierarchies[0])
             self.sim.notes.writeNotesAsCSV(fileNameRoot+'.csv')
             keys,recs = self.sim.statsManager.generateStatsRecordInfo(self.sim.allReportingHierarchies[0])
+            #print "Keys in Model: {0}".format(keys)
             csv_tools.castColumn(recs,'ReportingLevel',csv_tools.castTypes.STRING)
             csv_tools.castColumn(recs,'ReportingBranch',csv_tools.castTypes.STRING)
+            with openOutputFile(fileNameRoot+"_timethroughsystem.csv") as f:
+                vaxKeys = ["{0}_daysretention".format(n) for n in self.sim.vaccines.getActiveTypeNames()]
+                vaxKeys.append("AllVaccines_daysretention")
+                headString = u"ReportingLevel,ReportingBranch,"
+                for v in vaxKeys:
+                    headString += u"{0}_mean,{0}_max,{0}_min,".format(v)
+                f.write("{0}\n".format(headString[:-1]))
+                
+                
+                ### top first
+                for rec in recs:
+                    if rec['ReportingLevel'] == u'-top-':
+                        stringHere = u"{0},{1},".format(rec['ReportingLevel'],rec['ReportingBranch'])
+                        for v in vaxKeys:
+                            stringHere += u'{0},{1},{2},'.format(rec["{0}_mean".format(v)],rec["{0}_max".format(v)],rec["{0}_min".format(v)])
+                        
+                        f.write(u"{0}\n".format(stringHere[:-1]))
+                        break
+                
+                ### Alls next
+                recsToUse = {}
+                for rec in recs:
+                    if rec['ReportingLevel'] == u'all':
+                        #print u"{0} : {1}".format(rec['ReportingLevel'],rec['ReportingBranch'])
+                        recsToUse[rec['ReportingBranch']] = rec
+                
+                for level in self.levelList:
+                    rec = recsToUse[level]
+                    stringHere = u"{0},{1},".format(rec['ReportingLevel'],rec['ReportingBranch'])
+                    for v in vaxKeys:
+                        stringHere += u'{0},{1},{2},'.format(rec["{0}_mean".format(v)],rec["{0}_max".format(v)],rec["{0}_min".format(v)])
+                    
+                    f.write(u"{0}\n".format(stringHere[:-1]))
+                
+                ### now the individual locations   
+                for level in self.levelList:    
+                    for rec in recs:
+                        if rec['ReportingLevel'] == level:
+                            stringHere = u"{0},{1},".format(rec['ReportingLevel'],rec['ReportingBranch'])
+                            stringOrig = stringHere
+                            
+                            for v in vaxKeys:
+                                if u"{0}_mean".format(v) in rec.keys():
+                                    stringHere += u'{0},{1},{2},'.format(rec["{0}_mean".format(v)],rec["{0}_max".format(v)],rec["{0}_min".format(v)])
+                                
+                            if stringHere != stringOrig:
+                                f.write(u"{0}\n".format(stringHere[:-1]))
+                        
+                    
+                        
 #             with openOutputFile(fileNameRoot+"_retention_histograms.zip") as f:
 #                 with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as myzip:
 #                     vaxKeys = ["%s_daysretention"%n for n in self.sim.vaccines.getActiveTypeNames()]
 #                     for rec in recs:
+#                         #print "{0} {1}".format(rec['ReportingLevel'],rec['ReportingLevel']==u'-top-')
+#                         if rec['ReportingLevel'] == '-top-':
+#                             print "vaxKeys = {0}".format(vaxKeys)
+#                             print "-----------------------------------------"
+#                             for k in rec.keys():   
+#                                 print '{0}'.format(k)
+#                             for vK in vaxKeys:
+#                                 print u'{0}_raw'.format(vK) 
+#                                 print u"{0}".format(u'{0}_raw'.format(vK) in rec.keys())
+#                                 if u'{0}_raw'.format(vK) in rec.keys():
+#                                     print u"{0}: {1}".format(vK,type(rec[u'{0}_raw'.format(vK)]))#.toJSON())
 #                         for vK in vaxKeys:
 #                             if vK in rec:
 #                                 histo = rec[vK]
@@ -533,10 +595,10 @@ class Model:
 #                                 if isinstance(arcname,types.UnicodeType): arcname = arcname.encode('utf-8')
 #                                 arcname = '_'.join(arcname.split()) # remove whitespace
 #                                 myzip.writestr(arcname, histo.toJSON())
-#  
-#          
-#  
-#          
+#   
+#           
+#   
+#           
 #             with openOutputFile(fileNameRoot+"_transit_histograms.zip") as f:
 #                 with zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED) as myzip:
 #                     for rec in allRecs:
@@ -546,7 +608,7 @@ class Model:
 #                             else: arcname = nm
 #                             arcname = '_'.join(arcname.split()) # remove whitespace
 #                             myzip.writestr(arcname, rec['TransitTime'].toJSON())
-#                  
+                  
         if clear:
             for wh in [r() for r in self.sim.warehouseWeakRefs if r() is not None]:
                 wh.clearStockIntervalHistograms()
