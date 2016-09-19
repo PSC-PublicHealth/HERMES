@@ -527,19 +527,30 @@ class Model:
                 vaxKeys.append("AllVaccines_daysretention")
                 headString = u"ReportingLevel,ReportingBranch,"
                 for v in vaxKeys:
-                    headString += u"{0}_mean,{0}_max,{0}_min,".format(v)
+                    headString += u"{0}_mean,{0}_median,{0}_max,{0}_min,".format(v)
                 f.write("{0}\n".format(headString[:-1]))
-                
-                
+                 
+                 
                 ### top first
-                for rec in recs:
-                    if rec['ReportingLevel'] == u'-top-':
-                        stringHere = u"{0},{1},".format(rec['ReportingLevel'],rec['ReportingBranch'])
-                        for v in vaxKeys:
-                            stringHere += u'{0},{1},{2},'.format(rec["{0}_mean".format(v)],rec["{0}_max".format(v)],rec["{0}_min".format(v)])
-                        
-                        f.write(u"{0}\n".format(stringHere[:-1]))
-                        break
+                #for rec in recs:
+                #    if rec['ReportingLevel'] == u'-top-':
+                #        stringHere = u"{0},{1},".format(rec['ReportingLevel'],rec['ReportingBranch'])
+                #        for v in vaxKeys:
+                #            stringHere += u'{0},{1},{2},'.format(rec["{0}_mean".format(v)],rec["{0}_max".format(v)],rec["{0}_min".format(v)])
+                #         
+                #        f.write(u"{0}\n".format(stringHere[:-1]))
+                #        break
+                stringHere = u'--top--,--top--,'
+                totalHisto = util.HistoVal([])
+                for v in self.sim.vaccines.getActiveTypes():
+                    d = v.getSummaryDict()
+                    totalHisto += v.totalTransitHisto
+                    stringHere += u'{0},{1},{2},{3},'.format(d['TransitTime_mean'],d['TransitTime_median'],
+                                                             d['TransitTime_max'],d['TransitTime_min'])
+                
+                stringHere += u'{0},{1},{2},{3},'.format(totalHisto.mean(),totalHisto.median(),
+                                                         totalHisto.max(),totalHisto.min())
+                f.write(u'{0}\n'.format(stringHere[:-1]))
                 
                 ### Alls next
                 recsToUse = {}
@@ -547,29 +558,35 @@ class Model:
                     if rec['ReportingLevel'] == u'all':
                         #print u"{0} : {1}".format(rec['ReportingLevel'],rec['ReportingBranch'])
                         recsToUse[rec['ReportingBranch']] = rec
-                
+                 
                 for level in self.levelList:
                     rec = recsToUse[level]
                     stringHere = u"{0},{1},".format(rec['ReportingLevel'],rec['ReportingBranch'])
                     for v in vaxKeys:
-                        stringHere += u'{0},{1},{2},'.format(rec["{0}_mean".format(v)],rec["{0}_max".format(v)],rec["{0}_min".format(v)])
-                    
+                        stringHere += u'{0},{1},{2},{3},'.format(rec["{0}_mean".format(v)],
+                                                             rec["{0}_median".format(v)],
+                                                             rec["{0}_max".format(v)],
+                                                             rec["{0}_min".format(v)])
+                     
                     f.write(u"{0}\n".format(stringHere[:-1]))
-                
+                 
                 ### now the individual locations   
                 for level in self.levelList:    
                     for rec in recs:
                         if rec['ReportingLevel'] == level:
                             stringHere = u"{0},{1},".format(rec['ReportingLevel'],rec['ReportingBranch'])
                             stringOrig = stringHere
-                            
+                             
                             for v in vaxKeys:
                                 if u"{0}_mean".format(v) in rec.keys():
-                                    stringHere += u'{0},{1},{2},'.format(rec["{0}_mean".format(v)],rec["{0}_max".format(v)],rec["{0}_min".format(v)])
-                                
+                                    stringHere += u'{0},{1},{2},{3},'.format(rec["{0}_mean".format(v)],
+                                                                         rec["{0}_median".format(v)],
+                                                                         rec["{0}_max".format(v)],
+                                                                         rec["{0}_min".format(v)])
+                                 
                             if stringHere != stringOrig:
                                 f.write(u"{0}\n".format(stringHere[:-1]))
-                        
+                         
                     
                         
 #             with openOutputFile(fileNameRoot+"_retention_histograms.zip") as f:
