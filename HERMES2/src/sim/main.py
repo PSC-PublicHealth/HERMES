@@ -486,7 +486,7 @@ def main():
 
         globals.deterministic= gblInputs['deterministic']
 
-        from output_average import create_average_summary_CSV,create_average_report_CSV,create_average_cost_CSV
+        from output_average import create_average_summary_CSV,create_average_report_CSV,create_average_cost_CSV,create_average_timethrough_CSV
 
         # Any 'grep' requests from the input are interpreted as filters to be applied
         # to stdout, which probably includes verbose or debugging data.
@@ -596,7 +596,7 @@ def main():
                     create_average_report_CSV('./'+outputFileRoot+'.ave.csv',userInputList)
                     if userInputList[0]['pricetable'] is not None or userInputList[0]['costmodel'] == 'micro1':
                         create_average_cost_CSV('./'+outputFileRoot+'.ave_cost.csv',userInputList)
-
+                    create_average_timethrough_CSV('./'+outputFileRoot+'.ave_timethroughsystem.csv',userInputList)
             for output in outputList:
                 if output is None:
                     print "a run failed, can't create the merged output"

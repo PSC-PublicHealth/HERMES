@@ -571,20 +571,24 @@ class Model:
                     f.write(u"{0}\n".format(stringHere[:-1]))
                  
                 ### now the individual locations   
-                for level in self.levelList:    
+                for level in self.levelList:
+                    
                     for rec in recs:
                         if rec['ReportingLevel'] == level:
                             stringHere = u"{0},{1},".format(rec['ReportingLevel'],rec['ReportingBranch'])
                             stringOrig = stringHere
-                             
+                            writeFlag = False    
                             for v in vaxKeys:
                                 if u"{0}_mean".format(v) in rec.keys():
+                                    writeFlag = True
                                     stringHere += u'{0},{1},{2},{3},'.format(rec["{0}_mean".format(v)],
                                                                          rec["{0}_median".format(v)],
                                                                          rec["{0}_max".format(v)],
                                                                          rec["{0}_min".format(v)])
-                                 
-                            if stringHere != stringOrig:
+                                else:
+                                    stringHere += u'0,0,0,0,'
+                            #if stringHere != stringOrig:
+                            if writeFlag:
                                 f.write(u"{0}\n".format(stringHere[:-1]))
                          
                     

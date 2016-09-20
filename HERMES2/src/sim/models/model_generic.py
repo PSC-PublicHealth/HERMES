@@ -858,10 +858,10 @@ class Model(model.Model):
 
         storageSpace= []
         for t in [g for g in inventory if isinstance(g,abstractbaseclasses.CanStore)]:
-            print "Dev = {0}".format(t)
+            #print "Dev = {0}".format(t)
             storageSpace += [t.getType()] # CanStore instances are always singletons
         storageSC= self._getTotalVolumeSC(storageSpace)
-        print storageSC
+        #print storageSC
         totalStorage= sim.storage.getTotalRefrigeratedVol(storageSC)
         if issubclass(expectedType, warehouse.AttachedClinic) and totalStorage != 0.0:
             raise RuntimeError('The Stores file information for %s says it has storage, but it is an Attached Clinic'%name)
