@@ -1405,7 +1405,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
                  popServedPC,
                  func=None, category=None, name=None, recorder=None, breakageModel=None,
                  packagingModel=None, storageModel=None, conditions=None,longitude=0.0,
-                 latitude=0.0, origCapacityInfoOrInventory=None):
+                 latitude=0.0, origCapacityInfoOrInventory=None,bufferStockFraction=0.25):
         """
         sim is the HermesSim instance in which the warehouse is created.
         capacityInfoOrInventory is:
@@ -1466,6 +1466,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
         self.origCapacityInfoOrInventory= origCapacityInfoOrInventory
         self.buildFinished= False
         self.storageIntervalDict = {}
+        self.bufferStockFraction = bufferStockFraction
 
         #Create a list of weak references to Warehouse objects
         sim.warehouseWeakRefs.append( weakref.ref(self) )
@@ -1865,7 +1866,9 @@ class Warehouse(Store, abstractbaseclasses.Place):
                 break
     def setLowThresholdAndGetEvent(self,typeInfo,thresh):
         self.fromAboveThresholdDict[typeInfo]= thresh
+        print "Thresh = {0}".format(thresh)
         if self.lowEvent is None:
+            print "Setting low Event"
             self.lowEvent= SimEvent("Low event from %s"%self.name,sim=self.sim)
         return self.lowEvent
     def setHighThresholdAndGetEvent(self,typeInfo,thresh):
@@ -2282,7 +2285,8 @@ class Clinic(Warehouse):
                  demandModel=None,packagingModel=None,storageModel=None,
                  longitude=0.0,latitude=0.0,
                  useVialsLatency=None, useVialsTickInterval=None,
-                 origCapacityInfoOrInventory=None):
+                 origCapacityInfoOrInventory=None,
+                 bufferStockFraction=0.25):
         """
         A Clinic is a location that treats patients.  It does not ship out, so only AttachedClinics
         can be the children of Clinics.  In addition to the parameters to the constructor of
@@ -2305,7 +2309,8 @@ class Clinic(Warehouse):
                            name=name,recorder=recorder, breakageModel=breakageModel,
                            packagingModel=packagingModel, storageModel=storageModel,
                            longitude=longitude, latitude=latitude,
-                           origCapacityInfoOrInventory=origCapacityInfoOrInventory)
+                           origCapacityInfoOrInventory=origCapacityInfoOrInventory,
+                           bufferStockFraction=bufferStockFraction)
         self.leftoverDoses= HDict()
         self._accumulatedUsageVC= self.sim.shippables.getCollection()
         self._instantUsageVC = self.sim.shippables.getCollection()
@@ -2492,7 +2497,8 @@ abstractbaseclasses.Place.register(Clinic) # @UndefinedVariable
 class AttachedClinic(Clinic):
     def __init__(self,sim,owningWH,
                  popServedPC,name=None,recorder=None,breakageModel=None,
-                 demandModel=None, useVialsLatency = None, useVialsTickInterval = None):
+                 demandModel=None, useVialsLatency = None, useVialsTickInterval = None,
+                 bufferStockFraction=0.25):
         """
         This is meant to represent a clinic which is closely
         associated with a warehouse, and uses that warehouse's stores
@@ -2523,7 +2529,8 @@ class AttachedClinic(Clinic):
                         storageModel=storagemodel.DummyStorageModel(),
                         longitude=0.0,
                         latitude=0.0,useVialsLatency=useVialsLatency,
-                        useVialsTickInterval=useVialsTickInterval)
+                        useVialsTickInterval=useVialsTickInterval,
+                        bufferStockFraction=bufferStockFraction)
         if owningWH is not None:
             self.addSupplier(owningWH,{'Type':'attached'})
             owningWH.addClient(self)
@@ -3978,6 +3985,7 @@ class OnDemandShipment(Process, abstractbaseclasses.UnicodeSupport):
         """
         event= None
         thresholdVC= self.thresholdFunc(self.toW, self.pullMeanFrequency)
+        print "ThresholdVC = {0}".format(thresholdVC)
         for v,n in thresholdVC.getTupleList():
             if n>0.0:
                 event= self.toW.setLowThresholdAndGetEvent(v,n)

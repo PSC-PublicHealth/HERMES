@@ -563,10 +563,13 @@ class Model:
                     rec = recsToUse[level]
                     stringHere = u"{0},{1},".format(rec['ReportingLevel'],rec['ReportingBranch'])
                     for v in vaxKeys:
-                        stringHere += u'{0},{1},{2},{3},'.format(rec["{0}_mean".format(v)],
-                                                             rec["{0}_median".format(v)],
-                                                             rec["{0}_max".format(v)],
-                                                             rec["{0}_min".format(v)])
+                        if u"{0}_mean".format(v) in rec.keys():
+                            stringHere += u'{0},{1},{2},{3},'.format(rec["{0}_mean".format(v)],
+                                                                 rec["{0}_median".format(v)],
+                                                                 rec["{0}_max".format(v)],
+                                                                 rec["{0}_min".format(v)])
+                        else:
+                            stringHere += u'0,0,0,0,'
                      
                     f.write(u"{0}\n".format(stringHere[:-1]))
                  
