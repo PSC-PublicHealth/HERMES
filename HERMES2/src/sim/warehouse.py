@@ -4752,7 +4752,7 @@ class ScheduledVariableSizeShipment(Process,abstractbaseclasses.UnicodeSupport):
 class UseVials(Process, abstractbaseclasses.UnicodeSupport):
     def __init__(self,clinic,
                  tickInterval,patientWaitInterval,useVialPriority,
-                 startupLatency=0.0):
+                 startupLatency=0.0,openVialDenyFraction=None):
         """
         The paramters are:
 
@@ -4777,6 +4777,7 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
         self.nextTickTime= 0.0
         self.useVialPriority= useVialPriority
         self.startupLatency= startupLatency
+        self.openVialDenyFraction = openVialDenyFraction
         clinic.sim.processWeakRefs.append( weakref.ref(self) )
         
     def _buildTreatmentSummaryString(self,sim,paramTuple):
@@ -4885,6 +4886,7 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
         This is provided to allow overrides by derived classes.  The input expectedNeedVC will
         include both Deliverables and the Shippables needed to prep them.
         """
+        
         return expectedNeedVC
     
     def saveLeftoverDoses(self, leftoversList):
@@ -4977,7 +4979,7 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
             # those supplies needed to prep them for delivery.
             doseVC= self.clinic.consumptionDemandModel.getDemand(self.clinic.getPopServedPC(),
                                                                  self.tickInterval,self.sim.now())
-
+            
             treatmentTupleList, elaboratedTypeRateList, vcList, notUsedForTreatmentList = \
                 self.sortDoseRequirments(doseVC)
             #print "%s: notUsedForTreatment: %s"%(self.bName,[(v.bName,n) for v,n in notUsedForTreatmentList])
@@ -4989,6 +4991,18 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
             #print "%s: neededDeliverablesVC is %s"%(self.bName, [(v.bName,n) for v,n in neededDeliverablesVC.items()])
             elaboratedVC = self.sim.shippables.addPrepSupplies(neededDeliverablesVC)
             #print "%s: elaboratedVC is %s"%(self.bName, [(v.bName,n) for v,n in elaboratedVC.items()])
+            
+            if self.openVialDenyFraction:
+                for v,n in doseVC.items():
+                    threshold = math.floor(v.getNDosesPerVial()*self.openVialDenyFraction)
+                    nLeft = n % v.getNDosesPerVial()
+                    #print "n = {0} nLeft = {1}".format(n,nLeft)
+                    if nLeft > 0 and nLeft < threshold:
+                        testVar = elaboratedVC[v]
+                        elaboratedVC[v] -= 1
+                        if elaboratedVC[v] < 0:
+                            elaboratedVC[v] = 0
+                        #print "N = {0} threshold = {1} Before = {2} After ={3}".format(nLeft,threshold,testVar,elaboratedVC[v])
             
             self.clinic._instantUsageVC += elaboratedVC
             self.clinic._accumulatedUsageVC += elaboratedVC

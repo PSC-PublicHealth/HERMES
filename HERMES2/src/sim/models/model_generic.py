@@ -153,6 +153,11 @@ class Model(model.Model):
         self.defaultTruckTypeName= self.sim.userInput['defaulttrucktypename']
         self.autoUpdateThresholdsFlag = self.sim.userInput['autoupdatethresholds']
         self.defaultBufferStockFraction = self.sim.userInput['bufferstockfraction']
+        
+        if  self.sim.userInput['openvialdenyfraction'] < 0:
+            self.openVialDenyFraction = None
+        else:
+            self.openVialDenyFraction = self.sim.userInput['openvialdenyfraction']
 
         self.monthlyReportActivated= False
         if self.sim.userInput['monthlyreports']:
@@ -669,13 +674,15 @@ class Model(model.Model):
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency)
+                                                          totalLatency,
+                                                          openVialDenyFraction = self.openVialDenyFraction)
                 else:
                     useVials= warehouse.UseOrDiscardVials(wh,
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency)
+                                                          totalLatency,
+                                                          openVialDenyFraction = self.openVialDenyFraction)
             else:
                 if isinstance(wh,Model.SurrogateClinic):
                     useVials= warehouse.UseVialsSilently(wh,
@@ -688,13 +695,15 @@ class Model(model.Model):
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency)
+                                                          totalLatency,
+                                                          openVialDenyFraction = self.openVialDenyFraction)
                 else:
                     useVials= warehouse.UseVials(wh,
                                                  tickInterval,
                                                  patientWaitInterval,
                                                  C.useVialPriority,
-                                                 totalLatency)
+                                                 totalLatency,
+                                                 openVialDenyFraction = self.openVialDenyFraction)
             return useVials
         else:
             return None

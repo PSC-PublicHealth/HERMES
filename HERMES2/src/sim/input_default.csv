@@ -130,3 +130,4 @@ limitedroomtemp,Limited Room Temperature Storage,TF,FALSE,4,128,If set room temp
 fillcalculation,Which storage allocation calculation should be used,string,sharecool,4,129,how storage allocation is done. sharecool assumes the only contention is for refrigerated space and is faster.  share3 assumes contention for all space.,
 uavwindydayfrequency,Shawn dowing some funky stuff,float,0,3,130,,
 bufferstockfraction,Sets the default buffer stock for the whole model,float,0.25,1,131,The fraction of demand that each location will use as buffer stock.,
+openvialdenyfraction,The fraction of doses that would constitute not allowing opening of a vial,float,-1,4,132,"Advanced Feature, don't use unless you know what you are doing",
