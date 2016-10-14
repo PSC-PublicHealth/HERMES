@@ -1,0 +1,5 @@
+CATEGORY,FUNCTION,NAME,idcode,Conditions,Walk in -(lit),Walk in +(lit),IGNORE VOL - (lit),IGNORE VOL + (lit),Device Utilization Rate,WHO_Lat,WHO_Long,Pop_Lat,Pop_Long,Previous Target PopulationDO-NOT-USE,0-11monthsBCG,0-11months,12-24months,TestImpliedAttachedPeople,Total,Service1,Service2,UseVialsLatency,UseVialsInterval,Inventory,PowerOutageFrequencyPerYear,PowerOutageDurationDays,PowerOutageDurationSigma,Packaging
+Central,Distribution,Dépôt Central*,1000000,,45000,90000,844,0,1,,,13.53,2.12,1113929,,,,,,,,7,1,2*N_cold_truck+N_MF304_2003_E+2*N_MF314_2003_E+N_TFW800_2003_E,,,,pallet
+Region,Distribution,AGADEZ,1010000,,0,30000,864,110,1,16.98,7.99,,,,,,,,,,,7,1,N_4x4_truck+N_MF314_2002_E+2*N_MF314_2004_E+N_V170GE_2006_E+N_V170GE_2008_E,,,,box
+District,Distribution,Agadez,1010100,,0,0,208,55,1,16.98,7.99,,,,,,,,,,,7,1,2*N_vaccine_carrier_WHO_PQS+2*N_4x4_truck+N_MF304_2008_E+N_V170GE_2007_E+2*N_LargeCarrier_U_I,5,10,2,individual
+Integrated Health Center,Administration,Caisse,1010101,,0,0,0,24,1,,,,,1589,831,831,758,,,1,,7,28,N_RCW50EGCF_2007_E+N_LargeCarrier_U_I,,,,individual
