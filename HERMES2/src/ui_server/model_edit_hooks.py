@@ -1809,6 +1809,7 @@ def jsonModelRoutes(db, uiSession, modelId):
 
     (tree, nodeType, nodeId) = TupleFromNodeId(nodeId)
 
+    print "NODE ID = {0},{1},{2}".format(tree,nodeType,nodeId)
     with selectTree(tree):
         with ULCM():
             modelId = int(modelId)

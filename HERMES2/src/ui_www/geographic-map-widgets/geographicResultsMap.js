@@ -373,8 +373,17 @@
 									return 1.0;
 								}
 								else{
-									return 0.25;
+									return 0.0;
 								}
+							})
+							.style("visibility",function(d){
+								//console.log(d);
+								if((d.geometry.coordinates[0][0] == -1.0 && d.geometry.coordinates[0][1]==-1.0) ||
+										(d.geometry.coordinates[1][0] == -1.0 && d.geometry.coordinates[1][1]==-1.0)){
+									//console.log("hidden");
+									return "hidden";
+								}
+								else return "visible";                                                         
 							})
 							.on("click",clickRouteDialog);
 					features
@@ -407,7 +416,10 @@
 								return "black";
 								return levelColors[d.level];
 							})
-							.style("visibility","visible")
+							.style("visibility",function(d){
+									if(d.geometry.coordinates[0] == -1.0 && d.geometry.coordinates[1] == -1.0) return "hidden";
+									else return "visible";
+							})			
 							.style("stroke-width",0.010+"px")
 							.on("click",clickStoreDialog)
 							.on("mouseover",function(d){

@@ -215,28 +215,35 @@ $(function() {
 	    "json_data" : {
 		"ajax" : {
 		    "url" : "json/modelRoutes/{{modelId}}",
-		    "data" : function(n) { return { id : n.attr ? n.attr("id") : 'A-1' }; },
-                    "dataFilter" : function(data, type) {
-                        data = jQuery.parseJSON(data);
-			success = data.success;
-			if (!success) {
-			    if('errorString' in data) {
-				alert("{{_('error fetching node: ')}}"+data.errorString);
-			    } else {
-				alert("{{_('error fetching node')}}");
-			    }
-			    return NULL;
+		    "data" : function(n) { 
+		    		console.log(n);
+		    		var idhere = {id : n.attr ? n.attr("id") : 'A-1'};
+		    		console.log(idhere);
+		    		return { id : n.attr ? n.attr("id") : 'A-1' }; },
+            "dataFilter" : function(data, type) {
+                data = jQuery.parseJSON(data);
+                console.log(data);
+                success = data.success;
+                if (!success) {
+                	if('errorString' in data) {
+                		alert("{{_('error fetching node: ')}}"+data.errorString);
+                	} else {
+                		alert("{{_('error fetching node')}}");
+                	}
+                	return NULL;
+                }
+                $.merge(updatesSavedForLoadNode, data.updates);
+                console.log("HERE");
+                console.log(data.data);
+                return JSON.stringify(data.data);
+            },
+            "success" : function(result) {
+                //alert('success');
+            },
+            "error" : function(jqxhr, textStatus, error) {
+                alert("{{_('error fetching route tree')}}: "+eval(error) + " : " + textStatus);
+            } 
 			}
-			$.merge(updatesSavedForLoadNode, data.updates);
-                        return JSON.stringify(data.data);
-                    },
-                    "success" : function(result) {
-                        //alert('success');
-                    },
-                    "error" : function(jqxhr, textStatus, error) {
-                        alert("{{_('error fetching route tree')}}");
-                    } 
-		}
 	    }
 	});
 });

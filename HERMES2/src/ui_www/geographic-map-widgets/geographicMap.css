@@ -134,6 +134,7 @@
 .route-line{
 	visibility:visible;
 	cursor:pointer;
+	fill-opacity:0.0;
 }
 .route-util-line{
 	visibility:hidden;
