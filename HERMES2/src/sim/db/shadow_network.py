@@ -671,6 +671,7 @@ class ShdStore(Base, ShdCopyable):
              ('PowerOutageFrequencyPerYear',FLOAT_NONE),
              ('PowerOutageDurationDays',FLOAT_NONE),
              ('PowerOutageDurationSigma',FLOAT_NONE),
+             ('BufferStockFraction',FLOAT_NONE),
              ('Notes',             NOTES_STRING),
              ('inventory',         None, 'relationshiptype', 'onetomany'),
              ('demand',            None, 'relationshiptype', 'onetomany',

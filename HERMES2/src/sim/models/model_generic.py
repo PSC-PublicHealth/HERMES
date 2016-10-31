@@ -152,6 +152,12 @@ class Model(model.Model):
         self.defaultTruckInterval= self.sim.userInput['defaulttruckinterval']
         self.defaultTruckTypeName= self.sim.userInput['defaulttrucktypename']
         self.autoUpdateThresholdsFlag = self.sim.userInput['autoupdatethresholds']
+        self.defaultBufferStockFraction = self.sim.userInput['bufferstockfraction']
+        
+        if  self.sim.userInput['openvialdenyfraction'] < 0:
+            self.openVialDenyFraction = None
+        else:
+            self.openVialDenyFraction = self.sim.userInput['openvialdenyfraction']
 
         self.monthlyReportActivated= False
         if self.sim.userInput['monthlyreports']:
@@ -266,7 +272,7 @@ class Model(model.Model):
         vC = self.sim.shippables.addPrepSupplies(vC)
         vaccinesOnlyVC, othersVC= self._separateVaccines(vC)
         if self.autoUpdateThresholdsFlag:
-            threshVialsVC = vaccinesOnlyVC * 0.25
+            threshVialsVC = vaccinesOnlyVC * toW.bufferStockFraction
             threshVialsVC.roundUp()
             fVC,cVC,wVC = toW.calculateStorageFillRatios(threshVialsVC+othersVC)
             threshVialsVC = threshVialsVC * (fVC + cVC + wVC)
@@ -274,7 +280,7 @@ class Model(model.Model):
             toW.resetLowThresholds(threshVialsVC)
             #print "clinicShipQuantityFunc %s: thresholds reset to %s"%\
             #      (toW.name, [(v.name,n) for v,n in threshVialsVC.items()])
-        vaccinesOnlyVC *= 1.25
+        vaccinesOnlyVC *= (1.0 + toW.bufferStockFraction)
         vaccinesOnlyVC.roundUp() #yes, round up twice.
         fVC,cVC,wVC= toW.calculateStorageFillRatios(othersVC+vaccinesOnlyVC)
         fillVC= fVC+cVC+wVC
@@ -307,13 +313,17 @@ class Model(model.Model):
         vC = self.sim.shippables.addPrepSupplies(vC)
 
         vaccinesOnlyVC, othersVC= self._separateVaccines(vC)
-        vaccinesOnlyVC *= 0.25
+        vaccinesOnlyVC *= toW.bufferStockFraction
         vaccinesOnlyVC.roundUp() #yes, round up twice.
         fVC,cVC,wVC= toW.calculateStorageFillRatios(othersVC+vaccinesOnlyVC)
         fillVC= fVC+cVC+wVC
         # a fillVC value of of 0.0 implies toW has no storage, which means it's
         # an attached clinic, which means we shouldn't be dealing with it
         whatFitsVC= vaccinesOnlyVC*fillVC
+        for v,n in whatFitsVC.items():
+            print "V = {0} n = {1}".format(v,n)
+            if n >= 0.0 and n < 1.0:
+                whatFitsVC[v] = 1.0
         whatFitsVC.roundDown()
         #print "clinicShipThresholdFunc %s: %s"%(toW.name,[(v.name,n) for v,n in whatFitsVC.items()])
         return whatFitsVC
@@ -327,7 +337,8 @@ class Model(model.Model):
         vaccineVialsVC,otherVialsVC= self._separateVaccines(vC)
 
         if self.autoUpdateThresholdsFlag:
-            threshVialsVC = vaccineVialsVC * 0.25
+            threshVialsVC = vaccineVialsVC * (toW.bufferStockFraction)
+            print "thresh here = {0}".format(threshVialsVC)
             threshVialsVC.roundUp()
             fVC,cVC,wVC = toW.calculateStorageFillRatios(threshVialsVC+otherVialsVC)
             threshVialsVC = threshVialsVC * (fVC + cVC + wVC)
@@ -335,7 +346,7 @@ class Model(model.Model):
             toW.resetLowThresholds(threshVialsVC)
             #print "warehouseShipQuantityFunc %s: thresholds reset to %s"%\
             #      (toW.name, [(v.name,n) for v,n in threshVialsVC.items()])
-        vaccineVialsVC *= 1.25
+        vaccineVialsVC *= (1.0 + toW.bufferStockFraction)
         vaccineVialsVC.roundUp()
         fVC,cVC,wVC= toW.calculateStorageFillRatios(vaccineVialsVC+otherVialsVC)
         fillVC= fVC+cVC+wVC
@@ -368,13 +379,16 @@ class Model(model.Model):
         fVC,cVC,wVC= toW.calculateStorageFillRatios(totalVialsVC)
         fillVC= fVC+cVC+wVC
         scaledVaccineVialsVC= vaccineVialsVC*fillVC
-        threshVC= scaledVaccineVialsVC*0.25
+        threshVC= scaledVaccineVialsVC*toW.bufferStockFraction
         # This is to prevent there being no threshold at all
         for v,n in threshVC.items():
-            if n > 0.0 and n < 1.0:
+            print "V = {0} n = {1}".format(v,n)
+            if n >= 0.0 and n < 1.0:
                 threshVC[v] = 1.0
+        print "Thresh here 2 = {0}".format(threshVC)
         threshVC.roundDown()
-        threshVC= scaledVaccineVialsVC*0.25
+        print "Thresh here 3 = {0}".format(threshVC)
+        #threshVC= scaledVaccineVialsVC*toW.bufferStockFraction
         return threshVC
 
     def getApproxScalingVC(self,storeDict,code):
@@ -414,7 +428,7 @@ class Model(model.Model):
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
 
         # Warehouses try for a buffer stock of 1.25.
-        vaccineVialsVC *= 1.25
+        vaccineVialsVC *= (1.0 + toW.bufferStockFraction)
         # Believe you need a round up here, or the buffer may not get added to the system for small vial counts
         # (e.g. if the number of vials is 3, and then the buffer makes it 3.75, the next set of commands
         # cause it to be 3 rather than 4, which is the right answer.
@@ -660,13 +674,15 @@ class Model(model.Model):
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency)
+                                                          totalLatency,
+                                                          openVialDenyFraction = self.openVialDenyFraction)
                 else:
                     useVials= warehouse.UseOrDiscardVials(wh,
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency)
+                                                          totalLatency,
+                                                          openVialDenyFraction = self.openVialDenyFraction)
             else:
                 if isinstance(wh,Model.SurrogateClinic):
                     useVials= warehouse.UseVialsSilently(wh,
@@ -679,13 +695,15 @@ class Model(model.Model):
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency)
+                                                          totalLatency,
+                                                          openVialDenyFraction = self.openVialDenyFraction)
                 else:
                     useVials= warehouse.UseVials(wh,
                                                  tickInterval,
                                                  patientWaitInterval,
                                                  C.useVialPriority,
-                                                 totalLatency)
+                                                 totalLatency,
+                                                 openVialDenyFraction = self.openVialDenyFraction)
             return useVials
         else:
             return None
@@ -873,6 +891,15 @@ class Model(model.Model):
         else:
             packagingModel = packagingmodel.ListPackagingModel(packagingInfoList)
 
+        ### Does the location have a buffer stock set
+        if rec.has_key('BufferStockFraction'):
+            try:
+                bufferStockFraction = float(rec['BufferStockFraction'])
+            except:
+                bufferStockFraction = self.defaultBufferStockFraction
+        else:
+            bufferStockFraction = self.defaultBufferStockFraction
+        
         if (( targetPopPC is None or targetPopPC.totalCount()==0) and totalStorage==0.0):
             return None # dead warehouse
         elif isClinic:
@@ -883,7 +910,8 @@ class Model(model.Model):
                 w= Model.SurrogateClinic(sim,None,
                                          targetPopPC,
                                          name=name, breakageModel=brModel, demandModel=self.demandModelTuple,
-                                         useVialsLatency=clinicLatency, useVialsTickInterval= clinicInterval)
+                                         useVialsLatency=clinicLatency, useVialsTickInterval= clinicInterval,
+                                         bufferStockFraction=bufferStockFraction)
             elif isOutreach:
                 w= Model.OutreachClinic(sim, sim.shippables.getActiveTypes(),
                                         storagetypes.storageTypes,
@@ -895,7 +923,8 @@ class Model(model.Model):
                                         storageModel=storagemodel.StorageModel(True),
                                         latitude=latitude,longitude=longitude,
                                         useVialsLatency = clinicLatency, useVialsTickInterval= clinicInterval,
-                                        conditions = conditions,origCapacityInfoOrInventory=inventoryOrg)
+                                        conditions = conditions,origCapacityInfoOrInventory=inventoryOrg,
+                                        bufferStockFraction = bufferStockFraction)
             elif coolStorage==0.0 or issubclass(expectedType, warehouse.AttachedClinic):
                 # This is an attached clinic.
                 if conditions is not None:
@@ -904,7 +933,8 @@ class Model(model.Model):
                                             targetPopPC,
                                             name=name, breakageModel=brModel, demandModel= self.demandModelTuple,
                                             useVialsLatency=clinicLatency,
-                                            useVialsTickInterval=clinicInterval)
+                                            useVialsTickInterval=clinicInterval,
+                                            bufferStockFraction = bufferStockFraction)
 
             else:
                 # This is a clinic
@@ -918,7 +948,8 @@ class Model(model.Model):
                                     storageModel=storagemodel.StorageModel(True),
                                     latitude=latitude,longitude=longitude,
                                     useVialsLatency = clinicLatency, useVialsTickInterval= clinicInterval,
-                                    conditions = conditions,origCapacityInfoOrInventory=inventoryOrg)
+                                    conditions = conditions,origCapacityInfoOrInventory=inventoryOrg,
+                                    bufferStockFraction = bufferStockFraction)
                 #print "Using " + str(clinicInterval) + " " + str(clinicLatency)
         else:
             # This is a warehouse
@@ -934,7 +965,8 @@ class Model(model.Model):
                                           packagingModel=packagingModel,
                                           storageModel=storagemodel.StorageModel(False),
                                           latitude=latitude,longitude=longitude, conditions=conditions,
-                                          origCapacityInfoOrInventory=inventoryOrg)
+                                          origCapacityInfoOrInventory=inventoryOrg,
+                                          bufferStockFraction = bufferStockFraction)
             else:
                 w= warehouse.Warehouse(sim,sim.shippables.getActiveTypes(),
                                        storagetypes.storageTypes,
@@ -945,7 +977,8 @@ class Model(model.Model):
                                        packagingModel=packagingModel,
                                        storageModel=storagemodel.StorageModel(False),
                                        latitude=latitude, longitude=longitude, conditions=conditions,
-                                       origCapacityInfoOrInventory=inventoryOrg)
+                                       origCapacityInfoOrInventory=inventoryOrg,
+                                       bufferStockFraction=bufferStockFraction)
 
         #print w.category,w.name
         w.setNoteHolder(sim.notes.createNoteHolder())
