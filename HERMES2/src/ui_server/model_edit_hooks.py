@@ -956,7 +956,45 @@ def updateCategory(inputId, model, origStr, newStr):
     store.CATEGORY = newStr.strip()
     return store.CATEGORY
 
+def renderStoreFunction(store):
+#    userInput = getUserInput(store.model)
+#     levels = set(categoryLevelList(store.model, userInput))
+#     centralLevels = set(centralLevelCategories(store.model, userInput))
+#     
+#     levels = levels - centralLevels
+# 
+#     if store.CATEGORY in centralLevels:
+#         opts = list(centralLevels)
+#     elif store.CATEGORY in levels:
+#         opts = list(levels)
+#     else:
+#         print "store %d in model %d has invalid category %s"%(store.idcode, store.modelId, store.CATEGORY)
+#         levels.add(store.CATEGORY)
+#         opts = list(levels)
+    
+    opts = ["Distribution","Administration","Outreach"]
+    return renderBasicEditableField(store, 'storeFunction', _('Function'), store.FUNCTION, 
+                                    pullDownOpts = opts)
 
+def updateFunction(inputId, model, origStr, newStr):
+    modelId, itemId, field = inputIdTriple(inputId)
+    store = getStoreFromItemId(model, itemId)
+    
+    userInput = getUserInput(model)
+    #levels = set(categoryLevelList(model, userInput))
+    #centralLevels = set(centralLevelCategories(model, userInput))
+    #levels = levels - centralLevels
+
+#     if origStr in centralLevels:
+#         if newStr not in centralLevels:
+#             raise InvalidUpdate(_("Central stores can't change categories."))
+# 
+#     else:
+#         if newStr not in levels:
+#             raise InvalidUpdate(_("Attempting to change to an invalid category"))
+
+    store.FUNCTION = newStr.strip()
+    return store.FUNCTION
 def renderStoreLatLon(store):
     fields = [EditableFieldInfo('storeLatitude', _('Latitude'), store.Latitude, size=10),
               EditableFieldInfo('storeLongitude', _('Longitude'), store.Longitude, size=10)]
@@ -1336,6 +1374,7 @@ def renderStoreData(store):
     ret.append('<div class="store-edits-border">')
     ret.extend(renderStoreName(store))
     ret.extend(renderStoreCategory(store))
+    ret.extend(renderStoreFunction(store))
     ret.extend(renderStoreLatLon(store))
     ret.extend(renderStoreUseVials(store))
     ret.extend(renderStoreDeviceUtilizationRate(store))
@@ -1875,6 +1914,7 @@ def jsonModelRoutes(db, uiSession, modelId):
 # (or throw an invalid update exception)
 updateFn = {
     'storeCategory' : updateCategory,
+    'storeFunction' : updateFunction,
     'storeLatitude' : updateFloat,
     'storeLongitude' : updateFloat,
     'storeUseVialsInterval' : updateFloat,

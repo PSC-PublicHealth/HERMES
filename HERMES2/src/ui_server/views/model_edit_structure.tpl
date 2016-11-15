@@ -23,6 +23,7 @@
 % Attrs = [
 %    { 'field' : "Name",         'type' : 'store', 'title' : _('names') },
 %    { 'field' : "Category",     'type' : 'store', 'title' : _('categories') },
+%    { 'field' : "Function",     'type' : 'store', 'title' : _('function') },
 %    { 'field' : "LatLon",       'type' : 'store', 'title' : _('lat / lon') },
 %    { 'field' : "UseVials",     'type' : 'store', 'title' : _('use vials') },
 %    { 'field' : "UtilizationRate", 'type' : 'store', 'title' : _('utilization rate') },
