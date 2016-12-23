@@ -801,7 +801,7 @@ def buildNetwork(storeKeys, storeRecList,
             util.logWarning("dropping record with no idcode")
             continue
         if rec['idcode'] <= 0:
-            raise RuntimeError("Store IDCODE values must be positive; other values are reserved for special cases")
+            raise RuntimeError("Store IDCODE values must be positive; (current value ({0}) other values are reserved for special cases".format(rec['idcode']))
 
         # drop any records marked "disabled"
         if 'recdisabled' in rec:
@@ -1135,9 +1135,9 @@ def realityCheck(sim):
                     sim.outputfile.write("%s %ld: %s\n"%(wh.bName,code,wh.getStorageBlocks()))
 
                     
-    if len(inputList)>1 and len(inputList)>0.2*len(sim.storeDict):
-        fatalMessages.append("There are %d factories, which is implausible."%\
-                             len(inputList))
+    #if len(inputList)>1 and len(inputList)>0.2*len(sim.storeDict):
+    #    fatalMessages.append("There are %d factories, which is implausible."%\
+    #                         len(inputList))
 
     for topTierWH,topCode in inputList:
         nTotWh,whTierDict,popTierDict= \

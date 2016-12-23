@@ -1215,10 +1215,10 @@ def share3_allocateOwnerStorageSpace(canOwn,stockBuf):
         if sb.storageType==canOwn.sim.storage.roomtempStorage():
             #SILLY_CHECK_FOR_OUTDOORS
             if sb.volAvail == 1000000000000:
-                print "appending Outdoors"
+                #print "appending Outdoors"
                 outdoorBlocks.append(sb)
             else:
-                print "appending Warm Block {0}".format(sb)
+                #print "appending Warm Block {0}".format(sb)
                 warmBlocks.append(sb)
         elif sb.storageType==canOwn.sim.storage.frozenStorage():
             freezeBlocks.append(sb)

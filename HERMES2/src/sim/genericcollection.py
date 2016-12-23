@@ -150,6 +150,9 @@ class GenericCollection:
         elif isinstance(other,int):
             for k in self.keys():
                 result.vDict[k]= other*self.vDict[k]
+        elif isinstance(other,long):
+            for k in self.keys():
+                result.vDict[k]= other*self.vDict[k]
         elif isinstance(other,float):
             for k in self.keys():
                 result.vDict[k]= other*self.vDict[k]
