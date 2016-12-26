@@ -291,8 +291,10 @@ class HermesSim(SimulationStep):
             storeKeys,storeRecList = shdNet.createStoreRecs()
             routeKeys,routeRecList = shdNet.createRouteRecs()
             factoryKeys, factoryRecList = shdNet.createFactoryRecs()
+            tripManifestKeys = None
+            tripManifestRecList = None
         else:
-            (storeKeys, storeRecList, routeKeys, routeRecList, factoryKeys, factoryRecList) = \
+            (storeKeys, storeRecList, routeKeys, routeRecList, factoryKeys, factoryRecList, tripManifestKeys, tripManifestRecList) = \
                 load_networkrecords.readNetworkRecords(self.userInput)
 
 
@@ -324,7 +326,8 @@ class HermesSim(SimulationStep):
                                    self.model.getDefaultSupplier,
                                    self.model.getDefaultTruckTypeName,
                                    self.model.getDefaultTruckInterval,
-                                   self.model.getDefaultPullMeanFrequency
+                                   self.model.getDefaultPullMeanFrequency,
+                                   tripManifestKeys,tripManifestRecList
                                    )
 
         # We have to do this here because finishBuild may trigger the calculation of shipment

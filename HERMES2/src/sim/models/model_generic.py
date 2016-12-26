@@ -211,6 +211,18 @@ class Model(model.Model):
         # allowing the vaccination to take place.
         self.patientWaitInterval= self.sim.userInput['patientwaitinterval']
 
+        # There needs to be a delay that allows the request of a vehicle to happen before 
+        # it is actually loaded.  This can have serious effects on a calendar demand 
+        # schedule that needs precision.  So This is variable can be set.  DO NOT SET UNLESS YOU KNOW WHAT YOU ARE DOING!!!
+        
+        self.reqCycleStartupDelay = self.sim.userInput['requestlatencydelay']
+        
+        # There is a factor that can be used to add a random delay for useVials to start up
+        # which for precisely timed chains (like a retrospective) this will mess all sorts of stuff up
+        # so exposing this so that it can be set. DO NOT SET UNLESS YOU KNOW WHAT YOU ARE DOING!!!
+        
+        self.useVialsRandomDelay = self.sim.userInput['usevialsrandomdelay']
+        
         ##################
         # End of info provided via the input file
         ##################
@@ -423,7 +435,9 @@ class Model(model.Model):
         # safety stock.
         #demandDownstreamVialsVC= toW.getInstantaneousDemandVC((timeNow,timeNow+shipInterval))            
         demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval))
-        #if fromW.idcode == 1:
+        if fromW.idcode == 13:
+            print "Shit {0}: {1}".format(shipInterval,timeNow)
+            print "Shit {0}".format(demandDownstreamVialsVC)
         #    print "Demand: " + str(demandDownstreamVialsVC)
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
 
@@ -507,6 +521,8 @@ class Model(model.Model):
                 ### Use the demand expectation in doses and scale it by wastage estimates
                 demandDownstreamDosesVC = self.demandModelTuple[0].getDemandExpectation(targetStore.getTotalDownstreamPopServedPC(),
                                                                                         daysUntilNextShipment)
+                if targetStore.idcode == 1:
+                    print demandDownstreamDosesVC
                 vaccineDosesVC,otherDosesVC = self._separateVaccines(demandDownstreamDosesVC)
 
                 vaccineD2VVC= vaccineDosesVC*self.sim.vaccines.getDosesToVialsVC()
@@ -518,12 +534,15 @@ class Model(model.Model):
                         if v.name in factory.wasteEstimatesDict.keys():
                             wastage =1.0 + float(factory.wasteEstimatesDict[v.name])
                         scaledTupleList.append((v,math.ceil(nVials*wastage)))
-
                     vaccineVialsVC = self.sim.shippables.getCollection(scaledTupleList)
+                else:
+                    vaccineVialsVC = vaccineD2VVC
+                #vaccineVialsVC, otherVialsVC = self._separateVaccines(vaccineVialsTotVC)
             else:
                 raise RuntimeError("in getFactoryProductionVC, invalid demandType of %s for %s" % (factory.demandType, factory.name))
 
-            #print "getFactoryProductionVC: vaccineVialsVC: " + str([(v.name,n) for v,n in vaccineVialsVC.items()])
+            if targetStore.idcode == 1:
+                print "getFactoryProductionVC: vaccineVialsVC: " + str([(v.name,n) for v,n in vaccineVialsVC.items()])
             #print factory.overstockScale
             ### Filter by vaccines produced by this factory
             if factory.vaccinesProd is not None:
@@ -545,8 +564,9 @@ class Model(model.Model):
             lowVC = targetStore.getPackagingModel().applyPackagingRestrictions(lowVC)
             lowVC.roundUp()
             totalShipment[targetStore] = lowVC
-            #print "getFactoryProductionVC for %s: Actual amount: %s" % \
-            #    (targetStore.name, [(v.name, n) for v, n in lowVC.items()])
+            if targetStore.idcode == 1:
+                print "getFactoryProductionVC for %s: Actual amount: %s" % \
+                (targetStore.name, [(v.name, n) for v, n in lowVC.items()])
         #print "Total Shipment = " + str(totalShipment)
         return totalShipment
 
