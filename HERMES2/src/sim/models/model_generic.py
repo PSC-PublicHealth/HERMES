@@ -839,10 +839,11 @@ class Model(model.Model):
             isSurrogate = False
             isOutreach = True
         elif function.lower() == "distribution":
-            isClinic = False
-            isSurrogate = False
-            assert not issubclass(expectedType, warehouse.Clinic), \
-                'Location %s(%ld) is marked as a distribution facility but is not used like a Warehouse'%(name, code)
+            pass
+            #isClinic = False
+            #isSurrogate = False
+            #assert not issubclass(expectedType, warehouse.Clinic), \
+            #    'Location %s(%ld) is marked as a distribution facility but is not used like a Warehouse'%(name, code)
         else:
             raise RuntimeError("Unknown FUNCTION %s for %s(%ld)"%(function,name,code))
 
