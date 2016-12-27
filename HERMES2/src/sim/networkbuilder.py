@@ -310,8 +310,8 @@ def _innerBuildManifestPushRoute(routeName, sim, locList, storeDict, tripManDict
         raise RuntimeError("Route {0} is a manifestpush route, and needs to have a trip manifest defined".format(routeName))
     
     if not tripManDict.has_key(routeName):
-        raise RuntimeError("Route {0} doesn't have an entry in the trip manifest".format(routeName))
-    
+        util.logWarning("Route {0} doesn't have an entry in the trip manifest".format(routeName))
+        return None,None
     conditions = _conditionsFromRec(supplierRec)
     
     clientRec = locList[1]
@@ -331,15 +331,24 @@ def _innerBuildManifestPushRoute(routeName, sim, locList, storeDict, tripManDict
         transitChain.append((schedEntry['StartDay'],schedEntry['EndDay'],clientWH,conditions,schedEntry['Amounts']))
  
     ### Now lets see if we need to make multiple routes to overcome overlapping
-    numberOfRoutes,RoutesDict = ManifestPushShipperUtilities.separateTransitChainIntoMultipleProcesses(transitChain)
-    #print transitChain
+    numberOfRoutes,RoutesList = ManifestPushShipperUtilities.separateTransitChainIntoMultipleProcesses(transitChain)
+#     if supplierKey == 23:
+#         #print transitChain
+#         print [(x[0],x[1]) for x in transitChain]
+# #         for tc in transitChain:
+# #             print "{0}".format(tc)
+# #             
+# #         for r,d in RoutesDict.items():
+# #             print "{0}:{1}".format(r,d)
+#         sys.exit()
     #print "RoutesDict = {0}".format(RoutesDict)
     # Set Latency to the first shipment and add a little delay to make sure that the requests come before the loading
     #sys.exit()
     allShippingProcsInfo = []
     
-    for rId,transitList in RoutesDict.items():
-        newRouteName = "{0}{1}".format(routeName,rId)
+    rCount = 1
+    for transitList in RoutesList:
+        newRouteName = "{0}_man{1}".format(routeName,rCount)
         
         shipStartupLatency = transitList[0][0]
         reqCycleStartupLatency= shipStartupLatency-sim.model.reqCycleStartupDelay
@@ -380,7 +389,7 @@ def _innerBuildManifestPushRoute(routeName, sim, locList, storeDict, tripManDict
     
     
     
-    
+        rCount += 1
     return supplierWH, allShippingProcsInfo
         
     
@@ -396,6 +405,9 @@ def _buildManifestPushRoute(routeName,sim,locList,storeDict,
     
     
     allShippingProcs = []
+    if supplierWH is None:
+        return []
+    
     for shipProc,newRouteName,transitList,reqLatency in allShippingProcsInfo:
         ### Only works for point to point
         allShippingProcs.append(shipProc)

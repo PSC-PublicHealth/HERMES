@@ -40,10 +40,48 @@ from route_types.create_travel_generator import createTravelGenerator
 class ManifestPushShipperUtilities():
     """
     This method takes a transit chain and separates the transitChain into multple none overlapping routes
+    not pretty but does the job
+    
+    basically, starts with transit 1 and then runs through the list to make a coherent chain of non overlapping
+    intervals, then it starts over with a new seed. eList has all of the elements that have been placed.  It keeps 
+    doing this until there are x number of independent routes.
     """
     
     @staticmethod
     def separateTransitChainIntoMultipleProcesses(transitChain):
+        routes = []
+        eList = []
+        maxIterations = 1000
+        count = 0
+        
+        while len(eList)< len(transitChain):
+            curList = []
+            ### find the first tc that has not been eliminated
+            for i in range(0,len(transitChain)):
+                if i not in eList:
+                    curList.append(transitChain[i])
+                    eList.append(i)
+                    testS = transitChain[i][0]
+                    testE = transitChain[i][1]
+                    break
+            for i in range(0,len(transitChain)):
+                if i in eList:
+                    continue
+                if transitChain[i][0] >= testE:
+                    curList.append(transitChain[i])
+                    eList.append(i)
+                testS = curList[-1][0]
+                testE = curList[-1][1]
+            count += 1 ## put a safety measure in so HERMES never locks up
+            if count > maxIterations:
+                raise RuntimeError("stupid separate function didn't work")
+            routes.append(curList)
+            
+                
+        
+        
+        
+        '''
         bins = {}
         i=0
         while i < len(transitChain):
@@ -73,8 +111,8 @@ class ManifestPushShipperUtilities():
         
         for route,tcs in routes.items():
             tcs.sort(key=operator.itemgetter(0,1))
-    
-        return len(routes.keys()),routes
+    '''
+        return len(routes),routes
             
     
 class ManifestPushShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
@@ -185,7 +223,7 @@ class ManifestPushShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
                         ('move',(transitTime,self.fromW,toW,'normal')),
                         ('alldeliver',(toW,totalVC,-1.0)),
                         ('recycle', (toW,self.packagingModel,self.storageModel)),
-                        ('move',(transitTime,toW,self.fromW,'normal')),
+                        ('move',(0.0001,toW,self.fromW,'normal')), ## just get it back there so that it doesn't have to return
                         ('unload',(self.fromW,)),
                         ('finish',(self.fromW,self.fromW))]
             
@@ -203,6 +241,8 @@ class ManifestPushShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
             
             
             self.currentShipment += 1
+            if (self.nextWakeTime-self.sim.now()) < 0:
+                print "FUCK: Route {0} gave negative waittime: {0},{1},{2}".format(self.bName,self.sim.now(),self.nextWakeTime,self.nextWakeTime-self.sim.now())
             yield hold,self,self.nextWakeTime-self.sim.now()
             
     def __repr__(self):
