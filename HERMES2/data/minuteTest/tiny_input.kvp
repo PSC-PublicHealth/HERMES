@@ -29,3 +29,4 @@ autoupdatethresholds = TRUE
 storagebreakage = 0.01,0.01,0.01,0.01
 transitbreakage = 0.01,0.01,0.01,0.01
 openvialdenyfraction = .50 
+tripmanifestfile ='TinyManifest.csv'

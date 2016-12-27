@@ -136,14 +136,15 @@ class ManifestPushShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
                                                                                      self.transitChain[self.currentShipment]))
             
             ### Obtain the amount to ship from the transit Chain
-            totalVC = self.fromW.getAndForgetPendingShipment(self.toW)
+            toW = self.transitChain[self.currentShipment][2]
+            totalVC = self.fromW.getAndForgetPendingShipment(toW)
             
-            transitTime = self.transitChain[self.currentShipment][1]-self.transitChain[currentShipment][0]
+            transitTime = self.transitChain[self.currentShipment][1]-self.transitChain[self.currentShipment][0]
             
             stepList = [('load',(self.fromW,self.packagingModel, self.storageModel, totalVC)),
-                        ('move',(transitTime,self.fromW,self.toW,'normal')),
-                        ('unload',(self.toW,)),
-                        ('finish',(self.toW,self.fromW))]
+                        ('move',(transitTime,self.fromW,toW,'normal')),
+                        ('unload',(toW,)),
+                        ('finish',(toW,self.fromW))]
             
             if totalVC.totalCount() > 0:
                 travelGen= warehouse.createTravelGenerator(self.bName,
@@ -177,7 +178,7 @@ class ManifestScheduledShipment(Process, abstractbaseclasses.UnicodeSupport):
         """
         
         if name is None:
-            name = "ManifestScheduledShipment_{0}_{1}".format(fromWarehouse.name,toWarehouse.name)
+            name = u"ManifestScheduledShipment_{0}_{1}".format(fromWarehouse.name,toWarehouse.name)
         Process.__init__(self, name=name,sim=fromWarehouse.sim)
         
         self.fromW = fromWarehouse
@@ -212,8 +213,8 @@ class ManifestScheduledShipment(Process, abstractbaseclasses.UnicodeSupport):
     
             
     def __repr__(self):
-        return "<ManifestScheduledShipment({0},{1})>".format(self.fromW.name,self.toW.name)
+        return u"<ManifestScheduledShipment({0},{1})>".format(self.fromW.name,self.toW.name)
     def __str__(self): 
-        return "<ManifestScheduledShipment({0},{1})>".format(self.fromW.name,self.toW.name)
+        return u"<ManifestScheduledShipment({0},{1})>".format(self.fromW.name,self.toW.name)
     
 

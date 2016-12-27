@@ -560,6 +560,8 @@ class Model:
                         recsToUse[rec['ReportingBranch']] = rec
                  
                 for level in self.levelList:
+                    if not level in recsToUse.keys():
+                        continue
                     rec = recsToUse[level]
                     stringHere = u"{0},{1},".format(rec['ReportingLevel'],rec['ReportingBranch'])
                     for v in vaxKeys:

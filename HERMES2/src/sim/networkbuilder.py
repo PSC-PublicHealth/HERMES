@@ -354,8 +354,7 @@ def _innerBuildManifestPushRoute(routeName, sim, locList, storeDict, tripManDict
                                              C.shipPriority,
                                              startupLatency=shipStartupLatency,
                                              truckType=truckType,
-                                             name="{0}_{1}_{2}".format("ManifestPushShipperProcess",
-                                                                       supplierWH.name,routeName),
+                                             name=u"{0}_{1}_{2}".format(u"ManifestPushShipperProcess",supplierWH.name,routeName),
                                              delayInfo=delayInfo)
 
     shipperProc.setNoteHolder( sim.notes.createNoteHolder() )
@@ -367,9 +366,7 @@ def _innerBuildManifestPushRoute(routeName, sim, locList, storeDict, tripManDict
                               clientIds = [clientKey],
                               routeType = supplierRec['Type'],
                               truckType = truckType,
-                              interval = 0.0,
-                              starts = [x[0] for x in transitChain],
-                              amounts = [x[4] for x in transitChain],
+                              interval = [(x[0],x[4]) for x in transitChain],
                               latency = shipStartupLatency)
     
     
@@ -791,7 +788,7 @@ def _addImplicitAttachedClinic(rec, sim, storeDict, warehouseFromRec):
 
     routeName= "implicit_attached_neg%ld"%ownerId
     return _buildAttachedRoute(routeName, sim, [rec, tweakedRec], storeDict, 
-                               None, None, None, None, None, None)
+                               None, None, None, None, None, None,None)
 
 def buildNetwork(storeKeys, storeRecList, 
 		 routeKeys, routeRecList, 

@@ -1924,7 +1924,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
         self._instantaneousDemandVC= instantaneousDemandVC*self.sim.vaccines.getVialsToDosesVC()
         self._instantaneousDemandInterval= interval
 
-    def getProjectedDemandVC(self,interval,recurLevel=0):
+    def getProjectedDemandVCOrg(self,interval,recurLevel=0):
         """
         This routine provides a (rather expensive) way to propagate demand
         figures up the distribution tree immediately, as if all the warehouses
@@ -1969,6 +1969,72 @@ class Warehouse(Store, abstractbaseclasses.Place):
             #print "    %s--> %s"%("    "*recurLevel,delta)
             resultVC += delta
         #print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
+        return resultVC
+
+    def getProjectedDemandVC(self,interval,recurLevel=0):
+        """
+        This routine provides a (rather expensive) way to propagate demand
+        figures up the distribution tree immediately, as if all the warehouses
+        had called each other on the phone to total things up. This routine
+        recurses through the distribution network, totaling all the demand
+        levels registered by downstream clients.  Beware diamond- shaped
+        distribution graphs; demand can be double-counted!  By convention the
+        result is in vials, not doses.
+        
+        interval should be a tuple, (timeStart, timeEnd).
+        """
+        tStart,tEnd= interval
+        print "sh %s%s %s %s:"%("    "*recurLevel,self.bName,tStart,tEnd)
+        resultVC = self.sim.shippables.getCollection()
+        clientDict= dict([(w.code,(w,[])) for w in self.getClients()])      
+        print clientDict          
+        for rDict in self.getClientRoutes():
+            print rDict
+            interval= rDict['interval']
+            latency=  rDict['latency']
+            for c in rDict['clientIds']:
+                w,routeTupleList= clientDict[c]
+                routeTupleList.append((interval,latency))
+        nonMan = 0
+        for code,valTuple in clientDict.items():
+            w,routeList= valTuple
+            bestPrev= None
+            bestNext= None
+            print "RL = {0}".format(routeList)
+            mdelta = self.sim.shippables.getCollection()
+            for interval,latency in routeList:
+                if isinstance(interval,list):
+                    
+                    if len(interval) > 0 and len(mdelta) == 0:
+                        for v in interval[0][1].keys():
+                            mdelta[v] = 0.0
+                    for startI,amount in interval:
+                        if startI >= tStart and startI <= tEnd:
+                            for v,n in amount.items():
+                                mdelta[v] += n
+                else:
+                    nonMan+=1
+                    if interval is None: # denoting an attached clinic
+                        prevTime= tStart
+                        nextTime= tEnd
+                    else:
+                        prevCycle= max(math.ceil((tStart-latency)/interval),0)
+                        nextCycle= max(math.floor((tEnd-latency)/interval)+1,1)
+                        if nextCycle == prevCycle: nextCycle += 1
+                        prevTime= prevCycle*interval+latency
+                        nextTime= nextCycle*interval+latency
+                    if bestPrev is None: bestPrev= prevTime
+                    else: bestPrev= max(bestPrev,prevTime)
+                    if bestNext is None: bestNext= nextTime
+                    else: bestNext= min(bestNext,nextTime)
+                #print "    %s%s: %s %s"%("   "*recurLevel,w.bName,bestPrev,bestNext)
+                if nonMan > 0:
+                    delta= w.getProjectedDemandVC((bestPrev,bestNext),recurLevel=recurLevel+1)
+                    
+                    resultVC += delta
+            #print "    %s--> %s"%("    "*recurLevel,delta)
+            resultVC += mdelta
+        print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
         return resultVC
     
     def getInstantaneousDemandVC(self,interval,recurLevel=0):
@@ -4095,9 +4161,9 @@ class OnDemandShipment(Process, abstractbaseclasses.UnicodeSupport):
             logVerbose(self.sim,"%s finished waiting; shipping at %g"%(self.bName,self.sim.now()))
 
     def __repr__(self):
-        return "<OnDemandShipment(%s,%s,%s,%s,%g,%g,%g)>"%\
-            (self.fromW.name,self.toW.name,
-             self.thresholdVC,self.quantityFunction,self.transitTime,
+        return u"<OnDemandShipment({0},{1},{2},{3},{4},{5},{6})>".format (self.fromW.name,
+                                                                             self.toW.name,
+                                                                                                            self.thresholdVC,self.quantityFunction,self.transitTime,
              self.pullMeanFrequency,self.minimumDaysBetweenShipments)
     def __str__(self): 
         return "<OnDemandShipment(%s,%s)>"%(self.fromW.name,self.toW.name)
@@ -4221,9 +4287,8 @@ class PersistentOnDemandShipment(OnDemandShipment):
             logVerbose(self.sim,"%s received event and waited; shipping at %g"%(self.bName,self.sim.now()))
 
     def __repr__(self):
-        return "<PersistentOnDemandShipment(%s,%s,%s,%s,%g,%g,%g)>"%\
-            (self.fromW.name,self.toW.name,
-             self.thresholdVC,self.quantityFunction,self.transitTime,
+        return u"<PersistentOnDemandShipment({0},{1},{2},{3},{4},{5},{6})>".format(self.fromW.name,self.toW.name,
+                                                                                  self.thresholdVC,self.quantityFunction,self.transitTime,
              self.pullMeanFrequency,self.minimumDaysBetweenShipments)
     def __str__(self): 
         return "<PersistentOnDemandShipment(%s,%s)>"%(self.fromW.name,self.toW.name)
@@ -4359,8 +4424,7 @@ class FetchOnDemandShipment(OnDemandShipment):
             logVerbose(self.sim,"%s finished waiting; shipping at %g"%(self.bName,self.sim.now()))
 
     def __repr__(self):
-        return "<FetchOnDemandShipment(%s,%s,%s,%s,%g,%g,%g)>"%\
-            (self.fromW.name,self.toW.name,
+        return u"<FetchOnDemandShipment({0},{1},{2},{3},{4},{5},{6})>".format(self.fromW.name,self.toW.name,
              self.thresholdVC,self.quantityFunction,self.transitTime,
              self.pullMeanFrequency,self.minimumDaysBetweenShipments)
     def __str__(self): 
@@ -4483,8 +4547,7 @@ class PersistentFetchOnDemandShipment(OnDemandShipment):
             logVerbose(self.sim,"%s received event and waited; shipping at %g"%(self.bName,self.sim.now()))
 
     def __repr__(self):
-        return "<PersistentFetchOnDemandShipment(%s,%s,%s,%s,%g,%g,%g)>"%\
-            (self.fromW.name,self.toW.name,
+        return u"<PersistentFetchOnDemandShipment({0},{1},{2},{3},{4},{5},{6})>".format(self.fromW.name,self.toW.name,
              self.thresholdVC,self.quantityFunction,self.transitTime,
              self.pullMeanFrequency,self.minimumDaysBetweenShipments)
     def __str__(self): 

@@ -1,6 +1,6 @@
 RouteName,Type,LocName,idcode,RouteOrder,TransitHours,TruckType,ShipIntervalDays,ShipLatencyDays,PullOrderAmountDays,Conditions,DistanceKM
-B,varpush,Dépôt Central*,1000000,0,,N_cold_truck,28,0,0,,
-B,varpush,Agadez,1010000,1,24,N_cold_truck,28,0,,,
+B,manifestpush,Dépôt Central*,1000000,0,,N_cold_truck,28,0,0,,
+B,manifestpush,Agadez,1010000,1,24,N_cold_truck,28,0,,,
 r1010100,pull,Agadez,1010000,0,,N_4x4_truck,28,1,28,,
 r1010100,pull,Agadez,1010100,1,24,N_4x4_truck,28,1,28,,
 r1010101,pull,Agadez,1010100,0,4,N_vaccine_carrier_WHO_PQS,28,1,28,,956

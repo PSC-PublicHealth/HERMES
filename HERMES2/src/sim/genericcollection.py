@@ -203,6 +203,8 @@ class GenericCollection:
         l= self.vDict.items()
         if globals.deterministic: l.sort()
         return l
+    def __len__(self):
+        return len(self.keys())
     def totalCount(self):
         """
         Returns the total number of elements of any type-

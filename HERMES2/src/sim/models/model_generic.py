@@ -154,10 +154,11 @@ class Model(model.Model):
         self.autoUpdateThresholdsFlag = self.sim.userInput['autoupdatethresholds']
         self.defaultBufferStockFraction = self.sim.userInput['bufferstockfraction']
         
-        if  self.sim.userInput['openvialdenyfraction'] < 0:
-            self.openVialDenyFraction = None
-        else:
-            self.openVialDenyFraction = self.sim.userInput['openvialdenyfraction']
+        self.openVialDenyFraction = None
+#         if  self.sim.userInput['openvialdenyfraction'] < 0:
+#             self.openVialDenyFraction = None
+#         else:
+#             self.openVialDenyFraction = self.sim.userInput['openvialdenyfraction']
 
         self.monthlyReportActivated= False
         if self.sim.userInput['monthlyreports']:
@@ -435,9 +436,7 @@ class Model(model.Model):
         # safety stock.
         #demandDownstreamVialsVC= toW.getInstantaneousDemandVC((timeNow,timeNow+shipInterval))            
         demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval))
-        if fromW.idcode == 13:
-            print "Shit {0}: {1}".format(shipInterval,timeNow)
-            print "Shit {0}".format(demandDownstreamVialsVC)
+       
         #    print "Demand: " + str(demandDownstreamVialsVC)
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
 
@@ -694,15 +693,15 @@ class Model(model.Model):
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency,
-                                                          openVialDenyFraction = self.openVialDenyFraction)
+                                                          totalLatency)
+                                                         # openVialDenyFraction = self.openVialDenyFraction)
                 else:
                     useVials= warehouse.UseOrDiscardVials(wh,
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency,
-                                                          openVialDenyFraction = self.openVialDenyFraction)
+                                                          totalLatency)
+                                                          #openVialDenyFraction = self.openVialDenyFraction)
             else:
                 if isinstance(wh,Model.SurrogateClinic):
                     useVials= warehouse.UseVialsSilently(wh,
@@ -715,15 +714,15 @@ class Model(model.Model):
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency,
-                                                          openVialDenyFraction = self.openVialDenyFraction)
+                                                          totalLatency)
+                                                          #openVialDenyFraction = self.openVialDenyFraction)
                 else:
                     useVials= warehouse.UseVials(wh,
                                                  tickInterval,
                                                  patientWaitInterval,
                                                  C.useVialPriority,
-                                                 totalLatency,
-                                                 openVialDenyFraction = self.openVialDenyFraction)
+                                                 totalLatency)
+                                                 #openVialDenyFraction = self.openVialDenyFraction)
             return useVials
         else:
             return None
