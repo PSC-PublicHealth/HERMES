@@ -42,7 +42,12 @@ from powercut import PowerCut, AddPowerCutInfo
 import random
 from reportinghierarchy import ReportingHierarchyNode
 from delayinfo import DelayInfo
-from manifest_shipping_processes import ManifestPushShipperProcess,ManifestScheduledShipment
+from route_types.manifest_shipper_processes import ManifestPushShipperProcess,ManifestScheduledShipment,ManifestPushShipperUtilities
+from route_types.basic_shipper_processes import ShipperProcess,ScheduledShipment,ScheduledVariableSizeShipment
+from route_types.ask_on_delivery_shipper_process import AskOnDeliveryShipperProcess
+from route_types.drop_and_collect_shipper_process import DropAndCollectShipperProcess
+from route_types.fetch_shipper_process import FetchShipperProcess
+from route_types.on_demand_shipment_process import OnDemandShipment,FetchOnDemandShipment,PersistentFetchOnDemandShipment,PersistentOnDemandShipment
 
 # Where to look in a route list for the supplier entry, by route type
 supplierOffsetByRouteType= {'push':0, 'varpush':0, 'pull':0, 'attached':0, 'askingpush':0, 'manifestpush':0,
@@ -225,11 +230,11 @@ def _buildPushRoute(routeName, sim, locList, storeDict,
     supplierWH, shipInterval, reqCycleStartupLatency, transitChain, allShippingProcs= \
         _innerBuildScheduledRoute(routeName, sim, locList, storeDict, 
                                   getShipInterval, getStartupLatency, getTruckInterval, getOrderPendingLifetime,
-                                  warehouse.ShipperProcess)
+                                  ShipperProcess)
     
     # Last stop in the chain is the supplier (after the return leg); everyone else is a client
     for clientWH in [wh for transitTime,wh,conditions in transitChain[:-1]]:
-        ship= warehouse.ScheduledShipment(supplierWH, clientWH,
+        ship= ScheduledShipment(supplierWH, clientWH,
                                           shipInterval, None,
                                           startupLatency=reqCycleStartupLatency)
         allShippingProcs.append(ship)
@@ -243,11 +248,11 @@ def _buildVarPushRoute(routeName, sim, locList, storeDict,
     supplierWH, shipInterval, reqCycleStartupLatency, transitChain, allShippingProcs= \
         _innerBuildScheduledRoute(routeName, sim, locList, storeDict, 
                                   getShipInterval, getStartupLatency, getTruckInterval, getOrderPendingLifetime,
-                                  warehouse.ShipperProcess)
+                                  ShipperProcess)
     
     # Last stop in the chain is the supplier (after the return leg); everyone else is a client
     for clientWH in [wh for transitTime,wh,conditions in transitChain[:-1]]:
-        ship= warehouse.ScheduledVariableSizeShipment(supplierWH, clientWH,
+        ship= ScheduledVariableSizeShipment(supplierWH, clientWH,
                                                       shipInterval, None,
                                                       startupLatency=reqCycleStartupLatency)
         allShippingProcs.append(ship)
@@ -260,11 +265,11 @@ def _buildAskingPushRoute(routeName, sim, locList, storeDict,
     supplierWH, shipInterval, reqCycleStartupLatency, transitChain, allShippingProcs= \
         _innerBuildScheduledRoute(routeName, sim, locList, storeDict, 
                                   getShipInterval, getStartupLatency, getTruckInterval, getOrderPendingLifetime,
-                                  warehouse.AskOnDeliveryShipperProcess)
+                                  AskOnDeliveryShipperProcess)
     
     # Last stop in the chain is the supplier (after the return leg); everyone else is a client
     for clientWH in [wh for transitTime,wh,conditions in transitChain[:-1]]:
-        ship= warehouse.ScheduledVariableSizeShipment(supplierWH, clientWH,
+        ship= ScheduledVariableSizeShipment(supplierWH, clientWH,
                                                       shipInterval, None,
                                                       startupLatency=reqCycleStartupLatency)
         allShippingProcs.append(ship)
@@ -277,21 +282,21 @@ def _buildDropAndCollectRoute(routeName, sim, locList, storeDict,
     supplierWH, shipInterval, reqCycleStartupLatency, transitChain, allShippingProcs= \
         _innerBuildScheduledRoute(routeName, sim, locList, storeDict, 
                                   getShipInterval, getStartupLatency, getTruckInterval, getOrderPendingLifetime,
-                                  warehouse.DropAndCollectShipperProcess)
+                                  DropAndCollectShipperProcess)
     
     # Last stop in the chain is the supplier (after the return leg); everyone else is a client
     visited = set()
     for clientWH in [wh for transitTime,wh,conditions in transitChain[:-1]]:
         if clientWH not in visited:
-            ship= warehouse.ScheduledVariableSizeShipment(supplierWH, clientWH,
-                                                          shipInterval, None,
-                                                          startupLatency=reqCycleStartupLatency)
+            ship= ScheduledVariableSizeShipment(supplierWH, clientWH,
+                                                shipInterval, None,
+                                                startupLatency=reqCycleStartupLatency)
             allShippingProcs.append(ship)
             visited.add(clientWH)
 
     return allShippingProcs
 
-def _innerBuildManifestPushRoute(routeName, sim, locList, storeDict, tripManDict):
+def _innerBuildManifestPushRoute(routeName, sim, locList, storeDict, tripManDict, getOrderPendingLifetime):
     ### This only works for point to point routes
     supplierRec= locList[0]
     supplierKey= supplierRec['idcode']
@@ -324,69 +329,82 @@ def _innerBuildManifestPushRoute(routeName, sim, locList, storeDict, tripManDict
     transitChain = []
     for schedEntry in transitSchedule:
         transitChain.append((schedEntry['StartDay'],schedEntry['EndDay'],clientWH,conditions,schedEntry['Amounts']))
-    #transitChain.append((0.0,supplierWH,conditions))
-    #transitChain.append((0.0,clientWH.conditions))
-   
+ 
+    ### Now lets see if we need to make multiple routes to overcome overlapping
+    numberOfRoutes,RoutesDict = ManifestPushShipperUtilities.separateTransitChainIntoMultipleProcesses(transitChain)
+    #print transitChain
+    #print "RoutesDict = {0}".format(RoutesDict)
+    # Set Latency to the first shipment and add a little delay to make sure that the requests come before the loading
+    #sys.exit()
+    allShippingProcsInfo = []
     
-    ### Check to make sure that the schedule had valid product id's
-#     for sched in trasitSchedule:
-#         for k,r in sched:
-#             if k in ['RouteName','StartDay','EndDay','Notes']:
-#                 continue
-#             else:
-#                 try:
-#                     prod = sim.vaccines.getTypeByName[k]
-#                 except Exception as e:
-#                     raise RuntimeError('Product {0} specified in TripManifest for route {1}, but not specified in model'.format(k,routeName))
-#     
-    # Always start right away
-    shipStartupLatency = 0.0
+    for rId,transitList in RoutesDict.items():
+        newRouteName = "{0}{1}".format(routeName,rId)
+        
+        shipStartupLatency = transitList[0][0]
+        reqCycleStartupLatency= shipStartupLatency-sim.model.reqCycleStartupDelay
+        if reqCycleStartupLatency<0.0:
+            reqCycleStartupLatency= 0.0
+            shipStartupLatency= sim.model.reqCycleStartupDelay
+        shipStartupLatency = 0.0
+        
+        truckType = sim.trucks.getTypeByName(supplierTruckType, sim=sim)
+        
+        delayInfo = _GetDelayInfo(sim.userInput, supplierRec, sim)
+        
+        supplierWH.addClient(clientWH)
+        clientWH.addSupplier(supplierWH,supplierRec)
+        
+        shipperProc = ManifestPushShipperProcess(supplierWH,
+                                                 transitList,
+                                                 getOrderPendingLifetime(storeDict,supplierKey),
+                                                 C.shipPriority,
+                                                 startupLatency=shipStartupLatency,
+                                                 truckType=truckType,
+                                                 name=u"{0}_{1}_{2}".format(u"ManifestPushShipperProcess",supplierWH.name,newRouteName),
+                                                 delayInfo=delayInfo)
     
-    truckType = sim.trucks.getTypeByName(supplierTruckType, sim=sim)
-    
-    delayInfo = _GetDelayInfo(sim.userInput, supplierRec, sim)
-    
-    supplierWH.addClient(clientWH)
-    clientWH.addSupplier(supplierWH,supplierRec)
-    
-    shipperProc = ManifestPushShipperProcess(supplierWH,
-                                             transitChain,
-                                             C.shipPriority,
-                                             startupLatency=shipStartupLatency,
-                                             truckType=truckType,
-                                             name=u"{0}_{1}_{2}".format(u"ManifestPushShipperProcess",supplierWH.name,routeName),
-                                             delayInfo=delayInfo)
-
-    shipperProc.setNoteHolder( sim.notes.createNoteHolder() )
-    shipperProc.noteHolder.addNote({'RouteName':routeName,
-                                    'RouteTruckType':truckType.bName})
-    allShippingProcs = [shipperProc]
-    supplierWH.addClientRoute(name = routeName,
-                              proc = shipperProc,
-                              clientIds = [clientKey],
-                              routeType = supplierRec['Type'],
-                              truckType = truckType,
-                              interval = [(x[0],x[4]) for x in transitChain],
-                              latency = shipStartupLatency)
+        shipperProc.setNoteHolder( sim.notes.createNoteHolder() )
+        shipperProc.noteHolder.addNote({'RouteName':newRouteName,
+                                        'RouteTruckType':truckType.bName})
+        allShippingProcsInfo.append((shipperProc, newRouteName, transitList,reqCycleStartupLatency))
+        
+        supplierWH.addClientRoute(name = newRouteName,
+                                  proc = shipperProc,
+                                  clientIds = [clientKey],
+                                  routeType = supplierRec['Type'],
+                                  truckType = truckType,
+                                  interval = [(x[0],x[4]) for x in transitList],
+                                  latency = shipStartupLatency)
     
     
     
     
     
-    return supplierWH,transitChain, allShippingProcs
+    return supplierWH, allShippingProcsInfo
         
     
 def _buildManifestPushRoute(routeName,sim,locList,storeDict,
                             getShipInterval, getStartupLatency, getTruckInterval, getPullControlFuncs,
                             getPullMeanFrequency, getOrderPendingLifetime,tripManDict):
-    supplierWH,transitChain,allShippingProcs= _innerBuildManifestPushRoute(routeName,sim,locList,storeDict,tripManDict)
+    supplierWH,allShippingProcsInfo=_innerBuildManifestPushRoute(routeName,
+                                                                 sim,
+                                                                 locList,
+                                                                 storeDict,
+                                                                 tripManDict,
+                                                                 getOrderPendingLifetime)
     
     
-    ### Only works for point to point
-    clientWH = transitChain[0][2]
-    ship = ManifestScheduledShipment(supplierWH,clientWH,
-                                     transitChain)
-    allShippingProcs.append(ship)
+    allShippingProcs = []
+    for shipProc,newRouteName,transitList,reqLatency in allShippingProcsInfo:
+        ### Only works for point to point
+        allShippingProcs.append(shipProc)
+        clientWH = transitList[0][2]
+        ship = ManifestScheduledShipment(supplierWH,clientWH,
+                                         transitList, 
+                                         startupLatency=reqLatency,
+                                         name="{0}_SchedRequest".format(newRouteName))
+        allShippingProcs.append(ship)
     
     return allShippingProcs
     
@@ -500,7 +518,7 @@ def _innerBuildScheduledFetchRoute(routeName, sim, locList, storeDict, getShipIn
 
     delayInfo = _GetDelayInfo(sim.userInput, supplierRec, sim)
 
-    shipperProc= warehouse.FetchShipperProcess(startingWH, transitChain,
+    shipperProc= FetchShipperProcess(startingWH, transitChain,
                                                shipInterval,
                                                getOrderPendingLifetime(storeDict,
                                                                        supplierKey),
@@ -538,7 +556,7 @@ def _buildScheduledFetchRoute(routeName, sim, locList, storeDict,
     
     # Last stop in the chain is the supplier (after the return leg); everyone else is a client
     for clientWH in [wh for transitTime,wh,conditions in transitChain[1:]]:
-        ship= warehouse.ScheduledShipment(supplierWH, clientWH,
+        ship= ScheduledShipment(supplierWH, clientWH,
                                           shipInterval, None,
                                           startupLatency=reqCycleStartupLatency)
         allShippingProcs.append(ship)
@@ -556,7 +574,7 @@ def _buildScheduledVarFetchRoute(routeName, sim, locList, storeDict,
     
     # Last stop in the chain is the supplier (after the return leg); everyone else is a client
     for clientWH in [wh for transitTime,wh,conditions in transitChain[1:]]:
-        ship= warehouse.ScheduledVariableSizeShipment(supplierWH, clientWH,
+        ship= ScheduledVariableSizeShipment(supplierWH, clientWH,
                                                       shipInterval, None,
                                                       startupLatency=reqCycleStartupLatency)
         allShippingProcs.append(ship)
@@ -689,7 +707,7 @@ def _buildPullRoute(routeName, sim, locList, storeDict,
     return _innerBuildPullRoute(routeName, sim, locList, storeDict,
                                 getShipInterval, getStartupLatency, getTruckInterval, getPullControlFuncs,
                                 getPullMeanFrequency, getOrderPendingLifetime,
-                                warehouse.OnDemandShipment,"pull")
+                                OnDemandShipment,"pull")
 
 def _buildPersistentPullRoute(routeName, sim, locList, storeDict, 
                               getShipInterval, getStartupLatency, getTruckInterval, getPullControlFuncs,
@@ -698,7 +716,7 @@ def _buildPersistentPullRoute(routeName, sim, locList, storeDict,
     return _innerBuildPullRoute(routeName, sim, locList, storeDict,
                                 getShipInterval, getStartupLatency, getTruckInterval, getPullControlFuncs,
                                 getPullMeanFrequency, getOrderPendingLifetime,
-                                warehouse.PersistentOnDemandShipment,"persistentpull")
+                                PersistentOnDemandShipment,"persistentpull")
 
 def _buildDemandFetchRoute(routeName, sim, locList, storeDict, 
                            getShipInterval, getStartupLatency, getTruckInterval, getPullControlFuncs,
@@ -707,7 +725,7 @@ def _buildDemandFetchRoute(routeName, sim, locList, storeDict,
     return _innerBuildPullRoute(routeName, sim, locList, storeDict,
                                 getShipInterval, getStartupLatency, getTruckInterval, getPullControlFuncs,
                                 getPullMeanFrequency, getOrderPendingLifetime,
-                                warehouse.FetchOnDemandShipment,"demandfetch")
+                                FetchOnDemandShipment,"demandfetch")
 
 def _buildPersistentDemandFetchRoute(routeName, sim, locList, storeDict, 
                                      getShipInterval, getStartupLatency, getTruckInterval, getPullControlFuncs,
@@ -716,7 +734,7 @@ def _buildPersistentDemandFetchRoute(routeName, sim, locList, storeDict,
     return _innerBuildPullRoute(routeName, sim, locList, storeDict,
                                 getShipInterval, getStartupLatency, getTruckInterval, getPullControlFuncs,
                                 getPullMeanFrequency, getOrderPendingLifetime,
-                                warehouse.PersistentFetchOnDemandShipment,"persistentdemandfetch")
+                                PersistentFetchOnDemandShipment,"persistentdemandfetch")
 
 def _buildAttachedRoute(routeName,sim,locList,storeDict,
                         getShipInterval, getStartupLatency, getTruckInterval, getPullControlFuncs,
@@ -1242,7 +1260,7 @@ def realityCheck(sim):
                                      (wh,code,wh.getPopServedPC()))
         else:
             for s in wh.getSuppliers():
-                if isinstance(s[0],warehouse.Factory):
+                if isinstance(s,warehouse.Factory):
                     inputList.append((wh,code))
                     break
             if wh.getPopServedPC().totalCount()>0:

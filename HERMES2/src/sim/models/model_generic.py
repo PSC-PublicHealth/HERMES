@@ -392,6 +392,7 @@ class Model(model.Model):
         fVC,cVC,wVC= toW.calculateStorageFillRatios(totalVialsVC)
         fillVC= fVC+cVC+wVC
         scaledVaccineVialsVC= vaccineVialsVC*fillVC
+        print "Buffy: {0}".format(toW.bufferStockFraction)
         threshVC= scaledVaccineVialsVC*toW.bufferStockFraction
         # This is to prevent there being no threshold at all
         for v,n in threshVC.items():
@@ -441,6 +442,7 @@ class Model(model.Model):
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
 
         # Warehouses try for a buffer stock of 1.25.
+        print "Buffer Stock: {0}".format(toW.bufferStockFraction)
         vaccineVialsVC *= (1.0 + toW.bufferStockFraction)
         # Believe you need a round up here, or the buffer may not get added to the system for small vial counts
         # (e.g. if the number of vials is 3, and then the buffer makes it 3.75, the next set of commands
@@ -500,7 +502,7 @@ class Model(model.Model):
             if factory.demandType == "Projection":
                 ### Get demand in vials as a projection of the population demand
                 demandDownstreamVialsVC = targetStore.getProjectedDemandVC((timeNow, timeNow + daysUntilNextShipment))
-                #print "Before: {0}".format(demandDownstreamVialsVC)
+                print "Before: {0}".format(demandDownstreamVialsVC)
                 scaledTupleList = []
                 
                 if factory.wasteEstimatesDict:
@@ -514,8 +516,9 @@ class Model(model.Model):
                     vaccineVialsTotVC = self.sim.shippables.getCollection(scaledTupleList)
                 else:
                     vaccineVialsTotVC = demandDownstreamVialsVC
-                #print "After: {0}".format(vaccineVialsTotVC)
+                print "After: {0}".format(vaccineVialsTotVC)
                 vaccineVialsVC, otherVialsVC = self._separateVaccines(vaccineVialsTotVC)
+                print "Afterglow: {0}".format(vaccineVialsVC)
             elif factory.demandType == "Expectation":
                 ### Use the demand expectation in doses and scale it by wastage estimates
                 demandDownstreamDosesVC = self.demandModelTuple[0].getDemandExpectation(targetStore.getTotalDownstreamPopServedPC(),
@@ -540,8 +543,8 @@ class Model(model.Model):
             else:
                 raise RuntimeError("in getFactoryProductionVC, invalid demandType of %s for %s" % (factory.demandType, factory.name))
 
-            if targetStore.idcode == 1:
-                print "getFactoryProductionVC: vaccineVialsVC: " + str([(v.name,n) for v,n in vaccineVialsVC.items()])
+            
+            print "getFactoryProductionVC: vaccineVialsVC: " + str([(v.name,n) for v,n in vaccineVialsVC.items()])
             #print factory.overstockScale
             ### Filter by vaccines produced by this factory
             if factory.vaccinesProd is not None:
@@ -563,8 +566,8 @@ class Model(model.Model):
             lowVC = targetStore.getPackagingModel().applyPackagingRestrictions(lowVC)
             lowVC.roundUp()
             totalShipment[targetStore] = lowVC
-            if targetStore.idcode == 1:
-                print "getFactoryProductionVC for %s: Actual amount: %s" % \
+            
+            print "getFactoryProductionVC for %s: Actual amount: %s" % \
                 (targetStore.name, [(v.name, n) for v, n in lowVC.items()])
         #print "Total Shipment = " + str(totalShipment)
         return totalShipment

@@ -22,7 +22,7 @@ This module contains the shipping processes to implement a Manifest Shipping Pro
 import ipath
 import weakref
 import sys,os,string
-import types,math
+import types,math,operator
 
 from SimPy.Simulation import *
 
@@ -42,8 +42,49 @@ from enums import StorageTypeEnums as ST
 
 import warehouse
 
+class ManifestPushShipperUtilities():
+    """
+    This method takes a transit chain and separates the transitChain into multple none overlapping routes
+    """
+    
+    @staticmethod
+    def separateTransitChainIntoMultipleProcesses(transitChain):
+        bins = {}
+        i=0
+        while i < len(transitChain):
+            bins[i] = []
+            thisTC = transitChain[i]
+            thisTCId = i
+            startT = thisTC[0]
+            endT = thisTC[1]
+            i+=1
+            for tc2 in transitChain[i:]:
+                if tc2[0] <= endT:
+                    bins[thisTCId].append(i)
+                    i+=1
+                else:
+                    break
+        
+        routes = {"_man1":[]}
+        for b,ts in bins.items():
+            routes["_man1"].append(transitChain[b])
+            rNum = 2
+            for b2 in ts:
+                routeName = "_man{0}".format(rNum)
+                if not routes.has_key(routeName):
+                    routes[routeName] = []
+                routes[routeName].append(transitChain[b2])
+                rNum += 1
+        
+        for route,tcs in routes.items():
+            tcs.sort(key=operator.itemgetter(0,1))
+    
+        return len(routes.keys()),routes
+            
+    
 class ManifestPushShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
-    def __init__(self,fromWarehouse,transitChain,shipPriority,startupLatency=0.0,
+    def __init__(self,fromWarehouse,transitChain,orderPendingLifetime, 
+                 shipPriority,startupLatency=0.0,
                  truckType=None,name=None, delayInfo=None):
         
         """
@@ -58,6 +99,7 @@ class ManifestPushShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
         
         self.fromW = fromWarehouse
         self.transitChain = transitChain
+        self.orderPendingLifetime = orderPendingLifetime
         if startupLatency > 0.0:
             raise RuntimeError("ManifestPushShipperProcess must have a startupLatency of 0 for route {0}".format(name))
         
@@ -118,10 +160,12 @@ class ManifestPushShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
         logVerbose(self.sim,"{0}: latency: {1}, manifest route; my transit chain is {2}".format(self.bName,self.startupLatency,self.transitChain))
         
         while True:
+            
             ### Set the next wake up time to the next time we ship
-            if self.currentShipment < len(self.transitChain):
-                self.nextWakeTime += self.transitChain[self.currentShipment+1][0]
+            if self.currentShipment + 1 < len(self.transitChain):
+                self.nextWakeTime = self.transitChain[self.currentShipment+1][0]
             else:
+                self.currentShipment = self.currentShipment-1
                 self.nextWakeTime = 999999
                 
             # simulate a truck delay (PLACE HOLDER)
@@ -135,18 +179,23 @@ class ManifestPushShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
                                                                                      self.currentShipment,
                                                                                      self.transitChain[self.currentShipment]))
             
+            
             ### Obtain the amount to ship from the transit Chain
             toW = self.transitChain[self.currentShipment][2]
             totalVC = self.fromW.getAndForgetPendingShipment(toW)
-            
+           
             transitTime = self.transitChain[self.currentShipment][1]-self.transitChain[self.currentShipment][0]
             
             stepList = [('load',(self.fromW,self.packagingModel, self.storageModel, totalVC)),
                         ('move',(transitTime,self.fromW,toW,'normal')),
-                        ('unload',(toW,)),
-                        ('finish',(toW,self.fromW))]
+                        ('alldeliver',(toW,totalVC,-1.0)),
+                        ('recycle', (toW,self.packagingModel,self.storageModel)),
+                        ('move',(transitTime,toW,self.fromW,'normal')),
+                        ('unload',(self.fromW,)),
+                        ('finish',(self.fromW,self.fromW))]
             
             if totalVC.totalCount() > 0:
+                
                 travelGen= warehouse.createTravelGenerator(self.bName,
                                                            stepList,
                                                            self.truckType,
@@ -157,16 +206,17 @@ class ManifestPushShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
             else:
                 logVerbose(self.sim,"{0}: no order to ship at {1}".format(self.bName,self.sim.now()))
             
+            
             self.currentShipment += 1
             yield hold,self,self.nextWakeTime-self.sim.now()
             
     def __repr__(self):
+        print self.currentShipment
+        print "{0}".format(self.transitChain[self.currentShipment])
         return "<ManifestPushShipperProcess({0},{1})>".format(repr(self.fromW),
-                                                              repr(self.transitChain[self.currentShipment]))
+                                                               '{0}'.format(self.transitChain[self.currentShipment]))
     def __str__(self):
-        return "<ShipperProcess({0},{1},{2})>".format(self.fromW.name,
-                                                      str(self.transitChain[self.currentShipment]),
-                                                      self.interval)           
+        return "<ManifestShipperProcess({0})>".format(self.fromW.bName)          
 
 
 class ManifestScheduledShipment(Process, abstractbaseclasses.UnicodeSupport):
@@ -185,7 +235,11 @@ class ManifestScheduledShipment(Process, abstractbaseclasses.UnicodeSupport):
         self.toW = toWarehouse
         self.orderManifest = [(x[0],x[4]) for x in transitChain] # the start Day and the amounts
         
-        self.startupLatency = self.orderManifest[0][0] # wake this bitch up on the first shipment day
+        ### Note, this is set in networkbuilder, which is a bit ass, because it is hidden.
+        ### It is normally set to the startup latency of its matching process - a short delay
+        ### see _buildManifestPushRoute and _innerBuildManifestPushRoute in networkbuilder.py for the code
+        
+        self.startupLatency = startupLatency #self.orderManifest[0][0] # wake this bitch up on the first shipment day
         self.currentShipment = 0
         
         fromWarehouse.sim.processWeakRefs.append( weakref.ref(self) )
@@ -200,14 +254,18 @@ class ManifestScheduledShipment(Process, abstractbaseclasses.UnicodeSupport):
             ## Create a Vaccine Collection for the order
             shipVC = self.sim.shippables.getCollection()
             for v,n in self.orderManifest[self.currentShipment][1].items():
-                shipVC[v] = n
+                vacc = self.sim.vaccines.getTypeByName(v)
+                shipVC[vacc] = n
             shipVC.floorZero()
             shipVC.roundDown()
             self.fromW.addPendingShipment(self.toW,shipVC)
             
             previousShipmentDay = self.orderManifest[self.currentShipment][0]
             self.currentShipment += 1
-            interval = self.orderManifest[self.currentShipment][0] - previousShipmentDay
+            if self.currentShipment == len(self.orderManifest):
+                interval = 9999999 #finished
+            else:
+                interval = self.orderManifest[self.currentShipment][0] - previousShipmentDay
             
             yield hold,self,interval
     
@@ -218,3 +276,20 @@ class ManifestScheduledShipment(Process, abstractbaseclasses.UnicodeSupport):
         return u"<ManifestScheduledShipment({0},{1})>".format(self.fromW.name,self.toW.name)
     
 
+def main():
+    
+    testChain = [(0,2),(3,5),(4,6),(5,7),(40,45),(50,60)]
+    nRoutes, Routes = \
+        ManifestPushShipperUtilities.separateTransitChainIntoMultipleProcesses(testChain)
+    
+    print "Transit Chain: {0}".format(testChain)
+    print "Results: {0},{1}".format(nRoutes, Routes)
+    
+############
+# Main hook
+############
+
+if __name__=="__main__":
+    main()
+
+    
