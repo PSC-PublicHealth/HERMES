@@ -22,25 +22,20 @@ This module contains the shipping processes to implement a Manifest Shipping Pro
 import ipath
 import weakref
 import sys,os,string
-import types,math,operator
+import operator
 
 from SimPy.Simulation import *
 
 ### HERMES imports
-import globals
+
 import abstractbaseclasses
-import storagetypes
-import trackabletypes
 import packagingmodel
 import storagemodel
-import trucktypes
-import constants as C
-import eventlog as evl
+
 from util import logDebug, logVerbose
 
-from enums import StorageTypeEnums as ST
-
 import warehouse
+from route_types.create_travel_generator import createTravelGenerator
 
 class ManifestPushShipperUtilities():
     """
@@ -196,11 +191,11 @@ class ManifestPushShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
             
             if totalVC.totalCount() > 0:
                 
-                travelGen= warehouse.createTravelGenerator(self.bName,
-                                                           stepList,
-                                                           self.truckType,
-                                                           self.delayInfo,
-                                                           self)
+                travelGen= createTravelGenerator(self.bName,
+                                                 stepList,
+                                                 self.truckType,
+                                                 self.delayInfo,
+                                                 self)
         
                 for val in travelGen: yield val
             else:

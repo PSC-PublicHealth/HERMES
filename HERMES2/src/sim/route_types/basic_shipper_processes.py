@@ -34,6 +34,7 @@ import storagemodel
 from util import logDebug, logVerbose
 
 import warehouse
+from route_types.create_travel_generator import createTravelGenerator
 
 class ShipperProcess(SimPy.Simulation.Process, abstractbaseclasses.UnicodeSupport):
     def __init__(self,fromWarehouse,transitChain,interval,
@@ -155,8 +156,8 @@ class ShipperProcess(SimPy.Simulation.Process, abstractbaseclasses.UnicodeSuppor
                 upstreamW = w
                       
             if totalVC.totalCount()>0:
-                travelGen= warehouse.createTravelGenerator(self.bName, stepList, self.truckType, 
-                                                           self.delayInfo, self)
+                travelGen= createTravelGenerator(self.bName, stepList, self.truckType, 
+                                                 self.delayInfo, self)
                 # This should maybe be more like the code block from PEP380: 
                 # http://www.python.org/dev/peps/pep-0380/#id13
                 for val in travelGen: yield val

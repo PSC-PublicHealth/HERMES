@@ -31,6 +31,7 @@ from util import logDebug, logVerbose
 
 import warehouse
 from route_types.basic_shipper_processes import ShipperProcess
+from route_types.create_travel_generator import createTravelGenerator
 
 class DropAndCollectShipperProcess(ShipperProcess, abstractbaseclasses.UnicodeSupport):
     def __init__(self,fromWarehouse,transitChain,interval,
@@ -117,7 +118,7 @@ class DropAndCollectShipperProcess(ShipperProcess, abstractbaseclasses.UnicodeSu
                         stepList.append(('markanddeliver',(w,vc,self.interval)))
                 upstreamW = w
             if totalVC.totalCount()>0:
-                travelGen= warehouse.createTravelGenerator(self.bName, stepList, self.truckType, 
+                travelGen= createTravelGenerator(self.bName, stepList, self.truckType, 
                                                  self.delayInfo, self)
                 # This should maybe be more like the code block from PEP380: 
                 # http://www.python.org/dev/peps/pep-0380/#id13
