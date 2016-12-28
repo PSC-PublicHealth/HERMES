@@ -62,7 +62,7 @@ class ManifestPushShipperUtilities():
                     curList.append(transitChain[i])
                     eList.append(i)
                     testS = transitChain[i][0]
-                    testE = transitChain[i][1]
+                    testE = transitChain[i][1] + 1 ### let there be a one day cushion to allow for things to get back
                     break
             for i in range(0,len(transitChain)):
                 if i in eList:
@@ -71,7 +71,7 @@ class ManifestPushShipperUtilities():
                     curList.append(transitChain[i])
                     eList.append(i)
                 testS = curList[-1][0]
-                testE = curList[-1][1]
+                testE = curList[-1][1] + 1 ### let there be a one day cushion to allow for things to get back
             count += 1 ## put a safety measure in so HERMES never locks up
             if count > maxIterations:
                 raise RuntimeError("stupid separate function didn't work")
@@ -195,10 +195,16 @@ class ManifestPushShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
         while True:
             
             ### Set the next wake up time to the next time we ship
-            if self.currentShipment + 1 < len(self.transitChain):
+            if "1_to_27_man1" in self.name:
+                print "YAHHH!!!!! current begin {0}, {1}, {2}".format(self.currentShipment,len(self.transitChain),self.bName)
+            if (self.currentShipment + 1) < len(self.transitChain):
+                if "1_to_27_man1" in self.name:
+                    print "YAHHH!!!!! current less {0}".format(self.transitChain[self.currentShipment+1][0])
                 self.nextWakeTime = self.transitChain[self.currentShipment+1][0]
             else:
-                self.currentShipment = self.currentShipment-1
+                if "1_to_27_man1" in self.name:
+                    print "YAHHH!!!!! current more {0}, {1}: ".format(self.currentShipment+1,len(self.transitChain))
+                #self.currentShipment = self.currentShipment-1
                 self.nextWakeTime = 999999
                 
             # simulate a truck delay (PLACE HOLDER)
@@ -217,6 +223,14 @@ class ManifestPushShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
             toW = self.transitChain[self.currentShipment][2]
             totalVC = self.fromW.getAndForgetPendingShipment(toW)
            
+            #if self.transitChain[self.currentShipment][0] == 351:
+            if "1_to_27_man1" in self.name:
+                print "YAHHH!!!!! current:{0}".format(self.currentShipment)
+                for ch in self.transitChain:
+                    print "YAHHH!!!!! tc: {0}: {1}".format(self.transitChain.index(ch),ch)
+                print "YAHHH!!!!! {0}:{1}:{2}".format(self.transitChain[self.currentShipment][1],
+                                                      self.transitChain[self.currentShipment][0],
+                                                       self.transitChain[self.currentShipment][1]-self.transitChain[self.currentShipment][0])
             transitTime = self.transitChain[self.currentShipment][1]-self.transitChain[self.currentShipment][0]
             
             stepList = [('load',(self.fromW,self.packagingModel, self.storageModel, totalVC)),
@@ -227,8 +241,9 @@ class ManifestPushShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
                         ('unload',(self.fromW,)),
                         ('finish',(self.fromW,self.fromW))]
             
+            
+            
             if totalVC.totalCount() > 0:
-                
                 travelGen= createTravelGenerator(self.bName,
                                                  stepList,
                                                  self.truckType,
@@ -240,16 +255,17 @@ class ManifestPushShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
                 logVerbose(self.sim,"{0}: no order to ship at {1}".format(self.bName,self.sim.now()))
             
             
-            self.currentShipment += 1
+            
             if (self.nextWakeTime-self.sim.now()) < 0:
                 print "FUCK: Route {0} gave negative waittime: {0},{1},{2}".format(self.bName,self.sim.now(),self.nextWakeTime,self.nextWakeTime-self.sim.now())
+            self.currentShipment += 1
             yield hold,self,self.nextWakeTime-self.sim.now()
             
     def __repr__(self):
         print self.currentShipment
-        print "{0}".format(self.transitChain[self.currentShipment])
-        return "<ManifestPushShipperProcess({0},{1})>".format(repr(self.fromW),
-                                                               '{0}'.format(self.transitChain[self.currentShipment]))
+        #print "{0}".format(self.transitChain[self.currentShipment])
+        return "<ManifestPushShipperProcess({0})>".format(repr(self.fromW))
+                                                               #'{0}'.format(self.transitChain[self.currentShipment]))
     def __str__(self):
         return "<ManifestShipperProcess({0})>".format(self.fromW.bName)          
 

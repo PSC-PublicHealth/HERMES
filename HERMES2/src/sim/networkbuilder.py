@@ -24,7 +24,7 @@ shipping network from specification files.
 _hermes_svn_id_="$Id$"
 
 import types
-import operator
+import operator,sys
 from SimPy.Simulation  import *
 #from SimPy.SimulationTrace  import *
 #from SimPy.SimulationGUIDebug import *
@@ -332,16 +332,21 @@ def _innerBuildManifestPushRoute(routeName, sim, locList, storeDict, tripManDict
  
     ### Now lets see if we need to make multiple routes to overcome overlapping
     numberOfRoutes,RoutesList = ManifestPushShipperUtilities.separateTransitChainIntoMultipleProcesses(transitChain)
-#     if supplierKey == 23:
-#         #print transitChain
+#     if supplierKey == 1 and clientKey == 27:
+# #         #print transitChain
 #         print [(x[0],x[1]) for x in transitChain]
-# #         for tc in transitChain:
+#         for route in RoutesList:
+#             print "\n\nRoute: "
+#             for entry in route:
+#                 print "\n{0}".format(entry)
+#         sys.exit()
+# # #         for tc in transitChain:
 # #             print "{0}".format(tc)
 # #             
 # #         for r,d in RoutesDict.items():
 # #             print "{0}:{1}".format(r,d)
-#         sys.exit()
-    #print "RoutesDict = {0}".format(RoutesDict)
+#        sys.exit()
+        #print "RoutesDict = {0}".format(RoutesDict)
     # Set Latency to the first shipment and add a little delay to make sure that the requests come before the loading
     #sys.exit()
     allShippingProcsInfo = []
