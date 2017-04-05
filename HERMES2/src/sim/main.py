@@ -569,7 +569,7 @@ def main():
             # plus any finalize processing
             if (finalizeOutputs or (gapFinalize) and not gblInputs['use_dbmodel']):
                 for i in xrange(runCount):
-                    mergedOutput = _mergeOutput(mergedOutput, outputQueue.get(), i)
+                    mergedOutput = _mergeOutput(mergedOutput, outputQueue.get(), i,)
             else:
                 for i in xrange(runCount):
                     outputQueue.get()
@@ -670,7 +670,7 @@ if __name__=="__main__":
         main()
     except Exception,e:
         print '-'*60
-        print 'Exception: {0}'.format(e)
+        print u'Exception: {0}'.format(e)
         print '-'*60
         traceback.print_exc(file=sys.stderr)
 

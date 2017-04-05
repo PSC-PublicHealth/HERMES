@@ -336,7 +336,7 @@ class HistoVal(object):
     @staticmethod
     def _prep(item):
         if isinstance(item, types.TupleType):
-            assert len(item)==2 and isinstance(item[1], types.IntType), \
+            assert len(item)==2 and (isinstance(item[1], types.IntType) or isinstance(item[1],long)), \
                 "added invalid tuple %s to HistoVal"%(item)
             return ( float(item[0]), item[1] )
         else:
@@ -1320,6 +1320,7 @@ class RandomRounder:
 
         if number % 1 == 0.0:
             return int(number)
+        
         if self.rndm.random() > (number % 1):
             return int(math.floor(number))
         else:

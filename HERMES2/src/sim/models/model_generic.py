@@ -154,10 +154,11 @@ class Model(model.Model):
         self.autoUpdateThresholdsFlag = self.sim.userInput['autoupdatethresholds']
         self.defaultBufferStockFraction = self.sim.userInput['bufferstockfraction']
         
-        if  self.sim.userInput['openvialdenyfraction'] < 0:
-            self.openVialDenyFraction = None
-        else:
-            self.openVialDenyFraction = self.sim.userInput['openvialdenyfraction']
+        self.openVialDenyFraction = None
+#         if  self.sim.userInput['openvialdenyfraction'] < 0:
+#             self.openVialDenyFraction = None
+#         else:
+#             self.openVialDenyFraction = self.sim.userInput['openvialdenyfraction']
 
         self.monthlyReportActivated= False
         if self.sim.userInput['monthlyreports']:
@@ -211,6 +212,18 @@ class Model(model.Model):
         # allowing the vaccination to take place.
         self.patientWaitInterval= self.sim.userInput['patientwaitinterval']
 
+        # There needs to be a delay that allows the request of a vehicle to happen before 
+        # it is actually loaded.  This can have serious effects on a calendar demand 
+        # schedule that needs precision.  So This is variable can be set.  DO NOT SET UNLESS YOU KNOW WHAT YOU ARE DOING!!!
+        
+        self.reqCycleStartupDelay = self.sim.userInput['requestlatencydelay']
+        
+        # There is a factor that can be used to add a random delay for useVials to start up
+        # which for precisely timed chains (like a retrospective) this will mess all sorts of stuff up
+        # so exposing this so that it can be set. DO NOT SET UNLESS YOU KNOW WHAT YOU ARE DOING!!!
+        
+        self.useVialsRandomDelay = self.sim.userInput['usevialsrandomdelay']
+        
         ##################
         # End of info provided via the input file
         ##################
@@ -379,6 +392,7 @@ class Model(model.Model):
         fVC,cVC,wVC= toW.calculateStorageFillRatios(totalVialsVC)
         fillVC= fVC+cVC+wVC
         scaledVaccineVialsVC= vaccineVialsVC*fillVC
+        print "Buffy: {0}".format(toW.bufferStockFraction)
         threshVC= scaledVaccineVialsVC*toW.bufferStockFraction
         # This is to prevent there being no threshold at all
         for v,n in threshVC.items():
@@ -423,11 +437,12 @@ class Model(model.Model):
         # safety stock.
         #demandDownstreamVialsVC= toW.getInstantaneousDemandVC((timeNow,timeNow+shipInterval))            
         demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval))
-        #if fromW.idcode == 1:
+       
         #    print "Demand: " + str(demandDownstreamVialsVC)
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
 
         # Warehouses try for a buffer stock of 1.25.
+        print "Buffer Stock: {0}".format(toW.bufferStockFraction)
         vaccineVialsVC *= (1.0 + toW.bufferStockFraction)
         # Believe you need a round up here, or the buffer may not get added to the system for small vial counts
         # (e.g. if the number of vials is 3, and then the buffer makes it 3.75, the next set of commands
@@ -487,7 +502,7 @@ class Model(model.Model):
             if factory.demandType == "Projection":
                 ### Get demand in vials as a projection of the population demand
                 demandDownstreamVialsVC = targetStore.getProjectedDemandVC((timeNow, timeNow + daysUntilNextShipment))
-                #print "Before: {0}".format(demandDownstreamVialsVC)
+                print "Before: {0}".format(demandDownstreamVialsVC)
                 scaledTupleList = []
                 
                 if factory.wasteEstimatesDict:
@@ -501,12 +516,15 @@ class Model(model.Model):
                     vaccineVialsTotVC = self.sim.shippables.getCollection(scaledTupleList)
                 else:
                     vaccineVialsTotVC = demandDownstreamVialsVC
-                #print "After: {0}".format(vaccineVialsTotVC)
+                print "After: {0}".format(vaccineVialsTotVC)
                 vaccineVialsVC, otherVialsVC = self._separateVaccines(vaccineVialsTotVC)
+                print "Afterglow: {0}".format(vaccineVialsVC)
             elif factory.demandType == "Expectation":
                 ### Use the demand expectation in doses and scale it by wastage estimates
                 demandDownstreamDosesVC = self.demandModelTuple[0].getDemandExpectation(targetStore.getTotalDownstreamPopServedPC(),
                                                                                         daysUntilNextShipment)
+                if targetStore.idcode == 1:
+                    print demandDownstreamDosesVC
                 vaccineDosesVC,otherDosesVC = self._separateVaccines(demandDownstreamDosesVC)
 
                 vaccineD2VVC= vaccineDosesVC*self.sim.vaccines.getDosesToVialsVC()
@@ -518,12 +536,15 @@ class Model(model.Model):
                         if v.name in factory.wasteEstimatesDict.keys():
                             wastage =1.0 + float(factory.wasteEstimatesDict[v.name])
                         scaledTupleList.append((v,math.ceil(nVials*wastage)))
-
                     vaccineVialsVC = self.sim.shippables.getCollection(scaledTupleList)
+                else:
+                    vaccineVialsVC = vaccineD2VVC
+                #vaccineVialsVC, otherVialsVC = self._separateVaccines(vaccineVialsTotVC)
             else:
                 raise RuntimeError("in getFactoryProductionVC, invalid demandType of %s for %s" % (factory.demandType, factory.name))
 
-            #print "getFactoryProductionVC: vaccineVialsVC: " + str([(v.name,n) for v,n in vaccineVialsVC.items()])
+            
+            print "getFactoryProductionVC: vaccineVialsVC: " + str([(v.name,n) for v,n in vaccineVialsVC.items()])
             #print factory.overstockScale
             ### Filter by vaccines produced by this factory
             if factory.vaccinesProd is not None:
@@ -545,8 +566,9 @@ class Model(model.Model):
             lowVC = targetStore.getPackagingModel().applyPackagingRestrictions(lowVC)
             lowVC.roundUp()
             totalShipment[targetStore] = lowVC
-            #print "getFactoryProductionVC for %s: Actual amount: %s" % \
-            #    (targetStore.name, [(v.name, n) for v, n in lowVC.items()])
+            
+            print "getFactoryProductionVC for %s: Actual amount: %s" % \
+                (targetStore.name, [(v.name, n) for v, n in lowVC.items()])
         #print "Total Shipment = " + str(totalShipment)
         return totalShipment
 
@@ -674,15 +696,15 @@ class Model(model.Model):
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency,
-                                                          openVialDenyFraction = self.openVialDenyFraction)
+                                                          totalLatency)
+                                                         # openVialDenyFraction = self.openVialDenyFraction)
                 else:
                     useVials= warehouse.UseOrDiscardVials(wh,
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency,
-                                                          openVialDenyFraction = self.openVialDenyFraction)
+                                                          totalLatency)
+                                                          #openVialDenyFraction = self.openVialDenyFraction)
             else:
                 if isinstance(wh,Model.SurrogateClinic):
                     useVials= warehouse.UseVialsSilently(wh,
@@ -695,15 +717,15 @@ class Model(model.Model):
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency,
-                                                          openVialDenyFraction = self.openVialDenyFraction)
+                                                          totalLatency)
+                                                          #openVialDenyFraction = self.openVialDenyFraction)
                 else:
                     useVials= warehouse.UseVials(wh,
                                                  tickInterval,
                                                  patientWaitInterval,
                                                  C.useVialPriority,
-                                                 totalLatency,
-                                                 openVialDenyFraction = self.openVialDenyFraction)
+                                                 totalLatency)
+                                                 #openVialDenyFraction = self.openVialDenyFraction)
             return useVials
         else:
             return None

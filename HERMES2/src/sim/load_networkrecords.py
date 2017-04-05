@@ -57,10 +57,17 @@ def readNetworkRecords(userInput):
         factoryKeys = None
         factoryRecList = None
     else:
-        with util.logContext("reading factory CVS"):
+        with util.logContext("reading factory CSV"):
             with util.openDataFullPath(userInput['factoryfile'], "rb") as FactoryFileHandle:
                 factoryKeys, factoryRecList = csv_tools.parseCSV(FactoryFileHandle)
     
+    if userInput['tripmanifestfile'] is None:
+        tripManifestKeys = None
+        tripManifestRecList = None
+    else:
+        with util.logContext("reading trip manifest CSV"):
+            with util.openDataFullPath(userInput['tripmanifestfile'],"rb") as TripManFileHandle:
+                tripManifestKeys,tripManifestRecList = csv_tools.parseCSV(TripManFileHandle)
     
-    return (storeKeys, storeRecList, routeKeys, routeRecList, factoryKeys, factoryRecList)
+    return (storeKeys, storeRecList, routeKeys, routeRecList, factoryKeys, factoryRecList, tripManifestKeys, tripManifestRecList)
 
