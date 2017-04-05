@@ -5386,7 +5386,7 @@ def loadShdNetwork(userInput, shdTypes, name=None):
     ShdNetwork class Instance.
     """
 
-    (storeKeys, storeRecList, routeKeys, routeRecList, factoryKeys, factoryRecList) = \
+    (storeKeys, storeRecList, routeKeys, routeRecList, factoryKeys, factoryRecList,tripManKeys, tripManRecList) = \
         load_networkrecords.readNetworkRecords(userInput)
         
     net = ShdNetwork(storeRecList, routeRecList, factoryRecList, shdTypes, name=name)
