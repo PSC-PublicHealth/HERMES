@@ -311,11 +311,6 @@ def validatePopulationSpreadsheet(fileName,m):
     dupNames = []
     updateList = []
     modelNameTuples = [(x.idcode,x.NAME, x.CATEGORY) for x in m.stores.values()]
-#     for x in ws.iter_rows(row_offset=1):
-#         print "x = {0}".format(x[0].value)
-#         for y in range(0,len(popTypes)):
-#             print "pop for {0}:{1} = {2}".format(x[0].value,popTypes[y],x[y+4].value)
-#     #for y in range(5,len(popTypes)):
         
     spreadNameDict = {(x[0].value,x[1].value,x[2].value):[(popTypes[y],x[y+4].value) for y in range(0,len(popTypes))]\
                        for x in ws.iter_rows(row_offset=1) if x[0].value is not None}
@@ -364,7 +359,6 @@ def uploadGeoCoordSpreadsheet(db,uiSession):
                                'size':os.path.getsize(info['serverSideName'])
                                }]
         
-        print "I AM GOING INTO HERE"
         validDict = validatePopulationSpreadsheet(info['serverSideName'], m)
         print validDict
         clientData['validResult'] = validDict
