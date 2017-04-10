@@ -4332,7 +4332,6 @@ class ShdNetwork(Base):
         import json
         import zlib
         
-        print "!!!!!!!!!!!HERE"
         if self.modelGeoJson is None or self.modelGeoJson.blob is None:
             self.addGeoJson()
         
@@ -4686,12 +4685,11 @@ class ShdNetwork(Base):
         returns false the route is still added to its output set, but the store goes into rejectSet instead
         and any clients below the rejected store are not traversed.
         """
-        print "HERE2"
+
         if storeSet is None: storeSet = set()
         if routeSet is None: routeSet = set()
         if rejectSet is None: rejectSet = set()
         if storeFilter is None: storeFilter = lambda s,r: True
-        print "HERE"
         storeSet.add(topStore)
         queue = topStore.clientRoutes()[:]
         while queue:
