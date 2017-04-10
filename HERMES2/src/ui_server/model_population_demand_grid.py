@@ -57,7 +57,7 @@ def popTabPage(db,uiSession):
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)        
         
-        popTypes = [x for x in m.types.keys() if isinstance(m.types[x],shd.ShdPeopleType)]
+        popTypes = [(x,m.types[x].DisplayName) for x in m.types.keys() if isinstance(m.types[x],shd.ShdPeopleType)]
         
         return bottle.template("model_popdemand_edit.tpl",
                                {"breadcrumbPairs":crumbTrack,
@@ -102,7 +102,7 @@ def jsonManagePopStoreGrid(db,uiSession):
         result = {'success':False, 'type':'error','msg':str(e)}
         return result             
         
-
+### somehow need to make this use display names
 def createPopStoreGridJSonFromModel(m):
     popTypes = [x for x in m.types.keys() if isinstance(m.types[x],shd.ShdPeopleType)]
     rowList = []

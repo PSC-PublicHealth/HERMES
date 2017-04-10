@@ -21,6 +21,7 @@
 			rootPath:'',
 			modelId:'',
 			popCats:[],
+			popHeads:[],
 			trant:{
 				title:"Population Demand Grid Editor"
 			}
@@ -42,8 +43,8 @@
 			
 			
 			for (var pT in this.options.popCats){
-				colNames.push(this.options.popCats[pT]);
-				colNames.push(this.options.popCats[pT] + "_orig");
+				colNames.push(this.options.popHeads[pT]);
+				colNames.push(this.options.popHeads[pT] + "_orig");
 			}
 			var colModels = [
 			                 {name:'idcode',index:'idcode',key:true, editiable:false, hidden:true},

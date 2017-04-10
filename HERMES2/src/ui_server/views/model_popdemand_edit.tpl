@@ -310,9 +310,14 @@ console.log([
 $("#pop_grid").popDemandGrid({
 	modelId:{{modelId}},
 	rootPath:'{{rootPath}}',
+	popHeads:[
+% for i in range(0,len(popTypeNames)):
+	"{{popTypeNames[i][1]}}",
+%end
+	],         
 	popCats:[
 % for i in range(0,len(popTypeNames)):
-	"{{popTypeNames[i]}}",
+	"{{popTypeNames[i][0]}}",
 %end
 	]
 });
