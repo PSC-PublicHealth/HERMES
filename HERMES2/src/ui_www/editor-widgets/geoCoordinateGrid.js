@@ -13,9 +13,11 @@
 # in the file LICENSE.txt.                                                        #
 #                                                                                 #
 ###################################################################################
+
+
+STB TODO - Need to make this translation friendly
 */
 ;(function($){
-
 	$.widget("modelEdit.geoCoordinateGrid",{
 		options:{
 			rootPath:'',
@@ -25,34 +27,34 @@
 			}
 		},
 		reloadGrid:function(){
-			this.containerID = $(this.element).attr('id');
-			var thisTableID = this.containerID + "_tbl";
-			$("#"+thisTableID).trigger("reloadGrid");
+			var thiscontainerID = $(this.element).attr('id');
+			var thisTableID = thiscontainerID + "_tbl";
+			
+			$("#"+thisTableID).jqGrid("GridUnload");
+			this.createGrid();
 			
 		},
-		_create:function(){
-			trant = this.options.trant;
+		createGrid:function(){
+			var thisoptions = this.options;
+			var rootPath = this.options.rootPath;
 			this.containerID = $(this.element).attr('id');
 			var thiscontainerID = this.containerID;
 			var thisTableID = thiscontainerID + "_tbl";
 			var thisPagerID = thiscontainerID + "_pager";
-			
-			$("#"+thiscontainerID).append("<table id='" + thisTableID + "'></table>");
-			$("#"+thiscontainerID).append("<div id='" + thisPagerID+ "'></div>");
+			var gridHeight = 300;
+			var windowHeight = $(window).height()*.45;
+			console.log(windowHeight);
+			console.log(gridHeight);
+			if(windowHeight < gridHeight){
+				console.log("good");
+			}
+			else{
+				gridHeight = windowHeight;
+			}
+			console.log("gridHeight: " + gridHeight);
 			
 			var thisoptions = this.options;
 			var rootPath = this.options.rootPath;
-			
-			if(rootPath == ''){
-				alert('Cannot use inventory_grid without a rootPath');
-				return;
-			}
-			
-			var modelId = this.options.modelId;
-			if(modelId == ''){
-				alert('Cannot use inventory_grid without a modelId');
-			}
-			
 			var colNames = ["idcode",
 			                "Location Name",
 			                "Supply Chain Level",
@@ -73,18 +75,6 @@
 			                 
 			                ]
 			
-			var gridHeight = 300;
-			var windowHeight = $(window).height()*.45;
-			console.log(windowHeight);
-			console.log(gridHeight);
-			if(windowHeight < gridHeight){
-				console.log("good");
-			}
-			else{
-				console.log("WTF?");
-				gridHeight = windowHeight;
-			}
-			console.log("gridHeight: " + gridHeight);
 			$('#'+ thisTableID).jqGrid({
 				url:rootPath + "json/manage-geocoord-storegrid",
 				datatype:'json',
@@ -160,6 +150,36 @@
 				
 				
 			})
+		},
+		testFunction:function(){
+			console.log(this.options);
+		},
+		_create:function(){
+			trant = this.options.trant;
+			this.containerID = $(this.element).attr('id');
+			var thiscontainerID = this.containerID;
+			var thisTableID = thiscontainerID + "_tbl";
+			var thisPagerID = thiscontainerID + "_pager";
+			
+			$("#"+thiscontainerID).append("<table id='" + thisTableID + "'></table>");
+			$("#"+thiscontainerID).append("<div id='" + thisPagerID+ "'></div>");
+			
+			
+			var thisoptions = this.options;
+			var rootPath = this.options.rootPath;
+			if(rootPath == ''){
+				alert('Cannot use geoCoordinateGrid without a rootPath');
+				return;
+			}
+			
+			var modelId = this.options.modelId;
+			if(modelId == ''){
+				alert('Cannot use geoCoordinateGrid without a modelId');
+			}
+			this.createGrid();
+			
+			
+			
 			
 			
 		}
