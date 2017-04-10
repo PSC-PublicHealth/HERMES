@@ -42,8 +42,8 @@ sI = site_info.SiteInfo()
 inlizer=session_support.inlizer
 _=session_support.translateString
 
-@bottle.route('/model-edit-population-tabular')
-def popTabPage(db,uiSession):
+@bottle.route('/model-edit-store-inventory-tabular')
+def storeInvTabPage(db,uiSession):
     crumbTrack = addCrumb(uiSession,_("Edit Population Counts (Tabular)"))
     try:
         modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
@@ -52,10 +52,10 @@ def popTabPage(db,uiSession):
         
         popTypes = [(x,m.types[x].DisplayName) for x in m.types.keys() if isinstance(m.types[x],shd.ShdPeopleType)]
         
-        return bottle.template("model_popdemand_edit.tpl",
+        return bottle.template("model_storeinv_edit.tpl",
                                {"breadcrumbPairs":crumbTrack,
-                               'modelId':modelId,
-                               'popTypeNames':popTypes})
+                                'modelId':modelId
+                               })
     except bottle.HTTPResponse:
         raise 
 
