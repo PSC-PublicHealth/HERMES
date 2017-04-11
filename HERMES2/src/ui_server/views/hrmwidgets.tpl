@@ -1747,6 +1747,7 @@ function addToggleExpansionButton($grid) {
 							$("#"+tableId + ' tr').css('border-left-style','none');
 							$("#"+tableId + ' tr').css('border-right-style','none');
 							$("#"+tableId + ' tr').css('border-bottom-style','none');
+							console.log(thisId);
 							$("#"+thisId).children('div.ui-jqgrid').css('border','0px');
 						}
 					}

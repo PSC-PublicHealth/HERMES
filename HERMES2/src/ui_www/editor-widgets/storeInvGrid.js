@@ -14,9 +14,10 @@
 #                                                                                 #
 ###################################################################################
 */
+
 ;(function($){
 
-	$.widget("modelEdit.popDemandGrid",{
+	$.widget("modelEdit.storeInvGrid",{
 		options:{
 			rootPath:'',
 			modelId:'',
@@ -25,6 +26,17 @@
 			}
 		},
 		createGrid:function(){
+			
+			function editInventoryButtonFormatter(cellvalue, options,rowObject){
+				//cellvalue will be an integer
+				return "<div class='hermes_button_single' id='"+escape(cellvalue)+"'/>";
+			};
+			
+			function storageInventoryGridFormatter(cellvalue,options,rowObject){
+				console.log('cellvalue = '+cellvalue);
+				return "<div class='hermes_storage_inv_grid' id = 'hermes_store_inv_grid_" + escape(cellvalue) +"'/>";
+			};
+			
 			this.containerID = $(this.element).attr('id');
 			var thiscontainerID = this.containerID;
 			var thisTableID = thiscontainerID + "_tbl";
@@ -35,18 +47,15 @@
 			
 			var colNames = ["idcode",
 			                "Location Name",
-			                "Supply Chain Level",
-			                "Functions",
+			                "Supply Chain Level",			
 			                "Inventory"
 			                ]
 			
-			
-			
 			var colModels = [
-			                 {name:'idcode',index:'idcode',key:true, editiable:false, hidden:true},
+			                 {name:'idcode',index:'idcode',key:true, editiable:false, hidden:false},
 			                 {name:'name',index:'name',editable:false},
 			                 {name:'level',index:'level',editable:false},
-			                 {name:'attached',index:'attached',editable:false}
+			                 {name:'inventory', index:'inventory',editable:false,formatter:storageInventoryGridFormatter}
 			                 //{name:'latitude',index:'latitude',editable:true, edittype:'text',editrules:'number'},
 			                 //{name:'longitude',index:'longitude',editable:true, edittype:'text',editrules:'number'},
 			                // {name:'oldlatitude',index:'oldlatitude',hidden:true,editable:false, edittype:'text',editrules:'number'},
@@ -54,14 +63,7 @@
 			                 
 			                ]
 			
-			for (var pT in this.options.popCats) {
-				nameString = this.options.popCats[pT];
-				colModels.push({name:nameString,index:nameString,editable:true,edittype:'text',editrules:'number'})
-				colModels.push({name:nameString+"_orig",index:nameString+"_orig",editable:false,hidden:true,edittype:'text',editrules:'number'})
-			}
-			console.log("popCats: " + this.options.popCats)
-			console.log("colNames: " + colNames);
-			console.log("colModels: " + colModels);
+			
 			var gridHeight = 300;
 			var windowHeight = $(window).height()*.45;
 			console.log(windowHeight);
@@ -75,7 +77,7 @@
 			}
 			console.log("gridHeight: " + gridHeight);
 			$('#'+ thisTableID).jqGrid({
-				url:rootPath + "json/manage-population-storegrid",
+				url:rootPath + "json/manage-store-inventory-grid",
 				datatype:'json',
 				postData: {modelId:thisoptions.modelId},
 				inlineData: {modelId:thisoptions.modelId},
@@ -85,13 +87,14 @@
 				gridview: true,
 				loadonce:true,
 				height:gridHeight,
+				width:"auto",
 				rowNum:-1,
 				pgbuttons:false,
 				pginput:false,
 				pgtext:false,
 				pager:"#"+thisPagerID,
 				viewrecords:false,
-				editurl:rootPath + 'edit/verify-edit-population-storegrid',
+				editurl:rootPath + 'edit/verify-edit-grid',
 				beforeSelectRow: function(rowId, evt) {
 					var $this = $(this);
 					var oldRowId = $this.getGridParam('selrow');
@@ -137,6 +140,28 @@
 							$("#"+thisTableID).jqGrid("resetSelection");
 						}
 					});
+					
+					
+					$('.hermes_storage_inv_grid').each(function(){
+						console.log($(this).attr('id'));
+						storeId = $(this).attr('id').replace('hermes_store_inv_grid_','');
+						$(this).hrmWidget({
+							widget:'simpleStorageDeviceTable',
+							modelId:  thisoptions.modelId,
+							storeId:  storeId,
+							showHead: false,
+							showGrid: false
+						});
+					});
+//						hrmWidget({
+//					}
+//						widget:'simpleStorageDeviceTable',
+//						modelId:  thisoptions.modelId,
+//						storeId:  100000,
+//						showHead: false,
+//						showGrid: false
+//						
+//					});
 				},
 				loadError: function(xhr,status,error){
 			    	alert('{{_("Error: ")}}'+status);

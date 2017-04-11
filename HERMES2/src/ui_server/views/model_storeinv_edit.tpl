@@ -44,12 +44,12 @@ a.model-operation-item:visited{
 <input id="xlsupload" type="file" name="files[]" 
 	data-url="{{rootPath}}upload-populationspreadsheet" style="display:none">
 
-<script type="text/javascript" src="{{rootPath}}static/editor-widgets/popDemandGrid.js"></script>
+<script type="text/javascript" src="{{rootPath}}static/editor-widgets/storeInvGrid.js"></script>
 <h2>{{_("Edit the Population Estimates for ")}}</h2>
 <h4>
 {{_("Please enter in the population estimates for the number individuals of each type to be vaccinated during a year at individual locations in the table below. Your entries will be saved automatically as you add them.")}}</h4>
 <br>
-<div id = "pop_grid"></div>
+<div id = "storeInv_grid"></div>
 
 <div id="uploadSpreadsheetDialog">
 	<span class="large_dialog_font">
@@ -302,24 +302,9 @@ $("#xlsupload").fileupload({
 	}
 });
 
-console.log([
-% for i in range(0,len(popTypeNames)):
-	"{{popTypeNames[i]}}",
-%end
-]);
-$("#pop_grid").popDemandGrid({
+$("#storeInv_grid").storeInvGrid({
 	modelId:{{modelId}},
-	rootPath:'{{rootPath}}',
-	popHeads:[
-% for i in range(0,len(popTypeNames)):
-	"{{popTypeNames[i][1]}}",
-%end
-	],         
-	popCats:[
-% for i in range(0,len(popTypeNames)):
-	"{{popTypeNames[i][0]}}",
-%end
-	]
+	rootPath:'{{rootPath}}'
 });
 $(function() { $(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'}); });
 </script>

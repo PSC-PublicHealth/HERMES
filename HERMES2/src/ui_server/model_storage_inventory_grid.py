@@ -109,7 +109,7 @@ def getDeviceInventoryListForModelForStoreIdjQGridJSON(db,uiSession):
         result = {'success':False, 'type':'error', 'msg':str(e)}
         return result  
           
-@bottle.get('/json/manage-population-storegrid')
+@bottle.get('/json/manage-store-inventory-grid')
 def jsonManagePopStoreGrid(db,uiSession):
     import json
     try: 
@@ -117,7 +117,7 @@ def jsonManagePopStoreGrid(db,uiSession):
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)    
     
-        result = createPopStoreGridJSonFromModel(m)   
+        result = createStoreInvGridJSonFromModel(m)   
         
         result['success'] = True
     
@@ -130,10 +130,10 @@ def jsonManagePopStoreGrid(db,uiSession):
         return result             
         
 ### somehow need to make this use display names
-def createPopStoreGridJSonFromModel(m):
+def createStoreInvGridJSonFromModel(m):
     popTypes = [x for x in m.types.keys() if isinstance(m.types[x],shd.ShdPeopleType)]
     rowList = []
-    sortRowList = sorted([x for x,y in m.stores.items()])
+    sortRowList = sorted([x for x,y in m.stores.items() if not y.isAttached()])
     for storeId in sortRowList:
         store = m.stores[storeId]
         
@@ -141,13 +141,8 @@ def createPopStoreGridJSonFromModel(m):
         row['idcode'] = storeId
         row['name'] = store.NAME
         row['level'] = store.CATEGORY 
-        row['attached'] = ""
-        if store.isAttached():
-            row['attached'] = "Yes"
-        for pT in popTypes:
-            row[pT] = store.countDemand(pT)
-            row["{0}_orig".format(pT)] = store.countDemand(pT)
-        
+        row['inventory'] = storeId
+        ## Note the inventory and edit buttons will be rendered automatically by the widget
         rowList.append(row)
     
     results = {
