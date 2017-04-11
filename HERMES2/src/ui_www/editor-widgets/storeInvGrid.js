@@ -36,14 +36,12 @@
 			var colNames = ["idcode",
 			                "Location Name",
 			                "Supply Chain Level",
-			                "Attached Demand?"
+			                "Functions",
+			                "Inventory"
 			                ]
 			
 			
-			for (var pT in this.options.popCats){
-				colNames.push(this.options.popHeads[pT]);
-				colNames.push(this.options.popHeads[pT] + "_orig");
-			}
+			
 			var colModels = [
 			                 {name:'idcode',index:'idcode',key:true, editiable:false, hidden:true},
 			                 {name:'name',index:'name',editable:false},

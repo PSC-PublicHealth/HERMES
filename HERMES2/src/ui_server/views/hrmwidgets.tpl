@@ -1676,6 +1676,87 @@ function addToggleExpansionButton($grid) {
  				// Nothing to do
  			});
  		}
+ 		else if (settings['widget']=='simpleStorageDeviceTable') {
+ 			$.fn.simpleStorageDeviceTable = function( arg, arg2 ){
+ 				var tId = this.attr('id');
+ 				if(tId==undefined) $.error("{{_('simpleStorageDeviceTable has not id')}}");
+ 				if(arg=='value'){
+ 					$.error("{{_('simpleStorageDeviceTable has no value operation associated with it')}}");
+ 				}
+ 				if(arg=='valueJson'){
+					$.error("{{_('simpleStorageDeviceTable has no valueJson operation associated with it')}}");
+ 				}
+				if(arg=='clean'){
+					$.error("{{_('simpleStorageDeviceTable has no clean operation associated with it')}}");
+				}
+ 			}
+			return this.each(function(index,elem){
+				var $elem = $(elem);
+				var thisId = $(this).attr('id');
+				var tableId = $(this).attr('id') + '_tbl';
+				var pagerId = $(this).attr('id') + '_pg';
+				//$elem.data('data-inventory-list',JSON.parse(setting['inventory-list']));
+				htmlString = "<table id='" + tableId + "'></table>";
+				htmlString += "<div id='" + pagerId + "'></div>";
+				
+				$elem.html(htmlString);
+				var modelId = settings.modelId;
+				var storeId = settings.storeId;
+				var showHead = settings.showHead;
+				var showGrid = settings.showGrid;
+				console.log("modelID = "+modelId);
+				console.log("storeId = " + storeId);
+				$("#"+tableId).jqGrid({
+					url:{{rootPath}} + "json/get-storage-devices-for-model-for-storeId",
+					datatype:'json',
+					postData:{modelId:modelId,storeId:storeId},
+					jsonReader: {repeatitems:false},
+					colNames: ["{{_('Storage Device')}}","{{_('Number at Location')}}"],
+					colModel: [
+					           {name:'device',index:'device',key:true,editable:false},
+					           {name:'count',index:'count',width:30,align:'right',key:false,editable:false}
+					          ],
+					loadonce:true,
+					height:'auto',
+					width:'auto',
+					gridview: false,
+					pgbuttons:false,
+					pginput:false,
+					pgtext:false,
+					pager:pagerId,
+					viewrecords:false,
+					loadError: function(xhr,status,error){
+						alert("{{_('Error creating simpleStorageDeviceTable')}}" + status);
+					},
+					beforeProcessing: function(data,status,xhr){
+						if (!data.success) {
+							alert("{{_('Failed to create data for simpleStorageDeviceTable')}}");
+						}
+					},
+					loadComplete: function(){
+						if(showHead == false){ 
+							$("#"+tableId).parents('div.ui-jqgrid-view').children('div.ui-jqgrid-hdiv').hide();
+							$("#"+pagerId).hide();
+						}
+						if(showGrid == false){
+							$("#"+tableId + ' tr td').css('border-top-style','none');
+							$("#"+tableId + ' tr td').css('border-left-style','none');
+							$("#"+tableId + ' tr td').css('border-right-style','none');
+							$("#"+tableId + ' tr td').css('border-bottom-style','none');
+							$("#"+tableId + ' tr').css('border-top-style','none');
+							$("#"+tableId + ' tr').css('border-left-style','none');
+							$("#"+tableId + ' tr').css('border-right-style','none');
+							$("#"+tableId + ' tr').css('border-bottom-style','none');
+							$("#"+thisId).children('div.ui-jqgrid').css('border','0px');
+						}
+					}
+				});
+				
+				
+				
+			});
+ 		
+ 		}
  		else if (settings['widget']=='editFormManager') {
 			$.fn.editFormManager = function( arg, arg2 ) {
  				if (arg=='getEntries') {

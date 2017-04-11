@@ -50,7 +50,7 @@ def storeInvTabPage(db,uiSession):
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)        
         
-        popTypes = [(x,m.types[x].DisplayName) for x in m.types.keys() if isinstance(m.types[x],shd.ShdPeopleType)]
+        #popTypes = [(x,m.types[x].DisplayName) for x in m.types.keys() if isinstance(m.types[x],shd.ShdPeopleType)]
         
         return bottle.template("model_storeinv_edit.tpl",
                                {"breadcrumbPairs":crumbTrack,
@@ -59,16 +59,50 @@ def storeInvTabPage(db,uiSession):
     except bottle.HTTPResponse:
         raise 
 
-@bottle.route('/json/get-population-type-names-for-model')
-def getPopulationDemandForAllStoresJSON(db,uiSession):
-    import json
-    try:    
-        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
-        m = shadow_network_db_api.ShdNetworkDB(db,modelId)  
-        popTypes = [x for x in m.types.keys() if isinstance(m.types[x],shd.ShdPeopleType)]
-                            
-        return {'success':True, 'popTypes':popTypes}
+@bottle.route('/test-store-device-list')
+def testStoreDevList(db,uiSession):
+    try:
+        crumbTrack = addCrumb(uiSession,_("Test Store Inventory Grid Page"))
+        modelId =  _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        storeId = _getOrThrowError(bottle.request.params,'storeId',isInt=True)
         
+        return bottle.template("test_store_inventory_grid.tpl",
+                               {'breadcrumbPairs':crumbTrack,
+                                'modelId':modelId,'storeId':storeId})
+    
+    except bottle.HTTPResponse:
+        raise 
+       
+@bottle.route('/json/get-storage-devices-for-model-for-storeId')
+def getDeviceInventoryListForModelForStoreIdjQGridJSON(db,uiSession):
+    import json
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        storeId = _getOrThrowError(bottle.request.params,'storeId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)  
+        #print m.stores.keys[100000]
+        rowList = []
+        
+        if storeId not in m.stores.keys():
+            return {'success':False, 
+                    'type':'error', 
+                    'msg':_('StoreId {0} not in model {1} set of stores'.format(storeId,modelId))}
+        
+        for dev,count in m.stores[storeId].countAllInventory().items():
+            if isinstance(m.types[dev],shd.ShdStorageType):
+                rowList.append({'device':m.types[dev].getDisplayName(),
+                                'count':count})
+                 
+        results = {
+                   'success':True,
+                   'total':1,
+                   'page':1,
+                   'records':len(rowList),
+                   'rows':rowList
+                   }
+    
+        return results
+    
     except bottle.HTTPResponse:
         raise # bottle will handle this
     except Exception,e:
