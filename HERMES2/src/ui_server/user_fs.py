@@ -22,7 +22,7 @@ from contextlib import closing
 from HermesServiceException import HermesServiceException
 from ui_utils import _logMessage
 
-_debug= True
+_debug= False
 
 class HermesUserFS(object):
     """
@@ -291,6 +291,7 @@ class HermesUserFS(object):
         if _debug: _logMessage("user_fs.renameShortName renamed %s to %s"%(fileKey,dstShortName))
 
     def extensionToType(self, ext):
+        ext = ext.lower()
         tmap = {'.csv':'text/csv', '.dot':'text/xml', '.svg':'image/svg+xml', '.jpg':'image/jpeg', 
                 '.png':'image/png', '.zip':'application/zip', '.hzp':'application/zip','.xls':'application/vnd.ms-excel',
                 '.xlsx':'application/vnd.ms-excel'}
