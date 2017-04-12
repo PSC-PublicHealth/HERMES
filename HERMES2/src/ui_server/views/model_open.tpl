@@ -215,8 +215,8 @@ var mayModify = "{{maymodify}}" == "True" ? true : false ;
 		</span>
 		<li>
 		<span class="model-operation-item">
-			<a class="model-operation-item" href="#" title='{{_("Export the current model as a .zip file, in order to save, send and view the model and its results on any other HERMES-installed computer.")}}' 
-				id="download_model_link"><span class="action-underline">{{_('Export Model')}} </span> {{_('as a HERMES Zip File')}}</a>
+			<a class="model-operation-item" href="#" title='{{_("Export the current model as a .HZP file, in order to save, send and view the model and its results on any other HERMES-installed computer.")}}' 
+				id="download_model_link"><span class="action-underline">{{_('Export Model')}} </span> {{_('as a HERMES .HZP File')}}</a>
 		</span>
 		</ul>
 	</div>
@@ -268,7 +268,7 @@ var mayModify = "{{maymodify}}" == "True" ? true : false ;
 				<input type="text" id="export_filename" style="width:100%">
 			</td>
 			<td>
-				.zip
+				.HZP
 			</td>
 		</tr>
 	</table>
@@ -450,7 +450,7 @@ $(document).ready(function(){
 		buttons:{
 			'{{_("Save")}}':function(){
 				if(!$("#export_filename").val()){
-					alert("A name must be specified for the exported zip file");
+					alert("A name must be specified for the exported HZP file");
 					$("#export_filename").focus().select();
 				}
 				else{

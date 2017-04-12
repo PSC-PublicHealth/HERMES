@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+  
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
 # =============================================================================== #
@@ -22,7 +22,7 @@ from contextlib import closing
 from HermesServiceException import HermesServiceException
 from ui_utils import _logMessage
 
-_debug= False
+_debug= True
 
 class HermesUserFS(object):
     """
@@ -292,7 +292,7 @@ class HermesUserFS(object):
 
     def extensionToType(self, ext):
         tmap = {'.csv':'text/csv', '.dot':'text/xml', '.svg':'image/svg+xml', '.jpg':'image/jpeg', 
-                '.png':'image/png', '.zip':'application/zip','.xls':'application/vnd.ms-excel',
+                '.png':'image/png', '.zip':'application/zip', '.hzp':'application/zip','.xls':'application/vnd.ms-excel',
                 '.xlsx':'application/vnd.ms-excel'}
         if ext in tmap: 
             if _debug: _logMessage("user_fs.extensionToType mapped %s to %s"%(ext,tmap[ext]))
@@ -310,6 +310,7 @@ class HermesUserFS(object):
                           'NetGraph_jpg':('.jpg', 'image/jpeg'),
                           'NetGraph_png':('.png', 'image/png'),
                           'zip-archive':('.zip', 'application/zip'),
+                          'HERMES-archive':('.hzp', 'application/zip'),
                           'excel-file':('.xls', 'application/vnd.ms-excel'),
                           'excelx-file':('.xlsx','application/vnd.ms-excel')
                           }

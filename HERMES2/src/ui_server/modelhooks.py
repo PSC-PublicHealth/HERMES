@@ -1370,7 +1370,7 @@ def jsonManageModelsTable(db, uiSession):
               "records":totRecs,  # total records
               "rows": [ {"id":m.modelId, 
                          "cell":[m.name, m.modelId, m.note, 
-                                 '<a href="%sdownload-model?model=%d&form=zip">%s_%d.zip</a>'%\
+                                 '<a href="%sdownload-model?model=%d&form=zip">%s_%d.hzp</a>'%\
                                  (rootPath,m.modelId,m.name,m.modelId),
                                  m.modelId]} 
                        for m in mList ]
@@ -1903,7 +1903,7 @@ def prepareDownloadModel(db,uiSession):
         if not filename:
             filename = "{0}_{1}".format(m.name,modelId)
     
-        zipFileName = "{0}.zip".format(filename)
+        zipFileName = "{0}.hzp".format(filename)
         with uiSession.getLockedState() as state:
             (fileKey, fullZipFileName) = \
                 state.fs().makeNewFileInfo(shortName = zipFileName,
