@@ -751,7 +751,24 @@ def handleListFuel(db, uiSession):
 def getFuelFromRequest(m, key):
     return _getThingFromRequest(m, key,  _('fuel'), fuelTranslationDict)
 
-
+@bottle.route('/json/type-list-for-invtype-in-model')
+def jsonTypeListForInvTypeInModel(db,uiSession):
+    """
+    Return a JSON of a list of types that are of a specific inventory
+    """
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        invType = _getOrThrowError(bottle.request.params, 'invtype', isInt=False)
+        
+        typeList = typehelper.getTypeList(db, modelId, invType)
+        
+        
+        return {'success':True,'typelist':typeList}
+    except Exception, e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+    
 @bottle.route('/list/select-type-full')
 def listSelectTypeFull(db, uiSession):
     """

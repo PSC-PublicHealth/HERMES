@@ -33,7 +33,7 @@
 			};
 			
 			function storageInventoryGridFormatter(cellvalue,options,rowObject){
-				console.log('cellvalue = '+cellvalue);
+				//console.log('cellvalue = '+cellvalue);
 				return "<div class='hermes_storage_inv_grid' id = 'hermes_store_inv_grid_" + escape(cellvalue) +"'/>";
 			};
 			
@@ -48,14 +48,18 @@
 			var colNames = ["idcode",
 			                "Location Name",
 			                "Supply Chain Level",			
-			                "Inventory"
+			                "Inventory",
+			                ""
 			                ]
 			
 			var colModels = [
-			                 {name:'idcode',index:'idcode',key:true, editiable:false, hidden:false},
+			                 {name:'idcode',index:'idcode',key:true, editiable:false, hidden:true},
 			                 {name:'name',index:'name',editable:false},
 			                 {name:'level',index:'level',editable:false},
-			                 {name:'inventory', index:'inventory',editable:false,formatter:storageInventoryGridFormatter}
+			                 {name:'inventory', index:'inventory',editable:false,classes:'hermes_store_inv_grid_cell',
+			                	 cellLayout:0,width:200,formatter:storageInventoryGridFormatter},
+			                 {name:'editinv', index:'editinv',width:100,formatter:editInventoryButtonFormatter}
+			                 
 			                 //{name:'latitude',index:'latitude',editable:true, edittype:'text',editrules:'number'},
 			                 //{name:'longitude',index:'longitude',editable:true, edittype:'text',editrules:'number'},
 			                // {name:'oldlatitude',index:'oldlatitude',hidden:true,editable:false, edittype:'text',editrules:'number'},
@@ -66,16 +70,15 @@
 			
 			var gridHeight = 300;
 			var windowHeight = $(window).height()*.45;
-			console.log(windowHeight);
-			console.log(gridHeight);
+			//console.log(windowHeight);
+			//console.log(gridHeight);
 			if(windowHeight < gridHeight){
 				console.log("good");
 			}
 			else{
-				console.log("WTF?");
 				gridHeight = windowHeight;
 			}
-			console.log("gridHeight: " + gridHeight);
+			//console.log("gridHeight: " + gridHeight);
 			$('#'+ thisTableID).jqGrid({
 				url:rootPath + "json/manage-store-inventory-grid",
 				datatype:'json',
@@ -87,7 +90,6 @@
 				gridview: true,
 				loadonce:true,
 				height:gridHeight,
-				width:"auto",
 				rowNum:-1,
 				pgbuttons:false,
 				pginput:false,
@@ -143,7 +145,7 @@
 					
 					
 					$('.hermes_storage_inv_grid').each(function(){
-						console.log($(this).attr('id'));
+						//console.log($(this).attr('id'));
 						storeId = $(this).attr('id').replace('hermes_store_inv_grid_','');
 						$(this).hrmWidget({
 							widget:'simpleStorageDeviceTable',
@@ -153,6 +155,10 @@
 							showGrid: false
 						});
 					});
+					
+					//$(".hermes_store_inv_grid_cell").css('cssText','padding-top: 0px !important;');
+				
+					
 //						hrmWidget({
 //					}
 //						widget:'simpleStorageDeviceTable',
@@ -189,7 +195,7 @@
 			var thisTableID = thiscontainerID + "_tbl";
 			var thisPagerID = thiscontainerID + "_pager";
 			
-			$("#"+thiscontainerID).append("<table id='" + thisTableID + "'></table>");
+			$("#"+thiscontainerID).append("<table id='" + thisTableID + "' class='hermes_storage_inventory_grid_table'></table>");
 			$("#"+thiscontainerID).append("<div id='" + thisPagerID+ "'></div>");
 			
 			var thisoptions = this.options;

@@ -40,6 +40,12 @@ a.model-operation-item:visited{
 	padding:10px;
 	text-align:center;
 }
+
+.hermes_store_inv_grid_cell{
+	vertical-align: top !important;
+	padding-top: 0px !important;
+}
+
 </style>
 <input id="xlsupload" type="file" name="files[]" 
 	data-url="{{rootPath}}upload-populationspreadsheet" style="display:none">

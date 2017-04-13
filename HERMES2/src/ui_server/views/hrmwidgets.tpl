@@ -531,11 +531,11 @@ function addToggleExpansionButton($grid) {
 	 					.selectmenu("menuWidget").addClass("hrm_selectmenu_overflow");
  					}
  					else{
- 						alert("{{('Failed in currency selector getting select-currency list')}}" + data.msg.htmlEscape());
+ 						alert("{{_('Failed in currency selector getting select-currency list')}}" + data.msg.htmlEscape());
  					}
  				})
  				.fail(function(jqxhr, textStatus, error){
- 					alert("{{('Error in currency selector getting select-currency list')}}" + jqxhr.responseText.htmlEscape());
+ 					alert("{{_('Error in currency selector getting select-currency list')}}" + jqxhr.responseText.htmlEscape());
  				});
  			});
  		}
@@ -1676,7 +1676,221 @@ function addToggleExpansionButton($grid) {
  				// Nothing to do
  			});
  		}
+ 		else if (settings['widget']=='simpleTypeSelectField'){
+ 			// this widget is will provide a simple select box that has the display names of types selected by the user
+ 			$.fn.simpleStorageDeviceSelect = function( arg, arg2) {
+ 				var tId = this.attr('id');
+ 				if(tId==undefined) $.error("{{_('simpleTypeSelectField does not have an id')}}");
+ 				if(arg=='value'){
+ 					return $("#"+tId+"_simpleTypeSelect_selectBox").val();
+ 				}
+ 				if(arg=='valueJson'){
+ 					returnJson = {'value':$("#"+tId+"_simpleTypeSelect_selectBox").val()};
+					return returnJson;
+ 				}
+ 			}
+ 			return this.each(function(index,elem){
+ 				var $elem = $(elem);
+ 				var thisId = $elem.attr('id');
+ 				var selectId = thisId + "_simpleTypeSelect_selectBox";
+ 				var dialogId = thisId + "_simpleTypeSelect_toolDialog";
+ 				if (["fridges","trucks","vaccines","people"].indexOf(settings['invType']) == -1){
+ 					$.error('simpleTypeSelectorField:'+settings['invType']+' is not a valid invType');
+ 				}
+ 				$elem.data('modelId',settings['modelId']);
+ 				$elem.data('selected',settings['selected']);
+ 				$elem.data('invType',settings['invType']);
+ 				var modelId = settings['modelId'];
+ 				var invType = settings['invType'];
+ 				
+ 				
+ 				$.ajax({
+ 					url:'{{rootPath}}json/type-list-for-invtype-in-model',
+ 					data:{modelId:settings['modelId'],invtype:settings['invType']}
+ 				})
+ 				.done(function(result){
+ 					if(result.success){
+ 						if(result.default){
+ 							$elem.data('default',result.default);
+ 						}
+		 				else{
+		 					$elem.data('default','None');
+		 				}
+	 					//console.log(result.typelist);
+ 						selHtmlString = "<div id ='" + dialogId +"'></div>";
+	 					//$("#"+dialogId).dialog({autoOpen:false});
+ 						
+	 					selHtmlString += "<div><select id = '" + selectId + "' class='hrmWidget_simply_type_select_field'>";
+	 					var optionsList = [];
+	 					for(var i=0;i<result.typelist.length;++i){
+	 						optionsList.push([result.typelist[i].Name,result.typelist[i].DisplayName]);
+	 					}
+	 					for(option in optionsList){
+	 						if(optionsList.hasOwnProperty(option)){
+	 							//console.log(optionsList)
+	 							if(optionsList[option][0] == $elem.data('selected')){
+	 								selHtmlString  += "<option value = '"+optionsList[option][0]+"' selected>"
+	 											+ optionsList[option][1]+"</option>";
+	 							}
+	 							else{
+	 								selHtmlString += "<option value = '"+optionsList[option][0]+"'>"
+										+ optionsList[option][1]+"</option>";
+	 							}
+	 						}
+	 						//console.log(dialogId);
+//	 						
+	 					}
+//	 					$("#"+ dialogId).hrmWidget({
+// 							widget:'typeInfoDialog',
+// 							modelId: modelId,
+// 							typeId: optionsList[option][0],
+// 							typeUrl: invType
+// 						});
+	 					selHtmlString  += "</select></div>";
+	 					$elem.html(selHtmlString );
+	 					
+	 					$("#"+selectId).selectmenu({
+	 						focus: function(event,ui){
+	 							console.log(dialogId);
+	 							if ($("#"+dialogId).hasClass('ui-dialog-content')) {
+	 								$("#"+ dialogId).hrmWidget({
+		 	 							widget:'typeInfoDialog',
+		 	 							modelId: modelId,
+		 	 							typeId: ui.item.value,
+		 	 							typeClass:invType,
+		 	 							modal:true,
+		 	 							autoOpen:true
+		 							});
+	 							} 
+	 							else {
+	 								$("#"+dialogId).typeInfoDialog("update",[ui.item.value,invType]);
+	 							    // it is not initialized yet
+	 							}					
+	 						}
+	 					});
+ 					}
+ 					else{
+ 						alert("{{_('simpleTypeSelectField: Error in getting data')}}");
+ 					}
+ 				})
+ 				.fail(function(jqxfr, textStatus, error){
+ 					alert("{{_('simpleTypeSelectField: fail event in getting data')}}");
+ 				});
+ 			});
+ 		}
+ 		else if (settings['widget']=='typeInfoDialog'){
+ 			var typeUrls = {'fridges':'json/fridge-info',
+					'trucks':'json/truck-info',
+					'vaccines':'json/vaccine-info',
+					'people':'json/people-info',
+					'staff': 'json/staff-info',
+					'perdiem':'json/perdiem-info'
+			}
+			//This will provide a button and associated dialog div for displaying the info of a type
+ 			$.fn.typeInfoDialog = function( arg, arg2) {
+				var tId = this.attr('id');
+	 			console.log("in Here " + tId);
+				if(tId==undefined) $.error("{{_('typeInfoDialog does not have an id')}}");
+				if(arg == 'update'){
+	 				///arg2 has to be an object with the new types data
+	 				var typeId = arg2[0];
+	 				var typeClass = arg2[1];
+	 				var modelId = settings['modelId'];
+	 				
+	 				$.ajax({
+						url:{{rootPath}} + typeUrls[typeClass],
+						data:{modelId:modelId,name:typeId}
+					})
+					.done(function(results){
+						if(results.success){
+							$("#"+tId).html(results.htmlstring);
+						}
+						else{
+							alert("{{_('typeInfoButtonAndDialog: success fail in getting data')}}");
+						}
+					})
+					.fail(function(jqxfr, textStatus, error){
+	 					alert("{{_('typeInfoButtonAndDialog: fail event in getting data')}}");
+	 				}); 				
+	 			}
+ 			}
+				
+			return this.each(function(index,elem){
+				var $elem = $(elem);
+				var thisId = $elem.attr('id');
+				
+				var typeClass = settings['typeClass'];
+				var typeId = settings['typeId'];
+				var modelId = settings['modelId'];
+				var modal = settings['modal'];
+				var autoOpen = settings['autoOpen'];
+				
+				$("#" + thisId).dialog({
+ 					autoOpen:autoOpen,
+ 					model:modal,
+ 					height:"auto",
+ 					width:"auto",
+ 					title:"{{_('Type Information')}}",
+ 					buttons:{
+ 						OK: function(){
+ 							$(this).dialog("close");
+ 						}
+ 					},
+					open: function(event, ui){
+						//$(this).typeInfoDialog("update",[typeId,typeClass]);
+					}
+ 				});
+			});	
+ 		}
+ 		else if (settings['widget']=='typeInfoButtonAndDialog'){
+ 			var typeUrls = {'fridges':'json/fridge-info',
+						'trucks':'json/truck-info',
+						'vaccines':'json/vaccine-info',
+						'people':'json/people-info',
+						'staff': 'json/staff-info',
+						'perdiem':'json/perdiem-info'
+ 			}
+ 			$.fn.typeInfoDialog = function( arg, arg2) {
+	 			//This will provide a button and associated dialog div for displaying the info of a type
+	 			var tId = this.attr('id');
+	 			if(tId==undefined) $.error("{{_('typeInfoButtonAndDialog has not id')}}");
+ 			}
+ 			return this.each(function(index,elem){
+ 				var $elem = $(elem);
+ 				var thisId = $elem.attr('id');
+ 				var unique = Math.floor((Math.random()*1000000)+1);
+ 				var buttonId = thisId + "_info_button_" + unique;
+ 				var dialogId = thisId + "_info_dialog_" + unique;
+ 				
+ 				var typeClass = settings['typeClass'];
+ 				var typeId  = settings['typeId'];
+ 				var modelId = settings['modelId'];
+ 				
+ 				htmlString = "<div id='"+ buttonId + "' class='hrmWidget_type_info_button hermes_info_button'>{{_('Info')}}</div>";
+ 				htmlString += "<div id='"+ dialogId + "' class='hrmWidget_type_info_dialog'>This is where info goes</div>";
+ 				
+ 				$("#"+thisId).append(htmlString);
+ 				
+ 				
+ 				$("#"+dialogId).hrmWidget({
+ 					widget: 'typeInfoDialog',
+ 					modelId: modelId,
+ 					typeId: typeId,
+ 					typeClass: typeClass,
+ 					autoOpen: false,
+ 					modal: true
+ 				});
+ 		
+ 				$("#"+buttonId).button();
+ 				$("#"+buttonId).click( function(){
+ 					$("#" + dialogId).dialog("open");
+ 				});
+ 				
+ 			});
+ 		}
  		else if (settings['widget']=='simpleStorageDeviceTable') {
+ 			// This widget provides a simple table of storage devices that are at a location in a model that one can edit the 
+ 			// counts of
  			$.fn.simpleStorageDeviceTable = function( arg, arg2 ){
  				var tId = this.attr('id');
  				if(tId==undefined) $.error("{{_('simpleStorageDeviceTable has not id')}}");
@@ -1689,6 +1903,127 @@ function addToggleExpansionButton($grid) {
 				if(arg=='clean'){
 					$.error("{{_('simpleStorageDeviceTable has no clean operation associated with it')}}");
 				}
+				if(arg=='reloadGrid'){
+					var tableId = tId + "_tbl";
+					$("#"+tableId).jqGrid("GridUnload");
+					this.simpleStorageDeviceTable("createGrid");
+				}
+				if(arg=='createGrid'){
+					var thisId = tId
+					var tableId = tId + '_tbl';
+					var pagerId = tId + '_pg';
+					var modelId = settings.modelId;
+					var storeId = settings.storeId;
+					var showHead = settings.showHead;
+					var showGrid = settings.showGrid;
+					//console.log("modelID = "+modelId);
+					//console.log("storeId = " + storeId);
+					$("#"+tableId).jqGrid({
+						url:{{rootPath}} + "json/get-storage-devices-for-model-for-storeId",
+						datatype:'json',
+						postData:{modelId:modelId,storeId:storeId},
+						inlineData: {modelId:modelId,storeId:storeId},
+						jsonReader: {repeatitems:false},
+						colNames: ["storeId","hermesdevname","{{_('Storage Device')}}","{{_('Number at Location')}}"],
+						colModel: [
+						           {name:'idcode',index:'idcode',key:false,editable:false,hidden:true},
+						           {name:'hermesname',index:'hermesname',key:true,editable:false,hidden:true},
+						           {name:'device',index:'device',key:false,editable:false},
+						           {name:'count',index:'count',width:30,align:'right',key:false,editable:true}
+						          ],
+						loadonce:true,
+						height:'auto',
+						width:'auto',
+						gridview: true,
+						rowNum:-1,
+						pgbuttons:false,
+						pginput:false,
+						pgtext:false,
+						pager:pagerId,
+						viewrecords:false,
+						editurl:{{rootPath}} + 'edit/verify-edit-store-device-count-for-store',
+						beforeSelectRow: function(rowId, evt) {
+							var $this = $(this);
+							var oldRowId = $this.getGridParam('selrow');
+							if(oldRowId && (oldRowId != rowId)) {
+								$this.jqGrid("saveRow",oldRowId,
+											{extraparam: {modelId:modelId}}
+								);
+							}
+							return true;
+						},
+						onSelectRow: function(resultsId, status){
+							if(status){
+								if(resultsId) {
+									$("#"+tableId).jqGrid('editRow',resultsId,
+											{
+												keys:true,
+												extraparam: {modelId:modelId},
+												aftersavefunc: function(rowId,response){
+													var countVal = $(this).jqGrid("getCell",rowId,3); //value of the counts
+													if(countVal <= 0){
+														$(this).jqGrid("delRowData",rowId);
+													} 			
+													$("#"+tableId).jqGrid("resetSelection");
+												},
+												afterstorefunc: function(rowId,response){
+													alert("JERE");
+													$("#"+tableId).jqGrid("resetSelection");
+												},
+												afterrestorefunc: function(rowId,response){
+													alert("FDD");
+													$("#"+tableId).jqGrid("resetSelection");}
+											}
+									);
+									lastsel=resultsId;
+								}
+								else {
+									alert('outside click '+ resultsId);
+								}
+							}
+						},
+						loadError: function(xhr,status,error){
+							alert("{{_('Error creating simpleStorageDeviceTable')}}" + status);
+						},
+						beforeProcessing: function(data,status,xhr){
+							if (!data.success) {
+								alert("{{_('Failed to create data for simpleStorageDeviceTable')}}");
+							}
+						},
+						gridComplete: function(){
+							var $this = $(this);
+							$this.keypress( function(event) {
+								if(event.which == 13) { //user hits enter
+									var oldRowId = $this.getGridParam('selrow');
+									alert("here");
+									$this.jqGrid('saveRow',oldRowId,
+											{extraparam: {modelId:modelId}}
+									);
+									lastsel=oldRowId;
+									$("#"+tableId).jqGrid("resetSelection");
+								}
+							});
+						},
+						loadComplete: function(){
+							if(showHead == false){ 
+								$("#"+thisId).children('div.ui-jqgrid').children('div.ui-jqgrid-view').children('div.ui-jqgrid-hdiv').hide();
+								$("#"+pagerId).hide();
+							}
+							if(showGrid == false){
+								$("#"+tableId + ' tr td').css('border-top-style','none');
+								$("#"+tableId + ' tr td').css('border-left-style','none');
+								$("#"+tableId + ' tr td').css('border-right-style','none');
+								$("#"+tableId + ' tr td').css('border-bottom-style','none');
+								$("#"+tableId + ' tr').css('border-top-style','none');
+								$("#"+tableId + ' tr').css('border-left-style','none');
+								$("#"+tableId + ' tr').css('border-right-style','none');
+								$("#"+tableId + ' tr').css('border-bottom-style','none');
+								//console.log(thisId);
+								$("#"+thisId).children('div.ui-jqgrid').css('border','0px');
+							}
+						}
+					});
+				}
  			}
 			return this.each(function(index,elem){
 				var $elem = $(elem);
@@ -1700,61 +2035,7 @@ function addToggleExpansionButton($grid) {
 				htmlString += "<div id='" + pagerId + "'></div>";
 				
 				$elem.html(htmlString);
-				var modelId = settings.modelId;
-				var storeId = settings.storeId;
-				var showHead = settings.showHead;
-				var showGrid = settings.showGrid;
-				console.log("modelID = "+modelId);
-				console.log("storeId = " + storeId);
-				$("#"+tableId).jqGrid({
-					url:{{rootPath}} + "json/get-storage-devices-for-model-for-storeId",
-					datatype:'json',
-					postData:{modelId:modelId,storeId:storeId},
-					jsonReader: {repeatitems:false},
-					colNames: ["{{_('Storage Device')}}","{{_('Number at Location')}}"],
-					colModel: [
-					           {name:'device',index:'device',key:true,editable:false},
-					           {name:'count',index:'count',width:30,align:'right',key:false,editable:false}
-					          ],
-					loadonce:true,
-					height:'auto',
-					width:'auto',
-					gridview: false,
-					pgbuttons:false,
-					pginput:false,
-					pgtext:false,
-					pager:pagerId,
-					viewrecords:false,
-					loadError: function(xhr,status,error){
-						alert("{{_('Error creating simpleStorageDeviceTable')}}" + status);
-					},
-					beforeProcessing: function(data,status,xhr){
-						if (!data.success) {
-							alert("{{_('Failed to create data for simpleStorageDeviceTable')}}");
-						}
-					},
-					loadComplete: function(){
-						if(showHead == false){ 
-							$("#"+tableId).parents('div.ui-jqgrid-view').children('div.ui-jqgrid-hdiv').hide();
-							$("#"+pagerId).hide();
-						}
-						if(showGrid == false){
-							$("#"+tableId + ' tr td').css('border-top-style','none');
-							$("#"+tableId + ' tr td').css('border-left-style','none');
-							$("#"+tableId + ' tr td').css('border-right-style','none');
-							$("#"+tableId + ' tr td').css('border-bottom-style','none');
-							$("#"+tableId + ' tr').css('border-top-style','none');
-							$("#"+tableId + ' tr').css('border-left-style','none');
-							$("#"+tableId + ' tr').css('border-right-style','none');
-							$("#"+tableId + ' tr').css('border-bottom-style','none');
-							console.log(thisId);
-							$("#"+thisId).children('div.ui-jqgrid').css('border','0px');
-						}
-					}
-				});
-				
-				
-				
+				$elem.simpleStorageDeviceTable("createGrid");
 			});
  		
  		}

@@ -90,7 +90,9 @@ def getDeviceInventoryListForModelForStoreIdjQGridJSON(db,uiSession):
         
         for dev,count in m.stores[storeId].countAllInventory().items():
             if isinstance(m.types[dev],shd.ShdStorageType):
-                rowList.append({'device':m.types[dev].getDisplayName(),
+                rowList.append({'idcode':storeId,
+                                'hermesname':dev,
+                                'device':m.types[dev].getDisplayName(),
                                 'count':count})
                  
         results = {
@@ -108,7 +110,38 @@ def getDeviceInventoryListForModelForStoreIdjQGridJSON(db,uiSession):
     except Exception,e:
         result = {'success':False, 'type':'error', 'msg':str(e)}
         return result  
-          
+
+@bottle.route('/edit/verify-edit-store-device-count-for-store',method='post')
+def jsonStorageDeviceCountForStoreVerifyAndCommit(db,uiSession):
+    try:
+        if bottle.request.params['oper'] == 'edit':
+            modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+            print bottle.request.params.keys()
+            idcode  = _getOrThrowError(bottle.request.params,'storeId',isInt=True)
+            devName = _getOrThrowError(bottle.request.params,'hermesname',isInt=False)
+            newCount = _getOrThrowError(bottle.request.params,'count',isInt=True)
+            
+            uiSession.getPrivs().mayModifyModelId(db, modelId)
+            m = shadow_network_db_api.ShdNetworkDB(db, modelId)    
+            
+            store = m.stores[idcode]
+            store.updateInventory(devName,newCount)
+            
+            db.commit()
+            #print "ModelId = {0} idcode = {1}".format(modelId,idcode)
+    
+            return {'success':True}
+        elif bottle.request.params['oper']=='add':
+            raise bottle.BottleException(_('jsonStorageDeviceCountForStoreVerifyAndCommit: unsupported operation add'))
+        elif bottle.request.params['oper']=='del':
+            raise bottle.BottleException(_('jsonStorageDeviceCountForStoreVerifyAndCommit: unsupported operation del'))
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        print str(e)
+        result = {'success':False, 'type':'error','msg':str(e)}
+        return result  
 @bottle.get('/json/manage-store-inventory-grid')
 def jsonManagePopStoreGrid(db,uiSession):
     import json
