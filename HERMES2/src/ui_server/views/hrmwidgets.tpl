@@ -500,8 +500,8 @@ function addToggleExpansionButton($grid) {
  						else{
  							$elem.data('default','None');
  						}
- 						console.log($elem.data('selected'));
- 						console.log(settings['selected']);
+ 						//console.log($elem.data('selected'));
+ 						//console.log(settings['selected']);
 	 					var optionsList = [];
 	 					for(var i=0;i<result.pairs.length;++i){
 	 						optionsList.push([result.pairs[i][1],result.pairs[i][0]]);
