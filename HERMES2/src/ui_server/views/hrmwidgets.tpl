@@ -1730,7 +1730,7 @@ function addToggleExpansionButton($grid) {
 	 							//console.log(optionsList)
 	 							if(optionsList[option][0] == $elem.data('selected')){
 	 								selHtmlString  += "<option value = '"+optionsList[option][0]+"' selected>"
-	 											+ optionsList[option][1]+"</option>";
+	 											+optionsList[option][1]+"</option>";
 	 							}
 	 							else{
 	 								selHtmlString += "<option value = '"+optionsList[option][0]+"'>"
@@ -1750,17 +1750,32 @@ function addToggleExpansionButton($grid) {
 	 					$elem.html(selHtmlString );
 	 					
 	 					$("#"+selectId).selectmenu({
+	 						height:200,
 	 						focus: function(event,ui){
+//	 							 $('li.ui-menu-item').tooltip({
+//	 				                 items:'li',
+//	 				                 //content: "adsdads ad asdadad asd ad adoption"
+//	 				                 content:function(){
+//	 				                     console.log($(this).);
+//	 				                     //return $(this).hrmWidget({
+//	 				                    //	 widget:'typeInfoDialog',
+//	 				                    //	 typeClass:'fridges',
+//	 				                    //	 typeId:$(this).val()
+//	 				                     //});
+//	 				                 }
+//	 				             });
+//	 				         }
 	 							console.log(dialogId);
-	 							if ($("#"+dialogId).hasClass('ui-dialog-content')) {
+	 							if (!$("#"+dialogId).hasClass('ui-dialog-content')) {
 	 								$("#"+ dialogId).hrmWidget({
 		 	 							widget:'typeInfoDialog',
 		 	 							modelId: modelId,
 		 	 							typeId: ui.item.value,
 		 	 							typeClass:invType,
-		 	 							modal:true,
+		 	 							modal:false,
 		 	 							autoOpen:true
 		 							});
+	 								
 	 							} 
 	 							else {
 	 								$("#"+dialogId).typeInfoDialog("update",[ui.item.value,invType]);
@@ -1828,7 +1843,7 @@ function addToggleExpansionButton($grid) {
 				$("#" + thisId).dialog({
  					autoOpen:autoOpen,
  					model:modal,
- 					height:"auto",
+ 					height:200,
  					width:"auto",
  					title:"{{_('Type Information')}}",
  					buttons:{
@@ -1837,7 +1852,7 @@ function addToggleExpansionButton($grid) {
  						}
  					},
 					open: function(event, ui){
-						//$(this).typeInfoDialog("update",[typeId,typeClass]);
+						$(this).typeInfoDialog("update",[typeId,typeClass]);
 					}
  				});
 			});	
