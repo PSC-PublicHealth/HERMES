@@ -1678,15 +1678,19 @@ function addToggleExpansionButton($grid) {
  		}
  		else if (settings['widget']=='simpleTypeSelectField'){
  			// this widget is will provide a simple select box that has the display names of types selected by the user
- 			$.fn.simpleStorageDeviceSelect = function( arg, arg2) {
+ 			$.fn.simpleTypeSelectField = function( arg, arg2) {
  				var tId = this.attr('id');
  				if(tId==undefined) $.error("{{_('simpleTypeSelectField does not have an id')}}");
  				if(arg=='value'){
  					return $("#"+tId+"_simpleTypeSelect_selectBox").val();
  				}
  				if(arg=='valueJson'){
- 					returnJson = {'value':$("#"+tId+"_simpleTypeSelect_selectBox").val()};
+ 					returnJson = {'value':$("#"+tId+"_simpleTypeSelect_selectBox").val(),'label':$("#"+tId+"_simpleTypeSelect_selectBox option:selected").text()};
 					return returnJson;
+ 				}
+ 				if(arg=='addSelectFunction'){
+ 					var selectId = tId + "_simpleTypeSelect_selectBox";
+ 					$("#"+selectId).bind("select",arg2);
  				}
  			}
  			return this.each(function(index,elem){
@@ -1704,6 +1708,7 @@ function addToggleExpansionButton($grid) {
  				var invType = settings['invType'];
  				var selected = settings['default'];
  				var maxHeight = settings['maxHeight'];
+ 				var selectFun = settings['selectFunc'];
  				
  				$.ajax({
  					url:'{{rootPath}}json/type-list-for-invtype-in-model',
@@ -1751,8 +1756,8 @@ function addToggleExpansionButton($grid) {
 	 						}
 	 					}
 	 					selHtmlString  += "</select></div>";
-	 					$elem.html(selHtmlString );
-	 					
+	 					$elem.html(selHtmlString);
+	 					//console.log("Selected = " + selected)
 	 					$("#"+selectId).selectmenu({
 	 						style:'dropdown',
 	 						create: function(event,ui){
@@ -1762,12 +1767,15 @@ function addToggleExpansionButton($grid) {
 	 								typeId: optionsList[option][0],
 	 								typeClass:invType,
 	 								simple:true,
-	 								xpos: $(this).parent().position().left + $(this).width(),
-	 								ypos: $(this).parent().position().top + $(this).parent().height()/2.0
+	 								xpos: 0,//$(this).parent().position().left + $(this).width(),
+	 								ypos: 0//$(this).parent().position().top + $(this).parent().height()/2.0
 	 		 					});
 	 							$("#"+dialogId).typeInfoPopup("update",[selected,invType]);
 	 						},
 	 						open: function(event,ui){
+	 							var diagtop = $("#"+$(this).attr("id")+"-button").position().top + $("#"+$(this).attr("id")+"-button").height() - 1;
+	 							var diagleft = $("#"+$(this).attr("id")+"-button").position().left + $("#"+$(this).attr("id")+"-button").width();
+	 							$("#"+dialogId).css({top:diagtop,left:diagleft});
 	 							$("#"+dialogId).typeInfoPopup("open");
 	 						},
 	 						close: function(event,ui){
@@ -1775,6 +1783,11 @@ function addToggleExpansionButton($grid) {
 	 						},
 	 						focus: function(event,ui){
 	 							$("#"+dialogId).typeInfoPopup("update",[ui.item.value,invType]);
+	 						},
+	 						select: function(event,ui){
+	 							if(selectFun){
+	 								selectFun();
+	 							}
 	 						}
 	 					});
 	 					if(maxHeight){
@@ -1833,6 +1846,7 @@ function addToggleExpansionButton($grid) {
 				var modelId = settings['modelId'];
 				var xpos = settings['xpos'];
  				var ypos = settings['ypos'];
+ 				
 				
 				$("#"+thisId).addClass('hrmWidget_popup_div');
 				$("#"+thisId).css({position:'absolute',left:xpos+"px",top:ypos+"px"});
@@ -1955,12 +1969,40 @@ function addToggleExpansionButton($grid) {
 				if(arg=='reloadGrid'){
 					var tableId = tId + "_tbl";
 					$("#"+tableId).jqGrid("GridUnload");
-					this.simpleStorageDeviceTable("createGrid");
+					$("#"+tId).simpleStorageDeviceTable("createGrid");		
+				}
+				if(arg=='add'){
+					var thisId = tId
+					var tableId = tId + '_tbl';
+					var modelId = settings.modelId;
+					var storeId = settings.storeId;
+					var typeId = arg2[0];
+					var count = arg2[1];
+					
+					$.ajax({
+						url:{{rootPath}} + 'edit/store-edit-edit',
+						data:{modelId:modelId,idcode:storeId,invtype:'fridges',typestring:typeId,count:count,oper:'add'},
+						method:'POST'
+						
+					})
+					.done(function(results){
+						if(results.success){
+							//$("#"+thisId).html(results.htmlstring);
+							//$("#"+thisId).simpleStorageDeviceTable("reloadGrid");
+						}
+						else{
+							alert("{{_('simpleStorageDeviceTable:add success fail in adding type')}}" + results.msg);
+						}
+					})
+					.fail(function(jqxfr, textStatus, error){
+	 					alert("{{_('simpleStorageDeviceTable:add fail event in adding type')}}");
+	 				});	
 				}
 				if(arg=='createGrid'){
 					var thisId = tId
 					var tableId = tId + '_tbl';
 					var pagerId = tId + '_pg';
+					var delConfirmId = $(this).attr('id') + '_delConfirmBox';
 					var modelId = settings.modelId;
 					var storeId = settings.storeId;
 					var showHead = settings.showHead;
@@ -2008,17 +2050,35 @@ function addToggleExpansionButton($grid) {
 												extraparam: {modelId:modelId},
 												aftersavefunc: function(rowId,response){
 													var countVal = $(this).jqGrid("getCell",rowId,3); //value of the counts
+													var displayName = $(this).jqGrid("getCell",rowId,2);
 													if(countVal <= 0){
-														$(this).jqGrid("delRowData",rowId);
+														$("#"+delConfirmId).html("{{_('Are you sure you would like to remove ')}}"+displayName+"{{_(' from this location?')}}");
+														$("#"+delConfirmId).dialog({
+															autoOpen:true,
+															modal:true,
+															buttons:{
+																{{_('OK')}}:function(){
+																	$("#"+tableId).jqGrid("delRowData",rowId);
+																	$(this).dialog("close");
+																	$(this).dialog("destroy");
+																},
+																{{_('Cancel')}}: function(){
+																	$(this).dialog("close");
+																	$("#"+tableId).jqGrid("resetSelection");
+																	$("#"+delConfirmId).html("");
+																	$(this).dialog("destroy");
+																	
+																	
+																}
+															}	
+														});
 													} 			
 													$("#"+tableId).jqGrid("resetSelection");
 												},
 												afterstorefunc: function(rowId,response){
-													alert("JERE");
 													$("#"+tableId).jqGrid("resetSelection");
 												},
 												afterrestorefunc: function(rowId,response){
-													alert("FDD");
 													$("#"+tableId).jqGrid("resetSelection");}
 											}
 									);
@@ -2077,14 +2137,144 @@ function addToggleExpansionButton($grid) {
 				var thisId = $(this).attr('id');
 				var tableId = $(this).attr('id') + '_tbl';
 				var pagerId = $(this).attr('id') + '_pg';
+				var addButtonDivId = $(this).attr('id') + '_butdiv';
+				var addButtonId = $(this).attr('id') + '_addbutton';
+				var selectId = $(this).attr('id') + '_selectBox';
+				var addConfirmId = $(this).attr('id') + '_addConfirmBox';
+				var delConfirmId = $(this).attr('id') + '_delConfirmBox';
+				
+				var modelId = settings.modelId;
+				var storeId = settings.storeId;
+				
+				
 				//$elem.data('data-inventory-list',JSON.parse(setting['inventory-list']));
 				htmlString = "<table id='" + tableId + "'></table>";
 				htmlString += "<div id='" + pagerId + "'></div>";
+				htmlString += "<div id='" + addButtonDivId + "'>" +
+							  "<div id='"+addButtonId +"' class='hrmWidget_simpleStorageInvGrid_button'>{{_('Add Storage Device')}}</div>"+
+							  "<div id='"+selectId + "' class='hrmWidget_simpleStorageInvGrid_select'>buggers</div>"+
+							  "</div>";
+				htmlString += "<div id='"+addConfirmId+"'></div><div id='"+delConfirmId+"'></div>";
 				
 				$elem.html(htmlString);
 				$elem.simpleStorageDeviceTable("createGrid");
+				
+
+				$('#'+selectId).hrmWidget({
+					widget: 'simpleTypeSelectField',
+					modelId: modelId,
+					storeId: storeId,
+					maxHeight: 150,
+					invType: 'fridges',
+					selectFunc:function(){
+						selectedValues = $("#"+selectId).simpleTypeSelectField("valueJson");
+						
+						var dialogTxt  = "{{_('How many ')}}"+selectedValues.label + "{{_(' storage devices would you like to add?')}}";
+						$("#"+addConfirmId).hrmWidget({
+							widget:'countDialogBox',
+							dialogTxt:dialogTxt,
+							modal: true,
+							autoOpen: false,
+							title:"{{_('Confirming adding storage device')}}",
+							okFunction: function(value){
+								$elem.simpleStorageDeviceTable("add",[$("#"+selectId).simpleTypeSelectField("value"),value]);
+								if($("#"+selectId).is(":visible")){
+									$("#"+selectId).fadeOut("medium",function(){
+										$("#"+addButtonId).fadeIn("medium",function(){
+											$elem.simpleStorageDeviceTable("reloadGrid");
+										});
+									});
+								}
+							},
+							cancelFunction: function(){
+								if($("#"+selectId).is(":visible")){
+									$("#"+selectId).fadeOut("medium",function(){
+										$("#"+addButtonId).fadeIn("medium");
+									});
+								}
+							}
+						});
+						$("#"+addConfirmId).countDialogBox("open");
+						
+						//$("#"+selectId).fadeOut("medium",function(){
+						//	$("#"+addButtonId).fadeIn("medium",function(){
+						//		$elem.simpleStorageDeviceTable("reloadGrid");
+						//	});
+						//})
+						//$elem.simpleStorageDeviceTable("add",$("#"))
+					}
+				});
+				//$("#"+selectId).simpleTypeSelectField("addSelectFunc",function(){alert($("#"+selectId).simpleTypeSelectField("value"));})
+				
+				$("#"+selectId).hide();
+				
+				var but = $('#'+addButtonId).button({
+					class:'hrmWidget_simpleStorageInvGrid_button'
+				});
+			
+				but.click(function(event){
+					event.preventDefault();
+					$(this).fadeOut("medium",function(){
+						$("#"+selectId).fadeIn("medium");
+					});
+				});
+				
 			});
  		
+ 		}
+ 		else if (settings['widget']=='countDialogBox') {
+ 			$.fn.countDialogBox = function(arg, arg2) {
+ 				var tId = this.attr('id');
+ 				if(tId==undefined) $.error("{{_('countDialogBox does not have an id')}}");
+ 				if(arg=='open'){
+ 					$("#"+tId).dialog("open");
+ 				}
+ 				else if(arg=='close'){
+ 					$("#"+tId).dialog("close");
+ 				}
+ 				
+ 			}
+ 			return this.each(function(index,elem){
+ 				var $elem = $(elem);
+ 				var thisId = $(this).attr('id');
+ 				var countId = thisId = "_countBox";
+ 				
+ 				var dialogTxt = settings.dialogTxt;
+ 				var okFunction = settings.okFunction;
+ 				var cancelFunction = settings.cancelFunction;
+ 				var autoOpen = settings.autoOpen;
+ 				var modal = settings.modal;
+ 				var title = settings.title;
+ 				//maybe add width
+ 				
+ 				htmlString = "<table class='hrmWidget_countDialogBox_tbl'>" +
+ 					"<tr><td><span class='hrmWidget_countDialogBox_text'>"+
+ 					dialogTxt + 
+ 					"</span></td><tr>" + 
+ 					"<tr><td><input type = 'number' id = '"+countId+"' value=1></input></td></tr></table>";
+ 				$elem.html(htmlString);
+ 				
+ 				$elem.dialog({
+ 					autoOpen:autoOpen,
+ 					modal:modal,
+ 					title:title,
+ 					buttons:{
+ 						{{_('OK')}}: function(){
+ 							if(okFunction){
+ 								// ok function will always have the value passed
+ 								okFunction($("#"+countId).val());
+ 								$(this).dialog("close");
+ 							}
+ 						},
+ 						{{_('Cancel')}}: function(){
+ 							if(cancelFunction){
+ 								cancelFunction();
+ 								$(this).dialog("close");
+ 							}
+ 						}
+ 					}
+ 				});
+ 			})
  		}
  		else if (settings['widget']=='editFormManager') {
 			$.fn.editFormManager = function( arg, arg2 ) {

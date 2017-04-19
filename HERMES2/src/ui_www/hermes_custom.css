@@ -2540,3 +2540,14 @@ div.ui-jqgrid-view table.ui-jqgrid-btable th
 .hrmWidget_popup_div td {
 	width:250px;
 }
+
+.hrmWidget_simpleStorageInvGrid_button {
+	font-size:10px;
+}
+
+.hrmWidget_simpleStorageInvGrid_select select{
+	width:170px !important;
+}
+.hrmWidget_simpleStorageInvGrid_select span{
+	font-size:10px !important;
+}

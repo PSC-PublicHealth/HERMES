@@ -827,10 +827,12 @@ def editStoreEditEdit(db, uiSession):
                 store.updateInventory(visibletypestring, newCountNewType, useDemandList=demandFlag)
         elif oper=='add':
             typestring = _getOrThrowError(bottle.request.params, 'typestring')
+            
             if count is None:
                 pass
             else:
-                store.updateInventory(visibletypestring, count, useDemandList=demandFlag)
+                ### changed to addInventory to account for if there is something already there
+                store.addInventory(typestring, count, useDemandList=demandFlag)
         elif oper=='del':
             typestring = _getOrThrowError(bottle.request.params, 'id')
             store.updateInventory(typestring, 0, useDemandList=demandFlag)
