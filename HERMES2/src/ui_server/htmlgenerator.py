@@ -180,7 +180,7 @@ def getModelRouteInfoHTML(db, uiSession, modelId, routeName):
 
     return sio.getvalue(), titleStr
 
-def getPeopleInfoHTML(db,uiSession, modelId, typeName):
+def getPeopleInfoHTML(db,uiSession, modelId, typeName, simple=False):
     from peoplehooks import fieldMap
 
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
@@ -190,10 +190,15 @@ def getPeopleInfoHTML(db,uiSession, modelId, typeName):
         titleStr = _("Population Type '{0}' in '{1}'").format(typeName,model.name)
     else:
         titleStr = _("Population Type '{0}'").format(typeName)
-        
-    return _buildTypeInfoBox(fieldMap, typeInstance, "Population"),titleStr
+    
+    if simple:
+        htmlStr,titleStr = _buildTypeInfoPopUp(fieldMap, typeInstance, "Population"),None
+    else:
+        htmlStr,titleStr = _buildTypeInfoBox(fieldMap, typeInstance, "Population"),titleStr
+    return htmlStr,titleStr
+#_buildTypeInfoBox(fieldMap, typeInstance, "Population"),titleStr
 
-def getStaffInfoHTML(db,uiSession, modelId, typeName):
+def getStaffInfoHTML(db,uiSession, modelId, typeName,simple=False):
     from staffhooks import fieldMap
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
@@ -202,9 +207,15 @@ def getStaffInfoHTML(db,uiSession, modelId, typeName):
         titleStr = _("Staff Type {0} in {1}").format(typeName,model.name)
     else:
         titleStr = _("Staff Type {0}").format(typeName)
-    return _buildTypeInfoBox(fieldMap,typeInstance,"Staff"),titleStr   
+        
+    if simple:
+        htmlStr,titleStr = _buildTypeInfoPopUp(fieldMap,typeInstance,"Staff"),None
+    else:
+        htmlStr,titleStr = _buildTypeInfoBox(fieldMap,typeInstance,"Staff"),titleStr
+        
+    return htmlStr,titleStr
                              
-def getPerDiemInfoHTML(db,uiSession, modelId, typeName):
+def getPerDiemInfoHTML(db,uiSession, modelId, typeName,simple=False):
     from perdiemhooks import fieldMap
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
@@ -214,9 +225,14 @@ def getPerDiemInfoHTML(db,uiSession, modelId, typeName):
     else:
         titleStr = _("PerDiem Type '{0}'").format(typeName)
     
-    return _buildTypeInfoBox(fieldMap, typeInstance, _("Per Deim")),titleStr
+    if simple:
+        htmlStr,titleStr = _buildTypeInfoPopUp(fieldMap, typeInstance, _("Per Deim")),None
+    else:
+        htmlStr,titleStr = _buildTypeInfoBox(fieldMap, typeInstance, _("Per Deim")),titleStr
+        
+    return htmlStr,titleStr
             
-def getVaccineInfoHTML(db, uiSession, modelId, typeName):
+def getVaccineInfoHTML(db, uiSession, modelId, typeName,simple=False):
     from vaccinehooks import fieldMap
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
@@ -225,9 +241,14 @@ def getVaccineInfoHTML(db, uiSession, modelId, typeName):
         titleStr = _("Vaccine Type {0} in {1}").format(typeName,model.name)
     else:
         titleStr = _("Vaccine Type {0}").format(typeName)
-    return _buildTypeInfoBox(fieldMap, typeInstance, "Vaccine"),titleStr
-      
-def getFridgeInfoHTML(db, uiSession, modelId, typeName):
+    
+    if simple:
+        htmlStr,titleStr = _buildTypeInfoPopUp(fieldMap, typeInstance, "Vaccine"),None
+    else:
+        _htmlStr,titleStr = _buildTypeInfoBox(fieldMap, typeInstance, "Vaccine"),titleStr
+    return htmlStr,titleStr
+
+def getFridgeInfoHTML(db, uiSession, modelId, typeName, simple=False):
     from fridgehooks import fieldMap
     canWrite,typeInstance = typehelper.getTypeWithFallback(db, modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db, modelId)
@@ -237,7 +258,15 @@ def getFridgeInfoHTML(db, uiSession, modelId, typeName):
     else:
         titleStr = _("Storage Device Type {0}").format(typeName)
     
-    return _buildTypeInfoBox(fieldMap,typeInstance,"Storage Device"),titleStr
+    
+    if simple:
+        htmlStr,titleStr = _buildTypeInfoPopUp(fieldMap,typeInstance,"Store Device"),None
+    else:
+        htmlStr,titleStr = _buildTypeInfoBox(fieldMap,typeInstance,"Storage Device"),titleStr
+    
+    return htmlStr,titleStr
+
+#_buildTypeInfoBox(fieldMap,typeInstance,"Storage Device"),titleStr
 
 def getIceInfoHTML(db, uiSession, modelId, typeName):
     canWrite,typeInstance = typehelper.getTypeWithFallback(db, modelId, typeName)
@@ -281,7 +310,7 @@ def getPackagingInfoHTML(db, uiSession, modelId, typeName):
     
     return sio.getvalue(), titleStr
 
-def getTruckInfoHTML(db, uiSession, modelId, typeName):
+def getTruckInfoHTML(db, uiSession, modelId, typeName, simple=False):
     from truckhooks import fieldMap
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     model = shadow_network_db_api.ShdNetworkDB(db,modelId)
@@ -291,19 +320,25 @@ def getTruckInfoHTML(db, uiSession, modelId, typeName):
     else:
         titleStr = _("Transport Type {0}").format(typeName)
     
-    return _buildTypeInfoBox(fieldMap, typeInstance, _("Transport"),model=model),titleStr
+    if simple:
+        htmlStr,titleStr = _buildTypeInfoPopUp(fieldMap, typeInstance, _("Transport"),model=model),None
+    else:
+        htmlStr,titleStr = _buildTypeInfoBox(fieldMap, typeInstance, _("Transport"),model=model),titleStr
+        
+    return htmlStr,titleStr
+#_buildTypeInfoBox(fieldMap, typeInstance, _("Transport"),model=model),titleStr
 
-def getGenericTypeInfoHTML(db, uiSession, modelId, typeName):
+def getGenericTypeInfoHTML(db, uiSession, modelId, typeName,simple=False):
     canWrite,typeInstance = typehelper.getTypeWithFallback(db,modelId, typeName)
     category = typeInstance.shdType
-    if category=='people': return getPeopleInfoHTML(db, uiSession, modelId, typeName)
-    elif category=='trucks': return getTruckInfoHTML(db, uiSession, modelId, typeName)
-    elif category=='fridges': return getFridgeInfoHTML(db, uiSession, modelId, typeName)
-    elif category=='vaccines': return getVaccineInfoHTML(db, uiSession, modelId, typeName)
+    if category=='people': return getPeopleInfoHTML(db, uiSession, modelId, typeName,simple)
+    elif category=='trucks': return getTruckInfoHTML(db, uiSession, modelId, typeName,simple)
+    elif category=='fridges': return getFridgeInfoHTML(db, uiSession, modelId, typeName,simple)
+    elif category=='vaccines': return getVaccineInfoHTML(db, uiSession, modelId, typeName,simple)
     elif category=='ice': return getIceInfoHTML(db, uiSession, modelId, typeName)
     elif category=='packaging': return getPackagingInfoHTML(db, uiSession, modelId, typeName)
-    elif category=='staff': return getStaffInfoHTML(db, uiSession, modelId, typeName)
-    elif category=='perdiems': return getPerDiemInfoHTML(db, uiSession, modelId, typeName)
+    elif category=='staff': return getStaffInfoHTML(db, uiSession, modelId, typeName,simple)
+    elif category=='perdiems': return getPerDiemInfoHTML(db, uiSession, modelId, typeName,simple)
 
 def getRunInfoHTML(db, uiSession, runId, minionFactory):
     minionInfo,sp = minionFactory.liveRuns[runId]
@@ -620,6 +655,131 @@ def _buildInterLevelTimingFormFromSession(prefix="",levelInfo={}):
     
     return sio.getvalue()
 
+def _buildTypeInfoPopUp(fieldMap,typeInstance,typeName="Type",model=None):
+    infoTable = HTMLTable(name="Type Info",
+                          title_=None,
+                          minwidth='200px',maxwidth='500px',
+                          border='0px')
+    
+    
+    #print fieldMap
+    for rec in fieldMap:
+        ### Do we show this field in the info table
+        if rec.has_key('info'):
+            if rec['info'] is False:
+                continue
+    
+        recType = rec['type']
+        ### Map to HERMES DB for this type (i.e. what it is called in the database
+        if rec.has_key('recMap'):
+            recKey = rec['recMap']
+        else:
+            recKey = rec['key']
+      
+        if recType in ['string','int','float','stringbox']:
+            if getattr(typeInstance,recKey):
+                infoTable.addRow([rec['label'],getattr(typeInstance,recKey)],['c',1,1])
+        if recType in ['scaledfloat']:
+            if getattr(typeInstance,recKey):
+                infoTable.addRow([rec['label'],float(getattr(typeInstance,recKey))*float(rec['scale'])],['c',1,1])
+        elif recType == "select":
+            if getattr(typeInstance,recKey):
+                ## find the option data
+                selOpt = ('None','',[],[])
+                for option in rec['options']:
+                    if getattr(typeInstance,recKey) == option[0]:
+                        selOpt = option
+                infoTable.addRow([rec['label'],selOpt[1]],['c',1,1])
+        elif recType == 'cost':
+            if len(recKey) != 3:
+                _logMessage("Unsupported dbKey in cost type in creating info page for {0}: ignoring".format(typeName))
+                continue
+            if getattr(typeInstance,recKey[0]):
+                    if getattr(typeInstance,recKey[1]) and getattr(typeInstance,recKey[2]):
+                        costString = "{0} in {2} {1}".format(getattr(typeInstance,recKey[0]), getattr(typeInstance,recKey[1]), getattr(typeInstance,recKey[2]))
+                    else:
+                        costString = "{0}".format(getattr(typeInstance,recKey[0]))  
+                    infoTable.addRow([rec['label'],costString],['c',1,1])
+        elif recType == "bool":
+            if getattr(typeInstance,recKey):
+                infoTable.addRow([rec['label'],'True'],['c',1,1])
+            else:
+                infoTable.addRow([rec['label'],'False'],['c',1,1])
+        elif recType == 'time':
+            if getattr(typeInstance, recKey[0]):
+                print "Getting recKey[0]: {0}".format(recKey[0])
+                timeValue = getattr(typeInstance,recKey[0])
+                print "Value = {0}".format(timeValue)
+                unitStr = "Months"
+                if timeValue < 0.1:
+                    timeValue = "No Lifetime"
+                else:
+                    if getattr(typeInstance, "{0}".format(recKey[1])):
+                        if  getattr(typeInstance, "{0}".format(recKey[1])) == "D":
+                            unitStr = "Days"
+                        timeValue = "{0} {1}".format(timeValue, unitStr)
+            else:
+                timeValue = "No Lifetime"
+            infoTable.addRow([rec['label'], timeValue], ['c', 1, 1])
+        elif recType == 'dynamicunit':
+            if getattr(typeInstance, recKey[0]):
+                Value = "{0}".format(getattr(typeInstance,recKey[0]))
+                if getattr(typeInstance,recKey[1]):
+                    Value += " {0}".format(getattr(typeInstance,recKey[1]))
+                infoTable.addRow([rec['label'], Value], ['c', 1, 1])
+        elif recType == 'energy':
+            from fridgetypes import energyTranslationDict
+            if getattr(typeInstance,recKey):
+                infoTable.addRow([rec['label'],energyTranslationDict[getattr(typeInstance,recKey)][1]],['c',1,1])
+        elif recType == 'fuel':
+            #from trucktypes import fuelTranslationDict
+            if getattr(typeInstance,recKey):
+                infoTable.addRow([rec['label'] + _(" Type"),rec['fuelDict'][getattr(typeInstance,recKey)][1]],['c',1,1])
+        elif recType == 'custtruckstoresum':
+            from shadow_network import ShdTruckType
+            if not isinstance(typeInstance,ShdTruckType):
+                _logMessage("Cannot use custtruckstoresum as a field type for anything other than transport: Ignoring")
+                continue
+            if model is None:
+                _logMessage("Cannot use custtruckstoresum as a field type without specifying a model in the _build call: Ignoring")
+                continue
+            ### This is a custom type that only works for transport types
+            volSum = 0.0
+            if getattr(typeInstance,'CoolVolumeCC') != '':
+                volSum+= getattr(typeInstance,'CoolVolumeCC')/1000.0
+             
+            if getattr(typeInstance,'Storage')!='':
+                storageList = typeInstance.getStorageDeviceList(model)
+                for count,dev in storageList:
+                    volSum += count*dev.cooler
+             
+            infoTable.addRow([rec['label'],"{0}".format(volSum)],['c',1,1])
+        
+        elif recType == 'custtruckstoragetable':
+            from shadow_network import ShdTruckType
+            if not isinstance(typeInstance,ShdTruckType):
+                _logMessage("Cannot use custtruckstoragetable  as a field type for anything other than transport: Ignoring")
+                continue
+            if model is None:
+                _logMessage("Cannot use custtruckstoragetable as a field type without specifying a model in the _build call: Ignoring")
+                continue
+            if getattr(typeInstance,"Storage") != '':
+                storageList = typeInstance.getStorageDeviceList(model)
+                print "###### StorageList for {1} =  {0}".format(storageList,typeInstance.Name)
+                firstRow = True
+                for count,dev in storageList:
+                    '''
+                    STB - Need to make flexible for all storage types
+                    '''
+                    if firstRow:
+                        infoTable.addRow(['Storage Devices',"{0} {1}".format("{0}".format(count),dev.DisplayName)],['c',1,1])            
+                        firstRow = False
+                    else:
+                        infoTable.addRow(['',"{0} {1}".format("{0}".format(count),dev.DisplayName)],['c',1,1])
+        else:
+            _logMessage("Unsupported Field Type, will be ignored in creating info page for {0}".format(typeName))
+            
+    return infoTable.htmlString()
 def _buildTypeInfoBox(fieldMap,typeInstance,typeName="Type",model=None):
     infoTable = HTMLTable(name="Type Info",
                           title_=_("{0} Type Information".format(typeName)),

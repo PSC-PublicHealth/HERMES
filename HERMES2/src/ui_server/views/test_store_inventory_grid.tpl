@@ -40,10 +40,20 @@ a.model-operation-item:visited{
 	text-align:center;
 }
 </style>
-
 <div id="test_store_grid"></div>
-<div id="test_store_select"></div>
-<div id="test_type_info_button"></div>
+<div id="selects_tests">
+	<div id="test_store_select"></div>
+	<div id="test_vaccine_select"></div>
+	<div id="test_truck_select"></div>
+	<div id="test_people_select"></div>
+	<div id="test_staff_select"></div>
+	<div id="test_perdiem_select"></div>
+</div>
+<div id="button_tests">
+	<div id="test_type_info_button"></div>
+	<div id="test_type_truck_button"></div>
+</div>
+
 <script>
 $(function(){
 	$("#test_store_grid").hrmWidget({
@@ -53,13 +63,43 @@ $(function(){
 		showHead:false,
 		showGrid:false
 	});
-//	
-//	$("#test_store_grid").simpleStorageDeviceTable("reloadGrid");
-//	
+	
+	$("#test_store_grid").simpleStorageDeviceTable("reloadGrid");
+	
 	$("#test_store_select").hrmWidget({
 		widget:'simpleTypeSelectField',
 		modelId:{{modelId}},
-		invType:'fridges'
+		invType:'fridges',
+		default:"MF214_E",
+		maxHeight:200
+	});
+	
+	$("#test_vaccine_select").hrmWidget({
+		widget:'simpleTypeSelectField',
+		modelId:{{modelId}},
+		invType:'vaccines'
+	});
+
+	$("#test_truck_select").hrmWidget({
+		widget:'simpleTypeSelectField',
+		modelId:{{modelId}},
+		invType:'trucks',
+	});
+	$("#test_people_select").hrmWidget({
+		widget:'simpleTypeSelectField',
+		modelId:{{modelId}},
+		invType:'people'
+	});
+	$("#test_staff_select").hrmWidget({
+		widget:'simpleTypeSelectField',
+		modelId:{{modelId}},
+		invType:'staff'
+	});
+		
+	$("#test_perdiem_select").hrmWidget({
+		widget:'simpleTypeSelectField',
+		modelId:{{modelId}},
+		invType:'perdiems'
 	});
 	
 	$("#test_type_info_button").hrmWidget({
@@ -68,5 +108,14 @@ $(function(){
 		typeId: "MF214_E",
 		typeClass: 'fridges'
 	});
+	
+	$("#test_type_truck_button").hrmWidget({
+		widget:'typeInfoButtonAndDialog',
+		modelId: {{modelId}},
+		typeId: "truck_district",
+		typeClass: 'trucks'
+	});
+	
+	
 });
 </script>

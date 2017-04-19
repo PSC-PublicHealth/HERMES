@@ -156,9 +156,14 @@ def jsonTypeEditVerifyAndCommit(db, uiSession, typeClass, fieldMap, classEditFn=
 
 def jsonTypeInfo(db, uiSession, htmlGeneratorFn):
     try:
-        modelId = int(bottle.request.params['modelId'])
-        name = bottle.request.params['name']
-        htmlStr, titleStr = htmlGeneratorFn(db,uiSession,modelId,name)
+        modelId = _getOrThrowError(bottle.request.params,'modelId', isInt=True)
+        #int(bottle.request.params['modelId'])
+        name = _getOrThrowError(bottle.request.params,'name')
+        
+        #name = bottle.request.params['name']
+        simple = _safeGetReqParam(bottle.request.params, 'simple', isBool=True, default=False)
+        print "!!!! SIMPLE = {0} for {1}".format(simple,name)
+        htmlStr, titleStr = htmlGeneratorFn(db,uiSession,modelId,name, simple)
         result = {'success':True, "htmlstring":htmlStr, "title":titleStr}
         return result
     except Exception, e:
@@ -240,6 +245,7 @@ def jsonGetAllTypeNamesInModel(db,uiSession):
         result = {'success':False, 'msg':str(e)}
         return result     
 @bottle.route('/test-inv-grid')
+
 def testInventoryGrid(db,uiSession):
     
     m = int(bottle.request.params['modelId'])

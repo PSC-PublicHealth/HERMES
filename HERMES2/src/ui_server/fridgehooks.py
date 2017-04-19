@@ -44,10 +44,10 @@ fieldMap = [{ 'label':_('HERMES DB Id'), 'key':'Name', 'id':'name', 'info':False
             { 'label':_('Model'), 'key':'Model', 'id':'model', 'info': True, 'edit':True, 'req':False, 'type':'string'},
             { 'label':_('Year'), 'key':'Year', 'id':'year', 'info': True, 'edit':True, 'req':False, 'type':'string'},
             { 'label':_('Net Volume for 2-8C Storage (L)'), 'key':'cooler', 'id':'cooler', 'info': True, 'edit':True, 'req':True, 'canzero':True, 'type':'float'},
-            { 'label':_('Net Volume for Below 0C Storage'), 'key':'freezer', 'id':'freezer', 'info': True, 'edit':True, 'req':True, 'canzero':True, 'type':'float'},
+            { 'label':_('Net Volume for Below 0C Storage (L)'), 'key':'freezer', 'id':'freezer', 'info': True, 'edit':True, 'req':True, 'canzero':True, 'type':'float'},
             { 'label':_('Net Volume for Room Temperature Storage (L)'), 'key':'roomtemperature', 'id':'roomtemperature',
             'info': True, 'edit':True, 'req':True, 'canzero':True, 'type':'float'},
-            { 'label':_('Category of Device'), 'key':'Category', 'id':'category', 'info': True, 'edit':True, 'req':False, 'type':'string'},
+            { 'label':_('Category of Device'), 'key':'Category', 'id':'category', 'info': False, 'edit':False, 'req':False, 'type':'string'},
             { 'label':_('Type of Technology'), 'key':'Technology', 'id':'technology', 'info': False, 'edit':False, 'req':False, 'type':'string'},
             { 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'info': False, 'edit':False, 'req':False, 'type':'string'},
             { 'label':_('Capital Cost of Device'), 'key':'BaseCost', 'id':'basecost', 'info': True, 'edit':True, 'req':True, 'canzero':True,
@@ -94,7 +94,7 @@ def jsonFridgeEditFn(attrRec, m):
 def jsonFridgeEditVerifyAndCommit(db, uiSession):
     return typehooks.jsonTypeEditVerifyAndCommit(db, uiSession, 'fridges', fieldMap,
                                                  jsonFridgeEditFn)
-            
+
 @bottle.route('/json/fridge-info')
 def jsonFridgeInfo(db, uiSession):
     return typehooks.jsonTypeInfo(db, uiSession, htmlgenerator.getFridgeInfoHTML)

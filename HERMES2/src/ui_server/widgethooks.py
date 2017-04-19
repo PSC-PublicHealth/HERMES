@@ -760,9 +760,8 @@ def jsonTypeListForInvTypeInModel(db,uiSession):
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         uiSession.getPrivs().mayReadModelId(db, modelId)
         invType = _getOrThrowError(bottle.request.params, 'invtype', isInt=False)
-        
-        typeList = typehelper.getTypeList(db, modelId, invType)
-        
+        allTypes = _safeGetReqParam(bottle.request.params, 'alltypes',isBool=True, default=False)        
+        typeList = typehelper.getTypeList(db, modelId, invType,fallback=allTypes)
         
         return {'success':True,'typelist':typeList}
     except Exception, e:
