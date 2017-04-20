@@ -2020,7 +2020,7 @@ function addToggleExpansionButton($grid) {
 						           {name:'device',index:'device',key:false,editable:false},
 						           {name:'count',index:'count',width:30,align:'right',key:false,editable:true}
 						          ],
-						loadonce:true,
+						loadonce:false,
 						height:'auto',
 						width:'auto',
 						gridview: true,
@@ -2042,8 +2042,12 @@ function addToggleExpansionButton($grid) {
 							return true;
 						},
 						onSelectRow: function(resultsId, status){
+							var oldCountValue = -1;
 							if(status){
+								console.log(status);
 								if(resultsId) {
+									var oldCountIndex = resultsId;
+									var oldRowData = $("#"+tableId).jqGrid("getRowData",resultsId);
 									$("#"+tableId).jqGrid('editRow',resultsId,
 											{
 												keys:true,
@@ -2060,15 +2064,35 @@ function addToggleExpansionButton($grid) {
 																{{_('OK')}}:function(){
 																	$("#"+tableId).jqGrid("delRowData",rowId);
 																	$(this).dialog("close");
+																	$("#"+delConfirmId).html("");
 																	$(this).dialog("destroy");
 																},
 																{{_('Cancel')}}: function(){
-																	$(this).dialog("close");
-																	$("#"+tableId).jqGrid("resetSelection");
-																	$("#"+delConfirmId).html("");
-																	$(this).dialog("destroy");
 																	
-																	
+																	//$("#"+tableId).jqGrid('setCell',rowId,'count',oldCountValue);
+																	$.ajax({
+																		url:{{rootPath}} + 'edit/store-edit-edit',
+																		data:{modelId:modelId,idcode:oldRowData.idcode,invtype:'fridges',
+																			typestring:oldRowData.hermesname,
+																			count:oldRowData.count,oper:'add'},
+																		method:'POST'
+																		
+																	})
+																	.done(function(results){
+																		if(results.success){
+																			$("#"+tableId).jqGrid("resetSelection");
+																			$("#"+delConfirmId).dialog("close");
+																			$("#"+delConfirmId).html("");
+																			$("#"+delConfirmId).dialog("destroy");
+																			$("#"+thisId).simpleStorageDeviceTable("reloadGrid");
+																		}
+																		else{
+																			alert("{{_('simpleStorageDeviceTable:add success fail in adding type')}}" + results.msg);
+																		}
+																	})
+																	.fail(function(jqxfr, textStatus, error){
+													 					alert("{{_('simpleStorageDeviceTable:add fail event in adding type')}}");
+													 				});	
 																}
 															}	
 														});
