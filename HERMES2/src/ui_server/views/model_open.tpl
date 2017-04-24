@@ -201,6 +201,12 @@ var mayModify = "{{maymodify}}" == "True" ? true : false ;
 				</span>	
 				<li>
 				<span class="model-operation-item">
+					<a class="model-operation-item" href="#" title='{{_("Define the factory details.")}}'
+						id="factories_link">{{_('Add and modify')}} <span class="action-underline">{{_('factories')}}</span></a>
+				</span>
+				</li>
+				<li>
+				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Open the HERMES Transport Loop Generator to explore the effects of implementing transport loops at various levels in your system.")}}'
 						id="loop_model_link">{{_('Transform the system with automatically created')}} <span class="action-underline">{{_('transport loops')}}</span></a>
 				</span>	
@@ -412,7 +418,12 @@ $(document).ready(function(){
 	
 	$("#costs_model_link").click(function(){
 		editCosts({{modelId}});
-	})
+	});
+	
+	$("#factories_link").click(function(){
+		editFactories({{modelId}});
+	});
+	
 	$("#result_model_link").click(function(){
 		openResults({{modelId}});
 		//$("#result_dialog").dialog("open");
@@ -612,6 +623,14 @@ function editCosts(modelId){
 	}
 	else{
 		window.location = '{{rootPath}}cost-top?modelId='+modelId;
+	}
+}
+function editFactories(modelId){
+	if(!mayModify){
+		$("#model_dowantcopy_dialog").dialog("open");
+	}
+	else{
+		window.location = '{{rootPath}}factory-top?modelId='+modelId;
 	}
 }
 function runHermes(modelId){
