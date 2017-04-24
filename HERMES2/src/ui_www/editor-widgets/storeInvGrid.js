@@ -49,7 +49,6 @@
 			                "Location Name",
 			                "Supply Chain Level",			
 			                "Inventory",
-			                ""
 			                ]
 			
 			var colModels = [
@@ -57,8 +56,8 @@
 			                 {name:'name',index:'name',editable:false},
 			                 {name:'level',index:'level',editable:false},
 			                 {name:'inventory', index:'inventory',editable:false,classes:'hermes_store_inv_grid_cell',
-			                	 cellLayout:0,width:200,formatter:storageInventoryGridFormatter},
-			                 {name:'editinv', index:'editinv',width:100,formatter:editInventoryButtonFormatter}
+			                	 cellLayout:0,width:500,formatter:storageInventoryGridFormatter},
+			                 //{name:'editinv', index:'editinv',width:100,formatter:editInventoryButtonFormatter}
 			                 
 			                 //{name:'latitude',index:'latitude',editable:true, edittype:'text',editrules:'number'},
 			                 //{name:'longitude',index:'longitude',editable:true, edittype:'text',editrules:'number'},
@@ -96,52 +95,52 @@
 				pgtext:false,
 				pager:"#"+thisPagerID,
 				viewrecords:false,
-				editurl:rootPath + 'edit/verify-edit-grid',
-				beforeSelectRow: function(rowId, evt) {
-					var $this = $(this);
-					var oldRowId = $this.getGridParam('selrow');
-					if(oldRowId && (oldRowId != rowId)) {
-						$this.jqGrid("saveRow",oldRowId,
-									{extraparam: {modelId:thisoptions.modelId}}
-						);
-					}
-					return true;
-				},
-				onSelectRow: function(resultsId, status){
-					if(status){
-						if(resultsId) {
-							$("#"+thisTableID).jqGrid('editRow',resultsId,
-									{
-										keys:true,
-										extraparam: {modelId:thisoptions.modelId},
-										aftersavefunc: function(rowId,response){
-											$("#"+thisTableID).jqGrid("resetSelection");
-										},
-										afterstorefunc: function(rowId,response){
-											alert("here");$("#"+thisTableID).jqGrid("resetSelection");
-										},
-										afterrestorefunc: function(rowId,response){$("#"+thisTableID).jqGrid("resetSelection");}
-									}
-							);
-							lastsel=resultsId;
-						}
-						else {
-							alert('outside click '+ resultsId);
-						}
-					}
-				},
+				//editurl:rootPath + 'edit/verify-edit-grid',
+//				beforeSelectRow: function(rowId, evt) {
+//					var $this = $(this);
+//					var oldRowId = $this.getGridParam('selrow');
+//					if(oldRowId && (oldRowId != rowId)) {
+//						$this.jqGrid("saveRow",oldRowId,
+//									{extraparam: {modelId:thisoptions.modelId}}
+//						);
+//					}
+//					return true;
+//				},
+//				onSelectRow: function(resultsId, status){
+//					if(status){
+//						if(resultsId) {
+//							$("#"+thisTableID).jqGrid('editRow',resultsId,
+//									{
+//										keys:true,
+//										extraparam: {modelId:thisoptions.modelId},
+//										aftersavefunc: function(rowId,response){
+//											$("#"+thisTableID).jqGrid("resetSelection");
+//										},
+//										afterstorefunc: function(rowId,response){
+//											alert("here");$("#"+thisTableID).jqGrid("resetSelection");
+//										},
+//										afterrestorefunc: function(rowId,response){$("#"+thisTableID).jqGrid("resetSelection");}
+//									}
+//							);
+//							lastsel=resultsId;
+//						}
+//						else {
+//							alert('outside click '+ resultsId);
+//						}
+//					}
+//				},
 				gridComplete: function(){
 					var $this = $(this);
-					$this.keypress( function(event) {
-						if(event.which == 13) { //user hits enter
-							var oldRowId = $this.getGridParam('selrow');
-							$this.jqGrid('saveRow',oldRowId,
-									{extraparam: {modelId:thisoptions.modelId}}
-							);
-							lastsel=oldRowId;
-							$("#"+thisTableID).jqGrid("resetSelection");
-						}
-					});
+//					$this.keypress( function(event) {
+//						if(event.which == 13) { //user hits enter
+//							var oldRowId = $this.getGridParam('selrow');
+//							$this.jqGrid('saveRow',oldRowId,
+//									{extraparam: {modelId:thisoptions.modelId}}
+//							);
+//							lastsel=oldRowId;
+//							$("#"+thisTableID).jqGrid("resetSelection");
+//						}
+//					});
 					
 					
 					$('.hermes_storage_inv_grid').each(function(){
@@ -152,7 +151,11 @@
 							modelId:  thisoptions.modelId,
 							storeId:  storeId,
 							showHead: false,
-							showGrid: false
+							showGrid: false,
+							onSelectOpen:function(){
+								console.log(thiscontainerID);
+								$("#"+thiscontainerID).children(".ui-jqgrid").children(".ui-jqgrid-view").children(".ui-jqgrid-bdiv").css({"overflow":"hidden"});
+							}
 						});
 					});
 					

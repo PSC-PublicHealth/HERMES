@@ -1709,6 +1709,7 @@ function addToggleExpansionButton($grid) {
  				var selected = settings['default'];
  				var maxHeight = settings['maxHeight'];
  				var selectFun = settings['selectFunc'];
+ 				var openFun = settings['openFunc'];
  				
  				$.ajax({
  					url:'{{rootPath}}json/type-list-for-invtype-in-model',
@@ -1723,8 +1724,9 @@ function addToggleExpansionButton($grid) {
 		 					$elem.data('default','None');
 		 				}
 	 					
- 						selHtmlString = "<div id ='" + dialogId +"'></div>";
-	 					selHtmlString += "<div id = 'div_"+selectId+"'><select id = '" + selectId + "' class='hrmWidget_simply_type_select_field'>";
+ 						$("<div id ='" + dialogId +"'></div>").appendTo("body");
+ 						//selHtmlString = "<div id ='" + dialogId +"'></div>";
+	 					selHtmlString = "<div id = 'div_"+selectId+"'><select id = '" + selectId + "' class='hrmWidget_simply_type_select_field'>";
 	 					var optionsList = [];
 	 					for(var i=0;i<result.typelist.length;++i){
 	 						optionsList.push([result.typelist[i].Name,result.typelist[i].DisplayName]);
@@ -1761,25 +1763,40 @@ function addToggleExpansionButton($grid) {
 	 					$("#"+selectId).selectmenu({
 	 						style:'dropdown',
 	 						create: function(event,ui){
+//	 							$("#"+dialogId).hrmWidget({
+//	 		 						widget: 'typeInfoPopup',
+//	 		 						modelId: modelId,
+//	 								typeId: optionsList[option][0],
+//	 								typeClass:invType,
+//	 								simple:true,
+//	 								xpos: 0,//$(this).parent().position().left + $(this).width(),
+//	 								ypos: 0//$(this).parent().position().top + $(this).parent().height()/2.0
+//	 		 					});
+//	 							$("#"+dialogId).typeInfoPopup("update",[selected,invType]);
+	 						},
+	 						open: function(event,ui){
+	 							//$("#"+thisId).children(".ui-jqgrid").children(".ui-jqgrid-view").children(".ui-jqgrid-bdiv").css({"overflow":"hidden"});
 	 							$("#"+dialogId).hrmWidget({
-	 		 						widget: 'typeInfoPopup',
+	 								widget: 'typeInfoPopup',
 	 		 						modelId: modelId,
 	 								typeId: optionsList[option][0],
 	 								typeClass:invType,
 	 								simple:true,
-	 								xpos: 0,//$(this).parent().position().left + $(this).width(),
-	 								ypos: 0//$(this).parent().position().top + $(this).parent().height()/2.0
-	 		 					});
-	 							$("#"+dialogId).typeInfoPopup("update",[selected,invType]);
-	 						},
-	 						open: function(event,ui){
-	 							var diagtop = $("#"+$(this).attr("id")+"-button").position().top + $("#"+$(this).attr("id")+"-button").height() - 1;
-	 							var diagleft = $("#"+$(this).attr("id")+"-button").position().left + $("#"+$(this).attr("id")+"-button").width();
-	 							$("#"+dialogId).css({top:diagtop,left:diagleft});
+	 								xpos: 0,
+	 								ypos: 0,
+	 							})
+	 							//disable scrolling on the jqgrid
+	 							if(openFun){
+	 								openFun();
+	 							}
+	 							var diagtop = $("#"+$(this).attr("id")+"-button").offset().top + $("#"+$(this).attr("id")+"-button").height() - 1;
+	 							var diagleft = $("#"+$(this).attr("id")+"-button").offset().left + $("#"+$(this).attr("id")+"-button").width();
+	 							$("#"+dialogId).offset({top:diagtop,left:diagleft});
 	 							$("#"+dialogId).typeInfoPopup("open");
 	 						},
 	 						close: function(event,ui){
 	 							$("#"+dialogId).typeInfoPopup("close");
+	 							$("#"+thisId).children(".ui-jqgrid").children(".ui-jqgrid-view").children(".ui-jqgrid-bdiv").css({"overflow":"scroll"});
 	 						},
 	 						focus: function(event,ui){
 	 							$("#"+dialogId).typeInfoPopup("update",[ui.item.value,invType]);
@@ -1788,8 +1805,9 @@ function addToggleExpansionButton($grid) {
 	 							if(selectFun){
 	 								selectFun();
 	 							}
+	 							$("#"+dialogId).typeInfoPopup("close");
 	 						}
-	 					});
+	 					})
 	 					if(maxHeight){
 	 						$("#"+selectId).selectmenu("menuWidget").css("height",maxHeight +"px");
 	 					}
@@ -1810,10 +1828,8 @@ function addToggleExpansionButton($grid) {
 				if(arg == 'update'){
 					var typeId = arg2[0];
 	 				var typeClass = arg2[1];
-	 				var modelId = settings['modelId'];
-	 				var simple = settings['simple'];
-	 				
-	 				
+	 				var modelId = $("#"+tId).data('modelId')
+	 				var simple = $("#"+tId).data('simple');
 	 				
 	 				$.ajax({
 						url:{{rootPath}} + typeInfoUrls[typeClass],
@@ -1847,7 +1863,9 @@ function addToggleExpansionButton($grid) {
 				var xpos = settings['xpos'];
  				var ypos = settings['ypos'];
  				
-				
+				$elem.data("modelId",modelId);
+				$elem.data("simple",settings.simple);
+			
 				$("#"+thisId).addClass('hrmWidget_popup_div');
 				$("#"+thisId).css({position:'absolute',left:xpos+"px",top:ypos+"px"});
 				
@@ -1929,6 +1947,10 @@ function addToggleExpansionButton($grid) {
  				var typeId  = settings['typeId'];
  				var modelId = settings['modelId'];
  				
+ 				$elem.data("modelId",modelId);
+				$elem.data("modal",settings.modal);
+				$elem.data("autoOpen",settings.autoOpen);
+ 				
  				htmlString = "<div id='"+ buttonId + "' class='hrmWidget_type_info_button hermes_info_button'>{{_('Info')}}</div>";
  				htmlString += "<div id='"+ dialogId + "' class='hrmWidget_type_info_dialog'>This is where info goes</div>";
  				
@@ -1974,8 +1996,10 @@ function addToggleExpansionButton($grid) {
 				if(arg=='add'){
 					var thisId = tId
 					var tableId = tId + '_tbl';
-					var modelId = settings.modelId;
-					var storeId = settings.storeId;
+					var modelId = $("#"+thisId).data('modelId');;
+					var storeId = $("#"+thisId).data('storeId');;
+					
+					console.log(storeId);
 					var typeId = arg2[0];
 					var count = arg2[1];
 					
@@ -2003,10 +2027,10 @@ function addToggleExpansionButton($grid) {
 					var tableId = tId + '_tbl';
 					var pagerId = tId + '_pg';
 					var delConfirmId = $(this).attr('id') + '_delConfirmBox';
-					var modelId = settings.modelId;
-					var storeId = settings.storeId;
-					var showHead = settings.showHead;
-					var showGrid = settings.showGrid;
+					var modelId = $("#"+thisId).data('modelId');
+					var storeId = $("#"+thisId).data('storeId');
+					var showHead = $("#"+thisId).data('showHead');
+					var showGrid = $("#"+thisId).data('showGrid');
 					$("#"+tableId).jqGrid({
 						url:{{rootPath}} + "json/get-storage-devices-for-model-for-storeId",
 						datatype:'json',
@@ -2020,7 +2044,7 @@ function addToggleExpansionButton($grid) {
 						           {name:'device',index:'device',key:false,editable:false},
 						           {name:'count',index:'count',width:30,align:'right',key:false,editable:true}
 						          ],
-						loadonce:false,
+						loadonce:true,
 						height:'auto',
 						width:'auto',
 						gridview: true,
@@ -2068,8 +2092,6 @@ function addToggleExpansionButton($grid) {
 																	$(this).dialog("destroy");
 																},
 																{{_('Cancel')}}: function(){
-																	
-																	//$("#"+tableId).jqGrid('setCell',rowId,'count',oldCountValue);
 																	$.ajax({
 																		url:{{rootPath}} + 'edit/store-edit-edit',
 																		data:{modelId:modelId,idcode:oldRowData.idcode,invtype:'fridges',
@@ -2169,14 +2191,20 @@ function addToggleExpansionButton($grid) {
 				
 				var modelId = settings.modelId;
 				var storeId = settings.storeId;
+				var onSelectOpen = settings.onSelectOpen;
+				var onSelectClose = settings.onSelectClose;
 				
+				$elem.data('modelId',modelId);
+				$elem.data('storeId',storeId);
+				$elem.data('showHead',settings.showHead);
+				$elem.data('showGrid',settings.showGrid);
 				
 				//$elem.data('data-inventory-list',JSON.parse(setting['inventory-list']));
 				htmlString = "<table id='" + tableId + "'></table>";
 				htmlString += "<div id='" + pagerId + "'></div>";
 				htmlString += "<div id='" + addButtonDivId + "'>" +
 							  "<div id='"+addButtonId +"' class='hrmWidget_simpleStorageInvGrid_button'>{{_('Add Storage Device')}}</div>"+
-							  "<div id='"+selectId + "' class='hrmWidget_simpleStorageInvGrid_select'>buggers</div>"+
+							  "<div id='"+selectId + "' class='hrmWidget_simpleStorageInvGrid_select'></div>"+
 							  "</div>";
 				htmlString += "<div id='"+addConfirmId+"'></div><div id='"+delConfirmId+"'></div>";
 				
@@ -2184,52 +2212,6 @@ function addToggleExpansionButton($grid) {
 				$elem.simpleStorageDeviceTable("createGrid");
 				
 
-				$('#'+selectId).hrmWidget({
-					widget: 'simpleTypeSelectField',
-					modelId: modelId,
-					storeId: storeId,
-					maxHeight: 150,
-					invType: 'fridges',
-					selectFunc:function(){
-						selectedValues = $("#"+selectId).simpleTypeSelectField("valueJson");
-						
-						var dialogTxt  = "{{_('How many ')}}"+selectedValues.label + "{{_(' storage devices would you like to add?')}}";
-						$("#"+addConfirmId).hrmWidget({
-							widget:'countDialogBox',
-							dialogTxt:dialogTxt,
-							modal: true,
-							autoOpen: false,
-							title:"{{_('Confirming adding storage device')}}",
-							okFunction: function(value){
-								$elem.simpleStorageDeviceTable("add",[$("#"+selectId).simpleTypeSelectField("value"),value]);
-								if($("#"+selectId).is(":visible")){
-									$("#"+selectId).fadeOut("medium",function(){
-										$("#"+addButtonId).fadeIn("medium",function(){
-											$elem.simpleStorageDeviceTable("reloadGrid");
-										});
-									});
-								}
-							},
-							cancelFunction: function(){
-								if($("#"+selectId).is(":visible")){
-									$("#"+selectId).fadeOut("medium",function(){
-										$("#"+addButtonId).fadeIn("medium");
-									});
-								}
-							}
-						});
-						$("#"+addConfirmId).countDialogBox("open");
-						
-						//$("#"+selectId).fadeOut("medium",function(){
-						//	$("#"+addButtonId).fadeIn("medium",function(){
-						//		$elem.simpleStorageDeviceTable("reloadGrid");
-						//	});
-						//})
-						//$elem.simpleStorageDeviceTable("add",$("#"))
-					}
-				});
-				//$("#"+selectId).simpleTypeSelectField("addSelectFunc",function(){alert($("#"+selectId).simpleTypeSelectField("value"));})
-				
 				$("#"+selectId).hide();
 				
 				var but = $('#'+addButtonId).button({
@@ -2238,13 +2220,57 @@ function addToggleExpansionButton($grid) {
 			
 				but.click(function(event){
 					event.preventDefault();
-					$(this).fadeOut("medium",function(){
-						$("#"+selectId).fadeIn("medium");
+					$('#'+selectId).hrmWidget({
+						widget: 'simpleTypeSelectField',
+						modelId: modelId,
+						storeId: storeId,
+						maxHeight: 150,
+						invType: 'fridges',
+						openFunc: function(){
+							if(onSelectOpen) onSelectOpen()
+						},
+						selectFunc:function(){
+							selectedValues = $("#"+selectId).simpleTypeSelectField("valueJson");
+							
+							var dialogTxt  = "{{_('How many ')}}"+selectedValues.label + "{{_(' storage devices would you like to add?')}}";
+							
+							$("#"+addConfirmId).hrmWidget({
+								widget:'countDialogBox',
+								dialogTxt:dialogTxt,
+								modal: true,
+								autoOpen: false,
+								title:"{{_('Confirming adding storage device')}}",
+								okFunction: function(value){
+									$("#"+thisId).simpleStorageDeviceTable("add",[$("#"+selectId).simpleTypeSelectField("value"),value, modelId, storeId]);
+									if($("#"+selectId).is(":visible")){
+										$("#"+selectId).fadeOut("medium",function(){
+											$("#"+addButtonId).fadeIn("medium",function(){
+												$("#"+thisId).simpleStorageDeviceTable("reloadGrid");
+											});
+										});
+									}
+								},
+								cancelFunction: function(){
+									if($("#"+selectId).is(":visible")){
+										$("#"+selectId).fadeOut("medium",function(){
+											$("#"+addButtonId).fadeIn("medium",function(){
+												$("#"+selectId).simpleTypeSelectField("destroy")
+											});
+										});
+									}
+								}
+							});						
+							$("#"+addConfirmId).countDialogBox("open");
+							$("#"+addButtonId).fadeOut("medium",function(){
+								$("#"+selectId).fadeIn("medium");
+							});
+						}
+					});
+					$("#"+addButtonId).fadeOut("fast",function(){
+						$("#"+selectId).fadeIn("fast");
 					});
 				});
-				
 			});
- 		
  		}
  		else if (settings['widget']=='countDialogBox') {
  			$.fn.countDialogBox = function(arg, arg2) {
