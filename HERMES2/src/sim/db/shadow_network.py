@@ -767,7 +767,6 @@ class ShdStore(Base, ShdCopyable):
             return
         #print "{0}: count {1}".format(item.count,count)
         if item.count + count == 0:
-            #print "popping this bitch"
             invList.pop(i)
             return
 

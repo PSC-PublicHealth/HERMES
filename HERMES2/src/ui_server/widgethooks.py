@@ -751,7 +751,23 @@ def handleListFuel(db, uiSession):
 def getFuelFromRequest(m, key):
     return _getThingFromRequest(m, key,  _('fuel'), fuelTranslationDict)
 
-
+@bottle.route('/json/type-list-for-invtype-in-model')
+def jsonTypeListForInvTypeInModel(db,uiSession):
+    """
+    Return a JSON of a list of types that are of a specific inventory
+    """
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        invType = _getOrThrowError(bottle.request.params, 'invtype', isInt=False)
+        allTypes = _safeGetReqParam(bottle.request.params, 'alltypes',isBool=True, default=False)        
+        typeList = typehelper.getTypeList(db, modelId, invType,fallback=allTypes)
+        
+        return {'success':True,'typelist':typeList}
+    except Exception, e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+    
 @bottle.route('/list/select-type-full')
 def listSelectTypeFull(db, uiSession):
     """
@@ -811,10 +827,12 @@ def editStoreEditEdit(db, uiSession):
                 store.updateInventory(visibletypestring, newCountNewType, useDemandList=demandFlag)
         elif oper=='add':
             typestring = _getOrThrowError(bottle.request.params, 'typestring')
+            
             if count is None:
                 pass
             else:
-                store.updateInventory(visibletypestring, count, useDemandList=demandFlag)
+                ### changed to addInventory to account for if there is something already there
+                store.addInventory(typestring, count, useDemandList=demandFlag)
         elif oper=='del':
             typestring = _getOrThrowError(bottle.request.params, 'id')
             store.updateInventory(typestring, 0, useDemandList=demandFlag)

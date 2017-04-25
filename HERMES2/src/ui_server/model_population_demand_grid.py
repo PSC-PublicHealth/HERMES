@@ -18,13 +18,10 @@ _hermes_svn_id_="$Id$"
 
 import sys,os,os.path,time,json,math,types
 import bottle
-from sqlalchemy.exc import SQLAlchemyError
 import ipath
 import site_info
 from serverconfig import rootPath
-from preordertree import PreOrderTree
 from upload import uploadAndStore, makeClientFileInfo
-import htmlgenerator
 import typehelper
 from typeholdermodel import allTypesModelName
 import shadow_network_db_api
@@ -33,11 +30,7 @@ import session_support_wrapper as session_support
 import shadow_network as shd
 import util
 from HermesServiceException import HermesServiceException
-from gridtools import orderAndChopPage
-from model_edit_hooks import updateDBRouteType
-from transformation import setLatenciesByNetworkPosition, setUseVialLatenciesAsOffsetOfShipLatencyFromRoute
 import crumbtracks
-import runhooks
 from modelhooks import addCrumb
 
 from ui_utils import _logMessage, _logStacktrace, _safeGetReqParam, _getOrThrowError, _smartStrip, b64E, b64D
