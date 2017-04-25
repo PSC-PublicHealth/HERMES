@@ -183,12 +183,27 @@ var mayModify = "{{maymodify}}" == "True" ? true : false ;
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Populate the model with different components that can then be placed at different locations in the supply chain model.")}}'
 						id="types_model_link"><span class="action-underline">{{_('Add or remove model components')}} </span> {{_('(e.g. vaccines, storage devices, vehicles, and population categories)')}}</a>
-				</span>	
+				</span>
 				<li>
-				<span class="model-operation-item">
-					<a class="model-operation-item" href="#" title='{{_("Upload a spreadsheet or enter into a table the geographic coordinates of each location in the model")}}'
-						id="geocoord_model_link"><span class="action-underline">{{_('Edit Storage Location Geographic Coordinates')}} </span> </a>
-				</span>	
+					<span class="model-operation-item">
+						{{_("Tabular interfaces for editing the model")}}
+					<ul class="option-list-inner">
+						<li>
+						<span class="model-operation-item">
+							<a class="model-operation-item" href="#" title='{{_("Upload a spreadsheet or enter into a table the geographic coordinates of each location in the model")}}'
+								id="geocoord_model_link"><span class="action-underline">{{_('Edit Storage Location Geographic Coordinates')}} </span> </a>
+						</span>
+						<li>
+						<span class="model-operation-item">
+							<a class="model-operation-item" href="#" title='{{_("Upload a spreadsheet or enter into a table the population estimates of each location in the model")}}'
+								id="poptab_model_link"><span class="action-underline">{{_('Edit Storage Location Population Estimates')}} </span> </a>
+						</span>
+						<li>
+						<span class="model-operation-item">
+							<a class="model-operation-item" href="#" title='{{_("Enter into a table the storage devices present at each location in the model")}}'
+								id="storeinv_model_link"><span class="action-underline">{{_('Edit Storage Location Device Inventories')}} </span> </a>
+						</span>
+					</ul>
 				<li>
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Specify the vaccine dosage schedule for all population categories throughout the year.")}}'
@@ -308,7 +323,7 @@ $(document).ready(function(){
 		height:500,
 		notesOn:true,
 		diagramOn:true,
-		summaryOn:false
+		summaryOn:true
 	});
 
 	$(".notification").corner();
@@ -316,8 +331,6 @@ $(document).ready(function(){
 	$("#note-update-notify").hide();
 	$("#loading-notify").corner();
 	$("#loading-notify").fadeTo(400,1.0);
-	
-	
 	
 	$("#model_operations_holder").fadeTo(500,1.0);
 	//updateNetworkDiagram();
@@ -398,6 +411,15 @@ $(document).ready(function(){
 	$("#geocoord_model_link").click(function(){
 		editGeoCoords({{modelId}});
 	});
+	
+	$("#poptab_model_link").click(function(){
+		editPopTab({{modelId}});
+	});
+	
+	$("#storeinv_model_link").click(function(){
+		editStoreInvTab({{modelId}});
+	});
+	
 	$("#dose_sched_link").click(function(){
 		editDoseSched({{modelId}});
 	});
@@ -627,6 +649,23 @@ function editGeoCoords(modelId){
 	}
 }
 
+function editPopTab(modelId){
+	if(!mayModify){
+		$("#model_dowantcopy_dialog").dialog("open");
+	}
+	else{
+		window.location='{{rootPath}}model-edit-population-tabular?modelId='+modelId;
+	}
+}
+
+function editStoreInvTab(modelId){
+	if(!mayModify){
+		$("#model_dowantcopy_dialog").dialog("open");
+	}
+	else{
+		window.location='{{rootPath}}model-edit-store-inventory-tabular?modelId='+modelId;
+	}
+}
 function createLoops(modelId){
 	if(!mayModify){
 		$("#model_dowantcopy_dialog").dialog("open");
