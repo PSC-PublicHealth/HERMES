@@ -73,7 +73,7 @@ def testStoreDevList(db,uiSession):
     except bottle.HTTPResponse:
         raise 
        
-@bottle.route('/json/get-storage-devices-for-model-for-storeId')
+@bottle.route('/json/get-storage-devices-for-model-for-storeId',method="post")
 def getDeviceInventoryListForModelForStoreIdjQGridJSON(db,uiSession):
     import json
     try:

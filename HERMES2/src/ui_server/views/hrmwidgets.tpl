@@ -1692,6 +1692,10 @@ function addToggleExpansionButton($grid) {
  					var selectId = tId + "_simpleTypeSelect_selectBox";
  					$("#"+selectId).bind("select",arg2);
  				}
+ 				if(arg=='open'){
+ 					var selectId = tId + "_simpleTypeSelect_selectBox";
+ 					$("#"+selectId).selectmenu("open");
+ 				}
  			}
  			return this.each(function(index,elem){
  				var $elem = $(elem);
@@ -1710,6 +1714,9 @@ function addToggleExpansionButton($grid) {
  				var maxHeight = settings['maxHeight'];
  				var selectFun = settings['selectFunc'];
  				var openFun = settings['openFunc'];
+ 				var closeFun = settings['closeFunc'];
+ 				var focusFun = settings['focusFunc'];
+ 				var createFun = settings['createFunc'];
  				
  				$.ajax({
  					url:'{{rootPath}}json/type-list-for-invtype-in-model',
@@ -1763,16 +1770,7 @@ function addToggleExpansionButton($grid) {
 	 					$("#"+selectId).selectmenu({
 	 						style:'dropdown',
 	 						create: function(event,ui){
-//	 							$("#"+dialogId).hrmWidget({
-//	 		 						widget: 'typeInfoPopup',
-//	 		 						modelId: modelId,
-//	 								typeId: optionsList[option][0],
-//	 								typeClass:invType,
-//	 								simple:true,
-//	 								xpos: 0,//$(this).parent().position().left + $(this).width(),
-//	 								ypos: 0//$(this).parent().position().top + $(this).parent().height()/2.0
-//	 		 					});
-//	 							$("#"+dialogId).typeInfoPopup("update",[selected,invType]);
+	 							if(createFun) createFun();
 	 						},
 	 						open: function(event,ui){
 	 							//$("#"+thisId).children(".ui-jqgrid").children(".ui-jqgrid-view").children(".ui-jqgrid-bdiv").css({"overflow":"hidden"});
@@ -1795,13 +1793,22 @@ function addToggleExpansionButton($grid) {
 	 							$("#"+dialogId).typeInfoPopup("open");
 	 						},
 	 						close: function(event,ui){
+	 							if(closeFun){
+	 								closeFun();
+	 							}
+	 							//$("#"+selectId).val("");
+	 							//$("#"+selectId).selectmenu("refresh");
 	 							$("#"+dialogId).typeInfoPopup("close");
-	 							$("#"+thisId).children(".ui-jqgrid").children(".ui-jqgrid-view").children(".ui-jqgrid-bdiv").css({"overflow":"scroll"});
+	 							$("#"+selectId).selectmenu("destroy");
 	 						},
 	 						focus: function(event,ui){
+	 							if(focusFun){
+	 								focusFun();
+	 							}
 	 							$("#"+dialogId).typeInfoPopup("update",[ui.item.value,invType]);
 	 						},
 	 						select: function(event,ui){
+	 							//alert("selecting here");
 	 							if(selectFun){
 	 								selectFun();
 	 							}
@@ -2034,6 +2041,7 @@ function addToggleExpansionButton($grid) {
 					$("#"+tableId).jqGrid({
 						url:{{rootPath}} + "json/get-storage-devices-for-model-for-storeId",
 						datatype:'json',
+						mtype:'post',
 						postData:{modelId:modelId,storeId:storeId},
 						inlineData: {modelId:modelId,storeId:storeId},
 						jsonReader: {repeatitems:false},
@@ -2227,7 +2235,15 @@ function addToggleExpansionButton($grid) {
 						maxHeight: 150,
 						invType: 'fridges',
 						openFunc: function(){
-							if(onSelectOpen) onSelectOpen()
+							if(onSelectOpen) onSelectOpen();
+						},
+						closeFunc: function(){
+							if(onSelectClose) onSelectClose();
+							if($("#"+selectId).is(":visible")){
+								$("#"+selectId).fadeOut("medium",function(){
+									$("#"+addButtonId).fadeIn("medium");		
+								});
+							}
 						},
 						selectFunc:function(){
 							selectedValues = $("#"+selectId).simpleTypeSelectField("valueJson");
@@ -2249,6 +2265,9 @@ function addToggleExpansionButton($grid) {
 											});
 										});
 									}
+									else{
+										$("#"+thisId).simpleStorageDeviceTable("reloadGrid");
+									}
 								},
 								cancelFunction: function(){
 									if($("#"+selectId).is(":visible")){
@@ -2259,18 +2278,27 @@ function addToggleExpansionButton($grid) {
 										});
 									}
 								}
-							});						
+							}) //countDialogBox
 							$("#"+addConfirmId).countDialogBox("open");
-							$("#"+addButtonId).fadeOut("medium",function(){
-								$("#"+selectId).fadeIn("medium");
-							});
+							
+							//$("#"+addButtonId).fadeOut("medium",function(){
+							//	$("#"+selectId).fadeIn("medium",function(){
+							//		$("#"+selectId).selectmenu("open");
+							//	});
+							//});
 						}
+					});// selectmenu
+					$("#"+addButtonId).fadeOut("medium",function(){
+						$("#"+selectId).fadeIn("medium",function(){
+							$("#"+selectId).simpleTypeSelectField("open");
+						});
 					});
-					$("#"+addButtonId).fadeOut("fast",function(){
-						$("#"+selectId).fadeIn("fast");
-					});
-				});
-			});
+					
+					//.done(function(){
+						
+					//});
+				}); //but.click
+			}); //return 
  		}
  		else if (settings['widget']=='countDialogBox') {
  			$.fn.countDialogBox = function(arg, arg2) {
@@ -2322,9 +2350,17 @@ function addToggleExpansionButton($grid) {
  								$(this).dialog("close");
  							}
  						}
- 					}
+ 					},
+	 		        open: function(e,ui) {
+	 				    $(this)[0].onkeypress = function(e) {
+	 						if (e.keyCode == $.ui.keyCode.ENTER) {
+	 						    e.preventDefault();
+	 						    $(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+	 						}
+	 				    };
+	 				}	
  				});
- 			})
+ 			});
  		}
  		else if (settings['widget']=='editFormManager') {
 			$.fn.editFormManager = function( arg, arg2 ) {
