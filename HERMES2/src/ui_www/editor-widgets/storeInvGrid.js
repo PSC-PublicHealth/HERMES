@@ -56,7 +56,7 @@
 			                 {name:'name',index:'name',editable:false},
 			                 {name:'level',index:'level',editable:false},
 			                 {name:'inventory', index:'inventory',editable:false,classes:'hermes_store_inv_grid_cell',
-			                	 cellLayout:0,width:500,formatter:storageInventoryGridFormatter},
+			                	 cellLayout:0,width:250,formatter:storageInventoryGridFormatter},
 			                 //{name:'editinv', index:'editinv',width:100,formatter:editInventoryButtonFormatter}
 			                 
 			                 //{name:'latitude',index:'latitude',editable:true, edittype:'text',editrules:'number'},

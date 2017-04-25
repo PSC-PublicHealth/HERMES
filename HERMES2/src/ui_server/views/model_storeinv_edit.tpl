@@ -47,19 +47,19 @@ a.model-operation-item:visited{
 }
 
 </style>
-<input id="xlsupload" type="file" name="files[]" 
-	data-url="{{rootPath}}upload-populationspreadsheet" style="display:none">
+<!--<input id="xlsupload" type="file" name="files[]" 
+	data-url="{{rootPath}}upload-populationspreadsheet" style="display:none">-->
 
 <script type="text/javascript" src="{{rootPath}}static/editor-widgets/storeInvGrid.js"></script>
-<h2>{{_("Edit the Population Estimates for ")}}</h2>
+<h2>{{_("Edit the Storage Devices at each location for ")}}</h2>
 <h4>
-{{_("Please enter in the population estimates for the number individuals of each type to be vaccinated during a year at individual locations in the table below. Your entries will be saved automatically as you add them.")}}</h4>
+{{_("Please enter in the inventory of storage devices that are to be present at each location in the model. You can change the number of existing devices by clicking on the number and editing.  If you would to remove a device, you can set its number to zero. Finally, if you would like to add a storage device to a location, click the 'Add Storage Device' button and select the device from the dropdown menu.")}}</h4>
 <br>
 
 <div id = "grid_loading"><img src="{{rootPath}}static/images/kloader.gif"></div>
 <div id = "storeInv_grid" style="display:none;"></div>
 
-<div id="uploadSpreadsheetDialog">
+<!--<div id="uploadSpreadsheetDialog">
 	<span class="large_dialog_font">
 		<p>
 			{{_("You can upload an excel file that contains the population estimates of locations in your model.")}}
@@ -104,7 +104,7 @@ a.model-operation-item:visited{
 <div id="success-dialog" title='{{_("Spreadsheet Update Successful")}}'>{{_('Updating Population Demand Estimates via Spreadsheet Successful')}}</div>
 <div id="down-success-dialog" title="{{_('Template Download Successful')}}">
 	{{_("The Template Spreadsheet has been saved, please check your browser's Download folder to access and then upload when you are finished.")}}
-</div>
+</div>-->
 
 <script>
 $(document).ajaxStop(function(){
