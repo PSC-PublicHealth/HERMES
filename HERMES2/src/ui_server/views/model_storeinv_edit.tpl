@@ -55,6 +55,8 @@ a.model-operation-item:visited{
 <h4>
 {{_("Please enter in the population estimates for the number individuals of each type to be vaccinated during a year at individual locations in the table below. Your entries will be saved automatically as you add them.")}}</h4>
 <br>
+
+<div id = "grid_loading"><img src="{{rootPath}}static/images/kloader.gif"></div>
 <div id = "storeInv_grid" style="display:none;"></div>
 
 <div id="uploadSpreadsheetDialog">
@@ -106,11 +108,11 @@ a.model-operation-item:visited{
 
 <script>
 $(document).ajaxStop(function(){
-	$("#storeInv_grid").fadeIn("medium");
+	$("#grid_loading").fadeOut("medium",function(){
+		$("#storeInv_grid").fadeIn("medium");
+	});
 });
-//$(window).load(function(){
-//	$("#storeInv_grid").fadeIn("medium");
-//});
+
 
 $("#spreadsheetbutton").button();
 

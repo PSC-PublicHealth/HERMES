@@ -2256,7 +2256,9 @@ function addToggleExpansionButton($grid) {
 								modal: true,
 								autoOpen: false,
 								title:"{{_('Confirming adding storage device')}}",
-								okFunction: function(value){
+								okFunction: function(){
+									var value = $("#"+addConfirmId).countDialogBox("value");
+									console.log("Value = " + value)
 									$("#"+thisId).simpleStorageDeviceTable("add",[$("#"+selectId).simpleTypeSelectField("value"),value, modelId, storeId]);
 									if($("#"+selectId).is(":visible")){
 										$("#"+selectId).fadeOut("medium",function(){
@@ -2310,12 +2312,16 @@ function addToggleExpansionButton($grid) {
  				else if(arg=='close'){
  					$("#"+tId).dialog("close");
  				}
+ 				else if(arg=='value'){
+ 					var countId = tId + "_countBox";
+ 					return $("#" + countId).val();
+ 				}
  				
  			}
  			return this.each(function(index,elem){
  				var $elem = $(elem);
  				var thisId = $(this).attr('id');
- 				var countId = thisId = "_countBox";
+ 				var countId = thisId + "_countBox";
  				
  				var dialogTxt = settings.dialogTxt;
  				var okFunction = settings.okFunction;
@@ -2340,7 +2346,7 @@ function addToggleExpansionButton($grid) {
  						{{_('OK')}}: function(){
  							if(okFunction){
  								// ok function will always have the value passed
- 								okFunction($("#"+countId).val());
+ 								okFunction();
  								$(this).dialog("close");
  							}
  						},
