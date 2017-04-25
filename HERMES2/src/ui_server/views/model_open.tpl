@@ -304,7 +304,7 @@ var mayModify = "{{maymodify}}" == "True" ? true : false ;
 </div>
 
 <div id="not-implemented-modal" title='{{_("Feature is not yet implemented")}}'>
-	<p>   {{_('The Basic Model Editor is not yet implemented. We apologize for the inconvenience.  Please try editting the model with the advanced editor.')}} </p>
+	<p>   {{_('The Basic Model Editor is not yet implemented. We apologize for the inconvenience. Please try editting the model with the advanced editor.')}} </p>
 </div>
 
 
