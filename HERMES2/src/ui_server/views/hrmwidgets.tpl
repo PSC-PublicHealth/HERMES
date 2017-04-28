@@ -1923,7 +1923,7 @@ function addToggleExpansionButton($grid) {
 				
 				$("#" + thisId).dialog({
  					autoOpen:autoOpen,
- 					model:modal,
+ 					modal:modal,
  					width:"auto",
  					title:"{{_('Type Information')}}",
  					buttons:{
@@ -1957,12 +1957,11 @@ function addToggleExpansionButton($grid) {
  				$elem.data("modelId",modelId);
 				$elem.data("modal",settings.modal);
 				$elem.data("autoOpen",settings.autoOpen);
- 				
- 				htmlString = "<div id='"+ buttonId + "' class='hrmWidget_type_info_button hermes_info_button'>{{_('Info')}}</div>";
- 				htmlString += "<div id='"+ dialogId + "' class='hrmWidget_type_info_dialog'>This is where info goes</div>";
- 				
- 				$("#"+thisId).append(htmlString);
- 				
+ 				htmlString = "<button id='"+ buttonId + "' class='hrmWidget_type_info_button'>{{_('Info')}}</button>";
+ 				$("<div id ='" + dialogId +"' class='hrmWidget_type_info_dialog'></div>").appendTo("body");
+ 				//htmlString += "<div id='"+ dialogId + "' class='hrmWidget_type_info_dialog'>This is where info goes</div>";
+ 				//console.log(typeId);
+ 				$("#"+thisId).html(htmlString);
  				
  				$("#"+dialogId).hrmWidget({
  					widget: 'typeInfoDialog',
@@ -2368,6 +2367,12 @@ function addToggleExpansionButton($grid) {
  				});
  			});
  		}
+// 		else if (settings['widget']=='accumulateTypesWidget'){
+// 			$fn.accumulateTypesWidget = function( arg, arg2) {
+// 				var tId = this.attr('id');
+// 				if(tId==undefined) $.error("{{_('accumulateTypesWidget does not have an id')}}");
+// 			}
+// 		}
  		else if (settings['widget']=='editFormManager') {
 			$.fn.editFormManager = function( arg, arg2 ) {
  				if (arg=='getEntries') {

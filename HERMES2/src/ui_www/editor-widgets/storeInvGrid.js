@@ -173,11 +173,11 @@
 //					});
 				},
 				loadError: function(xhr,status,error){
-			    	alert('{{_("Error: ")}}'+status);
+			    	alert('"Error: "'+status);
 				},
 				beforeProcessing: function(data,status,xhr) {
 					if (!data.success) {
-			        	alert('{{_("Failed2: ")}}'+data.msg);
+			        	alert("Failed2: "+data.msg);
 					}
 				},
 				

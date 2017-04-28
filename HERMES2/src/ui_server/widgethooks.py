@@ -60,6 +60,11 @@ def getHrmWidgetsJS(db, uiSession):
     bottle.response.set_header('content-type','text/javascript')
     return bottle.template("hrmwidgets.tpl") # to fill in rootPath
 
+@bottle.route('/widgets/type_explorer_grid.js')
+def getWidgetTypeExplorerGrid(db, uiSession):
+    bottle.response.set_header('content-type','text/javascript')
+    return bottle.template('type_explorer_grid.tpl')
+
 @bottle.route('/clientArray', method='POST')
 def noOpCall():
     """

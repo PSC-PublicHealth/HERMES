@@ -245,7 +245,7 @@ def getVaccineInfoHTML(db, uiSession, modelId, typeName,simple=False):
     if simple:
         htmlStr,titleStr = _buildTypeInfoPopUp(fieldMap, typeInstance, "Vaccine"),None
     else:
-        _htmlStr,titleStr = _buildTypeInfoBox(fieldMap, typeInstance, "Vaccine"),titleStr
+        htmlStr,titleStr = _buildTypeInfoBox(fieldMap, typeInstance, "Vaccine"),titleStr
     return htmlStr,titleStr
 
 def getFridgeInfoHTML(db, uiSession, modelId, typeName, simple=False):

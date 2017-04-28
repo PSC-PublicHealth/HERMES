@@ -40,6 +40,8 @@ a.model-operation-item:visited{
 	text-align:center;
 }
 </style>
+<script src="{{rootPath}}widgets/type_explorer_grid.js" type="text/javascript"></script>
+
 <div id="test_store_grid"></div>
 <div id="selects_tests">
 	<div id="test_store_select"></div>
@@ -52,6 +54,9 @@ a.model-operation-item:visited{
 <div id="button_tests">
 	<div id="test_type_info_button"></div>
 	<div id="test_type_truck_button"></div>
+</div>
+<div id="typeGrids_tests">
+	<div id="test_vaccine_typeGrid"></div>
 </div>
 
 <script>
@@ -114,6 +119,10 @@ $(function(){
 		modelId: {{modelId}},
 		typeId: "truck_district",
 		typeClass: 'trucks'
+	});
+	$("#test_vaccine_typeGrid").typeExplorerGrid({
+		modelId: 1,
+		typeClass: 'vaccines'
 	});
 	
 	

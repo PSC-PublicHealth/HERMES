@@ -2551,3 +2551,16 @@ div.ui-jqgrid-view table.ui-jqgrid-btable th
 .hrmWidget_simpleStorageInvGrid_select span{
 	font-size:10px !important;
 }
+
+.hermes_type_explorer_grid_sb {
+	position:relative;
+	float:left;
+}
+.hermes_type_explorer_grid_st {
+	width: 400px;
+	height: 30px;
+	margin-left: 10px;
+	margin-top: 8px;
+	float:left;
+	position:relative;
+}

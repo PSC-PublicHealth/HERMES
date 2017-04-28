@@ -79,3 +79,4 @@ var typeInfoUrls = {
 		'staff': 'json/staff-info',
 		'perdiems':'json/perdiem-info'
 	};
+

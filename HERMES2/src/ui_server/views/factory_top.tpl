@@ -15,56 +15,58 @@
 #                                                                                 #
 ###################################################################################
 -->
+<div>
 <table width=100%>
   <tr>
-    <td colspan=2>
-      <table class='hrm_centered_pairs'>
-	<tr>
-	  <td><label for="model_sel_widget">{{_('Showing Factory for')}}</label></td>
-	  <td><div align='center' id='model_sel_widget'></div></td>
-	</tr>
-	<tr class="factory_uneditable">
-	  <td colspan=2>{{_("This model has factory types that are too complicated to edit in this editor.  Currently they can only be edited by downloading the model and editing the CSV files.")}}
-	  </td>
-	</tr>
-	<tr class="factory_editable">
-	  <td>
-	    <input type='checkbox' id='factory_enable_cbx' onclick="factory_click_cbx(this)">
-	    <label for='factory_enable_cb'>{{_("Override default of unlimited factory production for this model?")}}</label>
-	  </td>
- 	</tr>
-	<tr class="factory_enabled">
-	  <td><label for="factory_latency">{{_("Startup Latency")}}</label></td>
-	  <td><input type="number" min="0" max="10000" name="factory_latency" id="factory_latency">
-	    <label for="factory_latency">{{_("Days")}}</label></td>
-	</tr>
-	<tr class="factory_enabled">
-	  <td><label for="factory_interval">{{_("Production Interval")}}</label></td>
-	  <td><input type="number" min="1" max="10000" name="factory_interval" id="factory_interval">
-	    <label for="factory_interval">{{_("Days")}}</label></td>
-	</tr>
-	<tr class="factory_enabled">
-	  <td><label for="factory_overstock">{{_("Overstock Factor")}}</label></td>
-	  <td><input type="number" min="0" max="1000" name="factory_overstock" id="factory_overstock">
-	    <label for="factory_overstock">{{_("Percent")}}</label></td>
-	</tr>
-	<tr class="factory_enabled">
-	  <td><label for="factory_demandtype">{{_("Production Calculation Method (demand type)")}}</label></td>
-	  <td><select id="factory_demandtype">
-	      <option value="projection" selected>projection</option>
-	      <option value="expectation">expectation</option>
-	    </select>
-	  </td>
-	</tr>
-	<tr class="factory_editable">
-	  <td colspan=2>
-	    <button id="factory_update" onclick="update_factory()">{{_("Update Factory")}}</button>
-	  </td>
-	</tr>
+    <td>
+    	<table class='hrm_centered_pairs'>
+			<tr>
+			  <td><label for="model_sel_widget">{{_('Showing Factory for')}}</label></td>
+			  <td><div align='center' id='model_sel_widget'></div></td>
+			</tr>
+			<tr class="factory_uneditable">
+			  <td colspan=2>{{_("This model has manufacturers which is not currently supported graphical user interface.  Currently they can only be edited by downloading the model and editing the CSV files.")}}
+			  </td>
+			</tr>
+			<tr class="factory_editable">
+			  <td>
+			    <input type='checkbox' id='factory_enable_cbx' onclick="factory_click_cbx(this)">
+			    <label for='factory_enable_cb'>{{_("Override default of unlimited factory production for this model?")}}</label>
+			  </td>
+		 	</tr>
+			<tr class="factory_enabled">
+			  <td><label for="factory_latency">{{_("Startup Latency")}}</label></td>
+			  <td><input type="number" min="0" max="10000" name="factory_latency" id="factory_latency">
+			    <label for="factory_latency">{{_("Days")}}</label></td>
+			</tr>
+			<tr class="factory_enabled">
+			  <td><label for="factory_interval">{{_("Production Interval")}}</label></td>
+			  <td><input type="number" min="1" max="10000" name="factory_interval" id="factory_interval">
+			    <label for="factory_interval">{{_("Days")}}</label></td>
+			</tr>
+			<tr class="factory_enabled">
+			  <td><label for="factory_overstock">{{_("Overstock Factor")}}</label></td>
+			  <td><input type="number" min="0" max="1000" name="factory_overstock" id="factory_overstock">
+			    <label for="factory_overstock">{{_("Percent")}}</label></td>
+			</tr>
+			<tr class="factory_enabled">
+			  <td><label for="factory_demandtype">{{_("Production Calculation Method (demand type)")}}</label></td>
+			  <td><select id="factory_demandtype">
+			      <option value="projection" selected>projection</option>
+			      <option value="expectation">expectation</option>
+			    </select>
+			  </td>
+			</tr>
+			<tr class="factory_editable">
+			  <td colspan=2>
+			    <button id="factory_update" onclick="update_factory()">{{_("Update Factory")}}</button>
+			  </td>
+			</tr>
+		</table>
     </td>
   </tr>
 </table>
-
+</div>
 <script>
 var getCurrentModelId = function(){ return $('#model_sel_widget').modelSelector('selId'); };
 var getCurrentModelName = function(){ return $('#model_sel_widget').modelSelector('selName'); };

@@ -3445,6 +3445,7 @@ class ShdVaccineType(ShdType, ShdCopyable):
               'relationship', 'types'),
              ('DisplayName',   STRING_NONE),
              ('Abbreviation',  STRING),
+             ('Category', STRING),
              ('presentation',  STRING_NULL, 'recordName', 'Vaccine presentation'),
              ('administration', STRING_NULL, 'recordName', 'Method of administration'),
              ('Manufacturer', STRING_NULL, 'recordName', 'Manufacturer'),

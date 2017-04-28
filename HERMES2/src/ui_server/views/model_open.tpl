@@ -216,8 +216,8 @@ var mayModify = "{{maymodify}}" == "True" ? true : false ;
 				</span>	
 				<li>
 				<span class="model-operation-item">
-					<a class="model-operation-item" href="#" title='{{_("Define the factory details.")}}'
-						id="factories_link">{{_('Add and modify')}} <span class="action-underline">{{_('factories')}}</span></a>
+					<a class="model-operation-item" href="#" title='{{_("Define the manufacturing details such as frequecy of vaccine creation, and buffer stock.")}}'
+						id="factories_link">{{_('Modify')}} <span class="action-underline">{{_('manufacturer')}}</span></a>
 				</span>
 				</li>
 				<li>

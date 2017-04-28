@@ -35,7 +35,8 @@ import htmlgenerator
 import typehelper
 import typehooks
 
-from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults
+from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults,\
+    _safeGetReqParam
 from util import listify
  
 inlizer=session_support.inlizer
@@ -218,7 +219,65 @@ def jsonManageVaccineTable(db, uiSession):
               }
     return result
 
-
+@bottle.route('/json/manage-vaccine-table-all',method="POST")
+def jsonManageVaccineTableSTB(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        searchTerm = _safeGetReqParam(bottle.request.params, 'searchterm', default=None)
+        print "TYPE = {0}".format(type(searchTerm))
+        #searchTerm = u"{0}".format(searchTermStr)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+    except privs.PrivilegeException:
+        raise bottle.BottleException(_('Current User does not have access to model with Id = {0}: from json/manaage-vaccine-table-stb'.format(modelId)))
+    except ValueError, e:
+        print 'Empty parameters supplied to manage-vaccine-table-stb'
+        print str(e)
+        return {'success': 'false'}
+    try:
+        tList = typehelper.getTypeList(db,modelId,'vaccines')
+        #print tList
+        rows = []
+        for v in tList:
+            manufact = v['Manufacturer']
+            if v['Manufacturer'] == '':
+                manufact = u"{0}".format(_('Not Specified'))
+            present = v['Vaccine presentation']
+            if present == '':
+                present = u"{0}".format(_('Not Specified'))
+            
+            row = {'id':v['Name'],
+                   'name':v['DisplayName'],
+                   'type':v['Category'],
+                   'manufacturer':manufact,
+                   'presentation':present,
+                   'details':v['Name']
+                   }
+            
+            
+            if searchTerm: #!= "asdfasdfasdfasdfdf":
+                ## does this match name, manufacturer...
+                print u"Search Term = {0}".format(searchTerm)
+                for v in row.values():
+                    print u"v Type = {0}".format(type(v))
+                    print u"V = {0}".format(v)
+                    print u"V = {0} find = {1}".format(v,v.find(searchTerm))
+                    if v.find(searchTerm) > -1:
+                        print "Success"
+                        rows.append(row)
+                        break
+            else:
+                rows.append(row)
+            #rows.append(row)
+            
+        return {'success':True,
+                'total':1,
+                'page':1,
+                'records':len(rows),
+                'rows':rows
+                }
+    except Exception,e:
+        return {'success':False,'msg':'manage-vaccine-table-all: {0}'.format(str(e))}
+    
 @bottle.route('/json/manage-vaccine-table-groupings')
 def jsonManageVaccineTableGroupings(db, uiSession):
     try:
@@ -269,10 +328,8 @@ def jsonManageVaccineSubTable(db, uiSession):
     """
     modelId = int(bottle.request.params['modelId'])
     subkey = str(bottle.request.params['subkey'])
-    subval = str(bottle.request.params['subval'])
-    print subval
+    subval = str(bottle.request.params['subval']) 
     subval = subval.decode('hex').decode('utf-8')
-    print subval
     try:
         uiSession.getPrivs().mayReadModelId(db, modelId)
     except privs.PrivilegeException:
