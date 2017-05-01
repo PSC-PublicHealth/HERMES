@@ -16,7 +16,7 @@
 */
 typeInfos = {
 			'vaccines': {
-				'url':'json/manage-vaccine-table-all',
+				'url':'json/manage-vaccine-explorer',
 				'labels': ["{{_('Manufacturer')}}","{{_('Presentation')}}"],//,"{{_('Volume Per Dose (cc)')}}","{{_('Doses Per Vial')}}"],
 				'models': [
 				           {name:'manufacturer',index:'manufacturer',width:300},
@@ -27,6 +27,14 @@ typeInfos = {
 				'title':"{{_('Vaccine Type Explorer')}}",
 				'searchTitle':"{{_('Search for Vaccines')}}",
 				'eg':"BCG"
+			},
+			'trucks': {
+				'url':'json/manage-truck-table-all',
+				'labels':[],
+				'models':[],
+				'title':"{{_('Transport Type Explorer)}}",
+				'searchTitle':"{{_('Search for Transportation Modes')}}",
+				'eg':'Motorcycle'
 			}
 };
 
@@ -120,17 +128,6 @@ function infoButtonFormatter(cellvalue, options, rowObject){
 						alert("typeExplorerGrid jqGrid:FailError: "+ data.msg);
 					}
 				},
-//				loadComplete: function(){
-//					var $this = $(this);
-//					if($this.jqGrid("getGridParam","datatype") == "json"){
-//						setTimeout(function(){
-//							$this.trigger("reloadGrid");
-//						},50);
-//					}
-//				}
-				//	$("#"+thisTableId).jqGrid('sortGrid','type',true);
-				//	$("#"+thisTableId).jqGrid().trigger('reloadGrid');
-				//}
 				gridComplete: function(){
 					$(".hermes_info_button_div").each(function(){
 						$this = $(this);
@@ -141,23 +138,11 @@ function infoButtonFormatter(cellvalue, options, rowObject){
 							typeClass: thisOptions.typeClass,
 							autoOpen: false
 						});
-						//console.log($(this).attr("id").replace("_button_div",""));
+						
 					});
-					
-//					$(".hermes_info_button_div").hrmWidget({
-//						widget:'typeInfoButtonAndDialog',
-//						modelId: thisOptions.modelId,
-//						typeId: $(this).attr("id").replace("_button_div",""),
-//						typeClass: thisOptions.typeClass,
-//						autoOpen: false
-//					});
 				}
 				
 			});
-			
-			//$("#"+thisTableId).jqGrid('sortGrid','type',true);
-			//$("#"+thisTableId).jqGrid().trigger('reloadGrid');
-			
 		},
 		_create:function(){
 			trant = this.options.trant;

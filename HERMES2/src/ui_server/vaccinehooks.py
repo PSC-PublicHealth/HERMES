@@ -219,7 +219,7 @@ def jsonManageVaccineTable(db, uiSession):
               }
     return result
 
-@bottle.route('/json/manage-vaccine-table-all',method="POST")
+@bottle.route('/json/manage-vaccine-explorer',method="POST")
 def jsonManageVaccineTableSTB(db,uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
