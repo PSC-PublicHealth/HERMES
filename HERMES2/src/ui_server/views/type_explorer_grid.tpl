@@ -102,6 +102,7 @@ function infoButtonFormatter(cellvalue, options, rowObject){
 				multiSort:true,
 				sortable:true,
 				grouping:true,
+				loadtext:"Gathering Data",
 				groupingView: {
 					groupField: ['type'],
 					groupColumnShow: [false],
@@ -131,7 +132,6 @@ function infoButtonFormatter(cellvalue, options, rowObject){
 				//	$("#"+thisTableId).jqGrid().trigger('reloadGrid');
 				//}
 				gridComplete: function(){
-					//$(".hermes_info_button_div").html("<b>FUCK</b>");
 					$(".hermes_info_button_div").each(function(){
 						$this = $(this);
 						$this.hrmWidget({
@@ -171,16 +171,20 @@ function infoButtonFormatter(cellvalue, options, rowObject){
 			var thisSearchButtonId = thisContainerId + "_sb";
 			var thisSearchInputId = thisSearchId + "_input";
 			var thisSearchTextId = thisSearchId + "_text";
+			var showAllResultsButtonId;
 			
 			var thisOptions = this.options;
 			
+			$("#"+thisContainerId).addClass("hermes_type_explorer_grid_main_div");
 			//Add the necessary HTML
 			htmlString = "<table id = '" + thisTableId + "' class='hermes_type_explorer_grid_table'></table>";
 			htmlString += "<div id = '" + thisPagerId + "' class='hermes_type_explorer_grid_pager'></div>";
 			htmlString += "<div id = '" + thisSearchId + "' class='hermes_type_explorer_grid_search'></div>";
 			htmlString += "<div id = '" + thisSearchButDivId + "' class='hermes_type_explorer_grid_sb_div'>";
 			htmlString += "<button id = '" + thisSearchButtonId + "' class='hermes_type_explorer_grid_sb'>{{_('Search')}}</button>";
-			htmlString += "<div id = '" + thisSearchTextId + "' class='hermes_type_explorer_grid_st'> fuck</div>";
+			htmlString += "<button id = '" + showAllResultsButtonId + "' class='hermes_type_explorer_grid_sb'>{{_('Show All Items')}}</button>";
+			htmlString += "<div id = '" + thisSearchTextId + "' class='hermes_type_explorer_grid_st'></div>";
+			//htmlString += "<div id = '" + loadingDiv + "' class='hermes_
 			$("#"+thisContainerId).html(htmlString);
 			
 			var modelId = this.options.modelId;
@@ -201,13 +205,18 @@ function infoButtonFormatter(cellvalue, options, rowObject){
 			// Set up search capability
 			
 			var but = $("#" + thisSearchButtonId).button();
+			var resButt = $("#"+ showAllResultsButtonId).button();
+			
+			resButt.hide();
+			
 			sHtmlString = "<table>";
 			sHtmlString += "<tr><td>{{_('Please enter your search words?(e.g. ')}}"+ typeInfo.eg + "):</td></tr>";
 			sHtmlString += "<tr><td><input id = '" + thisSearchInputId + 
 							"' class='hermes_type_explorer_grid_search_input' "+
 							"style='width:250px;'></td></tr>";
 			sHtmlString += "</table>";
-				
+			
+			 
 			$("#"+thisSearchId).html(sHtmlString);
 			$("#"+thisSearchId).dialog({
 				autoOpen: false,
@@ -218,34 +227,49 @@ function infoButtonFormatter(cellvalue, options, rowObject){
 					{{_('Search')}}: function(){
 						$(this).dialog("close");
 						//console.log("Searching for: " + $("#"+ thisSearchInputId).val());
-						$(".ui-state-default loading").text("Filtering...");
+						//$(".loading").text("Filtering...");
+						$(".hermes_type_explorer_grid_main_div").children('.ui-jqgrid').children('.loading').css({'padding-left':"55px"});
+						$("#"+thisTableId).jqGrid("setGridParam",{loadtext:'Filtering'});
 						$("#"+thisTableId).jqGrid("setGridParam", {
 							postData: {
 								modelId: thisOptions.modelId,
 								searchterm: $("#"+thisSearchInputId).val()
 							}
 						}).trigger("reloadGrid", { fromServer: true});
-						$("#"+thisSearchTextId).html("Showing Results for term: '" + $("#"+thisSearchInputId).val());
+						$("#"+showAllResultsButtonId).show();
+						$("#"+thisSearchTextId).html("Showing Results for term: '" + $("#"+thisSearchInputId).val() + "'");
 					},
 					{{_('Cancel')}}: function(){
-						//$("#"+ thisSearchInputId).css({'color':'gray','font-style':'italic'}).val("{{_('Enter your search term here...")
 						$(this).dialog("close");
 					}
 				},
-				open: function(){
+				open: function(e,ui) {
 					$("#"+thisSearchInputId).val("");
+				    $(this)[0].onkeypress = function(e) {
+						if (e.keyCode == $.ui.keyCode.ENTER) {
+						    e.preventDefault();
+						    $(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+						}
+				    };
 				}
 			});
 			
-//			$("#"+ thisSearchInputId).focus(function(){
-//				if($(this).val() == '{{_("Enter your search term here...")}}'){
-//					$(this).val("").css({'color':'black','font-style':'normal'});
-//				}
-//			});
 			but.click( function (){
 				$("#"+thisSearchId).dialog("open");
 			});
 			
+			
+			resButt.click( function(){
+				$("#"+thisTableId).jqGrid("setGridParam",{loadtext:'Clearing Search'});
+				$("#"+thisTableId).jqGrid("setGridParam", {
+					postData: {
+						modelId: thisOptions.modelId,
+						searchterm: ""
+					}
+				}).trigger("reloadGrid", { fromServer: true});
+				$("#"+thisSearchTextId).html("");
+				resButt.hide();
+			});
 		}
 	});
 })(jQuery);

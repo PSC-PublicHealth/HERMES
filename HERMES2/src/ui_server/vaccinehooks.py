@@ -254,15 +254,10 @@ def jsonManageVaccineTableSTB(db,uiSession):
                    }
             
             
-            if searchTerm: #!= "asdfasdfasdfasdfdf":
+            if searchTerm:
                 ## does this match name, manufacturer...
-                print u"Search Term = {0}".format(searchTerm)
                 for v in row.values():
-                    print u"v Type = {0}".format(type(v))
-                    print u"V = {0}".format(v)
-                    print u"V = {0} find = {1}".format(v,v.find(searchTerm))
-                    if v.find(searchTerm) > -1:
-                        print "Success"
+                    if v.lower().find(searchTerm.lower()) > -1:
                         rows.append(row)
                         break
             else:
