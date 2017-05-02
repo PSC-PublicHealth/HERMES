@@ -32,7 +32,7 @@ typeInfos = {
 				'url':'json/manage-truck-table-all',
 				'labels':[],
 				'models':[],
-				'title':"{{_('Transport Type Explorer)}}",
+				'title':"{{_('Transport Type Explorer')}}",
 				'searchTitle':"{{_('Search for Transportation Modes')}}",
 				'eg':'Motorcycle'
 			}
