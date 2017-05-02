@@ -1,0 +1,3 @@
+[submodule "HERMES2/master_data/private"]
+	path = HERMES2/master_data/private
+	url = https://github.com/PSC-PublicHealth/HERMES-Models.git
