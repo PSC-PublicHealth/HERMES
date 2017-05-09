@@ -65,6 +65,11 @@ def getWidgetTypeExplorerGrid(db, uiSession):
     bottle.response.set_header('content-type','text/javascript')
     return bottle.template('type_explorer_grid.tpl')
 
+@bottle.route('/widgets/slideshow_widget.js')
+def getSlideShowWidget(db, uiSession):
+    bottle.response.set_header('content-type','text/javascript')
+    return bottle.template('slideshow_widget.tpl')
+
 @bottle.route('/clientArray', method='POST')
 def noOpCall():
     """

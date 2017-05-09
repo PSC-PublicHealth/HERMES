@@ -122,7 +122,7 @@ $(function(){
 	});
 	$("#test_vaccine_typeGrid").typeExplorerGrid({
 		modelId: 1,
-		typeClass: 'people'
+		typeClass: 'vaccines'
 	});
 	
 	

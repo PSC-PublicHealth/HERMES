@@ -58,11 +58,35 @@ typeInfos = {
 				'searchTitle':"{{_('Search for People Types')}}",
 				'eg':'Newborn',
 				'groupByType':false
+			},
+			'staff':{
+				'url':'json/manage-staff-explorer',
+				'labels':[],
+				'models':[],
+				'title':"{{_('Staff Type Explorer')}}",
+				'searchTitle':"{{_('Search through Staff')}}",
+				'eg':'EPI Manager',
+				'groupByType':false
+			},
+			'perdiems':{
+				'url':'json/manage-perdiems-explorer',
+				'labels':[],
+				'models':[],
+				'title':"{{_('Perdiem Type Explorer')}}",
+				'searchTitle':"{{_('Search through Perdiems')}}",
+				'eg':'By Day',
+				'groupByType':false
 			}
+			
 };
 
 function infoButtonFormatter(cellvalue, options, rowObject){
-	return "<div class='hermes_info_button_div' id='"+cellvalue+"_button_div''></div>";
+	return "<div class='hermes_info_button_div' id='"+cellvalue+"_button_div'></div>";
+};
+
+function checkBoxFieldFormatter(cellvalue, options, rowObject){
+	var nom = rowObject.id
+	return "<input type='checkbox' class='hermes_type_explorer_checkbox' id='"+nom+"_checkbox'>";
 }
 
 ;(function($){
@@ -71,8 +95,25 @@ function infoButtonFormatter(cellvalue, options, rowObject){
 			modelId:'',
 			typeClass:'',
 			height: 300,
+			selectEnabled:true,
+			checkBoxes: true,
 			trant:{
 				title: "{{_('Type Explore Grid')}}"
+			}
+		},
+		getSelectedElements:function(){
+			// this will always return an array of values to stay consistent, even if the behavior is not checkboxes.
+			thisTableId = $(this.element).attr('id') + "_tbl";
+			if(this.options['checkBoxes']){
+				var selectedRows = []
+				$("#"+thisTableId+" .hermes_type_explorer_checkbox:checked").each(function(){
+					console.log(this.id);
+					selectedRows.push(this.id.replace("_checkbox",""));
+				});
+				return selectedRows
+			}
+			else{
+				return [$("#"+thisTableId).jqGrid('getGridParam','selrow')];
 			}
 		},
 		createGrid: function(){
@@ -85,36 +126,33 @@ function infoButtonFormatter(cellvalue, options, rowObject){
 			
 			colInfo = typeInfos[thisOptions.typeClass];
 			console.log(typeInfos);
-			var colNames = ["ID"," "];
-			if (colInfo.groupByType){
-				colNames = colNames.concat(["{{_('Category')}}"]);
-			}
-			colNames = colNames.concat(["{{_('Name')}}"]).concat(colInfo.labels).concat(["{{_('Info')}}"]);
 			
-			var colModels = [
-			                 {name:'id',index:'id',key:true,hidden:true,sortable:true,sorttype:'string',sortorder:'asc'},
-			                 {name:'placeholder',index:'placeholder',width:20,label:""}];
+			var colNames = ["ID"];
+			var colModels = [{name:'id',index:'id',key:true,hidden:true,sortable:true,sorttype:'string',sortorder:'asc'}];
+			
+			
 			if (colInfo.groupByType){
-				colModels = colModels.concat([{name:'type',index:'type',sortable:true,sorttype:'string',sortorder:'asc'}]);
+				colNames = colNames.concat([" ","{{_('Category')}}"]);
+				colModels = colModels.concat([{name:'placeholder',index:'placeholder',width:20,label:""},
+				                              {name:'type',index:'type',sortable:true,sorttype:'string',sortorder:'asc'}]);
 			}
-			colModels = colModels.concat([{name:'name', index:'name',width:300, search:true}])
+
+			if (thisOptions.checkBoxes){
+				colNames = colNames.concat(" ");
+				colModels = colModels.concat([{name:'selected',index:'selected',width:40,align:'center',formatter:checkBoxFieldFormatter}]);
+			}
+			
+			
+			colNames = colNames.concat(["{{_('Name')}}"]).concat(colInfo.labels).concat(["{{_('Info')}}"]);           
+			colModels = colModels.concat([{name:'name', index:'name',width:300, sortable: true, sorttype:'string', sortorder:'asc', search:true}])
 			                 .concat(colInfo.models).concat([{name:'details',index:'details',align:'center',width:100,formatter:infoButtonFormatter}]);
 			
-			//console.log("colNames = " + colNames);
+
 			var gridHeight = thisOptions.height;
 			//windowHeight = $(window).height()*.45;
 			//if(thisOptions.height >)
-			var filter = {
-					'groupOp':"AND", 
-					"rules":[
-					         {
-								"field":"Name",
-								"op":"cn",
-								"data":"BGC" //$("#"+ thisSearchInputId).val()
-							}
-					]
-			};
 			console.log("modelid = " + thisOptions.modelId);
+			console.log("url = " + colInfo.url);
 			$("#"+thisTableId).jqGrid({
 				url:{{rootPath}} + colInfo.url,
 				datatype:'json',
@@ -152,6 +190,11 @@ function infoButtonFormatter(cellvalue, options, rowObject){
 				search: true,
 				loadError: function(xhr,status,error){
 					alert("typeExplorerGrid jqGrid:loadError: "+ status);
+				},
+				beforeSelectRow: function(rowId, e){
+					if(! thisOptions.selectEnabled || thisOptions.checkBoxes){
+						return false;
+					}
 				},
 				beforeProcessing: function(data,status,xhr){
 					if(!data.success){
