@@ -144,5 +144,24 @@ $("#route_form_test").routeSpecifyFormWidget({
 //	});
 //	
 	
-//});
+	$("#test_type_info_button").hrmWidget({
+		widget:'typeInfoButtonAndDialog',
+		modelId: {{modelId}},
+		typeId: "MF214_E",
+		typeClass: 'fridges'
+	});
+	
+	$("#test_type_truck_button").hrmWidget({
+		widget:'typeInfoButtonAndDialog',
+		modelId: {{modelId}},
+		typeId: "truck_district",
+		typeClass: 'trucks'
+	});
+	$("#test_vaccine_typeGrid").typeExplorerGrid({
+		modelId: 1,
+		typeClass: 'vaccines'
+	});
+	
+	
+});
 </script>
