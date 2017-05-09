@@ -1,0 +1,22 @@
+.widget_main {
+	position:relative;
+	overflow:hidden;
+	margin:0 0 0 0;
+	width:800px;
+	height:500px;
+	white-space:nowrap;
+}
+.widget_slide {
+	position:relative;
+	display:inline-block;
+	margin-right:0px;
+	white-space:normal;
+	vertical-align:top;
+	*display:inline;
+	width:800px;
+	height:500px;	
+}
+
+.slideshow_button_cont {
+	margin: 10px 10px 10px 10px;
+}

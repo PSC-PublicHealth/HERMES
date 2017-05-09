@@ -37,7 +37,7 @@ from currencyhelper import getCurrencyDict
 import typehooks
 
 
-from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults
+from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults,_safeGetReqParam
 
 inlizer=session_support.inlizer
 _=session_support.translateString
@@ -102,3 +102,48 @@ def jsonStaffInfo(db,uiSession):
 @bottle.route('/json/staff-edit-form')
 def jsonStaffEditForm(db, uiSession):
     return typehooks.jsonTypeEditForm(db,uiSession,'staff',fieldMap)
+
+@bottle.route('/json/manage-staff-explorer',method='POST')
+def jsonManagePeopleExplorerTable(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        searchTerm = _safeGetReqParam(bottle.request.params, 'searchterm', default=None)
+        #searchTerm = u"{0}".format(searchTermStr)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+    except privs.PrivilegeException:
+        raise bottle.BottleException(_('Current User does not have access to model with Id = {0}: from json/manaage-staff-explorer'.format(modelId)))
+    except ValueError, e:
+        print 'Empty parameters supplied to manage-staff-explorer'
+        print str(e)
+        return {'success': 'false'}
+    try:
+        tList = typehelper.getTypeList(db,modelId,'staff')
+        #print tList
+        rows = []
+        for v in tList:
+            dispName = v['DisplayName'];
+            if dispName == "":
+                dispName = v['Name']
+            row = {'id':v['Name'],
+                       'name':v['DisplayName'],
+                       'details':v['Name']
+                       }
+            if searchTerm:
+                ## does this match name, manufacturer...
+                for v in row.values():
+                    if v.lower().find(searchTerm.lower()) > -1:
+                        rows.append(row)
+                        break
+            else:
+                rows.append(row)
+            #rows.append(row)
+            
+        return {'success':True,
+                'total':1,
+                'page':1,
+                'records':len(rows),
+                'rows':rows
+                }
+    except Exception,e:
+        return {'success':False,'msg':'manage-staff-explorer: {0}'.format(str(e))}
+    
