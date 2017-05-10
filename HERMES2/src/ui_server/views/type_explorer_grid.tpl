@@ -19,8 +19,8 @@ typeInfos = {
 				'url':'json/manage-vaccine-explorer',
 				'labels': ["{{_('Manufacturer')}}","{{_('Presentation')}}"],//,"{{_('Volume Per Dose (cc)')}}","{{_('Doses Per Vial')}}"],
 				'models': [
-				           {name:'manufacturer',index:'manufacturer',width:300},
-				           {name:'presentation',index:'presentation',width:250},
+				           {name:'manufacturer',index:'manufacturer',width:100},
+				           {name:'presentation',index:'presentation',width:150},
 				           //{name:'volume',index:'volume',formatter:'number',formatoptions:{decimalPlaces:2}},
 				           //{name:'dosespervial',index:'dosespervial',formatter:'integer'}
 				           ],
@@ -81,12 +81,12 @@ typeInfos = {
 };
 
 function infoButtonFormatter(cellvalue, options, rowObject){
-	return "<div class='hermes_info_button_div' id='"+cellvalue+"_button_div'></div>";
+	return "<div class='hermes_info_button_div' id='" +options.gid + "_" + rowObject.id+ "_button_div'></div>";
 };
 
 function checkBoxFieldFormatter(cellvalue, options, rowObject){
 	var nom = rowObject.id
-	return "<input type='checkbox' class='hermes_type_explorer_checkbox' id='"+nom+"_checkbox'>";
+	return "<input type='checkbox' class='hermes_type_explorer_checkbox' id='"+ options.gid + "_" + rowObject.id + "_checkbox'>";
 }
 
 ;(function($){
@@ -97,6 +97,12 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			height: 300,
 			selectEnabled:true,
 			checkBoxes: true,
+			expandAll: false,
+			groupingEnabled: true,
+			namesOnly: false,
+			searchEnabled: true,
+			width:400,
+			title: "",
 			trant:{
 				title: "{{_('Type Explore Grid')}}"
 			}
@@ -108,7 +114,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				var selectedRows = []
 				$("#"+thisTableId+" .hermes_type_explorer_checkbox:checked").each(function(){
 					console.log(this.id);
-					selectedRows.push(this.id.replace("_checkbox",""));
+					selectedRows.push(this.id.replace(thisTableId + "_","").replace("_checkbox",""));
 				});
 				return selectedRows
 			}
@@ -116,25 +122,51 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				return [$("#"+thisTableId).jqGrid('getGridParam','selrow')];
 			}
 		},
+		add: function(typesIdsToAdd,srcModelId){
+			this.containerId = $(this.element).attr('id');
+			var thisContainerId = this.containerId;
+			var thisTableId = thisContainerId + "_tbl";
+			
+			var modelId = this.options.modelId;
+			var typeClass = this.options.typeClass;
+			
+			for(typ in typesIdsToAdd){
+				$.ajax({
+					url:{{rootPath}} + 'json/copyTypeToModel',
+					data: {modelId:modelId, srcModelId: srcModelId, typeName: typesIdsToAdd[typ]}
+				})
+				.done(function(results){
+					if(results.success){
+						//all is groovy
+					}
+					else{
+						alert("{{_('typeExplorerGrid: add success fail in adding type')}}" + results.msg);
+					}
+				})
+				.fail(function(jqxfr, textStatus, error){
+	 				alert("{{_('typeExplorerGrid:add fail event in adding type')}}");
+				});
+			}
+		},
 		createGrid: function(){
 			this.containerId = $(this.element).attr('id');
 			var thisContainerId = this.containerId;
 			var thisTableId = thisContainerId + "_tbl";
-			var thisPagerId = thisContainerId + "_pb";
+			var thisPagerId = thisContainerId + "_pg";
 			
 			var thisOptions = this.options;
 			
 			colInfo = typeInfos[thisOptions.typeClass];
 			console.log(typeInfos);
-			
+			console.log(this.options.width);
 			var colNames = ["ID"];
 			var colModels = [{name:'id',index:'id',key:true,hidden:true,sortable:true,sorttype:'string',sortorder:'asc'}];
 			
 			
-			if (colInfo.groupByType){
+			if (colInfo.groupByType && thisOptions.groupingEnabled){
 				colNames = colNames.concat([" ","{{_('Category')}}"]);
 				colModels = colModels.concat([{name:'placeholder',index:'placeholder',width:20,label:""},
-				                              {name:'type',index:'type',sortable:true,sorttype:'string',sortorder:'asc'}]);
+				                              {name:'type',index:'type',hidden:true, sortable:true,sorttype:'string',sortorder:'asc'}]);
 			}
 
 			if (thisOptions.checkBoxes){
@@ -143,16 +175,33 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			}
 			
 			
-			colNames = colNames.concat(["{{_('Name')}}"]).concat(colInfo.labels).concat(["{{_('Info')}}"]);           
-			colModels = colModels.concat([{name:'name', index:'name',width:300, sortable: true, sorttype:'string', sortorder:'asc', search:true}])
-			                 .concat(colInfo.models).concat([{name:'details',index:'details',align:'center',width:100,formatter:infoButtonFormatter}]);
+			colNames = colNames.concat(["{{_('Name')}}"])     
+			colModels = colModels.concat([{name:'name', index:'name',width:300, sortable: true, sorttype:'string', sortorder:'asc', search:true}]);
+			
+			if(! thisOptions.namesOnly){
+				colNames = colNames.concat(colInfo.labels);
+				colModels = colModels.concat(colInfo.models);
+			}
+			
+			colNames = colNames.concat(["{{_('Info')}}"]);
+			colModels = colModels.concat([{name:'details',index:'details',align:'center',width:100,formatter:infoButtonFormatter}]);
 			
 
 			var gridHeight = thisOptions.height;
+			if(thisOptions.searchEnabled){
+				gridHeight -= 50;
+			}
 			//windowHeight = $(window).height()*.45;
 			//if(thisOptions.height >)
 			console.log("modelid = " + thisOptions.modelId);
 			console.log("url = " + colInfo.url);
+			
+			var title = colInfo.title;
+			
+			console.log(thisOptions.title);
+			if(thisOptions.title != ""){
+				title = thisOptions.title;
+			}
 			$("#"+thisTableId).jqGrid({
 				url:{{rootPath}} + colInfo.url,
 				datatype:'json',
@@ -164,7 +213,8 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				colNames: colNames,
 				colModel: colModels,
 				rowNum: -1,
-				caption: colInfo.title,
+				caption: title,
+				width: thisOptions.width,
 				gridview:true,
 				autoencode:true,
 				loadonce:true,
@@ -177,13 +227,19 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				sortname:'type asc id asc',
 				multiSort:true,
 				sortable:true,
-				grouping:colInfo.groupByType,
 				loadtext:"Gathering Data",
 				groupingView: {
 					groupField: ['type'],
 					groupColumnShow: [false],
 					groupText : ['{0} - {1} Types(s)'],
-					groupCollapse: true,
+					groupCollapse: function(){
+						if(thisOptions.expandAll){
+							return false;
+						}
+						else{
+							return true;
+						}
+					},
 					groupOrder: ['asc']
 				},
 				forceClientSorting: true, // need jqGrid free to implement this.
@@ -202,12 +258,20 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 					}
 				},
 				gridComplete: function(){
-					$(".hermes_info_button_div").each(function(){
+					console.log("group? " + thisOptions.groupingEnabled);
+					if(!thisOptions.groupingEnabled){
+						$("#" + thisTableId).jqGrid('setGridParam',{'grouping': false}).trigger('reloadGrid');
+					}
+					else{
+						$("#" + thisTableId).jqGrid('setGridParam',{'grouping': true}).trigger('reloadGrid');
+					}
+					$("#" + thisTableId + " .hermes_info_button_div").each(function(){
 						$this = $(this);
+						var typeNameHere = $this.attr("id").replace("_button_div","").replace(thisTableId + "_","");
 						$this.hrmWidget({
 							widget:'typeInfoButtonAndDialog',
 							modelId: thisOptions.modelId,
-							typeId: $this.attr("id").replace("_button_div",""),
+							typeId: typeNameHere,
 							typeClass: thisOptions.typeClass,
 							autoOpen: false
 						});
@@ -229,7 +293,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			var thisSearchButtonId = thisContainerId + "_sb";
 			var thisSearchInputId = thisSearchId + "_input";
 			var thisSearchTextId = thisSearchId + "_text";
-			var showAllResultsButtonId;
+			var showAllResultsButtonId = thisSearchId + "_all_but";
 			
 			var thisOptions = this.options;
 			
@@ -237,11 +301,13 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			//Add the necessary HTML
 			htmlString = "<table id = '" + thisTableId + "' class='hermes_type_explorer_grid_table'></table>";
 			htmlString += "<div id = '" + thisPagerId + "' class='hermes_type_explorer_grid_pager'></div>";
-			htmlString += "<div id = '" + thisSearchId + "' class='hermes_type_explorer_grid_search'></div>";
-			htmlString += "<div id = '" + thisSearchButDivId + "' class='hermes_type_explorer_grid_sb_div'>";
-			htmlString += "<button id = '" + thisSearchButtonId + "' class='hermes_type_explorer_grid_sb'>{{_('Search')}}</button>";
-			htmlString += "<button id = '" + showAllResultsButtonId + "' class='hermes_type_explorer_grid_sb'>{{_('Show All Items')}}</button>";
-			htmlString += "<div id = '" + thisSearchTextId + "' class='hermes_type_explorer_grid_st'></div>";
+			if(thisOptions.searchEnabled){
+				htmlString += "<div id = '" + thisSearchId + "' class='hermes_type_explorer_grid_search'></div>";
+				htmlString += "<div id = '" + thisSearchButDivId + "' class='hermes_type_explorer_grid_sb_div'>";
+				htmlString += "<button id = '" + thisSearchButtonId + "' class='hermes_type_explorer_grid_sb'>{{_('Search')}}</button>";
+				htmlString += "<button id = '" + showAllResultsButtonId + "' class='hermes_type_explorer_grid_sb'>{{_('Show All Items')}}</button>";
+				htmlString += "<div id = '" + thisSearchTextId + "' class='hermes_type_explorer_grid_st'></div>";
+			}
 			//htmlString += "<div id = '" + loadingDiv + "' class='hermes_
 			$("#"+thisContainerId).html(htmlString);
 			
@@ -262,72 +328,74 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			typeInfo = typeInfos[typeClass];
 			// Set up search capability
 			
-			var but = $("#" + thisSearchButtonId).button();
-			var resButt = $("#"+ showAllResultsButtonId).button();
-			
-			resButt.hide();
-			
-			sHtmlString = "<table>";
-			sHtmlString += "<tr><td>{{_('Please enter your search words?(e.g. ')}}"+ typeInfo.eg + "):</td></tr>";
-			sHtmlString += "<tr><td><input id = '" + thisSearchInputId + 
-							"' class='hermes_type_explorer_grid_search_input' "+
-							"style='width:250px;'></td></tr>";
-			sHtmlString += "</table>";
-			
-			 
-			$("#"+thisSearchId).html(sHtmlString);
-			$("#"+thisSearchId).dialog({
-				autoOpen: false,
-				modal: true,
-				width: "auto",
-				title: typeInfo.searchTitle,
-				buttons: {
-					{{_('Search')}}: function(){
-						$(this).dialog("close");
-						//console.log("Searching for: " + $("#"+ thisSearchInputId).val());
-						//$(".loading").text("Filtering...");
-						$(".hermes_type_explorer_grid_main_div").children('.ui-jqgrid').children('.loading').css({'padding-left':"55px"});
-						$("#"+thisTableId).jqGrid("setGridParam",{loadtext:'Filtering'});
-						$("#"+thisTableId).jqGrid("setGridParam", {
-							postData: {
-								modelId: thisOptions.modelId,
-								searchterm: $("#"+thisSearchInputId).val()
-							}
-						}).trigger("reloadGrid", { fromServer: true});
-						$("#"+showAllResultsButtonId).show();
-						$("#"+thisSearchTextId).html("Showing Results for term: '" + $("#"+thisSearchInputId).val() + "'");
-					},
-					{{_('Cancel')}}: function(){
-						$(this).dialog("close");
-					}
-				},
-				open: function(e,ui) {
-					$("#"+thisSearchInputId).val("");
-				    $(this)[0].onkeypress = function(e) {
-						if (e.keyCode == $.ui.keyCode.ENTER) {
-						    e.preventDefault();
-						    $(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
-						}
-				    };
-				}
-			});
-			
-			but.click( function (){
-				$("#"+thisSearchId).dialog("open");
-			});
-			
-			
-			resButt.click( function(){
-				$("#"+thisTableId).jqGrid("setGridParam",{loadtext:'Clearing Search'});
-				$("#"+thisTableId).jqGrid("setGridParam", {
-					postData: {
-						modelId: thisOptions.modelId,
-						searchterm: ""
-					}
-				}).trigger("reloadGrid", { fromServer: true});
-				$("#"+thisSearchTextId).html("");
+			if(thisOptions.searchEnabled){
+				var but = $("#" + thisSearchButtonId).button();
+				var resButt = $("#"+ showAllResultsButtonId).button();
+				
 				resButt.hide();
-			});
+				
+				sHtmlString = "<table>";
+				sHtmlString += "<tr><td>{{_('Please enter your search words?(e.g. ')}}"+ typeInfo.eg + "):</td></tr>";
+				sHtmlString += "<tr><td><input id = '" + thisSearchInputId + 
+								"' class='hermes_type_explorer_grid_search_input' "+
+								"style='width:250px;'></td></tr>";
+				sHtmlString += "</table>";
+				
+				 
+				$("#"+thisSearchId).html(sHtmlString);
+				$("#"+thisSearchId).dialog({
+					autoOpen: false,
+					modal: true,
+					width: "auto",
+					title: typeInfo.searchTitle,
+					buttons: {
+						{{_('Search')}}: function(){
+							$(this).dialog("close");
+							//console.log("Searching for: " + $("#"+ thisSearchInputId).val());
+							//$(".loading").text("Filtering...");
+							$(".hermes_type_explorer_grid_main_div").children('.ui-jqgrid').children('.loading').css({'padding-left':"55px"});
+							$("#"+thisTableId).jqGrid("setGridParam",{loadtext:'Filtering'});
+							$("#"+thisTableId).jqGrid("setGridParam", {
+								postData: {
+									modelId: thisOptions.modelId,
+									searchterm: $("#"+thisSearchInputId).val()
+								}
+							}).trigger("reloadGrid", { fromServer: true});
+							$("#"+showAllResultsButtonId).show();
+							$("#"+thisSearchTextId).html("Showing Results for term: '" + $("#"+thisSearchInputId).val() + "'");
+						},
+						{{_('Cancel')}}: function(){
+							$(this).dialog("close");
+						}
+					},
+					open: function(e,ui) {
+						$("#"+thisSearchInputId).val("");
+					    $(this)[0].onkeypress = function(e) {
+							if (e.keyCode == $.ui.keyCode.ENTER) {
+							    e.preventDefault();
+							    $(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+							}
+					    };
+					}
+				});
+				
+				but.click( function (){
+					$("#"+thisSearchId).dialog("open");
+				});
+				
+				
+				resButt.click( function(){
+					$("#"+thisTableId).jqGrid("setGridParam",{loadtext:'Clearing Search'});
+					$("#"+thisTableId).jqGrid("setGridParam", {
+						postData: {
+							modelId: thisOptions.modelId,
+							searchterm: ""
+						}
+					}).trigger("reloadGrid", { fromServer: true});
+					$("#"+thisSearchTextId).html("");
+					resButt.hide();
+				});
+			}
 		}
 	});
 })(jQuery);
