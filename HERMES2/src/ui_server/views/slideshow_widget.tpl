@@ -104,6 +104,7 @@
 			var backButtonId = thisContainerId + "_back";
 			var doneButtonId = thisContainerId + "_done";
 			
+			
 			$("#"+thisContainerId).children("div").addClass("widget_slide");
 			$("#"+thisContainerId).append("<div id ='" + slideShowDiv + "' class='widget_main'></div>");
 			$(".widget_slide").each(function(){
@@ -115,6 +116,11 @@
 					+ "<button id='"+ doneButtonId + "' class='slide_button_deact'>{{_('Done')}}</button>"
 					+ "</div>");
 			
+			// set the width and height of slides
+			var width = this.options.width;
+			var height = this.options.height;
+			$(".widget_slide").width(width).height(height);
+			$(".widget_main").width(width).height(height);
 			// set up starting button conditions
 			
 			// all buttons are hidden at the beginning

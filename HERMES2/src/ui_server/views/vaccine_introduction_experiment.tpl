@@ -54,6 +54,7 @@
 <h2>{{_("HERMES Experiment Generator: Vaccine Introductions")}}</h2>
 <div id="addvacexpt_slides">
 	<div id="addvacexpt_slide1" class='addvacexpt_slide'>
+<<<<<<< HEAD
 		<span class='expt_subtitle'>
 			{{_('Description of the Vaccine Introduction Experiments')}}
 		</span>
@@ -141,6 +142,7 @@
 
 $("#addvacexpt_slides").slideShowWithFlowControl({
 	width: 1200,
+<<<<<<< HEAD
 	height: 600,
 	activateNext:true,
 	nextFunctions:[
