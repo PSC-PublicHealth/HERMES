@@ -1957,28 +1957,83 @@ function addToggleExpansionButton($grid) {
  				$elem.data("modelId",modelId);
 				$elem.data("modal",settings.modal);
 				$elem.data("autoOpen",settings.autoOpen);
+				//$elem.data("typeId",settings.typeId);
+				//$el
  				htmlString = "<button id='"+ buttonId + "' class='hrmWidget_type_info_button'>{{_('Info')}}</button>";
  				$("<div id ='" + dialogId +"' class='hrmWidget_type_info_dialog'></div>").appendTo("body");
  				//htmlString += "<div id='"+ dialogId + "' class='hrmWidget_type_info_dialog'>This is where info goes</div>";
  				//console.log(typeId);
  				$("#"+thisId).html(htmlString);
  				
- 				$("#"+dialogId).hrmWidget({
- 					widget: 'typeInfoDialog',
- 					modelId: modelId,
- 					typeId: typeId,
- 					typeClass: typeClass,
- 					autoOpen: false,
- 					modal: true
- 				});
- 		
+ 				//console.log("typeId = " + typeId);
  				$("#"+buttonId).button();
  				$("#"+buttonId).click( function(){
- 					$("#" + dialogId).dialog("open");
+ 					$("#"+dialogId).hrmWidget({
+ 	 					widget: 'typeInfoDialog',
+ 	 					modelId: modelId,
+ 	 					typeId: typeId,
+ 	 					typeClass: typeClass,
+ 	 					autoOpen: true,
+ 	 					modal: true
+ 	 				});
+ 	 		
+ 					//$("#" + dialogId).dialog("open");
  				});
  				
  			});
  		}
+// 		else if (settings['widget']=='simpleTypeTable'){
+// 			$fn.simpleTypeList = function( arg, arg2 ){
+// 				var tId = this.attr('id');
+// 				if(tId==undefined) $.error("{{_('simpleTypeTable has not id')}}");
+// 				if(arg=='value'){
+// 					$.error("{{_('simpleTypeTable has no value operation associated with it')}}");
+// 				}
+// 				if(arg=='valueJson'){
+//					$.error("{{_('simpleTypeTable has no valueJson operation associated with it')}}");
+// 				}
+//				if(arg=='clean'){
+//					$.error("{{_('simpleTypeTable has no clean operation associated with it')}}");
+//				}
+//				if(arg=='reloadGrid'){
+//					var tableId = tId + "_tbl";
+//					$("#"+tableId).jqGrid("GridUnload");
+//					$("#"+tId).simpleStorageDeviceTable("createGrid");		
+//				}
+//				if(arg=='createGrid'){
+//					var thisId = tId
+//					var tableId = tId + '_tbl';
+//					var pagerId = tId + '_pg';
+//					var modelId = $("#"+thisId).data('modelId');
+//					var typeClass = $("#"+thisId).data('typeClass');
+//					$("#"+tableId).jqGrid({
+//						url:{{rootPath}} + "json/get-storage-devices-for-model-for-storeId",
+//						datatype:'json',
+//						mtype:'post',
+//						postData:{modelId:modelId,storeId:storeId},
+//						inlineData: {modelId:modelId,storeId:storeId},
+//						jsonReader: {repeatitems:false},
+//						colNames: ["storeId","hermesdevname","{{_('Storage Device')}}","{{_('Number at Location')}}"],
+//						colModel: [
+//						           {name:'idcode',index:'idcode',key:false,editable:false,hidden:true},
+//						           {name:'hermesname',index:'hermesname',key:true,editable:false,hidden:true},
+//						           {name:'device',index:'device',key:false,editable:false},
+//						           {name:'count',index:'count',width:30,align:'right',key:false,editable:true}
+//						          ],
+//						loadonce:true,
+//						height:'auto',
+//						width:'auto',
+//						gridview: true,
+//						rowNum:-1,
+//						pgbuttons:false,
+//						pginput:false,
+//						pgtext:false,
+//						pager:pagerId,
+//						viewrecords:false,
+//				}
+//				
+// 			}
+// 		}
  		else if (settings['widget']=='simpleStorageDeviceTable') {
  			// This widget provides a simple table of storage devices that are at a location in a model that one can edit the 
  			// counts of
