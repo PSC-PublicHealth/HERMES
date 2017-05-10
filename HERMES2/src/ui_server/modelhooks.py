@@ -1455,9 +1455,9 @@ def jsonRemoveD3Model(db, uiSession):
 @bottle.route('/json/copyTypeToModel')
 def jsonCopyTypeToModel(db, uiSession):
     try:
-        modelId = int(getParm('modelId'))
-        srcModelId = int(getParm('srcModelId'))
-        typeName = getParm('typeName')
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        srcModelId = _getOrThrowError(bottle.request.params, 'srcModelId', isInt=True)
+        typeName = _getOrThrowError(bottle.request.params, 'typeName')
 
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         dest = shadow_network_db_api.ShdNetworkDB(db, modelId)

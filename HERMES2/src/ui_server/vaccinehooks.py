@@ -234,7 +234,7 @@ def jsonManageVaccineTableSTB(db,uiSession):
         print str(e)
         return {'success': 'false'}
     try:
-        tList = typehelper.getTypeList(db,modelId,'vaccines')
+        tList = typehelper.getTypeList(db,modelId,'vaccines',fallback=False)
         #print tList
         rows = []
         for v in tList:
