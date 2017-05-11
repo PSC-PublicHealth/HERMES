@@ -81,8 +81,15 @@ typeInfos = {
 };
 
 function infoButtonFormatter(cellvalue, options, rowObject){
-	return "<div class='hermes_info_button_div' id='" +options.gid + "_" + rowObject.id+ "_button_div'></div>";
+	return "<div class='hermes_info_button_div' id='" +options.gid + "_" + rowObject.id+ "_info_button_div'></div>";
 };
+
+function deleteInfoButtonFormatter(cellvalue, options, rowObject){
+	return "<div class='hermes_info_del_button_container' id='" + options.gid + "_" + rowObject.id+ "_button_container'>" + 
+		   "<div class='hermes_info_button_div' id='" +options.gid + "_" + rowObject.id+ "_info_button_div'></div>" + 
+		   "<div class='hermes_del_button_div' id='" + options.gid + "_" + rowObject.id + "_del_button_div'>" +
+		   		"<button class='hermes_del_buttons' id ='"+ options.gid + "_" + rowObject.id + "_del_button'>{{_('Delete')}}</button></div></div>" 
+}
 
 function checkBoxFieldFormatter(cellvalue, options, rowObject){
 	var nom = rowObject.id
@@ -102,6 +109,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			namesOnly: false,
 			searchEnabled: true,
 			width:400,
+			deletable: false,
 			title: "",
 			trant:{
 				title: "{{_('Type Explore Grid')}}"
@@ -113,7 +121,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			if(this.options['checkBoxes']){
 				var selectedRows = []
 				$("#"+thisTableId+" .hermes_type_explorer_checkbox:checked").each(function(){
-					console.log(this.id);
+					console.log("this ID = "+ this.id);
 					selectedRows.push(this.id.replace(thisTableId + "_","").replace("_checkbox",""));
 				});
 				return selectedRows
@@ -131,13 +139,17 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			var typeClass = this.options.typeClass;
 			
 			for(typ in typesIdsToAdd){
+				console.log("Type to Add = " + typesIdsToAdd[typ])
 				$.ajax({
 					url:{{rootPath}} + 'json/copyTypeToModel',
 					data: {modelId:modelId, srcModelId: srcModelId, typeName: typesIdsToAdd[typ]}
 				})
 				.done(function(results){
 					if(results.success){
-						//all is groovy
+						if(typ == typesIdsToAdd.length-1){
+							$("#" + thisTableId).trigger("reloadGrid",{fromServer: true});
+						}
+						//Nothing
 					}
 					else{
 						alert("{{_('typeExplorerGrid: add success fail in adding type')}}" + results.msg);
@@ -147,6 +159,58 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 	 				alert("{{_('typeExplorerGrid:add fail event in adding type')}}");
 				});
 			}
+		},
+		remove: function(typesIdsToDel){
+			this.containerId = $(this.element).attr('id');
+			var thisContainerId = this.containerId;
+			var thisTableId = thisContainerId + "_tbl";
+			var deleteConfirmDialogId = thisContainerId + "del_confirm_dialog";
+			
+			var modelId = this.options.modelId;
+			var typeClass = this.options.typeClass;
+			
+			$("#"+deleteConfirmDialogId).html("{{_('Are you sure that you want to delete this type from the model?')}}");
+			$("#"+deleteConfirmDialogId).dialog({
+				autoOpen:true,
+				modal:true,
+				position:{my:"center",at: "center", of: window},
+				title: "{{_('Confirm Deletion of Types')}}",
+				buttons:{
+					"{{_('OK')}}": function(){
+						$(this).dialog("close");
+						for(typ in typesIdsToDel){
+							console.log("Deleting = "+ typesIdsToDel[typ]);
+							$.ajax({
+								url:"{{rootPath}}json/removeTypeFromModel",
+								data: {modelId: modelId, typeName: typesIdsToDel[typ]},
+							})
+							.done(function(results){
+								if(results.success){
+									if(typ == typesIdsToDel.length-1){
+										$("#" + thisTableId).trigger("reloadGrid",{fromServer: true});
+									}
+								}
+								else{
+									alert("{{_('typeExplorerGrid: del success fail in deleting type')}}" + results.msg);
+								}
+							})
+							.fail(function(jqxfr, textStatus, error){
+								alert("{{_('typeExplorerGrid:del fail event in adding deleting')}}");
+							});
+						}
+					},
+					"{{_('Cancel')}}": function(){
+						$(this).dialog("close");
+					}
+				},
+				open: function(){
+					//$(this).html();
+				},
+				close: function(){
+					$(this).html("");
+					$(this).dialog("destroy");
+				}
+			});
 		},
 		createGrid: function(){
 			this.containerId = $(this.element).attr('id');
@@ -184,7 +248,12 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			}
 			
 			colNames = colNames.concat(["{{_('Info')}}"]);
-			colModels = colModels.concat([{name:'details',index:'details',align:'center',width:100,formatter:infoButtonFormatter}]);
+			if (thisOptions.deletable){
+				colModels = colModels.concat([{name:'details',index:'details',align:'center',width:120,formatter:deleteInfoButtonFormatter}]);
+			}
+			else{
+				colModels = colModels.concat([{name:'details',index:'details',align:'center',width:70,formatter:infoButtonFormatter}]);
+			}
 			
 
 			var gridHeight = thisOptions.height;
@@ -267,7 +336,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 					}
 					$("#" + thisTableId + " .hermes_info_button_div").each(function(){
 						$this = $(this);
-						var typeNameHere = $this.attr("id").replace("_button_div","").replace(thisTableId + "_","");
+						var typeNameHere = $this.attr("id").replace("_info_button_div","").replace(thisTableId + "_","");
 						$this.hrmWidget({
 							widget:'typeInfoButtonAndDialog',
 							modelId: thisOptions.modelId,
@@ -277,6 +346,19 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 						});
 						
 					});
+					
+					if(thisOptions.deletable){
+						$("#" + thisTableId + " .hermes_del_buttons").each(function(){
+							$this = $(this);
+							//console.log($(this));
+							var typeNameHere = $this.attr("id").replace("_del_button","").replace(thisTableId + "_","");
+							var delButton = $this.button();
+							delButton.click(function(e){
+								e.preventDefault();
+								$("#"+thisContainerId).typeExplorerGrid("remove",[typeNameHere]);
+							});
+						});
+					}
 				}
 				
 			});
@@ -294,6 +376,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			var thisSearchInputId = thisSearchId + "_input";
 			var thisSearchTextId = thisSearchId + "_text";
 			var showAllResultsButtonId = thisSearchId + "_all_but";
+			var deleteConfirmDialogId = thisContainerId + "del_confirm_dialog";
 			
 			var thisOptions = this.options;
 			
@@ -301,6 +384,9 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			//Add the necessary HTML
 			htmlString = "<table id = '" + thisTableId + "' class='hermes_type_explorer_grid_table'></table>";
 			htmlString += "<div id = '" + thisPagerId + "' class='hermes_type_explorer_grid_pager'></div>";
+			if(thisOptions.deletable) {
+				htmlString += "<div id='" + deleteConfirmDialogId + "' class='hermes_type_explorer_grid_delconf'></div>";
+			}
 			if(thisOptions.searchEnabled){
 				htmlString += "<div id = '" + thisSearchId + "' class='hermes_type_explorer_grid_search'></div>";
 				htmlString += "<div id = '" + thisSearchButDivId + "' class='hermes_type_explorer_grid_sb_div'>";
@@ -326,8 +412,9 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			$("#"+thisTableId).jqGrid().trigger("reloadGrid");
 			
 			typeInfo = typeInfos[typeClass];
-			// Set up search capability
 			
+			
+			// Set up search capability
 			if(thisOptions.searchEnabled){
 				var but = $("#" + thisSearchButtonId).button();
 				var resButt = $("#"+ showAllResultsButtonId).button();
@@ -382,7 +469,6 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				but.click( function (){
 					$("#"+thisSearchId).dialog("open");
 				});
-				
 				
 				resButt.click( function(){
 					$("#"+thisTableId).jqGrid("setGridParam",{loadtext:'Clearing Search'});
