@@ -1921,19 +1921,30 @@ function addToggleExpansionButton($grid) {
 				var modal = settings['modal'];
 				var autoOpen = settings['autoOpen'];
 				
+				//$("#" + thisId).typeInfoDialog("update",[typeId,typeClass]);
+				
 				$("#" + thisId).dialog({
  					autoOpen:autoOpen,
  					modal:modal,
  					width:"auto",
+ 					//position: 
+ 					//position: {my: "center center", at: "center center", of: window, collision: "fit none"},
  					title:"{{_('Type Information')}}",
  					buttons:{
  						OK: function(){
  							$(this).dialog("close");
  						}
  					},
-					open: function(event, ui){
-						$(this).typeInfoDialog("update",[typeId,typeClass]);
-					}
+					create: function(event, ui){
+						$(this).typeInfoDialog("update",[typeId, typeClass]);
+						//$(this).dialog("option","position",{my:"center",at: "center", of:window, collision:"none"});
+					},
+					open: function(event,ui){
+						$(this).dialog("option","position",{my:"center",at: "center", of:window, collision:"none"});
+					},
+ 					close: function(event,ui){
+ 						$(this).dialog("destroy");
+ 					}
  				});
 			});	
  		}
@@ -1960,7 +1971,7 @@ function addToggleExpansionButton($grid) {
 				//$elem.data("typeId",settings.typeId);
 				//$el
  				htmlString = "<button id='"+ buttonId + "' class='hrmWidget_type_info_button'>{{_('Info')}}</button>";
- 				$("<div id ='" + dialogId +"' class='hrmWidget_type_info_dialog'></div>").appendTo("body");
+ 				//$("<div id ='" + dialogId +"' class='hrmWidget_type_info_dialog'></div>").appendTo("body");
  				//htmlString += "<div id='"+ dialogId + "' class='hrmWidget_type_info_dialog'>This is where info goes</div>";
  				//console.log(typeId);
  				$("#"+thisId).html(htmlString);
@@ -1968,6 +1979,7 @@ function addToggleExpansionButton($grid) {
  				//console.log("typeId = " + typeId);
  				$("#"+buttonId).button();
  				$("#"+buttonId).click( function(){
+ 					$("<div id='" + dialogId + "' class='hrmWidget_type_info_dialog'></div>").appendTo("body");
  					$("#"+dialogId).hrmWidget({
  	 					widget: 'typeInfoDialog',
  	 					modelId: modelId,

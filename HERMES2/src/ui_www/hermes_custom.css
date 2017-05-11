@@ -2675,3 +2675,30 @@ div.ui-jqgrid-view table.ui-jqgrid-btable th
 	-webkit-justify-content: center;
 	justify-content: center;
 }
+
+.hermes_info_del_button_container {
+	display: -webkit-flex;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	flex-flow: row;
+	width: 100%;
+}
+
+div.hermes_info_del_button_container div.hermes_info_button_div{
+	margin: 0 auto;
+	padding: 0px 1px;
+	-webkit-flex: 1 6 50%;
+	flex: 1 6 50%;
+	order: 1;
+	align-self:flex-start;
+}
+
+div.hermes_info_del_button_container div.hermes_del_button_div{
+	margin: 0 auto;
+	padding: 0px 1px;
+	-webkit-flex: 1 6 50%;
+	flex: 1 6 50%;
+	order: 2;
+	align-self: flex-end;
+}

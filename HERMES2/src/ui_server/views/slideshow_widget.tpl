@@ -43,7 +43,13 @@
 			$("#" + ButtonId).removeClass('slide_button_active')
 			 				 .addClass('slide_button_deact').hide();
 		},
-		
+		currentSlide: function(){
+			this.containerId = $(this.element).attr('id');
+			var $this = this;
+			var thisContainerId = this.containerId;
+			
+			return $("#"+ thisContainerId).data('activeSlide');
+		},
 		nextSlide: function(){
 			this.containerId = $(this.element).attr('id');
 			var $this = this;
