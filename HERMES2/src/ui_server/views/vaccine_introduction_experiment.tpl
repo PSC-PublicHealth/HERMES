@@ -55,6 +55,9 @@
 <div id="addvacexpt_slides">
 	<div id="addvacexpt_slide1" class='addvacexpt_slide'>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Completed the adding vaccine part.
 		<span class='expt_subtitle'>
 			{{_('Description of the Vaccine Introduction Experiments')}}
 		</span>
@@ -120,6 +123,7 @@
 			<div id="addvacexpt_explorer_model_div" class="tri_div_right"></div>
 		</div>
 	</div>
+<<<<<<< HEAD
 	<div id="addvacexpt_slide3" class='addvacexpt_slide'>
 		<div>
 			<p class='expt_text'>
@@ -135,6 +139,27 @@
 			</span>
 		</div>
 		<div id="addvacexpt_summary_typegrid"></div>
+=======
+	<div id="addvacexpt_slide2" class='addvacexpt_slide'>
+		<div class="tri_div_top" class='expt_txt'>
+			<p class='expt_text'>
+				{{_('Please select the vaccines that you would like to introduce into the system by clicking on the checkboxes next to the vaccine name.')}}
+				{{_('You can search through the vaccines by clicking the search button at the bottom of the screen.')}}
+			</p>
+		</div>
+		<div id="tri_container" class='tri_div_all'>
+			<div id="addvacexpt_explorer_all_div" class="tri_div_left"></div>
+			<div id="addvacexpt_add_div" class="tri_div_center">
+				<div id="button_div" class="flex-center">
+					<button id="addvacexpt_add_vacc_button" class="right_arrow_button">Add Vaccine</button>
+				</div>
+			</div>
+			<div id="addvacexpt_explorer_model_div" class="tri_div_right"></div>
+		</div>
+	</div>
+	<div id="addvacexpt_slide3" class='addvacexpt_slide'>" +
+		This will be the last slide.
+>>>>>>> Completed the adding vaccine part.
 	</div>
 </div>
 
@@ -142,6 +167,7 @@
 
 $("#addvacexpt_slides").slideShowWithFlowControl({
 	width: 1200,
+<<<<<<< HEAD
 <<<<<<< HEAD
 	height: 600,
 	activateNext:true,
@@ -183,6 +209,10 @@ $("#addvacexpt_slides").slideShowWithFlowControl({
 	               ],
 	doneFunctions:function(){},
 	doneUrl: '{{rootPath}}model-open?modelId={{modelId}}'
+=======
+	height: 500,
+	activateNext:true,
+>>>>>>> Completed the adding vaccine part.
 	
 });
 
