@@ -56,24 +56,6 @@
 
 <div id="addvacexpt_slides">
 	<div id="addvacexpt_slide1" class='addvacexpt_slide'>
-	<div class="tri_div_top" class='expt_txt'>
-		<p class='expt_text'>
-			{{_('Please select the vaccines that you would like to introduce into the system by clicking on the checkboxes next to the vaccine name.')}}
-			{{_('You can search through the vaccines by clicking the search button at the bottom of the screen.')}}
-		</p>
-	</div>
-	<div id="tri_container" class='tri_div_all'>
-		<div id="addvacexpt_explorer_all_div" class="tri_div_left"></div>
-		<div id="addvacexpt_add_div" class="tri_div_center">
-			<div id="button_div" class="flex-center">
-				<button id="addvacexpt_add_vacc_button" class="right_arrow_button">Add Vaccine
-				<span class='ui-icon ui-icon-gear'></span></button>
-			</div>
-		</div>
-		<div id="addvacexpt_explorer_model_div" class="tri_div_right"></div>
-	</div>
-	</div>
-	<div id="addvacexpt_slide2" class='addvacexpt_slide'>
 		<span class='expt_subtitle'>
 			{{_('Description of the Vaccine Introduction Experiments')}}
 		</span>
@@ -94,7 +76,25 @@
 			{{_('Please press the "Next" button to continue.')}}
 		</p>
 	</div>
-	<div id="addvacexpt_slide3" class='addvacexpt_slide'>
+	<div id="addvacexpt_slide2" class='addvacexpt_slide'>
+		<div class="tri_div_top" class='expt_txt'>
+			<p class='expt_text'>
+				{{_('Please select the vaccines that you would like to introduce into the system by clicking on the checkboxes next to the vaccine name.')}}
+				{{_('You can search through the vaccines by clicking the search button at the bottom of the screen.')}}
+			</p>
+		</div>
+		<div id="tri_container" class='tri_div_all'>
+			<div id="addvacexpt_explorer_all_div" class="tri_div_left"></div>
+			<div id="addvacexpt_add_div" class="tri_div_center">
+				<div id="button_div" class="flex-center">
+					<button id="addvacexpt_add_vacc_button" class="right_arrow_button">Add Vaccine</button>
+				</div>
+			</div>
+			<div id="addvacexpt_explorer_model_div" class="tri_div_right"></div>
+		</div>
+	</div>
+	<div id="addvacexpt_slide3" class='addvacexpt_slide'>" +
+		This will be the last slide.
 	</div>
 </div>
 
@@ -104,7 +104,8 @@
 $("#addvacexpt_slides").slideShowWithFlowControl({
 	width: 1200,
 	height: 500,
-	activateNext:true
+	activateNext:true,
+	
 });
 
 $("#addvacexpt_explorer_all_div").typeExplorerGrid({
@@ -114,7 +115,6 @@ $("#addvacexpt_explorer_all_div").typeExplorerGrid({
 	expandAll: true,
 	namesOnly: true,
 	width:$("#addvacexpt_explorer_all_div").width(),
-	//groupingEnabled:false,
 	title: "{{_('Choose vaccines that you would like to add to the model.')}}"
 });
 
@@ -128,43 +128,20 @@ $("#addvacexpt_explorer_model_div").typeExplorerGrid({
 	namesOnly:true,
 	searchEnabled: false,
 	width:$("#addvacexpt_explorer_model_div").width(),
+	deletable: true,
 	title: "{{_('Vaccines Currently in the Model')}}"
 });
 
-var addButton = $("#addvacexpt_add_vacc_button").button({
-		icon: "ui-icon-gear",
-		iconPosition: "end"
-	});
+var addVacBut = $("#addvacexpt_add_vacc_button").button({
+	icons: {secondary:'ui-icon-arrowthick-1-e'}
+});
 
-//var activeSlide = 0;
-//var numSlides = $(".addvacexpt_slide").length;
-////console.log("Active = "+ activeSlide + " num = "+numSlides);
-//var slideWidth = $("#addvacexpt_slides").width();
-//
-//nextBut.click(function(e){
-//	e.preventDefault();
-//	activeSlide++;
-//	$("#addvacexpt_slides").animate({scrollLeft:slideWidth*activeSlide},600);
-//	//console.log("ActiveSlide = " + activeSlide);
-//	if(activeSlide == numSlides - 1){
-//		nextBut.prop('disabled',true)
-//			.addClass('addvacexpt_button_disabled');
-//	}
-//	backBut.prop('disabled',false).removeClass('addvacexpt_button_disabled');
-//});
-//
-//backBut.click(function(e){
-//	e.preventDefault();
-//	activeSlide--;
-//	$("#addvacexpt_slides").animate({scrollLeft:slideWidth*activeSlide},600);
-//	//console.log("ActiveSlide = " + activeSlide);
-//	if(activeSlide == 0){
-//		backBut.prop('disabled',true)
-//		.addClass('addvacexpt_button_disabled');
-//	}
-//	nextBut.prop('disabled',false).removeClass('addvacexpt_button_disabled');
-//});
-//
+addVacBut.click(function(e){
+	e.preventDefault();
+	console.log("Passing = " + $("#addvacexpt_explorer_all_div").typeExplorerGrid("getSelectedElements"));
+	$("#addvacexpt_explorer_model_div").typeExplorerGrid("add",$("#addvacexpt_explorer_all_div").typeExplorerGrid("getSelectedElements"),1);
+	$("#addvacexpt_slides").slideShowWithFlowControl("activateButton","next");
+})
 
 	
 </script>
