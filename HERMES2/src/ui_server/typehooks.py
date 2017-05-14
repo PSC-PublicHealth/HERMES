@@ -236,16 +236,26 @@ def jsonGetNewTypeNumber(db,uiSession):
 def jsonGetAllTypeNamesInModel(db,uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
+        typeClass = _safeGetReqParam(bottle.request.params, "typeClass", None)
+        
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)     
         
-        typeNames = [x for x in m.types]
-        result = {'success':True,'typenames':typeNames}
+        if typeClass:
+            typeNames = [x['Name'] for x in typehelper.getTypeList(db,modelId,typeClass)]
+            typeDisplayNames = [x['DisplayName'] for x in typehelper.getTypeList(db,modelId,typeClass)]
+        else:
+            typeNames = [x for x in m.types]
+            typeDisplayNames = [typehelper.getTypeWithFallback(db,modelId,x)[1].DisplayName for x in m.types]
+            
+        #if typeClass:
+        #    typeNames = [x for x in typeNamesAll if ]
+        result = {'success':True,'typenames':typeNames,'typedisplaynames':typeDisplayNames}
         return result
     except Exception, e:
         result = {'success':False, 'msg':str(e)}
-        return result     
-@bottle.route('/test-inv-grid')
+        return result  
 
+@bottle.route('/test-inv-grid')
 def testInventoryGrid(db,uiSession):
     
     m = int(bottle.request.params['modelId'])
