@@ -155,6 +155,13 @@ def topPage(uiSession):
 
     return bottle.template("welcome.tpl", title=_('This title is set in matcher'),createnew=createPass)
 
+@bottle.route('/widgets/<filepath:path>')
+def server_widget(filepath):
+    _logMessage("widget get of {0}".format(filepath))
+    bottle.response.set_header('content-type','text/javascript')
+    templateName = "widgets/{0}".format(filepath.replace("js","tpl"))
+    return bottle.template(templateName)
+
 @bottle.route('/notimpl')
 @bottle.view("notimplemented.tpl")
 def notimplPage():

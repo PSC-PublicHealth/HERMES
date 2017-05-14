@@ -49,6 +49,8 @@
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/widget_css/slideshow_widget.css" /> 
 <script src="{{rootPath}}widgets/slideshow_widget.js" type="text/javascript"></script>
 <script src="{{rootPath}}widgets/type_explorer_grid.js" type="text/javascript"></script>
+<script src="{{rootPath}}widgets/vaccine_dose_per_person_grid.js" type="text/javascript"></script>
+
 <h2>{{_("HERMES Experiment Generator: Vaccine Introductions")}}</h2>
 <h3>
 {{_("A series of screens will be given here to walk you through introducting new vaccines to the model.")}}
@@ -93,8 +95,8 @@
 			<div id="addvacexpt_explorer_model_div" class="tri_div_right"></div>
 		</div>
 	</div>
-	<div id="addvacexpt_slide3" class='addvacexpt_slide'>" +
-		This will be the last slide.
+	<div id="addvacexpt_slide3" class='addvacexpt_slide'>
+		<div id="addvacexpt_dose_per_person_grid_div"></div>
 	</div>
 </div>
 
@@ -132,6 +134,10 @@ $("#addvacexpt_explorer_model_div").typeExplorerGrid({
 	title: "{{_('Vaccines Currently in the Model')}}"
 });
 
+$("#addvacexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid({
+	modelId: {{modelId}}
+});
+
 var addVacBut = $("#addvacexpt_add_vacc_button").button({
 	icons: {secondary:'ui-icon-arrowthick-1-e'}
 });
@@ -141,7 +147,9 @@ addVacBut.click(function(e){
 	console.log("Passing = " + $("#addvacexpt_explorer_all_div").typeExplorerGrid("getSelectedElements"));
 	$("#addvacexpt_explorer_model_div").typeExplorerGrid("add",$("#addvacexpt_explorer_all_div").typeExplorerGrid("getSelectedElements"),1);
 	$("#addvacexpt_slides").slideShowWithFlowControl("activateButton","next");
-})
+});
+
+
 
 	
 </script>

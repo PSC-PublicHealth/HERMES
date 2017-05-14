@@ -349,3 +349,46 @@ def jsonManageVaccineSubTable(db, uiSession):
               }
     return result
 
+@bottle.route('/json/get-vaccine-doses-person-table-manager',method="POST")
+def jsonManageVaccineDosesPersonTable(db, uiSession):
+    ''' used for the vaccineDosePerPersonGrid widget '''
+    try:
+        modelId = _getOrThrowError(bottle.request.params, "modelId", isInt=True)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+    except privs.PrivilegeException:
+        raise bottle.BottleException(_('Current User does not have access to model with Id = {0}: from json/manaage-vaccine-table-stb'.format(modelId)))
+    except ValueError, e:
+        print 'Empty parameters supplied to manage-vaccine-table-stb'
+        print str(e)
+        return {'success': 'false'}
+    try:
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        
+        vaccineTypes = typehelper.getTypeList(db, modelId, "vaccines", fallback=False)
+        peopleTypes = typehelper.getTypeList(db, modelId , "people", fallback=False)
+        
+        
+        rows = []
+        for vac in vaccineTypes:
+            row = {'vId': vac['Name'], 'vName': vac['DisplayName']}
+            for peeps in peopleTypes:
+                row[peeps['Name']] = 0
+                for dmnd in m.unifiedDemands:
+                    if dmnd.vaccineStr == vac['Name'] and dmnd.peopleStr == peeps['Name']:
+                        row[peeps['Name']] = dmnd.count
+                        break
+            rows.append(row)
+        
+        
+        return {"success":True,
+                'total':1,
+                'page':1,
+                'records':len(rows),
+                'rows':rows
+                }
+        
+    except Exception,e:
+        return {'success':False,'msg':'manage-vaccine-table-all: {0}'.format(str(e))}   
+        
+        
+        
