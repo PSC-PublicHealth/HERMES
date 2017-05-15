@@ -379,7 +379,7 @@ def jsonManageVaccineDosesPersonTable(db, uiSession):
                         break
             rows.append(row)
         
-        
+        print "Rows; {0}".format(rows)
         return {"success":True,
                 'total':1,
                 'page':1,

@@ -236,16 +236,17 @@ def jsonGetNewTypeNumber(db,uiSession):
 def jsonGetAllTypeNamesInModel(db,uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params, 'modelId',isInt=True)
-        typeClass = _safeGetReqParam(bottle.request.params, "typeClass", None)
+        typeClass = _safeGetReqParam(bottle.request.params, "typeClass", default=None)
+        fallback = _safeGetReqParam(bottle.request.params,'fallback',default=False)
         
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)     
         
         if typeClass:
-            typeNames = [x['Name'] for x in typehelper.getTypeList(db,modelId,typeClass)]
-            typeDisplayNames = [x['DisplayName'] for x in typehelper.getTypeList(db,modelId,typeClass)]
+            typeNames = [x['Name'] for x in typehelper.getTypeList(db,modelId,typeClass,fallback)]
+            typeDisplayNames = [x['DisplayName'] for x in typehelper.getTypeList(db,modelId,typeClass,fallback)]
         else:
             typeNames = [x for x in m.types]
-            typeDisplayNames = [typehelper.getTypeWithFallback(db,modelId,x)[1].DisplayName for x in m.types]
+            typeDisplayNames = [typehelper.getTypeWithFallback(db,modelId,x,fallback)[1].DisplayName for x in m.types]
             
         #if typeClass:
         #    typeNames = [x for x in typeNamesAll if ]

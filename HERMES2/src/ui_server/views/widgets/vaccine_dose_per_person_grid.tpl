@@ -48,7 +48,7 @@
 			.done(function(results){
 				if(results.success){
 					//console.log(results);
-					for(p in results.typeDisplayNames){
+					for(p in results.typedisplaynames){
 						colNames = colNames.concat([results.typedisplaynames[p]]);
 						colModels = colModels.concat([{name:results.typenames[p],index:results.typenames[p]}]);
 					}
@@ -75,7 +75,33 @@
 					pgtext:false,
 					pager:thisPagerId,
 					viewrecords: false,
-					//editurl:'{{rootPath}}edit/verify-edit-doses-per-vaccine-per-person-for-model',
+					editurl:'{{rootPath}}edit/edit-demand',
+					beforeSelectRow: function(rowId, evt) {
+						var $this = $(this);
+						var oldRowId = $this.getGridParam('selrow');
+						if(oldRowId && (oldRowId != rowId)) {
+							$this.jqGrid("saveRow",oldRowId,
+										{extraparam: {modelId:modelId}}
+							);
+						}
+						return true;
+					},
+					onSelectRow: function(resultsId, status){
+						if(status){
+							if(resultsId){
+								$("#"+thisTableId).jqGrid('editRow',resultsId,{
+									keys:true,
+									extraparam:{modelId:modelId},
+									aftersavefunc:function(rowId,response){
+										$("#"+thisTableId).jqGrid('resetSelect');
+									},
+									afterrestorrefunc:function(rowId,response){
+										$("#"+thisTableId).jqGrid('resetSelection');
+									}
+								});
+							}
+						}
+					},
 					loadError: function(xhr,status,error){
 						alert("{{_('in vaccineDosePerPersonGrid widget: loadError in creating table: ')}}" + status);
 					},
@@ -113,8 +139,8 @@
 			}
 			
 			this.createGrid();
-			$("#"+thisTableId).jqGrid('sortGrid','vName',true);
-			$("#"+thisTableId).jqGrid().trigger("reloadGrid");			
+			//$("#"+thisTableId).jqGrid('sortGrid','vName',true);
+			//$("#"+thisTableId).jqGrid().trigger("reloadGrid");			
 			
 		}
 	});
