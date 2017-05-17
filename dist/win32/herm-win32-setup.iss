@@ -27,7 +27,8 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={pf}\{#MyAppName}
+;DefaultDirName={pf}\{#MyAppName}
+DefaultDirName={code:GetDefaultDirName}
 DefaultGroupName={#MyAppName}
 SetupLogging=yes
 AllowNoIcons=yes
@@ -35,7 +36,7 @@ OutputDir=build
 OutputBaseFilename={#MySetupName}
 Compression=lzma2/ultra64
 SolidCompression=yes
-PrivilegesRequired=poweruser
+PrivilegesRequired=lowest
 AppMutex=HERMES: Highly Extensible Resource for Modeling Event-driven Supply chains; {{D82029AE-9A89-4A58-AD00-3E5C5CE68400},Global\HERMES: Highly Extensible Resource for Modeling Event-driven Supply chains; {{D82029AE-9A89-4A58-AD00-3E5C5CE68400}
 ArchitecturesInstallIn64BitMode=x64
 UninstallDisplayIcon={app}\hermes-tray.exe
@@ -154,3 +155,14 @@ begin
   	end;
 end;
 
+function GetDefaultDirName(Param: string): string;
+begin
+  if IsAdminLoggedOn then
+  begin
+    Result := ExpandConstant('{pf}\{#MyAppName}');
+  end
+    else
+  begin
+    Result := ExpandConstant('{userappdata}\{#MyAppName}');
+  end;
+end;

@@ -26,20 +26,43 @@ typeInfos = {
 				           ],
 				'title':"{{_('Vaccine Type Explorer')}}",
 				'searchTitle':"{{_('Search for Vaccines')}}",
-				'eg':"BCG"
+				'eg':"BCG",
+				'groupByType':true
 			},
 			'trucks': {
-				'url':'json/manage-truck-table-all',
+				'url':'json/manage-truck-explorer',
 				'labels':[],
 				'models':[],
 				'title':"{{_('Transport Type Explorer')}}",
 				'searchTitle':"{{_('Search for Transportation Modes')}}",
-				'eg':'Motorcycle'
+				'eg':'Motorcycle',
+				'groupByType':true
+			},
+			'fridges': {
+				'url':'json/manage-fridge-explorer',
+				'labels':["{{_('Model')}}","{{_('Energy Type')}}"],
+				'models':[
+					{name:'model',index:'model',width:200},
+					{name:'energy',index:'energy',width:200}
+				],
+				'title':"{{_('Storage Device Type Explorer')}}",
+				'searchTitle':"{{_('Search for Storage Device')}}",
+				'eg':'RCW25',
+				'groupByType':true
+			},
+			'people':{
+				'url':'json/manage-people-explorer',
+				'labels':[],
+				'models':[],
+				'title':"{{_('People Type Explorer')}}",
+				'searchTitle':"{{_('Search for People Types')}}",
+				'eg':'Newborn',
+				'groupByType':false
 			}
 };
 
 function infoButtonFormatter(cellvalue, options, rowObject){
-	return "<div class='hermes_info_button_div' id='"+cellvalue+"_button_div'></div>";
+	return "<div class='hermes_info_button_div' id='"+cellvalue+"_button_div''></div>";
 }
 
 ;(function($){
@@ -62,13 +85,20 @@ function infoButtonFormatter(cellvalue, options, rowObject){
 			
 			colInfo = typeInfos[thisOptions.typeClass];
 			console.log(typeInfos);
-			var colNames = ["ID"," ","{{_('Category')}}","{{_('Name')}}"].concat(colInfo.labels).concat(["{{_('Info')}}"]);
+			var colNames = ["ID"," "];
+			if (colInfo.groupByType){
+				colNames = colNames.concat(["{{_('Category')}}"]);
+			}
+			colNames = colNames.concat(["{{_('Name')}}"]).concat(colInfo.labels).concat(["{{_('Info')}}"]);
+			
 			var colModels = [
 			                 {name:'id',index:'id',key:true,hidden:true,sortable:true,sorttype:'string',sortorder:'asc'},
-			                 {name:'placeholder',index:'placeholder',width:20,label:""},
-			                 {name:'type',index:'type',sortable:true,sorttype:'string',sortorder:'asc'},
-			                 {name:'name', index:'name',width:300, search:true}
-			                ].concat(colInfo.models).concat([{name:'details',index:'details',width:100,formatter:infoButtonFormatter}]);
+			                 {name:'placeholder',index:'placeholder',width:20,label:""}];
+			if (colInfo.groupByType){
+				colModels = colModels.concat([{name:'type',index:'type',sortable:true,sorttype:'string',sortorder:'asc'}]);
+			}
+			colModels = colModels.concat([{name:'name', index:'name',width:300, search:true}])
+			                 .concat(colInfo.models).concat([{name:'details',index:'details',align:'center',width:100,formatter:infoButtonFormatter}]);
 			
 			//console.log("colNames = " + colNames);
 			var gridHeight = thisOptions.height;
@@ -109,7 +139,7 @@ function infoButtonFormatter(cellvalue, options, rowObject){
 				sortname:'type asc id asc',
 				multiSort:true,
 				sortable:true,
-				grouping:true,
+				grouping:colInfo.groupByType,
 				loadtext:"Gathering Data",
 				groupingView: {
 					groupField: ['type'],

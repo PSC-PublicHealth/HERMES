@@ -3235,6 +3235,7 @@ class ShdStorageType(ShdType, ShdCopyable):
              ('Energy',     STRING_NONE),
              ('Category',   STRING_NONE),
              ('Technology', STRING_NONE),
+             ('DisplayCategory',STRING_NONE),
              ('BaseCost',   FLOAT_NONE),
              ('BaseCostCurCode', STRING_NONE, 'recordName', 'BaseCostCur'),
              ('BaseCostYear', INTEGER_NONE),
@@ -3297,6 +3298,7 @@ class ShdTruckType(ShdType):
     trucktypeId = Column(Integer, ForeignKey('types.typeId'), primary_key=True)
     attrs = [('Name',       DataType(STRING, dbType=None)),
              ('DisplayName', STRING_NONE),
+             ('Category',STRING),
              ('CoolVolumeCC', FLOAT_ZERO),
              ('Storage',    STRING),
              ('Requires',   STRING_NONE),

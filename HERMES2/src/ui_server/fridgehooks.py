@@ -32,7 +32,7 @@ from fridgetypes import energyTranslationDict
 from currencyhelper import getCurrencyDict
 import typehooks
 
-from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults
+from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults,_safeGetReqParam
 
 inlizer=session_support.inlizer
 _=session_support.translateString
@@ -145,4 +145,58 @@ def jsonManageFridgeTable(db, uiSession):
         return result
     except Exception,e:
         return {'success':False, 'msg':str(e)}
-        
+    
+@bottle.route('/json/manage-fridge-explorer',method='POST')
+def jsonManageFridgeExplorerTable(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        searchTerm = _safeGetReqParam(bottle.request.params, 'searchterm', default=None)
+        #searchTerm = u"{0}".format(searchTermStr)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+    except privs.PrivilegeException:
+        raise bottle.BottleException(_('Current User does not have access to model with Id = {0}: from json/manaage-truck-explorer'.format(modelId)))
+    except ValueError, e:
+        print 'Empty parameters supplied to manage-truck-explorer'
+        print str(e)
+        return {'success': 'false'}
+    try:
+        tList = typehelper.getTypeList(db,modelId,'fridges')
+        #print tList
+        rows = []
+        for v in tList:
+            print v.keys()
+            cat = v['DisplayCategory']
+            if cat is None or cat == "":
+                cat = u'Other'
+            modelT = v['Model']
+            if v['Model'] == '':
+                modelT = u"{0}".format(_('Not Specified'))
+            energy =energyTranslationDict[v['Energy']][1]
+            if v['Energy'] == '':
+                energy = u"{0}".format(_('Not Specified'))
+            row = {'id':v['Name'],
+                       'name':v['DisplayName'],
+                       'type':v['DisplayCategory'],
+                       'model':modelT,
+                       'energy':energy,
+                       'details':v['Name']
+                       }
+            if searchTerm:
+                ## does this match name, manufacturer...
+                for v in row.values():
+                    if v.lower().find(searchTerm.lower()) > -1:
+                        rows.append(row)
+                        break
+            else:
+                rows.append(row)
+            #rows.append(row)
+            
+        return {'success':True,
+                'total':1,
+                'page':1,
+                'records':len(rows),
+                'rows':rows
+                }
+    except Exception,e:
+        return {'success':False,'msg':'manage-fridge-explorer: {0}'.format(str(e))}
+    

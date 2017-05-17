@@ -1,9 +1,9 @@
 Name,DisplayName,SortOrder,Notes
-Newborn,Newborn,0,
-0To1Year,0-1 year,1,
-1To2Year,1-2 years,12,
-2To3Year,2-3 years,24,
-3To4Year,3-4 years,36,
-4To14Year,4-14 years,48,
-Pregnant,Pregnant,1000,
-Service,,10000,"if this is only used for PCD demand, we should hide from users, if possible"
+Newborn,Newborn Children,0,
+0To1Year,Children Below 1 Years of Age,1,
+1To2Year,Children Ages 2 to 3 Years Old,12,
+2To3Year,Children Ages 2 to 3 Years Old,24,
+3To4Year,Children Ages 3 to 4 Years Old,36,
+4To14Year,Children Ages 4 to 14 Years Old,48,
+Pregnant,Pregnant Women,1000,
+Women_CBA,Women of Childbearing Age,2000,
