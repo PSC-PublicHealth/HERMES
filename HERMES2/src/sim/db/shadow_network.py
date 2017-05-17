@@ -3913,6 +3913,23 @@ class ShdParameter(Base):
 _makeColumns(ShdParameter)
 
 
+class ShdTickProcess(Base):
+    __tablename__ = "tickProcess"
+    tickId = Column(Integer, primary_key=True)
+
+    attrs = [('modelId',       DataType(INTEGER, foreignKey='models.modelId')),
+             ('processId',     INTEGER),
+             ('hostName',      STRING),
+             ('status',        STRING),
+             ('fracDone',      FLOAT),
+             ('lastUpdate',    INTEGER)]
+
+    def __init__(self, *args, **kwargs):
+        _initBasic(self, args, kwargs)
+
+_makeColumns(ShdTickProcess)
+        
+
 class ShdDemand(Base):
     # need to build relationship between vaccineStr and peopleStr with their associated types.
     __tablename__ = "demand"

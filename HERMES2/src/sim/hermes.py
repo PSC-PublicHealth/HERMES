@@ -21,7 +21,8 @@ This is the class that will run and define a single HERMES simulation
 """
 _hermes_svn_id_="$Id$"
 
-import sys, os, optparse, types
+import sys, os, optparse, types, socket
+import time
 import random
 #from SimPy.Simulation import Simulation,Process,hold
 from SimPy.SimulationStep import *
@@ -121,6 +122,35 @@ class PercentDoneTickProcess( Process ):
     def reset(self):
         pass
 
+class DBTickProcess( Process ):
+    def __init__(self, sim):
+        Process.__init__(self, sim=sim)
+        self.totalTicks = 0.0
+
+        self.session = sim.shdNet._dbSession
+        
+        self.stp = ShdTickProcess(modelId = sim.shdNet.modelId,
+                                  processId = os.getpid(),
+                                  hostName = socket.gethostname(),
+                                  status = "setup",
+                                  fracDone = 0.0,
+                                  lastUpdate = int(time.time()))
+        
+        self.session.add(self.stp)
+        self.session.commit()
+        
+    def run(self):
+        while True:
+            yield hold, self, 1.0
+            self.stp.status = "running"
+            self.stp.status.fracDone = self.totalTicks / self.sim.model.getTotalRunDays()
+            self.session.commit()
+            self.totalTicks += 1.0
+            
+    def reset(self):
+        pass
+    
+    
 class HermesSim(SimulationStep):
     """
     This class and its attributes contain an entire HERMES model, including separate instances
@@ -469,7 +499,9 @@ class HermesSim(SimulationStep):
             if not self.outputfileIsStdout:
                 assert self.outputfile.type == 'filehandle', 'in minion mode but output file is not a filehandle'
                 sys.__stderr__.write("#LogFilePath %s\n"%self.outputfile.fh.name)
-            self.tickProcess = PercentDoneTickProcess(sim=self)
+            #self.tickProcess = PercentDoneTickProcess(sim=self)
+            #self.activate(self.tickProcess,self.tickProcess.run())
+            self.tickProcess = DBTickProcess(sim=self)
             self.activate(self.tickProcess,self.tickProcess.run())
         elif not (self.verbose or self.debug):
             self.tickProcess = TickProcess(sim=self)
