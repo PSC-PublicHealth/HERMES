@@ -22,6 +22,8 @@
 			height: 300,
 			width:400,
 			deletable: false,
+			onSaveFunc: function(){},
+			filterList: [],
 			title: "",
 			trant:{
 				title: "{{_('Vaccine Dose Grid')}}"
@@ -50,7 +52,8 @@
 					//console.log(results);
 					for(p in results.typedisplaynames){
 						colNames = colNames.concat([results.typedisplaynames[p]]);
-						colModels = colModels.concat([{name:results.typenames[p],index:results.typenames[p]}]);
+						colModels = colModels.concat([{name:results.typenames[p],index:results.typenames[p],
+							editable:true,editrules:{integer:true,minValue:0}}]);
 					}
 				}
 				else{
@@ -63,7 +66,7 @@
 					url:{{rootPath}} + "json/get-vaccine-doses-person-table-manager",
 					datatype:'json',
 					mtype:'post',
-					postData:{modelId:modelId},
+					postData:{modelId:modelId,filterList:thisOptions.filterList},
 					jsonReader:{repeatitems:false},
 					colNames:colNames,
 					colModel:colModels,
@@ -86,21 +89,19 @@
 						}
 						return true;
 					},
-					onSelectRow: function(resultsId, status){
-						if(status){
-							if(resultsId){
-								$("#"+thisTableId).jqGrid('editRow',resultsId,{
-									keys:true,
-									extraparam:{modelId:modelId},
-									aftersavefunc:function(rowId,response){
-										$("#"+thisTableId).jqGrid('resetSelect');
-									},
-									afterrestorrefunc:function(rowId,response){
-										$("#"+thisTableId).jqGrid('resetSelection');
-									}
-								});
+					onSelectRow: function(rowId){
+						console.log("modelId = " + modelId);
+						$("#"+thisTableId).jqGrid('editRow',rowId,{
+							keys:true,
+							extraparam:{modelId:modelId,vaccine:rowId},
+							aftersavefunc:function(rowId,response){
+								$("#"+thisTableId).jqGrid('resetSelection');
+								thisOptions.onSaveFunc();
+							},
+							afterrestorrefunc:function(rowId,response){
+								$("#"+thisTableId).jqGrid('resetSelection');
 							}
-						}
+						});
 					},
 					loadError: function(xhr,status,error){
 						alert("{{_('in vaccineDosePerPersonGrid widget: loadError in creating table: ')}}" + status);
@@ -142,6 +143,14 @@
 			//$("#"+thisTableId).jqGrid('sortGrid','vName',true);
 			//$("#"+thisTableId).jqGrid().trigger("reloadGrid");			
 			
+		},
+		_destroy:function(){
+			this.containerId = $(this.element).attr('id');
+			
+			var thisContainerId = this.containerId;
+			var thisTableId = thisContainerId + "_tbl";
+			
+			$("#"+thisTableId).jqGrid("GridDestroy");
 		}
 	});
 })(jQuery);

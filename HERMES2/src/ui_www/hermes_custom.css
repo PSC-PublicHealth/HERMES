@@ -2702,3 +2702,83 @@ div.hermes_info_del_button_container div.hermes_del_button_div{
 	order: 2;
 	align-self: flex-end;
 }
+
+div.hermes_flex_dialog_main{
+	display: -webkit-flex;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	width:100%;
+	flex-flow: column;
+	-webkit-align-items: left;
+	align-items: left;
+	-webkit-justify-content: left;
+	justify-content: left;
+}
+
+div.hermes_flex_dialog_row1{
+	display:block;
+	font-size:small;
+	padding:10px 5px 20px 5px;	
+}
+
+div.hermes_flex_dialog_row2{
+	margin:0;
+	padding:0;
+	-webkit-flex:1 1 50%;
+	flex: 1 1 50%;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-align-items: left;
+	align-items: left;
+	-webkit-justify-content: left;
+	justify-content: left;
+	flex-flow:row;
+	order:1;
+	width:100%;
+}
+
+div.hermes_flex_dialog_row3{
+	margin:0;
+	padding:0;
+	-webkit-flex:1 1 50%;
+	flex: 1 1 50%;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-align-items: left;
+	align-items: left;
+	-webkit-justify-content: left;
+	justify-content: left;
+	flex-flow:row;
+	order:2;
+	width:100%
+}
+
+div.hermes_flex_dialog_col1{
+	margin: 0 auto;
+	padding: 10px 5px 10px 5px;
+	-webkit-flex: 1 3 40%;
+	flex: 1 3 40%;
+	order:1;
+	align-self:flex-start;
+	font-size: small;
+}
+
+div.hermes_flex_dialog_col2{
+	margin: 0 auto;
+	padding: 10px 5px 10px 5px;
+	-webkit-flex: 1 3 60%;
+	flex: 1 3 60%;
+	order:2;
+	align-self:left top;
+	font-size: small;
+}
+
+.hermes_dialog_text_1 {
+	font-size:medium;
+	padding: 5px 2px 5px 2px;
+}
+.hermes_dialog_text_2 {
+	padding: 5px 2px 5px 2px;
+	font-size:small;
+}

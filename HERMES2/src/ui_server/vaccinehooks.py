@@ -222,11 +222,18 @@ def jsonManageVaccineTable(db, uiSession):
 @bottle.route('/json/manage-vaccine-explorer',method="POST")
 def jsonManageVaccineTableSTB(db,uiSession):
     try:
+        import json
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         searchTerm = _safeGetReqParam(bottle.request.params, 'searchterm', default=None)
-        print "TYPE = {0}".format(type(searchTerm))
+        excludeTypesFromModel = _safeGetReqParam(bottle.request.params,'excludeTypesFromModel',isInt=True,default=-1)
+        newTypesJson = _safeGetReqParam(bottle.request.params,'newTypes',default='[]')
+        newTypes = json.loads(newTypesJson)
+        
+        #print "TYPE = {0}".format(type(searchTerm))
         #searchTerm = u"{0}".format(searchTermStr)
         uiSession.getPrivs().mayReadModelId(db, modelId)
+        if excludeTypesFromModel > -1:
+            uiSession.getPrivs().mayReadModelId(db, modelId)
     except privs.PrivilegeException:
         raise bottle.BottleException(_('Current User does not have access to model with Id = {0}: from json/manaage-vaccine-table-stb'.format(modelId)))
     except ValueError, e:
@@ -235,9 +242,19 @@ def jsonManageVaccineTableSTB(db,uiSession):
         return {'success': 'false'}
     try:
         tList = typehelper.getTypeList(db,modelId,'vaccines',fallback=False)
-        #print tList
+        exTList = []
+        if excludeTypesFromModel > -1:
+            exTList = [x['Name'] for x in typehelper.getTypeList(db,excludeTypesFromModel,'vaccines',fallback=False)]
+        print "New Types = {0}".format(newTypes)
         rows = []
         for v in tList:
+            if v['Name'] in exTList:
+                continue
+            rank = 20
+            if len(newTypes) > 0:
+                if v['Name'] in newTypes:
+                    rank=1
+                    
             manufact = v['Manufacturer']
             if v['Manufacturer'] == '':
                 manufact = u"{0}".format(_('Not Specified'))
@@ -246,6 +263,7 @@ def jsonManageVaccineTableSTB(db,uiSession):
                 present = u"{0}".format(_('Not Specified'))
             
             row = {'id':v['Name'],
+                   'rank':rank,
                    'name':v['DisplayName'],
                    'type':v['Category'],
                    'manufacturer':manufact,
@@ -256,10 +274,11 @@ def jsonManageVaccineTableSTB(db,uiSession):
             
             if searchTerm:
                 ## does this match name, manufacturer...
-                for v in row.values():
-                    if v.lower().find(searchTerm.lower()) > -1:
-                        rows.append(row)
-                        break
+                for k,v in row.items():
+                    if k != 'rank':
+                        if v.lower().find(searchTerm.lower()) > -1:
+                            rows.append(row)
+                            break
             else:
                 rows.append(row)
             #rows.append(row)
@@ -353,7 +372,10 @@ def jsonManageVaccineSubTable(db, uiSession):
 def jsonManageVaccineDosesPersonTable(db, uiSession):
     ''' used for the vaccineDosePerPersonGrid widget '''
     try:
+        import json
         modelId = _getOrThrowError(bottle.request.params, "modelId", isInt=True)
+        filterListJson = _safeGetReqParam(bottle.request.params, "filterList", default="[]")
+        filterList = json.loads(filterListJson)
         uiSession.getPrivs().mayReadModelId(db, modelId)
     except privs.PrivilegeException:
         raise bottle.BottleException(_('Current User does not have access to model with Id = {0}: from json/manaage-vaccine-table-stb'.format(modelId)))
@@ -363,13 +385,16 @@ def jsonManageVaccineDosesPersonTable(db, uiSession):
         return {'success': 'false'}
     try:
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
-        
         vaccineTypes = typehelper.getTypeList(db, modelId, "vaccines", fallback=False)
         peopleTypes = typehelper.getTypeList(db, modelId , "people", fallback=False)
         
         
         rows = []
+        print len(filterList)
         for vac in vaccineTypes:
+            if len(filterList) > 0:
+                if vac['Name'] not in filterList:
+                    continue
             row = {'vId': vac['Name'], 'vName': vac['DisplayName']}
             for peeps in peopleTypes:
                 row[peeps['Name']] = 0
