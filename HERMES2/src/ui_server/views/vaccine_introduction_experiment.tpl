@@ -98,6 +98,9 @@
 	<div id="addvacexpt_slide3" class='addvacexpt_slide'>
 		<div id="addvacexpt_dose_per_person_grid_div"></div>
 	</div>
+	<div id="addvacexpt_slide4" class='addvacexpt_slide'>
+		<div id="addvacexpt_summary">This is where the summary will go</div>
+	</div>
 </div>
 
 	
@@ -107,6 +110,27 @@ $("#addvacexpt_slides").slideShowWithFlowControl({
 	width: 1200,
 	height: 500,
 	activateNext:true,
+	nextFunctions:[
+	               function(){
+	            	   $("#addvacexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	               },
+	               function(){
+	            	  $("#addvacexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            	  $("#addvacexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid({
+	            		  modelId: {{modelId}},
+	            		  filterList: function(){ return JSON.stringify($("#addvacexpt_explorer_model_div").typeExplorerGrid("getNewTypes"))},
+	            		  onSaveFunc: function(){$("#addvacexpt_slides").slideShowWithFlowControl("activateButton","next");}
+	            	  });
+	               },
+	               function(){
+	            	   
+	               }
+	              ],
+	backFunctions:[
+	               function(){},
+	               function(){$("#addvacexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid("destroy")},
+	               function(){}
+	               ]
 	
 });
 
@@ -116,6 +140,7 @@ $("#addvacexpt_explorer_all_div").typeExplorerGrid({
 	checkBoxes: true,
 	expandAll: true,
 	namesOnly: true,
+	excludeTypesFromModel: {{modelId}},
 	width:$("#addvacexpt_explorer_all_div").width(),
 	title: "{{_('Choose vaccines that you would like to add to the model.')}}"
 });
@@ -129,14 +154,15 @@ $("#addvacexpt_explorer_model_div").typeExplorerGrid({
 	groupingEnabled:false,
 	namesOnly:true,
 	searchEnabled: false,
+	addFunction: function(typName){
+		console.log("HERE " + typName);
+		$("#addvacexpt_explorer_all_div").typeExplorerGrid("removeGrid",typName);
+	},
 	width:$("#addvacexpt_explorer_model_div").width(),
 	deletable: true,
 	title: "{{_('Vaccines Currently in the Model')}}"
 });
 
-$("#addvacexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid({
-	modelId: {{modelId}}
-});
 
 var addVacBut = $("#addvacexpt_add_vacc_button").button({
 	icons: {secondary:'ui-icon-arrowthick-1-e'}

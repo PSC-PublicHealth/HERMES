@@ -1470,6 +1470,27 @@ def jsonCopyTypeToModel(db, uiSession):
 
     return {'success': True}
 
+@bottle.route('/json/copyMultipleTypesToModel')
+def jsonCopyMultipleTypesToModel(db, uiSession):
+    try:
+        import json
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        srcModelId = _getOrThrowError(bottle.request.params, 'srcModelId', isInt=True)
+        typeNamesJson = _getOrThrowError(bottle.request.params,'typeNamesArray')
+        
+        typeNames = json.loads(typeNamesJson)
+        
+        dest = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        src = shadow_network_db_api.ShdNetworkDB(db, srcModelId)
+        
+        for typ in typeNames:
+            typehelper.addTypeToModel(db,dest,typ, src, True)
+        
+        return {'success':True}
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        return {'success':False, 'msg':str(e)}
 
 @bottle.route('/json/removeTypeFromModel')
 def jsonRemoveTypeFromModel(db, uiSession):
