@@ -167,6 +167,11 @@ var mayModify = "{{maymodify}}" == "True" ? true : false ;
 		<br>
 		<p><span class="model-operation-title">{{_("Please select what you would like to do with this model:")}}</span></p>
 		<ul class="option-list">
+		<li>
+			<span class="model-operation-item">
+				<a class="model-operation-item" href="#" title='{{_("Walk through a series of screens that will help you to set up various common experiments and transformations of models (e.g. vaccine introduction, supply chain level removal, etc.)")}}'
+						id ="open_experiment_page_link"><span class="action-underline">{{_('Create Experiments')}}</span> {{_('Based on this Model')}}</a>
+			</span>
 		<li><span class="model-operation-item">{{_("Edit model:")}}</span>
 			<ul class="option-list-inner">
 				<!--<li>

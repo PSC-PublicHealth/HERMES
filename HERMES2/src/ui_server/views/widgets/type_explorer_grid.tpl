@@ -110,6 +110,11 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			searchEnabled: true,
 			width:400,
 			deletable: false,
+			colorNewRows:true,
+			newRowColor:"grey",
+			excludeTypesFromModel:-1,
+			addFunction: function(){},
+			delFunction: function(){},
 			title: "",
 			trant:{
 				title: "{{_('Type Explore Grid')}}"
@@ -130,6 +135,12 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				return [$("#"+thisTableId).jqGrid('getGridParam','selrow')];
 			}
 		},
+		getNewTypes:function(){
+			this.containerId = $(this.element).attr('id');
+			var thisContainerId = this.containerId;
+			
+			return $("#"+thisContainerId).data("newTypes");
+		},
 		add: function(typesIdsToAdd,srcModelId){
 			this.containerId = $(this.element).attr('id');
 			var thisContainerId = this.containerId;
@@ -137,28 +148,53 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			
 			var modelId = this.options.modelId;
 			var typeClass = this.options.typeClass;
+			var thisOptions = this.options;
 			
-			for(typ in typesIdsToAdd){
-				console.log("Type to Add = " + typesIdsToAdd[typ])
-				$.ajax({
-					url:{{rootPath}} + 'json/copyTypeToModel',
-					data: {modelId:modelId, srcModelId: srcModelId, typeName: typesIdsToAdd[typ]}
-				})
-				.done(function(results){
-					if(results.success){
-						if(typ == typesIdsToAdd.length-1){
-							$("#" + thisTableId).trigger("reloadGrid",{fromServer: true});
-						}
-						//Nothing
-					}
-					else{
-						alert("{{_('typeExplorerGrid: add success fail in adding type')}}" + results.msg);
-					}
-				})
-				.fail(function(jqxfr, textStatus, error){
-	 				alert("{{_('typeExplorerGrid:add fail event in adding type')}}");
-				});
+			$.ajax({
+				url:{{rootPath}} + 'json/copyMultipleTypesToModel',
+				data: {modelId:modelId, 
+					   srcModelId: srcModelId, 
+					   typeNamesArray: JSON.stringify(typesIdsToAdd)}
+			})
+			.done(function(results){
+				if(results.success){
+					//var news = $("#"+thisContainerId).data("newTypes");
+					//news.push(typeName);
+					//console.log("adding = " + typeName )
+					//$("#"+thisContainerId).data("newTypes",news);
+					//console.log("Typ = "+ i + " " + typesIdsToAdd.length);
+					
+					var news = $("#"+thisContainerId).data("newTypes");
+					news = news.concat(typesIdsToAdd);
+					$("#"+thisContainerId).data("newTypes",news);
+					
+					console.log("newsHere = " + $("#"+thisContainerId).data("newTypes",news));
+					$("#" + thisTableId).jqGrid("setGridParam",{postData:{
+																		modelId:thisOptions.modelId,
+																		excludeTypesFromModel:thisOptions.excludeTypesFromModel,
+																		newTypes:JSON.stringify(news)}
+					}).trigger("reloadGrid",{fromServer: true});
+						
+					
+					thisOptions.addFunction(typesIdsToAdd);
+				}
+				else{
+					alert("{{_('typeExplorerGrid: add success fail in adding type')}}" + results.msg);
+				}
+			})
+			.fail(function(jqxfr, textStatus, error){
+ 				alert("{{_('typeExplorerGrid:add fail event in adding type')}}");
+			});
+		},
+		removeGrid: function(typesToDel){
+			this.containerId = $(this.element).attr('id');
+			var thisContainerId = this.containerId;
+			var thisTableId = thisContainerId + "_tbl";
+			console.log("Grid Rem = " + typesToDel);
+			for(typ in typesToDel){
+				$("#"+thisTableId).jqGrid("delRowData",typesToDel[typ]);
 			}
+			$("#"+thisTableId).jqGrid().trigger("reloadGrid");
 		},
 		remove: function(typesIdsToDel){
 			this.containerId = $(this.element).attr('id');
@@ -168,7 +204,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			
 			var modelId = this.options.modelId;
 			var typeClass = this.options.typeClass;
-			
+			var thisOptions = this.options;
 			$("#"+deleteConfirmDialogId).html("{{_('Are you sure that you want to delete this type from the model?')}}");
 			$("#"+deleteConfirmDialogId).dialog({
 				autoOpen:true,
@@ -189,6 +225,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 									if(typ == typesIdsToDel.length-1){
 										$("#" + thisTableId).trigger("reloadGrid",{fromServer: true});
 									}
+									thisOptions.delFunction();
 								}
 								else{
 									alert("{{_('typeExplorerGrid: del success fail in deleting type')}}" + results.msg);
@@ -223,8 +260,9 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			colInfo = typeInfos[thisOptions.typeClass];
 			console.log(typeInfos);
 			console.log(this.options.width);
-			var colNames = ["ID"];
-			var colModels = [{name:'id',index:'id',key:true,hidden:true,sortable:true,sorttype:'string',sortorder:'asc'}];
+			var colNames = ["ID","RANK"];
+			var colModels = [{name:'id',index:'id',key:true,hidden:true,sortable:true,sorttype:'string',sortorder:'asc'},
+			                 {name:'rank',index:'rank',hidden:true,sortable:true,sortorder:'asc'}];
 			
 			
 			if (colInfo.groupByType && thisOptions.groupingEnabled){
@@ -267,6 +305,8 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			
 			var title = colInfo.title;
 			
+			$("#"+thisContainerId).data("newTypes",[]);
+			
 			console.log(thisOptions.title);
 			if(thisOptions.title != ""){
 				title = thisOptions.title;
@@ -276,6 +316,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				datatype:'json',
 				postData: {
 					modelId:thisOptions.modelId,
+					excludeTypesFromModel:thisOptions.excludeTypesFromModel
 				},
 				mtype:'post',
 				jsonReader: {repeatitems:false},
@@ -293,7 +334,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				pgtext:false,
 				pager:"#"+thisPagerId,
 				viewrecords:true,
-				sortname:'type asc id asc',
+				sortname:'rank asc type asc id asc',
 				multiSort:true,
 				sortable:true,
 				loadtext:"Gathering Data",
@@ -327,13 +368,15 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 					}
 				},
 				gridComplete: function(){
-					console.log("group? " + thisOptions.groupingEnabled);
+					console.log("News = " + $("#" + thisContainerId).data("newTypes"));
+					
 					if(!thisOptions.groupingEnabled){
 						$("#" + thisTableId).jqGrid('setGridParam',{'grouping': false}).trigger('reloadGrid');
 					}
 					else{
 						$("#" + thisTableId).jqGrid('setGridParam',{'grouping': true}).trigger('reloadGrid');
 					}
+					
 					$("#" + thisTableId + " .hermes_info_button_div").each(function(){
 						$this = $(this);
 						var typeNameHere = $this.attr("id").replace("_info_button_div","").replace(thisTableId + "_","");
@@ -358,6 +401,14 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 								$("#"+thisContainerId).typeExplorerGrid("remove",[typeNameHere]);
 							});
 						});
+					}
+					
+					//Color the new ones
+					if(thisOptions.colorNewRows){
+						var newTypes = $("#"+thisContainerId).data("newTypes");
+						for(var typ in newTypes){
+							$("#"+thisContainerId).find("#"+newTypes[typ]).find("td").css("background-color","darkgrey").css("color","white");
+						}
 					}
 				}
 				
