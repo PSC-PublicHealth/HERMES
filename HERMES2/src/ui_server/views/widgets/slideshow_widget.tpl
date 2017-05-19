@@ -21,6 +21,9 @@
 			width: 800,
 			height: 500,
 			activateNext: true,
+			nextFunctions:[],
+			backFunctions:[],
+			doneFunction:[],
 			trant:{
 				title: "{{_('Slide Show Widget')}}"
 			}
@@ -110,6 +113,8 @@
 			var backButtonId = thisContainerId + "_back";
 			var doneButtonId = thisContainerId + "_done";
 			
+			var thisOptions = this.options;
+			
 			
 			$("#"+thisContainerId).children("div").addClass("widget_slide");
 			$("#"+thisContainerId).append("<div id ='" + slideShowDiv + "' class='widget_main'></div>");
@@ -141,17 +146,39 @@
 			$("#"+thisContainerId).data('backActive',false);
 			$("#"+thisContainerId).data('doneActive',false);
 			
+			// Check validity of next Functions
+			if(thisOptions.nextFunctions.length > 0){
+				if(thisOptions.nextFunctions.length != $("#"+thisContainerId).data('numberSlides')-1){
+					alert("{{_('in slideshowwithflowcontrol widget: next functions is not the right length')}}");
+				}
+			}
+			
+			if(thisOptions.backFunctions.length > 0){
+				if(thisOptions.backFunctions.length != $("#"+thisContainerId).data('numberSlides')-1){
+					alert("{{_('in slideshowwithflowcontrol widget: back functions is not the right length')}}");
+				}
+			}
+			
+			
 			var nextBut = $("#" + nextButtonId).button();
 			var backBut = $("#" + backButtonId).button();
 			var doneBut = $("#" + doneButtonId).button();
 			
 			nextBut.click(function(e){
 				e.preventDefault();
+				if(thisOptions.nextFunctions.length>0){
+					var activeSlide = $("#"+thisContainerId).data('activeSlide');
+					thisOptions.nextFunctions[activeSlide]();
+				}
 				$this.nextSlide();
 			});
 			
 			backBut.click(function(e){
 				e.preventDefault();
+				if(thisOptions.backFunctions.length>0){
+					var activeSlide = $("#"+thisContainerId).data('activeSlide');
+					thisOptions.backFunctions[activeSlide-1]();
+				}
 				$this.backSlide();
 			});
 			
