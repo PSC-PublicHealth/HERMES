@@ -29,6 +29,14 @@
 				title: "{{_('Vaccine Dose Grid')}}"
 			}
 		},
+		resultJson:function(){
+			this.containerId = $(this.element).attr('id');
+			var thisContainerId = this.containerId;
+			var thisTableId = thisContainerId + "_tbl";
+			
+			var gridData = $("#"+thisTableId).jqGrid("getRowData");
+			return JSON.stringify(gridData);
+		},
 		createGrid:function(){
 			trant = this.options.trant;
 			this.containerId = $(this.element).attr('id');
