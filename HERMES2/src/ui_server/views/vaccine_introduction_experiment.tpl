@@ -52,10 +52,6 @@
 <script src="{{rootPath}}widgets/vaccine_dose_per_person_grid.js" type="text/javascript"></script>
 
 <h2>{{_("HERMES Experiment Generator: Vaccine Introductions")}}</h2>
-<h3>
-{{_("A series of screens will be given here to walk you through introducting new vaccines to the model.")}}
-</h3>
-
 <div id="addvacexpt_slides">
 	<div id="addvacexpt_slide1" class='addvacexpt_slide'>
 		<span class='expt_subtitle'>
@@ -176,6 +172,13 @@ addVacBut.click(function(e){
 });
 
 
-
+function createSummary(){
+	$.ajax({
+		url:"{{rootPath}}vaccine_introduction_summary",
+		data:{}
+	})
+	var newVaccines = $("#addvacexpt_explorer_model_div").typeExplorerGrid("");
+	
+}
 	
 </script>

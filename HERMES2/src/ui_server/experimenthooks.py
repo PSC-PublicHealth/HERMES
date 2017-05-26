@@ -78,4 +78,15 @@ def addAVaccineExptPage(db,uiSession):
         return bottle.template("problem.tpl", {"comment": str(e),  
                                                "breadcrumbPairs":crumbTrack})   
         
-
+# @bottle.route('/vaccine_introduction_summary')
+# def addAVaccineExptSummary(db,uiSession):
+#     try:
+#         import json
+#         modelId = _getOrThrowError(bottle.request.params,'modelId', isInt=True)
+#         vacDataJson= _getOrThrowError(bottle.request.params,'vacdatas')
+#         
+#         newTypes = json.loads(vacDataJson)
+#         
+        
+        
+         
