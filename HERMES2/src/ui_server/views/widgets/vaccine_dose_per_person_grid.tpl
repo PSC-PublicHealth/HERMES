@@ -37,6 +37,33 @@
 			var gridData = $("#"+thisTableId).jqGrid("getRowData");
 			return JSON.stringify(gridData);
 		},
+		validate:function(){
+			this.containerId = $(this.element).attr('id');
+			var thisContainerId = this.containerId;
+			var thisTableId = thisContainerId + "_tbl";
+			
+			var gridData = $("#"+thisTableId).jqGrid("getRowData");
+			var badEntries = []
+			for(var i=0; i<gridData.length;++i){
+				var nonZero = false;
+				for(var prop in gridData[i]){
+					if (prop != "vId" && prop != "vName"){
+						if(gridData[i][prop] > 0){
+							nonZero = true;
+						}
+					}
+				}
+				if (!nonZero){
+					badEntries.push(gridData.vId);
+				}
+			}
+			
+			if(badEntries.length > 0){
+				alert("{{_('All Vaccines need to have at least one dose given.')}}");
+				return false;
+			}
+			return true;
+		},
 		createGrid:function(){
 			trant = this.options.trant;
 			this.containerId = $(this.element).attr('id');
