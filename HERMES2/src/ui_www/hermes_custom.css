@@ -2782,3 +2782,41 @@ div.hermes_flex_dialog_col2{
 	padding: 5px 2px 5px 2px;
 	font-size:small;
 }
+
+.hermes_expt_summary_table_div {
+	
+}
+
+.hermes_expt_summary_table {
+	
+}
+
+.hermes_expt_summary_table_lead_row {
+	font-size:medium;
+	font-weight: bold;
+	
+}
+
+.hermes_expt_summary_table_placeholder_col {
+	width:50px;
+}
+
+.hermes_expt_summary_table_lead_col {
+	padding: 10px 2px 10px 2px !important;
+}
+
+.hermes_expt_summary_table_sub_row {
+}
+
+.hermes_expt_summary_table_sub_col {
+	font-size:small;
+	font-weight:bold;
+}
+
+.hermes_expt_summary_table_row {
+	
+}
+
+.hermes_expt_summary_table_col {
+	font-size:small;
+}

@@ -95,7 +95,12 @@
 		<div id="addvacexpt_dose_per_person_grid_div"></div>
 	</div>
 	<div id="addvacexpt_slide4" class='addvacexpt_slide'>
-		<div id="addvacexpt_summary">This is where the summary will go</div>
+		<div id='addvacexpt_summary_title'>
+			<span class='expt_subtitle'>
+				{{_('Vaccine Introduction Experiment Summary')}}
+			</span>
+		</div>
+		<div id="addvacexpt_summary_typegrid"></div>
 	</div>
 </div>
 
@@ -109,6 +114,7 @@ $("#addvacexpt_slides").slideShowWithFlowControl({
 	nextFunctions:[
 	               function(){
 	            	   $("#addvacexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            	   return true;
 	               },
 	               function(){
 	            	  $("#addvacexpt_slides").slideShowWithFlowControl("deactivateButton","next");
@@ -117,15 +123,22 @@ $("#addvacexpt_slides").slideShowWithFlowControl({
 	            		  filterList: function(){ return JSON.stringify($("#addvacexpt_explorer_model_div").typeExplorerGrid("getNewTypes"))},
 	            		  onSaveFunc: function(){$("#addvacexpt_slides").slideShowWithFlowControl("activateButton","next");}
 	            	  });
+	            	  return true;
 	               },
 	               function(){
-	            	   
+	            	   if($("#addvacexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid("validate")){
+	            		   createSummary();
+	            		   return true;
+	            	   }
+	            	   else{
+	            		   return false;
+	            	   }
 	               }
 	              ],
 	backFunctions:[
-	               function(){},
-	               function(){$("#addvacexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid("destroy")},
-	               function(){}
+	               function(){return true;},
+	               function(){$("#addvacexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid("destroy"); return true;},
+	               function(){return true;}
 	               ]
 	
 });
@@ -166,19 +179,37 @@ var addVacBut = $("#addvacexpt_add_vacc_button").button({
 
 addVacBut.click(function(e){
 	e.preventDefault();
-	console.log("Passing = " + $("#addvacexpt_explorer_all_div").typeExplorerGrid("getSelectedElements"));
-	$("#addvacexpt_explorer_model_div").typeExplorerGrid("add",$("#addvacexpt_explorer_all_div").typeExplorerGrid("getSelectedElements"),1);
-	$("#addvacexpt_slides").slideShowWithFlowControl("activateButton","next");
+	var selected = $("#addvacexpt_explorer_all_div").typeExplorerGrid("getSelectedElements");
+	if(selected.length == 0){
+		alert("{{_('You have not selected any vaccines to add')}}");
+	}
+	else{
+		$("#addvacexpt_explorer_model_div").typeExplorerGrid("add",$("#addvacexpt_explorer_all_div").typeExplorerGrid("getSelectedElements"),1);
+		$("#addvacexpt_slides").slideShowWithFlowControl("activateButton","next");
+	}
 });
 
 
 function createSummary(){
-	$.ajax({
-		url:"{{rootPath}}vaccine_introduction_summary",
-		data:{}
-	})
-	var newVaccines = $("#addvacexpt_explorer_model_div").typeExplorerGrid("");
 	
-}
+	$.ajax({
+		url:{{rootPath}} + "json/vaccine_introduction_summary",
+		data:{
+			modelId:{{modelId}},
+			//newvaccjson:JSON.stringify($("#addvacexpt_explorer_model_div").typeExplorerGrid("getNewTypes")),
+			newvaccdosejson:$("#addvacexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid("resultJson")
+		}
+	})
+	.done(function(results){
+		if(results.success){
+			$("#addvacexpt_summary_typegrid").html(results.html)
+		}
+	});
+};
+	
+//	})
+//	var newVaccines = $("#addvacexpt_explorer_model_div").typeExplorerGrid("");
+//	
+
 	
 </script>
