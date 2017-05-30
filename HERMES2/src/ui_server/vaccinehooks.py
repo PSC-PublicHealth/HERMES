@@ -228,6 +228,7 @@ def jsonManageVaccineTableSTB(db,uiSession):
         excludeTypesFromModel = _safeGetReqParam(bottle.request.params,'excludeTypesFromModel',isInt=True,default=-1)
         newTypesJson = _safeGetReqParam(bottle.request.params,'newTypes',default='[]')
         newTypes = json.loads(newTypesJson)
+        newTypesOnly = _safeGetReqParam(bottle.request.params,'newTypesOnly',isBool=True,default=False)
         
         #print "TYPE = {0}".format(type(searchTerm))
         #searchTerm = u"{0}".format(searchTermStr)
@@ -245,7 +246,6 @@ def jsonManageVaccineTableSTB(db,uiSession):
         exTList = []
         if excludeTypesFromModel > -1:
             exTList = [x['Name'] for x in typehelper.getTypeList(db,excludeTypesFromModel,'vaccines',fallback=False)]
-        print "New Types = {0}".format(newTypes)
         rows = []
         for v in tList:
             if v['Name'] in exTList:
@@ -254,7 +254,10 @@ def jsonManageVaccineTableSTB(db,uiSession):
             if len(newTypes) > 0:
                 if v['Name'] in newTypes:
                     rank=1
-                    
+            
+            if newTypesOnly:
+                if v['Name'] not in newTypes:
+                    continue        
             manufact = v['Manufacturer']
             if v['Manufacturer'] == '':
                 manufact = u"{0}".format(_('Not Specified'))

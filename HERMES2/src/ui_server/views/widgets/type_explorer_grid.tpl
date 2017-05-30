@@ -316,7 +316,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				datatype:'json',
 				postData: {
 					modelId:thisOptions.modelId,
-					excludeTypesFromModel:thisOptions.excludeTypesFromModel
+					excludeTypesFromModel:thisOptions.excludeTypesFromModel,
 				},
 				mtype:'post',
 				jsonReader: {repeatitems:false},
