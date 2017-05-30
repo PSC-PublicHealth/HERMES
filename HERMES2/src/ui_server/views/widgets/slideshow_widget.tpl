@@ -166,20 +166,26 @@
 			
 			nextBut.click(function(e){
 				e.preventDefault();
+				var returnVal = true;
 				if(thisOptions.nextFunctions.length>0){
 					var activeSlide = $("#"+thisContainerId).data('activeSlide');
-					thisOptions.nextFunctions[activeSlide]();
+					returnVal = thisOptions.nextFunctions[activeSlide]();
 				}
-				$this.nextSlide();
+				if(returnVal){
+					$this.nextSlide();
+				}
 			});
 			
 			backBut.click(function(e){
 				e.preventDefault();
+				var returnVal = true;
 				if(thisOptions.backFunctions.length>0){
 					var activeSlide = $("#"+thisContainerId).data('activeSlide');
-					thisOptions.backFunctions[activeSlide-1]();
+					returnVal = thisOptions.backFunctions[activeSlide-1]();
 				}
-				$this.backSlide();
+				if(returnVal){
+					$this.backSlide();
+				}
 			});
 			
 			if(this.options.activateNext){
