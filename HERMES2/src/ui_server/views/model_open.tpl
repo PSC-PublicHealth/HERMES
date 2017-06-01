@@ -406,7 +406,12 @@ $(document).ready(function(){
 //		}
 //	});
 	
-	//Link Actions
+	//Link Actions" 
+	
+	$("#open_experiment_page_link").click(function(){
+		window.location = "{{rootPath}}experiment-top?modelId={{modelId}}";
+	});
+	
 	$("#edit_basic_model_link").click(function(){
 		//editBasicModel({{modelId}});
 		$("#not-implemented-modal").dialog("open");
