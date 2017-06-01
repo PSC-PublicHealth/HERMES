@@ -27,8 +27,8 @@
 <!--<link rel="stylesheet" href="{{rootPath}}static/geographic-map-widgets/geographicMap.css"/>-->
 <script src="{{rootPath}}static/geographic-map-widgets/geographicMap.js"></script>
 
-<style>
-#model_operations_holder{
+
+<!--#model_operations_holder{
 	float:left;
 	#width:45%;
 	#height:100%;
@@ -47,8 +47,8 @@
 	#min-width:400px;
 	z-index:5;
 	display:inline;
-}
-
+}-->
+<style>
 ul.option-list{
 	list-style-type:initial;
 	margin-left:20px;
@@ -84,7 +84,6 @@ a.model-operation-item:visited{
 	font-size:14px;
 	color:#282A57;
 }
-
 </style>
 
 <script>
@@ -156,8 +155,8 @@ var mayModify = "{{maymodify}}" == "True" ? true : false ;
 //updateNetworkDiagram();
 </script>
 
-<div id="model_holder">
-	<div id="model_operations_holder">
+<div id="model_holder" class='two_flex_main'>
+	<div id="model_operations_holder" class='two_flex_left'>
 		<p>
 			<span class="hermes-top-main">
 				{{_(u"{0} Model".format(name))}}
@@ -247,7 +246,8 @@ var mayModify = "{{maymodify}}" == "True" ? true : false ;
 		</ul>
 	</div>
 	
-	<div id="model_diagram_holder"></div>
+	<div id="model_diagram_holder" class='two_flex_right'></div>
+</div>
 
 <div id="result_dialog" title='{{_("Simulation Experiment Results")}}'>
 <div id="result"></div>
