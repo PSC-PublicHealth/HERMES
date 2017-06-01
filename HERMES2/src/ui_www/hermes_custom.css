@@ -2664,6 +2664,37 @@ div.ui-jqgrid-view table.ui-jqgrid-btable th
 	justify-content: center;
 }
 
+.two_flex_main {
+	display: -webkit-flex;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	flex-flow: row;
+	-webkit-align-items: center;
+	align-items: center;
+	-webkit-justify-content: center;
+	justify-content: center;
+	width:100%;
+	*min-width:1000px;
+	min-height:600px;
+	
+}
+
+.two_flex_left {
+	margin: 0 auto;
+	padding:10px;
+	-webkit-flex: 1 1 40%;
+	flex: 1 1 40%;
+	order:1
+}
+
+.two_flex_right {
+	margin: 0 auto;
+	padding:10px;
+	-webkit-flex: 1 1 60%;
+	flex: 1 1 60%;
+	order:2
+}
 .flex-center {
 	display: -webkit-flex;
 	display: flex;
@@ -2773,6 +2804,7 @@ div.hermes_flex_dialog_col2{
 	align-self:left top;
 	font-size: small;
 }
+
 
 .hermes_dialog_text_1 {
 	font-size:medium;
