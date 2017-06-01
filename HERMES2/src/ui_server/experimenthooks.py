@@ -94,13 +94,14 @@ def addAVaccineExptSummary(db,uiSession):
         for p in vacDoses:
             for k,v in p.items():
                 print "p = {0},{1}".format(k,v)
-        htmlString = "<div class='hermes_expt_summary_table_div'>"
-        htmlString += "<table class='hermes_expt_summary_table'>"
-        htmlString += "<tr class='hermes_expt_summary_table_lead_row'>"
-        htmlString += "<td colspan=4 class='hermes_expt_summary_table_lead_col'>"
-        htmlString += _('The vaccine introduction experiment that you have specified includes adding these vaccines: ')
-        htmlString += "</td>"
-        htmlString += "</tr>"
+        htmlArray = []
+        htmlArray.append("<div class='hermes_expt_summary_table_div'>")
+        htmlArray.append( "<table class='hermes_expt_summary_table'>")
+        htmlArray.append( "<tr class='hermes_expt_summary_table_lead_row'>")
+        htmlArray.append( "<td colspan=4 class='hermes_expt_summary_table_lead_col'>")
+        htmlArray.append( _('The vaccine introduction experiment that you have specified includes adding these vaccines: '))
+        htmlArray.append( "</td>")
+        htmlArray.append( "</tr>")
         
         tList = typehelper.getTypeList(db,modelId,'vaccines',fallback=False)
         pList = typehelper.getTypeList(db,modelId,'people',fallback=False)
@@ -117,74 +118,90 @@ def addAVaccineExptSummary(db,uiSession):
 #                 if vDG is None:
 #                     raise RuntimeError(_("in vaccine_introduction_summary: No doses schedule for vaccine {0}".format(v['Name'])))
                 
-            htmlString +="<tr class='hermes_expt_summary_table_row'>"
-            htmlString +="<td class='hermes_expt_summary_table_placeholder_col'></td>"
-            htmlString +="<td colspan=3 class='hermes_expt_summary_table_col'>"
-            htmlString +="{0}".format(v['vName'])
-            htmlString += "</td>"
-            htmlString += "</tr>"
-            htmlString += "<tr class='hermes_expt_summary_table_row'>"
-            htmlString += "<td class='hermes_expt_summary_table_placeholder_col'></td>"
-            htmlString += "<td class='hermes_expt_summary_table_placeholder_col'></td>"
-            htmlString += "<td colspan=2 class='hermes_expt_summary_table_col'>"
+            htmlArray.append("<tr class='hermes_expt_summary_table_row'>")
+            htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+            htmlArray.append("<td colspan=3 class='hermes_expt_summary_table_col'>")
+            htmlArray.append("{0}".format(v['vName']))
+            htmlArray.append( "</td>")
+            htmlArray.append( "</tr>")
+            htmlArray.append( "<tr class='hermes_expt_summary_table_row'>")
+            htmlArray.append( "<td class='hermes_expt_summary_table_placeholder_col'></td>")
+            htmlArray.append( "<td class='hermes_expt_summary_table_placeholder_col'></td>")
+            htmlArray.append( "<td colspan=2 class='hermes_expt_summary_table_col'>")
             ### Order this!!!!!!
-            htmlString += _("With a Dosage Schedule of: ")
-            htmlString += "</td>"
-            htmlString += "</tr>"
+            htmlArray.append( _("With a Dosage Schedule of: "))
+            htmlArray.append( "</td>")
+            htmlArray.append( "</tr>")
             for k,c in v.items():
                 if k != 'vId' and k != 'vName':
                     if int(c) > 0:
-                        htmlString += "<tr class='hermes_expt_summary_table_row'>"
-                        htmlString += "<td class='hermes_expt_summary_table_placeholder_col'></td>"
-                        htmlString += "<td class='hermes_expt_summary_table_placeholder_col'></td>"
-                        htmlString += "<td class='hermes_expt_summary_table_placeholder_col'></td>"
-                        htmlString += "<td class='hermes_expt_summary_table_col'>"
+                        htmlArray.append( "<tr class='hermes_expt_summary_table_row'>")
+                        htmlArray.append( "<td class='hermes_expt_summary_table_placeholder_col'></td>")
+                        htmlArray.append( "<td class='hermes_expt_summary_table_placeholder_col'></td>")
+                        htmlArray.append( "<td class='hermes_expt_summary_table_placeholder_col'></td>")
+                        htmlArray.append( "<td class='hermes_expt_summary_table_col'>")
                         p = [x for x in pList if x['Name'] == k]
                         doseString = "Dose"
                         if int(c) > 1:
                             doseString = "Doses"
-                        htmlString += "{0} {1} to {2}".format(c,doseString,p[0]['DisplayName'])
-                        htmlString += "</td>"
-                        htmlString += "</tr>"
-        htmlString += "<tr class='hermes_expt_summary_table_placeholder_row'><td colspan=4></td></tr>"
-        htmlString += "<tr class='hermes_expt_summary_table_sub_row'>"
-        htmlString += "<td class='hermes_expt_summary_table_sub_col' colspan=4>"
-        htmlString += _("If you would like to continue to edit the experiment, here are a few options: ")
-        htmlString += "</td>"
-        htmlString += "</tr>"
+                        htmlArray.append( "{0} {1} to {2}".format(c,doseString,p[0]['DisplayName']))
+                        htmlArray.append( "</td>")
+                        htmlArray.append( "</tr>")
+        htmlArray.append( "<tr class='hermes_expt_summary_table_placeholder_row'><td colspan=4></td></tr>")
+        htmlArray.append( "<tr class='hermes_expt_summary_table_sub_row'>")
+        htmlArray.append( "<td class='hermes_expt_summary_table_sub_col' colspan=4>")
+        htmlArray.append( _("If you would like to continue to edit the experiment, here are a few options: "))
+        htmlArray.append( "</td>")
+        htmlArray.append( "</tr>")
         
-        htmlString += "<tr class='hermes_expt_summary_table_row'>"
-        htmlString += "<td class='hermes_expt_summary_table_placeholder_col'></td>"
-        htmlString += "<td class='hermes_expt_summary_table_col' colspan=3>"
-        htmlString += "<a href='{0}model-add-types?modelId={1}'>".format(rootPath,modelId)
-        htmlString += _("Add New Types of Vaccines and Populations to the Model ")
-        htmlString += "</a>"
-        htmlString += "</td>"
-        htmlString += "</tr>"
+        htmlArray.append( "<tr class='hermes_expt_summary_table_row'>")
+        htmlArray.append( "<td class='hermes_expt_summary_table_placeholder_col'></td>")
+        htmlArray.append( "<td class='hermes_expt_summary_table_col' colspan=3>")
+        htmlArray.append( "<a href='{0}model-add-types?modelId={1}'>".format(rootPath,modelId))
+        htmlArray.append( _("Add New Types of Vaccines and Populations to the Model "))
+        htmlArray.append( "</a>")
+        htmlArray.append( "</td>")
+        htmlArray.append( "</tr>")
         
-        htmlString += "<tr class='hermes_expt_summary_table_row'>"
-        htmlString += "<td class='hermes_expt_summary_table_placeholder_col'></td>"
-        htmlString += "<td class='hermes_expt_summary_table_col' colspan=3>"
-        htmlString += "<a href='{0}model-edit-population-tabular?modelId={1}'>".format(rootPath,modelId)
-        htmlString += _("Update the Number of People Served by Each Supply Chain Location")
-        htmlString += "</a>"
-        htmlString += "</td>"
-        htmlString += "</tr>"
+        htmlArray.append( "<tr class='hermes_expt_summary_table_row'>")
+        htmlArray.append( "<td class='hermes_expt_summary_table_placeholder_col'></td>")
+        htmlArray.append( "<td class='hermes_expt_summary_table_col' colspan=3>")
+        htmlArray.append( "<a href='{0}model-edit-population-tabular?modelId={1}'>".format(rootPath,modelId))
+        htmlArray.append( _("Update the Number of People Served by Each Supply Chain Location"))
+        htmlArray.append( "</a>")
+        htmlArray.append( "</td>")
+        htmlArray.append( "</tr>")
         
-        htmlString += "<tr class='hermes_expt_summary_table_row'>"
-        htmlString += "<td class='hermes_expt_summary_table_placeholder_col'></td>"
-        htmlString += "<td class='hermes_expt_summary_table_col' colspan=3>"
-        htmlString += "<a href='{0}demand-top?modelId={1}'>".format(rootPath,modelId)
-        htmlString += _("Edit the Vaccine Dose Schedule ")
-        htmlString += "</a>"
-        htmlString += "</td>"
-        htmlString += "</tr>"
+        htmlArray.append( "<tr class='hermes_expt_summary_table_row'>")
+        htmlArray.append( "<td class='hermes_expt_summary_table_placeholder_col'></td>")
+        htmlArray.append( "<td class='hermes_expt_summary_table_col' colspan=3>")
+        htmlArray.append( "<a href='{0}demand-top?modelId={1}'>".format(rootPath,modelId))
+        htmlArray.append( _("Edit the Vaccine Dose Schedule"))
+        htmlArray.append( "</a>")
+        htmlArray.append( "</td>")
+        htmlArray.append( "</tr>")
         
-        htmlString += "</table>"
-        print "htmlString = {0}".format(htmlString)
-        print "htmlJson = {0}".format(json.dumps(htmlString))
+        htmlArray.append( "<tr class='hermes_expt_summary_table_placeholder_row'><td colspan=4></td></tr>")
+        htmlArray.append( "<tr class='hermes_expt_summary_table_sub_row'>")
+        htmlArray.append( "<td class='hermes_expt_summary_table_sub_col' colspan=4>")
+        htmlArray.append( _("Or if you are finished creating this experiment "))
+        htmlArray.append( "</td>")
+        htmlArray.append( "</tr>")
+        
+        htmlArray.append( "<tr class='hermes_expt_summary_table_row'>")
+        htmlArray.append( "<td class='hermes_expt_summary_table_placeholder_col'></td>")
+        htmlArray.append( "<td class='hermes_expt_summary_table_col' colspan=3>")
+        htmlArray.append( "<a href='{0}model-run?modelId={1}'>".format(rootPath,modelId))
+        htmlArray.append( _("Run Simulations of this Model"))
+        htmlArray.append( "</a>")
+        htmlArray.append( "</td>")
+        htmlArray.append( "</tr>")
+        
+        htmlArray.append( "</table>")
+#        print "htmlString = {0}".format(htmlString)
+#        print "htmlJson = {0}".format(json.dumps(htmlString))
         # New vaccines Grid Data
-        return {'success':True,'html':htmlString} 
+        return {'success':True,'html':"\n".join(htmlArray)} 
          
     except Exception,e:
         return {'success':False,'msg':str(e)}      

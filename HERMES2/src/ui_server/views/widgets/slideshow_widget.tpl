@@ -23,7 +23,8 @@
 			activateNext: true,
 			nextFunctions:[],
 			backFunctions:[],
-			doneFunction:[],
+			doneFunction:function(){},
+			doneURL:'{{rootPath}}models-top?crmb=clear',
 			trant:{
 				title: "{{_('Slide Show Widget')}}"
 			}
@@ -186,6 +187,11 @@
 				if(returnVal){
 					$this.backSlide();
 				}
+			});
+			
+			doneBut.click(function(e){
+				thisOptions.doneFunction();
+				window.location=thisOptions.doneUrl;
 			});
 			
 			if(this.options.activateNext){

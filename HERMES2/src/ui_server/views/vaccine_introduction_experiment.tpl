@@ -92,6 +92,11 @@
 		</div>
 	</div>
 	<div id="addvacexpt_slide3" class='addvacexpt_slide'>
+		<div>
+			<p class='expt_text'>
+			{{_('Now, for the new vaccines, please specify the dose schedule that you would like to have for each new vaccine that you are introducing.')}}
+			{{_('You will need to specify in the table below at least one dose be administered for each vaccine.')}}
+		</div>
 		<div id="addvacexpt_dose_per_person_grid_div"></div>
 	</div>
 	<div id="addvacexpt_slide4" class='addvacexpt_slide'>
@@ -139,7 +144,9 @@ $("#addvacexpt_slides").slideShowWithFlowControl({
 	               function(){return true;},
 	               function(){$("#addvacexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid("destroy"); return true;},
 	               function(){return true;}
-	               ]
+	               ],
+	doneFunctions:function(){},
+	doneUrl: '{{rootPath}}model-open?modelId={{modelId}}'
 	
 });
 
