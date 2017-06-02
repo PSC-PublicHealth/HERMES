@@ -106,6 +106,186 @@ var typesMap = {
 };
 </script>
 
+<style>
+
+div.types-top-side-buttons-main{
+	display: -webkit-flex;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	flex-flow: column;
+	-webkit-align-items: center;
+	align-items: center;
+	-webkit-justify-content: center;
+	justify-content: center;
+	*width:100px;
+	*min-width:1000px;
+	*min-height:600px;
+}
+
+div.types-top-side-buttons-top-place{
+	margin: 0 auto;
+	padding:0px;
+	height: 25px;
+	*-webkit-flex: 1 1 10%;
+	*flex: 1 1 10%;
+	order:1
+	*background: red;
+}
+
+div.types-top-side-button-holder{
+	margin: 0 auto;
+	padding:5px;
+	*-webkit-flex: 1 1 10%;
+	*flex: 1 1 20%;
+}
+
+div.types-top-orig-main{
+	display: -webkit-flex;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	flex-flow: column;
+	-webkit-align-items: left;
+	align-items: left;
+	*-webkit-justify-content: f;
+	*justify-content: flex-start;
+	*width:100px;
+	*min-width:1000px;
+	*min-height:600px;
+}
+	
+div.types-top-orig-top {
+	margin: 0 5px;
+	padding:0px;
+	height: 30px;
+	*-webkit-flex: 1 1 10%;
+	*flex: 1 1 10%;
+	order:1;
+	align-self:flex-start;
+	*background: red;
+}
+
+div.types-top-orig-grid {
+	margin: 0 auto;
+	padding:0px;
+	*-webkit-flex: 1 1 80%;
+	*flex: 1 1 80%;
+	order:2;
+	*background: red;
+}
+
+div.types-top-orig-footer {
+	margin: 0;
+	padding:5px 0px;
+	height: 25px;
+	*-webkit-flex: 1 1 10%;
+	*flex: 1 1 10%;
+	order:3;
+	*background: red;
+}
+
+div.types-top-dest-main{
+	display: -webkit-flex;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	flex-flow: column;
+	-webkit-align-items: left;
+	align-items: left;
+	*-webkit-justify-content: f;
+	*justify-content: flex-start;
+	*width:100px;
+	*min-width:1000px;
+	*min-height:600px;
+}
+	
+div.types-top-dest-top {
+	margin: 0 5px;
+	padding:0px;
+	height: 30px;
+	*-webkit-flex: 1 1 10%;
+	*flex: 1 1 10%;
+	order:1;
+	align-self:flex-start;
+	*background: red;
+}
+
+div.types-top-dest-grid {
+	margin: 0 auto;
+	padding:0px;
+	*-webkit-flex: 1 1 80%;
+	*flex: 1 1 80%;
+	order:2;
+	*background: red;
+}
+
+div.types-top-dest-footer {
+	margin: 0;
+	padding:5px 0px;
+	height: 25px;
+	*-webkit-flex: 1 1 10%;
+	*flex: 1 1 10%;
+	order:3;
+	*background: red;
+}
+
+div.types-top-main{
+	display: -webkit-flex;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	flex-flow: row;
+	-webkit-align-items: left;
+	align-items: left;
+	*-webkit-justify-content: f;
+	*justify-content: flex-start;
+	width:800px;
+	*min-width:1000px;
+	*min-height:600px;
+}
+
+div.types-top-main-top {
+	display: block;
+	margin: 4px;
+	padding: 5px;
+	min-height: 100px;
+}
+
+div.types-top-main-1{
+	margin: 0 0;
+	padding:20px;
+	-webkit-flex: 1 1 15%;
+	flex: 1 1 15%;
+	order: 1;
+}
+
+div.types-top-main-2{
+	margin: 0 0;
+	padding:20px;
+	-webkit-flex: 1 1 35%;
+	flex: 1 1 35%;
+	order: 2;
+}
+
+div.types-top-main-3{
+	margin: 0 0;
+	padding:20px;
+	-webkit-flex: 1 1 15%;
+	flex: 1 1 15%;
+	order: 3;
+}
+
+div.types-top-main-4{
+	margin: 0 0;
+	padding:20px;
+	-webkit-flex: 1 1 35%;
+	flex: 1 1 35%;
+	order: 4;
+}
+
+</style>
+<div class='types-top-main-top'>
 <p>
 	<span class='hermes-top-main'>
 		{{_('Edit Components')}}
@@ -117,96 +297,54 @@ var typesMap = {
 		{{_('Use the Source dropdown box to change what database or model to use to look for components.  Select the component you wish to add to the {0} model, and click the arrow button located between the two tables to make it available to the model. To remove an existing component from the model, click the Del(ete) button in the component\'s row in the Used Types table on the left.').format(modelName)}}
 	</span>
 </p>
-
-<table>
-	<tr>
-    	<td>
-    		<table> 
-	    		<tr>
-	    			<td style="height:20px"></td>
-	    		</tr>
+</div> <!-- types-top-main-top -->
+<div class='types-top-main'>
+	<div class='types-top-main-1'>
+    	<div class='types-top-side-buttons-main'>
+    		<div class='types-top-side-buttons-top-place'></div>
 	        %   for te in orderedTypesList:
 	        %   	t = typesEntries[te]
-	        	<tr>
-	        		<td>
-	        			<button id="{{te}}_button" style="width:100%">{{t['label']}}</button>
-	        		</td>
-	    		</tr>
+	        <div class='types-top-side-button-holder'>
+	        	<button id="{{te}}_button" style="width:150px">{{t['label']}}</button>
+	        </div>
     		%   end
-  			</table>
-		</td>
-		<td>
-			<table>
-				<tr>
-					<td style="height:20px" id='dest_header'>
-						{{_('Current type') }}
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<table id='dest_grid'></table>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<div id='dest_pager'></div>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<div id='create_new_type_button'>{{_('Create a New Component')}}</div>
-					</td>
-				</tr>
-			</table>
-		</td>
-	    <td>
-	    	<table id='middle'>
-	    		<tr>
-	    			<td style="height:80px"></td>
-	    		</tr>
-	    		<tr>
-	    			<td>
-	    				<button id="copy_to_model_button">{{_('<--')}}</button>
-    				</td>
-				</tr>
-				<tr>
-					<td></td>
-				</tr>
-	      </table>
-	    </td>
-		<td>
-	    	<table>
-				<tr>
-					<td style="height:20px" id='src_header'>
-				    	<label for="src_model_select">{{_('source')}}</label>
-				    	<select name="src_model_select" id="src_model_select"></select>
-			    	</td>
-		    	</tr>
-				<tr>
-					<td>
-				    	<table id='src_grid'></table>
-			    	</td>
-		    	</tr>
-				<tr>
-					<td>
-				    	<div id='src_pager'></div>
-			    	</td>
-		    	</tr>
-	      </table>
-	    </td>
-% if 0: # until this button has functionality, hide it
-    <td>
-      <table>
-      <tr><td style='height:60px'></td></tr>
-      <tr><td>
-	  <button id="copy_to_model_button">{{_('Create Empty DB')}}</button>
-      </td></tr>
-      <tr><td></td></tr>
-      </table>
-    </td>
-% end
-	</tr>
-</table>
+    		<div class='types-top-side-buttons-bottom-place'></div>
+		</div> <!-- types-top-side-buttons-top-place -->
+	</div> <!-- types-top-main-1 -->
+	
+	<div class='types-top-main-2'>
+		<div class='types-top-orig-main'>
+			<div class='types-top-orig-top' id='dest_header'>
+					{{_('Current type') }}
+			</div>
+			<div class='types-top-orig-grid'>
+					<table id='dest_grid'></table>
+					<div id='dest_pager'></div>
+			</div>
+			<div class='types-top-orig-footer'>
+					<div id='create_new_type_button'>{{_('Create a New Component')}}</div>
+			</div>
+		</div> <!-- types-top-orig-main -->
+	</div> <!-- types-top-main-2 -->
+	
+	<div class='types-top-main-3' style='align-self:center;'>
+		<button id="copy_to_model_button">{{_('Add Component To Model')}}</button>
+	</div> <!-- types-top-main-3 -->
+	
+	<div class='types-top-main-4'>
+    	<div class='types-top-dest-main'>
+    		<div class='types-top-dest-top' id='src_header'>
+		    	<label for="src_model_select">{{_('source')}}</label>
+		    	<select name="src_model_select" id="src_model_select"></select>
+		    </div>
+		    <div class='types-top-dest-grid'>
+		    	<table id='src_grid'></table>
+		    	<div id='src_pager'></div>
+		    </div>
+		    <div class='types-top-dest-footer'></div>
+	    </div> <!-- types-top-dest-main -->
+	</div> <!-- types-top-main-4 -->
+</div> <!-- types-top-main -->
 
 <!--
 	<table id="nextback" width=100%>
@@ -270,7 +408,7 @@ var typesMap = {
 <div id="save_name_exists_modal" title='{{_("Notification")}}'></div>
 <div id="req_modal">{{_('There are required entries that have invalid values, please correct the fields that are highlighted in red.')}}</div>
 <script>
-console.log('point 1');
+
 // many characters in a jquery id need escaped.
 function jId(i) {
     return '#' + i.replace( /(:|\.|\[|\]|\+|\=|\/)/g, "\\$1");
@@ -321,7 +459,9 @@ $(function() {
     setCurrentType('{{startClass}}');
 
     var btn = $('#copy_to_model_button')
-    btn.button();
+    btn.button({
+    	icons: {primary:'ui-icon-arrowthick-1-w'}
+    });
     btn.click( copySelected );
 
     // info dialog
