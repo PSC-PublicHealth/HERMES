@@ -2509,11 +2509,11 @@ div.ui-jqgrid-view table.ui-jqgrid-btable th
     border-left-style:none
 }
 .hermes-top-main{
-    font-size:24px;
+    font-size:large;
     font-weight:bold;
 }
 .hermes-top-sub{
-    font-size:12px;
+    font-size:medium;
 }
 .hrm_selectmenu_overflow{
 	height: 100px;
@@ -2674,7 +2674,7 @@ div.ui-jqgrid-view table.ui-jqgrid-btable th
 	align-items: center;
 	-webkit-justify-content: center;
 	justify-content: center;
-	width:100%;
+	max-width:1200px;
 	*min-width:1000px;
 	min-height:600px;
 	
@@ -2685,7 +2685,7 @@ div.ui-jqgrid-view table.ui-jqgrid-btable th
 	padding:10px;
 	-webkit-flex: 1 1 40%;
 	flex: 1 1 40%;
-	order:1
+	order:1;
 }
 
 .two_flex_right {
@@ -2693,8 +2693,9 @@ div.ui-jqgrid-view table.ui-jqgrid-btable th
 	padding:10px;
 	-webkit-flex: 1 1 60%;
 	flex: 1 1 60%;
-	order:2
+	order:2;
 }
+
 .flex-center {
 	display: -webkit-flex;
 	display: flex;
