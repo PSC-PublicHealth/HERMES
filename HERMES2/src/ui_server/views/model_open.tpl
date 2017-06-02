@@ -28,26 +28,6 @@
 <script src="{{rootPath}}static/geographic-map-widgets/geographicMap.js"></script>
 
 
-<!--#model_operations_holder{
-	float:left;
-	#width:45%;
-	#height:100%;
-	min-width:200px;
-	max-width:400px;
-	opacity:0;
-	#display:none;
-}
-
-#model_diagram_holder{
-	float:left;
-	#width:50%;
-	#height:100%;
-	#background-color:;
-	#padding:10px;
-	#min-width:400px;
-	z-index:5;
-	display:inline;
-}-->
 <style>
 ul.option-list{
 	list-style-type:initial;
