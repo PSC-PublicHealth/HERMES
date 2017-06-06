@@ -118,7 +118,10 @@ $("#addvacexpt_slides").slideShowWithFlowControl({
 	activateNext:true,
 	nextFunctions:[
 	               function(){
-	            	   $("#addvacexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            	   var newTypes = $("#addvacexpt_explorer_model_div").typeExplorerGrid("getNewTypes");
+	            	   if(newTypes.length == 0){
+	            		   $("#addvacexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            	   }
 	            	   return true;
 	               },
 	               function(){
@@ -142,7 +145,11 @@ $("#addvacexpt_slides").slideShowWithFlowControl({
 	              ],
 	backFunctions:[
 	               function(){return true;},
-	               function(){$("#addvacexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid("destroy"); return true;},
+	               function(){
+	            	   $("#addvacexpt_slides").slideShowWithFlowControl("activateButton","next");
+	            	   $("#addvacexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid("destroy"); 
+	            	   return true;
+	               },
 	               function(){return true;}
 	               ],
 	doneFunctions:function(){},
