@@ -4,9 +4,9 @@
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
 # =============================================================================== #
 #                                                                                 #
-# Permission to use, copy, and modify this software and its documentation without # 
+# Permission to use, copy, and modify this software and its documentation without #
 # fee for personal use within your organization is hereby granted, provided that  #
-# the above copyright notice is preserved in all copies and that the copyright    # 
+# the above copyright notice is preserved in all copies and that the copyright    #
 # and this permission notice appear in supporting documentation.  All other       #
 # restrictions and obligations are defined in the GNU Affero General Public       #
 # License v3 (AGPL-3.0) located at http://www.gnu.org/licenses/agpl-3.0.html  A   #
@@ -21,7 +21,8 @@ This is a utility for scanning HERMES input spreadsheets for errors.
 _hermes_svn_id_="$Id$"
 
 import sys,os,optparse,types,math,string,os.path,base64
-import gv
+from collections import defaultdict
+import pygraphviz as pgv
 
 import ipath
 import csv_tools, util
@@ -58,7 +59,7 @@ def addLegend(g,scale=10.0):
     This routine returns a GraphViz node with an HTML label designed to serve
     as a legend for the listed values.
     """
-    n= gv.node(g,'legend')
+    g.add_node('legend')
     if showWhat == None:
     	labelString= '<tr><td bgcolor="none" border="0">Legend</td></tr>\n'
     elif showWhat == 'fill':
@@ -78,11 +79,11 @@ def addLegend(g,scale=10.0):
         labelString += '<tr><td bgcolor="%s">%s</td></tr>\n'%(clr,lbl)
     labelString= '<table border="0" cellborder="1" cellspacing="0">\n'+labelString+'</table>'
     labelString= '<<font point-size="%f">\n'%scale+labelString+'\n</font>>'
-    gv.setv(n,'label',labelString)
-    gv.setv(n,'pos',"10000,200")
-    #gv.setv(n,'pin','true')
-    gv.setv(n,'shape','plaintext')
-    gv.setv(n,'color','none')
+    n = g.get_node('legend')
+    n.attr.update({'label': labelString,
+                   'pos': "10000,200",
+                   'shape': 'plaintext',
+                   'color': 'none'})
     return n
 
 def _decomposeId(code):
@@ -156,95 +157,91 @@ def _getTotalStorage(rec):
     return totVol
 
 def _copyGVNode(oldNode,newGraph):
-    n= gv.node(newGraph,gv.nameof(oldNode))
-    a= gv.firstattr(oldNode)
-    while a is not None:
-        gv.setv(n,gv.nameof(a),gv.getv(oldNode,a))
-        a= gv.nextattr(oldNode,a)
+    newGraph.add_node(oldNode.name)
+    n = newGraph.get_node(oldNode.name)
+    n.attr.update(oldNode.attr)
     return n
 
-def _copyGVDigraphWithClusters(oldHead,newDigraph):
+def _copyGVDigraphWithClusters(oldHead, oldDigraph, newDigraph):
     newHead= _copyGVNode(oldHead,newDigraph)
-    oldEdge= gv.firstout(oldHead)
-    while oldEdge is not None:
-        oldTarget= gv.headof(oldEdge)
-        clusterInfo= gv.getv(oldTarget,'hermes_cluster')
-        if len(clusterInfo)==0:
-            subDigraph= newDigraph
+    for oldEdge in oldDigraph.out_edges_iter([oldHead]):
+        oldTarget= oldEdge[1]
+        if 'hermes_cluster' in oldTarget.attr and len(oldTarget.attr['hermes_cluster']) > 0:
+            clName = oldTarget.attr['hermes_cluster']
+            newDigraph.add_subgraph(name=clName)
+            subDigraph = newDigraph.get_subgraph(clName)
         else:
-            subDigraph= gv.graph(newDigraph,'cluster_%s'%clusterInfo)
-            gv.setv(subDigraph,'label',clusterInfo)
+            subDigraph= newDigraph
         newTarget= _copyGVDigraphWithClusters(oldTarget,subDigraph)
-        newEdge= gv.edge(newHead,newTarget)
-        a= gv.firstattr(oldEdge)
-        while a is not None:
-            gv.setv(newEdge,gv.nameof(a),gv.getv(oldEdge,a))
-            a= gv.nextattr(oldEdge,a)
-        oldEdge= gv.nextout(oldHead,oldEdge)
+        newDigraph.add_edge(newHead, newTarget, **oldEdge.attr)
     return newHead
 
-def _copyGVDigraph(oldHead,newDigraph):
+def _copyGVDigraph(oldHead, oldDigraph, newDigraph):
     newHead= _copyGVNode(oldHead,newDigraph)
-    oldEdge= gv.firstout(oldHead)
-    while oldEdge is not None:
-        oldTarget= gv.headof(oldEdge)
-        subDigraph= newDigraph
-        newTarget= _copyGVDigraph(oldTarget,subDigraph)
-        newEdge= gv.edge(newHead,newTarget)
-        a= gv.firstattr(oldEdge)
-        while a is not None:
-            gv.setv(newEdge,gv.nameof(a),gv.getv(oldEdge,a))
-            a= gv.nextattr(oldEdge,a)
-        oldEdge= gv.nextout(oldHead,oldEdge)
+    for oldEdge in oldDigraph.out_edges_iter([oldHead]):
+        if newDigraph.has_node(oldEdge[1]):
+            newTarget = newDigraph.get_node(oldEdge[1])
+        else:
+            newTarget = _copyGVDigraph(oldEdge[1], oldDigraph, newDigraph)
+        newDigraph.add_edge(newHead, newTarget)
     return newHead
 
-def _copyGVDigraphBreadthFirst(oldHead,newDigraph,newHead=None,depth=0,maxDepth=None):
+def _copyGVDigraphBreadthFirst(oldHead, oldDigraph, newDigraph,newHead=None,depth=0,maxDepth=None):
     #print "depth= %d of %s"%(depth, maxDepth)
     if newHead is None:
         newHead= _copyGVNode(oldHead,newDigraph)
     if maxDepth is not None and depth>=maxDepth:
         return
-    oldEdge= gv.firstout(oldHead)
-    currentNodes= []
-    while oldEdge is not None:
-        oldTarget= gv.headof(oldEdge)
-        newTarget= _copyGVNode(oldTarget,newDigraph)
-        currentNodes.append((oldTarget,newTarget))
-        newEdge= gv.edge(newHead,newTarget)
-        a= gv.firstattr(oldEdge)
-        while a is not None:
-            gv.setv(newEdge,gv.nameof(a),gv.getv(oldEdge,a))
-            a= gv.nextattr(oldEdge,a)
-        oldEdge= gv.nextout(oldHead,oldEdge)
-    for oldNode,newNode in currentNodes:
-        _copyGVDigraphBreadthFirst(oldNode,newDigraph,newNode,depth=depth+1,maxDepth=maxDepth)
+    currentNodes= {}
+    for oldEdge in oldDigraph.out_edge_iter([oldHead]):
+        oldTarget= oldEdge[1]
+        newTarget= _copyGVNode(oldTarget, newDigraph)
+        if oldTarget.name not in currentNodes:
+            currentNodes[oldTarget.name] = newTarget
+        newEdge= newDigraph.add_edge(newHead, newTarget, **oldEdge.attr)
+    for oldNode, newNode in currentNodes.items():
+        _copyGVDigraphBreadthFirst(oldNode, 
+                                   oldDigraph, newDigraph,newNode,depth=depth+1,maxDepth=maxDepth)
     return newHead
 
-def findHead(digraph):
-    headNode= None
-    node= gv.firstnode(digraph)
-    while node is not None:
-        inEdge= gv.firstin(node)
-        numInEdges= 0
-        while inEdge is not None:
-            numInEdges= 1
-            inEdge= gv.nextin(node,inEdge)
-        numOutEdges= 0
-        outEdge= gv.firstout(node)
-        while outEdge is not None:
-            numOutEdges += 1
-            outEdge= gv.nextout(node,outEdge)
-        if numInEdges==0 and numOutEdges>0:
-            if headNode is not None:
-                print gv.getv(headNode,'label')
-                print gv.getv(node,'label')
-                raise RuntimeError("Found too many head nodes!")
-            headNode= node
-        node= gv.nextnode(digraph,node)
-    if headNode is None:
-        raise RuntimeError("Can't find the head of the graph I just built!")
-    return headNode
+def findHeads(digraph):
+    edgeL = digraph.edges()
+    stepCounter = len(edgeL)
+    parentD = defaultdict(list)
+    for head, tail in edgeL:
+        parentD[tail].append(head)
 
+    headSet = set()
+    nodeStack = [edgeL[0][0].name]
+    while nodeStack:
+        node = nodeStack.pop()
+        if parentD[node]:
+            print '%s -> %s' % (node, parentD[node])
+            nodeStack.extend(parentD[node])
+        else:
+            headSet.add(node)
+        stepCounter -= 1
+        if stepCounter < 0:
+            raise RuntimeError('Infinite loop seeking the head nodes!')
+
+    return headSet
+
+def findHead(digraph):
+    headL = list(findHeads(digraph))
+    if len(headL) != 1:
+        raise RuntimeError('Cannot find head of the graph!')
+    return headL[0]
+
+def copyDigraphEmpty(oldDigraph):
+    """Return a new digraph with all the same settings but no nodes or edges"""
+    newDigraph= pgv.AGraph(strict=oldDigraph.strict,
+                           directed=oldDigraph.directed,
+                           name=oldDigraph.name)
+    newDigraph.graph_attr.update(oldDigraph.graph_attr)
+    newDigraph.node_attr.update(oldDigraph.node_attr)
+    newDigraph.edge_attr.update(oldDigraph.edge_attr)
+    return newDigraph
+    
 def cloneWithClusters(oldDigraph):
     """
     Produce a graph equivalent to the input graph (produced by buildHermesNetworkGraph),
@@ -253,24 +250,8 @@ def cloneWithClusters(oldDigraph):
     headNode= findHead(oldDigraph)
 
     # Do the cloning operation
-    newDigraph= gv.digraph(gv.nameof(oldDigraph))
-    a= gv.firstattr(oldDigraph)
-    while a is not None:
-        gv.setv(newDigraph,gv.nameof(a),gv.getv(oldDigraph,a))
-        a= gv.nextattr(oldDigraph,a)
-    oldPN= gv.protonode(oldDigraph)
-    newPN= gv.protonode(newDigraph)
-    a= gv.firstattr(oldPN)
-    while a is not None:
-        gv.setv(newPN,gv.nameof(a),gv.getv(oldPN,a))
-        a= gv.nextattr(oldPN,a)
-    oldPE= gv.protoedge(oldDigraph)
-    newPE= gv.protoedge(newDigraph)
-    a= gv.firstattr(oldPE)
-    while a is not None:
-        gv.setv(newPE,gv.nameof(a),gv.getv(oldPE,a))
-        a= gv.nextattr(oldPE,a)
-    newHead= _copyGVDigraphWithClusters(headNode,newDigraph)
+    newDigraph = copyDigraphEmpty(oldDigraph)
+    newHead= _copyGVDigraphWithClusters(headNode, oldDigraph, newDigraph)
     return newDigraph
 
 def clone(oldDigraph):
@@ -281,24 +262,8 @@ def clone(oldDigraph):
     headNode= findHead(oldDigraph)
 
     # Do the cloning operation
-    newDigraph= gv.digraph(gv.nameof(oldDigraph))
-    a= gv.firstattr(oldDigraph)
-    while a is not None:
-        gv.setv(newDigraph,gv.nameof(a),gv.getv(oldDigraph,a))
-        a= gv.nextattr(oldDigraph,a)
-    oldPN= gv.protonode(oldDigraph)
-    newPN= gv.protonode(newDigraph)
-    a= gv.firstattr(oldPN)
-    while a is not None:
-        gv.setv(newPN,gv.nameof(a),gv.getv(oldPN,a))
-        a= gv.nextattr(oldPN,a)
-    oldPE= gv.protoedge(oldDigraph)
-    newPE= gv.protoedge(newDigraph)
-    a= gv.firstattr(oldPE)
-    while a is not None:
-        gv.setv(newPE,gv.nameof(a),gv.getv(oldPE,a))
-        a= gv.nextattr(oldPE,a)
-    newHead= _copyGVDigraph(headNode,newDigraph)
+    newDigraph = copyDigraphEmpty(oldDigraph)
+    newHead= _copyGVDigraph(headNode, oldDigraph, newDigraph)
     return newDigraph
 
 def cloneBreadthFirst(oldDigraph,maxDepth=None):
@@ -309,24 +274,8 @@ def cloneBreadthFirst(oldDigraph,maxDepth=None):
     headNode= findHead(oldDigraph)
 
     # Do the cloning operation
-    newDigraph= gv.digraph(gv.nameof(oldDigraph))
-    a= gv.firstattr(oldDigraph)
-    while a is not None:
-        gv.setv(newDigraph,gv.nameof(a),gv.getv(oldDigraph,a))
-        a= gv.nextattr(oldDigraph,a)
-    oldPN= gv.protonode(oldDigraph)
-    newPN= gv.protonode(newDigraph)
-    a= gv.firstattr(oldPN)
-    while a is not None:
-        gv.setv(newPN,gv.nameof(a),gv.getv(oldPN,a))
-        a= gv.nextattr(oldPN,a)
-    oldPE= gv.protoedge(oldDigraph)
-    newPE= gv.protoedge(newDigraph)
-    a= gv.firstattr(oldPE)
-    while a is not None:
-        gv.setv(newPE,gv.nameof(a),gv.getv(oldPE,a))
-        a= gv.nextattr(oldPE,a)
-    newHead= _copyGVDigraphBreadthFirst(headNode,newDigraph,maxDepth=maxDepth)
+    newDigraph = copyDigraphEmpty(oldDigraph)
+    newHead= _copyGVDigraphBreadthFirst(headNode, oldDigraph, newDigraph,maxDepth=maxDepth)
     return newDigraph
 
 def getNodeInfo(rec):
@@ -379,34 +328,30 @@ def getEdgeInfo(rec):
     else:
         return "black",None
 
-def findMaxDepthBelow(node):
-    e= gv.firstout(node)
-    if e is None: return 1
-    kids= []
-    while e is not None:
-        k= gv.headof(e)
-        kids.append(k)
-        e= gv.nextout(node,e)
-    maxChildDepth= max([findMaxDepthBelow(k) for k in kids])
-    return maxChildDepth+1
+def findMaxDepthBelow(node, graph):
+    maxDepth = 1
+    for e in graph.out_edge_iter([node]):
+        thisD = findMaxDepthBelow(e[1], graph) + 1
+        if thisD > maxDepth:
+            maxDepth = thisD
+    return maxDepth
 
-def setScale(node,baseScale):
-    gv.setv(node,'fontsize',"%6.2f"%baseScale)
-    kidNodeList= []
-    kidEdgeList= []
-    e= gv.firstout(node)
-    while e is not None:
-        kidEdgeList.append(e)
-        kidNodeList.append(gv.headof(e))
-        e= gv.nextout(node,e)
+def getOutEdges(node, graph):
+    return graph.out_edges([node])
+
+def setScale(node,graph,baseScale):
+    graph.get_node(node).attr['fontsize'] = "%6.2f"%baseScale
+    kidEdgeList = getOutEdges(node, graph)
+    kidNodeList = [e[1] for e in kidEdgeList]
     if len(kidNodeList)>0:
         scale= math.pow(float(len(kidNodeList)),-0.5)
         for e in kidEdgeList:
-            gv.setv(e,'fontsize',"%6.2f"%(0.5*baseScale))
-            gv.setv(e,'penwidth',"%6.2f"%(0.1*baseScale*scale))
-            gv.setv(e,'arrowsize',"%6.2f"%(0.02*baseScale))
+            edge = graph.get_edge(*e)
+            edge.attr['fontsize'] = "%6.2f"%(0.5*baseScale)
+            edge.attr['penwidth'] = "%6.2f"%(0.1*baseScale*scale)
+            edge.attr['arrowsize'] = "%6.2f"%(0.02*baseScale)
         for n in kidNodeList:
-            setScale(n,baseScale*scale)
+            setScale(n,graph,baseScale*scale)
     
 def ascify(str):
     global _asciiTransTbl
@@ -462,63 +407,61 @@ def buildHermesNetworkGraph(whRecs,routeRecs,peopleRecs,reportRecs=None):
                 routeReportDict[r['RouteName']]= r
     
     # Build the graph
-    g= gv.digraph('g')
-    gv.setv(gv.protonode(g),'style','filled')
-    gv.setv(gv.protonode(g),'rank','min')
-    #gv.setv(g,'overlap','prism')
-    gv.setv(g,'mindist','0.1')
-    gv.setv(g,'clusterrank','local')
-    gv.setv(g,'compound','true')
+    g= pgv.AGraph(strict=False, directed=True)
+    g.node_attr['style'] = 'filled'
+    g.node_attr['rank'] = 'min'
+    g.graph_attr['mindist'] = '0.1'
+    g.graph_attr['clusterrank'] = 'local'
+    g.graph_attr['compound'] = 'true'
     nodeDict= {}
     nodeRecDict= {}
     for rec in whRecs:
         id= int(rec['idcode'])
-        n= gv.node(g,'n%d'%id)
+        g.add_node('n%d'%id)
+        n= g.get_node('n%d'%id)
         nName= rec['NAME']
-        nodeDict[id]= n
-        #gv.setv(n,'URL','http://n%s.html'%id)
-        gv.setv(n,'hermes_id','%d'%id)
+        nodeDict[id] = n
+        n.attr['hermes_id'] = '%d'%id
         labelTail= ""
         if whReportDict.has_key(id):
             clr,labelTail= getNodeInfo(whReportDict[id])
             if labelTail is None: labelTail= ""
-            gv.setv(n,'color',clr)
+            n.attr['color'] = clr
         else: 
-            gv.setv(n,'color','lightgray')
+            n.attr['color'] = 'lightgray'
         if rec.has_key('FUNCTION'):
             if rec['FUNCTION']=='Administration':
                 if _getTotalStorage(rec)==0.0:
-                    gv.setv(n,'shape','diamond') # these should be 'attached' clinics
-                    gv.setv(n,'label',"%s%s"%(id,labelTail))
+                    n.attr['shape'] = 'diamond' # these should be 'attached' clinics
+                    n.attr['label'] = "%s%s"%(id,labelTail)
                 else:
-                    gv.setv(n,'label','%s\n%s%s'%(ascify(nName),id,labelTail))
-                    gv.setv(n,'shape','ellipse')
+                    n.attr['label'] = '%s\n%s%s'%(ascify(nName),id,labelTail)
+                    n.attr['shape'] = 'ellipse'
             elif rec['FUNCTION']=='Distribution':
-                gv.setv(n,'label','%s\n%s%s'%(ascify(nName),id,labelTail))
-                gv.setv(n,'shape','box')
+                n.attr['label'] = '%s\n%s%s'%(ascify(nName),id,labelTail)
+                n.attr['shape'] = 'box'
             elif rec['FUNCTION']=='Outreach':
-                gv.setv(n,'label','%s\n%s%s'%(ascify(nName),id,labelTail))
-                gv.setv(n,'shape','house')
+                n.attr['label'] = '%s\n%s%s'%(ascify(nName),id,labelTail)
+                n.attr['shape'] = 'house'
             elif rec['FUNCTION']=='Surrogate':
-                    gv.setv(n,'shape','doublecircle') # these should be 'attached' clinics
-                    gv.setv(n,'label',"%s%s"%(id,labelTail))            
+                n.attr['shape'] = 'doublecircle' # these should be 'attached' clinics
+                n.attr['label'] = "%s%s"%(id,labelTail)
             else:
-                gv.setv(n,'shape','octagon')
-                gv.setv(n,'color','red')
-                gv.setv(n,'label',
-                        '%s\n%s\n%s%s'%(ascify(nName),id,rec['FUNCTION'],labelTail))
+                n.attr['shape'] = 'octagon'
+                n.attr['color'] = 'red'
+                n.attr['label'] = '%s\n%s\n%s%s'%(ascify(nName),id,rec['FUNCTION'],labelTail)
         else:
             totPop= _getTotalPop(rec)
             if totPop !=0:
                 if _getTotalStorage(rec)==0.0:
-                    gv.setv(n,'label','%s\n%s%s'%(ascify(nName),id,labelTail))
-                    gv.setv(n,'shape','diamond') # these should be 'attached' clinics
+                    n.attr['label'] = 'label','%s\n%s%s'%(ascify(nName),id,labelTail)
+                    n.attr['shape'] = 'diamond' # these should be 'attached' clinics
                 else:
-                    gv.setv(n,'label','%s\n%s%s'%(ascify(nName),id,labelTail))
-                    gv.setv(n,'shape','ellipse')
+                    n.attr['label'] = '%s\n%s%s'%(ascify(nName),id,labelTail)
+                    n.attr['shape'] = 'ellipse'
             else:
-                gv.setv(n,'label','%s\n%s%s'%(ascify(nName),id,labelTail))
-                gv.setv(n,'shape','box')
+                n.attr['label'] = '%s\n%s%s'%(ascify(nName),id,labelTail)
+                n.attr['shape'] = 'box'
         nodeRecDict[id]= rec
     for routeName in routeDict.keys():
         edgeList= []
@@ -547,49 +490,46 @@ def buildHermesNetworkGraph(whRecs,routeRecs,peopleRecs,reportRecs=None):
             toID= rec['idcode']
             if toID not in stopsSeenIDs: # Avoid two-visit loops like dropandretrieve
                 stopsSeenIDs.add(toID)
-                edge= gv.edge(nodeDict[fromID],nodeDict[toID])
-                gv.setv(edge,'color',edgeColor)
+                g.add_edge(nodeDict[fromID],nodeDict[toID])
+                edge = g.get_edge(nodeDict[fromID],nodeDict[toID])
+                edge.attr['color'] = edgeColor
                 if rec.has_key('TruckType'):
-                    gv.setv(edge,'label',"%s\n%s\n%s%s"%\
-                            (routeName,rec['TruckType'],rec['Type'],ascify(labelTail)))
+                    edge.attr['label'] = "%s\n%s\n%s%s" % (routeName,
+                                                           rec['TruckType'],
+                                                           rec['Type'],
+                                                           ascify(labelTail))
                 else:
-                    gv.setv(edge,'label',"%s\n%s%s"%(routeName,rec['Type'],ascify(labelTail)))
+                    edge.attr['label'] = "%s\n%s%s"%(routeName,rec['Type'],ascify(labelTail))
                 edgeList.append(edge)
             fromRec= rec
             
     # Scan for loose nodes, and try to attach them
     for id,node in nodeDict.items():
         nLinks= 0
-        if gv.firstedge(node) is None:
+        if len(g.edges([node.name])) == 0:
             rec= nodeRecDict[id]
             if _deadWarehouse(rec):
-                gv.setv(node,'style','dashed')
+                node.attr['style'] = 'dashed'
             else:
                 supplierID= guessSupplierID(rec)
                 if supplierID is None:
-                    gv.setv(node,'color','red')
+                    node.attr['color'] = 'red'
                 else:
-                    edge= gv.edge(nodeDict[supplierID],node)
-                    gv.setv(edge,'label','default')
-                    gv.setv(edge,'style','dotted')
+                    g.add_edge(nodeDict[supplierID].name, node.name)
+                    edge = g.get_edge(nodeDict[supplierID].name, node.name)
+                    edge.attr['label'] = 'default'
+                    edge.attr['style'] = 'dotted'
 
     # Scan for clusters, and add cluster information
     for id,node in nodeDict.items():
-        inEdge= gv.firstin(node)
-        numInEdges= 0
-        while inEdge is not None:
-            numInEdges= 1
-            inEdge= gv.nextin(node,inEdge)
-        numOutEdges= 0
-        outEdge= gv.firstout(node)
-        while outEdge is not None:
-            numOutEdges += 1
-            outEdge= gv.nextout(node,outEdge)
+        edgeL = g.edges([node.name])
+        numInEdges = len([edge for edge in edgeL if edge[1] == node.name])
+        numOutEdges = len([edge for edge in edgeL if edge[0] == node.name])
         if numInEdges==1 and numOutEdges>3:
             nodeRec= nodeRecDict[id]
-            gv.setv(node,'hermes_cluster',ascify(nodeRec['NAME']))
-    gv.setv(g,'fontsize','100.0')
-    setScale(findHead(g),100.0)
+            node.attr['hermes_cluster'] = ascify(nodeRec['NAME'])
+    g.graph_attr['fontsize'] = '100.0'
+    setScale(findHead(g),g,100.0)
     
     return g
                            
@@ -699,7 +639,7 @@ def main():
     # Build the raw graph
     g= buildHermesNetworkGraph(whRecs,routeRecs,peopleRecs,reportRecs)
     if rootID:
-        gv.setv(g,'root','n%ld'%rootID)
+        g.graph_attr['root'] = 'n%ld'%rootID
 
     if addClusterInfo:
         g= cloneWithClusters(g)
@@ -708,18 +648,18 @@ def main():
         pass
 
     if label is not None:
-        gv.setv(g,'label',label)
+        g.graph_attr['label'] = label
         
     if opts.legend:
         addLegend(g,scale=30.0)
 
-    gv.layout(g,layoutAlg)
+    g.layout(prog=layoutAlg)
     if outFormatExtensions.has_key(outFormat):
         outExtension= outFormatExtensions[outFormat]
     else:
         outExtension= outFormat
         
-    gv.render(g,outFormat,'%s.%s'%(outBaseName,outExtension))
+    g.draw('%s.%s'%(outBaseName,outExtension))
 
 ############
 # Main hook
