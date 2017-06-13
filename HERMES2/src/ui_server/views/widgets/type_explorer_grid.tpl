@@ -389,6 +389,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				colModel: colModels,
 				rowNum: -1,
 				caption: title,
+<<<<<<< HEAD
 				shrinkToFit:true,
 				width:thisOptions.width,
 				gridview:true,
@@ -396,6 +397,14 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				loadonce:true,
 				height: thisOptions.height-120,
 				//maxHeight: thisOptions.height-120,
+=======
+				autowidth:true,
+				shrinkToFit:true,
+				gridview:true,
+				autoencode:true,
+				loadonce:true,
+				maxHeight: thisOptions.height-120,
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 				pgbuttons:false,
 				pginput:false,
 				pgtext:false,
@@ -602,6 +611,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 					$("#"+ thisCreateDialogId).typeEditorDialog({
 						modelId: thisOptions.modelId,
 						typeClass: thisOptions.typeClass,
+<<<<<<< HEAD
 						saveFunc: function(newName){
 							var news = $("#"+thisContainerId).data("newTypes");
 							news = news.concat([newName]);
@@ -618,6 +628,9 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 								}
 							});
 							$("#"+thisTableId).jqGrid().trigger('reloadGrid',{fromServer:true});}
+=======
+						saveFunc: function(){$("#"+thisTableId).jqGrid().trigger('reloadGrid');}
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 					});
 				});
 			}

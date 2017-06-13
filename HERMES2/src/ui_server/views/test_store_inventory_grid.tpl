@@ -60,6 +60,7 @@ a.model-operation-item:visited{
 	<div id="test_type_info_button"></div>
 	<div id="test_type_truck_button"></div>
 </div>-->
+<<<<<<< HEAD
 <!--<div id="typeGrids_tests">
 	<div id="test_vaccine_typeGrid"></div>
 </div>-->
@@ -75,6 +76,15 @@ $("#route_form_test").routeSpecifyFormWidget({
 //$(function(){
 //	$("#test_store_grid").hrmWidget({
 ///		widget:'simpleStorageDeviceTable',
+=======
+<div id="typeGrids_tests">
+	<div id="test_vaccine_typeGrid"></div>
+</div>
+<script>
+$(function(){
+//	$("#test_store_grid").hrmWidget({
+//		widget:'simpleStorageDeviceTable',
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 //		modelId:{{modelId}},
 //		storeId:{{storeId}},
 //		showHead:false,
@@ -91,6 +101,7 @@ $("#route_form_test").routeSpecifyFormWidget({
 //		maxHeight:200
 //	});
 //	
+<<<<<<< HEAD
 	$("#test_vaccine_select").hrmWidget({
 		widget:'simpleTypeSelectField',
 		modelId:{{modelId}},
@@ -104,6 +115,19 @@ $("#route_form_test").routeSpecifyFormWidget({
 		invType:'trucks',
 		persistent:true
 	});
+=======
+//	$("#test_vaccine_select").hrmWidget({
+//		widget:'simpleTypeSelectField',
+//		modelId:{{modelId}},
+//		invType:'vaccines'
+//	});
+//
+//	$("#test_truck_select").hrmWidget({
+//		widget:'simpleTypeSelectField',
+//		modelId:{{modelId}},
+//		invType:'trucks',
+//	});
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 //	$("#test_people_select").hrmWidget({
 //		widget:'simpleTypeSelectField',
 //		modelId:{{modelId}},
@@ -134,6 +158,7 @@ $("#route_form_test").routeSpecifyFormWidget({
 //		typeId: "truck_district",
 //		typeClass: 'trucks'
 //	});
+<<<<<<< HEAD
 //	$("#test_vaccine_typeGrid").typeExplorerGrid({
 //		modelId: {{modelId}},
 //		typeClass: 'fridges',
@@ -157,9 +182,15 @@ $("#route_form_test").routeSpecifyFormWidget({
 		typeId: "truck_district",
 		typeClass: 'trucks'
 	});
+=======
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 	$("#test_vaccine_typeGrid").typeExplorerGrid({
-		modelId: 1,
-		typeClass: 'vaccines'
+		modelId: {{modelId}},
+		typeClass: 'fridges',
+		min_height:100,
+		min_width:200,
+		height:200,
+		width:300
 	});
 	
 	

@@ -23,15 +23,19 @@
 			title: "",
 			width:500,
 			excludeRootAndClients:false,
+<<<<<<< HEAD
 			excludeClients:false,
 			belowLevel:'',
 			addOptions: [],
 			routeOrig:false,
+=======
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 			onChangeFunc:function(){},
 			trant:{
 				title: "{{_('Supply Chain Level Selector')}}"
 			}
 		},
+<<<<<<< HEAD
 		getSelected: function(){
 			this.containerId = $(this.element).attr('id');
 			
@@ -63,6 +67,8 @@
 				return selected.attr('id').replace(selectBoxId + "_radio_",'');
 			}
 		},
+=======
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 		_create: function(){
 			trant = this.options.trant;
 			this.containerId = $(this.element).attr('id');
@@ -74,6 +80,7 @@
 			var class_pre = "hermes_supply_chain_level_selector__";
 			$("#"+thisContainerId).addClass(class_pre + "main_div");
 			var thisURL = "{{rootPath}}json/get-levels-in-model";
+<<<<<<< HEAD
 			if (thisOptions.belowLevel != ''){
 				thisURL = "{{rootPath}}json/get-levels-below-level";
 			}
@@ -89,6 +96,14 @@
 			$.ajax({
 				url: thisURL,
 				data:{modelId:thisOptions.modelId,level:thisOptions.belowLevel}
+=======
+			if (thisOptions.excludeRootAndClients){
+				thisURL = "{{rootPath}}json/get-levels-sans-clients-and-root"
+			}
+			$.ajax({
+				url: thisURL,
+				data:{modelId:thisOptions.modelId}
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 			})
 			.done(function(results){
 				if(results.success){
@@ -107,6 +122,7 @@
 							htmlString += "<label  for='" + selectBoxId + "_radio_" + results.levels[i] + "'>"+  results.levels[i] +"</label>";
 							htmlString += "<input type='radio' name='" +  selectBoxId + "_radio' id= '" + selectBoxId + "_radio_" + results.levels[i] + "'>";
 						}
+<<<<<<< HEAD
 						if(thisOptions.addOptions.length > 0){
 							for(var option in thisOptions.addOptions){
 								thisOption = thisOptions.addOptions[option];
@@ -114,6 +130,8 @@
 								htmlString += "<input type='radio' name='" +  selectBoxId + "_radio' id= '" + selectBoxId + "_radio_" + thisOption.value + "'>";
 							}
 						}
+=======
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 						
 						htmlString += "</div">
 						$("#"+thisContainerId).html(htmlString);

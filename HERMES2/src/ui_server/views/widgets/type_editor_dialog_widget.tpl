@@ -79,7 +79,11 @@ var typesMap = {
 			typeClass:'',
 			height: 300,
 			width:700,
+<<<<<<< HEAD
 			saveFunc:function(newName){},
+=======
+			saveFunc:function(){},
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 			title:'',
 			trant:{
 				title: "{{_('Type Explore Grid')}}"
@@ -339,7 +343,11 @@ var typesMap = {
 					    					.done(function(result){
 					    						if(result.success && (result.value == undefined || result.value)) {
 					    							$("#"+thisMainDialogId).dialog("close");
+<<<<<<< HEAD
 					    							thisOptions.saveFunc(name);
+=======
+					    							thisOptions.saveFunc();
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 					    						}
 					    						else{
 					    							alert(result.msg);

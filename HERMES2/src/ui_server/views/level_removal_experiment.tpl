@@ -47,6 +47,7 @@
 </style>
 -->
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/widget_css/slideshow_widget.css" /> 
+<<<<<<< HEAD
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/widget_css/route_specifier_form_widget.css" />
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/widget_css/type_editor_dialog_widget.css" />
 <script src="{{rootPath}}widgets/slideshow_widget.js" type="text/javascript"></script>
@@ -55,6 +56,11 @@
 <script src="{{rootPath}}widgets/supply_chain_level_selector_widget.js" type="text/javascript"></script>
 <script src="{{rootPath}}widgets/route_specifier_form_widget.js" type="text/javascript"></script>
 
+=======
+<script src="{{rootPath}}widgets/slideshow_widget.js" type="text/javascript"></script>
+<script src="{{rootPath}}widgets/type_explorer_grid.js" type="text/javascript"></script>
+<script src="{{rootPath}}widgets/supply_chain_level_selector_widget.js" type="text/javascript"></script>
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 
 <h2>{{_("HERMES Experiment Generator: Removal of A Supply Chain Level")}}</h2>
 <div id="remlevexpt_slides">
@@ -63,6 +69,7 @@
 			{{_('Description of Removing a Suply Chain Level Experiments')}}
 		</span>
 		<p class='expt_text'>
+<<<<<<< HEAD
 			{{_('Supply chains typically have a series of supply chain levels which are set up as intermediaries for which to ship products until finally the products arrive at locations where they will be given to patients.')}}
 			{{_('The levels bring product closer to other locations and generally provide stability and security of stock for the products as they move through the supply chain.')}}
 			{{_('However, there is a tradeoff, where it may be that a supply chain level is not necessary and actually makes the supply chain cost more, and a more efficient supply chain may be obtained by bypassing or removing a supply chain level and rerouting shipping routes directly.')}}
@@ -108,6 +115,23 @@
 <!--		<p class='expt_emph'> 
 			{{_('Please press the "Next" button to continue.')}}
 		</p>-->
+=======
+			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
+			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
+			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
+			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
+		</p>
+		<p class='expt_text'>
+			will write something,will write something, will write something,
+			will write something,will write something,will write something,will write something,
+			will write something,will write something,will write something,will write something,
+			will write something,will write something,will write something,will write something,
+			will write something,will write something,will write something,will write something,
+		</p>	
+		<p class='expt_emph'> 
+			{{_('Please press the "Next" button to continue.')}}
+		</p>
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 	</div>
 	<div id="remlevexpt_slide2" class='remlevexpt_slide'>
 		<div class="flex_cols">
@@ -116,12 +140,18 @@
 					{{_('Please select from below the supply chain level that you would like to remove from the system.')}}
 				</p>
 			</div>
+<<<<<<< HEAD
 			<div id='remlevexpt_level_select'></div>
 			<div id='remlevexpt_route_opts' class="expt_txt" style="display:none">
+=======
+			<div id='remlevelexpt_level_select'></div>
+			<div id='remlevelexpt_route_opts' class="expt_txt" style="display:none">
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 				<p class='expt_text'>
 					{{_('Now you must select how the new routes between locations at the supply chain levels will be defined.  Please select from below one of the following options')}}
 				</p>
 				<p>
+<<<<<<< HEAD
 					<label for="remlevexpt_fromabove" class='remlevexpt_opts_label'>
 							{{_('Use the charactistics of routes from the supply chain level above the level to be removed')}}
 					</label>
@@ -138,21 +168,44 @@
 						{{_('Define your own route characteristics the supply chain level below the level to be removed')}}
 					</label>
 					<input type='radio' name="remlevexpt_route_options" id="remlevexpt_custom">
+=======
+					<label for="remlevelexpt_fromabove" class='remlevelexpt_opts_label'>{{_('Use the charactistics of routes from the supply chain level above the level to be removed')}}</label>
+					<input type='radio' name="remlevelexpt_route_options" id="remlevelexpt_fromabove">
+				</p>
+				<p>
+					<label for="remlevelexpt_frombelow" class='remlevelexpt_opts_label'>{{_('Use the charactistics of routes from the supply chain level below the level to be removed')}}</label>
+					<input type='radio' name="remlevelexpt_route_options" id="remlevelexpt_frombelow" checked>
+				</p>
+				<p>
+					<label for="remlevelexpt_custom" class='remlevelexpt_opts_label'>{{_('Define your own route characteristics the supply chain level below the level to be removed')}}</label>
+					<input type='radio' name="remlevelexpt_route_options" id="remlevelexpt_custom">
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 				</p>
 			</div>
 		</div>
 	</div>
+<<<<<<< HEAD
 	
 	<div id="remlevexpt_slide3" class='remlevexpt_slide'>
 		<div id="remlevexpt_route_spec_form"></div>
 	</div>
 	
+=======
+	<div id="remlevexpt_slide3" class='remlevexpt_slide'>
+		<div>
+			<p class='expt_text'>
+			{{_('This Page will have further route defining')}}
+		</div>
+		<div id="remlevexpt_dose_per_person_grid_div"></div>
+	</div>
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 	<div id="remlevexpt_slide4" class='remlevexpt_slide'>
 		<div id='remlevexpt_summary_title'>
 			<span class='expt_subtitle'>
 				{{_('Remove a Supply Chain Level Experiment Summary')}}
 			</span>
 		</div>
+<<<<<<< HEAD
 		<div id="remlevexpt_summary_text"></div>
 		<div id='remlevexpt_click_next" class='expt_text'>
 			{{_("Please click the Next button above to complete the experiment")}}
@@ -200,12 +253,19 @@
 				</ul>
 			</span>
 		</div>
+=======
+		<div id="remlevexpt_summary_typegrid"></div>
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 	</div>
 </div>
 
 	
 <script>
+<<<<<<< HEAD
 $("#remlevexpt_route_opts :input").checkboxradio();
+=======
+$("#remlevelexpt_route_opts :input").checkboxradio();
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 
 $("#remlevexpt_slides").slideShowWithFlowControl({
 	width: 1200,
@@ -213,6 +273,7 @@ $("#remlevexpt_slides").slideShowWithFlowControl({
 	activateNext:true,
 	nextFunctions:[
 	               function(){
+<<<<<<< HEAD
 	            	   if($("#remlevexpt_level_select").supplyChainLevelSelector("getSelected") == "None"){
 	            		   $("#remlevexpt_slides").slideShowWithFlowControl("deactivateButton","next");
 	            	   }
@@ -268,6 +329,32 @@ $("#remlevexpt_slides").slideShowWithFlowControl({
 	               function(){
 	            	   return true;
 	               }
+=======
+	            	   $("#remlevexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            	   return true;
+	               },
+	               function(){
+	            	  return true;
+	               },
+	               function(){
+	            	 // $("#remlevexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            	 // $("#remlevexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid({
+	            	//	  modelId: {{modelId}},
+	            	//	  filterList: function(){ return JSON.stringify($("#remlevexpt_explorer_model_div").typeExplorerGrid("getNewTypes"))},
+	            	//	  onSaveFunc: function(){$("#remlevexpt_slides").slideShowWithFlowControl("activateButton","next");}
+	            	//  });
+	            	  return true;
+	               },
+	             //  function(){
+	            	//   if($("#remlevexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid("validate")){
+	            	//	   createSummary();
+	            	//	   return true;
+	            	//   }
+	            	//   else{
+	            	//	   return false;
+	            	 //  }
+	             //  }
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 	              ],
 	backFunctions:[
 	               function(){return true;},
@@ -276,8 +363,11 @@ $("#remlevexpt_slides").slideShowWithFlowControl({
 	            	   //$("#remlevexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid("destroy"); 
 	            	   return true;
 	               },
+<<<<<<< HEAD
 	               function(){return true;},
 	               function(){return true;},
+=======
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 	               function(){return true;}
 	               ],
 	doneFunctions:function(){},
@@ -285,17 +375,26 @@ $("#remlevexpt_slides").slideShowWithFlowControl({
 	
 });
 
+<<<<<<< HEAD
 $("#remlevexpt_level_select").supplyChainLevelSelector({
+=======
+$("#remlevelexpt_level_select").supplyChainLevelSelector({
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 	modelId: {{modelId}},
 	excludeRootAndClients:true,
 	type:'radioSelect',
 	onChangeFunc:function(){
+<<<<<<< HEAD
 		$("#remlevexpt_route_opts").fadeIn(200,function(){
+=======
+		$("#remlevelexpt_route_opts").fadeIn(200,function(){
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 				$("#remlevexpt_slides").slideShowWithFlowControl("activateButton","next");
 		});
 	}
 });
 
+<<<<<<< HEAD
 $("#remlevexpt_route_spec_form").routeSpecifyFormWidget({
 	modelId:{{modelId}},
 	includeStops:false
@@ -367,4 +466,28 @@ function implementExperiment(){
 
 		
 }
+=======
+function createSummary(){
+	
+//	$.ajax({
+//		url:{{rootPath}} + "json/vaccine_introduction_summary",
+//		data:{
+//			modelId:{{modelId}},
+//			//newvaccjson:JSON.stringify($("#addvacexpt_explorer_model_div").typeExplorerGrid("getNewTypes")),
+//			newvaccdosejson:$("#addvacexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid("resultJson")
+//		}
+//	})
+//	.done(function(results){
+//		if(results.success){
+//			$("#addvacexpt_summary_typegrid").html(results.html)
+//		}
+//	});
+};
+	
+//	})
+//	var newVaccines = $("#addvacexpt_explorer_model_div").typeExplorerGrid("");
+//	
+
+	
+>>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 </script>
