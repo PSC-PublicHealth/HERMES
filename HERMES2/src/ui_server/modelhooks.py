@@ -2449,6 +2449,41 @@ def jsonGetModelLevels(db,uiSession):
         result = {'success':False, 'msg':str(e)}
         return result
 
+@bottle.route('/json/get-levels-sans-clients-and-root')
+def jsonGetModelLevelsSansClientsAndRoot(db,uiSession):
+    import operator
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        levelsToReturn = []
+        
+        for storeId,store in m.stores.items():
+            if store.CATEGORY not in levelsToReturn:
+            ## Check if this is a root store
+                if len(store.suppliers()) != 0: # not a root
+                    for cR in store.clientRoutes():
+                        if cR.Type != 'attached':
+                            allAttached = False
+                            levelsToReturn.append(store.CATEGORY)
+                            break
+        levelCounts = {x:0 for x in levelsToReturn}
+        for storeId,store in m.stores.items():
+            if store.CATEGORY in levelsToReturn:
+                levelCounts[store.CATEGORY]+=1
+        
+        sortedCount = [x[0] for x in sorted(levelCounts.iteritems(),key=operator.itemgetter(1))]
+        return {'success':True,'levels':sortedCount}
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+   
+    
+                    
+                
 ### this is a last minute hack
 @bottle.route('/json/get-transport-type-names-in-model')
 def jsonGetTransportModelNames(db,uiSession):

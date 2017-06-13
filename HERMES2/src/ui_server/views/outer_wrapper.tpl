@@ -21,20 +21,25 @@
     <title>{{_('HERMES - Supply Chain Modeling for Public Health')}}</title>
 
 <link rel="shortcut icon" type="image/x-icon" href="{{rootPath}}static/icons/favicon2.ico">
-<!--<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/themes/base/jquery-ui.css" />-->
 
-<!--<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/themes/base/jquery.ui.all.css" />-->
-<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.11.4.custom/jquery-ui.css" />
-<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/demos/demos.css" />
+<!-- JQUERY UI includes -->
+
+<!--<script src="{{rootPath}}static/jquery-1.12.4.min.js"></script>-->
+<script src="{{rootPath}}static/jquery-ui-1.12.1.custom/external/jquery/jquery.js"></script>
+<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-themes-1.12.1/themes/smoothness/jquery-ui.min.css" />
+<script src="{{rootPath}}static/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+
+<!-- FOR DEBUGGING - Make sure that our local versions of jquery work -->
+<!--<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>-->
+
+
+
 <link rel="stylesheet" href="{{rootPath}}static/animate.css"/>
-
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-svg-1.4.5/jquery.svg.css" />
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/hermes_custom.css" />
-
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-rcrumbs-3234d9e/jquery.rcrumbs.css" />
-<script src="{{rootPath}}static/jquery-1.11.3.js"></script>
-<script src="{{rootPath}}static/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
-<!--<script src="{{rootPath}}static/jquery-ui-1.10.2/ui/jquery-ui.js"></script>-->
 
 <!-- JQGrid 4.4.4 includes -->
 <!--

@@ -487,6 +487,8 @@ function addToggleExpansionButton($grid) {
  				$elem.data('selected',settings['selected']);
  				
  				// get the currency values
+ 				var modelId = settings['modelId'];
+ 				
  				$.ajax({
  					url:'{{rootPath}}list/select-currency',
  					data:{modelId:modelId,idstring:encodeURIComponent(settings['selected'])}
@@ -875,7 +877,8 @@ function addToggleExpansionButton($grid) {
 	 				height:'auto',
 	 			})
 	 			.selectmenu("menuWidget")
-	 			.addClass("overflow");
+	 			.addClass("overflow")
+	 			$('#'+$(this).attr('id')+'_unit').selectmenu("refresh");
 	 		});
     	}
  		else if(settings['widget']=='dynamicUnitFormInput'){
@@ -2393,6 +2396,7 @@ function addToggleExpansionButton($grid) {
  				if (arg=='getEntries') {
  					
  					var dict = {modelId:settings.modelId}
+ 					
  					$(this).find('input,select,textarea').each( function( index ) {
  						var tj = $(this);
  						if (tj.hasClass('hrm_price')) {
@@ -2482,6 +2486,7 @@ function addToggleExpansionButton($grid) {
  				$elem = $(elem);
  				var htmlString = settings.html + "<div id='req_modal'></div>";
  				$elem.html(htmlString);
+ 				console.log("ModelId = " + settings.modelId);
  				$(document).ready( function() {
  	 				$elem.find('.hrm_currency').each( function(idx) {
  	 					$field = $(this);
