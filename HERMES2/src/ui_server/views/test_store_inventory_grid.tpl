@@ -40,9 +40,12 @@ a.model-operation-item:visited{
 	text-align:center;
 }
 </style>
+<link rel="stylesheet" href="{{rootPath}}static/widget_css/type_editor_dialog_widget.css" />
+<script src="{{rootPath}}widgets/type_editor_dialog_widget.js" type="text/javascript"></script>
+<link rel="stylesheet" href="{{rootPath}}static/widget_css/type_explorer_grid_widget.css" />
 <script src="{{rootPath}}widgets/type_explorer_grid.js" type="text/javascript"></script>
 
-<div id="test_store_grid"></div>
+<!--<div id="test_store_grid"></div>
 <div id="selects_tests">
 	<div id="test_store_select"></div>
 	<div id="test_vaccine_select"></div>
@@ -54,75 +57,78 @@ a.model-operation-item:visited{
 <div id="button_tests">
 	<div id="test_type_info_button"></div>
 	<div id="test_type_truck_button"></div>
-</div>
+</div>-->
 <div id="typeGrids_tests">
 	<div id="test_vaccine_typeGrid"></div>
 </div>
-
 <script>
 $(function(){
-	$("#test_store_grid").hrmWidget({
-		widget:'simpleStorageDeviceTable',
-		modelId:{{modelId}},
-		storeId:{{storeId}},
-		showHead:false,
-		showGrid:false
-	});
-	
-	$("#test_store_grid").simpleStorageDeviceTable("reloadGrid");
-	
-	$("#test_store_select").hrmWidget({
-		widget:'simpleTypeSelectField',
-		modelId:{{modelId}},
-		invType:'fridges',
-		default:"MF214_E",
-		maxHeight:200
-	});
-	
-	$("#test_vaccine_select").hrmWidget({
-		widget:'simpleTypeSelectField',
-		modelId:{{modelId}},
-		invType:'vaccines'
-	});
-
-	$("#test_truck_select").hrmWidget({
-		widget:'simpleTypeSelectField',
-		modelId:{{modelId}},
-		invType:'trucks',
-	});
-	$("#test_people_select").hrmWidget({
-		widget:'simpleTypeSelectField',
-		modelId:{{modelId}},
-		invType:'people'
-	});
-	$("#test_staff_select").hrmWidget({
-		widget:'simpleTypeSelectField',
-		modelId:{{modelId}},
-		invType:'staff'
-	});
-		
-	$("#test_perdiem_select").hrmWidget({
-		widget:'simpleTypeSelectField',
-		modelId:{{modelId}},
-		invType:'perdiems'
-	});
-	
-	$("#test_type_info_button").hrmWidget({
-		widget:'typeInfoButtonAndDialog',
-		modelId: {{modelId}},
-		typeId: "MF214_E",
-		typeClass: 'fridges'
-	});
-	
-	$("#test_type_truck_button").hrmWidget({
-		widget:'typeInfoButtonAndDialog',
-		modelId: {{modelId}},
-		typeId: "truck_district",
-		typeClass: 'trucks'
-	});
+//	$("#test_store_grid").hrmWidget({
+//		widget:'simpleStorageDeviceTable',
+//		modelId:{{modelId}},
+//		storeId:{{storeId}},
+//		showHead:false,
+//		showGrid:false
+//	});
+//	
+//	$("#test_store_grid").simpleStorageDeviceTable("reloadGrid");
+//	
+//	$("#test_store_select").hrmWidget({
+//		widget:'simpleTypeSelectField',
+//		modelId:{{modelId}},
+//		invType:'fridges',
+//		default:"MF214_E",
+//		maxHeight:200
+//	});
+//	
+//	$("#test_vaccine_select").hrmWidget({
+//		widget:'simpleTypeSelectField',
+//		modelId:{{modelId}},
+//		invType:'vaccines'
+//	});
+//
+//	$("#test_truck_select").hrmWidget({
+//		widget:'simpleTypeSelectField',
+//		modelId:{{modelId}},
+//		invType:'trucks',
+//	});
+//	$("#test_people_select").hrmWidget({
+//		widget:'simpleTypeSelectField',
+//		modelId:{{modelId}},
+//		invType:'people'
+//	});
+//	$("#test_staff_select").hrmWidget({
+//		widget:'simpleTypeSelectField',
+//		modelId:{{modelId}},
+//		invType:'staff'
+//	});
+//		
+//	$("#test_perdiem_select").hrmWidget({
+//		widget:'simpleTypeSelectField',
+//		modelId:{{modelId}},
+//		invType:'perdiems'
+//	});
+//	
+//	$("#test_type_info_button").hrmWidget({
+//		widget:'typeInfoButtonAndDialog',
+//		modelId: {{modelId}},
+//		typeId: "MF214_E",
+//		typeClass: 'fridges'
+//	});
+//	
+//	$("#test_type_truck_button").hrmWidget({
+//		widget:'typeInfoButtonAndDialog',
+//		modelId: {{modelId}},
+//		typeId: "truck_district",
+//		typeClass: 'trucks'
+//	});
 	$("#test_vaccine_typeGrid").typeExplorerGrid({
-		modelId: 1,
-		typeClass: 'vaccines'
+		modelId: {{modelId}},
+		typeClass: 'fridges',
+		min_height:100,
+		min_width:200,
+		height:200,
+		width:300
 	});
 	
 	

@@ -14,6 +14,12 @@
 #                                                                                 #
 ###################################################################################
 */
+
+/* Type Explorer Grid Widget 
+ * 
+ *   Description: This widget can be used for any type in hermes to create a jqGrid that can be used to display types, edit types, or create new ones
+ *   
+ */
 typeInfos = {
 			'vaccines': {
 				'url':'json/manage-vaccine-explorer',
@@ -26,6 +32,7 @@ typeInfos = {
 				           ],
 				'title':"{{_('Vaccine Type Explorer')}}",
 				'searchTitle':"{{_('Search for Vaccines')}}",
+				'createTitle':"{{_('Create a New Vaccine')}}",
 				'eg':"BCG",
 				'groupByType':true
 			},
@@ -35,6 +42,7 @@ typeInfos = {
 				'models':[],
 				'title':"{{_('Transport Type Explorer')}}",
 				'searchTitle':"{{_('Search for Transportation Modes')}}",
+				'createTitle':"{{_('Create a New Transportation Mode')}}",
 				'eg':'Motorcycle',
 				'groupByType':true
 			},
@@ -47,6 +55,7 @@ typeInfos = {
 				],
 				'title':"{{_('Storage Device Type Explorer')}}",
 				'searchTitle':"{{_('Search for Storage Device')}}",
+				'createTitle':"{{_('Create a New Storage Device')}}",
 				'eg':'RCW25',
 				'groupByType':true
 			},
@@ -56,6 +65,7 @@ typeInfos = {
 				'models':[],
 				'title':"{{_('People Type Explorer')}}",
 				'searchTitle':"{{_('Search for People Types')}}",
+				'createTitle':"{{_('Create a New People Type')}}",
 				'eg':'Newborn',
 				'groupByType':false
 			},
@@ -65,6 +75,7 @@ typeInfos = {
 				'models':[],
 				'title':"{{_('Staff Type Explorer')}}",
 				'searchTitle':"{{_('Search through Staff')}}",
+				'createTitle':"{{_('Create a New Staff Type')}}",
 				'eg':'EPI Manager',
 				'groupByType':false
 			},
@@ -74,6 +85,7 @@ typeInfos = {
 				'models':[],
 				'title':"{{_('Perdiem Type Explorer')}}",
 				'searchTitle':"{{_('Search through Perdiems')}}",
+				'createTitle':"{{_('Create a New Perdiem Rule')}}",
 				'eg':'By Day',
 				'groupByType':false
 			}
@@ -106,9 +118,13 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			checkBoxes: true,
 			expandAll: false,
 			groupingEnabled: true,
+			createEnabled: true,
 			namesOnly: false,
 			searchEnabled: true,
 			width:400,
+			min_width:400,
+			max_width:1000,
+			height:400,
 			deletable: false,
 			colorNewRows:true,
 			newRowColor:"grey",
@@ -324,11 +340,12 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				colModel: colModels,
 				rowNum: -1,
 				caption: title,
-				width: thisOptions.width,
+				autowidth:true,
+				shrinkToFit:true,
 				gridview:true,
 				autoencode:true,
 				loadonce:true,
-				height: gridHeight,
+				maxHeight: thisOptions.height-120,
 				pgbuttons:false,
 				pginput:false,
 				pgtext:false,
@@ -421,13 +438,16 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			var thisContainerId = this.containerId;
 			var thisTableId = thisContainerId + "_tbl";
 			var thisPagerId = thisContainerId + "_pg";
+			var thisBottomButtonContainerId  = thisContainerId + "_bottom_button_div";
 			var thisSearchId = thisContainerId + "_srch";
 			var thisSearchButDivId = thisContainerId + "_div_sb";
 			var thisSearchButtonId = thisContainerId + "_sb";
 			var thisSearchInputId = thisSearchId + "_input";
 			var thisSearchTextId = thisSearchId + "_text";
 			var showAllResultsButtonId = thisSearchId + "_all_but";
-			var deleteConfirmDialogId = thisContainerId + "del_confirm_dialog";
+			var deleteConfirmDialogId = thisContainerId + "_del_confirm_dialog";
+			var thisCreateButtonId = thisContainerId + "_create_but";
+			var thisCreateDialogId = thisContainerId + "_create_dialog";
 			
 			var thisOptions = this.options;
 			
@@ -435,18 +455,43 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			//Add the necessary HTML
 			htmlString = "<table id = '" + thisTableId + "' class='hermes_type_explorer_grid_table'></table>";
 			htmlString += "<div id = '" + thisPagerId + "' class='hermes_type_explorer_grid_pager'></div>";
+			htmlString += "<div id = '" + thisBottomButtonContainerId + "' class='hermes_type_explorer_grid_bottom_button_div'></div>";
+			
 			if(thisOptions.deletable) {
 				htmlString += "<div id='" + deleteConfirmDialogId + "' class='hermes_type_explorer_grid_delconf'></div>";
 			}
-			if(thisOptions.searchEnabled){
-				htmlString += "<div id = '" + thisSearchId + "' class='hermes_type_explorer_grid_search'></div>";
-				htmlString += "<div id = '" + thisSearchButDivId + "' class='hermes_type_explorer_grid_sb_div'>";
-				htmlString += "<button id = '" + thisSearchButtonId + "' class='hermes_type_explorer_grid_sb'>{{_('Search')}}</button>";
-				htmlString += "<button id = '" + showAllResultsButtonId + "' class='hermes_type_explorer_grid_sb'>{{_('Show All Items')}}</button>";
-				htmlString += "<div id = '" + thisSearchTextId + "' class='hermes_type_explorer_grid_st'></div>";
-			}
-			//htmlString += "<div id = '" + loadingDiv + "' class='hermes_
+			
 			$("#"+thisContainerId).html(htmlString);
+			$("#" + thisContainerId).css("min-height",thisOptions.height + "px");
+			$("#" + thisContainerId).css("min-width",thisOptions.min_width + "px");
+			$("#" + thisContainerId).css("max-height",thisOptions.height + "px");
+			$("#" + thisContainerId).css("max-width",thisOptions.max_width + "px");
+			bbHtmlString = "";
+			
+			if(thisOptions.createEnabled){
+				bbHtmlString += "<div class='hermes_type_explorer_bb_div'>";
+				bbHtmlString += "<div id = '" + thisCreateButtonId + "' class='hermes_type_explorer_grid_cb'>{{_('Create a New Type')}}</div>";
+				bbHtmlString += "</div>";
+				$("#"+thisContainerId).append("<div id='" + thisCreateDialogId + "'></div>");
+			}
+			
+			if(thisOptions.searchEnabled){
+				bbHtmlString += "<div id = '" + thisSearchId + "' class='hermes_type_explorer_grid_search'></div>";
+				//
+				bbHtmlString += "<div class='hermes_type_explorer_bb_div'>";
+				//bbHtmlString += "<div id = '" + thisSearchButDivId + "' class='hermes_type_explorer_grid_sb_div'>";
+				bbHtmlString += "<button id = '" + thisSearchButtonId + "' class='hermes_type_explorer_grid_sb'>{{_('Search')}}</button>";
+				bbHtmlString += "</div>";
+				bbHtmlString += "<div class='hermes_type_explorer_bb_div'>";
+				bbHtmlString += "<button id = '" + showAllResultsButtonId + "' class='hermes_type_explorer_grid_sb'>{{_('Show All Items')}}</button>";
+				bbHtmlString += "</div>";
+				bbHtmlString += "<div class='hermes_type_explorer_bb_div'>";
+				bbHtmlString += "<div id = '" + thisSearchTextId + "' class='hermes_type_explorer_grid_st'></div>";
+				bbHtmlString += "</div>";
+			}
+				
+			$("#" + thisBottomButtonContainerId).html(bbHtmlString);
+			//htmlString += "<div id = '" + loadingDiv + "' class='hermes_
 			
 			var modelId = this.options.modelId;
 			if(modelId == ''){
@@ -465,6 +510,18 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			typeInfo = typeInfos[typeClass];
 			
 			
+			// Set up create capability
+			
+			if(thisOptions.createEnabled){
+				var but = $("#"+thisCreateButtonId).button();
+				but.click(function(){
+					$("#"+ thisCreateDialogId).typeEditorDialog({
+						modelId: thisOptions.modelId,
+						typeClass: thisOptions.typeClass,
+						saveFunc: function(){$("#"+thisTableId).jqGrid().trigger('reloadGrid');}
+					});
+				});
+			}
 			// Set up search capability
 			if(thisOptions.searchEnabled){
 				var but = $("#" + thisSearchButtonId).button();
