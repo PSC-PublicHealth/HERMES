@@ -35,7 +35,7 @@ try:
 except:
     pass
 
-import gv
+import pygraphviz as pgv
 import string
 import math
 import types
@@ -249,17 +249,16 @@ class HermesNetGraph:
         else:
             style, color, label = self._gv_edgeInfo(route)
 
-        edge = gv.edge(fr, to)
-        gv.setv(edge, 'color', color)
-        aL = str(ascify(label))
-        gv.setv(edge, 'label', aL)
+        self.g.add_edge(fr, to, 
+                        color=color,
+                        label=ascify(label),
+                        fontsize='%6.2f'%(0.5*scale),
+                        penwidth='%6.2f'%(0.05*scale),
+                        arrowsize='%6.2f'%(0.02*scale))
         if style is not None:
-            gv.setv(edge, 'style', style)
-        gv.setv(edge, 'fontsize', '%6.2f'%(0.5*scale))
-        gv.setv(edge, 'penwidth', '%6.2f'%(0.05*scale))
-        gv.setv(edge, 'arrowsize', '%6.2f'%(0.02*scale))
+            self.g.get_edge(fr, to).attr['style'] = style
         if constraint is False:
-            gv.setv(edge, 'constraint', 'false')
+            self.g.get_edge(fr, to).attr['constraint'] = 'false'
 
     def _gv_addStore(self, store, scale, memo):
         """
@@ -275,18 +274,18 @@ class HermesNetGraph:
 
         shape,color,label = self._gv_nodeInfo(store)
         try:
-            node = gv.node(self.g, 'n_%s'%storeId)
+            self.g.add_node('n_%s'%storeId,
+                            hermes_id=storeId,
+                            shape=shape,
+                            color=color,
+                            label=str(ascify(label)),
+                            fontsize="%6.2f"%scale,
+#                            URL='http://localhost:8080/foo'
+                            )
         except Exception as e:
             print "Can't create node: for store %s!"%storeId
             raise e
-        memo[storeId] = node
-        gv.setv(node, 'hermes_id',   storeId)
-        gv.setv(node, 'shape',       shape)
-        gv.setv(node, 'color',       color)
-        aL = str(ascify(label))
-        gv.setv(node, 'label',       aL)
-        gv.setv(node, 'fontsize',    "%6.2f"%scale)
-        #gv.setv(node, 'URL','http://localhost:8080/foo')
+        node = self.g.get_node('n_%s'%storeId)
         
         # create scaling factor for children and then process them
         clientCount = len(store.clients())
@@ -320,26 +319,27 @@ class HermesNetGraph:
         """
 
         if self.g is not None:
-            gv.rm(self.g)
+            self.g.clear() # try to trigger garbage collection
             self.g = None
 
         self.delayedEdges = []
         attrib = self.attrib
 
-        g= gv.digraph('g')
+        g= pgv.AGraph(strict=False, directed=True)
         self.g = g
+        g.graph_attr['mindist'] = '0.1'
+        g.graph_attr['clusterrank'] = 'local'
+        g.graph_attr['compound'] = 'true'
+        g.graph_attr['fontsize'] = '100.0'
+        g.graph_attr['charset'] = 'utf-8'
+        g.graph_attr['esep'] = '5'
+        
+        g.node_attr['fixedsize'] = 'false'
+        g.node_attr['style'] = 'filled'
+        g.node_attr['rank'] = 'min'
 
-        gv.setv(gv.protonode(g),'style','filled')
-        gv.setv(gv.protonode(g),'rank','min')
-        #gv.setv(g,'overlap','prism')
-        gv.setv(g,'mindist','0.1')
-        gv.setv(g,'clusterrank','local')
-        gv.setv(g,'compound','true')
-        gv.setv(g,'fontsize','100.0')
-        gv.setv(g,'charset','utf-8')
-        gv.setv(g,'esep', '5')
         if attrib.has_key('label'):
-            gv.setv(g, 'label', attrib['label'])
+            g.graph_attr['label'] = attrib['label']
         
         memo = {}
         rootStores = self.net.rootStores()
@@ -353,25 +353,24 @@ class HermesNetGraph:
             trunkStore = self.net.trunkStore()
             attrib['root'] = trunkStore.idcode
         if attrib['root'] is not None:
-            gv.setv(g, 'root', 'n_%s'%attrib['root'])
+            g.node_attr['root'] = 'n_%s'%attrib['root']
 
         for edge in self.delayedEdges:
             (rName, fr, to, scale) = edge
             self._gv_addEdge(rName, fr, to, scale, 0, False)
 
-        gv.layout(g, self.layout)
-
+        g.layout(prog=self.layout)
 
     def destroy_gv_graph(self):
         if self.g is not None:
-            gv.rm(self.g)
+            self.g.clear() # Try to force some immediate garbage collection
         self.g = None
 
     def get_gv_render(self, format):
-        return gv.renderdata(self.g, format)
+        return self.g.draw(None)
 
     def save_gv_render(self, format, filename):
-        gv.render(self.g, format, filename + '.' + format)
+        self.g.draw('%s.%s'%(filename + '.' + format))
 
 
     # this needs to be rebuilt
