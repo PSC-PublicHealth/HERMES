@@ -49,3 +49,4 @@ except:
     pass
 
 HermesBaseDir = os.path.normpath(os.path.join(cwd, '..'))
+print HermesBaseDir

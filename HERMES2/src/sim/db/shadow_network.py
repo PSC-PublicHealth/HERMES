@@ -3920,6 +3920,11 @@ class ShdTickProcess(Base):
     tickId = Column(Integer, primary_key=True)
 
     attrs = [('modelId',       DataType(INTEGER, foreignKey='models.modelId')),
+             ('runCount',      INTEGER),
+             ('runName',       STRING),
+             ('modelName',     STRING),
+             ('starttime',     STRING),
+             ('note',          STRING),
              ('processId',     INTEGER),
              ('hostName',      STRING),
              ('status',        STRING),

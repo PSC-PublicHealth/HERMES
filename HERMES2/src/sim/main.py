@@ -145,6 +145,7 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None, session_in=None):
     parser.add_option("--save_hdata", help="save the internal output structure in a pickle file")
     parser.add_option("--minion", action="store_true", 
                       help="changes format of info written to stderr to make machine parsing easier")
+    parser.add_option("--db_status_id", help="id of process status to use in database")
     parser.add_option("--perfect", action="store_true", default=False,
                       help="makes all storage and transport infinite")
     parser.add_option("--no_overwrite_db", action="store_true", default=False, help="do not overwrite the specified model in DB if its name already exists")
@@ -195,6 +196,7 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None, session_in=None):
         print "Should only be used if you need intimate control over every step of the simulation"
         
     gblDict['minion'] = opts.minion
+    gblDict['db_status_id'] = opts.db_status_id
     gblDict['deterministic'] = opts.deterministic
     gblDict['zip_inputs'] = opts.zip_inputs
     gblDict['run_number'] = opts.run_number
@@ -265,6 +267,7 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None, session_in=None):
     for userInput in userInputList:
         if opts.minion: 
             userInput['minion'] = True
+            userInput['db_status_id'] = opts.db_status_id
             userInput['customoutput'] = None
         if gblDict['use_dbmodel']:
             userInput['customoutput'] = None
@@ -616,6 +619,10 @@ def main():
             HermesGap.HermesGap(userInputList, unifiedInput, gblInputs, outputList, mergedOutput)
                 
         if gblInputs['minion']:
+            try:
+                r.tickProcess.cleanup()
+            except:
+                pass
             sys.__stderr__.write('#finished#\n')
 
 

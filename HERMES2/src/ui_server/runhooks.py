@@ -27,6 +27,7 @@ import input
 import shadow_network_db_api
 import shadow_db_routines
 import shadow_network
+#import shadow_network as shd
 import session_support_wrapper as session_support
 from HermesServiceException import HermesServiceException
 from gridtools import orderAndChopPage
@@ -34,6 +35,8 @@ import htmlgenerator
 import time
 import crumbtracks
 import costmodel
+import psutil
+import socket
 
 from ui_utils import _logMessage, _logStacktrace, _safeGetReqParam, _getOrThrowError, _getAttrDict
 
@@ -167,21 +170,63 @@ def editRuns():
     return {}
 
 
+def runningStatus(stp):
+    """
+    returns a tuple to determine if the process defined in stp (shadow tick process)
+    is local (position 0) and currently running on this machine (position 1) along with a printed status (position 2)
+    """
+    host = socket.gethostname()
+
+    if stp.hostName != host:
+        return (False, False, stp.status)
+
+    if not psutil.pid_exists(stp.processId):
+        if stp.status == "finished":
+            return (True, False, "finished")
+
+        if stp.status == "initial setup":
+            if time.time() - stp.lastUpdate < 600:
+                return (True, False, "initial setup")
+        
+        return (True, False, "process stopped at " + stp.status)
+
+    #don't trust the process id if the tick process hasn't updated in the last ten minutes
+    if time.time() - stp.lastUpdate > 600:
+        if stp.status == "finished":
+            return (True, False, "finished")
+        return (True, False, "process stopped at " + stp.status)
+
+    # we could put other checks against the command line or similar but for now we'll call this good enough.
+    return (True, True, stp.status)
+    
+    
+
 @bottle.route('/json/manage-runs-table')
-def jsonManageRunsTable():
-    global _minionFactory
-    if _minionFactory is None:
-        _minionFactory = minionrunner.MinionFactory()
-    rList = _minionFactory.liveRuns.values()
-    nPages,thisPageNum,totRecs,rList = orderAndChopPage([{'runId':r.id,'status':r.getStatus(),
-                                                          'runName':info['runName'],
-                                                          'modelName':info['modelName'], 'modelId':info['modelId'],
-                                                          'submitted':info['starttime'],
-                                                          'note':info['note']} for info,r in rList],
+def jsonManageRunsTable(db, uiSession):
+#    global _minionFactory
+#    if _minionFactory is None:
+#        _minionFactory = minionrunner.MinionFactory()
+#    rList = _minionFactory.liveRuns.values()
+
+    rList = db.query(shadow_network.ShdTickProcess).all()
+
+    rList = rList[:]
+    
+    #print rList
+
+    pidStatusList = [runningStatus(r) for r in rList]
+        
+    nPages,thisPageNum,totRecs,rList = orderAndChopPage([{'runId':r.tickId,'status':ps[2],
+                                                          'runName':r.runName,
+                                                          'modelName':r.modelName, 'modelId':r.modelId,
+                                                          'submitted':r.starttime,
+                                                          'note':r.note, 'local':ps[0],
+                                                          'running':ps[1] } for r,ps in zip(rList, pidStatusList)],
                                                         {'runname':'runName', 'runid':'runId',
                                                          'modelname':'modelName', 'modelid':'modelId',
                                                          'submitted':'submitted','status':'status','note':'note'},
                                                         bottle.request)
+    
     result = {
               "total":nPages,    # total pages
               "page":thisPageNum,     # which page is this
@@ -189,9 +234,11 @@ def jsonManageRunsTable():
               "rows": [ {"runid":r['runId'],
                          "cell":[r['runName'], r['runId'], r['modelName'], r['modelId'], r['submitted'],
                                  r['status'], r['runId'], r['runId'], 
-                                 (not _minionFactory.liveRuns[r['runId']][1].done)]}
+                                 #(not _minionFactory.liveRuns[r['runId']][1].done)]}
+                                 r['running'] ]}
                        for r in rList]
               }
+    #print result
     return result
 
 @bottle.route('/model-run/json/run-parms-edit-form')
@@ -307,15 +354,17 @@ def jsonValidateRun(db, uiSession):
     
 @bottle.route('/json/run-info')
 def jsonRunInfo(db, uiSession):
-    global _minionFactory
-    if _minionFactory is None:
-        _minionFactory = minionrunner.MinionFactory()
+
+#    global _minionFactory
+#    if _minionFactory is None:
+#        _minionFactory = minionrunner.MinionFactory()
     try:
         runId = _getOrThrowError(bottle.request.params, 'runId', isInt=True)
-        htmlStr, titleStr = htmlgenerator.getRunInfoHTML(db,uiSession,runId,_minionFactory)
-        runInfo,runMinion = _minionFactory.liveRuns[runId]        
+        processInfo = db.query(shadow_network.ShdTickProcess).filter_by(tickId=runId).one()
+
+        htmlStr, titleStr = htmlgenerator.getRunInfoHTML(db,uiSession,processInfo)
         result = {"success":True, "htmlstring":htmlStr, "title":titleStr,
-                  "running": (not runMinion.done)}
+                  "running": False}  #(not runMinion.done)}
         return result
     except bottle.HTTPResponse:
         raise # bottle will handle this
@@ -325,14 +374,29 @@ def jsonRunInfo(db, uiSession):
 
 @bottle.route('/json/run-terminate')
 def jsonRunTerminate(db, uiSession):
-    global _minionFactory
-    if _minionFactory is None:
-        _minionFactory = minionrunner.MinionFactory()
     try:
         runId = _getOrThrowError(bottle.request.params, 'runId', isInt=True)
-        runInfo,runMinion = _minionFactory.liveRuns[runId]
-        uiSession.getPrivs().mayWriteModelId(db,runInfo['modelId'])
-        runMinion.terminate()
+        processInfo = db.query(shadow_network.ShdTickProcess).filter_by(tickId=runId).one()
+        
+        uiSession.getPrivs().mayWriteModelId(db,processInfo.modelId)
+        p = psutil.Process(processInfo.processId)
+        p.kill()
+        result = {'success':True, 'id':runId}
+        return result
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+
+@bottle.route('/json/run-clear')
+def jsonRunClear(db, uiSession):
+    try:
+        runId = _getOrThrowError(bottle.request.params, 'runId', isInt=True)
+        processInfo = db.query(shadow_network.ShdTickProcess).filter_by(tickId=runId).one()
+        
+        uiSession.getPrivs().mayWriteModelId(db,processInfo.modelId)
+        db.delete(processInfo)
         result = {'success':True, 'id':runId}
         return result
     except bottle.HTTPResponse:

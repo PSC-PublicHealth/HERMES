@@ -35,6 +35,11 @@ _=inlizer.translateString
 #_debug= True
 #_uploadChunkSize= 10000
 
+import shadow_network as shd
+import db_routines as db
+import time
+import socket
+
 class MinionFactory():
     class MinionProc(subprocess.Popen):
         minionId = 1
@@ -123,6 +128,27 @@ class MinionFactory():
     def __init__(self):
         self.siteInfo = site_info.SiteInfo()
         self.liveRuns = {}
+
+    def newDBStatus(self, modelId, runCount, runName):
+        iface = db.DbInterface()
+        session = iface.Session()
+
+        stp = shd.ShdTickProcess(modelId = modelId,
+                                 runCount = runCount,
+                                 runName = runName,
+                                 modelName = "",
+                                 starttime = time.asctime(),
+                                 note = "",
+                                 processId = -1,
+                                 hostName = socket.gethostname(),
+                                 status = "initial setup",
+                                 fracDone = 0.0,
+                                 lastUpdate = int(time.time()))
+
+        session.add(stp)
+        session.commit()
+        return stp.tickId
+        
     
     def startRun(self, modelId, runName, cwd, nReps=1, optList=None):
         """
@@ -131,8 +157,9 @@ class MinionFactory():
         env = os.environ.copy()
         env['HERMES_DATA_PATH'] = os.path.join(self.siteInfo.srcDir(),'master_data','unified')
         mainSrc = os.path.join(self.siteInfo.srcDir(),'main.py')
-        #argList = ['python', '-u', mainSrc, '--minion', '--average', "--out=%s"%runName]
-        argList = ['pypy', '-u', mainSrc, '--minion', '--average', "--out=%s"%runName]
+        statusId = self.newDBStatus(modelId, nReps, runName)
+        argList = ['python', '-u', mainSrc, '--minion', '--db_status_id=%d'%statusId, '--average', "--out=%s"%runName]
+        #argList = ['pypy', '-u', mainSrc, '--minion', '--db_status_id=%d'%statusId, '--average', "--out=%s"%runName]
         import platform
         if platform.system() == "Windows": argList[0] = "pythonw"  #one liner fix to hide minion terminal in Windows
         if optList is not None:

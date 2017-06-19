@@ -340,9 +340,8 @@ def getGenericTypeInfoHTML(db, uiSession, modelId, typeName,simple=False):
     elif category=='staff': return getStaffInfoHTML(db, uiSession, modelId, typeName,simple)
     elif category=='perdiems': return getPerDiemInfoHTML(db, uiSession, modelId, typeName,simple)
 
-def getRunInfoHTML(db, uiSession, runId, minionFactory):
-    minionInfo,sp = minionFactory.liveRuns[runId]
-    runName = minionInfo['runName']
+def getRunInfoHTML(db, uiSession, tickInfo):
+    runName = tickInfo.runName
 
     titleStr = _("Run {0}").format(runName)
 
@@ -351,7 +350,9 @@ def getRunInfoHTML(db, uiSession, runId, minionFactory):
     sio.write("{0}\n".format(runName))
     sio.write("</h3>\n")
     sio.write("<table>\n")
-    for k,v in minionInfo.items():
+    for a in tickInfo.attrs:
+        k = a[0]
+        v = getattr(tickInfo, k)
         sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
     sio.write("</table>\n")
     

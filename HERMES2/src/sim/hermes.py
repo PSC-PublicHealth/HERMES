@@ -124,28 +124,43 @@ class PercentDoneTickProcess( Process ):
 
 class DBTickProcess( Process ):
     def __init__(self, sim):
+        import db_routines as db
+        iface = db.DbInterface()
+        self.session = iface.Session()
+        
         Process.__init__(self, sim=sim)
         self.totalTicks = 0.0
 
-        self.session = sim.shdNet._dbSession
-        
-        self.stp = ShdTickProcess(modelId = sim.shdNet.modelId,
-                                  processId = os.getpid(),
-                                  hostName = socket.gethostname(),
-                                  status = "setup",
-                                  fracDone = 0.0,
-                                  lastUpdate = int(time.time()))
+        print dir(sim.shdNet)
+
+        tickId = sim.userInput.getValue("db_status_id")
+        self.stp = self.session.query(shd.ShdTickProcess).filter_by(tickId=tickId).one()
+
+        self.stp.modelName = sim.shdNet.name
+        self.stp.processId = os.getpid()
+        self.stp.hostName = socket.gethostname()
+        self.stp.status = "simulation setup"
+        self.stp.fracDone = 0.0
+        self.stp.lastUpdate = int(time.time())
+        self.stp.runCount = sim.runNumber
         
         self.session.add(self.stp)
         self.session.commit()
+
+        #atexit.register(self.cleanup)
         
     def run(self):
         while True:
             yield hold, self, 1.0
-            self.stp.status = "running"
-            self.stp.status.fracDone = self.totalTicks / self.sim.model.getTotalRunDays()
+            self.stp.fracDone = self.totalTicks / self.sim.model.getTotalRunDays()
+            self.stp.status = "running %0.2f"%(self.stp.fracDone * 100) + "%" + " (run %d)"%(self.stp.runCount+1)
             self.session.commit()
             self.totalTicks += 1.0
+
+    def cleanup(self):
+        self.stp.status = "finished"
+        self.session.commit()
+        
             
     def reset(self):
         pass
