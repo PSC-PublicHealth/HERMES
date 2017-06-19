@@ -190,7 +190,7 @@ $(function(){
 		min_height:100,
 		min_width:200,
 		height:200,
-		width:300
+		width:1000
 	});
 	
 	
