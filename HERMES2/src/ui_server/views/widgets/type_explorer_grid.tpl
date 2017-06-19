@@ -219,7 +219,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			this.containerId = $(this.element).attr('id');
 			var thisContainerId = this.containerId;
 			var thisTableId = thisContainerId + "_tbl";
-			var deleteConfirmDialogId = thisContainerId + "del_confirm_dialog";
+			var deleteConfirmDialogId = thisContainerId + "_del_confirm_dialog";
 			
 			var modelId = this.options.modelId;
 			var typeClass = this.options.typeClass;
@@ -235,9 +235,10 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 						$(this).dialog("close");
 						for(typ in typesIdsToDel){
 							console.log("Deleting = "+ typesIdsToDel[typ]);
+							var tName = typesIdsToDel[typ].replace("PeRiOd",".");
 							$.ajax({
 								url:"{{rootPath}}json/removeTypeFromModel",
-								data: {modelId: modelId, typeName: typesIdsToDel[typ]},
+								data: {modelId: modelId, typeName: tName},
 							})
 							.done(function(results){
 								if(results.success){
