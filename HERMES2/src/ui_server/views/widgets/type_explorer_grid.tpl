@@ -93,19 +93,22 @@ typeInfos = {
 };
 
 function infoButtonFormatter(cellvalue, options, rowObject){
-	return "<div class='hermes_info_button_div' id='" +options.gid + "_" + rowObject.id+ "_info_button_div'></div>";
+	var typeName = rowObject.id.replace(".","PeRiOd");
+	return "<div class='hermes_info_button_div' id='" +options.gid + "_" + typeName+ "_info_button_div'></div>";
 };
 
 function deleteInfoButtonFormatter(cellvalue, options, rowObject){
-	return "<div class='hermes_info_del_button_container' id='" + options.gid + "_" + rowObject.id+ "_button_container'>" + 
-		   "<div class='hermes_info_button_div' id='" +options.gid + "_" + rowObject.id+ "_info_button_div'></div>" + 
-		   "<div class='hermes_del_button_div' id='" + options.gid + "_" + rowObject.id + "_del_button_div'>" +
-		   		"<button class='hermes_del_buttons' id ='"+ options.gid + "_" + rowObject.id + "_del_button'>{{_('Delete')}}</button></div></div>" 
+	var typeName = rowObject.id.replace(".","PeRiOd");
+	return "<div class='hermes_info_del_button_container' id='" + options.gid + "_" + typeName+ "_button_container'>" + 
+		   "<div class='hermes_info_button_div' id='" +options.gid + "_" + typeName + "_info_button_div'></div>" + 
+		   "<div class='hermes_del_button_div' id='" + options.gid + "_" + typeName + "_del_button_div'>" +
+		   		"<button class='hermes_del_buttons' id ='"+ options.gid + "_" + typeName + "_del_button'>{{_('Delete')}}</button></div></div>" 
 }
 
 function checkBoxFieldFormatter(cellvalue, options, rowObject){
-	var nom = rowObject.id
-	return "<input type='checkbox' class='hermes_type_explorer_checkbox' id='"+ options.gid + "_" + rowObject.id + "_checkbox'>";
+	//var nom = rowObject.id
+	var typeName = rowObject.id.replace(".","PeRiOd");
+	return "<input type='checkbox' class='hermes_type_explorer_checkbox' id='"+ options.gid + "_" + typeName + "_checkbox'>";
 }
 
 ;(function($){
@@ -288,13 +291,13 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			}
 
 			if (thisOptions.checkBoxes){
-				colNames = colNames.concat(" ");
-				colModels = colModels.concat([{name:'selected',index:'selected',width:40,align:'center',formatter:checkBoxFieldFormatter}]);
+				colNames = colNames.concat([" "]);
+				colModels = colModels.concat([{name:'selected',index:'selected',width:30,align:'center',formatter:checkBoxFieldFormatter}]);
 			}
 			
 			
 			colNames = colNames.concat(["{{_('Name')}}"])     
-			colModels = colModels.concat([{name:'name', index:'name',width:300, sortable: true, sorttype:'string', sortorder:'asc', search:true}]);
+			colModels = colModels.concat([{name:'name', index:'name',width:200, sortable: true, sorttype:'string', sortorder:'asc', search:true}]);
 			
 			if(! thisOptions.namesOnly){
 				colNames = colNames.concat(colInfo.labels);
@@ -303,13 +306,18 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			
 			colNames = colNames.concat(["{{_('Info')}}"]);
 			if (thisOptions.deletable){
-				colModels = colModels.concat([{name:'details',index:'details',align:'center',width:120,formatter:deleteInfoButtonFormatter}]);
+				colModels = colModels.concat([{name:'details',index:'details',width:125,fixed:true,align:'center',formatter:deleteInfoButtonFormatter}]);
 			}
 			else{
-				colModels = colModels.concat([{name:'details',index:'details',align:'center',width:70,formatter:infoButtonFormatter}]);
+				colModels = colModels.concat([{name:'details',index:'details',align:'center',width:60,fixed:true,formatter:infoButtonFormatter}]);
 			}
 			
 
+			//add blank column for scrollbar
+			colNames = colNames.concat([" "]);
+			colModels = colModels.concat([{name:'empty1',index:'empty1',width:15,sortable:false,
+							   search:false,resizable:false,fixed:true}]);
+			
 			var gridHeight = thisOptions.height;
 			if(thisOptions.searchEnabled){
 				gridHeight -= 50;
@@ -340,8 +348,11 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				colModel: colModels,
 				rowNum: -1,
 				caption: title,
-				autowidth:true,
+				//scrollOffset:22,
+				//scroll:true,
+				//autowidth:true,
 				shrinkToFit:true,
+				width:thisOptions.width,
 				gridview:true,
 				autoencode:true,
 				loadonce:true,
@@ -397,6 +408,9 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 					$("#" + thisTableId + " .hermes_info_button_div").each(function(){
 						$this = $(this);
 						var typeNameHere = $this.attr("id").replace("_info_button_div","").replace(thisTableId + "_","");
+						if(typeNameHere == "Std_VC_BK1.7CF"){
+							console.log("HERE VC" + typeNameHere);
+						}
 						$this.hrmWidget({
 							widget:'typeInfoButtonAndDialog',
 							modelId: thisOptions.modelId,

@@ -1965,7 +1965,7 @@ function addToggleExpansionButton($grid) {
  				var dialogId = thisId + "_info_dialog_" + unique;
  				
  				var typeClass = settings['typeClass'];
- 				var typeId  = settings['typeId'];
+ 				var typeId  = settings['typeId'].replace("PeRiOd",".");
  				var modelId = settings['modelId'];
  				
  				$elem.data("modelId",modelId);
