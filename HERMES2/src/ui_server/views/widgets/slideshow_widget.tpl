@@ -54,6 +54,30 @@
 			
 			return $("#"+ thisContainerId).data('activeSlide');
 		},
+		hideSlide: function(slideNumber){
+			this.containerId = $(this.element).attr('id');
+			var $this = this;
+			var thisContainerId = this.containerId;
+			var slideShowDiv = thisContainerId + "_slideShow";
+			
+			var currentActiveSlide = $("#"+thisContainerId).data('activeSlide');
+			var numSlides = $("#"+thisContainerId).data('numberSlides');
+			
+			// Cannot hide the current slide
+			if (slideNumber == currentActiveSlide){
+				alert("slideShowWithFlowControl trying to hide the currently active slide is an invalid operation");
+				return false;
+			}
+			// Validate the slide number passed to the function
+			if(slideNumber < 0 || slideNumber > numSlides-1){
+				alert("slideShowWithFlowControl: calling hideSlide with an invalid slide number");
+				return false;
+			}
+			
+			var slideToHide = $("."+thisContainerId + "_slide_" + slideNumber);
+			slideToHide.hide();
+			return true;
+		},
 		nextSlide: function(){
 			this.containerId = $(this.element).attr('id');
 			var $this = this;
@@ -119,8 +143,11 @@
 			
 			$("#"+thisContainerId).children("div").addClass("widget_slide");
 			$("#"+thisContainerId).append("<div id ='" + slideShowDiv + "' class='widget_main'></div>");
+			var slideCount = 0;
 			$(".widget_slide").each(function(){
 				$("#"+slideShowDiv).append(this);
+				$(this).addClass(thisContainerId + "_slide_"+slideCount);
+				slideCount++;
 			});
 			$("#"+thisContainerId).prepend("<div id='" + thisContainerId + "_buttons' class='slideshow_button_cont'>"
 					+ "<button id='"+ backButtonId + "' class='slide_button_deact' >{{_('Back')}}</button>"
