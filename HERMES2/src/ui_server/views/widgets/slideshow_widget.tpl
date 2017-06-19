@@ -62,6 +62,7 @@
 			
 			var currentActiveSlide = $("#"+thisContainerId).data('activeSlide');
 			var numSlides = $("#"+thisContainerId).data('numberSlides');
+			var activeSlideOffsets = $("#" + thisContainerId).data('slideOffsets');
 			
 			// Cannot hide the current slide
 			if (slideNumber == currentActiveSlide){
@@ -74,8 +75,70 @@
 				return false;
 			}
 			
+			//current slide already hidden
+			if(activeSlideOffsets[slideNumber] == -1){
+				return true;
+			}
 			var slideToHide = $("."+thisContainerId + "_slide_" + slideNumber);
 			slideToHide.hide();
+			
+			//update Active offsets
+			
+			activeSlideOffsets[slideNumber] = -1;
+			for (i=slideNumber+1; i<numSlides;++i){
+				if (activeSlideOffsets[i] > -1){
+					activeSlideOffsets[i]--;
+				}
+			}
+			$("#"+thisContainerId).data('slideOffsets',activeSlideOffsets);
+			//console.log("Hide new active offsets = " + activeSlideOffsets);
+			return true;
+		},
+		showSlide: function(slideNumber){
+			this.containerId = $(this.element).attr('id');
+			var $this = this;
+			var thisContainerId = this.containerId;
+			var slideShowDiv = thisContainerId + "_slideShow";
+			
+			var currentActiveSlide = $("#"+thisContainerId).data('activeSlide');
+			var numSlides = $("#"+thisContainerId).data('numberSlides');
+			var activeSlideOffsets = $("#" + thisContainerId).data('slideOffsets');
+			
+			// Validate the slide number passed to the function
+			if(slideNumber < 0 || slideNumber > numSlides-1){
+				alert("slideShowWithFlowControl: calling hideSlide with an invalid slide number");
+				return false;
+			}
+			
+			//current slide already visible
+			if(activeSlideOffsets[slideNumber]>-1){
+				return true;
+			}
+			
+			var slideToShow = $("."+thisContainerId + "_slide_" + slideNumber);
+			
+			slideToShow.show();
+			
+			//update Active Offsets
+			
+			var maxOffset = 0;
+			var slideCount = slideNumber-1;
+			while(maxOffset == -1 && slideCount > -1){
+				maxOffset = activeSlideOffsets[slideCount]
+				slideCount --;
+			}
+			//console.log("maxOffset = " + maxOffset);
+			
+			activeSlideOffsets[slideNumber] = maxOffset + 1;
+			
+			for(var i = slideNumber+1;i<numSlides;++i){
+				if(activeSlideOffsets[i] != -1){
+					activeSlideOffsets[i]++;
+				}
+			}
+			$("#"+thisContainerId).data('slideOffsets',activeSlideOffsets);
+			
+			//console.log("Show new active offsets = " + activeSlideOffsets);
 			return true;
 		},
 		nextSlide: function(){
@@ -89,19 +152,48 @@
 			var slideWidth = $("#"+slideShowDiv).width();
 			
 			var currentActiveSlide = $("#"+thisContainerId).data('activeSlide');
+			var slideOffset = $("#"+thisContainerId).data('slideOffsets');
 			var numSlides = $("#"+thisContainerId).data('numberSlides');
 			//console.log("Current Before: " + currentActiveSlide + " " + numSlides);
-			if(currentActiveSlide != numSlides-1){
+			
+			// ok first off find out if this is the last slide available
+			
+			var moreActiveSlides = false;
+			for (var i=currentActiveSlide + 1; i < numSlides; i++){
+				if(slideOffset[i] > -1){
+					moreActiveSlides = true;
+					break;
+				}
+			}
+			
+			if(moreActiveSlides){
 				//$this.data('activeSlide',currentActiveSlide++);
-				currentActiveSlide++;
-				$("#"+slideShowDiv).animate({scrollLeft:slideWidth*currentActiveSlide},600);
-				if(currentActiveSlide == numSlides-1){
+				currentActiveSlide++; 
+				var previousActiveSlide = currentActiveSlide;
+				while((currentActiveSlide != numSlides-1) && slideOffset[currentActiveSlide] == -1){
+					currentActiveSlide++;
+				}
+				
+				// find out if there are anymore active slides
+				var isLastSlide = false;
+				for(var i=currentActiveSlide+1;i<numSlides;i++){
+					if(slideOffset[i] != -1){
+						isLastSlide = true;
+						break;
+					}
+				}
+				
+				$("#"+slideShowDiv).animate({scrollLeft:slideWidth*slideOffset[currentActiveSlide]},600);
+				
+				if(!isLastSlide){
+					//currentActiveSlide = previousActiveSlide;
 					$this.deactivateButton("next");
 					$this.activateButton("done");
 				}
 				$this.activateButton("back");
-				//console.log("Current After: " + currentActiveSlide);
+				console.log("Current Next Setting: " + currentActiveSlide);
 				$("#"+thisContainerId).data('activeSlide',currentActiveSlide);
+				
 			}	
 		},
 		backSlide: function(){
@@ -114,17 +206,40 @@
 			
 			var currentActiveSlide = $("#"+thisContainerId).data('activeSlide');
 			var numSlides = $("#"+thisContainerId).data('numberSlides');
-			//console.log("Current Before: " + currentActiveSlide + " " + numSlides);
-			if(currentActiveSlide != 0){
+			var slideOffset = $("#"+thisContainerId).data('slideOffsets');
+			
+			console.log("Current Before: " + currentActiveSlide + " " + numSlides);
+			
+			// find out if there are anymore active slides
+			var moreActiveSlides = false;
+			for (var i=currentActiveSlide-1;i>-1;i--){
+				if(slideOffset[i] > -1){
+					moreActiveSlides = true;
+					break;
+				}
+			}
+			console.log("back more active on slide "+ currentActiveSlide + " is " + moreActiveSlides);
+			if(moreActiveSlides){
 				//$this.data('activeSlide',currentActiveSlide++);
 				currentActiveSlide--;
-				$("#"+slideShowDiv).animate({scrollLeft:slideWidth*currentActiveSlide},600);
-				if(currentActiveSlide == 0){
+				while((currentActiveSlide != 0) && slideOffset[currentActiveSlide] == -1){
+					currentActiveSlide--;
+				}
+				$("#"+slideShowDiv).animate({scrollLeft:slideWidth*slideOffset[currentActiveSlide]},600);
+				
+				var isLastSlide = false;
+				for(var i=currentActiveSlide-1;i>-1;i--){
+					if(slideOffset[i] != -1){
+						isLastSlide = true;
+						break;
+					}
+				}
+				if(!isLastSlide){
 					$this.deactivateButton("back");
 				}
 				$this.activateButton("next");
 				$this.deactivateButton("done");
-				//console.log("Current After: " + currentActiveSlide);
+				console.log("Current Back Setting: " + currentActiveSlide);
 				$("#"+thisContainerId).data('activeSlide',currentActiveSlide);
 			}	
 		},
@@ -170,6 +285,13 @@
 			
 			$("#"+thisContainerId).data('numberSlides', $("#" + slideShowDiv + " .widget_slide").length);
 			$("#"+thisContainerId).data('activeSlide', 0);
+			var activeSlideOffsets = {};
+			
+			//initialize so that we can hide slides
+			for (var i=0;i<$("#"+thisContainerId).data('numberSlides');++i){
+				activeSlideOffsets[i] = i;
+			}
+			$("#"+thisContainerId).data('slideOffsets',activeSlideOffsets);
 			$("#"+thisContainerId).data('nextActive',false);
 			$("#"+thisContainerId).data('backActive',false);
 			$("#"+thisContainerId).data('doneActive',false);
