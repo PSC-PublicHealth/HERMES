@@ -118,6 +118,7 @@
 		</div>	
 	</div>
 	<div id="addstorexpt_slide3" class='addstorexpt_slide'>
+		We are on Slide 3..
 	</div>
 	<div id="addstorexpt_slide4" class='addstorexpt_slide'>
 		We are on Slide 4..
@@ -133,7 +134,7 @@ $("#addstorexpt_slides").slideShowWithFlowControl({
 	activateNext:true,
 	nextFunctions:[
 	               function(){
-	            	   $("#addstorexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            	   //$("#addstorexpt_slides").slideShowWithFlowControl("deactivateButton","next");
 	            	   return true;
 	               },
 	               function(){
@@ -146,7 +147,7 @@ $("#addstorexpt_slides").slideShowWithFlowControl({
 	backFunctions:[
 	               function(){return true;},
 	               function(){
-	            	   $("#addstorexpt_slides").slideShowWithFlowControl("activateButton","next");
+	            	   //$("#addstorexpt_slides").slideShowWithFlowControl("activateButton","next");
 	            	   return true;
 	               },
 	               function(){return true;}
@@ -155,7 +156,10 @@ $("#addstorexpt_slides").slideShowWithFlowControl({
 	doneUrl: '{{rootPath}}model-open?modelId={{modelId}}'
 });
 
+$("#addstorexpt_slides").slideShowWithFlowControl("hideSlide",1);
 $("#addstorexpt_slides").slideShowWithFlowControl("hideSlide",2);
+$("#addstorexpt_slides").slideShowWithFlowControl("showSlide",1);
+
 
 $("#addstorexpt_opts :input").checkboxradio();
 
