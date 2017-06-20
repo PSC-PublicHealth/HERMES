@@ -145,26 +145,78 @@ def jsonManageFridgeTable(db, uiSession):
         return result
     except Exception,e:
         return {'success':False, 'msg':str(e)}
-    
+
+
+### Really need to clean this up.
 @bottle.route('/json/manage-fridge-explorer',method='POST')
 def jsonManageFridgeExplorerTable(db,uiSession):
     try:
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         searchTerm = _safeGetReqParam(bottle.request.params, 'searchterm', default=None)
+        excludeTypesFromModel = _safeGetReqParam(bottle.request.params,'excludeTypesFromModel',isInt=True,default=-1)
+        newTypesJson = _safeGetReqParam(bottle.request.params,'newTypes',default='[]')
+        newTypes = json.loads(newTypesJson)
+        newTypesOnly = _safeGetReqParam(bottle.request.params,'newTypesOnly',isBool=True,default=False)
+        forLevelOnlyArg = _safeGetReqParam(bottle.request.params,'forLevelOnly',default=None)
+        if forLevelOnlyArg == "":
+            forLevelOnly = None
+        else:
+            forLevelOnly = forLevelOnlyArg
+            
+        deviceCountsJson = _safeGetReqParam(bottle.request.params,'deviceCounts',default='{}')
+        deviceCounts = json.loads(deviceCountsJson)
+        print "!!!! deviceCounts = {0}".format(deviceCounts)
         #searchTerm = u"{0}".format(searchTermStr)
         uiSession.getPrivs().mayReadModelId(db, modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db, modelId)
     except privs.PrivilegeException:
         raise bottle.BottleException(_('Current User does not have access to model with Id = {0}: from json/manaage-truck-explorer'.format(modelId)))
     except ValueError, e:
-        print 'Empty parameters supplied to manage-truck-explorer'
+        print 'Empty parameters supplied to manage-fridge-explorer'
         print str(e)
         return {'success': 'false'}
     try:
         tList = typehelper.getTypeList(db,modelId,'fridges')
+        
+        exTList = []
+        if excludeTypesFromModel > -1:
+            exTList = [x['Name'] for x in typehelper.getTypeList(db,excludeTypesFromModel,'fridges',fallback=False)]
+        print "!!!!!! FOR LEVEL ONLY = {0}".format(forLevelOnly)
+        if forLevelOnly:
+            inventoryByLevel = m.getInventoryByLevel()
+            print "!!!!! inventory Level = {0}".format(inventoryByLevel[forLevelOnly].keys())
         #print tList
+        if newTypesOnly:
+            print "NEW TYPES ONLY"
+            print "{0}".format(newTypes)
+        
+        
         rows = []
         for v in tList:
-            print v.keys()
+            if v['Name'] in exTList:
+                continue
+            rank=20
+            
+            if len(newTypes) > 0:
+                if v['Name'] in newTypes:
+                    rank=1
+            
+            if newTypesOnly:
+                if v['Name'] not in newTypes:
+                    continue
+            
+            if forLevelOnly:
+                print "checking for level name: {0}".format(v['Name'])
+                if v['Name'] not in inventoryByLevel[forLevelOnly].keys():
+                    continue
+                
+                print "!!!!! Adding to List {0}".format(v['Name'])
+            
+            count = 1
+            print "NAME = {0}".format(v['Name'])
+            if v['Name'] in deviceCounts.keys():
+                count = int(deviceCounts[v['Name']])
+            
             cat = v['DisplayCategory']
             if cat is None or cat == "":
                 cat = u'Other'
@@ -179,8 +231,11 @@ def jsonManageFridgeExplorerTable(db,uiSession):
                        'type':v['DisplayCategory'],
                        'model':modelT,
                        'energy':energy,
-                       'details':v['Name']
+                       'details':v['Name'],
+                       'count':count
                        }
+            
+            
             if searchTerm:
                 ## does this match name, manufacturer...
                 for v in row.values():
@@ -189,7 +244,7 @@ def jsonManageFridgeExplorerTable(db,uiSession):
                         break
             else:
                 rows.append(row)
-            #rows.append(row)
+                #rows.append(row)
             
         return {'success':True,
                 'total':1,

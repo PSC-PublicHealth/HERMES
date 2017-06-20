@@ -79,7 +79,7 @@ var typesMap = {
 			typeClass:'',
 			height: 300,
 			width:700,
-			saveFunc:function(){},
+			saveFunc:function(newName){},
 			title:'',
 			trant:{
 				title: "{{_('Type Explore Grid')}}"
@@ -339,7 +339,7 @@ var typesMap = {
 					    					.done(function(result){
 					    						if(result.success && (result.value == undefined || result.value)) {
 					    							$("#"+thisMainDialogId).dialog("close");
-					    							thisOptions.saveFunc();
+					    							thisOptions.saveFunc(name);
 					    						}
 					    						else{
 					    							alert(result.msg);
