@@ -124,8 +124,8 @@ def addStorageExptSummary(db,uiSession):
         exptData = json.loads(exptDataJson)
         dList = typehelper.getTypeList(db,modelId,'fridges',fallback=False)
         daList = typehelper.getTypeList(db,1,'fridges',fallback=False)
-        print "{0}".format(daList)
-        print "exptData option = {0}".format(exptData['option'])
+        #print "{0}".format(daList)
+        #print "exptData option = {0}".format(exptData['option'])
         htmlArray = []
         htmlArray.append("<div class='hermes_expt_summary_table_div'>")
         htmlArray.append( "<table class='hermes_expt_summary_table'>")
@@ -165,10 +165,10 @@ def addStorageExptSummary(db,uiSession):
             htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
             htmlArray.append("<td class='hermes_expt_summary_table_col'>")
             fromD = [x for x in dList if x['Name']==exptData['fromDevice'][0]]
-            print "FromD= {0}".format(fromD)
-            print "{0}".format(exptData['toDevice'])
+            #print "FromD= {0}".format(fromD)
+            #print "{0}".format(exptData['toDevice'])
             toD = [x for x in daList if x['Name']==exptData['toDevice'][0]]
-            print "HERE: {0}".format(toD)
+            #print "HERE: {0}".format(toD)
             htmlArray.append(_("Replace: {0}".format(fromD[0]['DisplayName'])))
             htmlArray.append("</td></tr>")
             htmlArray.append("<tr class='hermes_expt_summary_table_row'>");
