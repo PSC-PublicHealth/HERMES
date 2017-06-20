@@ -97,7 +97,7 @@ def levelRemExptPage(db,uiSession):
                                                "breadcrumbPairs":crumbTrack})   
         
 @bottle.route('/add_storage_experiment')
-def levelRemExptPage(db,uiSession):
+def addStorageExptPage(db,uiSession):
     crumbTrack = addCrumb(uiSession, _("Add/Modify Storage By Level Experiment"))
     try:
         modelId = _getOrThrowError(bottle.request.params, "modelId", isInt=True)
@@ -114,6 +114,78 @@ def levelRemExptPage(db,uiSession):
                                                "breadcrumbPairs":crumbTrack})   
         
 
+@bottle.route('/json/add_storage_summary')
+def addStorageExptSummary(db,uiSession):
+    try:
+        import json
+        modelId = _getOrThrowError(bottle.request.params,'modelId', isInt=True)
+        exptDataJson = _getOrThrowError(bottle.request.params,'data')
+        
+        exptData = json.loads(exptDataJson)
+        dList = typehelper.getTypeList(db,modelId,'fridges',fallback=False)
+        daList = typehelper.getTypeList(db,1,'fridges',fallback=False)
+        print "{0}".format(daList)
+        print "exptData option = {0}".format(exptData['option'])
+        htmlArray = []
+        htmlArray.append("<div class='hermes_expt_summary_table_div'>")
+        htmlArray.append( "<table class='hermes_expt_summary_table'>")
+        htmlArray.append( "<tr class='hermes_expt_summary_table_lead_row'>")
+        htmlArray.append( "<td colspan=3 class='hermes_expt_summary_table_lead_col'>")
+        if exptData['option'] == 'addstorexpt_replace':
+            htmlArray.append(_('You have chosen to replace all of the storage in the <span style="font-weight:bold;">{0} supply chain level with:'.format(exptData['level'])))
+        elif exptData['option'] == 'addstorexpt_addition':
+            htmlArray.append(_('You have chosen to add storage devices to all locations in the <span style="font-weight:bold;">{0} supply chain level with:'.format(exptData['level'])))
+        elif exptData['option'] == 'addstorextp_swap':
+            htmlArray.append(_('You have chosen to swap storage devices at all location in the <span style="font-weight:bold;">{0} supply chain level: '.format(exptData['level'])))
+        htmlArray.append( _(' '))
+        htmlArray.append( "</td>")
+        htmlArray.append( "</tr>")
+        
+        if exptData['option'] in ['addstorexpt_replace','addstorexpt_addition']:
+            for d in exptData['addDevices']:
+                htmlArray.append("<tr class='hermes_expt_summary_table_row'>")
+                htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+                htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+                if d in exptData['deviceCounts'].keys():
+                    if int(exptData['deviceCounts'][d]) > 1:
+                        dev = [x for x in dList if x['Name']==d]
+                        htmlArray.append("{0} {1}s".format(exptData['deviceCounts'][d],dev[0]['DisplayName']))
+                    else:
+                        dev = [x for x in dList if x['Name']==d]
+                        htmlArray.append("{0} {1}".format(exptData['deviceCounts'][d],dev[0]['DisplayName']))
+                    
+                else:
+                    dev = [x for x in dList if x['Name']==d]
+                    htmlArray.append("1 {0}".format(dev[0]['DisplayName']))
+                
+                htmlArray.append("</td>")
+                htmlArray.append("</tr>")
+        else:
+            htmlArray.append("<tr class='hermes_expt_summary_table_row'>");
+            htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+            htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+            fromD = [x for x in dList if x['Name']==exptData['fromDevice'][0]]
+            print "FromD= {0}".format(fromD)
+            print "{0}".format(exptData['toDevice'])
+            toD = [x for x in daList if x['Name']==exptData['toDevice'][0]]
+            print "HERE: {0}".format(toD)
+            htmlArray.append(_("Replace: {0}".format(fromD[0]['DisplayName'])))
+            htmlArray.append("</td></tr>")
+            htmlArray.append("<tr class='hermes_expt_summary_table_row'>");
+            htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+            htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+            htmlArray.append("With: {0}".format(toD[0]['DisplayName']))
+            htmlArray.append("</td></tr>")
+                             
+        htmlArray.append( "</table>")
+        htmlArray.append("</div>")
+#        print "htmlString = {0}".format(htmlString)
+#        print "htmlJson = {0}".format(json.dumps(htmlString))
+        # New vaccines Grid Data
+        return {'success':True,'html':"\n".join(htmlArray)} 
+         
+    except Exception,e:
+        return {'success':False,'msg':str(e)}      
 @bottle.route('/json/vaccine_introduction_summary')
 def addAVaccineExptSummary(db,uiSession):
     try:
@@ -142,17 +214,6 @@ def addAVaccineExptSummary(db,uiSession):
         pList = typehelper.getTypeList(db,modelId,'people',fallback=False)
         
         for v in vacDoses:
-        #for v in
-            #if v['Name'] in newTypes:
-                
-#                 vDG = None
-#                 for vD in vacDoses:
-#                     if vD['vId'] == v['Name']:
-#                         vDG = vD
-#                         break
-#                 if vDG is None:
-#                     raise RuntimeError(_("in vaccine_introduction_summary: No doses schedule for vaccine {0}".format(v['Name'])))
-                
             htmlArray.append("<tr class='hermes_expt_summary_table_row'>")
             htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
             htmlArray.append("<td colspan=3 class='hermes_expt_summary_table_col'>")
@@ -242,6 +303,7 @@ def addAVaccineExptSummary(db,uiSession):
         htmlArray.append( "</tr>")
         
         htmlArray.append( "</table>")
+        htmlArray.append("</div>")
 #        print "htmlString = {0}".format(htmlString)
 #        print "htmlJson = {0}".format(json.dumps(htmlString))
         # New vaccines Grid Data

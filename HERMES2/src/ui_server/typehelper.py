@@ -131,7 +131,7 @@ def checkDependentTypes(db, modelOrModelId, typeName):
     return needs
 
 
-def addTypeToModel(db, modelOrModelId, typeName, srcModel=None, force=False):
+def addTypeToModel(db, modelOrModelId, typeName, srcModel=None, force=False, ignore=False):
     """
     Copy the given type from srcModel to the given model, if it does not already
     exist.  If srcModel is None (the usual case), AllTypesModel 
@@ -142,7 +142,10 @@ def addTypeToModel(db, modelOrModelId, typeName, srcModel=None, force=False):
     else:
         targetModel = modelOrModelId
     if typeName in targetModel.types:
-        raise RuntimeError(_("Type {0} is already present in model {1}").format(typeName,targetModel.name))
+        if ignore:
+            return
+        else:
+            raise RuntimeError(_("Type {0} is already present in model {1}").format(typeName,targetModel.name))
     if srcModel is None:
         fromModel = _getAllTypesModel(db)
     else:

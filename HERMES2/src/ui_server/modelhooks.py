@@ -1477,14 +1477,14 @@ def jsonCopyMultipleTypesToModel(db, uiSession):
         modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
         srcModelId = _getOrThrowError(bottle.request.params, 'srcModelId', isInt=True)
         typeNamesJson = _getOrThrowError(bottle.request.params,'typeNamesArray')
-        
+        ignoreExists = _safeGetReqParam(bottle.request.params,'ignoreExists',isBool=True,default=False)
         typeNames = json.loads(typeNamesJson)
         
         dest = shadow_network_db_api.ShdNetworkDB(db, modelId)
         src = shadow_network_db_api.ShdNetworkDB(db, srcModelId)
         
         for typ in typeNames:
-            typehelper.addTypeToModel(db,dest,typ, src, True)
+            typehelper.addTypeToModel(db,dest,typ, src, True, ignore=ignoreExists)
         
         return {'success':True}
     except bottle.HTTPResponse:

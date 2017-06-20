@@ -163,6 +163,7 @@ $("#addvacexpt_explorer_all_div").typeExplorerGrid({
 	checkBoxes: true,
 	expandAll: true,
 	namesOnly: true,
+	createEnabled:false,
 	excludeTypesFromModel: {{modelId}},
 	width:$("#addvacexpt_explorer_all_div").width(),
 	title: "{{_('Choose vaccines that you would like to add to the model.')}}"
@@ -173,6 +174,7 @@ $("#addvacexpt_explorer_model_div").typeExplorerGrid({
 	typeClass:'vaccines',
 	checkBoxes: false,
 	selectEnabled: false,
+	createEnabled: true,
 	expandAll: true,
 	groupingEnabled:false,
 	namesOnly:true,

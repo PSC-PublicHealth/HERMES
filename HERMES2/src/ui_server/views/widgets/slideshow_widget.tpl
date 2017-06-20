@@ -91,7 +91,7 @@
 				}
 			}
 			$("#"+thisContainerId).data('slideOffsets',activeSlideOffsets);
-			//console.log("Hide new active offsets = " + activeSlideOffsets);
+			console.log("Hide new active offsets = " + activeSlideOffsets);
 			return true;
 		},
 		showSlide: function(slideNumber){
@@ -121,7 +121,7 @@
 			
 			//update Active Offsets
 			
-			var maxOffset = 0;
+			var maxOffset = -1;
 			var slideCount = slideNumber-1;
 			while(maxOffset == -1 && slideCount > -1){
 				maxOffset = activeSlideOffsets[slideCount]
@@ -138,7 +138,7 @@
 			}
 			$("#"+thisContainerId).data('slideOffsets',activeSlideOffsets);
 			
-			//console.log("Show new active offsets = " + activeSlideOffsets);
+			console.log("Show new active offsets = " + activeSlideOffsets);
 			return true;
 		},
 		nextSlide: function(){
