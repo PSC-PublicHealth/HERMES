@@ -130,8 +130,11 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			height:400,
 			deletable: false,
 			colorNewRows:true,
+			includeCount:false,
 			newRowColor:"grey",
+			forLevelOnly:"",
 			excludeTypesFromModel:-1,
+			newOnly:false,
 			addFunction: function(){},
 			delFunction: function(){},
 			title: "",
@@ -160,6 +163,12 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			
 			return $("#"+thisContainerId).data("newTypes");
 		},
+		getDeviceCounts:function(){
+			this.containerId = $(this.element).attr('id');
+			var thisContainerId = this.containerId;
+			
+			return $("#"+thisContainerId).data("deviceCounts");
+		},
 		add: function(typesIdsToAdd,srcModelId){
 			this.containerId = $(this.element).attr('id');
 			var thisContainerId = this.containerId;
@@ -173,7 +182,8 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				url:{{rootPath}} + 'json/copyMultipleTypesToModel',
 				data: {modelId:modelId, 
 					   srcModelId: srcModelId, 
-					   typeNamesArray: JSON.stringify(typesIdsToAdd)}
+					   typeNamesArray: JSON.stringify(typesIdsToAdd),
+					   ignoreExists:true}
 			})
 			.done(function(results){
 				if(results.success){
@@ -191,7 +201,10 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 					$("#" + thisTableId).jqGrid("setGridParam",{postData:{
 																		modelId:thisOptions.modelId,
 																		excludeTypesFromModel:thisOptions.excludeTypesFromModel,
-																		newTypes:JSON.stringify(news)}
+																		forLevelOnly:thisOptions.forLevelOnly,
+																		newTypesOnly:thisOptions.newOnly,
+																		newTypes:JSON.stringify(news),
+																		deviceCounts:JSON.stringify($("#"+thisContainerId).data("deviceCounts"))}
 					}).trigger("reloadGrid",{fromServer: true});
 						
 					
@@ -305,6 +318,13 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				colModels = colModels.concat(colInfo.models);
 			}
 			
+			if (thisOptions.includeCount){
+				thisOptions.selectEnabled = true;
+				$("#"+thisContainerId).data("deviceCounts",{});
+				colNames = colNames.concat(["{{_('Count')}}"])
+				colModels = colModels.concat([{name:'count',index:'count',width:50,formatter:'integer',editable:true,defaultValue:'1'}]);
+			}
+			
 			colNames = colNames.concat(["{{_('Info')}}"]);
 			if (thisOptions.deletable){
 				colModels = colModels.concat([{name:'details',index:'details',width:125,fixed:true,align:'center',formatter:deleteInfoButtonFormatter}]);
@@ -312,6 +332,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			else{
 				colModels = colModels.concat([{name:'details',index:'details',align:'center',width:60,fixed:true,formatter:infoButtonFormatter}]);
 			}
+			
 			
 
 			//add blank column for scrollbar
@@ -336,28 +357,37 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			if(thisOptions.title != ""){
 				title = thisOptions.title;
 			}
+			
+			var thisUrl = {{rootPath}} + colInfo.url;
+			console.log("For Level Only " + thisOptions.forLevelOnly);
+			var thisPostData = {
+								modelId:thisOptions.modelId,
+								excludeTypesFromModel:thisOptions.excludeTypesFromModel,
+								forLevelOnly:thisOptions.forLevelOnly,
+								newTypesOnly:thisOptions.newOnly,
+								newTypes:"[]",
+								deviceCounts:"{}"//JSON.stringify($("#"+thisTableId).typeExplorerGrid("getNewTypes"))
+								};
+			var thisMtype = 'post';
+			var thisDataType = 'json';
+			var lastSel;
 			$("#"+thisTableId).jqGrid({
-				url:{{rootPath}} + colInfo.url,
-				datatype:'json',
-				postData: {
-					modelId:thisOptions.modelId,
-					excludeTypesFromModel:thisOptions.excludeTypesFromModel,
-				},
-				mtype:'post',
+				url:thisUrl,
+				datatype:thisDataType,
+				postData: thisPostData,
+				mtype:thisMtype,
 				jsonReader: {repeatitems:false},
 				colNames: colNames,
 				colModel: colModels,
 				rowNum: -1,
 				caption: title,
-				//scrollOffset:22,
-				//scroll:true,
-				//autowidth:true,
 				shrinkToFit:true,
 				width:thisOptions.width,
 				gridview:true,
 				autoencode:true,
 				loadonce:true,
-				maxHeight: thisOptions.height-120,
+				height: thisOptions.height-120,
+				//maxHeight: thisOptions.height-120,
 				pgbuttons:false,
 				pginput:false,
 				pgtext:false,
@@ -387,8 +417,36 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 					alert("typeExplorerGrid jqGrid:loadError: "+ status);
 				},
 				beforeSelectRow: function(rowId, e){
-					if(! thisOptions.selectEnabled || thisOptions.checkBoxes){
+					if((! thisOptions.selectEnabled || thisOptions.checkBoxes ) && ! thisOptions.includeCount){
 						return false;
+					}
+					else if(thisOptions.includeCount){
+						var oldRowId = $("#"+thisTableId).getGridParam('selrow');
+						if(oldRowId && (oldRowId != rowId)){
+							$("#"+thisTableId).jqGrid("saveRow",oldRowId);
+						}
+					}
+					return true;
+				},
+				onSelectRow: function(rowId){
+					if(thisOptions.includeCount){
+						if(rowId && rowId!==lastSel){
+							$("#"+thisTableId).jqGrid("restoreRow",lastSel);
+							lastSel=rowId;
+						}
+						$("#"+thisTableId).jqGrid("editRow",rowId,{
+							keys:true,
+							aftersavefunc:function(rowId,response){
+								console.log("Saveing!!!!");
+								var typeName = $("#"+thisTableId).jqGrid("getCell",rowId,'id');
+								var count = $("#"+thisTableId).jqGrid("getCell",rowId,'count');
+								
+								var counts = $("#"+thisContainerId).data("deviceCounts");
+								
+								counts[typeName] = count;
+								$("#"+thisContainerId).data("deviceCounts",counts);
+							}
+						});
 					}
 				},
 				beforeProcessing: function(data,status,xhr){
@@ -533,7 +591,22 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 					$("#"+ thisCreateDialogId).typeEditorDialog({
 						modelId: thisOptions.modelId,
 						typeClass: thisOptions.typeClass,
-						saveFunc: function(){$("#"+thisTableId).jqGrid().trigger('reloadGrid');}
+						saveFunc: function(newName){
+							var news = $("#"+thisContainerId).data("newTypes");
+							news = news.concat([newName]);
+							$("#"+thisContainerId).data("newTypes",news);
+							$("#"+thisTableId).jqGrid('setGridParam',
+							{
+								postData:{
+									modelId:thisOptions.modelId,
+									excludeTypesFromModel:thisOptions.excludeTypesFromModel,
+									forLevelOnly:thisOptions.forLevelOnly,
+									newTypesOnly:thisOptions.newOnly,
+									newTypes:JSON.stringify(news),
+									deviceCounts:JSON.stingify($("#"+thisContainerId).data("deviceCounts"))
+								}
+							});
+							$("#"+thisTableId).jqGrid().trigger('reloadGrid',{fromServer:true});}
 					});
 				});
 			}
@@ -568,7 +641,8 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 							$("#"+thisTableId).jqGrid("setGridParam", {
 								postData: {
 									modelId: thisOptions.modelId,
-									searchterm: $("#"+thisSearchInputId).val()
+									searchterm: $("#"+thisSearchInputId).val(),
+									deviceCounts: JSON.stringify($("#"+thisContainerId).data("deviceCounts"))
 								}
 							}).trigger("reloadGrid", { fromServer: true});
 							$("#"+showAllResultsButtonId).show();
@@ -598,7 +672,8 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 					$("#"+thisTableId).jqGrid("setGridParam", {
 						postData: {
 							modelId: thisOptions.modelId,
-							searchterm: ""
+							searchterm: "",
+							deviceCounts:JSON.stringify($("#"+thisContainerId).data("deviceCounts"))
 						}
 					}).trigger("reloadGrid", { fromServer: true});
 					$("#"+thisSearchTextId).html("");

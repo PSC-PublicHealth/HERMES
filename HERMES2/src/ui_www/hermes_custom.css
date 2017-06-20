@@ -2603,6 +2603,37 @@ div.ui-jqgrid-view table.ui-jqgrid-btable th
 	
 }
 
+.tri_sm_div_left {
+	margin: 0 auto;
+	padding: 0px;
+	-webkit-flex: 3 1 45%;
+	flex: 3 1 45%;
+	order: 1;
+	align-self:flex-start;
+	*min-width: 200px;
+	*background: red;
+}
+
+.tri_sm_div_right {
+	margin: 0 auto;
+	padding: 0px;
+	-webkit-flex: 3 1 45%;
+	flex: 3 1 45%;
+	order: 3;
+	align-self:flex-start;
+	*background: green;
+	
+}
+
+.tri_sm_div_center {
+	margin: 0 auto;
+	padding: 5px;
+	-webkit-flex: 1 6 10%;
+	flex: 1 6 10%;
+	order: 2;
+	*background: aqua;
+	
+}
 .tri_div_top {
 	display: block;
 	margin: 4px;

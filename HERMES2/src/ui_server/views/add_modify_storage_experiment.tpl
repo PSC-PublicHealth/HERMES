@@ -118,10 +118,42 @@
 		</div>	
 	</div>
 	<div id="addstorexpt_slide3" class='addstorexpt_slide'>
-		We are on Slide 3..
+		<!-- This is the slide that you define the storage compliment on -->
+		<div id="tri_container" class='tri_div_all'>
+		<div id="addstorexpt_explorer_all_div" class="tri_div_left"></div>
+		<div id="addstorexpt_add_div" class="tri_div_center">
+			<div id="button_div" class="flex-center">
+				<button id="addstorexpt_add_store_button" class="right_arrow_button">Add Device</button>
+			</div>
+		</div>
+		<div id="addstorexpt_explorer_compliment_div" class="tri_div_right"></div>
+	</div>
 	</div>
 	<div id="addstorexpt_slide4" class='addstorexpt_slide'>
-		We are on Slide 4..
+		<!-- This slide is for choosing what storage devices to replace, you can only choose one to replace one device with -->
+		<div id="tri_container" class='tri_div_all'>
+			<div id="addstorexpt_explorer_from_div"  class="tri_sm_div_left"></div>
+			<div id="addstorexpt_place_div"  class="tri_sm_div_center"></div>
+			<div id="addstorexpt_explorer_to_div" class="tri_sm_div_right"></div>
+		</div>
+	</div>
+	<div id="addstorexpt_slide5" class='addstorexpt_slide'>
+		<div id="addstorexpt_summary_title">
+			<span class='expt_subtitle'>
+				{{_('Add / Modify Storage By Supply Chain Level Experiment Summary')}}
+			</span>
+		</div>
+		<div id="addstorexpt_summary_text"></div>
+		<div id="addstorexpt_click_next" class='expt_text'>
+			{{_("Please click the Next button above to complete the experiment")}}
+		</div>
+	</div>
+	<div id="addstoreexpt_slide6" class='addstorept_slide'>
+		<div id="addstorexpt_final_links_div">
+			<span class='expt_subtitle'>
+				{{_('Below are some additional actions that you may want to perform on your newly modified model:')}}
+			</span>
+		</div>
 	</div>
 </div>
 
@@ -134,11 +166,19 @@ $("#addstorexpt_slides").slideShowWithFlowControl({
 	activateNext:true,
 	nextFunctions:[
 	               function(){
-	            	   //$("#addstorexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            	   $("#addstorexpt_slides").slideShowWithFlowControl("deactivateButton","next");
 	            	   return true;
 	               },
 	               function(){
 	            	  return true;
+	               },
+	               function(){
+	            	   createSummary();
+	            	   return true;
+	               },
+	               function(){
+	            	   createSummary();
+	            	   return true;
 	               },
 	               function(){
 	            	   return true;
@@ -150,16 +190,16 @@ $("#addstorexpt_slides").slideShowWithFlowControl({
 	            	   //$("#addstorexpt_slides").slideShowWithFlowControl("activateButton","next");
 	            	   return true;
 	               },
+	               function(){return true;},
+	               function(){return true;},
 	               function(){return true;}
 	               ],
 	doneFunctions:function(){},
 	doneUrl: '{{rootPath}}model-open?modelId={{modelId}}'
 });
 
-$("#addstorexpt_slides").slideShowWithFlowControl("hideSlide",1);
-$("#addstorexpt_slides").slideShowWithFlowControl("hideSlide",2);
-$("#addstorexpt_slides").slideShowWithFlowControl("showSlide",1);
-
+// Initially hide slide 3 for swap unless chosen
+//$("#addstorexpt_slides").slideShowWithFlowControl("hideSlide",3);
 
 $("#addstorexpt_opts :input").checkboxradio();
 
@@ -174,55 +214,124 @@ $("#addstorexpt_level_select").supplyChainLevelSelector({
 	}
 });
 
-//$("#addstorexpt_explorer_all_div").typeExplorerGrid({
-//	modelId: 1,
-//	typeClass:'vaccines',
-//	checkBoxes: true,
-//	expandAll: true,
-//	namesOnly: true,
-//	excludeTypesFromModel: {{modelId}},
-//	width:$("#addstorexpt_explorer_all_div").width(),
-//	title: "{{_('Choose vaccines that you would like to add to the model.')}}"
-//});
-//
-//$("#addstorexpt_explorer_model_div").typeExplorerGrid({
-//	modelId: {{modelId}},
-//	typeClass:'vaccines',
-//	checkBoxes: false,
-//	selectEnabled: false,
-//	expandAll: true,
-//	groupingEnabled:false,
-//	namesOnly:true,
-//	searchEnabled: false,
-//	addFunction: function(typName){
-//		console.log("HERE " + typName);
-//		$("#addstorexpt_explorer_all_div").typeExplorerGrid("removeGrid",typName);
-//	},
-//	width:$("#addstorexpt_explorer_model_div").width(),
-//	deletable: true,
-//	title: "{{_('Vaccines Currently in the Model')}}"
-//});
-//
-//
-//var addVacBut = $("#addstorexpt_add_vacc_button").button({
-//	icons: {secondary:'ui-icon-arrowthick-1-e'}
-//});
-//
-//addVacBut.click(function(e){
-//	e.preventDefault();
-//	var selected = $("#addstorexpt_explorer_all_div").typeExplorerGrid("getSelectedElements");
-//	if(selected.length == 0){
-//		alert("{{_('You have not selected any vaccines to add')}}");
-//	}
-//	else{
-//		$("#addstorexpt_explorer_model_div").typeExplorerGrid("add",$("#addstorexpt_explorer_all_div").typeExplorerGrid("getSelectedElements"),1);
-//		$("#addstorexpt_slides").slideShowWithFlowControl("activateButton","next");
-//	}
-//});
-//
-//
-//function createSummary(){
-//	
+$("#addstorexpt_explorer_all_div").typeExplorerGrid({
+	modelId: 1,
+	typeClass:'fridges',
+	checkBoxes: true,
+	expandAll: true,
+	namesOnly: false,
+	createEnabled: false,
+	groupingEnable:true,
+	width:$("#addstorexpt_explorer_all_div").width()-2.5,
+	title: "{{_('Choose storage devices that you would like to add to the compliment of devices.')}}"
+});
+
+var addStoreBut = $("#addstorexpt_add_store_button").button({
+	icons: {secondary:'ui-icon-arrowthick-1-e'}
+});
+
+addStoreBut.click(function(e){
+	e.preventDefault();
+	var selected = $("#addstorexpt_explorer_all_div").typeExplorerGrid("getSelectedElements");
+	if(selected.length == 0){
+		alert("{{_('You have not selected any storage devices to add')}}");
+	}
+	else{
+		$("#addstorexpt_explorer_compliment_div").typeExplorerGrid("add",selected,1);
+		$("addstorexpt_slides").slideShowWithFlowControl("activateButton","next");
+	}
+});
+
+$("#addstorexpt_explorer_compliment_div").typeExplorerGrid({
+	modelId: {{modelId}},
+	typeClass:'fridges',
+	checkBoxes: false,
+	selectEnabled: false,
+	expandAll: true,
+	groupingEnabled:false,
+	createEnabled:true,
+	searchEnabled: false,
+	newOnly:true,
+	colorNewRows:false,
+	includeCount:true,
+	namesOnly: true,
+	addFunction: function(typName){
+		$("#addstorexpt_explorer_all_div").typeExplorerGrid("removeGrid",typName);
+	},
+	width:$("#addstorexpt_explorer_compliment_div").width()-2.5,
+	deletable: true,
+	title: "{{_('Storage Devices Currently in the Model')}}"
+});
+
+$("#addstorexpt_explorer_from_div").typeExplorerGrid({
+	modelId: {{modelId}},
+	typeClass:'fridges',
+	checkBoxes: false,
+	selectEnabled: true,
+	expandAll: true,
+	groupingEnabled:false,
+	createEnabled:false,
+	searchEnabled: false,
+	newOnly:false,
+	width:$("#addstorexpt_explorer_from_div").width()-2.5,
+	deletable: false,
+	title: "{{_('Choose one storage device that you would like to replace at this level')}}"
+});
+
+$("#addstorexpt_explorer_to_div").typeExplorerGrid({
+	modelId:1,
+	typeClass:'fridges',
+	selectEnabled:true,
+	checkBoxes:false,
+	expandAll:true,
+	groupingEnabled:true,
+	createEnabled:false,
+	width:$("#addstorexpt_explorer_to_div").width()-2.5,
+	title: "{{_('Choose one storage device that you would like to use to replace the old device.')}}"
+});
+
+$("#addstorexpt_slides").slideShowWithFlowControl("hideSlide",3);
+
+$("#addstorexpt_opts").change(function(){
+	var currentVal = $("#addstorexpt_opts :radio:checked").attr('id');
+	if(currentVal == "addstorexpt_swap"){
+		$("#addstorexpt_slides").slideShowWithFlowControl("hideSlide",2);
+		$("#addstorexpt_slides").slideShowWithFlowControl("showSlide",3);
+	}
+	else{
+		$("#addstorexpt_slides").slideShowWithFlowControl("hideSlide",3);
+		$("#addstorexpt_slides").slideShowWithFlowControl("showSlide",2);
+	}
+});
+
+function createSummary(){
+	// prepare data
+	var dataObject = {
+			'level':$("#addstorexpt_level_select :radio:checked").attr("id").replace("addstorexpt_level_select_select_id_radio_",""),
+			'option':$("#addstorexpt_opts :radio:checked").attr("id"),
+			'addDevices':$("#addstorexpt_explorer_compliment_div").typeExplorerGrid("getNewTypes"),
+			'deviceCounts':$("#addstorexpt_explorer_compliment_div").typeExplorerGrid("getDeviceCounts"),
+			'fromDevice':$("#addstorexpt_explorer_from_div").typeExplorerGrid("getSelectedElements"),
+			'toDevice':$("#addstorexpt_explorer_to_div").typeExplorerGrid("getSelectedElements")
+			};
+	
+	console.log(dataObject);
+	
+	$.ajax({
+		url:{{rootPath}}+"json/add_storage_summary",
+		data:{
+			modelId:{{modelId}},
+			data:JSON.stringify(dataObject)
+		}
+	})
+	.done(function(results){
+		$("#addstorexpt_summary_text").html(results.html);
+	});
+}
+
+
+
+
 //	$.ajax({
 //		url:{{rootPath}} + "json/vaccine_introduction_summary",
 //		data:{
