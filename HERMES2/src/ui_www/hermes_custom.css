@@ -2869,3 +2869,7 @@ div.hermes_flex_dialog_col2{
 	min-width: 500px;
 	max-width: 1000px;
 }
+
+ul.proper_ul {
+	list-style-type: circle;
+}
