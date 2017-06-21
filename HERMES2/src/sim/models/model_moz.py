@@ -45,8 +45,8 @@ class Model(model_generic.Model):
 #         # downstream clinics; it includes any attached clinics but does not include
 #         # safety stock.
 #         
-#         #demandDownstreamVialsVC= toW.getInstantaneousDemandVC((timeNow,timeNow+shipInterval))            
-#         demandDownstreamVialsVC= toW.getProjectedDemandVCMasked((timeNow,timeNow+shipInterval),mask="M_Drone")
+#         #demandDownstreamVialsVC= toW.getInstantaneousDemandVC(fromW, (timeNow,timeNow+shipInterval))            
+#         demandDownstreamVialsVC= toW.getProjectedDemandVCMasked((timeNow,timeNow+shipInterval),fromW,mask="M_Drone")
 #         #print demandDownstreamVialsVC
 #         #if toW.idcode == 120000:
 #         #    print "buggers"

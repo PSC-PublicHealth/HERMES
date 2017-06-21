@@ -55,9 +55,9 @@ class Model(model_generic.Model):
         # The InstantaneousDemand has been set by the MonthlyOrderProcesses of the
         # downstream clinics; it includes any attached clinics but does not include
         # safety stock.
-        #demandDownstreamVialsVC= toW.getInstantaneousDemandVC((timeNow,timeNow+shipInterval))
+        #demandDownstreamVialsVC= toW.getInstantaneousDemandVC(fromW, (timeNow,timeNow+shipInterval))
         
-        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval))
+        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval), fromW)
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
         
         # Warehouses try for a buffer stock of 1.25.
@@ -91,16 +91,17 @@ class Model(model_generic.Model):
         
         return toW.getPackagingModel().applyPackagingRestrictions(lowVC + otherVialsVC)
     
-    def getDeliverySize(self, toW, availableVC, shipInterval, timeNow):
+    def getDeliverySize(self, fromW, toW, availableVC, shipInterval, timeNow):
         """
         For those rare shipping patterns where the truck may not drop off the full
         size of an order, for example in the VillageReach shipping pattern.  This
         method is called for some particular route types immediately before the
         delivery is actually transferred to toW, and the amount delivered is
-        the lesser of the returned VaccineCollection and availableVC.
+        the lesser of the returned VaccineCollection and availableVC.  The supplier
+        for the route is provided as fromW for convenience.
         """
         #vc = self.getScheduledShipmentSize(None, toW, shipInterval, timeNow)
-        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval))
+        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval), fromW)
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
         
         # Warehouses try for a buffer stock of 1.25.

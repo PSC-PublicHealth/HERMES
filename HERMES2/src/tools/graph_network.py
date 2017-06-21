@@ -339,19 +339,35 @@ def findMaxDepthBelow(node, graph):
 def getOutEdges(node, graph):
     return graph.out_edges([node])
 
-def setScale(node,graph,baseScale):
-    graph.get_node(node).attr['fontsize'] = "%6.2f"%baseScale
-    kidEdgeList = getOutEdges(node, graph)
-    kidNodeList = [e[1] for e in kidEdgeList]
-    if len(kidNodeList)>0:
-        scale= math.pow(float(len(kidNodeList)),-0.5)
-        for e in kidEdgeList:
-            edge = graph.get_edge(*e)
-            edge.attr['fontsize'] = "%6.2f"%(0.5*baseScale)
-            edge.attr['penwidth'] = "%6.2f"%(0.1*baseScale*scale)
-            edge.attr['arrowsize'] = "%6.2f"%(0.02*baseScale)
-        for n in kidNodeList:
-            setScale(n,graph,baseScale*scale)
+def _propogateWeights(nodeL, graph, baseWt):
+    for n in nodeL:
+        graph.get_node(n).attr['hrm_wt'] = float(graph.get_node(n).attr['hrm_wt']) + baseWt
+        edgeL = graph.out_edges([n])
+        if edgeL:
+            _propogateWeights([e[1] for e in edgeL], graph, baseWt/min(len(edgeL), 3))
+
+def _wtToScale(wt, minWt, maxWt):
+    #return math.exp(-0.05*((maxWt - wt)/(wt + 0.01 - minWt)))
+    return ((wt + 0.01 - minWt)/(maxWt - minWt))
+
+def setScale(nodeL,graph,baseScale):
+    for n in graph.nodes():
+        n.attr['hrm_wt'] = 0.0
+    _propogateWeights(findHeads(graph), graph, 1.0)
+    maxWt = max([float(n.attr['hrm_wt']) for n in graph.nodes_iter()])
+    minWt = min([float(n.attr['hrm_wt']) for n in graph.nodes_iter()])
+    print 'maxWt = %s, minWt= %s' % (maxWt, minWt)
+    for n in graph.nodes():
+        wt = float(n.attr['hrm_wt'])
+        scale = _wtToScale(wt, minWt, maxWt)
+        n.attr['fontsize'] = "%6.2f"%(scale * baseScale)
+    for e in graph.edges():
+        wt = float(graph.get_node(e[1]).attr['hrm_wt'])
+        scale = _wtToScale(wt, minWt, maxWt)
+        edge = graph.get_edge(*e)
+        edge.attr['fontsize'] = "%6.2f"%(0.5*baseScale*scale)
+        edge.attr['penwidth'] = "%6.2f"%(0.1*baseScale*scale)
+        edge.attr['arrowsize'] = "%6.2f"%(0.02*baseScale*scale)
     
 def ascify(str):
     global _asciiTransTbl
@@ -410,6 +426,7 @@ def buildHermesNetworkGraph(whRecs,routeRecs,peopleRecs,reportRecs=None):
     g= pgv.AGraph(strict=False, directed=True)
     g.node_attr['style'] = 'filled'
     g.node_attr['rank'] = 'min'
+    g.node_attr['fixedsize'] = 'false'
     g.graph_attr['mindist'] = '0.1'
     g.graph_attr['clusterrank'] = 'local'
     g.graph_attr['compound'] = 'true'
@@ -433,7 +450,7 @@ def buildHermesNetworkGraph(whRecs,routeRecs,peopleRecs,reportRecs=None):
             if rec['FUNCTION']=='Administration':
                 if _getTotalStorage(rec)==0.0:
                     n.attr['shape'] = 'diamond' # these should be 'attached' clinics
-                    n.attr['label'] = "%s%s"%(id,labelTail)
+                    n.attr['label'] = "%s\n%s%s"%(ascify(nName), id,labelTail)
                 else:
                     n.attr['label'] = '%s\n%s%s'%(ascify(nName),id,labelTail)
                     n.attr['shape'] = 'ellipse'
@@ -529,7 +546,8 @@ def buildHermesNetworkGraph(whRecs,routeRecs,peopleRecs,reportRecs=None):
             nodeRec= nodeRecDict[id]
             node.attr['hermes_cluster'] = ascify(nodeRec['NAME'])
     g.graph_attr['fontsize'] = '100.0'
-    setScale(findHead(g),g,100.0)
+    #setScale(findHead(g),g,100.0)
+    setScale(findHeads(g),g,100.0)
     
     return g
                            

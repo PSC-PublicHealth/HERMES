@@ -4,7 +4,7 @@
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
 # =============================================================================== #
 #                                                                                 #
-# Permission to use, copy, and modify this software and its documentation without # 
+# Permission to use, copy, and modify this software and its documentation without #
 # fee for personal use within your organization is hereby granted, provided that  #
 # the above copyright notice is preserved in all copies and that the copyright    # 
 # and this permission notice appear in supporting documentation.  All other       #
@@ -1919,7 +1919,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
         self._instantaneousDemandVC= instantaneousDemandVC*self.sim.vaccines.getVialsToDosesVC()
         self._instantaneousDemandInterval= interval
 
-    def getProjectedDemandVC(self,interval,recurLevel=0):
+    def getProjectedDemandVC(self, supplierWH, interval, recurLevel=0):
         """
         This routine provides a (rather expensive) way to propagate demand
         figures up the distribution tree immediately, as if all the warehouses
@@ -1960,13 +1960,13 @@ class Warehouse(Store, abstractbaseclasses.Place):
                 if bestNext is None: bestNext= nextTime
                 else: bestNext= min(bestNext,nextTime)
             #print "    %s%s: %s %s"%("   "*recurLevel,w.bName,bestPrev,bestNext)
-            delta= w.getProjectedDemandVC((bestPrev,bestNext),recurLevel=recurLevel+1)
+            delta= w.getProjectedDemandVC((bestPrev,bestNext),self, recurLevel=recurLevel+1)
             #print "    %s--> %s"%("    "*recurLevel,delta)
             resultVC += delta
         #print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
         return resultVC
     
-    def getInstantaneousDemandVC(self,interval,recurLevel=0):
+    def getInstantaneousDemandVC(self,supplierWH,interval,recurLevel=0):
         """
         This routine plus registerInstantaneousDemand provide a (rather expensive)
         way to propagate demand figures up the distribution tree immediately,
@@ -2015,7 +2015,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
                     if bestNext is None: bestNext= nextTime
                     else: bestNext= min(bestNext,nextTime)
                 # print "    %s%s: %s %s"%("   "*recurLevel,w.bName,bestPrev,bestNext)
-                delta= w.getInstantaneousDemandVC((bestPrev,bestNext),recurLevel=recurLevel+1)
+                delta= w.getInstantaneousDemandVC(self, (bestPrev,bestNext),recurLevel=recurLevel+1)
                 # print "    %s--> %s"%("    "*recurLevel,delta)
                 resultVC += delta
             # print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
@@ -2026,7 +2026,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
             resultVC= resultDosesVC*self.sim.vaccines.getDosesToVialsVC()
             resultVC.roundUp()
             for c in self.getClients():
-                resultVC += c.getInstantaneousDemandVC(interval)
+                resultVC += c.getInstantaneousDemandVC(self,interval)
         return resultVC
     
     def _calcTotalDownstreamPopServedPC(self,recalculate=False):
@@ -2365,7 +2365,7 @@ class Clinic(Warehouse):
         Clears the InstataneousUsage accumulator for daily reporting
         """
         self._instantUsageVC = self.sim.shippables.getCollection()
-    def getProjectedDemandVC(self,interval,recurLevel=0):
+    def getProjectedDemandVC(self,supplierWH, interval,recurLevel=0):
         """
         This routine provides a (rather expensive) way to propagate shipping demand
         figures up the distribution tree immediately, as if all the warehouses
@@ -2388,7 +2388,7 @@ class Clinic(Warehouse):
         for w in self.getClients():
             if isinstance(w,AttachedClinic):
                 #print "    %s%s: %s %s"%("   "*recurLevel,w.bName,tStart,tEnd)
-                delta= w.getProjectedDemandVC((tStart, tEnd), recurLevel=recurLevel+1)
+                delta= w.getProjectedDemandVC((tStart, tEnd), self, recurLevel=recurLevel+1)
                 #print "    %s--> %s"%("    "*recurLevel,delta)
                 resultVC += delta
             else:
@@ -3238,7 +3238,8 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 elif op == 'askanddeliver':
                     groupsAllocVC = vc*fractionGotVC
                     # we use vc to access the class method here
-                    groupsAllocVC = vc.min(proc.sim.model.getDeliverySize(w, groupsAllocVC, timeToNextShipment, proc.sim.now()),
+                    groupsAllocVC = vc.min(proc.sim.model.getDeliverySize(supplierW, w, groupsAllocVC,
+                                                                          timeToNextShipment, proc.sim.now()),
                                            groupsAllocVC)
                     groupsAllocVC.roundDown()
                 else:

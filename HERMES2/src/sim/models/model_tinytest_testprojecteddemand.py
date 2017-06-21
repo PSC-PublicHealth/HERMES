@@ -79,8 +79,8 @@ class Model(model_generic.Model):
         # called at start-up time, this functions is now using the InstantaneousDemand
         # to get the vial counts below correct.  This means that MonthlyOrder process must
         # be running in order for this to be correct.
-        #vC = self._scaleDemandByType(toW.getProjectedDemandVC((timeNow,timeNow+pullMeanFrequencyDays)))
-        vC = toW.getProjectedDemandVC((timeNow,timeNow+pullMeanFrequencyDays))
+        #vC = self._scaleDemandByType(toW.getProjectedDemandVC((timeNow,timeNow+pullMeanFrequencyDays), fromW))
+        vC = toW.getProjectedDemandVC((timeNow,timeNow+pullMeanFrequencyDays), fromW)
         vaccineVialsVC,otherVialsVC= self._separateVaccines(vC)
         
         vaccineVialsVC *= 1.25
@@ -101,9 +101,9 @@ class Model(model_generic.Model):
         # downstream clinics; it includes any attached clinics but does not include
         # safety stock.
 
-        #demandDownstreamVialsVC=self._scaleDemandByType(toW.getProjectedDemandVC((timeNow,timeNow+shipInterval)))
+        #demandDownstreamVialsVC=self._scaleDemandByType(toW.getProjectedDemandVC((timeNow,timeNow+shipInterval), fromW))
         
-        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval))
+        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval), fromW)
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
         
         # Warehouses try for a buffer stock of 1.25.
@@ -124,8 +124,8 @@ class Model(model_generic.Model):
 
     def _getFactoryProductionVC(self, factory, daysSinceLastShipment, timeNow,
                                 daysUntilNextShipment):
-        #demandDownstreamVialsVC= self._scaleDemandByType(factory.targetStore.getProjectedDemandVC((timeNow,timeNow+daysUntilNextShipment)))
-        demandDownstreamVialsVC= factory.targetStore.getProjectedDemandVC((timeNow,timeNow+daysUntilNextShipment))
+        #demandDownstreamVialsVC= self._scaleDemandByType(factory.targetStore.getProjectedDemandVC((timeNow,timeNow+daysUntilNextShipment), fromW))
+        demandDownstreamVialsVC= factory.targetStore.getProjectedDemandVC((timeNow,timeNow+daysUntilNextShipment), fromW)
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
         vaccineVialsVC *= self.factoryOverstockScale
         fVC,cVC,wVC= factory.targetStore.calculateStorageFillRatios(vaccineVialsVC)

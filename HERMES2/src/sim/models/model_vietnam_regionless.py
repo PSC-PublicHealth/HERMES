@@ -282,7 +282,7 @@ class Model(model.Model):
         # The function is called repeatedly, every time a shipment is being set up.
         # The downstream demand will include any attached clinics, and includes 
         # safety stock.
-        demandDownstreamVialsVC= toW.getInstantaneousDemandVC(shipInterval)
+        demandDownstreamVialsVC= toW.getInstantaneousDemandVC(fromW, shipInterval)
         if isinstance(toW,warehouse.Clinic):
             # The demand will be exactly as specified- no buffer.
             # This must now be scaled by available space so that we don't end up immediately
@@ -462,7 +462,7 @@ class Model(model.Model):
                                daysUntilNextShipment):
         assert(hasattr(factory.targetStore,"idcode")) # added when the wh was constructed
         
-        demandDownstreamVialsVC= factory.targetStore.getInstantaneousDemandVC(daysUntilNextShipment)
+        demandDownstreamVialsVC= factory.targetStore.getInstantaneousDemandVC(factory, daysUntilNextShipment)
         onhandVC= self.sim.shippables.getCollectionFromGroupList(factory.targetStore.getStore().theBuffer)
         lowVC= demandDownstreamVialsVC - (onhandVC*0.8) # the factor is to provide for the 1.25 safety stock
         # Filter to only allow delivery of this factory's products

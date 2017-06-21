@@ -44,8 +44,8 @@ class Model(model_generic.Model):
         # The InstantaneousDemand has been set by the MonthlyOrderProcesses of the
         # downstream clinics; it includes any attached clinics but does not include
         # safety stock.
-        #demandDownstreamVialsVC= toW.getInstantaneousDemandVC((timeNow,timeNow+shipInterval))
-        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval))
+        #demandDownstreamVialsVC= toW.getInstantaneousDemandVC(fromW, (timeNow,timeNow+shipInterval))
+        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval), fromW)
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
         if not isinstance(toW,warehouse.Clinic):
             otherVialsVC *= 0.0 # block propagation of demand for vaccine carriers

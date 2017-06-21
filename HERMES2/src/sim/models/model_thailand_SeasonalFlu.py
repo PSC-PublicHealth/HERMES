@@ -372,7 +372,7 @@ class Model(model.Model):
                     print "Clinic: %s %s"%(clinic.name,clinic.getPopServedPC())         
         
     def getScheduledShipmentSize(self, fromW, toW, shipInterval,timeNow):
-        demandDownstreamVC= toW.getInstantaneousDemandVC(shipInterval)
+        demandDownstreamVC= toW.getInstantaneousDemandVC(fromW, shipInterval)
         # The downstream demand will include any attached clinics
         onhandVC= self.sim.vaccines.getCollectionFromGroupList(toW.getStore().theBuffer)
         lowVC= demandDownstreamVC - onhandVC
@@ -400,7 +400,7 @@ class Model(model.Model):
         shipDosesVC= self.demandModel.getDemandExpectation(factory.targetStore.getTotalDownstreamPopServedPC(recalculate=True),
                                                             daysUntilNextShipment, timeNow + 0.0*self.daysPerMonth)
         ## Making this behave like vietnam
-        shipInflDosesVC= factory.targetStore.getInstantaneousDemandVC(daysUntilNextShipment)
+        shipInflDosesVC= factory.targetStore.getInstantaneousDemandVC(factory, daysUntilNextShipment)
         vaccT = self.sim.vaccines.getTypeByName('T_Influenza')
         shipDosesVC[vaccT] = shipInflDosesVC[vaccT]
         totalVC= self._scaleDemandByType(shipDosesVC)

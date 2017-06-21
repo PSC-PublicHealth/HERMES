@@ -240,7 +240,7 @@ class Place(CanOwn):
     def registerInstantaneousDemandVC(self, instantaneousDemandVC, interval):
         pass
     @abc.abstractmethod
-    def getInstantaneousDemandVC(self, interval):
+    def getInstantaneousDemandVC(self, supplierWH, interval):
         pass
     @abc.abstractmethod
     def getTotalDownstreamPopServedPC(self):

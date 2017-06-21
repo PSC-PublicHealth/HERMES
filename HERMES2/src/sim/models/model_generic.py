@@ -4,7 +4,7 @@
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
 # =============================================================================== #
 #                                                                                 #
-# Permission to use, copy, and modify this software and its documentation without # 
+# Permission to use, copy, and modify this software and its documentation without #
 # fee for personal use within your organization is hereby granted, provided that  #
 # the above copyright notice is preserved in all copies and that the copyright    # 
 # and this permission notice appear in supporting documentation.  All other       #
@@ -257,7 +257,7 @@ class Model(model.Model):
         # These are 'pull' shipments.  This function may be
         # called at start-up time, before the MonthlyOrderProcesses have
         # installed an instantaneous demand for the downstream clinics.
-        vC = toW.getProjectedDemandVC((timeNow,timeNow+pullMeanFrequencyDays))
+        vC = toW.getProjectedDemandVC((timeNow,timeNow+pullMeanFrequencyDays), fromW)
 
         #vC= toW.shippingDemandModel.getDemandExpectationVials(toW.getPopServedPC(),
         #                                                 toW.getUseVialsTickInterval(),
@@ -323,7 +323,7 @@ class Model(model.Model):
         # called at start-up time, this functions is now using the InstantaneousDemand
         # to get the vial counts below correct.  This means that MonthlyOrder process must
         # be running in order for this to be correct.
-        vC = toW.getProjectedDemandVC((timeNow,timeNow+pullMeanFrequencyDays))
+        vC = toW.getProjectedDemandVC((timeNow,timeNow+pullMeanFrequencyDays), fromW)
         vaccineVialsVC,otherVialsVC= self._separateVaccines(vC)
 
         if self.autoUpdateThresholdsFlag:
@@ -407,8 +407,8 @@ class Model(model.Model):
         # The InstantaneousDemand has been set by the MonthlyOrderProcesses of the
         # downstream clinics; it includes any attached clinics but does not include
         # safety stock.
-        #demandDownstreamVialsVC= toW.getInstantaneousDemandVC((timeNow,timeNow+shipInterval))            
-        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval))
+        #demandDownstreamVialsVC= toW.getInstantaneousDemandVC(fromW,(timeNow,timeNow+shipInterval), fromWb)            
+        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval), fromW)
         #if fromW.idcode == 1:
         #    print "Demand: " + str(demandDownstreamVialsVC)
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
@@ -450,13 +450,14 @@ class Model(model.Model):
         #print "fillVC: %s"%[(v.name,n) for v,n in fillVC.items()]
         return toW.getPackagingModel().applyPackagingRestrictions(lowVC + otherVialsVC)
 
-    def getDeliverySize(self, toW, availableVC, shipInterval, timeNow):
+    def getDeliverySize(self, fromW, toW, availableVC, shipInterval, timeNow):
         """
         For those rare shipping patterns where the truck may not drop off the full
         size of an order, for example in the VillageReach shipping pattern.  This
         method is called for some particular route types immediately before the
         delivery is actually transferred to toW, and the amount delivered is
-        the lesser of the returned VaccineCollection and availableVC.
+        the lesser of the returned VaccineCollection and availableVC.  The supplier for
+        the route is provided as fromW for convenience.
         """
         
         vc = self.getScheduledShipmentSize(None, toW, shipInterval, timeNow)
@@ -472,7 +473,9 @@ class Model(model.Model):
         for prop, targetStore in factory.targetStores:
             if factory.demandType == "Projection":
                 ### Get demand in vials as a projection of the population demand
-                demandDownstreamVialsVC = targetStore.getProjectedDemandVC((timeNow, timeNow + daysUntilNextShipment))
+                demandDownstreamVialsVC = targetStore.getProjectedDemandVC((timeNow,
+                                                                            timeNow + daysUntilNextShipment),
+                                                                           factory)
                 #print "Before: {0}".format(demandDownstreamVialsVC)
                 scaledTupleList = []
                 

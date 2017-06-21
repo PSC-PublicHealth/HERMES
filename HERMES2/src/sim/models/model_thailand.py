@@ -368,7 +368,7 @@ class Model(model.Model):
                     print "Clinic: %s %s"%(clinic.name,clinic.getPopServedPC())         
         
     def getScheduledShipmentSize(self, fromW, toW, shipInterval,timeNow):
-        demandDownstreamVC= toW.getInstantaneousDemandVC(shipInterval)
+        demandDownstreamVC= toW.getInstantaneousDemandVC(fromW, shipInterval)
         # The downstream demand will include any attached clinics
         onhandVC= self.sim.shippables.getCollectionFromGroupList(toW.getStore().theBuffer)
         lowVC= demandDownstreamVC - onhandVC
