@@ -87,15 +87,21 @@
 					{{_('Now you must select how the new routes between locations at the supply chain levels will be defined.  Please select from below one of the following options')}}
 				</p>
 				<p>
-					<label for="remlevelexpt_fromabove" class='remlevelexpt_opts_label'>{{_('Use the charactistics of routes from the supply chain level above the level to be removed')}}</label>
+					<label for="remlevelexpt_fromabove" class='remlevelexpt_opts_label'>
+							{{_('Use the charactistics of routes from the supply chain level above the level to be removed')}}
+					</label>
 					<input type='radio' name="remlevelexpt_route_options" id="remlevelexpt_fromabove">
 				</p>
 				<p>
-					<label for="remlevelexpt_frombelow" class='remlevelexpt_opts_label'>{{_('Use the charactistics of routes from the supply chain level below the level to be removed')}}</label>
+					<label for="remlevelexpt_frombelow" class='remlevelexpt_opts_label'>
+						{{_('Use the charactistics of routes from the supply chain level below the level to be removed')}}
+					</label>
 					<input type='radio' name="remlevelexpt_route_options" id="remlevelexpt_frombelow" checked>
 				</p>
 				<p>
-					<label for="remlevelexpt_custom" class='remlevelexpt_opts_label'>{{_('Define your own route characteristics the supply chain level below the level to be removed')}}</label>
+					<label for="remlevelexpt_custom" class='remlevelexpt_opts_label'>
+						{{_('Define your own route characteristics the supply chain level below the level to be removed')}}
+					</label>
 					<input type='radio' name="remlevelexpt_route_options" id="remlevelexpt_custom">
 				</p>
 			</div>
@@ -135,12 +141,6 @@ $("#remlevexpt_slides").slideShowWithFlowControl({
 	            	  return true;
 	               },
 	               function(){
-	            	 // $("#remlevexpt_slides").slideShowWithFlowControl("deactivateButton","next");
-	            	 // $("#remlevexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid({
-	            	//	  modelId: {{modelId}},
-	            	//	  filterList: function(){ return JSON.stringify($("#remlevexpt_explorer_model_div").typeExplorerGrid("getNewTypes"))},
-	            	//	  onSaveFunc: function(){$("#remlevexpt_slides").slideShowWithFlowControl("activateButton","next");}
-	            	//  });
 	            	  return true;
 	               },
 	             //  function(){
@@ -179,7 +179,7 @@ $("#remlevelexpt_level_select").supplyChainLevelSelector({
 });
 
 function createSummary(){
-	
+
 //	$.ajax({
 //		url:{{rootPath}} + "json/vaccine_introduction_summary",
 //		data:{
