@@ -170,7 +170,7 @@ class Model(model_generic.Model):
 #            scaledTupleList.append( (v,math.ceil(nVials)*(postCeilFactor/wastage)) )
 #        return self.sim.vaccines.getCollection(scaledTupleList)
     
-    def clinicShipQuantityFunc(self,fromW, toW, pullMeanFrequency, timeNow):
+    def clinicShipQuantityFunc(self,fromW, toW, routeName, pullMeanFrequency, timeNow):
         assert(isinstance(toW,warehouse.Clinic))
         vC= toW.shippingDemandModel.getDemandExpectation(toW.getPopServedPC(),
                                                          self.clinicTickInterval)
@@ -210,7 +210,7 @@ class Model(model_generic.Model):
 
         return threshVC
 
-    def warehouseShipQuantityFunc(self,fromW, toW, pullMeanFrequency, timeNow):
+    def warehouseShipQuantityFunc(self,fromW, toW, routeName, pullMeanFrequency, timeNow):
         vC= self.demandModel.getDemandExpectation(toW.getTotalDownstreamPopServedPC(),
                                                    self.clinicTickInterval)
         vC *= self.sim.vaccines.getDosesToVialsVC()
@@ -252,7 +252,7 @@ class Model(model_generic.Model):
         threshVC.roundDown()
         return threshVC
 
-    def getScheduledShipmentSize(self,fromW, toW, shipInterval,timeNow):
+    def getScheduledShipmentSize(self, toW, routeName, shipInterval,timeNow):
         vC= self.demandModel.getDemandExpectation(toW.getTotalDownstreamPopServedPC(),
                                                   shipInterval)
         vaccineDosesVC= vC.splitOut(vaccinetypes.VaccineType)
@@ -278,7 +278,7 @@ class Model(model_generic.Model):
 
     def _getFactoryProductionVC(self, factory, daysSinceLastShipment, timeNow,
                                daysUntilNextShipment):
-        totalVC= self.getScheduledShipmentSize(None,factory.targetStore,
+        totalVC= self.getScheduledShipmentSize(factory.targetStore, factory.name,
                                                 daysUntilNextShipment, timeNow)
         vaccineVC= totalVC.splitOut(vaccinetypes.VaccineType)
         scaledVC= vaccineVC * self.factoryOverstockScale

@@ -205,7 +205,7 @@ class Model(model.Model):
         netLatency= supplierLatency+extraLatency
         return 12*28.0,netLatency
 
-    def clinicShipQuantityFunc(self, fromW, toW, pullMeanFrequency, timeNow):
+    def clinicShipQuantityFunc(self, fromW, toW, routeName, pullMeanFrequency, timeNow):
         assert(isinstance(toW,warehouse.Clinic))
         raise RuntimeError("Thailand model has only scheduled shipments")
 
@@ -213,7 +213,7 @@ class Model(model.Model):
         assert(isinstance(toW,warehouse.Clinic))
         raise RuntimeError("Thailand model has only scheduled shipments")
 
-    def warehouseShipQuantityFunc(self, fromW, toW, pullMeanFrequency, timeNow):
+    def warehouseShipQuantityFunc(self, fromW, toW, routeName, pullMeanFrequency, timeNow):
         raise RuntimeError("Thailand model has only scheduled shipments")
 
     def warehouseShipThresholdFunc(self, toW, pullMeanFrequency):
@@ -262,8 +262,8 @@ class Model(model.Model):
         return self.sim.vaccines.getCollection(scaledTupleList)
 
 
-    def getScheduledShipmentSize(self, fromW, toW, shipInterval,timeNow):
-        demandDownstreamVC= toW.getInstantaneousDemandVC(fromW, shipInterval)
+    def getScheduledShipmentSize(self, toW, routeName, shipInterval,timeNow):
+        demandDownstreamVC= toW.getInstantaneousDemandVC(routeName, shipInterval)
         # The downstream demand will include any attached clinics
         onhandVC= self.sim.vaccines.getCollectionFromGroupList(toW.getStore().theBuffer)
         lowVC= demandDownstreamVC - onhandVC
@@ -291,7 +291,7 @@ class Model(model.Model):
                                daysUntilNextShipment):
         shipDosesVC= self.demandModel.getDemandExpectation(factory.targetStore.getTotalDownstreamPopServedPC(recalculate=True),
                                                             daysUntilNextShipment, timeNow)
-        campaignVC = factory.targetStore.getInstantaneousDemandVC(factory, daysUntilNextShipment)
+        campaignVC = factory.targetStore.getInstantaneousDemandVC(factory.name, daysUntilNextShipment)
         
         totalVC= self._scaleDemandByType(shipDosesVC)
         totalVC = totalVC.filter(campaignVC,self.campaignFilterVC)

@@ -407,7 +407,7 @@ class Model(model.Model):
         # The InstantaneousDemand has been set by the MonthlyOrderProcesses of the
         # downstream clinics; it includes any attached clinics but does not include
         # safety stock.
-        #demandDownstreamVialsVC= toW.getInstantaneousDemandVC(routeName,(timeNow,timeNow+shipInterval), fromWb)            
+        #demandDownstreamVialsVC= toW.getInstantaneousDemandVC(routeName,(timeNow,timeNow+shipInterval))            
         demandDownstreamVialsVC= toW.getProjectedDemandVC(routeName, (timeNow,timeNow+shipInterval))
         #if fromW.idcode == 1:
         #    print "Demand: " + str(demandDownstreamVialsVC)

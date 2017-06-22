@@ -137,7 +137,7 @@ class Model:
                     wasteTupleList.append((v,ovw))
                 self.wastageEstimates= self.sim.vaccines.getCollection(wasteTupleList)
                 
-    def _clinicShipQuantityFunc(self, fromW, toW, pullMeanFrequencyDays, timeNow):
+    def _clinicShipQuantityFunc(self, fromW, toW, routeName, pullMeanFrequencyDays, timeNow):
         raise RuntimeError("The specific derived model class must "\
                            +"define this method")
 
@@ -145,7 +145,7 @@ class Model:
         raise RuntimeError("The specific derived model class must "\
                            +"define this method")
 
-    def _warehouseShipQuantityFunc(self, fromW, toW, pullMeanFrequencyDays, timeNow):
+    def _warehouseShipQuantityFunc(self, fromW, toW, routeName, pullMeanFrequencyDays, timeNow):
         raise RuntimeError("The specific derived model class must "\
                            +"define this method")
 
@@ -162,7 +162,7 @@ class Model:
                            + "define this method")
 
 
-    def getScheduledShipmentSize(self, fromW, toW, shipInterval, timeNow):
+    def getScheduledShipmentSize(self, toW, routeName, shipInterval, timeNow):
         """
         Given the source and destination warehouses (fromW and toW) and
         the interval between shipments, return a VaccineCollection giving

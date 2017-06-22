@@ -74,13 +74,14 @@ class Model(model_generic.Model):
     def getDefaultTruckTypeName(self,fromW,toW):
         return "N_vaccine_carrier_WHO_PQS"
 
-    def warehouseShipQuantityFunc(self,fromW, toW, pullMeanFrequencyDays, timeNow):
+    def warehouseShipQuantityFunc(self, fromW, toW, routeName, pullMeanFrequencyDays, timeNow):
         # These are 'pull' shipments.  This function may be
         # called at start-up time, this functions is now using the InstantaneousDemand
         # to get the vial counts below correct.  This means that MonthlyOrder process must
         # be running in order for this to be correct.
-        #vC = self._scaleDemandByType(toW.getProjectedDemandVC((timeNow,timeNow+pullMeanFrequencyDays), fromW))
-        vC = toW.getProjectedDemandVC((timeNow,timeNow+pullMeanFrequencyDays), fromW)
+        #vC = self._scaleDemandByType(toW.getProjectedDemandVC(routeName,
+        #                                                      (timeNow,timeNow+pullMeanFrequencyDays)))
+        vC = toW.getProjectedDemandVC(routeName, (timeNow,timeNow+pullMeanFrequencyDays))
         vaccineVialsVC,otherVialsVC= self._separateVaccines(vC)
         
         vaccineVialsVC *= 1.25
@@ -95,15 +96,16 @@ class Model(model_generic.Model):
         lowVC.floorZero()
         return lowVC
 
-    def getScheduledShipmentSize(self, fromW, toW, shipInterval, timeNow):
+    def getScheduledShipmentSize(self, toW, routeName, shipInterval, timeNow):
         # The function is called repeatedly, every time a shipment is being set up.
         # The InstantaneousDemand has been set by the MonthlyOrderProcesses of the
         # downstream clinics; it includes any attached clinics but does not include
         # safety stock.
 
-        #demandDownstreamVialsVC=self._scaleDemandByType(toW.getProjectedDemandVC((timeNow,timeNow+shipInterval), fromW))
+        #demandDownstreamVialsVC=self._scaleDemandByType(toW.getProjectedDemandVC(routeName,
+        #                                                                        (timeNow,timeNow+shipInterval)))
         
-        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval), fromW)
+        demandDownstreamVialsVC= toW.getProjectedDemandVC(routeName, (timeNow,timeNow+shipInterval))
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
         
         # Warehouses try for a buffer stock of 1.25.
@@ -124,8 +126,9 @@ class Model(model_generic.Model):
 
     def _getFactoryProductionVC(self, factory, daysSinceLastShipment, timeNow,
                                 daysUntilNextShipment):
-        #demandDownstreamVialsVC= self._scaleDemandByType(factory.targetStore.getProjectedDemandVC((timeNow,timeNow+daysUntilNextShipment), fromW))
-        demandDownstreamVialsVC= factory.targetStore.getProjectedDemandVC((timeNow,timeNow+daysUntilNextShipment), fromW)
+        #demandDownstreamVialsVC= self._scaleDemandByType(factory.targetStore.getProjectedDemandVC(factory.name,
+        #                                                                                          (timeNow,timeNow+daysUntilNextShipment)))
+        demandDownstreamVialsVC= factory.targetStore.getProjectedDemandVC(factory.name, (timeNow,timeNow+daysUntilNextShipment))
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
         vaccineVialsVC *= self.factoryOverstockScale
         fVC,cVC,wVC= factory.targetStore.calculateStorageFillRatios(vaccineVialsVC)

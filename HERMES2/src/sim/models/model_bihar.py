@@ -39,13 +39,13 @@ class Model(model_generic.Model):
             print RuntimeError("The input variable daypermonth must be set to 20 in order to run the Mozembique Model")
     
 
-    def getScheduledShipmentSize(self, fromW, toW, shipInterval, timeNow):
+    def getScheduledShipmentSize(self, toW, routeName, shipInterval, timeNow):
         # The function is called repeatedly, every time a shipment is being set up.
         # The InstantaneousDemand has been set by the MonthlyOrderProcesses of the
         # downstream clinics; it includes any attached clinics but does not include
         # safety stock.
-        #demandDownstreamVialsVC= toW.getInstantaneousDemandVC(fromW, (timeNow,timeNow+shipInterval))
-        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval), fromW)
+        #demandDownstreamVialsVC= toW.getInstantaneousDemandVC(routeName, (timeNow,timeNow+shipInterval))
+        demandDownstreamVialsVC= toW.getProjectedDemandVC(routeName,(timeNow,timeNow+shipInterval))
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
         if not isinstance(toW,warehouse.Clinic):
             otherVialsVC *= 0.0 # block propagation of demand for vaccine carriers

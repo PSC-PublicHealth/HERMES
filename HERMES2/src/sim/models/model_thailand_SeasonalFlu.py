@@ -207,7 +207,7 @@ class Model(model.Model):
         netLatency= supplierLatency+extraLatency
         return 12*28.0,netLatency
 
-    def clinicShipQuantityFunc(self, fromW, toW, pullMeanFrequency, timeNow):
+    def clinicShipQuantityFunc(self, fromW, toW, routeName, pullMeanFrequency, timeNow):
         assert(isinstance(toW,warehouse.Clinic))
         raise RuntimeError("Thailand model has only scheduled shipments")
 
@@ -215,7 +215,7 @@ class Model(model.Model):
         assert(isinstance(toW,warehouse.Clinic))
         raise RuntimeError("Thailand model has only scheduled shipments")
 
-    def warehouseShipQuantityFunc(self, fromW, toW, pullMeanFrequency, timeNow):
+    def warehouseShipQuantityFunc(self, fromW, toW, routeName, pullMeanFrequency, timeNow):
         raise RuntimeError("Thailand model has only scheduled shipments")
 
     def warehouseShipThresholdFunc(self, toW, pullMeanFrequency):
@@ -371,7 +371,7 @@ class Model(model.Model):
                 if self.sim.debug is True:
                     print "Clinic: %s %s"%(clinic.name,clinic.getPopServedPC())         
         
-    def getScheduledShipmentSize(self, fromW, toW, shipInterval,timeNow):
+    def getScheduledShipmentSize(self, toW, routeName, shipInterval,timeNow):
         demandDownstreamVC= toW.getInstantaneousDemandVC(fromW, shipInterval)
         # The downstream demand will include any attached clinics
         onhandVC= self.sim.vaccines.getCollectionFromGroupList(toW.getStore().theBuffer)
@@ -400,7 +400,7 @@ class Model(model.Model):
         shipDosesVC= self.demandModel.getDemandExpectation(factory.targetStore.getTotalDownstreamPopServedPC(recalculate=True),
                                                             daysUntilNextShipment, timeNow + 0.0*self.daysPerMonth)
         ## Making this behave like vietnam
-        shipInflDosesVC= factory.targetStore.getInstantaneousDemandVC(factory, daysUntilNextShipment)
+        shipInflDosesVC= factory.targetStore.getInstantaneousDemandVC(factory.name, daysUntilNextShipment)
         vaccT = self.sim.vaccines.getTypeByName('T_Influenza')
         shipDosesVC[vaccT] = shipInflDosesVC[vaccT]
         totalVC= self._scaleDemandByType(shipDosesVC)

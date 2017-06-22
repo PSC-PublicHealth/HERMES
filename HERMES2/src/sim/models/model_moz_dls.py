@@ -50,14 +50,14 @@ class Model(model_generic.Model):
             print RuntimeError("The input variable daypermonth must be set to 20 in order to run the Benin Model")
     
     
-    def getScheduledShipmentSize(self, fromW, toW, shipInterval, timeNow, asking=False):
+    def getScheduledShipmentSize(self, toW, routeName, shipInterval, timeNow, asking=False):
         # The function is called repeatedly, every time a shipment is being set up.
         # The InstantaneousDemand has been set by the MonthlyOrderProcesses of the
         # downstream clinics; it includes any attached clinics but does not include
         # safety stock.
         #demandDownstreamVialsVC= toW.getInstantaneousDemandVC(fromW, (timeNow,timeNow+shipInterval))
         
-        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval), fromW)
+        demandDownstreamVialsVC= toW.getProjectedDemandVC(routeName, (timeNow,timeNow+shipInterval))
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
         
         # Warehouses try for a buffer stock of 1.25.
@@ -91,17 +91,17 @@ class Model(model_generic.Model):
         
         return toW.getPackagingModel().applyPackagingRestrictions(lowVC + otherVialsVC)
     
-    def getDeliverySize(self, fromW, toW, availableVC, shipInterval, timeNow):
+    def getDeliverySize(self, routeName, toW, availableVC, shipInterval, timeNow):
         """
         For those rare shipping patterns where the truck may not drop off the full
         size of an order, for example in the VillageReach shipping pattern.  This
         method is called for some particular route types immediately before the
         delivery is actually transferred to toW, and the amount delivered is
         the lesser of the returned VaccineCollection and availableVC.  The supplier
-        for the route is provided as fromW for convenience.
+        for the route is provided as fromW for convenience.bb
         """
-        #vc = self.getScheduledShipmentSize(None, toW, shipInterval, timeNow)
-        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval), fromW)
+        #vc = self.getScheduledShipmentSize(toW, routeName, shipInterval, timeNow)
+        demandDownstreamVialsVC= toW.getProjectedDemandVC(routeName, (timeNow,timeNow+shipInterval))
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
         
         # Warehouses try for a buffer stock of 1.25.

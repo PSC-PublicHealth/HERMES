@@ -142,7 +142,7 @@ class Model(model.Model):
         wh= storeDict[code]
         return (isinstance(wh,warehouse.Clinic) or isinstance(wh,warehouse.AttachedClinic))
     
-    def clinicShipQuantityFunc(self,fromW, toW, pullMeanFrequencyDays, timeNow):
+    def clinicShipQuantityFunc(self,fromW, toW, routeName, pullMeanFrequencyDays, timeNow):
         assert(isinstance(toW,warehouse.Clinic))
         vC= toW.shippingDemandModel.getDemandExpectation(toW.getPopServedPC(),
                                                          self.clinicTickInterval)
@@ -182,7 +182,7 @@ class Model(model.Model):
 
         return threshVC
 
-    def warehouseShipQuantityFunc(self,fromW, toW, pullMeanFrequencyDays, timeNow):
+    def warehouseShipQuantityFunc(self,fromW, toW, routeName, pullMeanFrequencyDays, timeNow):
         vC= self.demandModel.getDemandExpectation(toW.getTotalDownstreamPopServedPC(),
                                                    self.clinicTickInterval)
         vC *= self.sim.vaccines.getDosesToVialsVC()
@@ -224,7 +224,7 @@ class Model(model.Model):
         threshVC.roundDown()
         return threshVC
 
-    def getScheduledShipmentSize(self,fromW, toW, shipInterval,timeNow):
+    def getScheduledShipmentSize(self, toW, routeName, shipInterval,timeNow):
         vC= self.demandModel.getDemandExpectation(toW.getTotalDownstreamPopServedPC(),
                                                   shipInterval)
         vaccineDosesVC= vC.splitOut(vaccinetypes.VaccineType)
@@ -270,7 +270,7 @@ class Model(model.Model):
 
     def _getFactoryProductionVC(self, factory, daysSinceLastShipment, timeNow,
                                daysUntilNextShipment):
-        totalVC= self.getScheduledShipmentSize(None,factory.targetStore,
+        totalVC= self.getScheduledShipmentSize(factory.targetStore, factory.name,
                                                 daysUntilNextShipment, timeNow)
         vaccineVC= totalVC.splitOut(vaccinetypes.VaccineType)
         scaledVC= vaccineVC * self.factoryOverstockScale

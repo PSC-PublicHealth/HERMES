@@ -1089,7 +1089,7 @@ def finishBuild(storeDict,allShippingProcs,getScheduledShipmentSize):
     carried out until the shipping processes have been defined, and vice 
     versa.  getScheduledShipmentSize has the signature:
     
-    vaccineCollection= getScheduledShipmentSize(fromWarehouse,toWarehouse,
+    vaccineCollection= getScheduledShipmentSize(toWarehouse, routeName
                                                 shipInterval)
 
     """
