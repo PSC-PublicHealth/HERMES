@@ -175,7 +175,7 @@ class Model:
         raise RuntimeError("The specific derived model class must "\
                            +"define this method")
 
-    def getDeliverySize(self, fromW, toW, availableVC, shipInterval, timeNow):
+    def getDeliverySize(self, routeName, toW, availableVC, shipInterval, timeNow):
         """
         For those rare shipping patterns where the truck may not drop off the full
         size of an order, for example in the VillageReach shipping pattern.  This

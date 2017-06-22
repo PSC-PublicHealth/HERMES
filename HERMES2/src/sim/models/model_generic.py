@@ -252,12 +252,12 @@ class Model(model.Model):
 #                 oTuples.append((tp,n))
 #         return self.sim.vaccines.getCollection(vTuples), self.sim.vaccines.getCollection(oTuples)
 
-    def clinicShipQuantityFunc(self,fromW, toW, pullMeanFrequencyDays, timeNow):
+    def clinicShipQuantityFunc(self,fromW, toW, routeName, pullMeanFrequencyDays, timeNow):
         assert(isinstance(toW,warehouse.Clinic))
         # These are 'pull' shipments.  This function may be
         # called at start-up time, before the MonthlyOrderProcesses have
         # installed an instantaneous demand for the downstream clinics.
-        vC = toW.getProjectedDemandVC((timeNow,timeNow+pullMeanFrequencyDays), fromW)
+        vC = toW.getProjectedDemandVC(routeName, (timeNow,timeNow+pullMeanFrequencyDays))
 
         #vC= toW.shippingDemandModel.getDemandExpectationVials(toW.getPopServedPC(),
         #                                                 toW.getUseVialsTickInterval(),
@@ -318,12 +318,12 @@ class Model(model.Model):
         #print "clinicShipThresholdFunc %s: %s"%(toW.name,[(v.name,n) for v,n in whatFitsVC.items()])
         return whatFitsVC
 
-    def warehouseShipQuantityFunc(self,fromW, toW, pullMeanFrequencyDays, timeNow):
+    def warehouseShipQuantityFunc(self,fromW, toW, routeName, pullMeanFrequencyDays, timeNow):
         # These are 'pull' shipments.  This function may be
         # called at start-up time, this functions is now using the InstantaneousDemand
         # to get the vial counts below correct.  This means that MonthlyOrder process must
         # be running in order for this to be correct.
-        vC = toW.getProjectedDemandVC((timeNow,timeNow+pullMeanFrequencyDays), fromW)
+        vC = toW.getProjectedDemandVC(routeName, (timeNow,timeNow+pullMeanFrequencyDays))
         vaccineVialsVC,otherVialsVC= self._separateVaccines(vC)
 
         if self.autoUpdateThresholdsFlag:
@@ -402,13 +402,13 @@ class Model(model.Model):
             scaledTupleList.append( (v,int(math.ceil(nVials/wastage))) )
         return self.sim.shippables.getCollection(scaledTupleList)
 
-    def getScheduledShipmentSize(self, fromW, toW, shipInterval, timeNow):
+    def getScheduledShipmentSize(self, toW, routeName, shipInterval, timeNow):
         # The function is called repeatedly, every time a shipment is being set up.
         # The InstantaneousDemand has been set by the MonthlyOrderProcesses of the
         # downstream clinics; it includes any attached clinics but does not include
         # safety stock.
-        #demandDownstreamVialsVC= toW.getInstantaneousDemandVC(fromW,(timeNow,timeNow+shipInterval), fromWb)            
-        demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval), fromW)
+        #demandDownstreamVialsVC= toW.getInstantaneousDemandVC(routeName,(timeNow,timeNow+shipInterval), fromWb)            
+        demandDownstreamVialsVC= toW.getProjectedDemandVC(routeName, (timeNow,timeNow+shipInterval))
         #if fromW.idcode == 1:
         #    print "Demand: " + str(demandDownstreamVialsVC)
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
@@ -450,7 +450,7 @@ class Model(model.Model):
         #print "fillVC: %s"%[(v.name,n) for v,n in fillVC.items()]
         return toW.getPackagingModel().applyPackagingRestrictions(lowVC + otherVialsVC)
 
-    def getDeliverySize(self, fromW, toW, availableVC, shipInterval, timeNow):
+    def getDeliverySize(self, routeName, toW, availableVC, shipInterval, timeNow):
         """
         For those rare shipping patterns where the truck may not drop off the full
         size of an order, for example in the VillageReach shipping pattern.  This
@@ -460,7 +460,7 @@ class Model(model.Model):
         the route is provided as fromW for convenience.
         """
         
-        vc = self.getScheduledShipmentSize(None, toW, shipInterval, timeNow)
+        vc = self.getScheduledShipmentSize(toW, routeName, shipInterval, timeNow)
         vc.roundUp()
         return vc
 
@@ -473,9 +473,9 @@ class Model(model.Model):
         for prop, targetStore in factory.targetStores:
             if factory.demandType == "Projection":
                 ### Get demand in vials as a projection of the population demand
-                demandDownstreamVialsVC = targetStore.getProjectedDemandVC((timeNow,
-                                                                            timeNow + daysUntilNextShipment),
-                                                                           factory)
+                demandDownstreamVialsVC = targetStore.getProjectedDemandVC(factory.name,
+                                                                           (timeNow,
+                                                                            timeNow + daysUntilNextShipment))
                 #print "Before: {0}".format(demandDownstreamVialsVC)
                 scaledTupleList = []
                 

@@ -190,7 +190,7 @@ def _innerBuildScheduledRoute(routeName, sim, locList, storeDict, getShipInterva
 
     delayInfo = _GetDelayInfo(sim.userInput, supplierRec, sim)
 
-    shipperProc= shipperProcType(supplierWH, transitChain,
+    shipperProc= shipperProcType(supplierWH, routeName, transitChain,
                                  shipInterval,
                                  getOrderPendingLifetime(storeDict,
                                                          supplierKey),
@@ -228,7 +228,7 @@ def _buildPushRoute(routeName, sim, locList, storeDict,
     
     # Last stop in the chain is the supplier (after the return leg); everyone else is a client
     for clientWH in [wh for transitTime,wh,conditions in transitChain[:-1]]:
-        ship= warehouse.ScheduledShipment(supplierWH, clientWH,
+        ship= warehouse.ScheduledShipment(supplierWH, clientWH, routeName,
                                           shipInterval, None,
                                           startupLatency=reqCycleStartupLatency)
         allShippingProcs.append(ship)
@@ -246,7 +246,7 @@ def _buildVarPushRoute(routeName, sim, locList, storeDict,
     
     # Last stop in the chain is the supplier (after the return leg); everyone else is a client
     for clientWH in [wh for transitTime,wh,conditions in transitChain[:-1]]:
-        ship= warehouse.ScheduledVariableSizeShipment(supplierWH, clientWH,
+        ship= warehouse.ScheduledVariableSizeShipment(supplierWH, clientWH, routeName,
                                                       shipInterval, None,
                                                       startupLatency=reqCycleStartupLatency)
         allShippingProcs.append(ship)
@@ -263,7 +263,7 @@ def _buildAskingPushRoute(routeName, sim, locList, storeDict,
     
     # Last stop in the chain is the supplier (after the return leg); everyone else is a client
     for clientWH in [wh for transitTime,wh,conditions in transitChain[:-1]]:
-        ship= warehouse.ScheduledVariableSizeShipment(supplierWH, clientWH,
+        ship= warehouse.ScheduledVariableSizeShipment(supplierWH, clientWH, routeName,
                                                       shipInterval, None,
                                                       startupLatency=reqCycleStartupLatency)
         allShippingProcs.append(ship)
@@ -282,7 +282,7 @@ def _buildDropAndCollectRoute(routeName, sim, locList, storeDict,
     visited = set()
     for clientWH in [wh for transitTime,wh,conditions in transitChain[:-1]]:
         if clientWH not in visited:
-            ship= warehouse.ScheduledVariableSizeShipment(supplierWH, clientWH,
+            ship= warehouse.ScheduledVariableSizeShipment(supplierWH, clientWH, routeName,
                                                           shipInterval, None,
                                                           startupLatency=reqCycleStartupLatency)
             allShippingProcs.append(ship)
@@ -401,7 +401,7 @@ def _innerBuildScheduledFetchRoute(routeName, sim, locList, storeDict, getShipIn
 
     delayInfo = _GetDelayInfo(sim.userInput, supplierRec, sim)
 
-    shipperProc= warehouse.FetchShipperProcess(startingWH, transitChain,
+    shipperProc= warehouse.FetchShipperProcess(startingWH, routeName, transitChain,
                                                shipInterval,
                                                getOrderPendingLifetime(storeDict,
                                                                        supplierKey),
@@ -439,7 +439,7 @@ def _buildScheduledFetchRoute(routeName, sim, locList, storeDict,
     
     # Last stop in the chain is the supplier (after the return leg); everyone else is a client
     for clientWH in [wh for transitTime,wh,conditions in transitChain[1:]]:
-        ship= warehouse.ScheduledShipment(supplierWH, clientWH,
+        ship= warehouse.ScheduledShipment(supplierWH, clientWH, routeName,
                                           shipInterval, None,
                                           startupLatency=reqCycleStartupLatency)
         allShippingProcs.append(ship)
@@ -457,7 +457,7 @@ def _buildScheduledVarFetchRoute(routeName, sim, locList, storeDict,
     
     # Last stop in the chain is the supplier (after the return leg); everyone else is a client
     for clientWH in [wh for transitTime,wh,conditions in transitChain[1:]]:
-        ship= warehouse.ScheduledVariableSizeShipment(supplierWH, clientWH,
+        ship= warehouse.ScheduledVariableSizeShipment(supplierWH, clientWH, routeName,
                                                       shipInterval, None,
                                                       startupLatency=reqCycleStartupLatency)
         allShippingProcs.append(ship)
@@ -552,7 +552,7 @@ def _innerBuildPullRoute(routeName, sim, locList, storeDict,
 
         delayInfo = _GetDelayInfo(sim.userInput, supplierRec, sim)
 
-        ship= shipperProcType(supplierWH, clientWH,
+        ship= shipperProcType(supplierWH, clientWH, routeName,
                               tFunc,
                               qFunc,
                               (toTimeHours/float(C.hoursPerDay),

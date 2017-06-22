@@ -1906,12 +1906,12 @@ class Warehouse(Store, abstractbaseclasses.Place):
             result += sb
         return result
     
-    def registerInstantaneousDemandVC(self,instantaneousDemandVC,interval):
+    def registerInstantaneousDemandVC(self, instantaneousDemandVC, interval):
         """
         This routine plus getInstantaneousDemand provide a (rather expensive)
         way to propagate demand figures up the distribution tree immediately,
         as if all the warehouses had called each other on the phone to total things up.
-        This routine sets the warehouse's demand level; this level stays in
+        This routine sets the warehouse's total local demand level; this level stays in
         effect until the next time the routine is called.  By convention the
         input is in vials, not doses.
         """
@@ -1919,7 +1919,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
         self._instantaneousDemandVC= instantaneousDemandVC*self.sim.vaccines.getVialsToDosesVC()
         self._instantaneousDemandInterval= interval
 
-    def getProjectedDemandVC(self, supplierWH, interval, recurLevel=0):
+    def getProjectedDemandVC(self, routeName, interval, recurLevel=0):
         """
         This routine provides a (rather expensive) way to propagate demand
         figures up the distribution tree immediately, as if all the warehouses
@@ -1938,14 +1938,13 @@ class Warehouse(Store, abstractbaseclasses.Place):
         for rDict in self.getClientRoutes():
             interval= rDict['interval']
             latency=  rDict['latency']
+            rtName= rDict['name']
             for c in rDict['clientIds']:
                 w,routeTupleList= clientDict[c]
-                routeTupleList.append((interval,latency))
+                routeTupleList.append((interval, latency, rtName))
         for code,valTuple in clientDict.items():
             w,routeList= valTuple
-            bestPrev= None
-            bestNext= None
-            for interval,latency in routeList:
+            for interval, latency, rtName in routeList:
                 if interval is None: # denoting an attached clinic
                     prevTime= tStart
                     nextTime= tEnd
@@ -1955,18 +1954,15 @@ class Warehouse(Store, abstractbaseclasses.Place):
                     if nextCycle == prevCycle: nextCycle += 1
                     prevTime= prevCycle*interval+latency
                     nextTime= nextCycle*interval+latency
-                if bestPrev is None: bestPrev= prevTime
-                else: bestPrev= max(bestPrev,prevTime)
-                if bestNext is None: bestNext= nextTime
-                else: bestNext= min(bestNext,nextTime)
-            #print "    %s%s: %s %s"%("   "*recurLevel,w.bName,bestPrev,bestNext)
-            delta= w.getProjectedDemandVC((bestPrev,bestNext),self, recurLevel=recurLevel+1)
-            #print "    %s--> %s"%("    "*recurLevel,delta)
-            resultVC += delta
-        #print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
+                print "    %s%s via %s: %s %s"%("   "*recurLevel,w.bName,
+                                                rtName.encode('utf8'),prevTime,nextTime)
+                delta= w.getProjectedDemandVC(rtName, (prevTime,nextTime), recurLevel=recurLevel+1)
+                print "    %s--> %s"%("    "*recurLevel,delta)
+                resultVC += delta
+        print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
         return resultVC
     
-    def getInstantaneousDemandVC(self,supplierWH,interval,recurLevel=0):
+    def getInstantaneousDemandVC(self, routeName, interval, recurLevel=0):
         """
         This routine plus registerInstantaneousDemand provide a (rather expensive)
         way to propagate demand figures up the distribution tree immediately,
@@ -1979,54 +1975,46 @@ class Warehouse(Store, abstractbaseclasses.Place):
         if type(interval)==types.TupleType:
             # New protocol
             tStart,tEnd= interval
-            # print "%s%s %s %s %s:"%("    "*recurLevel,self.bName,tStart,tEnd,self._instantaneousDemandInterval)
-            doseTupleList= []
-            for v,n in self._instantaneousDemandVC.items():
-                if isinstance(v,vaccinetypes.VaccineType):
-                    doseTupleList.append((v,n*((tEnd-tStart)/self._instantaneousDemandInterval)))
-                else:
-                    doseTupleList.append((v,n))
-            resultDosesVC= self.sim.shippables.getCollection(doseTupleList)
-            resultVC= resultDosesVC*self.sim.vaccines.getDosesToVialsVC()
-            resultVC.roundUp()
-            clientDict= dict([(w.code,(w,[])) for w in self.getClients()])                
-            for rDict in self.getClientRoutes():
-                interval= rDict['interval']
-                latency=  rDict['latency']
-                for c in rDict['clientIds']:
-                    w,routeTupleList= clientDict[c]
-                    routeTupleList.append((interval,latency))
-            for code,valTuple in clientDict.items():
-                w,routeList= valTuple
-                bestPrev= None
-                bestNext= None
-                for interval,latency in routeList:
-                    if interval is None: # denoting an attached clinic
-                        prevTime= tStart
-                        nextTime= tEnd
-                    else:
-                        prevCycle= max(math.ceil((tStart-latency)/interval),0)
-                        nextCycle= max(math.floor((tEnd-latency)/interval)+1,1)
-                        if nextCycle == prevCycle: nextCycle += 1
-                        prevTime= prevCycle*interval+latency
-                        nextTime= nextCycle*interval+latency
-                    if bestPrev is None: bestPrev= prevTime
-                    else: bestPrev= max(bestPrev,prevTime)
-                    if bestNext is None: bestNext= nextTime
-                    else: bestNext= min(bestNext,nextTime)
-                # print "    %s%s: %s %s"%("   "*recurLevel,w.bName,bestPrev,bestNext)
-                delta= w.getInstantaneousDemandVC(self, (bestPrev,bestNext),recurLevel=recurLevel+1)
-                # print "    %s--> %s"%("    "*recurLevel,delta)
-                resultVC += delta
-            # print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
-                        
         else:
-            # Old protocol
-            resultDosesVC= self._instantaneousDemandVC*(interval/self._instantaneousDemandInterval)
-            resultVC= resultDosesVC*self.sim.vaccines.getDosesToVialsVC()
-            resultVC.roundUp()
-            for c in self.getClients():
-                resultVC += c.getInstantaneousDemandVC(self,interval)
+            # This is effectively what is done under the old protocol
+            tStart = self.sim.now()
+            tEnd = tStart + interval
+        print "%s%s %s %s %s:"%("    "*recurLevel,self.bName,tStart,tEnd,self._instantaneousDemandInterval)
+        doseTupleList= []
+        for v,n in self._instantaneousDemandVC.items():
+            if isinstance(v,vaccinetypes.VaccineType):
+                doseTupleList.append((v,n*((tEnd-tStart)/self._instantaneousDemandInterval)))
+            else:
+                doseTupleList.append((v,n))
+        resultDosesVC= self.sim.shippables.getCollection(doseTupleList)
+        resultVC= resultDosesVC*self.sim.vaccines.getDosesToVialsVC()
+        resultVC.roundUp()
+        clientDict= dict([(w.code,(w,[])) for w in self.getClients()])                
+        for rDict in self.getClientRoutes():
+            interval= rDict['interval']
+            latency=  rDict['latency']
+            rtName= rDict['name']
+            for c in rDict['clientIds']:
+                w,routeTupleList= clientDict[c]
+                routeTupleList.append((interval,latency,rtName))
+        for code,valTuple in clientDict.items():
+            w,routeList= valTuple
+            for interval,latency,rtName in routeList:
+                if interval is None: # denoting an attached clinic
+                    prevTime= tStart
+                    nextTime= tEnd
+                else:
+                    prevCycle= max(math.ceil((tStart-latency)/interval),0)
+                    nextCycle= max(math.floor((tEnd-latency)/interval)+1,1)
+                    if nextCycle == prevCycle: nextCycle += 1
+                    prevTime= prevCycle*interval+latency
+                    nextTime= nextCycle*interval+latency
+                print "    %s%s via %s: %s %s"%("   "*recurLevel, w.bName, rtName, prevTime, nextTime)
+                delta= w.getInstantaneousDemandVC(rtName, (prevTime, nextTime),recurLevel=recurLevel+1)
+                print "    %s--> %s"%("    "*recurLevel, delta)
+                resultVC += delta
+        print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
+                        
         return resultVC
     
     def _calcTotalDownstreamPopServedPC(self,recalculate=False):
@@ -2365,7 +2353,7 @@ class Clinic(Warehouse):
         Clears the InstataneousUsage accumulator for daily reporting
         """
         self._instantUsageVC = self.sim.shippables.getCollection()
-    def getProjectedDemandVC(self,supplierWH, interval,recurLevel=0):
+    def getProjectedDemandVC(self, routeName, interval, recurLevel=0):
         """
         This routine provides a (rather expensive) way to propagate shipping demand
         figures up the distribution tree immediately, as if all the warehouses
@@ -2388,7 +2376,7 @@ class Clinic(Warehouse):
         for w in self.getClients():
             if isinstance(w,AttachedClinic):
                 #print "    %s%s: %s %s"%("   "*recurLevel,w.bName,tStart,tEnd)
-                delta= w.getProjectedDemandVC((tStart, tEnd), self, recurLevel=recurLevel+1)
+                delta= w.getProjectedDemandVC(routeName, (tStart, tEnd), recurLevel=recurLevel+1)
                 #print "    %s--> %s"%("    "*recurLevel,delta)
                 resultVC += delta
             else:
@@ -3238,7 +3226,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 elif op == 'askanddeliver':
                     groupsAllocVC = vc*fractionGotVC
                     # we use vc to access the class method here
-                    groupsAllocVC = vc.min(proc.sim.model.getDeliverySize(supplierW, w, groupsAllocVC,
+                    groupsAllocVC = vc.min(proc.sim.model.getDeliverySize(bName, w, groupsAllocVC,
                                                                           timeToNextShipment, proc.sim.now()),
                                            groupsAllocVC)
                     groupsAllocVC.roundDown()
@@ -3492,7 +3480,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
             pass
 
 class ShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
-    def __init__(self,fromWarehouse,transitChain,interval,
+    def __init__(self,fromWarehouse,routeName,transitChain,interval,
                  orderPendingLifetime,shipPriority,startupLatency=0.0,
                  truckType=None,name=None, delayInfo=None):
         """
@@ -3516,6 +3504,7 @@ class ShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
         if startupLatency<0.0:
             raise RuntimeError("ShipperProcess %s has a negative startup latency"%startupLatency)
         self.fromW= fromWarehouse
+        self.routeName = routeName
         self.transitChain= transitChain[:]
         # test whether the return trip is coded in the transit chain, and if not, add one
         # based on the very first leg of the chain
@@ -3629,7 +3618,7 @@ class ShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
             (self.fromW.name,str(self.transitChain),self.interval)
 
 class AskOnDeliveryShipperProcess(ShipperProcess):
-    def __init__(self,fromWarehouse,transitChain,interval,
+    def __init__(self,fromWarehouse,routeName,transitChain,interval,
                  orderPendingLifetime,shipPriority,startupLatency=0.0,
                  truckType=None,name=None, delayInfo=None):
         """
@@ -3638,7 +3627,7 @@ class AskOnDeliveryShipperProcess(ShipperProcess):
         returned to the supplier.
         """
         if name is None: name= "AskOnDeliveryShipperProcess_%s"%fromWarehouse.name
-        ShipperProcess.__init__(self,fromWarehouse,transitChain,interval,
+        ShipperProcess.__init__(self,fromWarehouse,routeName,transitChain,interval,
                                 orderPendingLifetime,shipPriority,startupLatency=startupLatency,
                                 truckType=truckType, name=name, delayInfo=delayInfo)
     def run(self):
@@ -3699,7 +3688,7 @@ class AskOnDeliveryShipperProcess(ShipperProcess):
             (self.fromW.name,str(self.transitChain),self.interval)
 
 class DropAndCollectShipperProcess(ShipperProcess, abstractbaseclasses.UnicodeSupport):
-    def __init__(self,fromWarehouse,transitChain,interval,
+    def __init__(self,fromWarehouse,routeName,transitChain,interval,
                  orderPendingLifetime,shipPriority,startupLatency=0.0,
                  truckType=None,name=None, delayInfo=None):
         """
@@ -3730,7 +3719,7 @@ class DropAndCollectShipperProcess(ShipperProcess, abstractbaseclasses.UnicodeSu
                                (bName,fromWarehouse.name))
         if cl in visitCounts:
             raise RuntimeError("drop-and-collect route %s visits its supplier %s"%(bName,cl.name))
-        ShipperProcess.__init__(self,fromWarehouse,transitChain,interval,
+        ShipperProcess.__init__(self,fromWarehouse,routeName,transitChain,interval,
                                 orderPendingLifetime,shipPriority,startupLatency=startupLatency,
                                 truckType=truckType, name=name, delayInfo=delayInfo)
     def run(self):
@@ -3802,7 +3791,7 @@ class DropAndCollectShipperProcess(ShipperProcess, abstractbaseclasses.UnicodeSu
 
 
 class FetchShipperProcess(ShipperProcess):
-    def __init__(self,fromWarehouse,transitChain,interval,
+    def __init__(self,fromWarehouse,routeName,transitChain,interval,
                  orderPendingLifetime,shipPriority,startupLatency=0.0,
                  truckType=None,name=None, delayInfo=None):
         """
@@ -3825,7 +3814,7 @@ class FetchShipperProcess(ShipperProcess):
         elements and the condition "normal" is assumed).
         """
         if name is None: name= "FetchShipperProcess_%s"%fromWarehouse.name
-        ShipperProcess.__init__(self, fromWarehouse, transitChain, interval,
+        ShipperProcess.__init__(self, fromWarehouse, routeName, transitChain, interval,
                                 orderPendingLifetime, shipPriority, startupLatency,
                                 truckType, name, delayInfo)
 
@@ -3905,7 +3894,7 @@ class FetchShipperProcess(ShipperProcess):
             (self.fromW.name,str(self.transitChain),self.interval)
 
 class OnDemandShipment(Process, abstractbaseclasses.UnicodeSupport):
-    def __init__(self,fromWarehouse,toWarehouse,thresholdFunction,
+    def __init__(self,fromWarehouse,toWarehouse,routeName,thresholdFunction,
                  quantityFunction,transitTime,orderPendingLifetime,
                  pullMeanFrequencyDays,shipPriority,startupLatency=0.0,
                  truckType=None,name=None, 
@@ -3915,7 +3904,8 @@ class OnDemandShipment(Process, abstractbaseclasses.UnicodeSupport):
         thresholdFunction and quantityFunction have the signatures:
         
         vaccineCollection= thresholdFunction(toWarehouse,pullMeanFrequency)
-        vaccineCollection= quantityFunction(fromWarehouse,toWarehouse,pullMeanFrequencyDays,timeNow)
+        vaccineCollection= quantityFunction(fromWarehouse,toWarehouse,routeName,
+                                            pullMeanFrequencyDays,timeNow)
         
         The first function is used after the shipping network has been built
         to construct a VaccineCollection giving the reorder threshold points 
@@ -3933,6 +3923,7 @@ class OnDemandShipment(Process, abstractbaseclasses.UnicodeSupport):
             raise RuntimeError("OnDemandShipment %s has a negative startup latency"%startupLatency)
         self.fromW= fromWarehouse
         self.toW= toWarehouse
+        self.routeName = routeName
         self.thresholdFunc= thresholdFunction
         self.thresholdVC= None
         self.quantityFunction= quantityFunction
@@ -4002,7 +3993,8 @@ class OnDemandShipment(Process, abstractbaseclasses.UnicodeSupport):
             # We want to start by doing a shipment, or the downstream
             # warehouse will just sit at 0.
 
-            totalVC= self.quantityFunction(self.fromW, self.toW, self.pullMeanFrequency,
+            totalVC= self.quantityFunction(self.fromW, self.toW, self.routeName,
+                                           self.pullMeanFrequency,
                                            self.sim.now())
             if totalVC.totalCount()>0:
                 # see if our truck is delayed
@@ -4020,6 +4012,7 @@ class OnDemandShipment(Process, abstractbaseclasses.UnicodeSupport):
                             # we need to jump through some impressive hoops unless we
                             # wish to go about refactoring this code
                             newTotalVC= self.quantityFunction(self.fromW, self.toW,
+                                                              self.routeName,
                                                               self.pullMeanFrequency,
                                                               self.sim.now())
                             if newTotalVC.totalCount > 0:
@@ -4094,7 +4087,8 @@ class OnDemandShipment(Process, abstractbaseclasses.UnicodeSupport):
         return "<OnDemandShipment(%s,%s)>"%(self.fromW.name,self.toW.name)
 
 class PersistentOnDemandShipment(OnDemandShipment):
-    def __init__(self,supplierWarehouse,clientWarehouse,thresholdFunction,
+    def __init__(self,supplierWarehouse,clientWarehouse,routeName,
+                 thresholdFunction,
                  quantityFunction,transitTime,orderPendingLifetime,
                  pullMeanFrequencyDays,shipPriority,startupLatency=0.0,
                  truckType=None,name=None, 
@@ -4112,7 +4106,8 @@ class PersistentOnDemandShipment(OnDemandShipment):
         thresholdFunction and quantityFunction have the signatures:
         
         vaccineCollection= thresholdFunction(toWarehouse,pullMeanFrequency)
-        vaccineCollection= quantityFunction(fromWarehouse,toWarehouse,pullMeanFrequencyDays,timeNow)
+        vaccineCollection= quantityFunction(fromWarehouse,toWarehouse,routeName,
+                                            pullMeanFrequencyDays,timeNow)
         
         The first function is used after the shipping network has been built
         to construct a VaccineCollection giving the reorder threshold points 
@@ -4126,7 +4121,8 @@ class PersistentOnDemandShipment(OnDemandShipment):
         """
         if name is None:
             name= "PersistentOnDemandShipment_%s_%s"%(clientWarehouse.name,supplierWarehouse.name)
-        OnDemandShipment.__init__(self, supplierWarehouse, clientWarehouse, thresholdFunction,
+        OnDemandShipment.__init__(self, supplierWarehouse, clientWarehouse, routeName,
+                                  thresholdFunction,
                                   quantityFunction, transitTime, orderPendingLifetime,
                                   pullMeanFrequencyDays, shipPriority, startupLatency,
                                   truckType, name, minimumDaysBetweenShipments,
@@ -4139,7 +4135,9 @@ class PersistentOnDemandShipment(OnDemandShipment):
             # We want to start by doing a shipment, or the downstream
             # warehouse will just sit at 0.
 
-            totalVC= self.quantityFunction(self.fromW, self.toW, self.pullMeanFrequency,
+            totalVC= self.quantityFunction(self.fromW, self.toW,
+                                           self.routeName,
+                                           self.pullMeanFrequency,
                                            self.sim.now())
             if totalVC.totalCount()>0:
                 # see if our truck is delayed
@@ -4157,6 +4155,7 @@ class PersistentOnDemandShipment(OnDemandShipment):
                             # we need to jump through some impressive hoops unless we
                             # wish to go about refactoring this code
                             newTotalVC= self.quantityFunction(self.fromW, self.toW,
+                                                              routeName,
                                                               self.pullMeanFrequency,
                                                               self.sim.now())
                             if newTotalVC.totalCount > 0:
@@ -4189,7 +4188,9 @@ class PersistentOnDemandShipment(OnDemandShipment):
                     for val in travelGen: yield val
                     
                     if self.toW.lowStockSet and self.fromW.gotAnyOfThese(self.toW.lowStockSet):
-                        totalVC= self.quantityFunction(self.fromW, self.toW, self.pullMeanFrequency,
+                        totalVC= self.quantityFunction(self.fromW, self.toW,
+                                                       self.routeName,
+                                                       self.pullMeanFrequency,
                                                        self.sim.now())
                         # And continue for another loop
                     else:
@@ -4221,7 +4222,8 @@ class PersistentOnDemandShipment(OnDemandShipment):
 
 
 class FetchOnDemandShipment(OnDemandShipment):
-    def __init__(self,supplierWarehouse,clientWarehouse,thresholdFunction,
+    def __init__(self,supplierWarehouse,clientWarehouse,routeName,
+                 thresholdFunction,
                  quantityFunction,transitTime,orderPendingLifetime,
                  pullMeanFrequencyDays,shipPriority,startupLatency=0.0,
                  truckType=None,name=None, 
@@ -4235,7 +4237,8 @@ class FetchOnDemandShipment(OnDemandShipment):
         thresholdFunction and quantityFunction have the signatures:
         
         vaccineCollection= thresholdFunction(toWarehouse,pullMeanFrequency)
-        vaccineCollection= quantityFunction(fromWarehouse,toWarehouse,pullMeanFrequencyDays,timeNow)
+        vaccineCollection= quantityFunction(fromWarehouse,toWarehouse,routeName,
+                                            pullMeanFrequencyDays,timeNow)
         
         The first function is used after the shipping network has been built
         to construct a VaccineCollection giving the reorder threshold points 
@@ -4249,7 +4252,8 @@ class FetchOnDemandShipment(OnDemandShipment):
         """
         if name is None:
             name= "FetchOnDemandShipment_%s_%s"%(clientWarehouse.name,supplierWarehouse.name)
-        OnDemandShipment.__init__(self, supplierWarehouse, clientWarehouse, thresholdFunction,
+        OnDemandShipment.__init__(self, supplierWarehouse, clientWarehouse, routeName,
+                                  thresholdFunction,
                                   quantityFunction, transitTime, orderPendingLifetime,
                                   pullMeanFrequencyDays, shipPriority, startupLatency,
                                   truckType, name, minimumDaysBetweenShipments,
@@ -4263,7 +4267,9 @@ class FetchOnDemandShipment(OnDemandShipment):
         while True:
             # We want to start by doing a shipment, or the downstream
             # warehouse will just sit at 0.
-            totalVC= self.quantityFunction(self.fromW, self.toW, self.pullMeanFrequency,
+            totalVC= self.quantityFunction(self.fromW, self.toW,
+                                           self.routeName,
+                                           self.pullMeanFrequency,
                                            self.sim.now())
             if totalVC.totalCount()>0:
                 
@@ -4282,6 +4288,7 @@ class FetchOnDemandShipment(OnDemandShipment):
                             # we need to jump through some impressive hoops unless we
                             # wish to go about refactoring this code
                             newTotalVC= self.quantityFunction(self.fromW, self.toW,
+                                                              self.routeName,
                                                               self.pullMeanFrequency,
                                                               self.sim.now())
                             if newTotalVC.totalCount > 0:
@@ -4358,7 +4365,8 @@ class FetchOnDemandShipment(OnDemandShipment):
         return "<FetchOnDemandShipment(%s,%s)>"%(self.fromW.name,self.toW.name)
 
 class PersistentFetchOnDemandShipment(OnDemandShipment):
-    def __init__(self,supplierWarehouse,clientWarehouse,thresholdFunction,
+    def __init__(self,supplierWarehouse,clientWarehouse,routeName,
+                 thresholdFunction,
                  quantityFunction,transitTime,orderPendingLifetime,
                  pullMeanFrequencyDays,shipPriority,startupLatency=0.0,
                  truckType=None,name=None, 
@@ -4372,7 +4380,8 @@ class PersistentFetchOnDemandShipment(OnDemandShipment):
         thresholdFunction and quantityFunction have the signatures:
         
         vaccineCollection= thresholdFunction(toWarehouse,pullMeanFrequency)
-        vaccineCollection= quantityFunction(fromWarehouse,toWarehouse,pullMeanFrequencyDays,timeNow)
+        vaccineCollection= quantityFunction(fromWarehouse,toWarehouse,routeName,
+                                            pullMeanFrequencyDays,timeNow)
         
         The first function is used after the shipping network has been built
         to construct a VaccineCollection giving the reorder threshold points 
@@ -4386,7 +4395,8 @@ class PersistentFetchOnDemandShipment(OnDemandShipment):
         """
         if name is None:
             name= "PersistentFetchOnDemandShipment_%s_%s"%(clientWarehouse.name,supplierWarehouse.name)
-        OnDemandShipment.__init__(self, supplierWarehouse, clientWarehouse, thresholdFunction,
+        OnDemandShipment.__init__(self, supplierWarehouse, clientWarehouse, routeName,
+                                  thresholdFunction,
                                   quantityFunction, transitTime, orderPendingLifetime,
                                   pullMeanFrequencyDays, shipPriority, startupLatency,
                                   truckType, name, minimumDaysBetweenShipments,
@@ -4399,7 +4409,9 @@ class PersistentFetchOnDemandShipment(OnDemandShipment):
         while True:
             # We want to start by doing a shipment, or the downstream
             # warehouse will just sit at 0.
-            totalVC= self.quantityFunction(self.fromW, self.toW, self.pullMeanFrequency,
+            totalVC= self.quantityFunction(self.fromW, self.toW,
+                                           self.routeName,
+                                           self.pullMeanFrequency,
                                            self.sim.now())
             if totalVC.totalCount()>0:
                 
@@ -4418,6 +4430,7 @@ class PersistentFetchOnDemandShipment(OnDemandShipment):
                             # we need to jump through some impressive hoops unless we
                             # wish to go about refactoring this code
                             newTotalVC= self.quantityFunction(self.fromW, self.toW,
+                                                              self.routeName,
                                                               self.pullMeanFrequency,
                                                               self.sim.now())
                             if newTotalVC.totalCount > 0:
@@ -4452,7 +4465,9 @@ class PersistentFetchOnDemandShipment(OnDemandShipment):
                     for val in travelGen: yield val
                 
                     if self.toW.lowStockSet and self.fromW.gotAnyOfThese(self.toW.lowStockSet):
-                        totalVC= self.quantityFunction(self.fromW, self.toW, self.pullMeanFrequency,
+                        totalVC= self.quantityFunction(self.fromW, self.toW,
+                                                       self.routeName,
+                                                       self.pullMeanFrequency,
                                                        self.sim.now())
                         # And continue for another loop
                     else:
@@ -4616,7 +4631,7 @@ class SnoozeTimerProcess(Process, abstractbaseclasses.UnicodeSupport):
             return "<SnoozeTimerProcess(%s)>"%self.name
 
 class ScheduledShipment(Process, abstractbaseclasses.UnicodeSupport):
-    def __init__(self,fromWarehouse,toWarehouse,interval,shipVC,
+    def __init__(self,fromWarehouse,toWarehouse,routeName,interval,shipVC,
                  startupLatency=0.0,name=None):
         """
         The shipping interval and startupLatency are in days.
@@ -4634,6 +4649,7 @@ class ScheduledShipment(Process, abstractbaseclasses.UnicodeSupport):
             raise RuntimeError("ScheduledShipment %s has a negative startup latency"%startupLatency)
         self.fromW= fromWarehouse
         self.toW= toWarehouse
+        self.routeName= routeName
         self.interval= interval
         self.shipVC= shipVC
         self.startupLatency= startupLatency
@@ -4682,7 +4698,7 @@ class ScheduledShipment(Process, abstractbaseclasses.UnicodeSupport):
         return "<ScheduledShipment(%s,%s)>"%(self.fromW.name,self.toW.name)
 
 class ScheduledVariableSizeShipment(Process,abstractbaseclasses.UnicodeSupport):
-    def __init__(self,fromWarehouse,toWarehouse,interval,quantityFunction,
+    def __init__(self,fromWarehouse,toWarehouse,routeName,interval,quantityFunction,
                  startupLatency=0.0,name=None):
         """
         quantityFunction is called every 'interval' days and produces a
@@ -4708,6 +4724,7 @@ class ScheduledVariableSizeShipment(Process,abstractbaseclasses.UnicodeSupport):
             raise RuntimeError("ScheduledVariableSizeShipment %s has a negative startup latency"%startupLatency)
         self.fromW= fromWarehouse
         self.toW= toWarehouse
+        self.routeName= routeName
         self.interval= interval
         self.quantityFunction= quantityFunction
         self.startupLatency= startupLatency
@@ -4730,7 +4747,8 @@ class ScheduledVariableSizeShipment(Process,abstractbaseclasses.UnicodeSupport):
         if self.startupLatency>0.0:
             yield hold,self,self.startupLatency
         while True:
-            shipVC= self.quantityFunction(self.fromW,self.toW,self.interval,self.sim.now())
+            shipVC= self.quantityFunction(self.toW,self.routeName,
+                                          self.interval,self.sim.now())
             shipVC.floorZero()
             shipVC.roundDown()
             fullVC = shipVC
