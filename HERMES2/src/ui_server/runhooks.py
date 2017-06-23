@@ -139,9 +139,9 @@ def jsonRunStart(db, uiSession):
         resultsGroupId = shadow_db_routines.addResultsGroup(modelId, runName, db)
         resultsGroup = m.getResultsGroupById(resultsGroupId)
         if deltas:
-             for k,tp,val in deltas:   
-                 resultsGroup.addParm(shadow_network.ShdParameter(k,val))
-                 optList.append("-D{0}={1}".format(k,val))
+            for k,tp,val in deltas:   
+                resultsGroup.addParm(shadow_network.ShdParameter(k,val))
+                optList.append("-D{0}={1}".format(k,val))
         if _minionFactory is None:
             _minionFactory = minionrunner.MinionFactory()    
     

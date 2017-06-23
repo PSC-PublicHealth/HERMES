@@ -14,7 +14,6 @@
 # in the file LICENSE.txt.                                                        #
 #                                                                                 #
 ###################################################################################
-
 _hermes_svn_id_="$Id$"
 
 import sys,os,os.path,time,json,math,types
@@ -1371,7 +1370,7 @@ def jsonManageModelsTable(db, uiSession):
               "records":totRecs,  # total records
               "rows": [ {"id":m.modelId, 
                          "cell":[m.name, m.modelId, m.note, 
-                                 '<a href="%sdownload-model?model=%d&form=zip">%s_%d.zip</a>'%\
+                                 '<a href="%sdownload-model?model=%d&form=zip">%s_%d.hzp</a>'%\
                                  (rootPath,m.modelId,m.name,m.modelId),
                                  m.modelId]} 
                        for m in mList ]
@@ -1742,7 +1741,26 @@ def jsonModelStructureTreeD3(db,uiSession):
         return {'success':False,
                 'msg':str(e)
                 }
+
+@bottle.route('/json/model-geo-structure')
+def jsonModelGeoStructure(db,uiSession):
+    try:
+        modelId = _safeGetReqParam(bottle.request.params,'modelId')
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        model = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        json = model.getGeoJson()
+        if json is None:
+            model.addGeoJson()
+            db.commit()
+            json = model.getGeoJson()
+        json['success']=True
         
+        return json
+    except Exception,e:
+        return {'success':False,
+                'msg':str(e)
+                }
+
 @bottle.route('/json/model-structure-tree')
 def jsonModelStructureTree(db, uiSession):
     modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
@@ -1811,6 +1829,7 @@ def makeLoopsForModel(db,uiSession):
         return {'success':False,'msg':str(e)}
 @bottle.post('/upload-model')
 def uploadModel(db,uiSession):
+    
     _logMessage('Model file upload is happening')
     #uiSession['notes'] += ', upload request'
     fileKey = None
@@ -1884,7 +1903,7 @@ def prepareDownloadModel(db,uiSession):
         if not filename:
             filename = "{0}_{1}".format(m.name,modelId)
     
-        zipFileName = "{0}.zip".format(filename)
+        zipFileName = "{0}.hzp".format(filename)
         with uiSession.getLockedState() as state:
             (fileKey, fullZipFileName) = \
                 state.fs().makeNewFileInfo(shortName = zipFileName,
@@ -2608,6 +2627,7 @@ def assignVehiclesToRoutes(db,uiSession):
         return result  
 
         
+
         
-        
-        
+
+

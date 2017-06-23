@@ -67,3 +67,16 @@ function get_alltypesmodelId(){
 	}).promise();
 }
 
+// objects that have the known types for HERMES
+
+var typesAllowed = ['fridges','trucks','vaccines','people','staff','perdiems'];
+
+var typeInfoUrls = {
+		'fridges':'json/fridge-info',
+		'trucks':'json/truck-info',
+		'vaccines':'json/vaccine-info',
+		'people':'json/people-info',
+		'staff': 'json/staff-info',
+		'perdiems':'json/perdiem-info'
+	};
+

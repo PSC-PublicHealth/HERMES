@@ -150,6 +150,9 @@ class GenericCollection:
         elif isinstance(other,int):
             for k in self.keys():
                 result.vDict[k]= other*self.vDict[k]
+        elif isinstance(other,long):
+            for k in self.keys():
+                result.vDict[k]= other*self.vDict[k]
         elif isinstance(other,float):
             for k in self.keys():
                 result.vDict[k]= other*self.vDict[k]
@@ -200,6 +203,8 @@ class GenericCollection:
         l= self.vDict.items()
         if globals.deterministic: l.sort()
         return l
+    def __len__(self):
+        return len(self.keys())
     def totalCount(self):
         """
         Returns the total number of elements of any type-

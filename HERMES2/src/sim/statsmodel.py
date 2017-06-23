@@ -106,13 +106,37 @@ class StatsManager:
         if timeNow is None: timeNow = self.sim.now()
         shippableTypeNames = self.sim.vaccines.getActiveTypeNames()
         wanted = ["%s_daysretention"%n for n in shippableTypeNames]
+       
+        totalDict = {}
+        for rec in reportingHierarchy.report(wanted):
+            totalHistVal = None
+            for key in wanted:
+                if key in rec.keys():
+                    if totalHistVal is None:
+                        totalHistVal = rec[key]
+                    else:
+                        totalHistVal += rec[key]
+            
+            if totalHistVal is not None:
+                totalDict[(rec['ReportingLevel'],rec['ReportingBranch'])] = totalHistVal
+                
         keys = ['ReportingLevel','ReportingBranch','ReportingIntervalDays','DaysPerYear']
         for s1 in wanted:
-            keys += ["%s_%s"%(s1,s2) for s2 in ['min', 'max', 'mean', 'median', 'stdv', 'q1', 'q3', 'count']]
+            keys += ["%s_%s"%(s1,s2) for s2 in ['min', 'max', 'mean', 'median', 'stdv', 'q1', 'q3', 'count']]        
         recs = reportingHierarchy.report(wanted, dictFactory=lambda : util.TagAwareDict(util.HistoVal, StatsManager.tagMethodList))
         for rec in recs:
             rec['ReportingIntervalDays'] = self.intervalEndTime - self.intervalStartTime
             rec['DaysPerYear'] = float(self.model.daysPerYear)
+            if (rec['ReportingLevel'],rec['ReportingBranch']) in totalDict.keys():
+                histHere = totalDict[(rec['ReportingLevel'],rec['ReportingBranch'])]
+                rec['AllVaccines_daysretention_min'] = histHere.min()
+                rec['AllVaccines_daysretention_max'] = histHere.max()
+                rec['AllVaccines_daysretention_mean'] = histHere.mean()
+                rec['AllVaccines_daysretention_median'] = histHere.median()
+                rec['AllVaccines_daysretention_stdv'] = histHere.stdv()
+                rec['AllVaccines_daysretention_q1'] = histHere.q1()
+                rec['AllVaccines_daysretention_q3'] = histHere.q3()
+                rec['AllVaccines_daysretention_count'] = histHere.count()
         return keys, recs
     
     def writeStatsRecordList(self, fileName, reportingHierarchy, timeNow=None):

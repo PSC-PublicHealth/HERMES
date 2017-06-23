@@ -35,7 +35,8 @@ import htmlgenerator
 import typehelper
 import typehooks
 
-from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults
+from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults,\
+    _safeGetReqParam
 from util import listify
  
 inlizer=session_support.inlizer
@@ -45,7 +46,7 @@ fieldMap = [{'label':_('Data Base ID'), 'key':'Name', 'id':'name', 'info':False,
             {'label':_('Name'), 'key':'DisplayName', 'id':'displayname', 'info': True, 'edit':True, 'type':'string', 'req':True, 'default':None},
             {'label':_('Abbreviation'), 'key':'Abbreviation', 'id':'abbreviation', 'info': True, 'edit':True, 'type':'string', 'req':True, 'default':None},
             {'label':_('Manufacturer'), 'key':'Manufacturer', 'id':'manufacturer', 'info': True, 'edit':True, 'type':'string', 'req':False, 'default':None},
-            {'label':_('Doses per vial'), 'key':'dosesPerVial', 'id':'dosespervial', 'info': True, 'edit':True, 'type':'int', 'req':True, 'default':1},
+            {'label':_('Doses per vial'), 'key':'dosesPerVial', 'id':'dosespervial', 'info': True, 'edit':True, 'type':'int', 'req':True, 'canzero':False, 'default':1},
             { 'label':_('Method of administration'), 'key':'administration', 'info': True, 'edit':True, 'none':True, 'req':False,
                 'id':'methodofadministration', 'type':'select',
                 'options':[('IM', _('Intramuscular (IM)'), [], []),
@@ -55,7 +56,7 @@ fieldMap = [{'label':_('Data Base ID'), 'key':'Name', 'id':'name', 'info':False,
                 ],
                 'default':'IM'
              },
-            {'label':_('Vaccine presentation'), 'key':'presentation', 'id':'vaccinepresentation', 'info':True, 'edit':True, 'type':'string', 'none':True, 'req':True, 'default':u'Liquid'},
+            {'label':_('Vaccine presentation'), 'key':'presentation', 'id':'vaccinepresentation', 'info':True, 'edit':True, 'type':'string', 'none':True, 'req':False, 'default':u'Liquid'},
 #                         { 'label':_('Vaccine presentation'), 'key':'presentation', 'id':'vaccinepresentation', 'info': True, 'edit':True, 'none':True,
 #                             'type':'select',
 #                             'options':[('Liquid', _('Liquid'), [], []),
@@ -74,18 +75,22 @@ fieldMap = [{'label':_('Data Base ID'), 'key':'Name', 'id':'name', 'info':False,
 #                             ],
 #                             'default':'Liquid'
 #                          },
-             { 'label':_('Length of time vaccine can be used after opening vial'), 'key':'openLifetime', 'id':'lifetimeopen', 'info': True, 'edit':True, 'type':'time', 'req':True, 'recMap':['openLifetime', 'openLifetimeUnits']},
-             { 'label':_('Length of time vaccine  can be stored at Room Temperature'), 'key':'roomtempLifetime', 'id':'lifetimeroomtemp', 'info': True, 'edit':True, 'req':True, 'type':'time', 'recMap':['roomtempLifetime', 'roomtempLifetimeUnits']},
-             { 'label':_('Length of time vaccine  can be stored at 2-8 C'), 'key':'coolerLifetime', 'id':'lifetimecooler', 'info': True, 'edit':True, 'type':'time', 'req':True, 'recMap':['coolerLifetime', 'coolerLifetimeUnits']},
-             { 'label':_('Length of time vaccine  can be stored at Below 0 C'), 'key':'freezerLifetime', 'id':'lifetimefreezer', 'info': True, 'edit':True, 'type':'time', 'req':True, 'recMap':['freezerLifetime', 'freezerLifetimeUnits']},
-             { 'label':_('Packed Volume per Dose of Vaccine (mL)'), 'key':'volPerDose', 'id':'volperdosevac', 'info': True, 'edit':True, 'req':True, 'type':'float'},
-             { 'label':_('Packed Volume per Dose of Diluent (mL)'), 'key':'diluentVolPerDose', 'id':'volperdosedil', 'info': True, 'edit':True, 'req':True, 'type':'float'},
-             { 'label':_('Price of Vaccine Per Vial'), 'key':'vaccinePricePerVial', 'id':'vaccineprice', 'info': True, 'edit':True, 'type':'cost', 'req':False, 'recMap':['pricePerVial', 'priceUnits', 'priceBaseYear']},
+             { 'label':_('Length of time vaccine can be used after opening vial'), 'key':'openLifetime', 'id':'lifetimeopen', 'info': True, 'edit':True, 'type':'time', 'req':True, 'canzero':True,
+                        'recMap':['openLifetime', 'openLifetimeUnits'],'default':'1:M'},
+             { 'label':_('Length of time vaccine  can be stored at Room Temperature'), 'key':'roomtempLifetime', 'id':'lifetimeroomtemp', 'info': True, 'edit':True, 'req':True, 'canzero':True,'type':'time', 
+                        'recMap':['roomtempLifetime', 'roomtempLifetimeUnits'],'default':'0:D'},
+             { 'label':_('Length of time vaccine  can be stored at 2-8 C'), 'key':'coolerLifetime', 'id':'lifetimecooler', 'info': True, 'edit':True, 'type':'time', 'req':True, 'canzero':True,
+                        'recMap':['coolerLifetime', 'coolerLifetimeUnits'],'default':'36:M'},
+             { 'label':_('Length of time vaccine  can be stored at Below 0 C'), 'key':'freezerLifetime', 'id':'lifetimefreezer', 'info': True, 'edit':True, 'type':'time', 'req':True, 'canzero':True,
+                        'recMap':['freezerLifetime', 'freezerLifetimeUnits'],'default':'0:D'},
+             { 'label':_('Packed Volume per Dose of Vaccine (mL)'), 'key':'volPerDose', 'id':'volperdosevac', 'info': True, 'edit':True, 'req':True, 'canzero':False, 'type':'float'},
+             { 'label':_('Packed Volume per Dose of Diluent (mL)'), 'key':'diluentVolPerDose', 'id':'volperdosedil', 'info': True, 'edit':True, 'req':True, 'canzero':True, 'type':'float'},
+             { 'label':_('Price of Vaccine Per Vial'), 'key':'vaccinePricePerVial', 'id':'vaccineprice', 'info': True, 'edit':True, 'type':'cost', 'req':False, 'canzero':True, 'recMap':['pricePerVial', 'priceUnits', 'priceBaseYear']},
              # { 'label':_('Price of Vaccine Per Dose'), 'key':'vaccinePricePerDose', 'id':'priceperdose', 'info': True, 'edit':False, 'type':'cost', 'recMap':['pricePerDose', 'priceUnits', 'priceBaseYear']},
              { 'label':_('Requires'), 'key':'Requires', 'id':'requires', 'info': True, 'edit':False, 'req':False, 'type':'string'},
              { 'label':_('Secondary Packaging'), 'key':'secondaryPackaging', 'id':'secondarypackaging', 'info': True, 'edit':False, 'req':False, 'type':'string', 'default':None},
              { 'label':_('RandomKey'), 'key':'RandomKey', 'id':'randomkey', 'info':False, 'edit':False, 'req':False, 'type':'int', 'default':999999},
-             { 'label':_('Doses/person'), 'key':'dosesPerPerson', 'id':'dosesperperson', 'info':False, 'edit':False, 'type':'int', 'req':True, 'default':1},
+             { 'label':_('Doses/person'), 'key':'dosesPerPerson', 'id':'dosesperperson', 'info':False, 'edit':False, 'type':'int', 'req':False, 'default':1},
              { 'label':_('Notes'), 'key':'Notes', 'id':'notes', 'info': True, 'edit':True, 'req':False, 'type':'stringbox'},
         ]
 
@@ -99,6 +104,7 @@ def editVaccine(db, uiSession):
 
 def jsonVaccineEditFn(attrRec, m):
     ### We need to capture the price per dose if the price per vial is there
+    lifetimes = {'coolerLifetime':0.003,'freezerLifetime':0.002,'roomtempLifetime':0.001,'openLifetime':0.01}
     if attrRec['pricePerVial'] is None or attrRec['dosesPerVial'] is None:
         attrRec['pricePerDose'] = None
     else:
@@ -112,10 +118,18 @@ def jsonVaccineEditFn(attrRec, m):
             filtAttr[k+'Units'] = b
         else:
             filtAttr[k] = v
+        
+        if k[-8:] == "Lifetime":
+            if v == 0:
+                if k in lifetimes:
+                    filtAttr[k] = lifetimes[k]
+                    filtAttr[k+'Units'] = 'D'    
+                
     return filtAttr
 
 @bottle.route('/json/vaccine-edit-verify-commit')
 def jsonVaccineEditVerifyCommit(db, uiSession):
+    # WE have to handle the lifetimes here, if we don't, the simulator will bomb
     return typehooks.jsonTypeEditVerifyAndCommit(db, uiSession, 'vaccines', fieldMap,
                                                  jsonVaccineEditFn)
             
@@ -205,7 +219,60 @@ def jsonManageVaccineTable(db, uiSession):
               }
     return result
 
-
+@bottle.route('/json/manage-vaccine-explorer',method="POST")
+def jsonManageVaccineTableSTB(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        searchTerm = _safeGetReqParam(bottle.request.params, 'searchterm', default=None)
+        print "TYPE = {0}".format(type(searchTerm))
+        #searchTerm = u"{0}".format(searchTermStr)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+    except privs.PrivilegeException:
+        raise bottle.BottleException(_('Current User does not have access to model with Id = {0}: from json/manaage-vaccine-table-stb'.format(modelId)))
+    except ValueError, e:
+        print 'Empty parameters supplied to manage-vaccine-table-stb'
+        print str(e)
+        return {'success': 'false'}
+    try:
+        tList = typehelper.getTypeList(db,modelId,'vaccines')
+        #print tList
+        rows = []
+        for v in tList:
+            manufact = v['Manufacturer']
+            if v['Manufacturer'] == '':
+                manufact = u"{0}".format(_('Not Specified'))
+            present = v['Vaccine presentation']
+            if present == '':
+                present = u"{0}".format(_('Not Specified'))
+            
+            row = {'id':v['Name'],
+                   'name':v['DisplayName'],
+                   'type':v['Category'],
+                   'manufacturer':manufact,
+                   'presentation':present,
+                   'details':v['Name']
+                   }
+            
+            
+            if searchTerm:
+                ## does this match name, manufacturer...
+                for v in row.values():
+                    if v.lower().find(searchTerm.lower()) > -1:
+                        rows.append(row)
+                        break
+            else:
+                rows.append(row)
+            #rows.append(row)
+            
+        return {'success':True,
+                'total':1,
+                'page':1,
+                'records':len(rows),
+                'rows':rows
+                }
+    except Exception,e:
+        return {'success':False,'msg':'manage-vaccine-table-all: {0}'.format(str(e))}
+    
 @bottle.route('/json/manage-vaccine-table-groupings')
 def jsonManageVaccineTableGroupings(db, uiSession):
     try:
@@ -256,10 +323,8 @@ def jsonManageVaccineSubTable(db, uiSession):
     """
     modelId = int(bottle.request.params['modelId'])
     subkey = str(bottle.request.params['subkey'])
-    subval = str(bottle.request.params['subval'])
-    print subval
+    subval = str(bottle.request.params['subval']) 
     subval = subval.decode('hex').decode('utf-8')
-    print subval
     try:
         uiSession.getPrivs().mayReadModelId(db, modelId)
     except privs.PrivilegeException:

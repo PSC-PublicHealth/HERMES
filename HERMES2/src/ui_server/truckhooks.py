@@ -248,4 +248,51 @@ def updateTruckStrorage(db,uiSession):
     except Exception,e:
         result = {'success':False,'msg':str(e)}
         return result
+
+@bottle.route('/json/manage-truck-explorer',method='POST')
+def jsonManageTruckExplorerTable(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        searchTerm = _safeGetReqParam(bottle.request.params, 'searchterm', default=None)
+        #searchTerm = u"{0}".format(searchTermStr)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+    except privs.PrivilegeException:
+        raise bottle.BottleException(_('Current User does not have access to model with Id = {0}: from json/manaage-truck-explorer'.format(modelId)))
+    except ValueError, e:
+        print 'Empty parameters supplied to manage-truck-explorer'
+        print str(e)
+        return {'success': 'false'}
+    try:
+        tList = typehelper.getTypeList(db,modelId,'trucks')
+        #print tList
+        rows = []
+        for v in tList:
+            cat = v['Category']
+            if cat is None or cat == "":
+                cat = u'Other'
+            row = {'id':v['Name'],
+                   'name':v['DisplayName'],
+                   'type':v['Category'],
+                   'details':v['Name']
+                   }
+            
+            
+            if searchTerm:
+                ## does this match name, manufacturer...
+                for v in row.values():
+                    if v.lower().find(searchTerm.lower()) > -1:
+                        rows.append(row)
+                        break
+            else:
+                rows.append(row)
+            #rows.append(row)
+            
+        return {'success':True,
+                'total':1,
+                'page':1,
+                'records':len(rows),
+                'rows':rows
+                }
+    except Exception,e:
+        return {'success':False,'msg':'manage-vaccine-table-all: {0}'.format(str(e))}
     

@@ -27,7 +27,7 @@
 <link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.11.4.custom/jquery-ui.css" />
 <link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/demos/demos.css" />
 <link rel="stylesheet" href="{{rootPath}}static/animate.css"/>
-<link rel="stylesheet" type="text/css" media="screen" href="{{rootPath}}static/jqGrid-4.4.4/css/ui.jqgrid.css" />
+
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-svg-1.4.5/jquery.svg.css" />
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/hermes_custom.css" />
 
@@ -36,8 +36,18 @@
 <script src="{{rootPath}}static/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
 <!--<script src="{{rootPath}}static/jquery-ui-1.10.2/ui/jquery-ui.js"></script>-->
 
+<!-- JQGrid 4.4.4 includes -->
+<!--
+<link rel="stylesheet" type="text/css" media="screen" href="{{rootPath}}static/jqGrid-4.4.4/css/ui.jqgrid.css" />
 <script type="text/javascript" src="{{rootPath}}static/jqGrid-4.4.4/js/i18n/grid.locale-en.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/jqGrid-4.4.4/js/jquery.jqGrid.src.js"></script>
+-->
+
+<!-- freeJqGrid 4.7 includes -->
+<link rel="stylesheet" type="text/css" media="screen" href="{{rootPath}}static/jqGrid-free-4.7/css/ui.jqgrid.css" />
+<script type="text/javascript" src="{{rootPath}}static/jqGrid-free-4.7/js/i18n/grid.locale-en.js"></script>
+<script type="text/javascript" src="{{rootPath}}static/jqGrid-free-4.7/js/jquery.jqGrid.src.js"></script>
+
 <script type="text/javascript" src="{{rootPath}}static/jQuery-File-Upload-7.4.1/js/jquery.fileupload.js"></script>
 
 <script type="text/javascript" src="{{rootPath}}static/jquery-rcrumbs-3234d9e/jquery.rcrumbs.js"></script>

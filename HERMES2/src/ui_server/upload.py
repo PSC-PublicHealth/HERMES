@@ -83,7 +83,12 @@ def uploadAndStore(bottleRequest,uiSession):
     note = 'Uploaded at %s '%time.strftime('%Y/%m/%d %H:%M:%S')
     if 'shortname' in formMDict: shortName = formMDict['shortname']
     else: shortName = os.path.split(clientFileName)[1]
+    print "-9-090-09-09-09-09-09-0"
+    print shortName
+    
     with uiSession.getLockedState() as state:
+        print state.fs().extensionToType(clientFileExt)
+        print "-fdssdfaefsdfadsfasdfsdafdd----"
         fileType = state.fs().extensionToType(clientFileExt)
         if fileType is None:
             raise HermesServiceException('File for upload %s has an unknown extension; cannot identify file type'%clientFileName)
@@ -103,5 +108,10 @@ def uploadAndStore(bottleRequest,uiSession):
         info = state.fs().getFileInfo(fileKey)
     #uiSession['notes'] += ", uploaded %s"%info['shortName']
 
+    print "dsfsdfsdfffffffffffffffffffffffffffffffffffffffff"
+    print formMDict.keys()
+    if 'modelId' in formMDict.keys():
+        info['modelId'] = formMDict['modelId']
+        
     return info
 

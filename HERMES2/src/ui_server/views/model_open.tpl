@@ -19,75 +19,15 @@
 <script src="{{rootPath}}static/hermes_info_dialogs.js"></script>
 <script src="{{rootPath}}static/hermes-ui-utils.js"></script>
 <script src="{{rootPath}}static/collapsible-network-diagram/collapsible-network-diagram.js"></script>
-
-<script src="{{rootPath}}static/spin/spin.js"></script>
 <script src="{{rootPath}}static/vakata-jstree-841eee8/dist/jstree.min.js"></script>
-<!--<link rel="stylesheet" href="{{rootPath}}static/bootstrap-3.3.5-dist/css/bootstrap.css"/>-->
+<link rel="stylesheet" href="{{rootPath}}static/modelSummary-tab-widgets/modelSummary-tab.css"/>
+<script src="{{rootPath}}static/modelSummary-tab-widgets/modelSummary-tab.js"></script>
 <link rel="stylesheet" href="{{rootPath}}static/collapsible-network-diagram/collapsible-network-diagram.css"/>
 <link rel="stylesheet" href="{{rootPath}}static/vakata-jstree-841eee8/dist/themes/default/style.min.css"/>
-<script>
+<!--<link rel="stylesheet" href="{{rootPath}}static/geographic-map-widgets/geographicMap.css"/>-->
+<script src="{{rootPath}}static/geographic-map-widgets/geographicMap.js"></script>
 
-var mayModify = "{{maymodify}}" == "True" ? true : false ;
-
-//console.log(mayModify);
-function updateNetworkDiagram(){
-	$('#ajax_busy_image').show();
-	$('#model_operations_holder').fadeTo(500,1.0);
-	getModelJson().done(function(result){
-		if (!result.success){
-			alert(result.msg);
-		}
-		else{
-			//$("#collapsible-network-diagram").remove();
-			//$("#model_show_diagram").append("<div id='collapsible-network-diagram'/>");
-			$("#collapsible-network-diagram").diagram({
-				jsonData:result,
-				storeDialogDivID:'model_store_info',
-				rootPath:'{{rootPath}}',
-				modelId:'{{modelId}}',
-				minHeight:500,
-				minWidth:490,
-				resizeOn:false
-				//jsonUrl:'{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}'
-			});
-			$("#loading-notify").fadeTo(400,0.0).hide();
-			//$("#tooldiv").show();
-			$("#ajax_busy_image").hide();
-		}
-	});
-};
-
-function getModelJson(){
-	return $.ajax({
-		url:'{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}',
-		dataType:'json'
-	}).promise();
-};
-
-//$(document).ready(function(){
-//	//$("#model_diagram_holder").corner();
-//	$('#ajax_busy_image').show();
-//});
-
-//updateNetworkDiagram();
-</script>
 <style>
-#collapsible-network-diagram{
-	width:100%;
-	height:100%;
-	min-height:500px;
-	min-width:380px;
-	background:whitesmoke;
-}
-
-#model_holder{
-	#width:100%;
-	#height:100%;
-	min-height:500px;
-	max-height:700px;
-	min-width:800px;
-	max-width:1000px;
-}
 #model_operations_holder{
 	float:left;
 	#width:45%;
@@ -97,36 +37,18 @@ function getModelJson(){
 	opacity:0;
 	#display:none;
 }
+
 #model_diagram_holder{
 	float:left;
-	width:50%;
-	height:100%;
+	#width:50%;
+	#height:100%;
 	#background-color:;
-	padding:10px;
-	min-width:400px;
+	#padding:10px;
+	#min-width:400px;
 	z-index:5;
 	display:inline;
 }
-#model_show_diagram{
-	width:100%;
-	height:100%;
-	display:inline;
-}
-.model-operation-title{
-	font-size:20px;
-	font-weight:bold;
-}
-.model-operation-second{
-	font-size:11px;
-}
-a.model-operation-item:link{
-	font-size:14px;
-	color:#282A57;
-}
-a.model-operation-item:visited{
-	font-size:14px;
-	color:#282A57;
-}
+
 ul.option-list{
 	list-style-type:initial;
 	margin-left:20px;
@@ -146,63 +68,93 @@ ul.option-list li{
 ul.option-list-inner li{
 	margin:10px;
 }
-.model-diagram-title{
-	font-size:14px;
+
+.model-operation-title{
+	font-size:20px;
 	font-weight:bold;
 }
-.model-diagram-note{
+.model-operation-second{
 	font-size:11px;
-	font-weight:normal;
-	font-style:italics;
 }
-.notification{
-	padding:30px;
-	position:absolute;
-	top:40%;
-	left:40%;
-	background-color:#A0A3A6;
-	color:white;
-	font-weight:bold;
-	opacity:0;
-	z-index:100;
-	display:none;
+a.model-operation-item:link{
+	font-size:14px;
+	color:#282A57;
 }
-.action-underline{
-    border-bottom: 1px dashed;
-}
-a.model-operation-item:hover{
-    text-decoration: none;
-    /* border-bottom: none; */
-    border-bottom: thin solid;
-}
-#loading-notify{
-	display:inline;
-	opacity:0.0;
-	position:absolute;
-	padding:20px;
-	top: 55%;
-	left: 32%;
-	background:grey;
-	font-weight:bold;
-	color:white;
+a.model-operation-item:visited{
+	font-size:14px;
+	color:#282A57;
 }
 
-#note-update-notify{
-	display:inline;
-	#opacity:0.0;
-	position:absolute;
-	padding:20px;
-	top: 50%;
-	left: 36%;
-	background:grey;
-	font-weight:bold;
-	color:white;
-}
-#model_dialog_note_edit{
-	width:100%;
-	height:500px;
-}
 </style>
+
+<script>
+var mayModify = "{{maymodify}}" == "True" ? true : false ;
+
+//console.log(mayModify);
+//function updateNetworkDiagram(){
+//	$('#ajax_busy_image').show();
+//	$('#model_operations_holder').fadeTo(500,1.0);
+//	getModelJson().done(function(result){
+//		if (!result.success){
+//			alert(result.msg);
+//		}
+//		else{
+//			//$("#collapsible-network-diagram").remove();
+//			//$("#model_show_diagram").append("<div id='collapsible-network-diagram'/>");
+//			$("#collapsible-network-diagram").diagram({
+//				jsonData:result,
+//				storeDialogDivID:'model_store_info',
+//				rootPath:'{{rootPath}}',
+//				modelId:'{{modelId}}',
+//				minHeight:500,
+//				minWidth:490,
+//				resizeOn:false
+//				//jsonUrl:'{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}'
+//			});
+//			$("#loading-notify").fadeTo(400,0.0).hide();
+//			//$("#tooldiv").show();
+//			$("#ajax_busy_image").hide();
+//		}
+//	});
+//};
+//
+//function updateGeographicDiagram(){
+//	$('ajax_busy_image').show();
+//	//$('#model_operations_holder').fadeTo(500,1.0);
+//	getModelJson().done(function(result){
+//		if (!result.success){
+//			alert(result.msg);
+//		}
+//		else{
+//			//$("#collapsible-network-diagram").remove();
+//			//$("#model_show_diagram").append("<div id='collapsible-network-diagram'/>");
+//			$("#geographic-diagram").geographicMap({
+//				jsonData:result,
+//				rootPath:'{{rootPath}}',
+//				modelId:'{{modelId}}',
+//				//jsonUrl:'{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}'
+//			});
+//			$("#map-loading-notify").fadeTo(400,0.0).hide();
+//			//$("#tooldiv").show();
+//			$("#ajax_busy_image").hide();
+//		}
+//	});
+//	
+//};
+//function getModelJson(){
+//	return $.ajax({
+//		url:'{{rootPath}}json/model-structure-tree-d3?modelId={{modelId}}',
+//		dataType:'json'
+//	}).promise();
+//};
+
+//$(document).ready(function(){
+//	//$("#model_diagram_holder").corner();
+//	$('#ajax_busy_image').show();
+//});
+
+//updateNetworkDiagram();
+</script>
 
 <div id="model_holder">
 	<div id="model_operations_holder">
@@ -231,7 +183,27 @@ a.model-operation-item:hover{
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Populate the model with different components that can then be placed at different locations in the supply chain model.")}}'
 						id="types_model_link"><span class="action-underline">{{_('Add or remove model components')}} </span> {{_('(e.g. vaccines, storage devices, vehicles, and population categories)')}}</a>
-				</span>	
+				</span>
+				<li>
+					<span class="model-operation-item">
+						{{_("Tabular interfaces for editing the model")}}
+					<ul class="option-list-inner">
+						<li>
+						<span class="model-operation-item">
+							<a class="model-operation-item" href="#" title='{{_("Upload a spreadsheet or enter into a table the geographic coordinates of each location in the model")}}'
+								id="geocoord_model_link"><span class="action-underline">{{_('Edit Storage Location Geographic Coordinates')}} </span> </a>
+						</span>
+						<li>
+						<span class="model-operation-item">
+							<a class="model-operation-item" href="#" title='{{_("Upload a spreadsheet or enter into a table the population estimates of each location in the model")}}'
+								id="poptab_model_link"><span class="action-underline">{{_('Edit Storage Location Population Estimates')}} </span> </a>
+						</span>
+						<li>
+						<span class="model-operation-item">
+							<a class="model-operation-item" href="#" title='{{_("Enter into a table the storage devices present at each location in the model")}}'
+								id="storeinv_model_link"><span class="action-underline">{{_('Edit Storage Location Device Inventories')}} </span> </a>
+						</span>
+					</ul>
 				<li>
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Specify the vaccine dosage schedule for all population categories throughout the year.")}}'
@@ -242,6 +214,12 @@ a.model-operation-item:hover{
 					<a class="model-operation-item" href="#" title='{{_("Define the details needed to implement the HERMES microcosting model, including storage, building, labor, transportation and vaccine costs.")}}'
 						id="costs_model_link">{{_('Add and modify')}} <span class="action-underline">{{_('costs')}}</span></a>
 				</span>	
+				<li>
+				<span class="model-operation-item">
+					<a class="model-operation-item" href="#" title='{{_("Define the manufacturing details such as frequecy of vaccine creation, and buffer stock.")}}'
+						id="factories_link">{{_('Modify')}} <span class="action-underline">{{_('manufacturer')}}</span></a>
+				</span>
+				</li>
 				<li>
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Open the HERMES Transport Loop Generator to explore the effects of implementing transport loops at various levels in your system.")}}'
@@ -258,35 +236,13 @@ a.model-operation-item:hover{
 		</span>
 		<li>
 		<span class="model-operation-item">
-			<a class="model-operation-item" href="#" title='{{_("Export the current model as a .zip file, in order to save, send and view the model and its results on any other HERMES-installed computer.")}}' 
-				id="download_model_link"><span class="action-underline">{{_('Export Model')}} </span> {{_('as a HERMES Zip File')}}</a>
+			<a class="model-operation-item" href="#" title='{{_("Export the current model as a .HZP file, in order to save, send and view the model and its results on any other HERMES-installed computer.")}}' 
+				id="download_model_link"><span class="action-underline">{{_('Export Model')}} </span> {{_('as a HERMES .HZP File')}}</a>
 		</span>
 		</ul>
 	</div>
 	
-	<div id="model_diagram_holder">
-		<ul>
-			<li><a href="#model_show_diagram">{{_('Model Network')}}</a></li>
-			<li><a href="#model_test">{{_('Notes')}}</a></li>
-		</ul>
-		<div id="model_test">
-			<p><span class="model-diagram-title">{{_(u'Notes for {0} model'.format(name))}}</span></p>
-			<span class="model-diagram-note"><textarea rows="30" cols="55" id="model_dialog_note_edit"></textarea></span>
-			<button style="width:100%;" id="submit_note">{{_("Save Notes")}}</button>
-			<div id="note-update-notify">
-				<p>{{_("Note Updated")}}</p>
-			</div>
-		</div>
-		<div id="model_show_diagram">
-			<div id="model_diagram_caption_top">
-			<p><span class="model-diagram-title">{{_("Supply Chain Network Diagram")}}</span></p>
-			<p><span class="model-diagram-note">{{_("This diagram depicts the structure of this supply chain.  Clicking on a location can expand or contract the routes and locations below the selected location. Right-clicking a location or route will bring up more detailed information.")}}</span></p>
-			</div>
-			<div id="collapsible-network-diagram"></div>
-			<div id="loading-notify">{{_("Preparing Diagram")}}</div>
-		</div>
-	</div>
-</div>
+	<div id="model_diagram_holder"></div>
 
 <div id="result_dialog" title='{{_("Simulation Experiment Results")}}'>
 <div id="result"></div>
@@ -333,7 +289,7 @@ a.model-operation-item:hover{
 				<input type="text" id="export_filename" style="width:100%">
 			</td>
 			<td>
-				.zip
+				.HZP
 			</td>
 		</tr>
 	</table>
@@ -348,7 +304,7 @@ a.model-operation-item:hover{
 </div>
 
 <div id="not-implemented-modal" title='{{_("Feature is not yet implemented")}}'>
-	<p>   {{_('The Basic Model Editor is not yet implemented. We apologize for the inconvenience.  Please try editting the model with the advanced editor.')}} </p>
+	<p>   {{_('The Basic Model Editor is not yet implemented. We apologize for the inconvenience. Please try editting the model with the advanced editor.')}} </p>
 </div>
 
 
@@ -365,56 +321,29 @@ $(document).ready(function(){
 		}
 	});
 	
-	//$("#model_diagram_holder").corner();
-	$("#model_diagram_holder").tabs();
+	$("#model_diagram_holder").modelSummaryTabs({
+		modelId:{{modelId}},
+		modelName:'{{name}}',
+		rootPath:{{rootPath}},
+		width:500,
+		height:500,
+		notesOn:true,
+		diagramOn:true,
+		summaryOn:true
+	});
+
 	$(".notification").corner();
 	$("#note-update-notify").corner();
 	$("#note-update-notify").hide();
 	$("#loading-notify").corner();
 	$("#loading-notify").fadeTo(400,1.0);
-	$("#submit_note").button();
-	$.ajax({
-		url:'{{rootPath}}json/get-model-notes',
-		datatype:'json',
-		data:{'modelId':{{modelId}}},
-		method:'post'
-	})
-	.done(function(results){
-		if(!results.success){
-			alert(results.msg);
-		}
-		else{
-			$("#model_dialog_note_edit").val(results.notes);
-		}
-	})
-	.fail(function(jqxhr, textStatus, error) {
-    	alert("Error: " + jqxhr.responseText);
-    });
 	
-	updateNetworkDiagram();
+	$("#model_operations_holder").fadeTo(500,1.0);
+	//updateNetworkDiagram();
+	//updateGeographicDiagram();
 });
 	
-	$("#submit_note").click(function(){
-		$.ajax({
-			url:"{{rootPath}}edit/update-model-name-note",
-			method:"post",
-			datatype:"json",
-			data:{"modelId":{{modelId}},
-				  "newName":"{{name}}",
-				  "newNote":$("#model_dialog_note_edit").val()}
-		})
-		.done(function(results){
-			if(!results.success){
-				alert(results.msg);
-			}
-			else{
-				$("#note-update-notify").fadeIn(400).delay(200).fadeOut(400);
-			}
-		})
-		.fail(function(jqxhr, textStatus, error) {
-	    	alert("Error: " + jqxhr.responseText);
-	    });
-	});
+
 	
 	$("#not-implemented-modal").dialog({
 		resizable: false,
@@ -485,6 +414,18 @@ $(document).ready(function(){
 		editTypes({{modelId}});
 	});
 	
+	$("#geocoord_model_link").click(function(){
+		editGeoCoords({{modelId}});
+	});
+	
+	$("#poptab_model_link").click(function(){
+		editPopTab({{modelId}});
+	});
+	
+	$("#storeinv_model_link").click(function(){
+		editStoreInvTab({{modelId}});
+	});
+	
 	$("#dose_sched_link").click(function(){
 		editDoseSched({{modelId}});
 	});
@@ -499,7 +440,12 @@ $(document).ready(function(){
 	
 	$("#costs_model_link").click(function(){
 		editCosts({{modelId}});
-	})
+	});
+	
+	$("#factories_link").click(function(){
+		editFactories({{modelId}});
+	});
+	
 	$("#result_model_link").click(function(){
 		openResults({{modelId}});
 		//$("#result_dialog").dialog("open");
@@ -537,7 +483,7 @@ $(document).ready(function(){
 		buttons:{
 			'{{_("Save")}}':function(){
 				if(!$("#export_filename").val()){
-					alert("A name must be specified for the exported zip file");
+					alert("A name must be specified for the exported HZP file");
 					$("#export_filename").focus().select();
 				}
 				else{
@@ -701,10 +647,44 @@ function editCosts(modelId){
 		window.location = '{{rootPath}}cost-top?modelId='+modelId;
 	}
 }
+function editFactories(modelId){
+	if(!mayModify){
+		$("#model_dowantcopy_dialog").dialog("open");
+	}
+	else{
+		window.location = '{{rootPath}}factory-top?modelId='+modelId;
+	}
+}
 function runHermes(modelId){
 	window.location = "{{rootPath}}model-run?modelId="+modelId;
 };
 
+function editGeoCoords(modelId){
+	if(!mayModify){
+		$("#model_dowantcopy_dialog").dialog("open");
+	}
+	else{
+		window.location='{{rootPath}}model-edit-geocoords-tabular?modelId='+modelId;
+	}
+}
+
+function editPopTab(modelId){
+	if(!mayModify){
+		$("#model_dowantcopy_dialog").dialog("open");
+	}
+	else{
+		window.location='{{rootPath}}model-edit-population-tabular?modelId='+modelId;
+	}
+}
+
+function editStoreInvTab(modelId){
+	if(!mayModify){
+		$("#model_dowantcopy_dialog").dialog("open");
+	}
+	else{
+		window.location='{{rootPath}}model-edit-store-inventory-tabular?modelId='+modelId;
+	}
+}
 function createLoops(modelId){
 	if(!mayModify){
 		$("#model_dowantcopy_dialog").dialog("open");

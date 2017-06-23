@@ -31,6 +31,7 @@ class KVPParser:
     
     tokenRe= re.compile(r"""
     (\s*(?P<comment>\#.*$))
+    |(\s*(?P<inisection>\[.*$))
     |(?P<identifier>[a-zA-Z_][a-zA-Z0-9_]*)
     |(?P<separator>[,;:])
     |(?P<equalsign>\s*=\s*)
@@ -71,6 +72,10 @@ class KVPParser:
             pos = m.end()
             if m.group('comment'): 
                 v = m.group('comment')
+                if isinstance(v,types.StringType): v = v.decode(encoding)
+                yield 'comment',v
+            elif m.group('inisection'):
+                v = m.group('inisection')
                 if isinstance(v,types.StringType): v = v.decode(encoding)
                 yield 'comment',v
             elif m.group('identifier'): 

@@ -597,7 +597,15 @@ $("#save_name_exists_modal").dialog({
 		'{{_("OK")}}':function(){
 			$(this).dialog("close");
 		}
-	}
+	},
+	open: function(e,ui) {
+	    $(this)[0].onkeypress = function(e) {
+	    	if (e.keyCode == $.ui.keyCode.ENTER) {
+	    		e.preventDefault();
+	    		$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+	    	}
+	    };
+    },
 });
 
 $("#save_name_modal").dialog({
@@ -605,6 +613,14 @@ $("#save_name_modal").dialog({
 	height: 300,
 	width: 400,
 	modal: true,
+	open: function(e,ui) {
+	    $(this)[0].onkeypress = function(e) {
+	    	if (e.keyCode == $.ui.keyCode.ENTER) {
+	    		e.preventDefault();
+	    		$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+	    	}
+	    };
+    },
 	buttons:{
 		'{{_("Save")}}':function(){
 			doesTypeExistInModel($("#new_type_dbname_text").val(),$("#new_type_name_text").val())
@@ -689,7 +705,8 @@ function editType(id) {
 						url:typesMap[currentType].editFormUrl,
 						data:{
 							'modelId':modelId,
-							'protoname':'new_type'
+							'protoname':'new_type',
+							'newname':name
 						}
 					})
 					.done(function(data){
@@ -707,10 +724,12 @@ function editType(id) {
 			    				},
 			    				'{{_("Save")}}':function(){
 			    					var flag = false;
+			    					var debug = true;
 			    					$(".required_string_input").each(function(){
 			    						var value = $(this).val();
 			    						if(!value || value.length === 0 || !value.trim()){
 			    							$(this).css("border-color","red");
+			    							if(debug) alert("String Bad " + $(this).attr('id'))
 			    							flag=true;
 			    						}
 			    					});
@@ -718,18 +737,21 @@ function editType(id) {
 			    						var value = $(this).val();
 			    						if(!value || value.length === 0 || !value.trim()){
 			    							$(this).css("border-color","red");
+			    							if(debug) alert("int Bad " + $(this).attr('id'))
 			    							flag=true;
 			    						}
 			    						if($(this).hasClass("canzero")){
 			    							if(value < 0.0){
 			    								$(this).css("border-color","red");
 			    								flag=true;
+			    								if(debug) alert("int zero Bad " + $(this).attr('id'))
 			    							}
 			    						}
 			    						else{
 			    							if(value <= 0.0){
 			    								$(this).css("border-color","red");
 			    								flag=true;
+			    								if(debug) alert("int eq zero Bad " + $(this).attr('id'))
 			    							}
 			    						}
 			    					});
@@ -738,17 +760,20 @@ function editType(id) {
 			    						//alert("could be zero");}
 			    						if(!value || value.length === 0 || !value.trim()){
 			    							$(this).css("border-color","red");
+			    							if(debug) alert("float Bad " + $(this).attr('id') + "Value = " + value)
 			    							flag=true;
 			    						}
 			    						if($(this).hasClass("canzero")){
 			    							if(value < 0.0){
 			    								$(this).css("border-color","red");
+			    								if(debug) alert("float zero Bad " + $(this).attr('id'))
 			    								flag=true;
 			    							}
 			    						}
 			    						else{
 			    							if(value <= 0.0){
 			    								$(this).css("border-color","red");
+			    								if(debug) alert("float eq zero Bad " + $(this).attr('id'))
 			    								flag=true;
 			    							}
 			    						}
@@ -801,6 +826,7 @@ function editType(id) {
 	    	data:{
 	    		'modelId':modelId,
 	    		'protoname':name,
+	    		'newname':'None',
 	    		'overwrite':1,
 	    		'backUrl':B64.encode(myURL + "&startClass=" + currentType)
 	    	}

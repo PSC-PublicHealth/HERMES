@@ -54,6 +54,10 @@ import costhooks
 import information_dialog_box_hooks
 import results_excel_report
 import reporthooks
+import model_geocoordinates_grid
+import model_population_demand_grid
+import factoryhooks
+import model_storage_inventory_grid
 
 ## If executing under mod_wsgi, we need to add the path to the source
 ## directory of this script.

@@ -149,6 +149,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         dummycostmodel.DummyCostManager.startCostingInterval(self, timeNow)  # Do the default stuff
         invDict = self._getFullInventory()
         self.startingInventoryDict = invDict
+        print "Calling Costing Interval"
 
     def endCostingInterval(self, timeNow=None):
         """
@@ -167,7 +168,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
         """
 
         errList = []
-
+        print "CAlling end Costing Interval"
         if self.startingInventoryDict is None:
             raise RuntimeError("Inventory from interval start is missing")
         invDict = self._getFullInventory()
@@ -179,6 +180,7 @@ class MicroCostManager(dummycostmodel.DummyCostManager):
                 invChanges.append((k, endingCount - startingCount))
         # print 'list of inventory changes: %s'%invChanges
         self.inventoryChangeCost, newErrList = self._calcInventoryCost(invChanges)
+        
         self.startingInventoryDict = None
         errList.extend(newErrList)
 

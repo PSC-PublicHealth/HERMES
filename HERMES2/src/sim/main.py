@@ -102,7 +102,7 @@ def _retrieveOptions(opts, gblDict, parserArgs):
         argName =  parserArg['argName']
         gblDict[argName] = getattr(opts, argName)
 
-def parseCommandLine(parserArgs=None, cmdLineArgs=None):
+def parseCommandLine(parserArgs=None, cmdLineArgs=None, session_in=None):
     """
     This routine takes command line input and builds a list of UserInput data structures
     and a dictionary of global arguments (like worker thread count).
@@ -249,11 +249,12 @@ def parseCommandLine(parserArgs=None, cmdLineArgs=None):
     resultsGroupId = None
     
     if gblDict['use_dbmodel']:
+        
         if not opts.minion:
             from shadow_db_routines import addResultsGroup
             if opts.out is None:
                 raise RuntimeError("--out must be set with a descriptive name when hermes is run against the DB")
-            resultsGroupId = addResultsGroup(int(inputList[0][0]), opts.out)
+            resultsGroupId = addResultsGroup(int(inputList[0][0]), opts.out,session_in=session_in)
         else:
             resultsGroupId = opts.out
      
@@ -335,9 +336,9 @@ def loadShadowNetwork(userInput, unifiedInput):
     return loadShdNetwork(userInput, 
                           loadShdTypes(userInput, unifiedInput))
 
-def commitResults(results,session_in=None):
+def commitResults(results,session_in=None,doFlush=True):
     from shadow_db_routines import commitResultsEntry
-    commitResultsEntry(results,session_in=session_in)
+    commitResultsEntry(results,session_in=session_in,doFlush=doFlush)
     
 def resetEngine():
     from shadow_db_routines import resetInterface
@@ -352,9 +353,6 @@ def workerRun(arg):
     print 'Process %s run'%multiprocessing.current_process().name
     try:
         while True:
-            db = DbInterface()
-            dbSession = db.Session()
-            
             userInput, unifiedInput, gblInputs, runNumber, doGraphics, perfect= q.get()
             with OutputRedirector(runNumber) as o:
                 try:
@@ -379,9 +377,10 @@ def workerRun(arg):
                     if gblInputs['save_hdata'] is not None:
                         output.save(gblInputs['save_hdata'])
                     if gblInputs['use_dbmodel']:
-                        print "HERE!!!!!!!"
                         #results = shd.HermesResults(userInput['resultsGroupId'],resultsType='single',runNumber=runNumber)
                         commitResults(r.results,session_in=dbSession)
+                        dbSession.commit()
+                        dbSession.flush()
                     print 'Process %s finished a task'%multiprocessing.current_process().name
                 except Exception as e:
                     print '-'*60
@@ -404,11 +403,15 @@ def workerRun(arg):
 ###########
 
 def main():
+    import db_routines as db
+    dbFace = db.DbInterface()
+    dbSession = dbFace.Session()
+    
     # make a copy of argv before the options parser trashes it.
     argvcp = copy.deepcopy(sys.argv)
 
     unifiedInput = input.UnifiedInput()  # pointers to 'unified' files
-    userInputList,gblInputs= parseCommandLine()
+    userInputList,gblInputs= parseCommandLine(session_in=dbSession)
 
     if gblInputs['zip_inputs'] is not None:
         from HermesInput import gatherInputs
@@ -423,6 +426,7 @@ def main():
     import util
     import hermes
     import HermesOutput
+    
     
     simCount = len(userInputList)  # number of hermes runs
     finalizeOutputs = True         # whether to run routines that merge existing outputs
@@ -482,7 +486,7 @@ def main():
 
         globals.deterministic= gblInputs['deterministic']
 
-        from output_average import create_average_summary_CSV,create_average_report_CSV,create_average_cost_CSV
+        from output_average import create_average_summary_CSV,create_average_report_CSV,create_average_cost_CSV,create_average_timethrough_CSV
 
         # Any 'grep' requests from the input are interpreted as filters to be applied
         # to stdout, which probably includes verbose or debugging data.
@@ -495,7 +499,10 @@ def main():
             ValidatePostSimInputs(userInputList[0])
 
         if nWorkers==1:
+            #dbSession = db.Session()
+            runcount = 0
             for runNumber, userInput in enumerate(userInputList):
+                runcount += 1
                 if onlyRun is not None:
                     if onlyRun != runNumber:
                         continue
@@ -526,7 +533,12 @@ def main():
                         if gblInputs['save_hdata'] is not None:
                             output.save(gblInputs['save_hdata'])
                         if gblInputs['use_dbmodel']:
-                            commitResults(r.results)
+                            flushFlag = True
+                            if runcount == len(userInputList): 
+                                flushFlag = False
+                            commitResults(r.results,doFlush=flushFlag)
+                            
+                            
                     finally:
                         # optimization to save RAM.  Merge outputs as they come in and then
                         # drop them out of scope as soon as possible.
@@ -557,7 +569,7 @@ def main():
             # plus any finalize processing
             if (finalizeOutputs or (gapFinalize) and not gblInputs['use_dbmodel']):
                 for i in xrange(runCount):
-                    mergedOutput = _mergeOutput(mergedOutput, outputQueue.get(), i)
+                    mergedOutput = _mergeOutput(mergedOutput, outputQueue.get(), i,)
             else:
                 for i in xrange(runCount):
                     outputQueue.get()
@@ -584,7 +596,7 @@ def main():
                     create_average_report_CSV('./'+outputFileRoot+'.ave.csv',userInputList)
                     if userInputList[0]['pricetable'] is not None or userInputList[0]['costmodel'] == 'micro1':
                         create_average_cost_CSV('./'+outputFileRoot+'.ave_cost.csv',userInputList)
-
+                    create_average_timethrough_CSV('./'+outputFileRoot+'.ave_timethroughsystem.csv',userInputList)
             for output in outputList:
                 if output is None:
                     print "a run failed, can't create the merged output"
@@ -658,7 +670,7 @@ if __name__=="__main__":
         main()
     except Exception,e:
         print '-'*60
-        print 'Exception: {0}'.format(e)
+        print u'Exception: {0}'.format(e)
         print '-'*60
         traceback.print_exc(file=sys.stderr)
 
