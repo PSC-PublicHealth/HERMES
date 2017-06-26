@@ -91,7 +91,8 @@
 				}
 			}
 			$("#"+thisContainerId).data('slideOffsets',activeSlideOffsets);
-			console.log("Hide new active offsets = " + activeSlideOffsets);
+			console.log("Hide new active offsets = ");
+			console.log(activeSlideOffsets);
 			return true;
 		},
 		showSlide: function(slideNumber){
