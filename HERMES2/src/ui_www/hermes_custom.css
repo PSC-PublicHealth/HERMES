@@ -209,8 +209,9 @@ button.hrm_cur_sel_btn {
 
 
 .hrm_time_time{
-	padding-top:3px;
-	width:500px;
+	padding:5px 10px;
+	width:50px;
+	align:center;
 	max-width:250px;
 }
 
@@ -225,6 +226,10 @@ ul.ui-menu {
 li.ui-menu-item.selected {
 	background: #9e9e9e;
 	display: block;
+}
+
+li.ui-menu-item {
+	font-size:small;
 }
 
 ul.hrm_cur_select_open li.selected {
@@ -2519,38 +2524,6 @@ div.ui-jqgrid-view table.ui-jqgrid-btable th
 	height: 100px;
 }
 
-.hrmWidget_popup_div {
-  background-color:#ffffff;
-  border:1px solid #999999;
-  cursor:default;
-  display:none;
-  margin-top: 5px;
-  position:absolute;
-  text-align:left;
-  width:500px;
-  z-index:50;
-  padding: 5px 5px 5px;
- }
-.hrmWidget_popup_div p, .hrmWidget_popup_div.div {
-  border-bottom: 1px solid #EFEFEF;
-  margin: 8px 0;
-  padding-bottom: 8px;
-}
-
-.hrmWidget_popup_div td {
-	width:250px;
-}
-
-.hrmWidget_simpleStorageInvGrid_button {
-	font-size:10px;
-}
-
-.hrmWidget_simpleStorageInvGrid_select select{
-	width:170px !important;
-}
-.hrmWidget_simpleStorageInvGrid_select span{
-	font-size:10px !important;
-}
 
 
 
@@ -2872,4 +2845,166 @@ div.hermes_flex_dialog_col2{
 
 ul.proper_ul {
 	list-style-type: circle;
+}
+
+.flex_input_row {
+		display: -webkit-flex;
+		display: flex;
+		margin: 0;
+		padding: 0;
+		flex-flow: row;
+		-webkit-align-items: left;
+		align-items: left;
+		-webkit-justify-content: left;
+		justify-content: left;
+		max-width:1200px;
+		*min-width:1000px;
+		min-height:50px;	
+		max-height:100px;
+}
+
+.flex_input_row_label {
+	margin: 0 auto;
+	padding: 10px 5px 10px 5px;
+	-webkit-flex: 1 1 30%;
+	flex: 1 1 30%;
+	order:1;
+	align-self:left top;
+	*font-size: small;
+}
+
+.flex_input_row_input {
+	margin: 0 auto;
+	padding: 10px 5px 10px 5px;
+	-webkit-flex: 1 1 70%;
+	flex: 1 1 70%;
+	order:1;
+	align-self:left top;
+	*font-size: small;
+}
+
+.flex_input_row_wb {
+		display: -webkit-flex;
+		display: flex;
+		margin: 0;
+		padding: 0;
+		flex-flow: row;
+		-webkit-align-items: left;
+		align-items: left;
+		-webkit-justify-content: left;
+		justify-content: left;
+		max-width:1200px;
+		*min-width:1000px;
+		min-height:50px;	
+		max-height:100px;
+}
+
+.flex_input_row_wb_label {
+	margin: 0 auto;
+	padding: 10px 5px 10px 5px;
+	-webkit-flex: 1 1 30%;
+	flex: 1 1 30%;
+	order:1;
+	align-self:left top;
+	*font-size: small;
+}
+
+.flex_input_row_wb_input {
+	margin: 0 auto;
+	padding: 10px 5px 10px 5px;
+	-webkit-flex: 1 1 40%;
+	flex: 1 1 40%;
+	order:1;
+	align-self:left top;
+	*font-size: small;
+}
+
+.flex_input_row_wb_button {
+	margin: 0 auto;
+	padding: 10px 5px 10px 5px;
+	-webkit-flex: 1 1 30%;
+	flex: 1 1 30%;
+	order:1;
+	align-self:left top;
+	*font-size: small;
+}
+
+
+/* hrmWidget specific css */
+.hrmWidget_popup_div {
+  background-color:#ffffff;
+  border:1px solid #999999;
+  cursor:default;
+  display:none;
+  margin-top: 5px;
+  position:absolute;
+  text-align:left;
+  width:500px;
+  z-index:50;
+  padding: 5px 5px 5px;
+ }
+.hrmWidget_popup_div p, .hrmWidget_popup_div.div {
+  border-bottom: 1px solid #EFEFEF;
+  margin: 8px 0;
+  padding-bottom: 8px;
+}
+
+.hrmWidget_popup_div td {
+	width:250px;
+}
+
+.hrmWidget_simpleStorageInvGrid_button {
+	font-size:10px;
+}
+
+.hrmWidget_simpleStorageInvGrid_select select{
+	width:170px !important;
+}
+.hrmWidget_simpleStorageInvGrid_select span{
+	font-size:10px !important;
+}
+
+.hrmWidget_time_input_row_r {
+		display: -webkit-flex;
+		display: flex;
+		margin: 0;
+		padding: 0;
+		flex-flow: row;
+		-webkit-align-items: left;
+		align-items: left;
+		-webkit-justify-content: left;
+		justify-content: left;
+		max-width:600px;
+		min-width:300px;
+		min-height:30px;	
+		max-height:30px;
+}
+
+.hrmWidget_time_input_row_1 {
+	max-width:100px;
+	min-width:100px;
+	float:left;
+}
+
+.hrmWidget_time_input_row_2 {
+	*max-width:100px;
+	*min-width:100px;
+	padding: 0 5px 0 0;
+	float:left;
+}
+
+.flex_rows {
+		display: -webkit-flex;
+		display: flex;
+		margin: 0;
+		padding: 0px 0px 0px 0px;
+		flex-flow: row;
+		-webkit-align-items: left;
+		align-items: left;
+		-webkit-justify-content: left;
+		justify-content: left;
+		max-width:600px;
+		min-width:300px;
+		min-height:50px;	
+		max-height:100px;
 }
