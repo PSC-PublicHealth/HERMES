@@ -44,6 +44,8 @@ a.model-operation-item:visited{
 <script src="{{rootPath}}widgets/type_editor_dialog_widget.js" type="text/javascript"></script>
 <link rel="stylesheet" href="{{rootPath}}static/widget_css/type_explorer_grid_widget.css" />
 <script src="{{rootPath}}widgets/type_explorer_grid.js" type="text/javascript"></script>
+<link rel="stylesheet" href="{{rootPath}}static/widget_css/route_specifier_form_widget.css" />
+<script src="{{rootPath}}widgets/route_specifier_form_widget.js" type="text/javascript"></script>
 
 <!--<div id="test_store_grid"></div>
 <div id="selects_tests">
@@ -58,13 +60,21 @@ a.model-operation-item:visited{
 	<div id="test_type_info_button"></div>
 	<div id="test_type_truck_button"></div>
 </div>-->
-<div id="typeGrids_tests">
+<!--<div id="typeGrids_tests">
 	<div id="test_vaccine_typeGrid"></div>
-</div>
+</div>-->
+<div id="test_truck_select"></div>
+<div id="test_vaccine_select"></div>
+<div id="route_form_test"></div>
 <script>
-$(function(){
+$("#route_form_test").routeSpecifyFormWidget({
+	modelId:{{modelId}},
+	includeStops:false,
+});
+
+//$(function(){
 //	$("#test_store_grid").hrmWidget({
-//		widget:'simpleStorageDeviceTable',
+///		widget:'simpleStorageDeviceTable',
 //		modelId:{{modelId}},
 //		storeId:{{storeId}},
 //		showHead:false,
@@ -81,17 +91,19 @@ $(function(){
 //		maxHeight:200
 //	});
 //	
-//	$("#test_vaccine_select").hrmWidget({
-//		widget:'simpleTypeSelectField',
-//		modelId:{{modelId}},
-//		invType:'vaccines'
-//	});
-//
-//	$("#test_truck_select").hrmWidget({
-//		widget:'simpleTypeSelectField',
-//		modelId:{{modelId}},
-//		invType:'trucks',
-//	});
+	$("#test_vaccine_select").hrmWidget({
+		widget:'simpleTypeSelectField',
+		modelId:{{modelId}},
+		invType:'vaccines',
+		persistent:true
+	});
+
+	$("#test_truck_select").hrmWidget({
+		widget:'simpleTypeSelectField',
+		modelId:{{modelId}},
+		invType:'trucks',
+		persistent:true
+	});
 //	$("#test_people_select").hrmWidget({
 //		widget:'simpleTypeSelectField',
 //		modelId:{{modelId}},
@@ -122,15 +134,15 @@ $(function(){
 //		typeId: "truck_district",
 //		typeClass: 'trucks'
 //	});
-	$("#test_vaccine_typeGrid").typeExplorerGrid({
-		modelId: {{modelId}},
-		typeClass: 'fridges',
-		min_height:100,
-		min_width:200,
-		height:200,
-		width:1000
-	});
+//	$("#test_vaccine_typeGrid").typeExplorerGrid({
+//		modelId: {{modelId}},
+//		typeClass: 'fridges',
+//		min_height:100,
+//		min_width:200,
+//		height:200,
+//		width:1000
+//	});
+//	
 	
-	
-});
+//});
 </script>

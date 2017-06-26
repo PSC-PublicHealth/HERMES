@@ -848,6 +848,7 @@ function addToggleExpansionButton($grid) {
 	 		return this.each(function(index,elem){
 	 			var timeUnits = {'days':'D','months':'M','years':'Y'};
 	 			var $elem = $(elem);
+	 			console.log($elem.data());
 	 			$elem.data('fieldMap',JSON.parse(settings['fieldMap']));
 	 			var value = settings['value'];
 	 			var values = value.split(':');
@@ -858,9 +859,19 @@ function addToggleExpansionButton($grid) {
 	 					req_string += ' canzero';
 	 				}
 	 			}
-	 			htmlString = '<div style="float:left;"><label>'+settings['label']+'</label>'
-	 			htmlString +='<input type="number" class="hrm_time_time '+req_string+'" id="'+$(this).attr('id')+'_time"></input></div>';
-	 			htmlString +='<div style="float:right;"><select  class="hrm_time_unit" id="'+$(this).attr('id')+'_unit">';
+	 			htmlString =  '<div class="hrmWidget_time_input_row">';
+	 			if(settings['label']!= ''){
+	 				htmlString += '  <div class="hrmWidget_time_input_row_1" style="-webkit:1 1 30%;flex:1 1 30%;"><label>'+settings['label']+'</label></div>';
+	 				htmlString +='   <div class="hrmWidget_time_input_row_2" style="-webkit:1 1 40%;flex:1 1 40%;">';
+	 				htmlString += '    <input type="number" class="hrm_time_time '+req_string+'" id="'+$(this).attr('id')+'_time"></input>';
+	 			}
+	 			else{
+	 				htmlString +='   <div class="hrmWidget_time_input_row_2" style="-webkit:1 1 70%;flex:1 1 70%;">';
+	 				htmlString += '    <input type="number" class="hrm_time_time '+req_string+'"  id="'+$(this).attr('id')+'_time"></input>';
+	 			}
+	 			htmlString += '  </div>';
+	 			htmlString += '  <div class="hrmWidget_time_input_row_3" style="-webkit:1 1 30%;flex:1 1 30%;">';
+	 			htmlString += '    <select  class="hrm_time_unit" id="'+$(this).attr('id')+'_unit">';
 	 			for (unit in timeUnits){
 	 				if(timeUnits.hasOwnProperty(unit)){
 	 					if(values[1] == timeUnits[unit])
@@ -869,7 +880,7 @@ function addToggleExpansionButton($grid) {
 	 						htmlString +='<option value = "'+timeUnits[unit]+'">'+unit+'</option>';
 	 				}
 	 			}
-	 			htmlString += '</select></div>'
+	 			htmlString += '</select></div></div>';
 	 			$elem.html(htmlString);
 	 			$("#"+$(this).attr('id')+'_time').val(parseFloat(values[0]));
 	 			$('#'+$(this).attr('id')+'_unit').selectmenu({
@@ -1274,6 +1285,12 @@ function addToggleExpansionButton($grid) {
 				}
 				else if (arg=='rebuild') {
 					var selected = '';
+					var pretty = false;
+					
+					if (settings.pretty){
+						pretty = settings.pretty;
+					}
+					
 					if (settings.selected) {
 						if (settings.selected instanceof Function) {
 							selected = settings.selected.bind($(myThis))(sel);
@@ -1282,7 +1299,7 @@ function addToggleExpansionButton($grid) {
 					}
 				
 					$.getJSON('{{rootPath}}list/select-route-type', { 
-						typestring: selected
+						typestring: selected,
 					})
 					.done(function(data) {
     					sel.html(data['menustr']);
@@ -1711,6 +1728,7 @@ function addToggleExpansionButton($grid) {
  				$elem.data('modelId',settings['modelId']);
  				$elem.data('selected',settings['selected']);
  				$elem.data('invType',settings['invType']);
+ 				$elem.data('persistent',settings['persistent']);
  				var modelId = settings['modelId'];
  				var invType = settings['invType'];
  				var selected = settings['default'];
@@ -1720,6 +1738,9 @@ function addToggleExpansionButton($grid) {
  				var closeFun = settings['closeFunc'];
  				var focusFun = settings['focusFunc'];
  				var createFun = settings['createFunc'];
+ 				
+ 				var persistent = false;
+ 				if(settings['persistent']){ persistent = settings['persistent'];}
  				
  				$.ajax({
  					url:'{{rootPath}}json/type-list-for-invtype-in-model',
@@ -1768,6 +1789,7 @@ function addToggleExpansionButton($grid) {
 	 						}
 	 					}
 	 					selHtmlString  += "</select></div>";
+	 					
 	 					$elem.html(selHtmlString);
 	 					//console.log("Selected = " + selected)
 	 					$("#"+selectId).selectmenu({
@@ -1790,8 +1812,8 @@ function addToggleExpansionButton($grid) {
 	 							if(openFun){
 	 								openFun();
 	 							}
-	 							var diagtop = $("#"+$(this).attr("id")+"-button").offset().top + $("#"+$(this).attr("id")+"-button").height() - 1;
-	 							var diagleft = $("#"+$(this).attr("id")+"-button").offset().left + $("#"+$(this).attr("id")+"-button").width();
+	 							var diagtop = $("#"+$(this).attr("id")+"-button").offset().top + $("#"+$(this).attr("id")+"-button").outerHeight() - 1;
+	 							var diagleft = $("#"+$(this).attr("id")+"-menu").offset().left + $("#"+$(this).attr("id")+"-menu").outerWidth();
 	 							$("#"+dialogId).offset({top:diagtop,left:diagleft});
 	 							$("#"+dialogId).typeInfoPopup("open");
 	 						},
@@ -1802,7 +1824,9 @@ function addToggleExpansionButton($grid) {
 	 							//$("#"+selectId).val("");
 	 							//$("#"+selectId).selectmenu("refresh");
 	 							$("#"+dialogId).typeInfoPopup("close");
-	 							$("#"+selectId).selectmenu("destroy");
+	 							if(!persistent){
+	 								$("#"+selectId).selectmenu("destroy");
+	 							}
 	 						},
 	 						focus: function(event,ui){
 	 							if(focusFun){
@@ -1841,6 +1865,7 @@ function addToggleExpansionButton($grid) {
 	 				var modelId = $("#"+tId).data('modelId')
 	 				var simple = $("#"+tId).data('simple');
 	 				
+	 				console.log("TypeInfoUrls: " + typeInfoUrls[typeClass]);
 	 				$.ajax({
 						url:{{rootPath}} + typeInfoUrls[typeClass],
 						data:{modelId:modelId,name:typeId,simple:simple}
