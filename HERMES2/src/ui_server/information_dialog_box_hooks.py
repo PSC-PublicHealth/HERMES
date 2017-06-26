@@ -561,7 +561,7 @@ def generateVaccineAvailabilityPlotForStore(db,uiSession):
         result = {'success':False,
                   'msg':str(e)}
         return result 
-  
+
 @bottle.route('/json/get-general-info-for-route',method="post")
 def generateGeneralInformationForRoute(db,uiSession):
     try:
@@ -587,28 +587,28 @@ def generateGeneralInformationForRoute(db,uiSession):
             parsedLevelName += "%s -> "%(stopStore.CATEGORY)
         
         if route.Type in ["varpush","schedvarfetch"]:
-            parsedType = "Fixed Schedule / Variable Amount Based on Frequency "
+            parsedType = _("Fixed Schedule / Variable Amount Based on Frequency ")
             fixedFrequency = route.ShipIntervalDays
         elif route.Type in ["push", "schedfetch"]:
             parsedType = "Fixed Schedule / Fixed Amount "
             fixedFrequency = route.ShipIntervalDays
         elif route.Type in ["pull","demandfetch"]:
-            parsedType = "Variable Schedule (As Needed with Minimum Wait Time Between Shipments, When Stock Falls Below Threshold) / Variable Amount "
+            parsedType = _("Variable Schedule (As Needed with Minimum Wait Time Between Shipments, When Stock Falls Below Threshold) / Variable Amount ")
             variableFrequency = route.ShipIntervalDays
             daysOfStock= route.stops[0].PullOrderAmountDays
             orderThresh = "25%"
         elif route.Type in ["persistentpull","persistentdemandfetch"]:
-            parsedType = "Variable Schedule (As Needed When Stock Falls Below Threshold) / Variable Amount "
+            parsedType = _("Variable Schedule (As Needed When Stock Falls Below Threshold) / Variable Amount ")
             daysOfStock = route.stops[0].PullOrderAmountDays
             orderThresh = "25%"
         elif route.Type in ["askingpush"]:
-            parsedType = "Fixed Schedule / Toping Off Strategy "
+            parsedType = _("Fixed Schedule / Toping Off Strategy ")
             fixedFrequency = route.ShipIntervalDays
         elif route.Type in ["dropandcollect"]:
-            parsedType = "Drop off vaccines and return to collect"
+            parsedType = _("Drop off vaccines and return to collect")
             fixedFrequency = route.ShipIntervalDays
         elif route.Type in ["attached"]:
-            parsedType = "Attached Clinic"
+            parsedType = _("Attached Clinic")
         else:
             parsedType = "UKNOWN"
             

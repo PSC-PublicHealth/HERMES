@@ -35,7 +35,7 @@
 				title: "{{_('Route Specification Form')}}"
 			}
 		},
-		getJson: function(){
+		getData: function(){
 			this.containerId = $(this.element).attr('id');
 			var thisContainerId = this.containerId;
 			
@@ -67,10 +67,10 @@
 				}
 			}
 			
-			return JSON.stringify({'routeType':routeType,
-								   'truckType':$("#"+truckSelectId).val(),
-								   'shipInterval':$("#"+shipIntervalId).timeFormInput("value"),
-								   'pullInterval':$("#"+pullIntervalId).timeFormInput("value")});
+			return {'routeType':routeType,
+				    'truckType':$("#"+truckSelectId).simpleTypeSelectField("value"),
+				    'shipInterval':$("#"+shipIntervalId).timeFormInput("value"),
+				    'pullInterval':$("#"+pullIntervalId).timeFormInput("value")};
 		},
 		_create:function(){
 			trant = this.options.trant;
@@ -200,8 +200,8 @@
 				$("#"+createDialogId).typeEditorDialog({
 					modelId:thisOptions.modelId,
 					typeClass: 'trucks',
-					saveFunc:function(){
-						
+					saveFunc:function(newType){
+						$("#"+truckSelectId).simpleTypeSelectField("update",newType);
 					}
 				});
 			});
@@ -210,6 +210,7 @@
 				widget:'timeFormInput',
 				value: "1:M",
 				label:"",
+				per:true,
 				fieldMap:JSON.stringify({'required':true,'canzero':false})
 			});
 			
@@ -217,6 +218,7 @@
 				widget:'timeFormInput',
 				value: "1:M",
 				label:"",
+				per:true,
 				fieldMap:JSON.stringify({'required':true,'canzero':false})
 			});
 			

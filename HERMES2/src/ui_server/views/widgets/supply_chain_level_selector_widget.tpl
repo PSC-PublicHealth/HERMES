@@ -28,6 +28,22 @@
 				title: "{{_('Supply Chain Level Selector')}}"
 			}
 		},
+		getSelected: function(){
+			this.containerId = $(this.element).attr('id');
+			
+			var thisContainerId = this.containerId;
+			var selectBoxId = thisContainerId + "_select_id";
+			var thisOptions = this.options;
+			
+			var selected = $("#"+selectBoxId + " :radio:checked");
+			
+			if(selected.length == 0){
+				return "None";
+			}
+			else{
+				return selected.attr('id');
+			}
+		},
 		_create: function(){
 			trant = this.options.trant;
 			this.containerId = $(this.element).attr('id');
