@@ -851,6 +851,8 @@ function addToggleExpansionButton($grid) {
 	 			console.log($elem.data());
 	 			$elem.data('fieldMap',JSON.parse(settings['fieldMap']));
 	 			var value = settings['value'];
+	 			var per = false;
+	 			if (settings['per']) per = settings['per'];
 	 			var values = value.split(':');
 	 			var req_string = "";
 	 			if($elem.data("fieldMap").required){
@@ -859,6 +861,8 @@ function addToggleExpansionButton($grid) {
 	 					req_string += ' canzero';
 	 				}
 	 			}
+	 			var perString = '';
+	 			if(per) perString = " per "
 	 			htmlString =  '<div class="hrmWidget_time_input_row">';
 	 			if(settings['label']!= ''){
 	 				htmlString += '  <div class="hrmWidget_time_input_row_1" style="-webkit:1 1 30%;flex:1 1 30%;"><label>'+settings['label']+'</label></div>';
@@ -871,7 +875,7 @@ function addToggleExpansionButton($grid) {
 	 			}
 	 			htmlString += '  </div>';
 	 			htmlString += '  <div class="hrmWidget_time_input_row_3" style="-webkit:1 1 30%;flex:1 1 30%;">';
-	 			htmlString += '    <select  class="hrm_time_unit" id="'+$(this).attr('id')+'_unit">';
+	 			htmlString += '    '+perString+'<select  class="hrm_time_unit" id="'+$(this).attr('id')+'_unit">';
 	 			for (unit in timeUnits){
 	 				if(timeUnits.hasOwnProperty(unit)){
 	 					if(values[1] == timeUnits[unit])
@@ -1716,6 +1720,73 @@ function addToggleExpansionButton($grid) {
  					var selectId = tId + "_simpleTypeSelect_selectBox";
  					$("#"+selectId).selectmenu("open");
  				}
+ 				if(arg=='select'){
+ 					var selectId = tId + "_simpleTypeSelect_selectBox";
+ 					$("#"+selectId).val(arg2);
+ 					$("#"+selectId).selectmenu("refresh");
+ 					
+ 					//return true;
+ 				}
+ 				if(arg=='update'){
+ 					var $elem = $("#"+tId);
+ 					var thisId = $elem.attr('id');
+ 					console.log($elem.data('modelId'));
+ 					var selectId = thisId + "_simpleTypeSelect_selectBox";
+ 					$.ajax({
+ 						url:'{{rootPath}}json/type-list-for-invtype-in-model',
+ 						data:{modelId:$elem.data('modelId'),invtype:$elem.data('invType'),alltypes:false}
+ 					})
+ 					.done(function(result){
+ 						if(result.success){
+	 						if(result.default){
+	 							$elem.data('default',result.default);
+	 						}
+	 						$("#"+selectId).find('option').remove().end();
+	 						var selected = $elem.data("selected");
+		 					var optionsList = [];
+		 					for(var i=0;i<result.typelist.length;++i){
+		 						optionsList.push([result.typelist[i].Name,result.typelist[i].DisplayName]);
+		 					}
+		 					if(! selected){
+		 						selected = optionsList[0][0];
+		 					}
+		 					else{
+		 						inOptions = false;
+			 					for(option in optionsList){
+			 						if(optionsList[option][0] == selected) {
+			 							inOptions = true;
+			 						}
+			 					}
+			 					if(inOptions==false){
+			 						selected = optionsList[0][0];
+			 					}
+		 					}
+		 					for(option in optionsList){
+		 						if(optionsList.hasOwnProperty(option)){
+		 							if(optionsList[option][0] == selected){
+		 								$("#"+selectId).append("<option value = '"+optionsList[option][0]+"' selected>"
+		 											           +optionsList[option][1]+"</option>");
+		 							}
+		 							else{
+		 								$("#"+selectId).append("<option value = '"+optionsList[option][0]+"'>"
+		 														+ optionsList[option][1]+"</option>");
+		 							}
+		 						}
+		 					}
+		 					$elem.data("optionsList",JSON.stringify(optionsList));
+		 					$("#"+selectId).val(arg2);
+		 					$("#"+selectId).selectmenu("refresh");
+ 						}
+	 					else{
+	 						alert("{{_('simpleTypeSelectField update: Error in getting data')}}");
+	 					}
+	 				})
+	 				.fail(function(jqxfr, textStatus, error){
+	 					alert("{{_('simpleTypeSelectField update: fail event in getting data')}}");
+	 				});
+ 					
+ 				}
+ 				
  			}
  			return this.each(function(index,elem){
  				var $elem = $(elem);
@@ -1788,6 +1859,7 @@ function addToggleExpansionButton($grid) {
 	 							}
 	 						}
 	 					}
+	 					$elem.data("optionsList",JSON.stringify(optionsList));
 	 					selHtmlString  += "</select></div>";
 	 					
 	 					$elem.html(selHtmlString);
@@ -1798,11 +1870,12 @@ function addToggleExpansionButton($grid) {
 	 							if(createFun) createFun();
 	 						},
 	 						open: function(event,ui){
+	 							var optionsListHere = JSON.parse($elem.data("optionsList"));
 	 							//$("#"+thisId).children(".ui-jqgrid").children(".ui-jqgrid-view").children(".ui-jqgrid-bdiv").css({"overflow":"hidden"});
 	 							$("#"+dialogId).hrmWidget({
 	 								widget: 'typeInfoPopup',
 	 		 						modelId: modelId,
-	 								typeId: optionsList[option][0],
+	 								typeId: optionsListHere[option][0],
 	 								typeClass:invType,
 	 								simple:true,
 	 								xpos: 0,
@@ -1832,14 +1905,18 @@ function addToggleExpansionButton($grid) {
 	 							if(focusFun){
 	 								focusFun();
 	 							}
-	 							$("#"+dialogId).typeInfoPopup("update",[ui.item.value,invType]);
+	 							if($("#"+dialogId).hasClass('ui-dialog-content')){
+	 								$("#"+dialogId).typeInfoPopup("update",[ui.item.value,invType]);
+	 							}
 	 						},
 	 						select: function(event,ui){
 	 							//alert("selecting here");
 	 							if(selectFun){
 	 								selectFun();
 	 							}
-	 							$("#"+dialogId).typeInfoPopup("close");
+	 							if($("#"+dialogId).hasClass('ui-dialog-content')){
+	 								$("#"+dialogId).typeInfoPopup("close");
+	 							}
 	 						}
 	 					})
 	 					if(maxHeight){
@@ -1897,6 +1974,10 @@ function addToggleExpansionButton($grid) {
 				var modelId = settings['modelId'];
 				var xpos = settings['xpos'];
  				var ypos = settings['ypos'];
+ 				var persistent = false;
+ 				if (settings['persisten']){
+ 					persistent = settings['persistent'];
+ 				}
  				
 				$elem.data("modelId",modelId);
 				$elem.data("simple",settings.simple);

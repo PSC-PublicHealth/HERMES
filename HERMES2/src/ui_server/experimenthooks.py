@@ -36,6 +36,7 @@ import typehelper
 import typehooks
 from modelhooks import addCrumb
 from serverconfig import rootPath
+import constants as C
 
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults,\
     _safeGetReqParam
@@ -185,7 +186,106 @@ def addStorageExptSummary(db,uiSession):
         return {'success':True,'html':"\n".join(htmlArray)} 
          
     except Exception,e:
-        return {'success':False,'msg':str(e)}      
+        return {'success':False,'msg':str(e)}   
+
+@bottle.route('/json/level_removal_summary')
+def levelRemovalExptSummary(db,uiSession):
+    try:
+        import json
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        exptDataJson = _getOrThrowError(bottle.request.params,'data')
+        
+        exptData = json.loads(exptDataJson)
+        
+        htmlArray = []
+        htmlArray.append("<div class='hermes_expt_summary_table_div'>")
+        htmlArray.append( "<table class='hermes_expt_summary_table'>")
+        htmlArray.append( "<tr class='hermes_expt_summary_table_lead_row'>")
+        htmlArray.append( "<td colspan=3 class='hermes_expt_summary_table_lead_col'>")
+        htmlArray.append(_('You have chosen to create a new system with the <span style="font-weight:bold;">{0}</span> supply chain level removed and replace the existing routes '.format(exptData['level'])))
+        if exptData['option'] == 'remlevexpt_fromabove':
+            htmlArray.append(_(' with routes that currently originate at the supplier.'))
+            htmlArray.append("</td></tr>")
+        elif exptData['option'] == 'remlevexpt_frombelow':
+            htmlArray.append(_(' with routes that currently originate at the clients.'))
+            htmlArray.append("</td></tr>")
+        elif exptData['option'] == 'remlevexpt_custom':
+            routeTypeText = "It is a route"
+            originationText = "Starting in Kansas"
+            frequencyText = "frequency is groovy, man"
+            freqNumText = "hello"
+            timeString = ""
+            tList = typehelper.getTypeList(db,modelId,'trucks',fallback=False)
+            newRouteData = exptData['newRoute']
+            if newRouteData['routeType'] in ['varpush',"schedvarfetch"]:
+                routeTypeText = _("Fixed Shipping Schedule / Variable Amount Ordered Based on Frequency")
+                frequencyText = "With a Fixed Shipping Frequency of"
+                timeString = newRouteData['shipInterval']
+            elif newRouteData['routeType'] in ["push","schedfetch"]:
+                routeTypeText = _("Fixed Shipping Schedule / Fixed Amount Delivered")
+                frequencyText = "With a Fixed Shipping Frequency of"
+                timeString = newRouteData['shipInterval']
+            elif newRouteData['routeType'] in ['pull','demandfetch']:
+                routeTypeText = _("Variable Schedule and Amount Ordered (As Needed with Minimum Wait Time Between Shipments, When Stock Falls Below Threshold)")
+                frequencyText = "With a Frequency of Up to"
+                timeString = newRouteData['pullInterval']
+            
+            if newRouteData['routeType'] in ['varpush','push','pull']:
+                orignationText = _("With Transportation Vehicles Residing and Originating at the Supplier")
+            else:
+                orginationText = _("With Transportation Vehicles Residing and Originating at the Clients")
+            timeSplit = timeString.split(':')
+            freqNumText = "{0} {1}{2}".format(timeSplit[0],C.timeUnitToString[timeSplit[1]],"s" if float(timeSplit[0]) > 1 else "")
+            print "HERE"
+            htmlArray.append(_(' with newly created routes with the following characteristics:'))
+            htmlArray.append("</td></tr>")
+            htmlArray.append("<tr class='hermes_expt_summary_table_row'>");
+            htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+            htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+            htmlArray.append(_('Route Policy'))
+            htmlArray.append("</td>")
+            htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+            htmlArray.append(routeTypeText)
+            htmlArray.append("</td></tr>")
+            htmlArray.append("<tr class='hermes_expt_summary_table_row'>");
+            htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+            htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+            htmlArray.append(_('Route Direction'))
+            htmlArray.append("</td>")
+            htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+            htmlArray.append(originationText)
+            htmlArray.append("</td></tr>")
+            htmlArray.append("<tr class='hermes_expt_summary_table_row'>");
+            htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+            htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+            htmlArray.append(frequencyText)
+            htmlArray.append("</td>")
+            htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+            htmlArray.append(freqNumText)
+            htmlArray.append("</td></tr>")
+            htmlArray.append("<tr class='hermes_expt_summary_table_row'>");
+            htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+            htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+            htmlArray.append(_('With the Transportation Mode of'))
+            htmlArray.append("</td>")
+            htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+            trck = [x for x in tList if x['Name']==newRouteData['truckType']]
+            print "TRC = {0}".format(trck)
+            htmlArray.append(trck[0]['DisplayName'])
+            htmlArray.append("</td></tr>")
+            
+        htmlArray.append( "</table>")
+        htmlArray.append("</div>")
+#        print "htmlString = {0}".format(htmlString)
+#        print "htmlJson = {0}".format(json.dumps(htmlString))
+        # New vaccines Grid Data
+        return {'success':True,'html':"\n".join(htmlArray)} 
+         
+    except Exception,e:
+        return {'success':False,'msg':str(e)}   
+                     
+            
+                
 @bottle.route('/json/vaccine_introduction_summary')
 def addAVaccineExptSummary(db,uiSession):
     try:

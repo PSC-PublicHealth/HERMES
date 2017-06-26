@@ -43,5 +43,11 @@ secondsInHour = 3600.0
 minutesInHour =  60.0
 epsilon = 1.0E-8
 
+timeUnitToString = {'s':'Second',
+                    'm':'Minute',
+                    'D':'Day',
+                    'M':'Month',
+                    'Y':'Year'}
+
 
 
