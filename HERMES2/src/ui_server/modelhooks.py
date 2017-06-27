@@ -2576,6 +2576,7 @@ def jsonGetModelOriginatingRouteLevels(db,uiSession):
         result = {'success':False, 'msg':str(e)}
         return result                
                 
+                
 ### this is a last minute hack
 @bottle.route('/json/get-transport-type-names-in-model')
 def jsonGetTransportModelNames(db,uiSession):
