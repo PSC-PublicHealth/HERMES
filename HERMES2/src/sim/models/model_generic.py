@@ -334,7 +334,7 @@ class Model(model.Model):
         # an attached clinic, which means we shouldn't be dealing with it
         whatFitsVC= vaccinesOnlyVC*fillVC
         for v,n in whatFitsVC.items():
-            print "V = {0} n = {1}".format(v,n)
+            #print "V = {0} n = {1}".format(v,n)
             if n >= 0.0 and n < 1.0:
                 whatFitsVC[v] = 1.0
         whatFitsVC.roundDown()
@@ -351,7 +351,7 @@ class Model(model.Model):
 
         if self.autoUpdateThresholdsFlag:
             threshVialsVC = vaccineVialsVC * (toW.bufferStockFraction)
-            print "thresh here = {0}".format(threshVialsVC)
+            #print "thresh here = {0}".format(threshVialsVC)
             threshVialsVC.roundUp()
             fVC,cVC,wVC = toW.calculateStorageFillRatios(threshVialsVC+otherVialsVC)
             threshVialsVC = threshVialsVC * (fVC + cVC + wVC)
@@ -392,16 +392,16 @@ class Model(model.Model):
         fVC,cVC,wVC= toW.calculateStorageFillRatios(totalVialsVC)
         fillVC= fVC+cVC+wVC
         scaledVaccineVialsVC= vaccineVialsVC*fillVC
-        print "Buffy: {0}".format(toW.bufferStockFraction)
+        #print "Buffy: {0}".format(toW.bufferStockFraction)
         threshVC= scaledVaccineVialsVC*toW.bufferStockFraction
         # This is to prevent there being no threshold at all
         for v,n in threshVC.items():
-            print "V = {0} n = {1}".format(v,n)
+            #print "V = {0} n = {1}".format(v,n)
             if n >= 0.0 and n < 1.0:
                 threshVC[v] = 1.0
-        print "Thresh here 2 = {0}".format(threshVC)
+        #print "Thresh here 2 = {0}".format(threshVC)
         threshVC.roundDown()
-        print "Thresh here 3 = {0}".format(threshVC)
+        #print "Thresh here 3 = {0}".format(threshVC)
         #threshVC= scaledVaccineVialsVC*toW.bufferStockFraction
         return threshVC
 
@@ -443,7 +443,7 @@ class Model(model.Model):
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
 
         # Warehouses try for a buffer stock of 1.25.
-        print "Buffer Stock: {0}".format(toW.bufferStockFraction)
+        #print "Buffer Stock: {0}".format(toW.bufferStockFraction)
         vaccineVialsVC *= (1.0 + toW.bufferStockFraction)
         # Believe you need a round up here, or the buffer may not get added to the system for small vial counts
         # (e.g. if the number of vials is 3, and then the buffer makes it 3.75, the next set of commands
@@ -520,15 +520,15 @@ class Model(model.Model):
                     vaccineVialsTotVC = self.sim.shippables.getCollection(scaledTupleList)
                 else:
                     vaccineVialsTotVC = demandDownstreamVialsVC
-                print "After: {0}".format(vaccineVialsTotVC)
+                #print "After: {0}".format(vaccineVialsTotVC)
                 vaccineVialsVC, otherVialsVC = self._separateVaccines(vaccineVialsTotVC)
-                print "Afterglow: {0}".format(vaccineVialsVC)
+                #print "Afterglow: {0}".format(vaccineVialsVC)
             elif factory.demandType == "Expectation":
                 ### Use the demand expectation in doses and scale it by wastage estimates
                 demandDownstreamDosesVC = self.demandModelTuple[0].getDemandExpectation(targetStore.getTotalDownstreamPopServedPC(),
                                                                                         daysUntilNextShipment)
-                if targetStore.idcode == 1:
-                    print demandDownstreamDosesVC
+                #if targetStore.idcode == 1:
+                #    print demandDownstreamDosesVC
                 vaccineDosesVC,otherDosesVC = self._separateVaccines(demandDownstreamDosesVC)
 
                 vaccineD2VVC= vaccineDosesVC*self.sim.vaccines.getDosesToVialsVC()
@@ -548,7 +548,7 @@ class Model(model.Model):
                 raise RuntimeError("in getFactoryProductionVC, invalid demandType of %s for %s" % (factory.demandType, factory.name))
 
             
-            print "getFactoryProductionVC: vaccineVialsVC: " + str([(v.name,n) for v,n in vaccineVialsVC.items()])
+            #print "getFactoryProductionVC: vaccineVialsVC: " + str([(v.name,n) for v,n in vaccineVialsVC.items()])
             #print factory.overstockScale
             ### Filter by vaccines produced by this factory
             if factory.vaccinesProd is not None:
@@ -571,8 +571,8 @@ class Model(model.Model):
             lowVC.roundUp()
             totalShipment[targetStore] = lowVC
             
-            print "getFactoryProductionVC for %s: Actual amount: %s" % \
-                (targetStore.name, [(v.name, n) for v, n in lowVC.items()])
+            #print "getFactoryProductionVC for %s: Actual amount: %s" % \
+            #    (targetStore.name, [(v.name, n) for v, n in lowVC.items()])
         #print "Total Shipment = " + str(totalShipment)
         return totalShipment
 
@@ -798,7 +798,7 @@ class Model(model.Model):
         if factoryWasteEstRecs is not None:
             wasteEstDict = {}
             for wRec in factoryWasteEstRecs:
-                print str(wRec)
+                #print str(wRec)
                 if wRec['FactoryID'] == idcode:
                     if wRec['VaccineName'] not in sim.vaccines.getActiveTypeNames():
                         continue
@@ -895,7 +895,7 @@ class Model(model.Model):
 
         w= None
         inventory = self._inventoryFromTableRec(rec, sUF)
-        print inventory
+        #print inventory
         inventoryOrg = None
         if self.sim.perfect== True:
             inventoryOrg= copy(inventory)
@@ -931,7 +931,7 @@ class Model(model.Model):
             return None # dead warehouse
         elif isClinic:
             if isSurrogate:
-                #print w.category, w.function, w.name
+                print w.category, w.function, w.name
                 if conditions is not None:
                     print "***Warning*** Conditions set for surrogate clinic %s(%ld) will be ignored"%(name,code)
                 w= Model.SurrogateClinic(sim,None,

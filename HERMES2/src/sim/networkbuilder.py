@@ -212,9 +212,9 @@ def _innerBuildScheduledRoute(routeName, sim, locList, storeDict, getShipInterva
     
     allShippingProcs= [shipperProc]
     
-    supplierWH.addClientRoute(name = routeName, 
+    supplierWH.addClientRoute(name = routeName,
                               proc = shipperProc,
-                              clientIds = routeClients,
+                              clientL = [storeDict[cId] for cId in routeClients],
                               routeType = supplierRec['Type'],
                               truckType = truckType,
                               interval = shipInterval,
@@ -380,7 +380,7 @@ def _innerBuildManifestPushRoute(routeName, sim, locList, storeDict, tripManDict
         
         supplierWH.addClientRoute(name = newRouteName,
                                   proc = shipperProc,
-                                  clientIds = [clientKey],
+                                  clientL = [clientWH],
                                   routeType = supplierRec['Type'],
                                   truckType = truckType,
                                   interval = [(x[0],x[4]) for x in transitList],
@@ -452,7 +452,7 @@ def _innerBuildScheduledFetchRoute(routeName, sim, locList, storeDict, getShipIn
     if 'ShipLatencyDays' in supplierRec and float(supplierRec['ShipLatencyDays'])!=shipStartupLatency:
         raise RuntimeError("Startup latency values are inconsistent for route %s"%routeName)
     
-    routeClients = [startingKey]
+    clientL = [startingWH]
     supplierWH.addClient(startingWH)
     startingWH.addSupplier(supplierWH,startingRec)
     transitChain = None 
@@ -474,7 +474,7 @@ def _innerBuildScheduledFetchRoute(routeName, sim, locList, storeDict, getShipIn
                     raise RuntimeError("ShipInterval values are inconsistent for route %s"%routeName)
                 if 'ShipLatencyDays' in rec and float(rec['ShipLatencyDays'])!=shipStartupLatency:
                     raise RuntimeError("Startup latency values are inconsistent for route %s"%routeName)
-                routeClients.append(keyCode)
+                clientL.append(clientWH)
                 supplierWH.addClient(clientWH)
                 clientWH.addSupplier(supplierWH,rec)
                 transitChain.append((((transitTimeHours+leftoverTimeHours)/float(C.hoursPerDay)),
@@ -506,7 +506,7 @@ def _innerBuildScheduledFetchRoute(routeName, sim, locList, storeDict, getShipIn
                 if 'ShipLatencyDays' in rec and float(rec['ShipLatencyDays'])!=shipStartupLatency:
                     raise RuntimeError("Startup latency values are inconsistent for route %s"%routeName)
                 transitTimeHours= float(rec['TransitHours'])
-                routeClients.append(keyCode)
+                clientL.append(clientWH)
                 supplierWH.addClient(clientWH)
                 clientWH.addSupplier(supplierWH,rec)
                 transitChain.append((((transitTimeHours+leftoverTimeHours)/float(C.hoursPerDay)),
@@ -549,7 +549,7 @@ def _innerBuildScheduledFetchRoute(routeName, sim, locList, storeDict, getShipIn
     
     supplierWH.addClientRoute(name = routeName, 
                               proc = shipperProc,
-                              clientIds = routeClients,
+                              clientL = clientL,
                               routeType = supplierRec['Type'],
                               truckType = truckType,
                               interval = shipInterval,
@@ -703,7 +703,7 @@ def _innerBuildPullRoute(routeName, sim, locList, storeDict,
         allShippingProcs= [ship]
         supplierWH.addClientRoute(name = routeName, 
                                   proc = ship,
-                                  clientIds = [clientKey],
+                                  clientL = [clientWH],
                                   routeType = routeType,
                                   truckType = truckType,
                                   interval  = pullMeanFrequencyDays,
@@ -776,7 +776,7 @@ def _buildAttachedRoute(routeName,sim,locList,storeDict,
         clientWH.addSupplier(supplierWH,{'Type':'attached_clinic'})
         supplierWH.addClientRoute(name = 'Attached_%s'%clientWH.bName, 
                                   proc = None,
-                                  clientIds = [clientWH.code],
+                                  clientL = [clientWH],
                                   routeType = 'attached_clinic',
                                   truckType = None,
                                   interval  = None,

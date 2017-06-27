@@ -1459,6 +1459,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
         self._suppliers= []
         self._clients= []
         self._clientRoutes= []
+        self._supplierRouteD= HDict()
         self.noteHolder= None
         self._instantaneousDemandVC= sim.shippables.getCollection()
         self._instantaneousDemandInterval= 1.0
@@ -1522,14 +1523,20 @@ class Warehouse(Store, abstractbaseclasses.Place):
 
         if not wh in self._clients:
             self._clients.append(wh)
-    def addClientRoute(self, name, proc, clientIds, routeType, truckType, interval, latency):
-        self._clientRoutes.append({'name':name,
-                                   'proc':proc,
-                                   'clientIds':clientIds,
-                                   'type':routeType,
-                                   'truckType':truckType,
-                                   'interval':interval,
-                                   'latency':latency})
+    def addClientRoute(self, name, proc, clientL, routeType, truckType, interval, latency):
+        clientIds = [clientW.idcode for clientW in clientL]
+        infoDict = {'name':name,
+                    'proc':proc,
+                    'clientIds':clientIds,
+                    'supplierId':self.idcode,
+                    'type':routeType,
+                    'truckType':truckType,
+                    'interval':interval,
+                    'latency':latency}
+        self._clientRoutes.append(infoDict)
+        for clientW in clientL:
+            if name not in clientW._supplierRouteD:
+                clientW._supplierRouteD[name] = infoDict.copy()
     def getSuppliers(self):
         return self._suppliers
     def getClients(self):
@@ -1868,7 +1875,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
                 break
     def setLowThresholdAndGetEvent(self,typeInfo,thresh):
         self.fromAboveThresholdDict[typeInfo]= thresh
-        print "Thresh = {0}".format(thresh)
+        #print "Thresh = {0}".format(thresh)
         if self.lowEvent is None:
             print "Setting low Event"
             self.lowEvent= SimEvent("Low event from %s"%self.name,sim=self.sim)
@@ -1924,7 +1931,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
         self._instantaneousDemandVC= instantaneousDemandVC*self.sim.vaccines.getVialsToDosesVC()
         self._instantaneousDemandInterval= interval
 
-    def getProjectedDemandVC(self, routeName, interval,recurLevel=0):
+    def getProjectedDemandVCOrg(self, routeName, interval,recurLevel=0):
         """
         This routine provides a (rather expensive) way to propagate demand
         figures up the distribution tree immediately, as if all the warehouses
@@ -1959,15 +1966,15 @@ class Warehouse(Store, abstractbaseclasses.Place):
                     if nextCycle == prevCycle: nextCycle += 1
                     prevTime= prevCycle*interval+latency
                     nextTime= nextCycle*interval+latency
-                print "    %s%s via %s: %s %s"%("   "*recurLevel, w.bName,
-                                                rtName.encode('utf8'), prevTime, nextTime)
+                #print "    %s%s via %s: %s %s"%("   "*recurLevel, w.bName,
+                #                                rtName.encode('utf8'), prevTime, nextTime)
                 delta= w.getProjectedDemandVC(rtName, (prevTime,nextTime), recurLevel=recurLevel+1)
-                print "    %s--> %s"%("    "*recurLevel,delta)
+                #print "    %s--> %s"%("    "*recurLevel,delta)
                 resultVC += delta
-        print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
+        #print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
         return resultVC
 
-    def getProjectedDemandVCNew(self, routeName, interval, recurLevel=0):
+    def getProjectedDemandVC(self, routeName, interval, recurLevel=0):
         """
         This routine provides a (rather expensive) way to propagate demand
         figures up the distribution tree immediately, as if all the warehouses
@@ -1985,22 +1992,20 @@ class Warehouse(Store, abstractbaseclasses.Place):
         clientDict= dict([(w.code,(w,[])) for w in self.getClients()])      
         #print clientDict          
         for rDict in self.getClientRoutes():
-            print rDict
+            #print rDict
             interval= rDict['interval']
             latency=  rDict['latency']
+            rtName=   rDict['name']
             for c in rDict['clientIds']:
                 w,routeTupleList= clientDict[c]
-                routeTupleList.append((interval,latency))
+                routeTupleList.append((interval,latency,rtName))
         nonMan = 0
         for code,valTuple in clientDict.items():
             w,routeList= valTuple
-            bestPrev= None
-            bestNext= None
             #print "RL = {0}".format(routeList)
             mdelta = self.sim.shippables.getCollection()
-            for interval,latency in routeList:
+            for interval,latency,rtName in routeList:
                 if isinstance(interval,list):
-                    
                     if len(interval) > 0 and len(mdelta) == 0:
                         for v in interval[0][1].keys():
                             mdelta[v] = 0.0
@@ -2020,18 +2025,13 @@ class Warehouse(Store, abstractbaseclasses.Place):
                         if nextCycle == prevCycle: nextCycle += 1
                         prevTime= prevCycle*interval+latency
                         nextTime= nextCycle*interval+latency
-                    if bestPrev is None: bestPrev= prevTime
-                    else: bestPrev= max(bestPrev,prevTime)
-                    if bestNext is None: bestNext= nextTime
-                    else: bestNext= min(bestNext,nextTime)
-                #print "    %s%s: %s %s"%("   "*recurLevel,w.bName,bestPrev,bestNext)
-                if nonMan > 0:
-                    delta= w.getProjectedDemandVC(routeName, (bestPrev,bestNext), recurLevel=recurLevel+1)
-                    
+                    #print "    %s%s via %s: %s %s"%("   "*recurLevel, w.bName,
+                    #                                rtName.encode('utf8'), prevTime, nextTime)
+                    delta= w.getProjectedDemandVC(routeName, (prevTime,nextTime), recurLevel=recurLevel+1)
+                    #print "    %s--> %s"%("    "*recurLevel,delta)
                     resultVC += delta
-            #print "    %s--> %s"%("    "*recurLevel,delta)
+            #print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
             resultVC += mdelta
-        #print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
         return resultVC
     
     def getInstantaneousDemandVC(self, routeName, interval, recurLevel=0):

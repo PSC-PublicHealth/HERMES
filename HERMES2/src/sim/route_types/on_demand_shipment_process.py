@@ -417,7 +417,8 @@ class PersistentFetchOnDemandShipment(OnDemandShipment):
         while True:
             # We want to start by doing a shipment, or the downstream
             # warehouse will just sit at 0.
-            totalVC= self.quantityFunction(self.fromW, self.toW, self.pullMeanFrequency,
+            totalVC= self.quantityFunction(self.fromW, self.toW, self.routeName,
+                                           self.pullMeanFrequency,
                                            self.sim.now())
             if totalVC.totalCount()>0:
                 
