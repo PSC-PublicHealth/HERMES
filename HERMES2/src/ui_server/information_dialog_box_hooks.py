@@ -602,7 +602,7 @@ def generateGeneralInformationForRoute(db,uiSession):
             daysOfStock = route.stops[0].PullOrderAmountDays
             orderThresh = "25%"
         elif route.Type in ["askingpush"]:
-            parsedType = "Fixed Schedule / Toping Off Strategy "
+            parsedType = "Fixed Schedule / Topping Off Strategy "
             fixedFrequency = route.ShipIntervalDays
         elif route.Type in ["dropandcollect"]:
             parsedType = "Drop off vaccines and return to collect"

@@ -31,7 +31,7 @@ console.log(modelInfo);
 
 <p>
 	<span class="hermes-top-sub">
-		{{_("Here you can make some minor adjustments to the supply chain.  Make adjustments to the model by clicking the cell to be modified and then hitting the enter key when finished.  You can expand or collapase levels by click the triangle next to the location name.")}}
+		{{_("Here you can make some minor adjustments to the supply chain.  Make adjustments to the model by clicking the cell to be modified and then hitting the enter key when finished.  You can expand or collapse levels by clicking the triangle next to the location name.")}}
 	</span>
 </p>
 
@@ -196,7 +196,7 @@ $(function() {
 	        {name:'levelname', index:'level', width:100},
 	        {name:'name', index:'name', width:100, editable:true, edittype:'text'},
 	        {name:'idcode', index:'idcode', width:30, key:true, sorttype:'int'},
-	        {name:'isfetch',index:'isfetch',width:50,editable:true,edittype:'select',editoptions: {value:"true:{{_('pick up')}}; false:{{_('recieve')}}"}},
+	        {name:'isfetch',index:'isfetch',width:50,editable:true,edittype:'select',editoptions: {value:"true:{{_('pick up')}}; false:{{_('receive')}}"}},
 	        {name:'issched',index:'issched',width:60,editable:true,edittype:'select',editoptions: {value:"true:{{_('scheduled')}}; false:{{_('demand-based')}}"}},
 	        {name:'isfixedam',index:'isfixedam',width:50,editable:true,edittype:'select',editoptions: {value:"true:{{_('fixed')}}; false:{{_('variable')}}"}},
 	        {name:'howoften',index:'howoften',width:60, sorttype:'int',editable:true,editrules:{integer:true}},

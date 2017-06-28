@@ -1,4 +1,4 @@
-%rebase outer_wrapper title_slogan=_('Run A Model'), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
+%rebase outer_wrapper title_slogan=_('Run Status'), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
 <!---
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #

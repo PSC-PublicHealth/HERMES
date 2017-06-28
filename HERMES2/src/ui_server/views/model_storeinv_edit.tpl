@@ -68,7 +68,7 @@ a.model-operation-item:visited{
 			{{_('Would you like to')}} 
 		</p>
 		<p style="margin-left:10px;">
-			<a href="#" id="download_choice">{{_("Download a Preformated Spreadsheet")}}</a>
+			<a href="#" id="download_choice">{{_("Download a Preformatted Spreadsheet")}}</a>
 		</p>
 		<p>	
 			{{_('or')}}

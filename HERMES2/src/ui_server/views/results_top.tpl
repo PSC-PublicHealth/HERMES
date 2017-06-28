@@ -86,7 +86,7 @@ var show_result = true;
 		}
 		else{
 			if(result.treeData.length == 0){
-				$("#results_tree").text("{{_('There are Simulation Experiments.')}}");
+				$("#results_tree").text("{{_('There are no simulation experiments.')}}");
 			}
 			else{
 				$("#results_tree")

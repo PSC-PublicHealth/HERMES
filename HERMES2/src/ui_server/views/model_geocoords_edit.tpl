@@ -54,13 +54,13 @@ a.model-operation-item:visited{
 <div id="uploadSpreadsheetDialog">
 	<span class="large_dialog_font">
 		<p>
-			{{_("You can upload an excel file that contains the geographic coordinates of locations in your model.")}}
+			{{_("You can upload an Excel file that contains the geographic coordinates of locations in your model.")}}
 		</p>
 		<p> 
 			{{_('Would you like to')}} 
 		</p>
 		<p style="margin-left:10px;">
-			<a href="#" id="download_choice">{{_("Download a Preformated Spreadsheet")}}</a>
+			<a href="#" id="download_choice">{{_("Download a Preformatted Spreadsheet")}}</a>
 		</p>
 		<p>	
 			{{_('or')}}
@@ -214,7 +214,7 @@ $( "#spreadupload-dialog" ).dialog({
     		click: function() {
     			//Error Checking
     			if(!$("#xlsfilename").val()){
-    				alert("{{_('Must specify an excel file to upload.')}}");
+    				alert("{{_('Must specify an Excel file to upload.')}}");
     			}
     			else{
     				var files = $("#xlsfilename").prop('files');

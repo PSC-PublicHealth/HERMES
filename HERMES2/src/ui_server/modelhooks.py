@@ -1555,7 +1555,7 @@ def fetchdeliver(value):
     if value is True or value=="true":
         return _("pick up")
     else:
-        return _("recieve")
+        return _("receive")
 
 def fixedvariable(value):
     if value is True or value == "true":

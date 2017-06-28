@@ -76,14 +76,14 @@
 %        'createHeader'  : _("Creating Your Staff Type")
 %        },
 %    'perdiems': {
-%        'label'         : _('PerDiems'),
+%        'label'         : _('Per Diems'),
 %        'infoUrl'       : 'json/perdiem-info',
 %        'editUrl'       : 'perdiem-edit',
 %        'editForm'      : 'json/perdiem-edit-form',
 %        'commitForm'    : 'json/perdiem-edit-verify-commit',
-%        'slogan'        : _("Modify PerDiem Type"),
-%        'editHeader'    : _("Edit Your PerDiem Type"),
-%        'createHeader'  : _("Creating Your PerDiem Type")
+%        'slogan'        : _("Modify Per Diem Type"),
+%        'editHeader'    : _("Edit Your Per Diem Type"),
+%        'createHeader'  : _("Creating Your Per Diem Type")
 %        }
 % }
 % orderedTypesList = ['vaccines','fridges','trucks','people','staff','perdiems']
@@ -114,7 +114,7 @@ var typesMap = {
 
 <p>
 	<span class='hermes-top-sub'>
-		{{_('Use the Source dropdown to select the source from which components can be selected.  Select which component to add to the {0} model and click the arrow button to add it. To remove existing components, click delete.').format(modelName)}}
+		{{_('Use the Source dropdown box to change what database or model to use to look for components.  Select the component you wish to add to the {0} model, and click the arrow button located between the two tables to make it available to the model. To remove an existing component from the model, click the Del(ete) button in the component\'s row in the Used Types table on the left.').format(modelName)}}
 	</span>
 </p>
 
@@ -444,7 +444,7 @@ function infoFormatter(value, options, rowObject) {
     s = "";
     s += "<button class='new_hermes_info_button' onclick='infoType(\""
     s += packId(rowObject);
-    s += "\");'>{{_('info')}}</button>";
+    s += "\");'>{{_('Info')}}</button>";
     return s;
     return "<div class='new_hermes_info_button' id='bt_" + packId(rowObject) + "'></div>";
 }

@@ -94,7 +94,7 @@ var peopleLoaded = false;
 	<tr id='cal_edit_row'>
 		<td><input type="checkbox" id="set_cal_cb"></td>
 		<td>
-			<label>{{_("Treament Calendar")}}</label><br>
+			<label>{{_("Treatment Calendar")}}</label><br>
 			<div id="set_cal_div" style="display:none">
 				<table>
 					<tr id="demand_cal_separate_option"><td>

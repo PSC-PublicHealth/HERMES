@@ -30,8 +30,11 @@ if exist "%cd%\..\..\python\python.exe" (
    set PATH="%path%";%HOMEDRIVE%\Python25;%HOMEDRIVE%\Python25\Scripts
 ) else ( 
    echo "Could not find python"
-   exit /b %errorlevel%
+REM   exit /b %errorlevel%
 )
+
+
+
 
 REM Start the server
 
