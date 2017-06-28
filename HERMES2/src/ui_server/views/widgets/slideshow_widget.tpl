@@ -36,7 +36,7 @@
 			var ButtonId = thisContainerId + "_"+name;
 			$("#" + thisContainerId).data(name + "Active",true);
 			$("#" + ButtonId).removeClass('slide_button_deact')
-							 .addClass('slide_button_active').show();
+							 .addClass('slide_button_active').button("option","disabled",false); //show();
 		},
 		deactivateButton: function(name){
 			this.containerId = $(this.element).attr('id');
@@ -45,7 +45,25 @@
 			var ButtonId = thisContainerId + "_" + name;
 			$("#" + thisContainerId).data(name + "Active",false);
 			$("#" + ButtonId).removeClass('slide_button_active')
+			 				 .addClass('slide_button_deact').button("option","disabled",true);//"hide();
+		},
+		hideButton: function(name){
+			this.containerId = $(this.element).attr('id');
+			var $this = this;
+			var thisContainerId = this.containerId;
+			var ButtonId = thisContainerId + "_" + name;
+			$("#" + thisContainerId).data(name + "Active",false);
+			$("#" + ButtonId).removeClass('slide_button_active')
 			 				 .addClass('slide_button_deact').hide();
+		},
+		showButton: function(name){ 
+			this.containerId = $(this.element).attr('id');
+			var $this = this;
+			var thisContainerId = this.containerId;
+			var ButtonId = thisContainerId + "_"+name;
+			$("#" + thisContainerId).data(name + "Active",true);
+			$("#" + ButtonId).removeClass('slide_button_deact')
+							 .addClass('slide_button_active').show();
 		},
 		currentSlide: function(){
 			this.containerId = $(this.element).attr('id');
@@ -188,8 +206,8 @@
 				
 				if(!isLastSlide){
 					//currentActiveSlide = previousActiveSlide;
-					$this.deactivateButton("next");
-					$this.activateButton("done");
+					$this.hideButton("next");
+					$this.showButton("done");
 				}
 				$this.activateButton("back");
 				console.log("Current Next Setting: " + currentActiveSlide);
@@ -238,8 +256,8 @@
 				if(!isLastSlide){
 					$this.deactivateButton("back");
 				}
-				$this.activateButton("next");
-				$this.deactivateButton("done");
+				$this.showButton("next");
+				$this.hideButton("done");
 				console.log("Current Back Setting: " + currentActiveSlide);
 				$("#"+thisContainerId).data('activeSlide',currentActiveSlide);
 			}	
@@ -280,8 +298,10 @@
 			
 			// all buttons are hidden at the beginning
 			
-			var backBut = $("#"+backButtonId).button().hide();
-			var nextBut = $("#"+nextButtonId).button().hide();
+			var backBut = $("#"+backButtonId).button();
+			backBut.button("option","disabled",true);//.hide();
+			var nextBut = $("#"+nextButtonId).button();
+			nextBut.button("option","disabled",true);//.hide();
 			var doneBut = $("#"+doneButtonId).button().hide();
 			
 			$("#"+thisContainerId).data('numberSlides', $("#" + slideShowDiv + " .widget_slide").length);
