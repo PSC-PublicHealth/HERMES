@@ -143,7 +143,7 @@
 				</li>
 				<li>
 					<a href="{{rootPath}}model-edit-store-inventory-tabular?modelId={{modelId}}">
-						{{_("Further Modify the Storage Device Inventory of  Each Supply Chain Location")}}
+						{{_("Further Modify the Storage Device Inventory of Each Supply Chain Location")}}
 					</a>
 				</li>
 				<li>

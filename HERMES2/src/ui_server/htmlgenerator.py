@@ -1142,6 +1142,8 @@ def getTypeEditHTML(db,uiSession,wireType,modelId,protoname,fieldMap,newName=Non
     
     return _buildEditFieldTableNew(fieldMap,typeInstance,model=model,newName=newName), titleStr
 
+    
+    
 def getRouteDialogHTML(db,uiSession,name="model_route_dialog",genInfo=True,util=True,tripMan=True):
     tabCount =1
     sio=StringIO()
