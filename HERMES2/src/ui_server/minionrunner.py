@@ -39,12 +39,13 @@ import shadow_network as shd
 import db_routines as db
 import time
 import socket
+import collections
 
 class MinionFactory():
     class MinionProc(subprocess.Popen):
         minionId = 1
         
-        def __init__(self,cmdList,env,cwd,nreps=1):
+        def __init__(self,cmdList,env,cwd,nreps=1,tickId=None):
             self.statusString = _("starting")
             self.logFilePath = None
             self.cwd = cwd
@@ -57,6 +58,10 @@ class MinionFactory():
             self.childHolderThread = threading.Thread(group=None, target=self.childHolder,
                                                       args = (cmdList,env,cwd))
             self.childHolderThread.start()
+            self.stdoutBuf = collections.deque(maxlen=200)
+            self.stderrBuf = collections.deque(maxlen=200)
+            self.tickId = tickId
+            
     
         def childHolder(self, cmdList, env, cwd):
             subprocess.Popen.__init__(self, cmdList, bufsize=1, stdin=None,
@@ -69,22 +74,43 @@ class MinionFactory():
                                                 args=(self.stderr,))
             self.stderrThread.start()
             retcode = self.wait()
+            if self.tickId is not None:
+                self.saveBufs()
             if not self.done:
                 self.mutex.acquire()
                 self.done = True
                 self.statusString = "%s %d %s %s"%(_('failed with retcode'),retcode,_('at'),time.asctime())
                 self.mutex.release()
-    
+
+        def saveBufs(self):
+            iface = db.DbInterface()
+            session = iface.Session()
+            stp = session.query(shd.ShdTickProcess).filter_by(tickId=self.tickId).one()
+            log = []
+            log.append("*** stdout ***")
+            log.extend(self.stdoutBuf)
+            log.append("*** stderr ***")
+            log.extend(self.stderrBuf)
+
+            logStr = "\n".join(log)
+            logBlob = shd.TickProcessLogBlobHolder(logStr)
+            stp.crashLogs.append(logBlob)
+            session.commit()
+
+                
         def pipeToLog(self, p):
             while not self.done:
                 line = p.readline()
                 if len(line)>0:
                     _logMessage('%d says: %s\n'%(self.minionId,line))
+                    self.stdoutBuf.append(line)
                 
         def pipeToParse(self, p):
             while not self.done:
                 line = p.readline()
                 if len(line)>0:
+                    self.stderrBuf.append(line)
+
                     sys.stderr.write(line+'\n')
                     if line.find('#finished#')>=0:
                         print "I got this"
@@ -165,7 +191,7 @@ class MinionFactory():
         if optList is not None:
             argList += optList[:] #shallow copy
         argList += ['--use_db', '%d:%d'%(modelId,nReps)]
-        sp = MinionFactory.MinionProc( argList, env=env, cwd=cwd, nreps=nReps)
+        sp = MinionFactory.MinionProc( argList, env=env, cwd=cwd, nreps=nReps, tickId=statusId)
         infoDir = { 'modelId':modelId, 'starttime':time.asctime(), 'runName':runName}
         self.liveRuns[sp.id] = (infoDir,sp)
         return sp.id

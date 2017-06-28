@@ -372,6 +372,32 @@ def jsonRunInfo(db, uiSession):
         result = {'success':False, 'msg':str(e)}
         return result
 
+@bottle.route('/json/run-logs')
+def jsonRunInfo(db, uiSession):
+
+#    global _minionFactory
+#    if _minionFactory is None:
+#        _minionFactory = minionrunner.MinionFactory()
+    try:
+        runId = _getOrThrowError(bottle.request.params, 'runId', isInt=True)
+        processInfo = db.query(shadow_network.ShdTickProcess).filter_by(tickId=runId).one()
+        logs = processInfo.crashLogs
+        strings = "<p>\n"
+        for l in logs:
+            strings += l.blob
+            strings += "\n"
+        strings += "</p>"
+        
+        htmlStr, titleStr = htmlgenerator.getRunInfoHTML(db,uiSession,processInfo)
+        result = {"success":True, "htmlstring":strings, "title":"logs",
+                  "running": False}  #(not runMinion.done)}
+        return result
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception, e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+
 @bottle.route('/json/run-terminate')
 def jsonRunTerminate(db, uiSession):
     try:

@@ -48,7 +48,8 @@ function runCancelButtonFormatter(cellvalue, options, rowObject)
 {
     // cellvalue will be an integer
 	return "<button type=\"button\" class=\"hermes_cancel_button\" id="+cellvalue+">{{_('Cancel')}}</button>" +
-	"<button type=\"button\" class=\"hermes_clear_button\" id="+cellvalue+">{{_('Clear')}}</button>";
+	"<button type=\"button\" class=\"hermes_clear_button\" id="+cellvalue+">{{_('Clear')}}</button>" +
+	"<button type=\"button\" class=\"hermes_logs_button\" id="+cellvalue+">{{_('Logs')}}</button>";
 }
 
 var lastsel_runs;
@@ -129,6 +130,25 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
 			.done(function(data) {
 				if (data.success) {
 				        refreshGrid();
+    			}
+    			else {
+    				alert('{{_("Failed: ")}}'+data.msg);
+    			}
+			})
+			.fail(function(jqxhr, textStatus, error) {
+				alert('{{_("Error: ")}}'+jqxhr.responseText);
+			});
+			event.stopPropagation();
+		});
+		$(".hermes_logs_button").click(function(event) {
+			//runId = $(this).attr('id');
+			//alert(runId);
+			$.getJSON('json/run-logs',{runId:$(this).attr('id')})
+			.done(function(data) {
+				if (data.success) {
+    				        $("#run_info_dialog").html(data['htmlstring']);
+    					$("#run_info_dialog").dialog('option','title',data['title']);
+    					$("#run_info_dialog").dialog("open");		
     			}
     			else {
     				alert('{{_("Failed: ")}}'+data.msg);

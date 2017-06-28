@@ -1568,10 +1568,9 @@ class BlobHolder(Base):
     This class adds a layer of abstraction so that Blobs are only accessed when specifically desired
     and don't clutter up table displays or increase DB usage.
     """
-    from sqlalchemy.dialects import mysql
     __tablename__ = 'blobHolder'
     blobId = Column(Integer, primary_key=True)
-    blob = Column(mysql.LONGBLOB)
+    blob = Column(sqlalchemy.LargeBinary)
 
     def __init__(self, blob):
         self.blob = blob
@@ -3915,6 +3914,19 @@ class ShdParameter(Base):
 _makeColumns(ShdParameter)
 
 
+class TickProcessLogBlobHolder(Base):
+    """
+    This blob holder holds crash logs for runs
+    """
+    from sqlalchemy.dialects import mysql
+    __tablename__ = 'logBlobHolder'
+    blobId = Column(Integer, primary_key=True)
+    tickId = Column(Integer, ForeignKey('tickProcess.tickId'))
+    blob = Column(mysql.LONGBLOB)
+    def __init__(self, blob):
+        self.blob = blob
+   
+
 class ShdTickProcess(Base):
     __tablename__ = "tickProcess"
     tickId = Column(Integer, primary_key=True)
@@ -3929,7 +3941,10 @@ class ShdTickProcess(Base):
              ('hostName',      STRING),
              ('status',        STRING),
              ('fracDone',      FLOAT),
-             ('lastUpdate',    INTEGER)]
+             ('lastUpdate',    INTEGER),
+    ]
+
+    crashLogs = relationship("TickProcessLogBlobHolder", backref="tickProcess", cascade='all, delete, delete-orphan')
 
     def __init__(self, *args, **kwargs):
         _initBasic(self, args, kwargs)
