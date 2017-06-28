@@ -3008,3 +3008,18 @@ ul.proper_ul {
 		min-height:50px;	
 		max-height:100px;
 }
+
+.flex_cols_f {
+		display: -webkit-flex;
+		display: flex;
+		margin: 0;
+		padding: 0px 0px 0px 0px;
+		flex-flow: cols;
+		-webkit-align-items: left;
+		align-items: left;
+		-webkit-justify-content: left;
+		justify-content: left;
+		max-width:600px;
+		min-width:300px;
+		min-height:50px;	
+		max-height:100px;

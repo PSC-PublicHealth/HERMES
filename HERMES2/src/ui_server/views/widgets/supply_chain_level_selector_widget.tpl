@@ -23,6 +23,7 @@
 			title: "",
 			width:500,
 			excludeRootAndClients:false,
+			routeOrig:false,
 			onChangeFunc:function(){},
 			trant:{
 				title: "{{_('Supply Chain Level Selector')}}"
@@ -57,6 +58,9 @@
 			var thisURL = "{{rootPath}}json/get-levels-in-model";
 			if (thisOptions.excludeRootAndClients){
 				thisURL = "{{rootPath}}json/get-levels-sans-clients-and-root"
+			}
+			else if(thisOptions.routeOrig){
+				thisURL = "{{rootPath}}json/get-originating-route-levels-in-model"
 			}
 			$.ajax({
 				url: thisURL,
