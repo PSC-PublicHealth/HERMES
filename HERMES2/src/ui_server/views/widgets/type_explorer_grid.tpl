@@ -603,7 +603,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 									forLevelOnly:thisOptions.forLevelOnly,
 									newTypesOnly:thisOptions.newOnly,
 									newTypes:JSON.stringify(news),
-									deviceCounts:JSON.stingify($("#"+thisContainerId).data("deviceCounts"))
+									deviceCounts:JSON.stringify($("#"+thisContainerId).data("deviceCounts"))
 								}
 							});
 							$("#"+thisTableId).jqGrid().trigger('reloadGrid',{fromServer:true});}

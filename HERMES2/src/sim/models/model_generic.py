@@ -392,16 +392,12 @@ class Model(model.Model):
         fVC,cVC,wVC= toW.calculateStorageFillRatios(totalVialsVC)
         fillVC= fVC+cVC+wVC
         scaledVaccineVialsVC= vaccineVialsVC*fillVC
-        print "Buffy: {0}".format(toW.bufferStockFraction)
         threshVC= scaledVaccineVialsVC*toW.bufferStockFraction
         # This is to prevent there being no threshold at all
         for v,n in threshVC.items():
-            print "V = {0} n = {1}".format(v,n)
             if n >= 0.0 and n < 1.0:
                 threshVC[v] = 1.0
-        print "Thresh here 2 = {0}".format(threshVC)
         threshVC.roundDown()
-        print "Thresh here 3 = {0}".format(threshVC)
         #threshVC= scaledVaccineVialsVC*toW.bufferStockFraction
         return threshVC
 

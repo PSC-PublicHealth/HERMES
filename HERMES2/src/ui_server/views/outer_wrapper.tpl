@@ -52,6 +52,7 @@
 -->
 
 <!-- freeJqGrid 4.7 includes -->
+
 <link rel="stylesheet" type="text/css" media="screen" href="{{rootPath}}static/jqGrid-free-4.7/css/ui.jqgrid.css" />
 <script type="text/javascript" src="{{rootPath}}static/jqGrid-free-4.7/js/i18n/grid.locale-en.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/jqGrid-free-4.7/js/jquery.jqgrid.src.js"></script>

@@ -138,8 +138,8 @@
 	<div id="expt_main_row2" class="flex_row2">
 		<div id="expt_row2_container" class="flex_row_container">
 			<div id="expt_row2_col1" class="flex_col1">
-				<button class="expt_butt" id="add_transport_button">
-					<img class="expt_butt_image" src="{{rootPath}}static/images/addvehicle.png">{{_('Change Transport Between Supply Chain Levels')}}
+				<button class="expt_butt" id="route_by_level_button">
+					<img class="expt_butt_image" src="{{rootPath}}static/images/addvehicle.png">{{_('Modify Transport Routes Between Supply Chain Levels')}}
 				</button>
 			</div>
 			
@@ -164,7 +164,7 @@
 var vacIntroBut = $("#vaccine_introduction_button").button()
 var levRemBut = $("#level_removal_button").button();
 var addStoreBut = $("#add_storage_button").button();
-var addTransBut = $("#add_transport_button").button();
+var addTransBut = $("#route_by_level_button").button();
 var addPeopleBut = $("#change_demand_button").button();
 var loopsBut = $("#add_loops_button").button();
 

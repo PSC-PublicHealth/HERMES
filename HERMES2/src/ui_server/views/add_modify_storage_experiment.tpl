@@ -1,4 +1,4 @@
-%rebase outer_wrapper title_slogan=_('Vaccine Introduction'),breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId,name=name
+%rebase outer_wrapper title_slogan=_('Add / Modify Storage Devices at a Supply Chain Level'),breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId,name=name
 <!---
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
@@ -354,28 +354,6 @@ function createSummary(){
 		$("#addstorexpt_summary_text").html(results.html);
 	});
 }
-
-
-
-
-//	$.ajax({
-//		url:{{rootPath}} + "json/vaccine_introduction_summary",
-//		data:{
-//			modelId:{{modelId}},
-//			//newvaccjson:JSON.stringify($("#addstorexpt_explorer_model_div").typeExplorerGrid("getNewTypes")),
-//			newvaccdosejson:$("#addstorexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid("resultJson")
-//		}
-//	})
-//	.done(function(results){
-//		if(results.success){
-//			$("#addstorexpt_summary_typegrid").html(results.html)
-//		}
-//	});
-//};
-//	
-////	})
-////	var newVaccines = $("#addstorexpt_explorer_model_div").typeExplorerGrid("");
-////	
 
 	
 </script>

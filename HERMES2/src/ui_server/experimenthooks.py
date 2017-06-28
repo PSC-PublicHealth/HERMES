@@ -115,6 +115,24 @@ def addStorageExptPage(db,uiSession):
                                                "breadcrumbPairs":crumbTrack})   
         
 
+@bottle.route('/route_by_level_experiment')
+def modifyRouteExptPage(db,uiSession):
+    crumbTrack = addCrumb(uiSession, _("Modify Routes by Level Experiment"))
+    try:
+        modelId = _getOrThrowError(bottle.request.params, "modelId", isInt=True)
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        name = m.name
+        return bottle.template('route_by_level_experiment.tpl',
+                               {'modelId':modelId,
+                                'name':name,
+                                'breadcrumbPairs':crumbTrack})
+    except Exception,e:
+        _logStacktrace()
+        return bottle.template("problem.tpl", {"comment": str(e),  
+                                               "breadcrumbPairs":crumbTrack})   
+        
+
 @bottle.route('/json/add_storage_summary')
 def addStorageExptSummary(db,uiSession):
     try:
