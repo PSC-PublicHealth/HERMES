@@ -36,8 +36,9 @@
 			var selectBoxId = thisContainerId + "_select_id";
 			var thisOptions = this.options;
 			
-			var selected = $("#"+selectBoxId + " :radio:checked");
 			
+			var selected = $("#"+selectBoxId + " :radio:checked");
+			console.log(selected);
 			if(selected.length == 0){
 				return "None";
 			}
@@ -52,17 +53,17 @@
 			var selectBoxId = thisContainerId + "_select_id";
 			var thisOptions = this.options;
 			
-			var selected = $("#"+selectBoxId + " :radio:checked").attr('id');
+			var selected = $("#"+selectBoxId + " :radio:checked");
 			
 			if(selected.length == 0){
 				return "None";
 			}
 			else{
-				if(selected.indexOf("loop") != -1){
-					var selectedSub = selected.substring(selected.indexOf("loop"),selected.length);
+				if(selected.attr('id').indexOf("loop") != -1){
+					var selectedSub = selected.attr("id").substring(selected.attr('id').indexOf("loop"),selected.attr('id').length);
 					console.log(selectedSub);
 					var selectedSplit = selectedSub.split("_");
-					var returnString =  "{{_('for loops starting at the ')}}" + selectedSplit[1] + "{{_(' involving the levels: ')}}";
+					var returnString =  "{{_('loops starting at the ')}}" + selectedSplit[1] + "{{_(' involving the levels: ')}}";
 					for(var i=2;i<selectedSplit.length;++i){
 						if(i == selectedSplit.length-1) {
 							if(selectedSplit.length == 3){
@@ -79,7 +80,7 @@
 					return returnString;
 				}
 				else{
-					selectedSplit = selected.split("_");
+					selectedSplit = selected.attr("id").split("_");
 					console.log(selectedSplit);
 					return "{{_('between the ')}}" + selectedSplit[selectedSplit.length-2] + "{{_(' level  to the ')}}" + selectedSplit[selectedSplit.length-1] + "{{_(' level')}}";
 				}
