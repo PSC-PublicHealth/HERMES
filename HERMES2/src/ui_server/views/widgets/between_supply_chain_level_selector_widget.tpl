@@ -24,6 +24,7 @@
 			width:500,
 			labelClass:'',
 			excludeRootAndClients:false,
+			includeLoops:true,
 			onChangeFunc:function(){},
 			trant:{
 				title: "{{_('Supply Chain Level Selector')}}"
@@ -107,23 +108,27 @@
 					var htmlString = "<div id='" + selectBoxId + "' class='flex_cols'>";
 						for(var i=0; i< results.levelsBetween.length; ++i){
 							levelToParse = results.levelsBetween[i];
-							
+							labelString = "skip";
 							if(levelToParse[0] == 'loop'){
-								//This is a loop
-								labelString = '{{_("Loops Beginning at ")}}' + levelToParse[1][0] + '{{_(" to Locations in the Levels: ")}}';
-								valueString = "loop_"+levelToParse[1][0];
-								for(var j = 1; j<levelToParse[1].length;++j){
-									labelString += levelToParse[1][j];
-									if(j != levelToParse[1].length - 1) labelString += ",";
-									valueString += "_"+levelToParse[1][j];
+								if(thisOptions.includeLoops){
+									//This is a loop
+									labelString = '{{_("Loops Beginning at ")}}' + levelToParse[1][0] + '{{_(" to Locations in the Levels: ")}}';
+									valueString = "loop_"+levelToParse[1][0];
+									for(var j = 1; j<levelToParse[1].length;++j){
+										labelString += levelToParse[1][j];
+										if(j != levelToParse[1].length - 1) labelString += ",";
+										valueString += "_"+levelToParse[1][j];
+									}
 								}
 							}
 							else{
 								labelString = levelToParse[0] + '{{_(" to ")}}' + levelToParse[1];
 								valueString = levelToParse[0] + '_' + levelToParse[1];
 							}
-							htmlString += "<div class='hermes_supply_chain_level_selector_item'><label class='"+thisOptions.labelClass +"' for='" + selectBoxId + "_radio_" + valueString + "'>"+  labelString +"</label>";
-							htmlString += "<input type='radio' name='" +  selectBoxId + "_radio' id= '" + selectBoxId + "_radio_" + valueString + "'></div>";
+							if(labelString != "skip"){
+								htmlString += "<div class='hermes_supply_chain_level_selector_item'><label class='"+thisOptions.labelClass +"' for='" + selectBoxId + "_radio_" + valueString + "'>"+  labelString +"</label>";
+								htmlString += "<input type='radio' name='" +  selectBoxId + "_radio' id= '" + selectBoxId + "_radio_" + valueString + "'></div>";
+							}
 						}
 						
 						htmlString += "</div">

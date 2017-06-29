@@ -131,6 +131,68 @@ def modifyRouteExptPage(db,uiSession):
         _logStacktrace()
         return bottle.template("problem.tpl", {"comment": str(e),  
                                                "breadcrumbPairs":crumbTrack})   
+
+@bottle.route('/add_loops_experiment')
+def addLoopsExptPage(db,uiSession):
+    crumbTrack = addCrumb(uiSession, _("Add Transport Loops Experiment"))
+    try:
+        modelId = _getOrThrowError(bottle.request.params, "modelId", isInt=True)
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        name = m.name
+        return bottle.template('add_loops_experiment.tpl',
+                               {'modelId':modelId,
+                                'name':name,
+                                'breadcrumbPairs':crumbTrack})
+    except Exception,e:
+        _logStacktrace()
+        return bottle.template("problem.tpl", {"comment": str(e),  
+                                               "breadcrumbPairs":crumbTrack})   
+        
+
+@bottle.route('/json/add_loops_summary')
+def addLoopsSummary(db,uiSession):
+    try:
+        import json
+        modelId = _getOrThrowError(bottle.request.params,'modelId', isInt=True)
+        exptDataJson = _getOrThrowError(bottle.request.params,'data')
+        
+        exptData = json.loads(exptDataJson)
+        tList = typehelper.getTypeList(db,modelId,'trucks',fallback=False)
+        
+        htmlArray = []
+        htmlArray.append("<div class='hermes_expt_summary_table_div'>")
+        htmlArray.append( "<table class='hermes_expt_summary_table'>")
+        htmlArray.append( "<tr class='hermes_expt_summary_table_lead_row'>")
+        htmlArray.append( "<td colspan=2 class='hermes_expt_summary_table_lead_col'>")
+        htmlArray.append(_('You have decided to create transport loops {0}'.format(exptData['levelsBetweenParsed'])))
+        htmlArray.append("</td></tr>")
+        htmlArray.append( "<tr class='hermes_expt_summary_table_lead_row'>")
+        htmlArray.append( "<td colspan=2 class='hermes_expt_summary_table_lead_col'>")
+        htmlArray.append(_('With the following options: '))
+        htmlArray.append("</td></tr>")
+        
+        htmlArray.append("<tr class='hermes_expt_summary_table_row'>")
+        htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+        htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+        htmlArray.append(_("The number of locations per transport loop is {0}".format(exptData['maximumLocations'])))
+        htmlArray.append("</td></tr>")
+        
+        htmlArray.append("<tr class='hermes_expt_summary_table_row'>")
+        htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+        htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+        htmlArray.append(_("With the mode of transport: ".format(exptData['vehicleToUse'])))
+        htmlArray.append("</td></tr>")
+       
+        htmlArray.append("</table>")
+        htmlArray.append("</div>")
+
+        # New vaccines Grid Data
+        return {'success':True,'html':"\n".join(htmlArray)} 
+     
+    except Exception,e:
+        return {'success':False,'msg':str(e)}           
+        
         
 @bottle.route('/json/route_by_level_summary')
 def modifyRouteSummary(db,uiSession):
