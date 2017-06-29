@@ -1,3 +1,20 @@
+#! /usr/bin/env python
+
+###################################################################################
+# Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
+# =============================================================================== #
+#                                                                                 #
+# Permission to use, copy, and modify this software and its documentation without # 
+# fee for personal use within your organization is hereby granted, provided that  #
+# the above copyright notice is preserved in all copies and that the copyright    # 
+# and this permission notice appear in supporting documentation.  All other       #
+# restrictions and obligations are defined in the GNU Affero General Public       #
+# License v3 (AGPL-3.0) located at http://www.gnu.org/licenses/agpl-3.0.html  A   #
+# copy of the license is also provided in the top level of the source directory,  #
+# in the file LICENSE.txt.                                                        #
+#                                                                                 #
+###################################################################################
+
 """
 Start HERMES standalone_server and launch Chromium embedded
 """
@@ -46,17 +63,19 @@ def kill(proc_pid):
 def startBrowser():
     check_versions()
     sys.excepthook = cef.ExceptHook  # To shutdown all CEF processes on error
-    cef.Initialize()
+    
     
     settings = {}
-    """
-    ### This code bugs out the graphics for me -Eli
+    
     WINDOWS = (platform.system() == "Windows")
     if WINDOWS:
-        settings["auto_zooming"] = "system_dpi"  # High DPI support
-        # noinspection PyUnresolvedReferences, PyArgumentList
-        cef.DpiAware.SetProcessDpiAware()  # Alternative is to embed manifest
-    """
+        settings["auto_zooming"] = ""  # Disable faulty zooming during High DPI support
+    cef.Initialize(settings)
+    #cef.DpiAware.SetProcessDpiAware()  # Do not use faulty init of High DPI support, it flickers on Windows
+    
+    # To get this to display without blurriness in high-DPI Windows systems during development mode
+    # Set your python.exe Compatibility Properties to:
+    # Disable display scaling on high DPI settings
     
     cef.CreateBrowserSync(url=url, window_title="HERMES")
     cef.MessageLoop()
