@@ -167,7 +167,8 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 		getDeviceCounts:function(){
 			this.containerId = $(this.element).attr('id');
 			var thisContainerId = this.containerId;
-			
+			console.log("Counts");
+			console.log($("#"+thisContainerId).data("deviceCounts"));
 			return $("#"+thisContainerId).data("deviceCounts");
 		},
 		add: function(typesIdsToAdd,srcModelId){
@@ -208,7 +209,13 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 																		deviceCounts:JSON.stringify($("#"+thisContainerId).data("deviceCounts"))}
 					}).trigger("reloadGrid",{fromServer: true});
 						
-					
+					if(thisOptions.includeCount){
+						counts = $("#"+thisContainerId).data("deviceCounts");
+						for(var i=0;i<news.length;i++){
+							counts[news[i]] = 1;
+						}
+						$("#"+thisContainerId).data("deviceCounts",counts);
+					}
 					thisOptions.addFunction(typesIdsToAdd);
 				}
 				else{
@@ -442,8 +449,11 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 								var count = $("#"+thisTableId).jqGrid("getCell",rowId,'count');
 								
 								var counts = $("#"+thisContainerId).data("deviceCounts");
-								
+								console.log("HERE");
+								console.log(count);
+								console.log(counts);
 								counts[typeName] = count;
+								console.log(counts);
 								$("#"+thisContainerId).data("deviceCounts",counts);
 							}
 						});

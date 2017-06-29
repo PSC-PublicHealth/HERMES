@@ -47,11 +47,8 @@
 			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
 		</p>
 		<p class='expt_text'>
-			will write something,will write something, will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
+			{{_('This experiment will take you through a series of screens that will ask you between which supply chain levels you would like to create transport loops between,')}}
+			{{_(' the number of locations per transport loop, and the vehicle that you would like to use for each transport loop and then HERMES will automatically create transport loops for the model based on the shortest distance.')}}
 		</p>	
 		<p class='expt_emph'> 
 			{{_('Please press the "Next" button to continue.')}}
@@ -110,23 +107,23 @@
 	<div id='addloopsexpt_slide5' class='modrouteexpt_slide'>
 		<div id="addloopsexpt_final_links_div">	
 			<span class='expt_subtitle'>
-				{{_('<NEED to UPDATE> Below are some additional actions that you may want to perform on your newly modified model:')}}
+				{{_('Below are some additional actions that you may want to perform on your newly modified model:')}}
 			</span>
 			<span class="expt_text">
 				<ul class="proper_ul">
 					<li>
 						<a href="{{rootPath}}model-edit-population-tabular?modelId={{modelId}}">
-							{{_('Update the Number of People Served by Each Supply Chain Location')}}
+							{{_('Update the Number of People Served by Each Supply Chain Location')}}<br>
 						</a>
 					</li>
 					<li>
 						<a href="{{rootPath}}model-edit-store-inventory-tabular?modelId={{modelId}}">
-							{{_("Further Modify the Storage Device Inventory of Each Supply Chain Location")}}
+							{{_("Further Modify the Storage Device Inventory of Each Supply Chain Location")}}<br>
 						</a>
 					</li>
 					<li>
 						<a href="{{rootPath}}model-edit-structure?id={{modelId}}">
-							{{_("Open the New Model in the HERMES Advanced Editor to Make Further Changes")}}
+							{{_("Open the New Model in the HERMES Advanced Editor to Make Further Changes")}}<br>
 						</a>
 					</li>
 					<li>
@@ -157,9 +154,6 @@ $("#addloopsexpt_slides").slideShowWithFlowControl({
 				   },
 				   function(){
 					   create_summary();
-					   return true;
-				   },
-				   function(){
 					   return true;
 				   },
 				   function(){

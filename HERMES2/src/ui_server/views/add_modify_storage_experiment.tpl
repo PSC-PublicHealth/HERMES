@@ -73,11 +73,9 @@
 			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
 		</p>
 		<p class='expt_text'>
-			will write something,will write something, will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
+			{{_("This experiment will take you through a series of screens that will allow you to augment or swap out the storage devices for an entire supply chain level.")}}
+			{{_("You will be asked which supply chain level you would like to alter, whether you would like to add devices or completely replace devices, or replace a certain device at that level.")}}
+			{{_("Then you will be able to specify what compliment of storage devices you would like to use and then HERMES will automatically create a new model based on your input.")}}
 		</p>	
 		<p class='expt_emph'> 
 			{{_('Please press the "Next" button to continue.')}}
@@ -162,7 +160,7 @@
 					</li>
 					<li>
 						<a href="{{rootPath}}model-edit-store-inventory-tabular?modelId={{modelId}}">
-							{{_("Further Modify the Storage Device Inventory of  Each Supply Chain Location")}}
+							{{_("Further Modify the Storage Device Inventory of Each Supply Chain Location")}}
 						</a>
 					</li>
 					<li>
@@ -206,7 +204,8 @@ $("#addstorexpt_slides").slideShowWithFlowControl({
 	            	   createSummary();
 	            	   return true;
 	               },
-	               function(){
+	               function(){	            	   
+	            	   implementExperiment();
 	            	   return true;
 	               }
 	              ],
@@ -330,17 +329,21 @@ $("#addstorexpt_opts").change(function(){
 	}
 });
 
-function createSummary(){
-	// prepare data
-	var dataObject = {
+function createDataObject(){
+	return  {
 			'level':$("#addstorexpt_level_select :radio:checked").attr("id").replace("addstorexpt_level_select_select_id_radio_",""),
 			'option':$("#addstorexpt_opts :radio:checked").attr("id"),
 			'addDevices':$("#addstorexpt_explorer_compliment_div").typeExplorerGrid("getNewTypes"),
 			'deviceCounts':$("#addstorexpt_explorer_compliment_div").typeExplorerGrid("getDeviceCounts"),
-			'fromDevice':$("#addstorexpt_explorer_from_div").typeExplorerGrid("getSelectedElements"),
-			'toDevice':$("#addstorexpt_explorer_to_div").typeExplorerGrid("getSelectedElements")
+			'fromDevice':$("#addstorexpt_explorer_from_div").typeExplorerGrid("getSelectedElements")[0],
+			'toDevice':$("#addstorexpt_explorer_to_div").typeExplorerGrid("getSelectedElements")[0]
 			};
+}
+
+function createSummary(){
+	// prepare data
 	
+	var dataObject = createDataObject();
 	console.log(dataObject);
 	
 	$.ajax({
@@ -355,5 +358,29 @@ function createSummary(){
 	});
 }
 
+function implementExperiment(){
+	var dataObject = createDataObject();
+		
+	console.log(dataObject);
 	
+	$.ajax({
+		url:{{rootPath}}+"json/add_storage_experiment_implement",
+		data:{
+			modelId:{{modelId}},
+			data:JSON.stringify(dataObject)
+		}
+	})
+	.done(function(results){
+		if(results.success){
+			
+		}
+		else{
+			alert("{{_('There was a problem implementing the add loops experiment: ')}}" + results.msg);
+		}
+	})
+	.fail(function(jqxhr,textStatus,error){
+		alert("{{_('There was a failure implementing the add loops experiment: ')}}" + jqxhr.responseText);
+	});
+		
+}
 </script>
