@@ -47,11 +47,9 @@
 			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
 		</p>
 		<p class='expt_text'>
-			will write something,will write something, will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
+			{{_('This experiment will allow you to choose a collection of routes based on what supply chain level the routes originate or which supply chain levels the routes run between')}}
+			{{_('You can then specify operations to perform on the routes such as increasing the frequency and changing the mode of transport that will be used on the routes.')}}
+			{{_('Based on the specifications, HERMES will create a new model that alters all of the selected routes.')}}
 		</p>	
 		<p class='expt_emph'> 
 			{{_('Please press the "Next" button to continue.')}}
@@ -178,7 +176,7 @@
 	<div id='modrouteexpt_slide7' class='modrouteexpt_slide'>
 		<div id="modrouteexpt_final_links_div">	
 			<span class='expt_subtitle'>
-				{{_('<NEED to UPDATE> Below are some additional actions that you may want to perform on your newly modified model:')}}
+				{{_('Below are some additional actions that you may want to perform on your newly modified model:')}}
 			</span>
 			<span class="expt_text">
 				<ul class="proper_ul">

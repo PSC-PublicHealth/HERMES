@@ -115,6 +115,64 @@ def addStorageExptPage(db,uiSession):
                                                "breadcrumbPairs":crumbTrack})   
         
 
+@bottle.route('/json/add_storage_experiment_implement')
+def addStorageExptImplement(db,uiSession):
+    try:
+        import json
+        modelId = _getOrThrowError(bottle.request.params,'modelId', isInt=True)
+        exptDataJson = _getOrThrowError(bottle.request.params,'data')
+        
+        exptData = json.loads(exptDataJson)
+        
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        levelToModify = exptData['level']
+        option = exptData['option']
+        print "HETER!!!!"
+        print option
+        if option == "addstorexpt_addition":
+            addDevice = exptData['addDevices']
+            deviceCounts = exptData['deviceCounts']
+            
+            for storeId,store in m.stores.items():
+                if store.CATEGORY == levelToModify and not store.isAttached() and not store.isSurrogate():
+                    for dev in addDevice:
+                        curCount = store.countInventory(dev)
+                        store.updateInventory(dev,int(curCount) + int(deviceCounts[dev]))
+        
+        elif option == "addstorexpt_replace":
+            addDevice = exptData['addDevices']
+            deviceCounts = exptData['deviceCounts']
+            
+            for storeId,store in m.stores.items():
+                if store.CATEGORY == levelToModify and not store.isAttached() and not store.isSurrogate():
+                    store.clearStorage()
+                    for dev in addDevice:
+                        store.updateInventory(dev,int(deviceCounts[dev]))
+        
+        elif option == "addstorexpt_swap":
+            fromDev = exptData['fromDevice']
+            print "FRom Dev = {0}".format(fromDev)
+            toDev = exptData['toDevice']
+            print "to Dev = {0}".format(toDev)
+            
+            #sList = typehelper.getTypeList(db,modelId,'fridges',fallback=False)
+            typehelper.addTypeToModel(db,m,toDev,shadow_network_db_api.ShdNetworkDB(db,1),True,ignore=True)
+            for storeId,store in m.stores.items():
+                if store.CATEGORY == levelToModify and not store.isAttached() and not store.isSurrogate():
+                    fromCount = store.countInventory(fromDev)
+                    print "from = {0}".format(fromCount)
+                    if fromCount > 0:
+                        store.updateInventory(fromDev,0)
+                        store.updateInventory(toDev,fromCount)
+
+        db.commit()
+        return {'success':True}
+    
+    except Exception,e:
+        return {'success':False,'msg':str(e)}     
+        
 @bottle.route('/route_by_level_experiment')
 def modifyRouteExptPage(db,uiSession):
     crumbTrack = addCrumb(uiSession, _("Modify Routes by Level Experiment"))
@@ -313,10 +371,10 @@ def addStorageExptSummary(db,uiSession):
             htmlArray.append("<tr class='hermes_expt_summary_table_row'>");
             htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
             htmlArray.append("<td class='hermes_expt_summary_table_col'>")
-            fromD = [x for x in dList if x['Name']==exptData['fromDevice'][0]]
+            fromD = [x for x in dList if x['Name']==exptData['fromDevice']]
             #print "FromD= {0}".format(fromD)
             #print "{0}".format(exptData['toDevice'])
-            toD = [x for x in daList if x['Name']==exptData['toDevice'][0]]
+            toD = [x for x in daList if x['Name']==exptData['toDevice']]
             #print "HERE: {0}".format(toD)
             htmlArray.append(_("Replace: {0}".format(fromD[0]['DisplayName'])))
             htmlArray.append("</td></tr>")

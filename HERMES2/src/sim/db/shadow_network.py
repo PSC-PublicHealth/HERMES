@@ -829,6 +829,9 @@ class ShdStore(Base, ShdCopyable):
     def clearInventory(self):
         del self.inventory[:]
     
+    def clearStorage(self):
+        self.inventory = [x for x in self.inventory if type(x.invType) != ShdStorageType]
+        
     def clearTransport(self):
         self.inventory = [x for x in self.inventory if type(x.invType) != ShdTruckType]
 
