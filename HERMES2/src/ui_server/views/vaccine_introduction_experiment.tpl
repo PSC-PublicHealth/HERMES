@@ -64,11 +64,8 @@
 			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
 		</p>
 		<p class='expt_text'>
-			will write something,will write something, will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
+			{{_('This experiment will take you through a series of screens that will allow you define new vaccines that you would like to introduce into the supply chain and the appropriate vaccine dose schedule for the new vaccines.')}}
+			{{_('Once specified, HERMES will automatically create a new model that will allow you to run simulations to assess the impact of the additional vaccines.')}}}
 		</p>	
 		<p class='expt_emph'> 
 			{{_('Please press the "Next" button to continue.')}}
