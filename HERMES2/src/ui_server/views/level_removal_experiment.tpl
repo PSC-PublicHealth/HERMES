@@ -122,11 +122,9 @@
 			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
 		</p>
 		<p class='expt_text'>
-			will write something,will write something, will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
-			will write something,will write something,will write something,will write something,
+			{{_('This experiment will take you through a series of screens that will allow you to specify a supply chain level to remove.')}}
+			{{_('Additionally, you will need to specify some characteristics for the new routes that will be created as a result of the supply chain level being removed.')}}
+			{{_('Once these options are specified, HERMES will automatically create a new model with the specified supply chain level removed.')}}
 		</p>	
 		<p class='expt_emph'> 
 			{{_('Please press the "Next" button to continue.')}}
