@@ -144,12 +144,12 @@
 			</div>
 			
 			<div id="expt_row2_col2" class="flex_col2">
-				<button class="expt_butt" id="change_demand_button">
+				<!--<button class="expt_butt" id="change_demand_button">
 					<img class="expt_butt_image" src="{{rootPath}}static/images/addpeople.png">{{_('Change Populations and Demand')}}
-				</button>
+				</button>-->
 			</div>
 			
-			<div id="expt_row2_col2" class="flex_col3">
+			<div id="expt_row2_col3" class="flex_col3">
 				<button class="expt_butt" id="add_loops_button">
 					<img class="expt_butt_image" src="{{rootPath}}static/images/toloops.png">{{_('Introduce Transport Loops')}}
 				</button>
