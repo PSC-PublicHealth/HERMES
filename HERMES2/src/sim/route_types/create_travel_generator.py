@@ -91,6 +91,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
     """
     #bName = name.encode('utf8')
     bName = name
+    routeName = proc.routeName
     RECYCLE_TAG= abstractbaseclasses.Shippable.RECYCLE_TAG # for brevity
     deliveryStepNamesSet= set(['deliver','alldeliver','askanddeliver','markanddeliver','allmarkanddeliver'])
     if tripJournal is None: 
@@ -434,7 +435,7 @@ def createTravelGenerator(name, stepList, truckType, delayInfo, proc,
                 elif op == 'askanddeliver':
                     groupsAllocVC = vc*fractionGotVC
                     # we use vc to access the class method here
-                    groupsAllocVC = vc.min(proc.sim.model.getDeliverySize(bName, w, groupsAllocVC, timeToNextShipment,
+                    groupsAllocVC = vc.min(proc.sim.model.getDeliverySize(routeName, w, groupsAllocVC, timeToNextShipment,
                                                                           proc.sim.now()),
                                            groupsAllocVC)
                     groupsAllocVC.roundDown()

@@ -1528,7 +1528,6 @@ class Warehouse(Store, abstractbaseclasses.Place):
         infoDict = {'name':name,
                     'proc':proc,
                     'clientIds':clientIds,
-                    'supplierId':self.idcode,
                     'type':routeType,
                     'truckType':truckType,
                     'interval':interval,
@@ -1980,12 +1979,12 @@ class Warehouse(Store, abstractbaseclasses.Place):
         figures up the distribution tree immediately, as if all the warehouses
         had called each other on the phone to total things up. This routine
         recurses through the distribution network, totaling all the demand
-        levels registered by downstream clients.  Beware diamond- shaped
-        distribution graphs; demand can be double-counted!  By convention the
+        levels registered by downstream clients.  By convention the
         result is in vials, not doses.
         
         interval should be a tuple, (timeStart, timeEnd).
         """
+        assert routeName in self._supplierRouteD, 'Route %s is unknown to %s!' % (routeName, self.bName)
         tStart,tEnd= interval
         #print "sh %s%s %s %s:"%("    "*recurLevel,self.bName,tStart,tEnd)
         resultVC = self.sim.shippables.getCollection()
@@ -2027,12 +2026,13 @@ class Warehouse(Store, abstractbaseclasses.Place):
                         nextTime= nextCycle*interval+latency
                     #print "    %s%s via %s: %s %s"%("   "*recurLevel, w.bName,
                     #                                rtName.encode('utf8'), prevTime, nextTime)
-                    delta= w.getProjectedDemandVC(routeName, (prevTime,nextTime), recurLevel=recurLevel+1)
+                    delta= w.getProjectedDemandVC(rtName, (prevTime,nextTime), recurLevel=recurLevel+1)
                     #print "    %s--> %s"%("    "*recurLevel,delta)
                     resultVC += delta
             #print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
             resultVC += mdelta
-        return resultVC
+        fracSuppliedByThisRoute = self._supplierRouteD[routeName]['supplyFrac']
+        return resultVC * fracSuppliedByThisRoute
     
     def getInstantaneousDemandVC(self, routeName, interval, recurLevel=0):
         """
@@ -2167,6 +2167,10 @@ class Warehouse(Store, abstractbaseclasses.Place):
         It allows the Warehouse to precalculate quantities that depend on information
         from elsewhere in the network.
         """
+        if len(self._supplierRouteD):
+            fracSuppliedPerRoute = 1.0/len(self._supplierRouteD)  # Initialize to equal fractions
+            for k, dct in self._supplierRouteD.items():
+                dct['supplyFrac'] = fracSuppliedPerRoute
         self.buildFinished= True
         self._calcTotalDownstreamPopServedPC()
         
@@ -2758,6 +2762,20 @@ class Factory(Process, abstractbaseclasses.UnicodeSupport):
         for targetStore in self.targetStores:
             targetStore[1].addSupplier(self,None)
             targetStore[1].sim.processWeakRefs.append(weakref.ref(self))
+            d = {'name': self.name, 
+                 'proc': self,
+                 'clientL': [tS[1] for tS in self.targetStores],
+                 'routeType': 'factory',
+                 'truckType': None,
+                 'interval': self.batchInterval,
+                 'latency': self.startupLatency}
+            self.addClientRoute(name = self.name, 
+                                proc = self,
+                                clientL = [tS[1] for tS in self.targetStores],
+                                routeType = 'factory',
+                                truckType = None,
+                                interval  = self.batchInterval,
+                                latency   = self.startupLatency)
     def run(self):
         if self.startupLatency > 0.0:
             yield hold, self, self.startupLatency
@@ -2812,6 +2830,19 @@ class Factory(Process, abstractbaseclasses.UnicodeSupport):
         raise RuntimeError("Factory cannot add supplier")
     def addClient(self,wh):
         raise RuntimeError("Factory clients are defined at creation time")
+    def addClientRoute(self, name, proc, clientL, routeType, truckType, interval, latency):
+        """Implements the necessary side effect of telling the client about this supply route"""
+        clientIds = [clientW.idcode for clientW in clientL]
+        infoDict = {'name':name,
+                    'proc':proc,
+                    'clientIds':clientIds,
+                    'type':routeType,
+                    'truckType':truckType,
+                    'interval':interval,
+                    'latency':latency}
+        for clientW in clientL:
+            if name not in clientW._supplierRouteD:
+                clientW._supplierRouteD[name] = infoDict.copy()
     def addPendingShipment(self,client,tupleListOrVC):
         raise RuntimeError("Factory shipments are defined at creation time")
     def getAndForgetPendingShipment(self,client):

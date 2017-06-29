@@ -326,6 +326,7 @@ class Model(model.Model):
         vC = self.sim.shippables.addPrepSupplies(vC)
 
         vaccinesOnlyVC, othersVC= self._separateVaccines(vC)
+        othersVC.roundUp()  # no fractional refrigerators
         vaccinesOnlyVC *= toW.bufferStockFraction
         vaccinesOnlyVC.roundUp() #yes, round up twice.
         fVC,cVC,wVC= toW.calculateStorageFillRatios(othersVC+vaccinesOnlyVC)
@@ -348,6 +349,7 @@ class Model(model.Model):
         # be running in order for this to be correct.
         vC = toW.getProjectedDemandVC(routeName, (timeNow,timeNow+pullMeanFrequencyDays))
         vaccineVialsVC,otherVialsVC= self._separateVaccines(vC)
+        otherVialsVC.roundUp() # no fractional refrigerators please!
 
         if self.autoUpdateThresholdsFlag:
             threshVialsVC = vaccineVialsVC * (toW.bufferStockFraction)

@@ -426,6 +426,9 @@ class HermesSim(SimulationStep):
 
         for factory in self.factories:
             print repr(factory)
+            # Reinitialize the supplied warehouses so that they know about the 'route' from the factory
+            for targetW in [tW for wt, tW in factory.targetStores]:
+                targetW.finishBuild()
             self.activate(factory, factory.run())
 
                 #else: print "Skipping %s!"%wh.name
