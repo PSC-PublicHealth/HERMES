@@ -165,10 +165,47 @@
 		</div>
 	</div>
 	<div id='modrouteexpt_slide6' class='modrouteexpt_slide'>
-		This is the summary page
+		<div id='modrouteexpt_summary_title'>
+			<span class='expt_subtitle'>
+				{{_('Remove a Supply Chain Level Experiment Summary')}}
+			</span>
+		</div>
+		<div id='modrouteexpt_summary_div'></div>
+		<div id='remlevexpt_click_next" class='expt_text'>
+			{{_("Please click the Next button above to complete the experiment")}}
+		</div>
 	</div>
 	<div id='modrouteexpt_slide7' class='modrouteexpt_slide'>
-		This is the links page
+		<div id="modrouteexpt_final_links_div">	
+			<span class='expt_subtitle'>
+				{{_('<NEED to UPDATE> Below are some additional actions that you may want to perform on your newly modified model:')}}
+			</span>
+			<span class="expt_text">
+				<ul class="proper_ul">
+					<li>
+						<a href="{{rootPath}}model-edit-population-tabular?modelId={{modelId}}">
+							{{_('Update the Number of People Served by Each Supply Chain Location')}}
+						</a>
+					</li>
+					<li>
+						<a href="{{rootPath}}model-edit-store-inventory-tabular?modelId={{modelId}}">
+							{{_("Further Modify the Storage Device Inventory of Each Supply Chain Location")}}
+						</a>
+					</li>
+					<li>
+						<a href="{{rootPath}}model-edit-structure?id={{modelId}}">
+							{{_("Open the New Model in the HERMES Advanced Editor to Make Further Changes")}}
+						</a>
+					</li>
+					<li>
+						{{_("Or If you are finished creating this experiment:")}}
+						<a href="{{rootPath}}model-run?modelId={{modelId}}">
+							{{_("Run Simulations of this Model")}}
+						</a>
+					</li>
+				</ul>
+			</span>
+		</div>
 	</div>
 </div>
 				
@@ -181,21 +218,66 @@ $("#modrouteexpt_slides").slideShowWithFlowControl({
 	activateNext:true,
 	nextFunctions:[
 	               function(){
-	            	  // $("#addstorexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            	   $("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");
+	            	   if($("#modrouteexpt_level_select_opts_div :radio:checked").attr("id")=="modrouteexpt_level_orig"){
+	            		   if($("#modrouteexpt_level_originating_select").supplyChainLevelSelector("getSelectedParsed") == "None"){
+	            			   $("#moderouteexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            		   }
+	            	   }
+	            	   else if($("#modrouteexpt_level_select_opts_div :radio:checked").attr("id")=="modrouteexpt_level_between"){
+	            		   if($("#modrouteexpt_level_between_select").betweenSupplyChainLevelSelector("getSelectedParsed") == "None"){
+	            			   $("#modrouteexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            		   }
+	            	   }
+	            	   else if($("#moderouteexpt_level_select_opts_div :radio:checked").length == 0){
+	            		   $("#modrouteexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            	   }
+	            	   
+	            	   $("#modrouteexpt_operations_div").change(function(){
+	            		   $("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");
+	            	   });
+	            	   
+	            	   
 	            	   return true;
 	               },
 	               function(){
+	            	   $("#modrouteexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            	   //$("#modrouteexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            	   if ($("#modrouteexpt_operations_changefreq").is(":checked")){
+	            		   $("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");
+	            	   }
+	            	   
+	            	   if ($("#modrouteexpt_operations_changevehicle").is(":checked")){
+	            		   $("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");
+	            	   }
+	            	   //$("#addstorexpt_slides").slideShowWithFlowControl("deactivateButton","next");
 	            	  return true;
 	               },
 	               function(){
-	            	   //var idSelector = function(){return this.id; };
-	            	   //var selected = $("#modrouteexpt_operations_div :checkbox:checked").map(idSelector).get();
-	            	   //console.log(selected);
-	            	   //console.log(selected.indexOf("modrouteexpt_operations_changefreq"));
-	            	   //console.log(selected);
+	            	   $("#modrouteexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            	   
+	            	   if ($("#modrouteexpt_freq_opts_div :radio:checked").length > 0){
+	            		   $("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");
+	            	   }
+	            	   
+	            	   if($("#modrouteexpt_change_vehicle_grid").typeExplorerGrid("getSelectedElements")[0] != null){
+	            		   $("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");
+	            	   }
+	            	   
+	            	   $("#modrouteexpt_freq_opts_div").change(function(){
+	            		   $("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");
+	            	   });
+	            	   
+	            	   $("#modrouteexpt_change_vehicle_grid").change(function(){alert("here");})	  	      
 	            	   return true;
 	               },
 	               function(){
+	            	   
+	            	   $("#modrouteexpt_slides").slideShowWithFlowControl("deactivateButton","next");
+	            	   
+	            	   if($("#modrouteexpt_change_vehicle_grid").typeExplorerGrid("getSelectedElements")[0] != null){
+	            		   $("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");
+	            	   }
 	            	   create_summary();
 	            	   return true;
 	               },
@@ -204,13 +286,14 @@ $("#modrouteexpt_slides").slideShowWithFlowControl({
 	            	   return true;
 	               },
 	               function(){
+	            	   $("#modrouteexpt_slides").slideShowWithFlowControl("deactivateButton","back");
 	            	   return true;
 	               }
 	              ],
 	backFunctions:[
 	               function(){return true;},
 	               function(){
-	            	   //$("#addstorexpt_slides").slideShowWithFlowControl("activateButton","next");
+	            	   $("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");
 	            	   return true;
 	               },
 	               function(){return true;},
@@ -232,11 +315,25 @@ $("#modrouteexpt_level_between_select").betweenSupplyChainLevelSelector({
 	labelClass:'modrouteexpt_level_select_opts_level',
 	onChangeFunc: function(){
 		var routeParsed = $("#modrouteexpt_level_between_select").betweenSupplyChainLevelSelector("getSelectedParsed");
-		$("#modrouteexpt_youhavechosen").html("{{_('You have chosen to modify routes ')}}" + routeParsed + ".");
+		$("#modrouteexpt_youhavechosen").html("{{_('You have chosen to modify routes that are ')}}" + routeParsed + ".");
+		$("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");
+		
+	}
+});
+
+$("#modrouteexpt_level_originating_select").supplyChainLevelSelector({
+	modelId:{{modelId}},
+	routeOrig:true,
+	type:'radioSelect',
+	onChangeFunc: function(){
+		var origLevel = $("#modrouteexpt_level_originating_select").supplyChainLevelSelector("getSelectedParsed");
+		$("#modrouteexpt_youhavechosen").html("{{_('You have chosen to modify routes that originate at the ')}}" + origLevel + " suppply chain level");
+		$("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");
 	}
 });
 
 $("#modrouteexpt_operations_changefreq").change(function(){
+	
 	if($(this).is(":checked")){
 		$("#modrouteexpt_slides").slideShowWithFlowControl("showSlide",3);
 	}
@@ -252,12 +349,6 @@ $("#modrouteexpt_operations_changevehicle").change(function(){
 	else{
 		$("#modrouteexpt_slides").slideShowWithFlowControl("hideSlide",4);
 	}
-});
-
-$("#modrouteexpt_level_originating_select").supplyChainLevelSelector({
-	modelId:{{modelId}},
-	routeOrig:true,
-	type:'radioSelect'
 });
 
 $("#modrouteexpt_level_select_opts_div").change(function(){
@@ -287,7 +378,7 @@ $("#modrouteexpt_level_select_opts_div").change(function(){
 //	else{
 //		$("#modrouteexpt_is").fadeOut(200,function(){
 //			$("#modrouteexpt_ds").fadeIn(200)
-//		});
+//		});def 
 //	}
 //});
 
@@ -298,7 +389,8 @@ $("#modrouteexpt_change_vehicle_grid").typeExplorerGrid({
 	groupingEnabled:false,
 	namesOnly: false,
 	createEnabled:true,
-	width:$("#modrouteexpt_change_vehicle_grid").width()-2.5
+	width:$("#modrouteexpt_change_vehicle_grid").width()-2.5,
+	onSelectFunction:function(){$("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");}
 });
 
 $("#modrouteexpt_slides").slideShowWithFlowControl("hideSlide",3);
@@ -320,16 +412,35 @@ function create_summary(){
 		vehicleChange = $("#modrouteexpt_change_vehicle_grid").typeExplorerGrid("getSelectedElements");
 	}
 	var dataObject = {
-		'levelopt': $("#modrouteexpt_level_select_opts_div :radio:checked").attr("id"),
-		'levelbetween': $("#modrouteexpt_level_between_select").betweenSupplyChainLevelSelector("getSelected"),
-		'levelorig': $("#modrouteexpt_level_originating_select").supplyChainLevelSelector("getSelected"),
-		'changefreg': $("#modrouteexpt_operations_changefreq").is(":checked"), 
-		'changevehicle': $("#modrouteexpt_operations_changevehicle").is(":checked"), 
+		'levelOpt': $("#modrouteexpt_level_select_opts_div :radio:checked").attr("id"),
+		'levelBetween': $("#modrouteexpt_level_between_select").betweenSupplyChainLevelSelector("getSelected"),
+		'levelBetweenParsed': $("#modrouteexpt_level_between_select").betweenSupplyChainLevelSelector("getSelectedParsed"),
+		'levelOrig': $("#modrouteexpt_level_originating_select").supplyChainLevelSelector("getSelectedParsed"),
+		'changeFreq': $("#modrouteexpt_operations_changefreq").is(":checked"), 
+		'changeVehicle': $("#modrouteexpt_operations_changevehicle").is(":checked"), 
 		'freqOpt':freqOpt,
-		'vehicleChange':vehicleChange
+		'vehicleChange':vehicleChange[0] //there should only be one
 	};
 
 	console.log(dataObject);
+	$.ajax({
+		url:{{rootPath}}+"json/route_by_level_summary",
+		data:{
+			modelId:{{modelId}},
+			data:JSON.stringify(dataObject)
+		}
+	})
+	.done(function(results){
+		if(results.success){
+			$("#modrouteexpt_summary_div").html(results.html);
+		}
+		else{
+			alert("{{_('There was a problem getting the summary text for the modify routes by level experiment: ')}}" + results.msg);
+		}
+	})
+	.fail(function(jqxhr,textStatus,error){
+		alert("{{_('There was a failure in getting the summary text for the modify routes by level experiment: ')}}" + jqxhr.responseText);
+	});
 }
 
 </script>

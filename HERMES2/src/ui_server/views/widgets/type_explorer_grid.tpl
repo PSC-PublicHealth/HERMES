@@ -137,6 +137,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			newOnly:false,
 			addFunction: function(){},
 			delFunction: function(){},
+			onSelectFunction: function(){},
 			title: "",
 			trant:{
 				title: "{{_('Type Explore Grid')}}"
@@ -437,7 +438,6 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 						$("#"+thisTableId).jqGrid("editRow",rowId,{
 							keys:true,
 							aftersavefunc:function(rowId,response){
-								console.log("Saveing!!!!");
 								var typeName = $("#"+thisTableId).jqGrid("getCell",rowId,'id');
 								var count = $("#"+thisTableId).jqGrid("getCell",rowId,'count');
 								
@@ -448,6 +448,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 							}
 						});
 					}
+					thisOptions.onSelectFunction();
 				},
 				beforeProcessing: function(data,status,xhr){
 					if(!data.success){

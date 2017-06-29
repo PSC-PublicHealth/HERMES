@@ -131,34 +131,35 @@
 	
 	<div id='remlevexpt_slide5' class='remlevexpt_slide'>
 		<div id="addstorexpt_final_links_div">
-		<span class='expt_subtitle'>
-			{{_('<NEED to UPDATE> Below are some additional actions that you may want to perform on your newly modified model:')}}
-		</span>
-		<span class="expt_text">
-			<ul class="proper_ul">
-				<li>
-					<a href="{{rootPath}}model-edit-population-tabular?modelId={{modelId}}">
-						{{_('Update the Number of People Served by Each Supply Chain Location')}}
-					</a>
-				</li>
-				<li>
-					<a href="{{rootPath}}model-edit-store-inventory-tabular?modelId={{modelId}}">
-						{{_("Further Modify the Storage Device Inventory of Each Supply Chain Location")}}
-					</a>
-				</li>
-				<li>
-					<a href="{{rootPath}}model-edit-structure?id={{modelId}}">
-						{{_("Open the New Model in the HERMES Advanced Editor to Make Further Changes")}}
-					</a>
-				</li>
-				<li>
-					{{_("Or If you are finished creating this experiment:")}}
-					<a href="{{rootPath}}model-run?modelId={{modelId}}">
-						{{_("Run Simulations of this Model")}}
-					</a>
-				</li>
-			</ul>
-		</span>
+			<span class='expt_subtitle'>
+				{{_('<NEED to UPDATE> Below are some additional actions that you may want to perform on your newly modified model:')}}
+			</span>
+			<span class="expt_text">
+				<ul class="proper_ul">
+					<li>
+						<a href="{{rootPath}}model-edit-population-tabular?modelId={{modelId}}">
+							{{_('Update the Number of People Served by Each Supply Chain Location')}}
+						</a>
+					</li>
+					<li>
+						<a href="{{rootPath}}model-edit-store-inventory-tabular?modelId={{modelId}}">
+							{{_("Further Modify the Storage Device Inventory of Each Supply Chain Location")}}
+						</a>
+					</li>
+					<li>
+						<a href="{{rootPath}}model-edit-structure?id={{modelId}}">
+							{{_("Open the New Model in the HERMES Advanced Editor to Make Further Changes")}}
+						</a>
+					</li>
+					<li>
+						{{_("Or If you are finished creating this experiment:")}}
+						<a href="{{rootPath}}model-run?modelId={{modelId}}">
+							{{_("Run Simulations of this Model")}}
+						</a>
+					</li>
+				</ul>
+			</span>
+		</div>
 	</div>
 </div>
 

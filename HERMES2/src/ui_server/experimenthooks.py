@@ -132,7 +132,70 @@ def modifyRouteExptPage(db,uiSession):
         return bottle.template("problem.tpl", {"comment": str(e),  
                                                "breadcrumbPairs":crumbTrack})   
         
+@bottle.route('/json/route_by_level_summary')
+def modifyRouteSummary(db,uiSession):
+    try:
+        import json
+        modelId = _getOrThrowError(bottle.request.params,'modelId', isInt=True)
+        exptDataJson = _getOrThrowError(bottle.request.params,'data')
+        
+        exptData = json.loads(exptDataJson)
+        tList = typehelper.getTypeList(db,modelId,'trucks',fallback=False)
+        
+        htmlArray = []
+        htmlArray.append("<div class='hermes_expt_summary_table_div'>")
+        htmlArray.append( "<table class='hermes_expt_summary_table'>")
+        htmlArray.append( "<tr class='hermes_expt_summary_table_lead_row'>")
+        htmlArray.append( "<td colspan=2 class='hermes_expt_summary_table_lead_col'>")
+        if exptData['levelOpt'] == 'modrouteexpt_level_orig':
+            htmlArray.append(_("You have chosen to modify all of the shipping routes originating at the {0} supply chain level.".format(exptData['levelOrig'])))
+        else:
+            htmlArray.append(_("You have chosen to modify all of the shipping routes that are {0}".format(exptData['levelBetweenParsed'])))
+        
+        htmlArray.append("</td>")
+        htmlArray.append("</tr>")
+        
+        htmlArray.append( "<tr class='hermes_expt_summary_table_lead_row'>")
+        htmlArray.append( "<td colspan=2 class='hermes_expt_summary_table_lead_col'>")
+        if exptData['changeFreq'] and exptData['changeVehicle']:
+            htmlArray.append(_('The modifications to be made are: '))
+        else:
+            htmlArray.append(_('The modification to be made is: '))
+        htmlArray.append("</td>")
+        htmlArray.append("</tr>")
+        
+        if exptData['changeFreq']:
+            transDict = {'modrouteexpt_freq_half':_('Reduce the frequency of shipping by half.'),
+                         'modrouteexpt_freq_double':_('Increasing the frequency of shipping by double.'),
+                         'modrouteexpt_freq_quadruple':_('Increasing the frequency of shipping by quadruple'),
+                         'modrouteexpt_freq_needed':_('Increasing the frequency of shipping to occur as often as needed to satisfy demand.')}
+            
+            htmlArray.append("<tr class='hermes_expt_summary_table_row'>")
+            htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+            htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+            htmlArray.append(transDict[exptData['freqOpt']])
+            htmlArray.append("</td>")
+            htmlArray.append("</tr>")
+        
+        if exptData['changeVehicle'] and exptData['vehicleChange']:
+            dev = [x for x in tList if x['Name']==exptData['vehicleChange']]
+            htmlArray.append("<tr class='hermes_expt_summary_table_row'>")
+            htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+            htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+            htmlArray.append("Changing the transport mode to {0}.".format(dev[0]['DisplayName']))
+            htmlArray.append("</td>")
+            htmlArray.append("</tr>")
+        
+        htmlArray.append("</table>")
+        htmlArray.append("</div>")
 
+        # New vaccines Grid Data
+        return {'success':True,'html':"\n".join(htmlArray)} 
+         
+    except Exception,e:
+        return {'success':False,'msg':str(e)}   
+        
+            
 @bottle.route('/json/add_storage_summary')
 def addStorageExptSummary(db,uiSession):
     try:
@@ -159,7 +222,12 @@ def addStorageExptSummary(db,uiSession):
         htmlArray.append( _(' '))
         htmlArray.append( "</td>")
         htmlArray.append( "</tr>")
-        
+        htmlArray.append("<tr class='hermes_expt_summary_table_row'>")
+        htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+        htmlArray.append("<td class='hermes_expt_summary_table_col'>")
+        htmlArray.append(_("The following modifications are being made:"))
+        htmlArray.append("</td>")
+        htmlArray.append("</tr>")
         if exptData['option'] in ['addstorexpt_replace','addstorexpt_addition']:
             for d in exptData['addDevices']:
                 htmlArray.append("<tr class='hermes_expt_summary_table_row'>")

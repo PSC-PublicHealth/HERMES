@@ -209,7 +209,9 @@
 					$this.hideButton("next");
 					$this.showButton("done");
 				}
-				$this.activateButton("back");
+				if(currentActiveSlide != numSlides-1){
+					$this.activateButton("back");
+				}
 				console.log("Current Next Setting: " + currentActiveSlide);
 				$("#"+thisContainerId).data('activeSlide',currentActiveSlide);
 				

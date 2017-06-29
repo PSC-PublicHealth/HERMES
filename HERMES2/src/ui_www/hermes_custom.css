@@ -2845,6 +2845,7 @@ div.hermes_flex_dialog_col2{
 
 ul.proper_ul {
 	list-style-type: circle;
+	margin-left: 40px;
 }
 
 .flex_input_row {

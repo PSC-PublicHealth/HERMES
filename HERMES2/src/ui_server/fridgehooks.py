@@ -228,7 +228,7 @@ def jsonManageFridgeExplorerTable(db,uiSession):
                 energy = u"{0}".format(_('Not Specified'))
             row = {'id':v['Name'],
                        'name':v['DisplayName'],
-                       'type':v['DisplayCategory'],
+                       'type':cat,
                        'model':modelT,
                        'energy':energy,
                        'details':v['Name'],
