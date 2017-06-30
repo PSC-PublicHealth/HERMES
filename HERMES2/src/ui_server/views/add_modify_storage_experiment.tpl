@@ -354,7 +354,15 @@ function createSummary(){
 		}
 	})
 	.done(function(results){
-		$("#addstorexpt_summary_text").html(results.html);
+		if(results.success){
+			$("#addstorexpt_summary_text").html(results.html);
+		}
+		else{
+			alert("{{_('There was a problem getting the summary text for the add storage by level experiment: ')}}" + results.msg);
+		}
+	})
+	.fail(function(jqxhr,textStatus,error){
+		alert("{{_('There was a failure in getting the summary text for the add storage by level experiment: ')}}" + jqxhr.responseText);
 	});
 }
 
@@ -375,11 +383,11 @@ function implementExperiment(){
 			
 		}
 		else{
-			alert("{{_('There was a problem implementing the add loops experiment: ')}}" + results.msg);
+			alert("{{_('There was a problem implementing the add storage experiment: ')}}" + results.msg);
 		}
 	})
 	.fail(function(jqxhr,textStatus,error){
-		alert("{{_('There was a failure implementing the add loops experiment: ')}}" + jqxhr.responseText);
+		alert("{{_('There was a failure implementing the add storage experiment: ')}}" + jqxhr.responseText);
 	});
 		
 }

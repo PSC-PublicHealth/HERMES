@@ -44,7 +44,7 @@
 				return "None";
 			}
 			else{
-				return selected.attr('id');
+				return selected.attr('id').replace(selectBoxId+"_radio_","");
 			}
 		},
 		getSelectedParsed: function(){
@@ -83,7 +83,7 @@
 				else{
 					selectedSplit = selected.attr("id").split("_");
 					console.log(selectedSplit);
-					return "{{_('between the ')}}" + selectedSplit[selectedSplit.length-2] + "{{_(' level  to the ')}}" + selectedSplit[selectedSplit.length-1] + "{{_(' level')}}";
+					return "{{_('between the ')}}" + selectedSplit[selectedSplit.length-2] + "{{_(' level to the ')}}" + selectedSplit[selectedSplit.length-1] + "{{_(' level')}}";
 				}
 			}
 		},
