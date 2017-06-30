@@ -188,17 +188,9 @@ $("#remlevexpt_slides").slideShowWithFlowControl({
 	            	  return true;
 	               },
 	               function(){
+	            	   implementExperiment();
 	            	   return true;
 	               }
-	             //  function(){
-	            	//   if($("#remlevexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid("validate")){
-	            	//	   createSummary();
-	            	//	   return true;
-	            	//   }
-	            	//   else{
-	            	//	   return false;
-	            	 //  }
-	             //  }
 	              ],
 	backFunctions:[
 	               function(){return true;},
@@ -244,17 +236,23 @@ $("#remlevexpt_route_opts").change(function(){
 	}
 });
 
-function createSummary(){
-	// prepare data
+function createDataObject(){
 	var dataObject = {
-		'level':$("#remlevexpt_level_select").supplyChainLevelSelector("getSelected").replace("remlevexpt_level_select_select_id_radio_",""),
-		'option':$("#remlevexpt_route_opts :radio:checked").attr("id"),
-		'newRoute':'None'
-	};
-	
+			'level':$("#remlevexpt_level_select").supplyChainLevelSelector("getSelected").replace("remlevexpt_level_select_select_id_radio_",""),
+			'option':$("#remlevexpt_route_opts :radio:checked").attr("id"),
+			'newRoute':'None'
+		};
+		
 	if($("#remlevexpt_route_opts :radio:checked").attr("id") == "remlevexpt_custom"){
 		dataObject['newRoute'] = $("#remlevexpt_route_spec_form").routeSpecifyFormWidget("getData");
 	}
+	return dataObject;	
+	
+}
+
+function createSummary(){
+	// prepare data
+	var dataObject = createDataObject();
 	
 	$.ajax({
 		url:{{rootPath}}+"json/level_removal_summary",
@@ -275,5 +273,30 @@ function createSummary(){
 		alert("{{_('There was a failure in getting the summary text for the remove level experiment: ')}}" + jqxhr.responseText);
 	});
 }
+
+function implementExperiment(){
+	var dataObject = createDataObject();
 	
+	console.log(dataObject);
+	
+	$.ajax({
+		url:{{rootPath}}+"json/level_removal_experiment_implement",
+		data:{
+			modelId:{{modelId}},
+			data:JSON.stringify(dataObject)
+		}
+	})
+	.done(function(results){
+		if(results.success){
+			
+		}
+		else{
+			alert("{{_('There was a problem implementing the level removal experiment: ')}}" + results.msg);
+		}
+	})
+	.fail(function(jqxhr,textStatus,error){
+		alert("{{_('There was a failure implementing the level removal experiment: ')}}" + jqxhr.responseText);
+	});
+		
+}
 </script>
