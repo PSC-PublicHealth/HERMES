@@ -2,7 +2,11 @@
 setlocal
 set oldcurdir=%cd%
 cd /d %~dp0
-set instDir=%1
+if not "%1"=="" (
+  set instDir=%1
+) else (
+  set instDir=..\..
+)
 set logfile="%instDir%\install_hermes.log"
 echo ------------------------------------------->>"%logfile%"
 echo Installing on %date% @ %time%:>> "%logfile%"
