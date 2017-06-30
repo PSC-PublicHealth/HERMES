@@ -1641,7 +1641,7 @@ def renderRouteDistances(route):
         nextName = stop.nextStop(loopOk=True).store.NAME
         etl.addTuple(EditableTuple(stop.DistanceKM,
                                    getItemId(stop),
-                                   _('distance to %s(km)').format(nextName)))
+                                   _('distance to {0}(km)').format(nextName)))
     return renderBasicTupleList(route,
                                 'routeDistances',
                                 EditableFieldInfo('routeDistances',
