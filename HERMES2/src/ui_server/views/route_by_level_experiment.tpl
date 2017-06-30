@@ -143,7 +143,7 @@
 					</label>
 					<input type='radio' name='modrouteexpt_freq_opts' id="modrouteexpt_freq_quadruple">
 				</div>
-				<div style='padding:0 0 10px 0;'>
+				<div id='asneeded' style='padding:0 0 10px 0;'>
 					<label for='modrouteexpt_freq_needed' class='modrouteexpt_level_select_opts_level'>
 						{{_('Have the routes make shipments as often as needed.')}}
 					</label>
@@ -273,18 +273,23 @@ $("#modrouteexpt_slides").slideShowWithFlowControl({
 	            	   
 	            	   $("#modrouteexpt_slides").slideShowWithFlowControl("deactivateButton","next");
 	            	   
+	            	   if (!$("#modrouteexpt_operations_changevehicle").is(":checked")){
+	            		   $("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");
+	            	   }
+	            	   
 	            	   if($("#modrouteexpt_change_vehicle_grid").typeExplorerGrid("getSelectedElements")[0] != null){
 	            		   $("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");
 	            	   }
-	            	   create_summary();
+	            	   createSummary();
 	            	   return true;
 	               },
 	               function(){
-	            	   create_summary();
+	            	   createSummary();
 	            	   return true;
 	               },
 	               function(){
-	            	   $("#modrouteexpt_slides").slideShowWithFlowControl("deactivateButton","back");
+	            	   //$("#modrouteexpt_slides").slideShowWithFlowControl("deactivateButton","back");
+	            	   implementExperiment()
 	            	   return true;
 	               }
 	              ],
@@ -315,6 +320,11 @@ $("#modrouteexpt_level_between_select").betweenSupplyChainLevelSelector({
 		var routeParsed = $("#modrouteexpt_level_between_select").betweenSupplyChainLevelSelector("getSelectedParsed");
 		$("#modrouteexpt_youhavechosen").html("{{_('You have chosen to modify routes that are ')}}" + routeParsed + ".");
 		$("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");
+		var routeSel = $("#modrouteexpt_level_between_select").betweenSupplyChainLevelSelector("getSelected");
+		$("#asneeded").show();
+		if (routeSel.startsWith("loop_")){
+			$("#asneeded").hide();
+		}
 		
 	}
 });
@@ -399,8 +409,7 @@ $("#modrouteexpt_slides").slideShowWithFlowControl("hideSlide",4);
 //	$("#moderouteexpt_youhavechosen").html("{{_('You have chosen to modify routes ')}}" + routeParsed + ".");
 //});
 
-function create_summary(){
-	// create data structure
+function createDataObject(){
 	var freqOpt = '';
 	if($("#modrouteexpt_operations_changefreq").is(":checked")){
 		freqOpt = $("#modrouteexpt_freq_opts_div :radio:checked").attr("id");
@@ -409,7 +418,7 @@ function create_summary(){
 	if($("#modrouteexpt_operations_changevehicle").is(":checked")){
 		vehicleChange = $("#modrouteexpt_change_vehicle_grid").typeExplorerGrid("getSelectedElements");
 	}
-	var dataObject = {
+	return {
 		'levelOpt': $("#modrouteexpt_level_select_opts_div :radio:checked").attr("id"),
 		'levelBetween': $("#modrouteexpt_level_between_select").betweenSupplyChainLevelSelector("getSelected"),
 		'levelBetweenParsed': $("#modrouteexpt_level_between_select").betweenSupplyChainLevelSelector("getSelectedParsed"),
@@ -420,6 +429,12 @@ function create_summary(){
 		'vehicleChange':vehicleChange[0] //there should only be one
 	};
 
+}
+function createSummary(){
+	// create data structure
+
+	var dataObject = createDataObject();
+	
 	console.log(dataObject);
 	$.ajax({
 		url:{{rootPath}}+"json/route_by_level_summary",
@@ -441,4 +456,29 @@ function create_summary(){
 	});
 }
 
+function implementExperiment(){
+	var dataObject = createDataObject();
+		
+	console.log(dataObject);
+	
+	$.ajax({
+		url:{{rootPath}}+"json/route_by_level_experiment_implement",
+		data:{
+			modelId:{{modelId}},
+			data:JSON.stringify(dataObject)
+		}
+	})
+	.done(function(results){
+		if(results.success){
+			
+		}
+		else{
+			alert("{{_('There was a problem implementing the modify routes by level experiment: ')}}" + results.msg);
+		}
+	})
+	.fail(function(jqxhr,textStatus,error){
+		alert("{{_('There was a failure implementing the modify routes by level experiment: ')}}" + jqxhr.responseText);
+	});
+		
+}
 </script>

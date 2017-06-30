@@ -172,7 +172,149 @@ def addStorageExptImplement(db,uiSession):
     
     except Exception,e:
         return {'success':False,'msg':str(e)}     
+
+@bottle.route('/json/route_by_level_experiment_implement')
+def modifyRouteExptImplement(db,uiSession):
+    
+    try:
+        import json
+        modelId = _getOrThrowError(bottle.request.params,'modelId', isInt=True)
+        exptDataJson = _getOrThrowError(bottle.request.params,'data')
         
+        exptData = json.loads(exptDataJson)
+        
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        levelOpt = exptData['levelOpt']
+        
+        changeFreq = exptData['changeFreq']
+        changeVehicle = exptData['changeVehicle']
+        
+        routesToChange = []
+        
+        if levelOpt == "modrouteexpt_level_between":
+            levelBetween = exptData['levelBetween']
+            if levelBetween[:4] == "loop":
+                fromLevel = levelBetween.split("_")[1]
+                toLevels = levelBetween.split("_")[2:]
+                
+                for routeId,route in m.routes.items():
+                    stopCats = []
+                    if len(route.stops) > 2 and route.Type != "attached":
+                        if route.stops[0].store.CATEGORY == fromLevel:
+                            for stop in route.stops[1:]:
+                                stopCats.append(stop.store.CATEGORY)
+                    
+                    hitCount = 0
+                    for l in toLevels:
+                        if l in stopCats:
+                            hitCount+=1
+                            break
+                    
+                    if hitCount == len(toLevels):
+                        routesToChange.append(routeId)
+            else:
+                fromLevel = levelBetween.split("_")[0]
+                toLevel = levelBetween.split("_")[1]
+             
+                for routeId,route in m.routes.items():
+                    if len(route.stops) == 2 and route.Type != "attached":
+                        if route.stops[0].store.CATEGORY == fromLevel and route.stops[1].store.CATEGORY == toLevel:
+                            routesToChange.append(routeId)
+        
+        elif levelOpt == "modrouteexpt_level_orig":
+            levelOrig = exptData['levelOrig']
+            
+            for routeId,route in m.routes.items():
+                if route.stops[0].store.CATEGORY == levelOrig and route.Type != "attached":
+                    routesToChange.append(routeId)
+        
+        else:
+            raise RuntimeError("in route_by_level_experiment_implement, unrecognized levelOpt")
+        
+        
+        ### Now perform the transformation on the selected routes
+        
+        if changeFreq:
+            transDict ={'modrouteexpt_freq_half':0.5,
+                        'modrouteexpt_freq_double':2,
+                        'modrouteexpt_freq_quadruple':4} 
+            
+            freqOpt = exptData['freqOpt']
+            if freqOpt == "modrouteexpt_freq_needed":
+                for routeId in routesToChange:
+                    route = m.routes[routeId]
+                    routeDesc = shadow_network.ShdRoute.types[route.Type]
+                    #print "Route Type = {0}".format(shadow_network.ShdRoute.types[route.Type].isScheduled())
+                    if route.Type == "attached":
+                        continue
+                    
+                    if len(route.stops) > 2:
+                        pass
+                        #route.ShipIntervalDays = 1
+                    else:
+                        newRouteType = "persistentdemandfetch"
+                        if routeDesc.supplierStop == 0:
+                            newRouteType = "persistentpull"
+                            
+                        route.Type = newRouteType
+                        for stop in route.stops:
+                            stop.PullOrderAmountDays = 1
+                        route.ShipIntervalDays = 1
+                        
+                        
+            else:
+                factor = float(transDict[freqOpt])
+                for routeId in routesToChange:
+                    route = m.routes[routeId]
+                    routeDesc = shadow_network.ShdRoute.types[route.Type]
+                    #if route.Type in ['varpush','schedvarfetch','schedfetch','push','askingpush','dropandcollect']:
+                    if routeDesc.isScheduled():
+                        route.ShipIntervalDays = int(route.ShipIntervalDays / factor)
+                    else:
+                        for stop in route.stops:
+                            stop.PullOrderAmountDays = (int(stop.PullOrderAmountDays / factor))
+        
+        print routesToChange  
+        if changeVehicle:
+            vehicleToChange = exptData['vehicleChange']
+            oldTrucks = {}
+            for routeId in routesToChange:
+                route = m.routes[routeId]
+                routeDesc = shadow_network.ShdRoute.types[route.Type]
+                
+                oldTrucks[routeId] = route.TruckType
+                
+                route.TruckType = vehicleToChange
+                
+        ### ok this becomes a little tricky as I don't want to remove a vehicle if it is being used for another route that hasn't changed
+            for routeId in routesToChange:
+                route = m.routes[routeId]
+                store = route.stops[0].store
+                needOld = False
+                if store.supplierRoute() is not None:
+                    if store.supplierRoute().TruckType == oldTrucks[routeId]:
+                        needOld = True
+                
+                if store.clientRoutes is not None:
+                    for clientRoute in store.clientRoutes():
+                        if clientRoute.TruckType == oldTrucks[routeId]:
+                            needOld = True
+                
+                oldCount = store.countInventory(oldTrucks[routeId])      
+                if not needOld:
+                    store.updateInventory(oldTrucks[routeId],0)
+                
+                store.addInventory(vehicleToChange,oldCount)
+                
+        # Done with transformation, commit
+        db.commit() 
+              
+        return {'success':True,'routes':routesToChange} 
+    except Exception,e:
+        return {'success':False,'msg':str(e)}             
+            
 @bottle.route('/route_by_level_experiment')
 def modifyRouteExptPage(db,uiSession):
     crumbTrack = addCrumb(uiSession, _("Modify Routes by Level Experiment"))
