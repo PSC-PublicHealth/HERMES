@@ -21,6 +21,7 @@
 			width: 800,
 			height: 500,
 			activateNext: true,
+			keepBackOnLastSlide:false,
 			nextFunctions:[],
 			backFunctions:[],
 			doneFunction:function(){},
@@ -47,7 +48,7 @@
 			$("#" + ButtonId).removeClass('slide_button_active')
 			 				 .addClass('slide_button_deact').button("option","disabled",true);//"hide();
 		},
-		hideButton: function(name){
+		removeButton: function(name){
 			this.containerId = $(this.element).attr('id');
 			var $this = this;
 			var thisContainerId = this.containerId;
@@ -56,6 +57,24 @@
 			$("#" + ButtonId).removeClass('slide_button_active')
 			 				 .addClass('slide_button_deact').hide();
 		},
+		displayButton: function(name){
+			this.containerId = $(this.element).attr('id');
+			var $this = this;
+			var thisContainerId = this.containerId;
+			var ButtonId = thisContainerId + "_" + name;
+			$("#" + thisContainerId).data(name + "Active",false);
+			$("#" + ButtonId).removeClass('slide_button_active')
+			 				 .addClass('slide_button_deact').show();
+		},
+		hideButton: function(name){
+			this.containerId = $(this.element).attr('id');
+			var $this = this;
+			var thisContainerId = this.containerId;
+			var ButtonId = thisContainerId + "_" + name;
+			$("#" + thisContainerId).data(name + "Active",false);
+			$("#" + ButtonId).removeClass('slide_button_active')
+			 				 .addClass('slide_button_deact').css('opacity','0');
+		},
 		showButton: function(name){ 
 			this.containerId = $(this.element).attr('id');
 			var $this = this;
@@ -63,7 +82,7 @@
 			var ButtonId = thisContainerId + "_"+name;
 			$("#" + thisContainerId).data(name + "Active",true);
 			$("#" + ButtonId).removeClass('slide_button_deact')
-							 .addClass('slide_button_active').show();
+							 .addClass('slide_button_active').css('opacity','1');
 		},
 		currentSlide: function(){
 			this.containerId = $(this.element).attr('id');
@@ -164,6 +183,7 @@
 			this.containerId = $(this.element).attr('id');
 			var $this = this;
 			var thisContainerId = this.containerId;
+			var thisOptions = this.options;
 			var slideShowDiv = thisContainerId + "_slideShow";
 			var nextButtonId = thisContainerId + "_next";
 			var backButtonId = thisContainerId + "_back";
@@ -206,8 +226,11 @@
 				
 				if(!isLastSlide){
 					//currentActiveSlide = previousActiveSlide;
-					$this.hideButton("next");
-					$this.showButton("done");
+					$this.removeButton("next");
+					if(!thisOptions.keepBackOnLastSlide){
+						$this.removeButton("back");
+					}
+					$this.displayButton("done");
 				}
 				if(currentActiveSlide != numSlides-1){
 					$this.activateButton("back");
@@ -221,6 +244,7 @@
 			this.containerId = $(this.element).attr('id');
 			var $this = this;
 			var thisContainerId = this.containerId;
+			var thisOptions = this.options;
 			var slideShowDiv = thisContainerId + "_slideShow";
 			var nextButtonId = thisContainerId + "_next";
 			var slideWidth = $("#"+slideShowDiv).width();
