@@ -35,6 +35,10 @@
 			var $this = this;
 			var thisContainerId = this.containerId;
 			var ButtonId = thisContainerId + "_"+name;
+			if(name=="next"){
+				$("#click_text").html("{{_('Please Click the Next Button to Continue')}}");
+			}
+			
 			$("#" + thisContainerId).data(name + "Active",true);
 			$("#" + ButtonId).removeClass('slide_button_deact')
 							 .addClass('slide_button_active').button("option","disabled",false); //show();
@@ -44,6 +48,9 @@
 			var $this = this;
 			var thisContainerId = this.containerId;
 			var ButtonId = thisContainerId + "_" + name;
+			if(name=='next'){
+				$("#click_text").html("");
+			}
 			$("#" + thisContainerId).data(name + "Active",false);
 			$("#" + ButtonId).removeClass('slide_button_active')
 			 				 .addClass('slide_button_deact').button("option","disabled",true);//"hide();
@@ -71,6 +78,9 @@
 			var $this = this;
 			var thisContainerId = this.containerId;
 			var ButtonId = thisContainerId + "_" + name;
+			if(name=='next'){
+				$("#click_text").html("");
+			}
 			$("#" + thisContainerId).data(name + "Active",false);
 			$("#" + ButtonId).removeClass('slide_button_active')
 			 				 .addClass('slide_button_deact').css('opacity','0');
@@ -80,6 +90,9 @@
 			var $this = this;
 			var thisContainerId = this.containerId;
 			var ButtonId = thisContainerId + "_"+name;
+			if(name=="next"){
+				$("#click_text").html("{{_('Please Click the Next Button to Continue')}}");
+			}
 			$("#" + thisContainerId).data(name + "Active",true);
 			$("#" + ButtonId).removeClass('slide_button_deact')
 							 .addClass('slide_button_active').css('opacity','1');
@@ -309,11 +322,12 @@
 				$(this).addClass(thisContainerId + "_slide_"+slideCount);
 				slideCount++;
 			});
-			$("#"+thisContainerId).prepend("<div id='" + thisContainerId + "_buttons' class='slideshow_button_cont'>"
+			$("#"+thisContainerId).prepend("<div class='flex_rows'><div id='" + thisContainerId + "_buttons' class='slideshow_button_cont'>"
 					+ "<button id='"+ backButtonId + "' class='slide_button_deact' >{{_('Back')}}</button>"
 					+ "<button id='"+ nextButtonId + "' class='slide_button_deact' >{{_('Next')}}</button>"
 					+ "<button id='"+ doneButtonId + "' class='slide_button_deact'>{{_('Done')}}</button>"
-					+ "</div>");
+					+ "</div>"
+					+ "<div id='click_text' class='slideshow_button_click'>I want this here.</div></div>");
 			
 			// set the width and height of slides
 			var width = this.options.width;

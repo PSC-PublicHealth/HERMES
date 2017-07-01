@@ -3000,8 +3000,8 @@ ul.proper_ul {
 		margin: 0;
 		padding: 0px 0px 0px 0px;
 		flex-flow: row;
-		-webkit-align-items: left;
-		align-items: left;
+		-webkit-align-items: center;
+		align-items: center;
 		-webkit-justify-content: left;
 		justify-content: left;
 		max-width:600px;
