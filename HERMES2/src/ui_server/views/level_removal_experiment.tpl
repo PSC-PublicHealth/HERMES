@@ -126,9 +126,19 @@
 			{{_("Please click the Next button above to complete the experiment")}}
 		</div>
 	</div>
-	
 	<div id='remlevexpt_slide5' class='remlevexpt_slide'>
-		<div id="addstorexpt_final_links_div">
+		<div id='remlevexpt_implementing' style="display:none;">
+			<div id='remlevexpt_implementing_text' class='expt_subtitle'>
+				{{_("HERMES is implementing your experiment.")}}
+			</div>
+			<div id='implementing_gif'>
+				<img src="{{rootPath}}static/images/kloader.gif">
+			</div>
+		</div>
+	</div>
+	<div id='remlevexpt_slide5' class='remlevexpt_slide'>
+		<div id="remlevexpt_implement_warnings"></div>
+		<div id="remlevexpt_final_links_div">
 			<span class='expt_subtitle'>
 				{{_('Below are some additional actions that you may want to perform on your newly modified model:')}}
 			</span>
@@ -188,8 +198,43 @@ $("#remlevexpt_slides").slideShowWithFlowControl({
 	            	  return true;
 	               },
 	               function(){
-	            	   implementExperiment();
+	            	   //implementExperiment();
+	            	   $("#remlevexpt_implementing").fadeIn(1000);
+	            	   $("#remlevexpt_slides").slideShowWithFlowControl("hideButton","back");
+	            	   $("#remlevexpt_slides").slideShowWithFlowControl("hideButton","next");
+	            	   implementExperiment()
+		            		.done(function(results){
+		            			if(results.success){	
+		            				var count = 0;
+		            				if(results.warnings != ''){
+		            					htmlString = "<div class='expt_subtitle'>{{_('Note there were warnings with the experiment.')}}</div>";
+		            					htmlString += "<div class='expt_text'>"+results.warnings+"</div>";
+		            					$("#remlevexpt_implement_warnings").html(htmlString);
+		            					$("#remlevexpt_implement_warnings").show();
+		            				}
+		     	            	   	var x = setInterval(function(){
+		     	            	   		count++;
+		     	            	   		console.log(count);
+		     	            	   		if(count==5){
+		     	            	   			$("#remlevexpt_slides").slideShowWithFlowControl("nextSlide");
+		     	            	   			clearInterval(x);
+		     	            	   		}
+		     	            	   	},1000); 
+		            				
+		            			}
+		            			else{
+		            				alert("{{_('There was a problem implementing the level removal experiment: ')}}" + results.msg);
+		            			}
+		            		})
+		            		.fail(function(jqxhr,textStatus,error){
+		            			alert("{{_('There was a failure implementing the level removal experiment: ')}}" + jqxhr.responseText);
+		            		});
+	            	    
+	            	
 	            	   return true;
+	               },
+	               function(){
+	            	   
 	               }
 	              ],
 	backFunctions:[
@@ -199,6 +244,7 @@ $("#remlevexpt_slides").slideShowWithFlowControl({
 	            	   //$("#remlevexpt_dose_per_person_grid_div").vaccineDosePerPersonGrid("destroy"); 
 	            	   return true;
 	               },
+	               function(){return true;},
 	               function(){return true;},
 	               function(){return true;}
 	               ],
@@ -279,24 +325,28 @@ function implementExperiment(){
 	
 	console.log(dataObject);
 	
-	$.ajax({
+	return $.ajax({
 		url:{{rootPath}}+"json/level_removal_experiment_implement",
 		data:{
 			modelId:{{modelId}},
 			data:JSON.stringify(dataObject)
 		}
-	})
-	.done(function(results){
-		if(results.success){
-			
-		}
-		else{
-			alert("{{_('There was a problem implementing the level removal experiment: ')}}" + results.msg);
-		}
-	})
-	.fail(function(jqxhr,textStatus,error){
-		alert("{{_('There was a failure implementing the level removal experiment: ')}}" + jqxhr.responseText);
-	});
+	}).promise();
+	
+//	.done(function(results){
+//		if(results.success){
+//			if(results.warnings != ''){
+//				$("#levexpt_implement_warnings").html(warningMessage);
+//				$("#levexpt_implement_warnings").show();
+//			}
+//		}
+//		else{
+//			alert("{{_('There was a problem implementing the level removal experiment: ')}}" + results.msg);
+//		}
+//	})
+//	.fail(function(jqxhr,textStatus,error){
+//		alert("{{_('There was a failure implementing the level removal experiment: ')}}" + jqxhr.responseText);
+//	});
 		
 }
 </script>
