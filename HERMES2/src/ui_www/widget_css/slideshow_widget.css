@@ -19,4 +19,15 @@
 
 .slideshow_button_cont {
 	margin: 10px 10px 10px 10px;
+	min-width:175px;
+	max-width:175px;
+	
+}
+
+.slideshow_button_click {
+	-webkit-align-items:left;
+	align-items:left;
+	justify-content:center;
+	font-size:medium;
+	
 }
