@@ -25,7 +25,7 @@ _hermes_svn_id_="$Id: util.py 1425 2013-08-30 19:55:57Z stbrown $"
 import shadow_network
 
 def setLatenciesByNetworkPosition(shdNtwk,incrementDays=2,initialLatencyDays=0,limitDays=20,stagger=False,
-                                  doNotModifySet=None):
+                                  doNotModifySet=None,debug=False):
     """
     doNotModifySet is a set of store IDs to be left alone.  The fixed values at those stores may influence values at 
     downstream stores.  Note that stores in this set still count against the list of available transport.
@@ -57,7 +57,8 @@ def setLatenciesByNetworkPosition(shdNtwk,incrementDays=2,initialLatencyDays=0,l
             if routeType.isAttached(): continue
             elif (not stagger or routeType.supplierStop() != 0):
                 if storeId not in doNotModifySet:
-                    print "setting Route %s to %g"%(clientRoute.RouteName,startLatencyDays)
+                    if debug:
+                        print "setting Route %s to %g"%(clientRoute.RouteName,startLatencyDays)
                     shdNtwk.routes[clientRoute.RouteName].ShipLatencyDays = startLatencyDays
             else:
                 truckTypeName = clientRoute.TruckType
@@ -68,7 +69,8 @@ def setLatenciesByNetworkPosition(shdNtwk,incrementDays=2,initialLatencyDays=0,l
                 nTurn = nQ/nSuchTrucks # round down is correct
                 myStartTime = startLatencyDays + nTurn*incrementDays
                 if storeId not in doNotModifySet:
-                    print "setting Route %s to %g ( %d in line for %d trucks)"%(clientRoute.RouteName,myStartTime,nQ,nSuchTrucks)
+                    if debug:
+                        print "setting Route %s to %g ( %d in line for %d trucks)"%(clientRoute.RouteName,myStartTime,nQ,nSuchTrucks)
                     shdNtwk.routes[clientRoute.RouteName].ShipLatencyDays = myStartTime
                 
 def setUseVialLatenciesAsOffsetOfShipLatencyFromRoute(shdNtwk,offset=0.1,storeFilters=[], doNotModifySet=None):
@@ -84,7 +86,7 @@ def setUseVialLatenciesAsOffsetOfShipLatencyFromRoute(shdNtwk,offset=0.1,storeFi
 
     for storeId,store in shdNtwk.stores.items():
         popTot = sum( [inv.count for inv in store.demand])
-        print 'Store %s: popTot %s'%(store.NAME,popTot)
+        #print 'Store %s: popTot %s'%(store.NAME,popTot)
         if (popTot>0 or len(store.clientRoutes())==0):
             if storeFilters==[] or any([f(store) for f in storeFilters]):
                 if len(store.suppliers()) > 0: 
@@ -93,7 +95,7 @@ def setUseVialLatenciesAsOffsetOfShipLatencyFromRoute(shdNtwk,offset=0.1,storeFi
                 else:
                     latency = offset
                 if storeId not in doNotModifySet:
-                    print "setting Store %s to %g"%(store.NAME,latency)
+                    #print "setting Store %s to %g"%(store.NAME,latency)
                     store.UseVialsLatency = latency
 
 def setRouteByPolicyBetweenLevels(shdNtwk,levelFrequencies):  

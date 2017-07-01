@@ -868,11 +868,11 @@ def levelRemovalExptImplementation(db,uiSession):
                         
                         isLoop = len(oldClientRoute.stops) > 2
                     
-                        print "routeName = {0}".format(oldClientRoute.RouteName)
-                        print "routeType from Custom = {0}".format(newRouteType)
-                        print "can it be multiclient = {0}".format(routeDesc.multiClient()) 
-                        print "oldClientType = {0}".format(oldClientRoute.Type)
-                        print "Is this a loop: {0}".format(isLoop)
+#                         print "routeName = {0}".format(oldClientRoute.RouteName)
+#                         print "routeType from Custom = {0}".format(newRouteType)
+#                         print "can it be multiclient = {0}".format(routeDesc.multiClient()) 
+#                         print "oldClientType = {0}".format(oldClientRoute.Type)
+#                         print "Is this a loop: {0}".format(isLoop)
                         
                         if isLoop and not routeDesc.multiClient():
                             warningMessage = _("There were transport loops involved in the level removal experiment. Given the restrictions on some route policies with transport, HERMES may have had to deviate from your specified input. It is recommended that you confirm in the <a href='{0}model-edit-structure?id={1}'>HERMES Advanced Editor</a> to ensure that the model has been altered to your desire.".format(rootPath,modelId))    
@@ -901,9 +901,9 @@ def levelRemovalExptImplementation(db,uiSession):
                             newPOD = float(PODTime[0])*C.daysPerMonth*C.monthsPerYear
                         newSLD = 0
                     
-                    print "RouteDesc sup stop = {0}".format(routeDesc.supplierStop())
+                    #print "RouteDesc sup stop = {0}".format(routeDesc.supplierStop())
                     if routeDesc.supplierStop() == 0:
-                        print "supposedly putting this here"
+                    #    print "supposedly putting this here"
                         newSupplierStoresToSetVehicles.add(newSupplierStore.idcode)
                     else:
                         newClientStoresToSetVehicles.add(oldClientStore.idcode)
@@ -978,8 +978,8 @@ def levelRemovalExptImplementation(db,uiSession):
                                 'DistanceKM':(oldClientRoute.stops[-1].DistanceKM + oldSupplierRoute.stops[0].DistanceKM)
                                  }
                             )
-                        for stop in newRoute:
-                            print "newRoute {0}: {1}".format(newRoute.index(stop),stop)
+                        #for stop in newRoute:
+                        #    print "newRoute {0}: {1}".format(newRoute.index(stop),stop)
                     else:
                         newRoute = []
                         routeClient = {'RouteName':'level_remove_{0}_{1}'.format(newSupplierStore.idcode,oldClientStore.idcode),
@@ -1019,11 +1019,11 @@ def levelRemovalExptImplementation(db,uiSession):
                             newRoute = [routeSup,routeClient]
                         else:
                             newRoute = [routeClient,routeSup]     
-                        print "New Route0 = {0}".format(newRoute[0])
-                        print "NewRoute1 = {0}".format(newRoute[1])      
+                        #print "New Route0 = {0}".format(newRoute[0])
+                        #print "NewRoute1 = {0}".format(newRoute[1])      
                                     
                         
-                    print "Removing Route = {0}".format(oldClientRoute.RouteName)
+                    #print "Removing Route = {0}".format(oldClientRoute.RouteName)
                     m.removeRoute(oldClientRoute)
                     
                     m.addRoute(newRoute)
@@ -1032,30 +1032,21 @@ def levelRemovalExptImplementation(db,uiSession):
                 
                 if not store.isVaccinating():
 #                     ### We should keep it
-                    print "Removing {0}".format(oldSupplierRoute.RouteName)
+                    #print "Removing {0}".format(oldSupplierRoute.RouteName)
                     m.removeRoute(oldSupplierRoute)
-                    print "Removing {0}".format(store.idcode)
+                    #print "Removing {0}".format(store.idcode)
                     m.removeStore(store)
             
-            ### Need to set new Shipping Network Latencies
-            setLatenciesByNetworkPosition(m,2,limitDays=C.daysPerMonth,stagger=True)
-            print "Set Latencies"
-            setUseVialLatenciesAsOffsetOfShipLatencyFromRoute(m,offset=1.0)
-            print "Set V Latencies"
-            
-            print "newSup = {0}".format(newSupplierStoresToSetVehicles)
-            print "newClient = {0}".format(newClientStoresToSetVehicles)
-            ## Approximate the new vehicle count by having one vehicle
             for storeId in newSupplierStoresToSetVehicles:
                 store = m.stores[storeId]
                 
                 truckCount = store.getRouteTruckCount()
-                print "Truck Count for {0}:{1}".format(store.idcode,truckCount)
+                #print "Truck Count for {0}:{1}".format(store.idcode,truckCount)
                 
                 ## First eliminate vehicles we no longer need
                 
                 currentTruckCount = store.countTransport()
-                print "CurrentTruckCount = {0}".format(currentTruckCount)
+                #print "CurrentTruckCount = {0}".format(currentTruckCount)
                 for t,c in currentTruckCount.items():
                     if t not in truckCount['total'].keys():
                         store.updateInventory(t,0)
@@ -1063,7 +1054,7 @@ def levelRemovalExptImplementation(db,uiSession):
                 for truck,count in truckCount['total'].items():
                     thisTruckCount = store.countInventory(truck)
                     neededTrucks = math.ceil(float(count)/2.0/C.daysPerMonth)
-                    print "have: {0} needed: {1}".format(thisTruckCount,neededTrucks)
+                    #print "have: {0} needed: {1}".format(thisTruckCount,neededTrucks)
                     if thisTruckCount == 0:
                         store.addInventory(truck,neededTrucks)
                     else:
@@ -1086,6 +1077,17 @@ def levelRemovalExptImplementation(db,uiSession):
                     thisTruckCount = store.countInventory(truck)
                     if thisTruckCount == 0:
                         store.addInventory(truck,1)
+            
+            ### Need to set new Shipping Network Latencies
+            setLatenciesByNetworkPosition(m,2,limitDays=C.daysPerMonth,stagger=True)
+            #print "Set Latencies"
+            setUseVialLatenciesAsOffsetOfShipLatencyFromRoute(m,offset=1.0)
+            #print "Set V Latencies"
+            
+            #print "newSup = {0}".format(newSupplierStoresToSetVehicles)
+            #print "newClient = {0}".format(newClientStoresToSetVehicles)
+            ## Approximate the new vehicle count by having one vehicle
+            
                         
             db.commit()
             return {'success':True,'warnings':warningMessage} 
