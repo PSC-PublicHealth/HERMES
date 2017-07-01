@@ -83,7 +83,7 @@ def setUseVialLatenciesAsOffsetOfShipLatencyFromRoute(shdNtwk,offset=0.1,storeFi
     if doNotModifySet is None: doNotModifySet = set()
 
     for storeId,store in shdNtwk.stores.items():
-        popTot = sum( [inv.Count for inv in store.demand])
+        popTot = sum( [inv.count for inv in store.demand])
         print 'Store %s: popTot %s'%(store.NAME,popTot)
         if (popTot>0 or len(store.clientRoutes())==0):
             if storeFilters==[] or any([f(store) for f in storeFilters]):
