@@ -37,6 +37,7 @@ import typehooks
 from modelhooks import addCrumb
 from serverconfig import rootPath
 import constants as C
+from transformation import setLatenciesByNetworkPosition,setUseVialLatenciesAsOffsetOfShipLatencyFromRoute
 
 from ui_utils import _logMessage, _logStacktrace, _getOrThrowError, _smartStrip, _getAttrDict, _mergeFormResults,\
     _safeGetReqParam
@@ -575,12 +576,13 @@ def levelRemovalExptSummary(db,uiSession):
             elif newRouteData['routeType'] in ['pull','demandfetch']:
                 routeTypeText = _("Variable Schedule and Amount Ordered (As Needed with Minimum Wait Time Between Shipments, When Stock Falls Below Threshold)")
                 frequencyText = "With a Frequency of Up to"
+                
                 timeString = newRouteData['pullInterval']
             
             if newRouteData['routeType'] in ['varpush','push','pull']:
-                orignationText = _("With Transportation Vehicles Residing and Originating at the Supplier")
+                originationText = _("With Transportation Vehicles Residing and Originating at the Supplier")
             else:
-                orginationText = _("With Transportation Vehicles Residing and Originating at the Clients")
+                originationText = _("With Transportation Vehicles Residing and Originating at the Clients")
             timeSplit = timeString.split(':')
             freqNumText = "{0} {1}{2}".format(timeSplit[0],C.timeUnitToString[timeSplit[1]],"s" if float(timeSplit[0]) > 1 else "")
             print "HERE"
@@ -783,156 +785,308 @@ def levelRemovalExptImplementation(db,uiSession):
             warningMessage = ""
             
             ### Gather up the stores that we would like to "remove" from the level
+            ### for removing a level, we will only remove locations that are at the head of a loop
+            ### so if their supplier route has more than 2 stops, then they will not be included
+            ### client routes are fine.
             for storeId, store in m.stores.items():
                 if not store.isAttached() and not store.isSurrogate():
                     if store.CATEGORY == levelToRemove:
-                        storesToRemove.append(storeId)
+                        if len(store.supplierRoute().stops) == 2:
+                            storesToRemove.append(storeId)
             
+            ### Tabulate the stores that we have to check vehicles for
+            newSupplierStoresToSetVehicles = set()
+            newClientStoresToSetVehicles = set()
             
-        
             for storeId in storesToRemove:
                 #if storeId != 109010000:
                 #    continue
+                print "Removing store = {0}".format(storeId)
                 store = m.stores[storeId]
                 routeTemplate = None
+                routeDesc = None
                 oldSupplierRoute = store.supplierRoute()
+                
                 #print oldSupplierRoute.RouteName
                 #### First we will need to move all of the client routes this stores supplier
                 #count = 0
-                for oldClientStore,oldClientRoute in store.clients():
+                for oldClientRoute in store.clientRoutes():
                     if oldClientRoute.Type == "attached":
                         continue
+                    
+                    oldClientRouteDesc = shadow_network.ShdRoute.types[oldClientRoute.Type]
+                    oldClientStore = oldClientRoute.stops[oldClientRouteDesc.firstClientStop()].store
                     #if oldClientRoute.Type != 'schedvarfetch':
                     #    continue
                     newSupplierStore = store.supplierStore()
+                    #newSupplierStores.add(newSupplierStores.idcode)
                     oldSupplierRoute = store.supplierRoute()
                     
-                    print "RouteOption = {0}".format(routeOption)
+                    
                     if routeOption == "remlevexpt_fromabove":
                         routeTemplate = copy.copy(store.supplierRoute())
+                        routeDesc = shadow_network.ShdRoute.types[routeTemplate.Type]
+                        #routeDesc = shadow_network.ShdRoute.types[routeTemplate.Type]
+                        isLoop = len(oldClientRoute.stops) > 2
+                    
+                        if isLoop and not routeDesc.multiClient():
+                            warningMessage = _("There were transport loops involved in the level removal experiment. Given the restrictions on some route policies with transport, HERMES may have had to deviate from your specified input. It is recommended that you confirm in the <a href='{0}model-edit-structure?id={1}'>HERMES Advanced Editor</a> to ensure that the model has been altered to your desire.".format(rootPath,modelId))    
+                            routeTemplate = copy.copy(oldClientRoute)
+                            routeDesc = shadow_network.ShdRoute.types[routeTemplate.Type]
+                        
+                        
+                        newRouteType = routeTemplate.Type
+                        newRouteConditions = routeTemplate.Conditions
+                        newRoutePerDiem = routeTemplate.PerDiemType
+                        newPUDFreq = routeTemplate.PickupDelayFrequency
+                        newPUDSigma = routeTemplate.PickupDelaySigma
+                        newPUDMag   = routeTemplate.PickupDelayMagnitude
+                        newTruckType = routeTemplate.TruckType
+                        newSID = routeTemplate.ShipIntervalDays
+                        newSLD = routeTemplate.ShipLatencyDays
+                        newPOD = routeTemplate.stops[0].PullOrderAmountDays
+                           
                     elif routeOption == "remlevexpt_frombelow":
                         routeTemplate = copy.copy(oldClientRoute)
-                    elif routeOption =="remlevexpt_custom":
-                        pass
-                    
-                    print routeTemplate
-                    routeDesc = shadow_network.ShdRoute.types[routeTemplate.Type]
-                    isLoop = len(oldSupplierRoute.stops) > 2
-                    
-                
-                    
-                    
-                    if isLoop and not routeDesc.mutliClient():
-                        warningMessage = _("There were transport loops involved in the level removal experiment. Given the restrictions on some route policies with transport, HERMES may have had to deviate from your specified input. It is recommended that you confirm in the <a href='{0}model-edit-structure?id={1}'>HERMES Advanced Editor</a> to ensure that the model has been altered to your desire.".format(rootPath,modelId))
+                        routeDesc = shadow_network.ShdRoute.types[routeTemplate.Type]
+                        newRouteType = routeTemplate.Type
+                        newRouteConditions = routeTemplate.Conditions
+                        newRoutePerDiem = routeTemplate.PerDiemType
+                        newPUDFreq = routeTemplate.PickupDelayFrequency
+                        newPUDSigma = routeTemplate.PickupDelaySigma
+                        newPUDMag   = routeTemplate.PickupDelayMagnitude
+                        newTruckType = routeTemplate.TruckType
+                        newSID = routeTemplate.ShipIntervalDays
+                        newSLD = routeTemplate.ShipLatencyDays
+                        newPOD = routeTemplate.stops[0].PullOrderAmountDays
                         
-                        routeTemplate = copy.copy(oldClientRoute)
+                    elif routeOption == "remlevexpt_custom":
+                        newRouteData = exptData['newRoute']
+                        routeDesc = shadow_network.ShdRoute.types[newRouteData['routeType']]
+                        newRouteType = newRouteData['routeType']
+                        SIDTimeString = newRouteData['shipInterval']
+                        
+                        isLoop = len(oldClientRoute.stops) > 2
+                    
+                        print "routeName = {0}".format(oldClientRoute.RouteName)
+                        print "routeType from Custom = {0}".format(newRouteType)
+                        print "can it be multiclient = {0}".format(routeDesc.multiClient()) 
+                        print "oldClientType = {0}".format(oldClientRoute.Type)
+                        print "Is this a loop: {0}".format(isLoop)
+                        
+                        if isLoop and not routeDesc.multiClient():
+                            warningMessage = _("There were transport loops involved in the level removal experiment. Given the restrictions on some route policies with transport, HERMES may have had to deviate from your specified input. It is recommended that you confirm in the <a href='{0}model-edit-structure?id={1}'>HERMES Advanced Editor</a> to ensure that the model has been altered to your desire.".format(rootPath,modelId))    
+                            newRouteType = oldClientRoute.Type
+                            SIDTimeString = "{0}:D".format(oldClientRoute.ShipIntervalDays)
+                            routeDesc = shadow_network.ShdRoute.types[newRouteData['routeType']]
+                            
+                        
+                        newRouteConditions = ''
+                        newRoutePerDiem = ''
+                        newPUDFreq = 0
+                        newPUDSigma = 0
+                        newPUDMag   = 0
+                        newTruckType = newRouteData['truckType']
+                        SIDTime = SIDTimeString.split(':')
+                        newSID = float(SIDTime[0])
+                        if SIDTime[1] == 'M':
+                            newSID = float(SIDTime[0])*C.daysPerMonth
+                        elif SIDTime[1] == 'Y':
+                            newSID = float(SIDTime[0])*C.daysPerMonth*C.monthsPerYear
+                        
+                        PODTime = newRouteData['pullInterval'].split(":")
+                        if PODTime[1] == 'M':
+                            newPOD = float(PODTime[0])*C.daysPerMonth
+                        elif PODTime[1] == 'Y':
+                            newPOD = float(PODTime[0])*C.daysPerMonth*C.monthsPerYear
+                        newSLD = 0
+                    
+                    print "RouteDesc sup stop = {0}".format(routeDesc.supplierStop())
+                    if routeDesc.supplierStop() == 0:
+                        print "supposedly putting this here"
+                        newSupplierStoresToSetVehicles.add(newSupplierStore.idcode)
+                    else:
+                        newClientStoresToSetVehicles.add(oldClientStore.idcode)
+                       
                     
                     
                     ### create a new route
                     
                     if len(oldClientRoute.stops) > 2:
-                        pass
+                        ### if this is a loop, we know it is push, so this can be simplified
+                        newRoute = [
+                                    {
+                                     'RouteName':'level_loop_remove_{0}_{1}'.format(newSupplierStore.idcode,oldClientStore.idcode),
+                                     'Type':newRouteType,
+                                     'LocName':newSupplierStore.NAME,
+                                     'idcode':newSupplierStore.idcode,
+                                     'RouteOrder':0,
+                                     'ShipIntervalDays':newSID,
+                                     'ShipLatencyDays':newSLD,
+                                     'Conditions': newRouteConditions,
+                                     'PerDiemType': newRoutePerDiem,
+                                     'TruckType': newTruckType,
+                                     'PickupDelayFrequency':newPUDFreq,
+                                     'PickupDelayMagnitude':newPUDMag,
+                                     'PickupDelaySigma':newPUDSigma,
+                                     'PullOrderAmountDays':newPOD,#routeTemplate.stops[0].PullOrderAmountDays,
+                                     'TransitHours':(oldClientRoute.stops[0].TransitHours + oldSupplierRoute.stops[0].TransitHours),
+                                     'DistanceKM':(oldClientRoute.stops[0].DistanceKM + oldSupplierRoute.stops[0].DistanceKM)
+                                     }
+                                    ]
+                        ### now do all of the stops below the supplier
+                        for stop in oldClientRoute.stops[1:-1]:
+                            newRoute.append(
+                                {
+                                 'RouteName':'level_loop_remove_{0}_{1}'.format(newSupplierStore.idcode,oldClientStore.idcode),
+                                 'Type':newRouteType,
+                                 'LocName':stop.store.NAME,
+                                 'idcode':stop.store.idcode,
+                                 'RouteOrder':oldClientRoute.stops.index(stop),
+                                 'ShipIntervalDays':newSID,
+                                 'ShipLatencyDays':newSLD,
+                                 'Conditions': newRouteConditions,
+                                 'PerDiemType': newRoutePerDiem,
+                                 'TruckType': newTruckType,
+                                 'PickupDelayFrequency':newPUDFreq,
+                                 'PickupDelayMagnitude':newPUDMag,
+                                 'PickupDelaySigma':newPUDSigma,
+                                 'PullOrderAmountDays':newPOD,
+                                 'TransitHours':stop.TransitHours,
+                                 'DistanceKM':stop.DistanceKM
+                                }
+                            )
+                        ### now the last stop
+                        newRoute.append(
+                                {
+                                'RouteName':'level_loop_remove_{0}_{1}'.format(newSupplierStore.idcode,oldClientStore.idcode),
+                                'Type':newRouteType,
+                                'LocName':oldClientRoute.stops[-1].store.NAME,
+                                'idcode':oldClientRoute.stops[-1].store.idcode,
+                                'RouteOrder':len(oldClientRoute.stops)-1,
+                                'ShipIntervalDays':newSID,
+                                'ShipLatencyDays':newSLD,
+                                'Conditions': newRouteConditions,
+                                'PerDiemType': newRoutePerDiem,
+                                'TruckType': newTruckType,
+                                'PickupDelayFrequency':newPUDFreq,
+                                'PickupDelayMagnitude':newPUDMag,
+                                'PickupDelaySigma':newPUDSigma,
+                                'PullOrderAmountDays':newPOD,
+                                ### This is definitely approximate, but without internet, or guaranteed geocoordinates, it ain't bad
+                                'TransitHours':(oldClientRoute.stops[-1].TransitHours + oldSupplierRoute.stops[0].TransitHours),
+                                'DistanceKM':(oldClientRoute.stops[-1].DistanceKM + oldSupplierRoute.stops[0].DistanceKM)
+                                 }
+                            )
+                        for stop in newRoute:
+                            print "newRoute {0}: {1}".format(newRoute.index(stop),stop)
                     else:
                         newRoute = []
-                        routeClient = {'RouteName':'level_remove_{0}_{1}'.format(newSupplierStore.idcode,oldClientRoute.stops[routeDesc.firstClientStop()].store.idcode),
-                                     'Type':routeTemplate.Type,
+                        routeClient = {'RouteName':'level_remove_{0}_{1}'.format(newSupplierStore.idcode,oldClientStore.idcode),
+                                     'Type':newRouteType,
                                      'LocName':oldClientStore.NAME,
                                      'idcode':oldClientStore.idcode,
                                      'RouteOrder':routeDesc.firstClientStop(),
-                                     'ShipIntervalDays':routeTemplate.ShipIntervalDays,
-                                     'ShipLatencyDays':routeTemplate.ShipLatencyDays,
-                                     'Conditions': routeTemplate.Conditions,
-                                     'PerDiemType': routeTemplate.PerDiemType,
-                                     'TruckType': routeTemplate.TruckType,
-                                     'PickupDelayFrequency':routeTemplate.PickupDelayFrequency,
-                                     'PickupDelayMagnitude':routeTemplate.PickupDelayMagnitude,
-                                     'PickupDelaySigma':routeTemplate.PickupDelaySigma,
-                                     'PullOrderAmountDays':0,#routeTemplate.stops[0].PullOrderAmountDays,
+                                     'ShipIntervalDays':newSID,
+                                     'ShipLatencyDays':newSLD,
+                                     'Conditions': newRouteConditions,
+                                     'PerDiemType': newRoutePerDiem,
+                                     'TruckType': newTruckType,
+                                     'PickupDelayFrequency':newPUDFreq,
+                                     'PickupDelayMagnitude':newPUDMag,
+                                     'PickupDelaySigma':newPUDSigma,
+                                     'PullOrderAmountDays':newPOD,
                                      'TransitHours':(oldClientRoute.stops[0].TransitHours + oldSupplierRoute.stops[0].TransitHours),
                                      'DistanceKM':(oldClientRoute.stops[0].DistanceKM + oldSupplierRoute.stops[0].DistanceKM)}
-                        routeSup = {'RouteName':'level_remove_{0}_{1}'.format(newSupplierStore.idcode,oldClientRoute.stops[routeDesc.firstClientStop()].store.idcode),
-                                     'Type':routeTemplate.Type,
+                        routeSup = {'RouteName':'level_remove_{0}_{1}'.format(newSupplierStore.idcode,oldClientStore.idcode),
+                                     'Type':newRouteType,
                                      'LocName':newSupplierStore.NAME,
                                      'idcode':newSupplierStore.idcode,
                                      'RouteOrder':routeDesc.supplierStop(),
-                                     'ShipIntervalDays':routeTemplate.ShipIntervalDays,
-                                     'ShipLatencyDays':routeTemplate.ShipLatencyDays,
-                                     'Conditions': routeTemplate.Conditions,
-                                     'PerDiemType': routeTemplate.PerDiemType,
-                                     'TruckType': routeTemplate.TruckType,
-                                     'PickupDelayFrequency':routeTemplate.PickupDelayFrequency,
-                                     'PickupDelayMagnitude':routeTemplate.PickupDelayMagnitude,
-                                     'PickupDelaySigma':routeTemplate.PickupDelaySigma,
-                                     'PullOrderAmountDays':0,#routeTemplate.stops[0].PullOrderAmountDays,
+                                     'ShipIntervalDays':newSID,
+                                     'ShipLatencyDays':newSLD,
+                                     'Conditions': newRouteConditions,
+                                     'PerDiemType': newRoutePerDiem,
+                                     'TruckType': newTruckType,
+                                     'PickupDelayFrequency':newPUDFreq,
+                                     'PickupDelayMagnitude':newPUDMag,
+                                     'PickupDelaySigma':newPUDSigma,
+                                     'PullOrderAmountDays':newPOD,#routeTemplate.stops[0].PullOrderAmountDays,
                                      'TransitHours':(oldClientRoute.stops[0].TransitHours + oldSupplierRoute.stops[0].TransitHours),
                                      'DistanceKM':(oldClientRoute.stops[0].DistanceKM + oldSupplierRoute.stops[0].DistanceKM)}
-                        print "Sup = {0}".format(routeDesc.supplierStop())
+                        #print "Sup = {0}".format(routeDesc.supplierStop())
                         if routeDesc.supplierStop() == 0:
                             newRoute = [routeSup,routeClient]
                         else:
-                            newRoute = [routeClient,routeSup]           
+                            newRoute = [routeClient,routeSup]     
+                        print "New Route0 = {0}".format(newRoute[0])
+                        print "NewRoute1 = {0}".format(newRoute[1])      
                                     
                         
-                        print "Removing Route = {0}".format(oldClientRoute.RouteName)
-                        m.removeRoute(oldClientRoute)
-                        print "New Route0 = {0}".format(newRoute[0])
-                        print "NewRoute1 = {0}".format(newRoute[1])
-                        m.addRoute(newRoute)
-                        #break
-#                         count+=1
-#                         if count == 2:
-#                             break
-                       
-#                     for stop in oldClientRoute.stops:
-#                         print "old stops = {0} {1}".format(stop.store.idcode,stop.RouteOrder)
-#                     ### If this is a loop, then we need to add all of other stops.
-#                     for stop in oldClientRoute.stops[1:]:
-#                         if stop == oldClientRoute.stops[-1]:
-#                             transitHours = (oldClientRoute.stops[-1].TransitHours + oldSupplierRoute.stops[0].TransitHours)
-#                             distanceKM = (oldClientRoute.stops[-1].DistanceKM + oldSupplierRoute.stops[0].DistanceKM)
-#                         else:
-#                             transitHours = stop.TransitHours
-#                             distanceKM = stop.DistanceKM
-#                         
-#                         print "storeStop = {0}".format(stop.store.idcode)
-#                         newRoute.append({
-#                                          'RouteName':'level_remove_{0}_{1}'.format(newSupplierStore.idcode,oldClientRoute.stops[1].store.idcode),
-#                                          'Type': routeTemplate.Type,
-#                                          'LocName':stop.store.NAME,
-#                                          'idcode':stop.store.idcode,
-#                                          'RouteOrder':stop.RouteOrder,
-#                                          'ShipIntervalDays':routeTemplate.ShipIntervalDays,
-#                                          'ShipLatencyDays':routeTemplate.ShipLatencyDays,
-#                                          'Conditions': routeTemplate.Conditions,
-#                                          'PerDiemType': routeTemplate.PerDiemType,
-#                                          'TruckType': routeTemplate.TruckType,
-#                                          'PickupDelayFrequency':routeTemplate.PickupDelayFrequency,
-#                                          'PickupDelayMagnitude':routeTemplate.PickupDelayMagnitude,
-#                                          'PickupDelaySigma':routeTemplate.PickupDelaySigma,
-#                                          'PullOrderAmountDays':stop.PullOrderAmountDays,
-#                                          'TransitHours':transitHours,
-#                                          'DistanceKM':distanceKM
-#                                          }
-#                                         )
-#                 
-#         
-#                     print "New Route0 = {0}".format(newRoute[0])
-#                     print "NewRoute1 = {0}".format(newRoute[1])
-#                     #### Create the new route and remove the old routes
-#                     #routesToRemove.append(oldSupplierRoute,oldClientRout)
-#                     #m.removeRoute(oldSupplierRoute)
+                    print "Removing Route = {0}".format(oldClientRoute.RouteName)
+                    m.removeRoute(oldClientRoute)
                     
-                    
+                    m.addRoute(newRoute)
+                        
                 ### Still need to figure out what to do with the original store
                 
-#                 if not store.isVaccinating():
+                if not store.isVaccinating():
 #                     ### We should keep it
-#                     print "Removing {0}".format(oldSupplierRoute.RouteName)
-#                     m.removeRoute(oldSupplierRoute)
-#                     print "Removing {0}".format(store.idcode)
-#                     m.removeStore(store)
+                    print "Removing {0}".format(oldSupplierRoute.RouteName)
+                    m.removeRoute(oldSupplierRoute)
+                    print "Removing {0}".format(store.idcode)
+                    m.removeStore(store)
             
+            ### Need to set new Shipping Network Latencies
+            setLatenciesByNetworkPosition(m,2,limitDays=C.daysPerMonth,stagger=True)
+            print "Set Latencies"
+            setUseVialLatenciesAsOffsetOfShipLatencyFromRoute(m,offset=1.0)
+            print "Set V Latencies"
             
+            print "newSup = {0}".format(newSupplierStoresToSetVehicles)
+            print "newClient = {0}".format(newClientStoresToSetVehicles)
+            ## Approximate the new vehicle count by having one vehicle
+            for storeId in newSupplierStoresToSetVehicles:
+                store = m.stores[storeId]
+                
+                truckCount = store.getRouteTruckCount()
+                print "Truck Count for {0}:{1}".format(store.idcode,truckCount)
+                
+                ## First eliminate vehicles we no longer need
+                
+                currentTruckCount = store.countTransport()
+                print "CurrentTruckCount = {0}".format(currentTruckCount)
+                for t,c in currentTruckCount.items():
+                    if t not in truckCount['total'].keys():
+                        store.updateInventory(t,0)
+                 
+                for truck,count in truckCount['total'].items():
+                    thisTruckCount = store.countInventory(truck)
+                    neededTrucks = math.ceil(float(count)/2.0/C.daysPerMonth)
+                    print "have: {0} needed: {1}".format(thisTruckCount,neededTrucks)
+                    if thisTruckCount == 0:
+                        store.addInventory(truck,neededTrucks)
+                    else:
+                        store.updateInventory(truck,neededTrucks)
+                 
+                 
+            for storeId in newClientStoresToSetVehicles:
+                store = m.stores[storeId]
+                ### only need to make sure that we have a vehicle for the supplier Route
+                truckCount = store.getRouteTruckCount()
+                
+                ### elminate vehicles that are no longer needed
+                currentTruckCount = store.countTransport()
+                
+                for t,c in currentTruckCount.items():
+                    if t not in truckCount['total'].keys():
+                        store.updateInventory(t,0)
+                
+                for truck,count in truckCount['supplierRoutes'].items(): # will only be on
+                    thisTruckCount = store.countInventory(truck)
+                    if thisTruckCount == 0:
+                        store.addInventory(truck,1)
+                        
             db.commit()
             return {'success':True,'warnings':warningMessage} 
         except Exception,e:

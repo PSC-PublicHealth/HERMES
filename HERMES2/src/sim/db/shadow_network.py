@@ -826,6 +826,9 @@ class ShdStore(Base, ShdCopyable):
             invDict[inv.invName] = inv.count
         return invDict
 
+    def countTransport(self):
+        return {self._invName(x.invType):x.count for x in self.inventory if type(x.invType) == ShdTruckType}
+    
     def clearInventory(self):
         del self.inventory[:]
     
@@ -1012,6 +1015,28 @@ class ShdStore(Base, ShdCopyable):
             return
         self.relatedStops.remove(stop)
 
+    def getRouteTruckCount(self):
+        ### This function assumes one client per store
+        
+        returnCountDict = {'supplierRoutes':collections.defaultdict(int),'clientRoutes':collections.defaultdict(int),'total':collections.defaultdict(int)}
+        
+        for cR in self.clientRoutes():
+            if cR.Type == "attached":
+                continue
+            routeDesc = ShdRoute.types[cR.Type]
+            if routeDesc.supplierStop() == 0:
+                returnCountDict['clientRoutes'][cR.TruckType] += 1
+                returnCountDict['total'][cR.TruckType] += 1
+        
+        if self.supplierRoute():
+            sR = self.supplierRoute()
+            routeDesc = ShdRoute.types[sR.Type]
+            if routeDesc.supplierStop() == 1:
+                returnCountDict['supplierRoutes'][sR.TruckType] += 1
+                returnCountDict['total'][sR.TruckType] += 1
+        
+        return returnCountDict
+       
     def isAttached(self):
         if self.supplierRoute() is None:
             return False
@@ -1195,7 +1220,7 @@ class RouteTypeDescriptor():
 
     def multiClient(self):
         "returns true if multiple clients are allowed"
-        return self._isScheduled
+        return self._isScheduled and self._supplierStop == 0
     
     def isAttached(self):
         return self._keyword == 'attached' # In case we create more types of attachment
