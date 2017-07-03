@@ -2481,7 +2481,61 @@ def jsonGetModelLevelsSansClientsAndRoot(db,uiSession):
         result = {'success':False, 'msg':str(e)}
         return result
    
+
+@bottle.route('/json/get-levels-sans-clients')
+def jsonGetModelLevelsSansClients(db,uiSession):
+    import operator
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        levelsToReturn = []
+        
+        for storeId,store in m.stores.items():
+            if store.CATEGORY not in levelsToReturn:
+            ## Check if this is a root store
+                for cR in store.clientRoutes():
+                    if cR.Type != 'attached':
+                        allAttached = False
+                        levelsToReturn.append(store.CATEGORY)
+                        break
+        levelCounts = {x:0 for x in levelsToReturn}
+        for storeId,store in m.stores.items():
+            if store.CATEGORY in levelsToReturn:
+                levelCounts[store.CATEGORY]+=1
+        
+        sortedCount = [x[0] for x in sorted(levelCounts.iteritems(),key=operator.itemgetter(1))]
+        return {'success':True,'levels':sortedCount}
     
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+    
+@bottle.route('/json/get-levels-below-level')
+def jsonGetModelLevelsBelowLevel(db,uiSession):
+    import operator
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        levelStart = _getOrThrowError(bottle.request.params,'level')
+        
+        
+        levelsToReturn = []
+        
+        levels = m.getLevelList()
+        
+        levelPivot = levels.index(levelStart)
+        sortedCount = levels[levelPivot+1:]
+        return {'success':True,'levels':sortedCount}
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+
 @bottle.route('/json/get-levels-between-routes-in-model')
 def jsonGetModelLevelsBetweenRoutes(db,uiSession):
     import operator

@@ -38,25 +38,30 @@ import string
 _poissonApproxLimit= 50
 
 def getGoogleDirectionsDistanceLatLon(lat1,lng1,lat2,lng2,fallback=True,factor=1.60,speed=50,debug=False):
-    import simplejson,urllib,time
+    import json,urllib,time
     
     result = {}
-    if not debug:
+    reachable = True
+    ### test if google is reachable
+    if debug:
+        distance = longitudeLatitudeSep(lng1,lat1,lng2,lat2)*factor
+        return (distance,distance/speed) 
+    try:    
         url = 'http://maps.googleapis.com/maps/api/directions/json?origin='+\
     	  str(lat1)+','+str(lng1)+'&destination='+str(lat2)+','+str(lng2)+'&sensor=false'
-        result = simplejson.load(urllib.urlopen(url))
+        result = json.load(urllib.urlopen(url))
         #print url
         #print result['status']
         time.sleep(1.5)
-    else:
-        result['status'] = 'fubar'
-    if result['status'] != "OK":
-        print "%f,%f: %f,%f"%(lat1,lng1,lat2,lng2)
-        print "Result is not ok" + str(result)
+        if result['status'] != "OK":
+            raise 
+        return (float(result['routes'][0]['legs'][0]['distance']['value'])/1000.0,float(result['routes'][0]['legs'][0]['duration']['value'])/3600.0)
+    except Exception,e:
+        #print "%f,%f: %f,%f"%(lat1,lng1,lat2,lng2)
+        #print "Result is not ok" + str(result)
         distance = longitudeLatitudeSep(lng1,lat1,lng2,lat2)*factor
         return (distance,distance/speed)
-    else:
-        return (float(result['routes'][0]['legs'][0]['distance']['value'])/1000.0,float(result['routes'][0]['legs'][0]['duration']['value'])/3600.0)
+        
 
 def longitudeLatitudeSep(lon1,lat1,lon2,lat2):
     "Inputs are in floating point degrees.  Returns separation in kilometers"
@@ -79,6 +84,7 @@ def longitudeLatitudeSep(lon1,lat1,lon2,lat2):
             (lon1,lat1,lon2,lat2,lat1r,lat2r,a,b)
         raise e
     R= 6378. # radius of earth in km; in miles it's 3963.189
+    #print "Returning = {0}".format(R*c)
     return R*c
 
 def _castToFloatHighWater(v):

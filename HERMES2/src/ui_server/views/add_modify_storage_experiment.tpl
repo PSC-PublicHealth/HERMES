@@ -179,7 +179,17 @@
 			{{_("Please click the Next button above to complete the experiment")}}
 		</div>
 	</div>
-	<div id="addstoreexpt_slide6" class='addstorept_slide'>
+	<div id='addstorexpt_slide5' class='remlevexpt_slide'>
+		<div id='addstorexpt_implementing' style="display:none;">
+			<div id='addstorexpt_implementing_text' class='expt_subtitle'>
+				{{_("HERMES is implementing your experiment.")}}
+			</div>
+			<div id='implementing_gif'>
+				<img src="{{rootPath}}static/images/kloader.gif">
+			</div>
+		</div>
+	</div>
+	<div id="addstoreexpt_slide7" class='addstorept_slide'>
 		<div id="addstorexpt_final_links_div">
 			<span class='expt_subtitle'>
 				{{_('Below are some additional actions that you may want to perform on your newly modified model:')}}
@@ -238,8 +248,43 @@ $("#addstorexpt_slides").slideShowWithFlowControl({
 	            	   return true;
 	               },
 	               function(){	            	   
-	            	   implementExperiment();
+	            	   $("#addstorexpt_implementing").fadeIn(1000);
+	            	   //$("#addstorexpt_slides").slideShowWithFlowControl("hideButton","back");
+	            	  //$("#addstorexpt_slides").slideShowWithFlowControl("hideButton","next");
+					   $("#addstorexpt_slides").slideShowWithFlowControl("hideButtons");
+	            	   implementExperiment()
+		            		.done(function(results){
+		            			if(results.success){	
+		            				var count = 0;
+		            				if(results.warnings != ''){
+		            					htmlString = "<div class='expt_subtitle'>{{_('Note there were warnings with the experiment.')}}</div>";
+		            					htmlString += "<div class='expt_text'>"+results.warnings+"</div>";
+		            					$("#addstorexpt_implement_warnings").html(htmlString);
+		            					$("#addstorsexpt_implement_warnings").show();
+		            				}
+		     	            	   	var x = setInterval(function(){
+		     	            	   		count++;
+		     	            	   		console.log(count);
+		     	            	   		if(count == 5){	     	           
+		     	            	   			$("#addstorexpt_slides").slideShowWithFlowControl("nextSlide");
+		     	            	   			$("#addstorexpt_slides").slideShowWithFlowControl("showButtons");
+		     	            	   			clearInterval(x);
+		     	            	   		}
+		     	            	   	},1000); 
+		            				
+		            			}
+		            			else{
+		            				alert("{{_('There was a problem implementing the modifying storage devices experiment: ')}}" + results.msg);
+		            			}
+		            		})
+		            		.fail(function(jqxhr,textStatus,error){
+		            			alert("{{_('There was a failure implementing the modifying storage devices experiment: ')}}" + jqxhr.responseText);
+		            		});
+	            	    
 	            	   return true;
+	               },
+	               function(){
+	            	  return true;
 	               }
 	              ],
 	backFunctions:[
@@ -248,6 +293,7 @@ $("#addstorexpt_slides").slideShowWithFlowControl({
 	            	   //$("#addstorexpt_slides").slideShowWithFlowControl("activateButton","next");
 	            	   return true;
 	               },
+	               function(){return true;},
 	               function(){return true;},
 	               function(){return true;},
 	               function(){return true;}
@@ -404,24 +450,24 @@ function implementExperiment(){
 		
 	console.log(dataObject);
 	
-	$.ajax({
+	return $.ajax({
 		url:{{rootPath}}+"json/add_storage_experiment_implement",
 		data:{
 			modelId:{{modelId}},
 			data:JSON.stringify(dataObject)
 		}
-	})
-	.done(function(results){
-		if(results.success){
-			
-		}
-		else{
-			alert("{{_('There was a problem implementing the add storage experiment: ')}}" + results.msg);
-		}
-	})
-	.fail(function(jqxhr,textStatus,error){
-		alert("{{_('There was a failure implementing the add storage experiment: ')}}" + jqxhr.responseText);
-	});
+	}).promise();
+//	.done(function(results){
+//		if(results.success){
+//			
+//		}
+//		else{
+//			alert("{{_('There was a problem implementing the add storage experiment: ')}}" + results.msg);
+//		}
+//	})
+//	.fail(function(jqxhr,textStatus,error){
+//		alert("{{_('There was a failure implementing the add storage experiment: ')}}" + jqxhr.responseText);
+//	});
 		
 }
 </script>

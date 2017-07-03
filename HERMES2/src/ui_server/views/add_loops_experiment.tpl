@@ -26,13 +26,16 @@
 <script src="{{rootPath}}widgets/supply_chain_level_selector_widget.js" type="text/javascript"></script>
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/widget_css//between_supply_chain_level_selector_widget.css" />
 <script src="{{rootPath}}widgets/between_supply_chain_level_selector_widget.js" type="text/javascript"></script>
+<script src="{{rootPath}}widgets/model_copy_dialog_widget.js" type="text/javascript"></script>
 
 <style>
-.modrouteexpt_level_select_opts_level {
+.addloopsexpt_level_select_opts_level {
 	width: 940px;
 	text-align: left;
 }
 </style>
+<div id='addloopsexpt_copyModelDialog'></div>
+<div id='addloopsexpt_testDialog'></div>
 
 <h2>{{_("HERMES Experiment Generator: Add Transport Loops To Supply Chain")}}</h2>
 <div id="addloopsexpt_slides">
@@ -56,12 +59,22 @@
 	</div>
 	<div id='addloopsexpt_slide2' class='addloopsexpt_slide'>
 		<div class="flex_cols">
-			<div class="expt_txt">
-				<p class='expt_text'>
-					{{_('Please select below the two levels between which you would like to produce transport loops between.')}}
-				</p>
+			<div id='addloopsexpt_level_start_div'>
+				<div class="expt_text">
+					<p class='expt_text'>
+						{{_('Please select below the level you at which you would like to start the transport loops.')}}
+					</p>
+				</div>
+				<div id='addloopsexpt_level_start'></div>
 			</div>
-			<div id='addloopsexpt_between_level_select'></div>
+			<div id='addloopsexpt_level_end_div' style='display:none;'>
+				<div class="expt_text">
+					<p class='expt_text'>
+						{{_('Please select below the level you at which you would like to start the transport loops.')}}
+					</p>
+				</div>
+				<div id='addloopsexpt_level_end'></div>
+			</div>			
 		</div>
 	</div>
 	<div id='addloopsexpt_slide3' class='addloopsexpt_slide'>
@@ -85,7 +98,7 @@
 						<td class='expt_text'>
 							{{_("Tranport Component to be Used for Loops")}}
 						</td>
-						<td class='expt_text'>
+						<td>
 							<div id="vehicle_select_box"></div>
 						</td>
 					</tr>
@@ -99,12 +112,19 @@
 				{{_('Add Transport Loops Experiment Summary')}}
 			</span>
 		</div>
-		<div id='addloopsexpt_summary_div'></div>
-		<div id='addloopsexpt_click_next" class='expt_text'>
-			{{_("Please click the Next button above to complete the experiment")}}
+		<div class='expt_text' id='addloopsexpt_summary_div'></div>
+	</div>
+	<div id='addloopsexpt_slide5' class='remlevexpt_slide'>
+		<div id='addloopsexpt_implementing' style="display:none;">
+			<div id='addloopsexpt_implementing_text' class='expt_subtitle'>
+				{{_("HERMES is implementing your experiment.")}}
+			</div>
+			<div id='implementing_gif'>
+				<img src="{{rootPath}}static/images/kloader.gif">
+			</div>
 		</div>
 	</div>
-	<div id='addloopsexpt_slide5' class='modrouteexpt_slide'>
+	<div id='addloopsexpt_slide6' class='modrouteexpt_slide'>
 		<div id="addloopsexpt_final_links_div">	
 			<span class='expt_subtitle'>
 				{{_('Below are some additional actions that you may want to perform on your newly modified model:')}}
@@ -139,6 +159,7 @@
 </div>
 	
 <script>
+
 $("#addloopsexpt_slides").slideShowWithFlowControl({
 	width: 1200,
 	height: 500,
@@ -157,10 +178,49 @@ $("#addloopsexpt_slides").slideShowWithFlowControl({
 					   return true;
 				   },
 				   function(){
+					   $("#addloopsexpt_implementing").fadeIn(1000);
+	            	   //$("#addloopsexpt_slides").slideShowWithFlowControl("hideButton","back");
+	            	  //$("#addloopsexpt_slides").slideShowWithFlowControl("hideButton","next");
+					   $("#addloopsexpt_slides").slideShowWithFlowControl("hideButtons");
+	            	   implementExperiment()
+		            		.done(function(results){
+		            			if(results.success){	
+		            				var count = 0;
+		            				if(results.warnings != ''){
+		            					htmlString = "<div class='expt_subtitle'>{{_('Note there were warnings with the experiment.')}}</div>";
+		            					htmlString += "<div class='expt_text'>"+results.warnings+"</div>";
+		            					$("#addloopsexpt_implement_warnings").html(htmlString);
+		            					$("#addloopsexpt_implement_warnings").show();
+		            				}
+		     	            	   	var x = setInterval(function(){
+		     	            	   		count++;
+		     	            	   		console.log(count);	
+		     	            	   		if(count == 1){
+		     	            	   			$("#addloopsexpt_slides").slideShowWithFlowControl("nextSlide");
+		     	            	   			$("#addloopsexpt_slides").slideShowWithFlowControl("showButtons");
+		     	            	   			clearInterval(x);
+		     	            	   		}
+		     	            	   	},1000); 
+		            				
+		            			}
+		            			else{
+		            				alert("{{_('There was a problem implementing the adding transport loops experiment: ')}}" + results.msg);
+		            			}
+		            		})
+		            		.fail(function(jqxhr,textStatus,error){
+		            			alert("{{_('There was a failure implementing the adding transport loops experiment: ')}}" + jqxhr.responseText);
+		            		});
+	            	    
+					   return true;
+				   },
+				   function(){
 					   return true;
 				   }
 	               ],
 	backFunctions:[
+					function(){
+						   return true;
+					},
 					function(){
 						   return true;
 					},
@@ -178,14 +238,36 @@ $("#addloopsexpt_slides").slideShowWithFlowControl({
 	doneUrl: '{{rootPath}}model-open?modelId={{modelId}}'
 });
 
-$("#addloopsexpt_between_level_select").betweenSupplyChainLevelSelector({
+$("#addloopsexpt_level_start").supplyChainLevelSelector({
 	modelId:{{modelId}},
 	labelClass:'addloopsexpt_level_select_opts_level',
-	includeLoops:false,
+	excludeClients:true,
+	type:'radioSelect',
 	onChangeFunc: function(){
-		$("#addloopsexpt_slides").slideShowWithFlowControl("activateButton","next");
+		
+		//console.log("LEVLE = "+ $("#addloopsexpt_level_start").supplyChainLevelSelector("getSelectedParsed"));
+		var divBackup = $("#addloopsexpt_level_end");
+		var parentDiv = $("#addloopsexpt_level_end").parent();
+		parentDiv.fadeOut(400,
+				function(){
+				$("#addloopsexpt_level_end").remove();
+				parentDiv.append(divBackup);
+				$("#addloopsexpt_level_end").supplyChainLevelSelector({
+					modelId:{{modelId}},
+					labelClass:'addloopsexpt_level_select_opts_level',
+					belowLevel:$("#addloopsexpt_level_start").supplyChainLevelSelector("getSelectedParsed"),
+					type:'radioSelect',
+					addOptions:[{'option':'{{_("All Locations Below")}}','value':'all'}],
+					onChangeFunc: function(){
+						$("#addloopsexpt_slides").slideShowWithFlowControl("activateButton","next");
+					}
+				});
+				parentDiv.fadeIn(400);
+			});
+		//$("#addloopsexpt_slides").slideShowWithFlowControl("activateButton","next");
 	}
 });
+
 
 $("#vehicle_select_box").hrmWidget({
 	widget:'simpleTypeSelectField',
@@ -196,12 +278,17 @@ $("#vehicle_select_box").hrmWidget({
 	persistent:true
 });
 
+function createDataObject(){
+	return {
+			'levelStart':$("#addloopsexpt_level_start").supplyChainLevelSelector("getSelectedParsed"),
+			'levelEnd':$("#addloopsexpt_level_end").supplyChainLevelSelector("getSelectedParsed"),
+			'maximumLocations':$('#number_per_loop_input').val(),
+			'vehicleToUse': $('#vehicle_select_box').simpleTypeSelectField("value")
+		};
+}
+
 function create_summary(){
-	var dataObject = {'levelsBetween':$("#addloopsexpt_between_level_select").betweenSupplyChainLevelSelector("getSelected"),
-					  'levelsBetweenParsed':$("#addloopsexpt_between_level_select").betweenSupplyChainLevelSelector("getSelectedParsed"),
-					  'maximumLocations':$('#number_per_loop_input').val(),
-					  'vehicleToUse': $('#vehicle_select_box').simpleTypeSelectField("value")
-					};
+	var dataObject = createDataObject();
 	
 	console.log(dataObject);
 	
@@ -224,5 +311,21 @@ function create_summary(){
 		alert("{{_('There was a failure in getting the summary text for the add loops experiment: ')}}" + jqxhr.responseText);
 	});
 	
+}
+
+function implementExperiment(){
+	var dataObject = createDataObject();
+	
+	console.log(dataObject);
+	
+	return $.ajax({
+		url:{{rootPath}}+"json/add_loops_experiment_implement",
+		data:{
+			modelId:{{modelId}},
+			data:JSON.stringify(dataObject)
+		}
+	}).promise();
+
+		
 }
 </script>
