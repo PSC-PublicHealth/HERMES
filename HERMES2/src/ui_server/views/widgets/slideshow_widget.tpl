@@ -322,7 +322,7 @@
 				$(this).addClass(thisContainerId + "_slide_"+slideCount);
 				slideCount++;
 			});
-			$("#"+thisContainerId).prepend("<div class='flex_rows'><div id='" + thisContainerId + "_buttons' class='slideshow_button_cont'>"
+			$("#"+thisContainerId).prepend("<div class='slideshow_button_div'><div id='" + thisContainerId + "_buttons' class='slideshow_button_cont'>"
 					+ "<button id='"+ backButtonId + "' class='slide_button_deact' >{{_('Back')}}</button>"
 					+ "<button id='"+ nextButtonId + "' class='slide_button_deact' >{{_('Next')}}</button>"
 					+ "<button id='"+ doneButtonId + "' class='slide_button_deact'>{{_('Done')}}</button>"
