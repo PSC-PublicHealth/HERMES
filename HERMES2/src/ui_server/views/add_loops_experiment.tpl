@@ -44,18 +44,48 @@
 			{{_('Description of Adding Transport Loops Experiments')}}
 		</span>
 		<p class='expt_text'>
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
+			{{_('Many supply chains utilize transport routes that start at one location and visit multiple locations before returning to its origin. This type of shipping route is known as a "loop".')}}
+			{{_('Loops can be more efficient and provide more reliable shipping of products because they require maintaining a smaller fleet vehicles that can potentially travel less distance and providing a more regular shipping pattern.')}}
+			{{_('Potentially, transport loops require larger vehicles which may be more costly to operate and maintain and may incur per diem costs as the routes can become quite long.')}}
+			{{_('Modeling can help you to understand these tradeoffs and where and when transport loops may make sense for your supply chain.')}}
 		</p>
 		<p class='expt_text'>
 			{{_('This experiment will take you through a series of screens that will ask you between which supply chain levels you would like to create transport loops between,')}}
 			{{_(' the number of locations per transport loop, and the vehicle that you would like to use for each transport loop and then HERMES will automatically create transport loops for the model based on the shortest distance.')}}
-		</p>	
-		<p class='expt_emph'> 
-			{{_('Please press the "Next" button to continue.')}}
 		</p>
+		<br><hr><br>
+		<p class='expt_text'>
+		{{_('Below are some example publications where the addition of transport loops in supply chains is explored with HERMES modeling: ')}}
+		<ul class='proper_ul'>
+			<li>
+				<a href = "https://www.ncbi.nlm.nih.gov/pubmed/24814550" target="blank">
+					Brown ST, Schreiber B, Cakouros BE, Wateska AR, Dicko HM, Connor DL, Jaillard P, Mvundura M, Norman BA, 
+					Levin C, Rajgopal J, Avella M, Lebrun C, Claypool E, Paul P, Lee BY. 
+					{{_("The benefits of redesigning Benin's vaccine supply chain.")}}
+					<em>Vaccine</em>. 2014 Jul 7;32(32):4097-103. doi: 10.1016/j.vaccine.2014.04.090. Epub 2014 May 9. PubMed PMID: 24814550.
+				</a>
+			</li>
+			<li>
+				<a href = "https://www.ncbi.nlm.nih.gov/pubmed/26209835">
+					Lee BY, Connor DL, Wateska AR, Norman BA, Rajgopal J, Cakouros BE, Chen SI,
+					Claypool EG, Haidari LA, Karir V, Leonard J, Mueller LE, Paul P, Schmitz MM,
+					Welling JS, Weng YT, Brown ST. 
+					{{_('Landscaping the structures of GAVI country vaccine supply chains and testing the effects of radical redesign.')}}
+					<em>Vaccine</em>. 2015 Aug
+					26;33(36):4451-8. doi: 10.1016/j.vaccine.2015.07.033. Epub 2015 Jul 23. PubMed
+					PMID: 26209835.
+				</a>
+			</li>
+			<li>
+				<a href = "https://www.ncbi.nlm.nih.gov/pubmed/27576077" target="blank">
+				Lee BY, Haidari LA, Prosser W, Connor DL, Bechtel R, Dipuve A, Kassim H,
+				Khanlawia B, Brown ST. 
+				{{_('Re-designing the Mozambique vaccine supply chain to improve access to vaccines.')}}
+				<em>Vaccine</em>. 2016 Sep 22;34(41):4998-5004. doi:
+				10.1016/j.vaccine.2016.08.036. Epub 2016 Aug 26. PubMed PMID: 27576077.
+				</a>
+			</li>
+		</ul>
 	</div>
 	<div id='addloopsexpt_slide2' class='addloopsexpt_slide'>
 		<div class="flex_cols">

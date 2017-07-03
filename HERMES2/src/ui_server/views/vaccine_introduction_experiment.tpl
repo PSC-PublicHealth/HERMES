@@ -68,7 +68,7 @@
 		</p>	
 		<br><hr><br>
 		<p class='expt_text'>
-		{{_('Below are some example publications where the removing of a supply chain level is explored with HERMES modeling: ')}}
+		{{_('Below are some example publications where the introduction or one or more vaccines to the supply chain is explored with HERMES modeling: ')}}
 		<ul class='proper_ul'>
 			<li>
 				<a href="https://www.ncbi.nlm.nih.gov/pubmed/21940923" target="blank">
