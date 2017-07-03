@@ -53,7 +53,7 @@
 		</p>	
 		<br><hr><br>
 		<p class='expt_text'>
-			{{_('Below are some example publications where the removing of a supply chain level is explored with HERMES modeling: ')}}
+			{{_('Below are some example publications where modifying transport route characteristics in a supply chain is explored with HERMES modeling: ')}}
 			<ul class='proper_ul'>
 				<li>
 					<a href="https://www.ncbi.nlm.nih.gov/pubmed/27340098" target="blank">
