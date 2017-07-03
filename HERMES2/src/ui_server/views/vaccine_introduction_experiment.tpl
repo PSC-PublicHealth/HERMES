@@ -58,18 +58,49 @@
 			{{_('Description of the Vaccine Introduction Experiments')}}
 		</span>
 		<p class='expt_text'>
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
+			{{_('Many countries stuggle with having their current supply chains delivering new vaccines that have the potential to prevent illness and save lives.')}}
+			{{_("If the supply chain has not been planned with adequate storage and transport capacity to handle the increased amounts and volume that result from adding vaccines to the country's schedule, performance and efficiency may suffer.")}}
+			{{_("Modeling can help you plan for a vaccine introduction by helping choose an appropriate presentation, vaccine dose schedule, and determine the increases in storage and transport capacity that are needed.")}}
 		</p>
 		<p class='expt_text'>
 			{{_('This experiment will take you through a series of screens that will allow you define new vaccines that you would like to introduce into the supply chain and the appropriate vaccine dose schedule for the new vaccines.')}}
-			{{_('Once specified, HERMES will automatically create a new model that will allow you to run simulations to assess the impact of the additional vaccines.')}}}
+			{{_('Once specified, HERMES will automatically create a new model that will allow you to run simulations to assess the impact of the additional vaccines.')}}
 		</p>	
-		<p class='expt_emph'> 
-			{{_('Please press the "Next" button to continue.')}}
-		</p>
+		<br><hr><br>
+		<p class='expt_text'>
+		{{_('Below are some example publications where the removing of a supply chain level is explored with HERMES modeling: ')}}
+		<ul class='proper_ul'>
+			<li>
+				<a href="https://www.ncbi.nlm.nih.gov/pubmed/21940923" target="blank">
+					 Lee BY, Assi TM, Rajgopal J, Norman BA, Chen SI, Brown ST, Slayton RB, Kone S, Kenea H, Welling JS, 
+					 Connor DL, Wateska AR, Jana A, Wiringa AE, Van Panhuis WG, Burke DS. 
+					 {{_('Impact of introducing the pneumococcal and rotavirus vaccines into the routine immunization program in Niger.')}}
+					 <em>Am J Public Health.</em> 2012
+					 Feb;102(2):269-76. doi: 10.2105/AJPH.2011.300218. Epub 2011 Nov 28. PubMed PMID: 
+					 21940923; PubMed Central PMCID: PMC3386610.
+				 </a>
+			</li>
+			<li>
+				<a href = "https://www.ncbi.nlm.nih.gov/pubmed/21931805" target="blank">
+					Lee BY, Assi TM, Rookkapan K, Wateska AR, Rajgopal J, Sornsrivichai V, Chen
+					SI, Brown ST, Welling J, Norman BA, Connor DL, Bailey RR, Jana A, Van Panhuis WG,
+					Burke DS. 
+					{{_("Maintaining vaccine delivery following the introduction of the rotavirus and pneumococcal vaccines in Thailand.")}}
+					<em>PLoS One.</em> 2011;6(9):e24673. doi:
+					10.1371/journal.pone.0024673. Epub 2011 Sep 13. PubMed PMID: 21931805; PubMed
+					Central PMCID: PMC3172252.
+				</a>
+			</li>
+			<li>
+				<a href = "https://www.ncbi.nlm.nih.gov/pubmed/24814550" target="blank">
+					Brown ST, Schreiber B, Cakouros BE, Wateska AR, Dicko HM, Connor DL, Jaillard P, Mvundura M, Norman BA, 
+					Levin C, Rajgopal J, Avella M, Lebrun C, Claypool E, Paul P, Lee BY. 
+					{{_("The benefits of redesigning Benin's vaccine supply chain.")}}
+					<em>Vaccine</em>. 2014 Jul 7;32(32):4097-103. doi: 10.1016/j.vaccine.2014.04.090. Epub 2014 May 9. PubMed PMID: 24814550.
+				</a>
+			</li>
+		</ul>
+	</p>
 	</div>
 	<div id="addvacexpt_slide2" class='addvacexpt_slide'>
 		<div class="tri_div_top" class='expt_txt'>
@@ -110,7 +141,7 @@
 
 $("#addvacexpt_slides").slideShowWithFlowControl({
 	width: 1200,
-	height: 500,
+	height: 600,
 	activateNext:true,
 	nextFunctions:[
 	               function(){
