@@ -170,6 +170,7 @@ var loopsBut = $("#add_loops_button").button();
 
 $(".expt_butt").click(function(){
 	experiment_post = $(this).attr('id').replace("_button","");
+	//if(experiment_post != "add_loops"){
 	$("#expt_model_copy_dialog").copyModelDialog({
 		modelId:{{modelId}},
 		name: "{{modelName}}",
@@ -179,6 +180,10 @@ $(".expt_butt").click(function(){
 		autoOpen: true,
 		resultUrl: '{{rootPath}}'+experiment_post
 	});
+//	}
+//	else{
+//		window.location = "{{rootPath}}"+ experiment_post + "_experiment?modelId={{modelId}}";
+//	}
 });
 
 
