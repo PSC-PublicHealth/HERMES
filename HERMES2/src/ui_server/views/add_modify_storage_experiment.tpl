@@ -67,19 +67,52 @@
 			{{_('Description of Add/Modify Storage by Level  Experiments')}}
 		</span>
 		<p class='expt_text'>
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
+			{{_('One of the central components of any supply chain is storage.')}}  
+			{{_('The characteristics of storage devices such as net storage capacity, temperature of storage, and costs may have a significant impact of the performance and efficiency of the supply chain.')}}
+			{{_('Modeling can help you decide what storage devices are appropriate for your supply chain at which supply chain level.')}}
 		</p>
 		<p class='expt_text'>
 			{{_("This experiment will take you through a series of screens that will allow you to augment or swap out the storage devices for an entire supply chain level.")}}
 			{{_("You will be asked which supply chain level you would like to alter, whether you would like to add devices or completely replace devices, or replace a certain device at that level.")}}
 			{{_("Then you will be able to specify what compliment of storage devices you would like to use and then HERMES will automatically create a new model based on your input.")}}
 		</p>	
-		<p class='expt_emph'> 
-			{{_('Please press the "Next" button to continue.')}}
-		</p>
+		<br><hr><br>
+		<p class='expt_text'>
+		{{_('Below are some example publications where the removing of a supply chain level is explored with HERMES modeling: ')}}
+		<ul class='proper_ul'>
+			<li>
+				<a href="https://www.ncbi.nlm.nih.gov/pubmed/23717590" target="blank">
+				Haidari LA, Connor DL, Wateska AR, Brown ST, Mueller LE, Norman BA, Schmitz
+				MM, Paul P, Rajgopal J, Welling JS, Leonard J, Chen SI, Lee BY. 
+				{{_("Augmenting transport versus increasing cold storage to improve vaccine supply chains.")}}
+				<em>PLos One.</em> 2013 May 22;8(5):e64303. doi: 10.1371/journal.pone.0064303. Print 2013.
+				Erratum in: PLoS One. 2013;8(12).
+				doi:10.1371/annotation/b428dad2-e829-4289-acae-c44369d55a80. PubMed PMID:
+				23717590; PubMed Central PMCID: PMC3661440.
+				 </a>
+			</li>
+			<li>
+				<a href = "https://www.ncbi.nlm.nih.gov/pubmed/23903398" target="blank">
+					Haidari LA, Connor DL, Wateska AR, Brown ST, Mueller LE, Norman BA, Schmitz
+					MM, Paul P, Rajgopal J, Welling JS, Leonard J, Claypool EG, Weng YT, Chen SI, Lee
+					BY. 
+					{{_('Only adding stationary storage to vaccine supply chains may create and worsen transport bottlenecks.')}}
+					<em>J Public Health Manag Pract.</em> 2013 Sep-Oct;19 Suppl
+					2:S65-7. doi: 10.1097/PHH.0b013e31828a83fe. PubMed PMID: 23903398; PubMed Central
+					PMCID: PMC4540066.
+				</a>
+			</li>
+			<li>
+				<a href = "https://www.ncbi.nlm.nih.gov/pubmed/24582633" target="blank">
+					Brown ST, Lee BY. 
+					{{_('Unless changes are made in Benin, multiple storage and transport bottlenecks may prevent vaccines from reaching the population.')}}
+					<em>Vaccine.</em>
+					2014 May 1;32(21):2518-9. doi: 10.1016/j.vaccine.2014.02.060. Epub 2014 Feb 28.
+					PubMed PMID: 24582633.
+
+				</a>
+			</li>
+		</ul>
 	</div>
 	<div id="addstorexpt_slide2" class='addstorexpt_slide'>
 			

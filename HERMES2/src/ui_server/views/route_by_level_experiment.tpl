@@ -41,20 +41,54 @@
 			{{_('Description of Modify Transport Route Characteristics Between Supply Chain Levels Experiments')}}
 		</span>
 		<p class='expt_text'>
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
+			{{_('A supply chain is mostly about moving products between locations till finally the products arrives where it will be given to people.')}}
+			{{_('Therefore, transport is a critical component to the supply chain.')}}
+			{{_('The type of vehicle or mode of transport one uses, the policy that dicates ordering and moving of product, and geographic characteristics all can have a signficant impact on the performance and efficiency of the supply chain.')}}
+			{{_('Modeling can help one understand and quantify this impact.')}}
 		</p>
 		<p class='expt_text'>
 			{{_('This experiment will allow you to choose a collection of routes based on what supply chain level the routes originate or which supply chain levels the routes run between')}}
 			{{_('You can then specify operations to perform on the routes such as increasing the frequency and changing the mode of transport that will be used on the routes.')}}
 			{{_('Based on the specifications, HERMES will create a new model that alters all of the selected routes.')}}
 		</p>	
-		<p class='expt_emph'> 
-			{{_('Please press the "Next" button to continue.')}}
+		<br><hr><br>
+		<p class='expt_text'>
+			{{_('Below are some example publications where the removing of a supply chain level is explored with HERMES modeling: ')}}
+			<ul class='proper_ul'>
+				<li>
+					<a href="https://www.ncbi.nlm.nih.gov/pubmed/27340098" target="blank">
+						Haidari LA, Brown ST, Ferguson M, Bancroft E, Spiker M, Wilcox A, Ambikapathi 
+						R, Sampath V, Connor DL, Lee BY. 
+						{{_('The economic and operational value of using drones to transport vaccines.')}}
+						<em>Vaccine</em>. 2016 Jul 25;34(34):4062-7. doi:
+						10.1016/j.vaccine.2016.06.022. Epub 2016 Jun 20. PubMed PMID: 27340098.
+					 </a>
+				</li>
+				<li>
+					<a href="https://www.ncbi.nlm.nih.gov/pubmed/23717590" target="blank">
+						Haidari LA, Connor DL, Wateska AR, Brown ST, Mueller LE, Norman BA, Schmitz
+						MM, Paul P, Rajgopal J, Welling JS, Leonard J, Chen SI, Lee BY. 
+						{{_("Augmenting transport versus increasing cold storage to improve vaccine supply chains.")}}
+						<em>PLos One.</em> 2013 May 22;8(5):e64303. doi: 10.1371/journal.pone.0064303. Print 2013.
+						Erratum in: PLoS One. 2013;8(12).
+						doi:10.1371/annotation/b428dad2-e829-4289-acae-c44369d55a80. PubMed PMID:
+						23717590; PubMed Central PMCID: PMC3661440.
+					 </a>
+				</li>
+				<li>
+					<a href = "https://www.ncbi.nlm.nih.gov/pubmed/23903398" target="blank">
+						Haidari LA, Connor DL, Wateska AR, Brown ST, Mueller LE, Norman BA, Schmitz
+						MM, Paul P, Rajgopal J, Welling JS, Leonard J, Claypool EG, Weng YT, Chen SI, Lee
+						BY. 
+						{{_('Only adding stationary storage to vaccine supply chains may create and worsen transport bottlenecks.')}}
+						<em>J Public Health Manag Pract.</em> 2013 Sep-Oct;19 Suppl
+						2:S65-7. doi: 10.1097/PHH.0b013e31828a83fe. PubMed PMID: 23903398; PubMed Central
+						PMCID: PMC4540066.
+					</a>
+				</li>			
+			</ul>
 		</p>
-	</div>
+	</div> <!-- slide -->
 	<div id="modrouteexpt_slide2" class='modrouteexpt_slide'>
 		<div class='flex_cols'>
 			<div class='expt_txt'>

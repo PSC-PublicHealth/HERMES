@@ -63,19 +63,51 @@
 			{{_('Description of Removing a Suply Chain Level Experiments')}}
 		</span>
 		<p class='expt_text'>
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
-			Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,Leila and jenn,
+			{{_('Supply chains typically have a series of supply chain levels which are set up as intermediaries for which to ship products until finally the products arrive at locations where they will be given to patients.')}}
+			{{_('The levels bring product closer to other locations and generally provide stability and security of stock for the products as they move through the supply chain.')}}
+			{{_('However, there is a tradeoff, where it may be that a supply chain level is not necessary and actually makes the supply chain cost more, and a more efficient supply chain may be obtained by bypassing or removing a supply chain level and rerouting shipping routes directly.')}}
+			{{_('This experiment will allow you to explore this tradeoff by giving you the ability to automatically remove a supply chain level from the supply chain.')}}
 		</p>
 		<p class='expt_text'>
 			{{_('This experiment will take you through a series of screens that will allow you to specify a supply chain level to remove.')}}
 			{{_('Additionally, you will need to specify some characteristics for the new routes that will be created as a result of the supply chain level being removed.')}}
 			{{_('Once these options are specified, HERMES will automatically create a new model with the specified supply chain level removed.')}}
-		</p>	
-		<p class='expt_emph'> 
-			{{_('Please press the "Next" button to continue.')}}
 		</p>
+		<br><hr><br>
+		<p class='expt_text'>
+		{{_('Below are some example publications where the removing of a supply chain level is explored with HERMES modeling: ')}}
+		<ul class='proper_ul'>
+			<li>
+			<a href="https://www.ncbi.nlm.nih.gov/pubmed/26209835" target="blank">
+				Lee BY, Connor DL, Wateska AR, Norman BA, Rajgopal J, Cakouros BE, Chen SI, Claypool EG, Haidari LA, Karir V, 
+				Leonard J, Mueller LE, Paul P, Schmitz MM, Welling JS, Weng YT, Brown ST. 
+				{{_('Landscaping the structures of GAVI country vaccine supply chains and testing the effects of radical redesign.')}}
+				<em>Vaccine</em>. 2015 Aug 26;33(36):4451-8. doi: 10.1016/j.vaccine.2015.07.033. Epub 2015 Jul 23. PubMed PMID: 26209835.
+			</a>
+			</li>
+			<li>
+				<a href = "https://www.ncbi.nlm.nih.gov/pubmed/24814550" target="blank">
+					Brown ST, Schreiber B, Cakouros BE, Wateska AR, Dicko HM, Connor DL, Jaillard P, Mvundura M, Norman BA, 
+					Levin C, Rajgopal J, Avella M, Lebrun C, Claypool E, Paul P, Lee BY. 
+					{{_("The benefits of redesigning Benin's vaccine supply chain.")}}
+					<em>Vaccine</em>. 2014 Jul 7;32(32):4097-103. doi: 10.1016/j.vaccine.2014.04.090. Epub 2014 May 9. PubMed PMID: 24814550.
+				</a>
+			</li>
+			<li>
+			<a href="https://www.ncbi.nlm.nih.gov/pubmed/23602666" target="blank">
+				Assi TM, Brown ST, Kone S, Norman BA, Djibo A, Connor DL, Wateska AR, Rajgopal
+				J, Slayton RB, Lee BY. 
+				
+					{{_('Removing the regional level from the Niger vaccine supply chain.')}}
+				<em>Vaccine</em>. 2013 Jun 10;31(26):2828-34. doi: 10.1016/j.vaccine.2013.04.011.
+				Epub 2013 Apr 17. PubMed PMID: 23602666; PubMed Central PMCID: PMC3763189.
+			</a>
+			</li>
+		</ul>
+	</p>
+<!--		<p class='expt_emph'> 
+			{{_('Please press the "Next" button to continue.')}}
+		</p>-->
 	</div>
 	<div id="remlevexpt_slide2" class='remlevexpt_slide'>
 		<div class="flex_cols">
@@ -332,21 +364,7 @@ function implementExperiment(){
 			data:JSON.stringify(dataObject)
 		}
 	}).promise();
-	
-//	.done(function(results){
-//		if(results.success){
-//			if(results.warnings != ''){
-//				$("#levexpt_implement_warnings").html(warningMessage);
-//				$("#levexpt_implement_warnings").show();
-//			}
-//		}
-//		else{
-//			alert("{{_('There was a problem implementing the level removal experiment: ')}}" + results.msg);
-//		}
-//	})
-//	.fail(function(jqxhr,textStatus,error){
-//		alert("{{_('There was a failure implementing the level removal experiment: ')}}" + jqxhr.responseText);
-//	});
+
 		
 }
 </script>
