@@ -2778,7 +2778,8 @@ div.hermes_flex_dialog_col2{
 }
 
 .hermes_expt_summary_table_div {
-	
+	*max-width:600px;
+	*min-width:300px;
 }
 
 .hermes_expt_summary_table {
@@ -2808,9 +2809,11 @@ div.hermes_flex_dialog_col2{
 }
 
 .hermes_expt_summary_table_row {
-	
 }
 
+.hermes_expt_summary_table_shorter_col {
+	width:300px;
+}
 .hermes_expt_summary_table_col {
 	font-size:small;
 }

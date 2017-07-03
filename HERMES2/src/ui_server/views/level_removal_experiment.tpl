@@ -266,7 +266,7 @@ $("#remlevexpt_slides").slideShowWithFlowControl({
 	            	   return true;
 	               },
 	               function(){
-	            	   
+	            	   return true;
 	               }
 	              ],
 	backFunctions:[

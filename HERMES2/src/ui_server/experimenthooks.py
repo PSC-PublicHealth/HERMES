@@ -364,24 +364,36 @@ def addLoopsSummary(db,uiSession):
         htmlArray.append("<div class='hermes_expt_summary_table_div'>")
         htmlArray.append( "<table class='hermes_expt_summary_table'>")
         htmlArray.append( "<tr class='hermes_expt_summary_table_lead_row'>")
-        htmlArray.append( "<td colspan=2 class='hermes_expt_summary_table_lead_col'>")
-        htmlArray.append(_('You have decided to create transport loops {0}'.format(exptData['levelsBetweenParsed'])))
+        htmlArray.append( "<td colspan=3 class='hermes_expt_summary_table_lead_col'>")
+        endValue = ''
+        if exptData['levelEnd'] == 'all':
+            endValue = _('You have decided to create transport loops starting at the {0} for locations at all of the locations below.'.format(exptData['levelStart']))
+        else:
+            endValue = _('You have decided to create transport loops starting at the {0} for locations at {1} supply chain level.'.format(exptData['levelStart'],exptData['levelEnd']))
+        htmlArray.append(endValue)
         htmlArray.append("</td></tr>")
         htmlArray.append( "<tr class='hermes_expt_summary_table_lead_row'>")
-        htmlArray.append( "<td colspan=2 class='hermes_expt_summary_table_lead_col'>")
+        htmlArray.append( "<td colspan=3 class='hermes_expt_summary_table_lead_col'>")
         htmlArray.append(_('With the following options: '))
         htmlArray.append("</td></tr>")
         
         htmlArray.append("<tr class='hermes_expt_summary_table_row'>")
         htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+        htmlArray.append("<td class='hermes_expt_summary_table_shorter_col'>")
+        htmlArray.append(_("The number of locations per transport loop is:"))
+        htmlArray.append("</td>")
         htmlArray.append("<td class='hermes_expt_summary_table_col'>")
-        htmlArray.append(_("The number of locations per transport loop is {0}".format(exptData['maximumLocations'])))
+        htmlArray.append("{0}".format(exptData['maximumLocations']))
         htmlArray.append("</td></tr>")
         
         htmlArray.append("<tr class='hermes_expt_summary_table_row'>")
         htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")
+        htmlArray.append("<td class='hermes_expt_summary_table_shorter_col'>")
+        dev = [x for x in tList if x['Name']==exptData['vehicleToUse']]
+        htmlArray.append(_("With the mode of transport:"))
+        htmlArray.append("</td>")
         htmlArray.append("<td class='hermes_expt_summary_table_col'>")
-        htmlArray.append(_("With the mode of transport: ".format(exptData['vehicleToUse'])))
+        htmlArray.append("{0}".format(dev[0]['DisplayName']))
         htmlArray.append("</td></tr>")
        
         htmlArray.append("</table>")
@@ -1094,4 +1106,34 @@ def levelRemovalExptImplementation(db,uiSession):
         except Exception,e:
             return {'success':False,'msg':str(e)}                                     
                     
+@bottle.route('/json/add_loops_experiment_implement')
+def addLoopsExptImplementation(db,uiSession):
+        import copy
+        from transformation import makeLoopsOptimizedByDistanceBetweenLevels
+        try:
+            import json
+            modelId = _getOrThrowError(bottle.request.params,'modelId', isInt=True)
+            exptDataJson = _getOrThrowError(bottle.request.params,'data')
+             
+            exptData = json.loads(exptDataJson)
+             
+            uiSession.getPrivs().mayReadModelId(db,modelId)
+            m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+            
+            
+            levelStart = exptData['levelStart']
+            levelEnd = exptData['levelEnd']
+            
+            maxLocations = int(exptData['maximumLocations'])
+            vehicleToUse = exptData['vehicleToUse']
+            
+            makeLoopsOptimizedByDistanceBetweenLevels(m,levelStart,levelEnd,maxLocations, iterations=100, vehicleType=vehicleToUse)
+            print "setting Latencies"
+            setLatenciesByNetworkPosition(m,5,limitDays=C.daysPerMonth,stagger=True)
+            print "Set Latencies"
+            setUseVialLatenciesAsOffsetOfShipLatencyFromRoute(m,offset=1.0)
+            db.commit()
+            return {'success':True,'warnings':''}
         
+        except Exception,e:
+            return {'success':False,'msg':str(e)}  

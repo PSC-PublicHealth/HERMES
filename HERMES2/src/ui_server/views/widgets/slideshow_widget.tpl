@@ -38,6 +38,9 @@
 			if(name=="next"){
 				$("#click_text").html("{{_('Please Click the Next Button to Continue')}}");
 			}
+			else if(name=="done"){
+				$("#click_text").html("{{_('Please Click the Done Button to Continue')}}");
+			}
 			
 			$("#" + thisContainerId).data(name + "Active",true);
 			$("#" + ButtonId).removeClass('slide_button_deact')
@@ -191,6 +194,26 @@
 			
 			console.log("Show new active offsets = " + activeSlideOffsets);
 			return true;
+		}, 
+		hideButtons: function(){
+			this.containerId = $(this.element).attr('id');
+			var $this = this;
+			var thisContainerId = this.containerId;
+			var slideShowDiv = thisContainerId + "_slideShow";
+			var wholeButtonContainerId = thisContainerId + "_buttons_div";
+			
+			$("#"+wholeButtonContainerId).css('opacity',0);
+			
+		},
+		showButtons: function(){
+			this.containerId = $(this.element).attr('id');
+			var $this = this;
+			var thisContainerId = this.containerId;
+			var slideShowDiv = thisContainerId + "_slideShow";
+			var wholeButtonContainerId = thisContainerId + "_buttons_div";
+			
+			$("#"+wholeButtonContainerId).css('opacity',1.0);
+			
 		},
 		nextSlide: function(){
 			this.containerId = $(this.element).attr('id');
@@ -295,7 +318,7 @@
 				if(!isLastSlide){
 					$this.deactivateButton("back");
 				}
-				$this.showButton("next");
+				$this.activateButton("next");
 				$this.hideButton("done");
 				console.log("Current Back Setting: " + currentActiveSlide);
 				$("#"+thisContainerId).data('activeSlide',currentActiveSlide);
@@ -307,9 +330,11 @@
 			var thisContainerId = this.containerId;
 			var slideShowDiv = thisContainerId + "_slideShow";
 			var buttonContainerID = thisContainerId + "_buttons";
+			var wholeButtonContainerId = thisContainerId + "_buttons_div";
 			var nextButtonId = thisContainerId + "_next";
 			var backButtonId = thisContainerId + "_back";
 			var doneButtonId = thisContainerId + "_done";
+		
 			
 			var thisOptions = this.options;
 			
@@ -322,7 +347,8 @@
 				$(this).addClass(thisContainerId + "_slide_"+slideCount);
 				slideCount++;
 			});
-			$("#"+thisContainerId).prepend("<div class='slideshow_button_div'><div id='" + thisContainerId + "_buttons' class='slideshow_button_cont'>"
+			$("#"+thisContainerId).prepend("<div class='slideshow_button_div' id = '"+wholeButtonContainerId +"' >"
+					+ "<div id='" + thisContainerId + "_buttons' class='slideshow_button_cont'>"
 					+ "<button id='"+ backButtonId + "' class='slide_button_deact' >{{_('Back')}}</button>"
 					+ "<button id='"+ nextButtonId + "' class='slide_button_deact' >{{_('Next')}}</button>"
 					+ "<button id='"+ doneButtonId + "' class='slide_button_deact'>{{_('Done')}}</button>"
@@ -378,8 +404,8 @@
 			nextBut.click(function(e){
 				e.preventDefault();
 				var returnVal = true;
-				if(thisOptions.nextFunctions.length>0){
-					var activeSlide = $("#"+thisContainerId).data('activeSlide');
+				var activeSlide = $("#"+thisContainerId).data('activeSlide');
+				if(thisOptions.nextFunctions.length>0){	
 					returnVal = thisOptions.nextFunctions[activeSlide]();
 				}
 				if(returnVal){
