@@ -35,7 +35,7 @@
 <div id="run_cancel_info_dialog" title="{{_('Notification')}}"></div>
 
 <script>
-{{!setupToolTips()}}
+
 
 function runInfoButtonFormatter(cellvalue, options, rowObject)
 {
