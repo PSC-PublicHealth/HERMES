@@ -1,4 +1,4 @@
-%rebase outer_wrapper title_slogan=_('Edit Model Geographic Coordinates'),breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId
+%rebase outer_wrapper title_slogan=_('Edit Model Geographic Coordinates'),breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId,name=name
 <!---
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
@@ -45,7 +45,7 @@ a.model-operation-item:visited{
 	data-url="{{rootPath}}upload-geocoordspreadsheet" style="display:none">
 
 <script type="text/javascript" src="{{rootPath}}static/editor-widgets/geoCoordinateGrid.js"></script>
-<h2>{{_("Edit the Geographic Coordinates")}}</h2>
+<h2>{{_("Edit the Geographic Coordinates for the {0} Model".format(name))}}</h2>
 <h4>
 {{_("Please enter in the geographic coordinates of individual locations in the table below. Your entries will be saved automatically as you add them.")}}</h4>
 <br>

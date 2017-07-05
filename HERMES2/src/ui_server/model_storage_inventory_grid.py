@@ -54,7 +54,7 @@ def storeInvTabPage(db,uiSession):
         
         return bottle.template("model_storeinv_edit.tpl",
                                {"breadcrumbPairs":crumbTrack,
-                                'modelId':modelId
+                                'modelId':modelId,'name':m.name
                                })
     except bottle.HTTPResponse:
         raise 

@@ -1,4 +1,4 @@
-%rebase outer_wrapper title_slogan=_('Edit Model Population Demand Estimates'),breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId
+%rebase outer_wrapper title_slogan=_('Edit Model Population Demand Estimates'),breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer,modelId=modelId,name=name
 <!---
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
@@ -51,7 +51,7 @@ a.model-operation-item:visited{
 	data-url="{{rootPath}}upload-populationspreadsheet" style="display:none">-->
 
 <script type="text/javascript" src="{{rootPath}}static/editor-widgets/storeInvGrid.js"></script>
-<h2>{{_("Edit the Storage Devices at each location")}}</h2>
+<h2>{{_("Edit the Storage Devices at Each Location in the {0} Model".format(name))}}</h2>
 <h4>
 {{_("Please enter in the inventory of storage devices that are to be present at each location in the model. You can change the number of existing devices by clicking on the number and editing.  To remove a device, set its number to zero. Finally, if you would like to add a storage device to a location, click the 'Add Storage Device' button and select the device from the dropdown menu.")}}</h4>
 <br>
