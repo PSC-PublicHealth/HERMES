@@ -149,7 +149,8 @@ def jsonRunStart(db, uiSession):
             _minionFactory = minionrunner.MinionFactory()    
     
         with uiSession.getLockedState() as state:
-            runId = _minionFactory.startRun(modelId,resultsGroupId,
+            print "runName = {0}".format(runName)
+            runId = _minionFactory.startRun(modelId,resultsGroupId, runName,
                                             #"%s_%d"%(runName,resultsGroup.resultsGroupId), 
                                             state.fs().workDir, 
                                             nReps=nInstances,
@@ -218,6 +219,7 @@ def jsonManageRunsTable(db, uiSession):
         
     nPages,thisPageNum,totRecs,rList = orderAndChopPage([{'runId':r.tickId,'status':ps[2],
                                                           'runName':r.runName,
+                                                          'rundispname':r.runDisplayName,
                                                           'modelName':r.modelName, 'modelId':r.modelId,
                                                           'submitted':r.starttime,
                                                           'note':r.note, 'local':ps[0],
@@ -232,7 +234,7 @@ def jsonManageRunsTable(db, uiSession):
               "page":thisPageNum,     # which page is this
               "records":totRecs,  # total records
               "rows": [ {"runid":r['runId'],
-                         "cell":[r['runName'], r['runId'], r['modelName'], r['modelId'], r['submitted'],
+                         "cell":[r['runName'], r['rundispname'],r['runId'], r['modelName'], r['modelId'], r['submitted'],
                                  r['status'], r['runId'], r['runId'], 
                                  #(not _minionFactory.liveRuns[r['runId']][1].done)]}
                                  r['running'] ]}
@@ -382,11 +384,11 @@ def jsonRunInfo(db, uiSession):
         runId = _getOrThrowError(bottle.request.params, 'runId', isInt=True)
         processInfo = db.query(shadow_network.ShdTickProcess).filter_by(tickId=runId).one()
         logs = processInfo.crashLogs
-        strings = "<p>\n"
+        strings = "<pre>\n"
         for l in logs:
             strings += l.blob
             strings += "\n"
-        strings += "</p>"
+        strings += "</pre>"
         
         htmlStr, titleStr = htmlgenerator.getRunInfoHTML(db,uiSession,processInfo)
         result = {"success":True, "htmlstring":strings, "title":"logs",

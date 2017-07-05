@@ -155,13 +155,14 @@ class MinionFactory():
         self.siteInfo = site_info.SiteInfo()
         self.liveRuns = {}
 
-    def newDBStatus(self, modelId, runCount, runName):
+    def newDBStatus(self, modelId, runCount, runName, runDisplayName):
         iface = db.DbInterface()
         session = iface.Session()
-
+        
         stp = shd.ShdTickProcess(modelId = modelId,
                                  runCount = runCount,
                                  runName = runName,
+                                 runDisplayName = runDisplayName,
                                  modelName = "",
                                  starttime = time.asctime(),
                                  note = "",
@@ -176,14 +177,14 @@ class MinionFactory():
         return stp.tickId
         
     
-    def startRun(self, modelId, runName, cwd, nReps=1, optList=None):
+    def startRun(self, modelId, runName, runDisplayName, cwd, nReps=1, optList=None):
         """
         Returns a MinionProc, which owns a thread which monitors the minion
         """
         env = os.environ.copy()
         env['HERMES_DATA_PATH'] = os.path.join(self.siteInfo.srcDir(),'master_data','unified')
         mainSrc = os.path.join(self.siteInfo.srcDir(),'main.py')
-        statusId = self.newDBStatus(modelId, nReps, runName)
+        statusId = self.newDBStatus(modelId, nReps, runName,runDisplayName)
         argList = ['python', '-u', mainSrc, '--minion', '--db_status_id=%d'%statusId, '--average', "--out=%s"%runName]
         #argList = ['pypy', '-u', mainSrc, '--minion', '--db_status_id=%d'%statusId, '--average', "--out=%s"%runName]
         import platform
