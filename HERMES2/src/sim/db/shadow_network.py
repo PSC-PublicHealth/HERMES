@@ -3964,7 +3964,7 @@ class ShdTickProcess(Base):
              ('runName',       STRING),
              ('modelName',     STRING),
              ('starttime',     STRING),
-             ('note',          STRING),
+             ('note',          NOTES_STRING),
              ('processId',     INTEGER),
              ('hostName',      STRING),
              ('status',        STRING),
