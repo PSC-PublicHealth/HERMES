@@ -24,6 +24,11 @@ def upgrade():
     sa.Column('status', sa.String(length=250), nullable=True),
     sa.Column('fracDone', sa.Float(), nullable=True),
     sa.Column('lastUpdate', sa.Integer(), nullable=True),
+    sa.Column('runCount',sa.Integer(),nullable=True),
+    sa.Column('runName',sa.String(length=250),nullable=True),
+    sa.Column('modelName',sa.String(length=250),nullable=True),
+    sa.Column('startTime',sa.String(length=250),nullable=True),
+    sa.Column('note',sa.VARCHAR(length=4096), nullable=True),
     sa.ForeignKeyConstraint(['modelId'], ['models.modelId'], ),
     sa.PrimaryKeyConstraint('tickId')
     )
