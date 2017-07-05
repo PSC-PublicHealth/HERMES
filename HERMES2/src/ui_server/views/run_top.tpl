@@ -27,11 +27,11 @@
 <h3 style="display:none">{{_('Run Status')}}</h3>
 <table id="manage_runs_grid"></table>
 <div id="manage_runs_pager"> </div>
-
 </td>
 </tr>
 </table>
-
+<div id="run_cancel_confirm_dialog" title="{{_('Confirming Run Cancelation')}}"></div>
+<div id="run_cancel_info_dialog" title="{{_("Notification")}}>{{_('Your run has been successfully cancelled.')}}</div>
 <div id="run_info_dialog" title="This should get replaced">
 </div>
 
@@ -87,7 +87,7 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
   pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
   pginput: false, //ditto
 	sortname: 'runname', //the column according to which data is to be sorted; optional
-	viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Z” optional
+	viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� optional
 	sortorder: "asc", //sort order; optional
 	gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
    	onSelectRow: function(runid, status){
@@ -146,7 +146,7 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
 			$.getJSON('json/run-logs',{runId:$(this).attr('id')})
 			.done(function(data) {
 				if (data.success) {
-    				        $("#run_info_dialog").html(data['htmlstring']);
+    				    $("#run_info_dialog").html(data['htmlstring']);
     					$("#run_info_dialog").dialog('option','title',data['title']);
     					$("#run_info_dialog").dialog("open");		
     			}
@@ -161,19 +161,49 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
 		});
 		$(".hermes_cancel_button").click(function(event) {
 			//$.getJSON('json/run-terminate',{runId:$(this).attr('id')})
-			$.getJSON('json/run-terminate',{runId:$(this).attr('id')})
-			.done(function(data) {
-    			if (data.success) {
-    				alert('{{_("Canceled")}}');
-    			}
-    			else {
-    				alert('{{_("Failed: ")}}'+data.msg);
-    			}
-			})
-			.fail(function(jqxhr, textStatus, error) {
-				alert('{{_("Error: ")}}'+jqxhr.responseText);
+			var $thisId = $(this).attr('id');
+			$("#run_cancel_confirm_dialog").html("{{_('Are you sure that you would like to cancel the currently run?')}}");
+			$("#run_cancel_confirm_dialog").dialog({
+				modal:true,
+				autoOpen: true,
+				width:'auto',
+				buttons:{
+					"{{_('Yes')}}": function(){
+						$.getJSON('json/run-terminate',{runId:$thisId})
+						.done(function(data) {
+			    			if (data.success) {
+			    				$("#run_cancel_confirm_dialog").html("");
+			    				$("#run_cancel_confirm_dialog").dialog("close");
+								$("#run_cancel_confirm_dialog").dialog("destroy");
+								$("#run_cancel_info_dialog").html("{{_('The run has been successfully cancelled')}}");
+			    				$("#run_cancel_info_dialog").dialog({
+			    					modal:true,
+			    					autoOpen:true,
+			    					width:'auto',
+			    					buttons:{
+			    						"{{_('OK')}}":function(){
+			    							$("#run_cancel_info_dialog").html("");
+			    							$(this).dialog("close");
+			    							$(this).dialog("destroy");
+			    						}
+			    					}
+			    				});
+			    			}
+			    			else {
+			    				alert('{{_("Failed: ")}}'+data.msg);
+			    			}
+						})
+						.fail(function(jqxhr, textStatus, error) {
+							alert('{{_("Error: ")}}'+jqxhr.responseText);
+						});
+						event.stopPropagation();
+					},
+					"{{_('No')}}": function(){
+						$(this).dialog("close");
+						$(this).dialog("destroy");
+					}
+				}
 			});
-			event.stopPropagation();
 		});
 		$(".hermes_cancel_button").each(function() {
 			var id = $(this).attr('id');
