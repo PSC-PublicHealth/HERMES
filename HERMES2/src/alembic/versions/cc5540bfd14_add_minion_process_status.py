@@ -26,6 +26,7 @@ def upgrade():
     sa.Column('lastUpdate', sa.Integer(), nullable=True),
     sa.Column('runCount',sa.Integer(),nullable=True),
     sa.Column('runName',sa.String(length=250),nullable=True),
+    sa.Column('runDisplayName',sa.String(length=250),nullable=True),
     sa.Column('modelName',sa.String(length=250),nullable=True),
     sa.Column('startTime',sa.String(length=250),nullable=True),
     sa.Column('note',sa.VARCHAR(length=4096), nullable=True),

@@ -31,6 +31,7 @@
 	</tr>
 </table>
 <div id='run_info_dialog'></div>
+<div id='run_log_dialog'></div>
 <div id="run_cancel_confirm_dialog" title="{{_('Confirming Run Cancelation')}}"></div>
 <div id="run_cancel_info_dialog" title="{{_('Notification')}}"></div>
 
@@ -59,6 +60,7 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
 	//height: 'auto', //expand height according to number of records
 	rowNum:9999, // rowNum=-1 has bugs, suggested solution is absurdly large setting to show all on one page
 	colNames:[
+		"{{_('Run Name Bad')}}",
 		"{{_('Run Name')}}",
 		"{{_('Run ID')}}",
 		"{{_('Model Name')}}",
@@ -70,7 +72,8 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
         "{{_('Running')}}"
 	], //define column names
 	colModel:[
-	{name:'runname', index:'runname', editable:false, width:275},
+	{name:'runname', index:'runname', editable:false, hidden:true, width:275},
+	{name:'rundispname',index:'rundispname',editable:false,width:275},
 	{name:'runid', index:'runid', key:true, hidden:true, sorttype:'int'},
 	{name:'modelname', index:'modelname', editable:false, width:275},
 	{name:'modelid', index:'modelid', sorttype:'int', width:150},
@@ -145,9 +148,14 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
 			$.getJSON('json/run-logs',{runId:$(this).attr('id')})
 			.done(function(data) {
 				if (data.success) {
-    				    $("#run_info_dialog").html(data['htmlstring']);
-    					$("#run_info_dialog").dialog('option','title',data['title']);
-    					$("#run_info_dialog").dialog("open");		
+    				    $("#run_log_dialog").html(data['htmlstring']);
+    					$("#run_log_dialog").dialog({
+    						title:data['title'],
+    						width: 700,
+    						height:500,
+    						modal:true
+    					});
+    					$("#run_log_dialog").dialog("open");		
     			}
     			else {
     				alert('{{_("Failed: ")}}'+data.msg);

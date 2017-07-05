@@ -3962,6 +3962,7 @@ class ShdTickProcess(Base):
     attrs = [('modelId',       DataType(INTEGER, foreignKey='models.modelId')),
              ('runCount',      INTEGER),
              ('runName',       STRING),
+             ('runDisplayName', STRING),
              ('modelName',     STRING),
              ('starttime',     STRING),
              ('note',          NOTES_STRING),
