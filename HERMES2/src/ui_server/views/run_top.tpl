@@ -250,7 +250,7 @@ $(function() {
 });
 
 $(function() {
-	$("#run_info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
+	$("#run_info_dialog").dialog({autoOpen:false, height:"auto", width:600});
 });
 
 $(function() {

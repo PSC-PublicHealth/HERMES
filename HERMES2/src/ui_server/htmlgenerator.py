@@ -30,7 +30,6 @@ from StringIO import StringIO
 import ipath
 import shadow_network_db_api
 import input
-
 from HermesServiceException import HermesServiceException
 
 from ui_utils import _logMessage, _logStacktrace
@@ -342,21 +341,32 @@ def getGenericTypeInfoHTML(db, uiSession, modelId, typeName,simple=False):
 
 def getRunInfoHTML(db, uiSession, tickInfo):
     runName = tickInfo.runName
-
-    titleStr = _("Run {0}").format(runName)
-
-    sio = StringIO()
-    sio.write("<h3>\n")
-    sio.write("{0}\n".format(runName))
-    sio.write("</h3>\n")
-    sio.write("<table>\n")
-    for a in tickInfo.attrs:
-        k = a[0]
-        v = getattr(tickInfo, k)
-        sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
-    sio.write("</table>\n")
     
-    return sio.getvalue(), titleStr
+
+    titleStr = _("Run Information: {0}").format(tickInfo.runDisplayName)
+    
+    table = HTMLTable(name_='Run Information',title_= _('Run Information'),width='100%',height='100%')
+    table.addRow([_('Name'),tickInfo.runDisplayName],['c',1,1])
+    table.addRow([_('Model Name'),tickInfo.modelName],['c',1,1])
+    table.addRow([_('Staring Time of Run'),tickInfo.starttime],['c',1,1])
+    table.addRow([_('Runing on the Machine Named'),tickInfo.hostName],['c',1,1])
+    table.addRow([_('Under the Proccess Number'),tickInfo.processId],['c',1,1])
+    table.addRow([_('Current Run Status'),tickInfo.status],['c',1,1])
+    
+    return table.htmlString(),titleStr
+
+#     sio = StringIO()
+#     sio.write("<h3>\n")
+#     sio.write("{0}\n".format(runName))
+#     sio.write("</h3>\n")
+#     sio.write("<table>\n")
+#     for a in tickInfo.attrs:
+#         k = a[0]
+#         v = getattr(tickInfo, k)
+#         sio.write('<tr><td>%s</td><td>%s</td>\n'%(k,v))
+#     sio.write("</table>\n")
+    
+    #return sio.getvalue(), titleStr
 
 def getGeneralStorageInfoHTML(db,uiSession,modelId,locId):
     
