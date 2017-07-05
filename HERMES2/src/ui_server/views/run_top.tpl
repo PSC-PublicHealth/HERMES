@@ -22,18 +22,17 @@
 </p>
 
 <table>
-<tr>
-<td>
-<h3 style="display:none">{{_('Run Status')}}</h3>
-<table id="manage_runs_grid"></table>
-<div id="manage_runs_pager"> </div>
-</td>
-</tr>
+	<tr>
+		<td>
+			<h3 style="display:none">{{_('Run Status')}}</h3>
+					<table id="manage_runs_grid"></table>
+					<div id="manage_runs_pager"> </div>
+		</td>
+	</tr>
 </table>
+<div id='run_info_dialog'></div>
 <div id="run_cancel_confirm_dialog" title="{{_('Confirming Run Cancelation')}}"></div>
-<div id="run_cancel_info_dialog" title="{{_("Notification")}}>{{_('Your run has been successfully cancelled.')}}</div>
-<div id="run_info_dialog" title="This should get replaced">
-</div>
+<div id="run_cancel_info_dialog" title="{{_('Notification')}}"></div>
 
 <script>
 {{!setupToolTips()}}
@@ -41,15 +40,15 @@
 function runInfoButtonFormatter(cellvalue, options, rowObject)
 {
     // cellvalue will be an integer
-	return "<button type=\"button\" class=\"hermes_info_button\" id="+cellvalue+">Info</button>";
+	return "<button  class='hermes_info_button' id='"+cellvalue+"'>Info</button>";
 }
 
 function runCancelButtonFormatter(cellvalue, options, rowObject)
 {
     // cellvalue will be an integer
-	return "<button type=\"button\" class=\"hermes_cancel_button\" id="+cellvalue+">{{_('Cancel')}}</button>" +
-	"<button type=\"button\" class=\"hermes_clear_button\" id="+cellvalue+">{{_('Clear')}}</button>" +
-	"<button type=\"button\" class=\"hermes_logs_button\" id="+cellvalue+">{{_('Logs')}}</button>";
+	return "<button class='hermes_cancel_button' id='"+cellvalue+"'>{{_('Cancel')}}</button>" +
+	"<button  class='hermes_clear_button' id='"+cellvalue+"'>{{_('Clear')}}</button>" +
+	"<button  class='hermes_logs_button' id='"+cellvalue+"'>{{_('Logs')}}</button>";
 }
 
 var lastsel_runs;
