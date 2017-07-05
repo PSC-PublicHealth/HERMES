@@ -1,7 +1,7 @@
 Name,DisplayName,SortOrder,Notes
 Newborn,Newborn Children,0,
 0To1Year,Children Below 1 Years of Age,1,
-1To2Year,Children Ages 2 to 3 Years Old,12,
+1To2Year,Children Ages 1 to 2 Years Old,12,
 2To3Year,Children Ages 2 to 3 Years Old,24,
 3To4Year,Children Ages 3 to 4 Years Old,36,
 4To14Year,Children Ages 4 to 14 Years Old,48,

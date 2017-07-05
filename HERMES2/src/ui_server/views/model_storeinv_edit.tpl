@@ -51,9 +51,9 @@ a.model-operation-item:visited{
 	data-url="{{rootPath}}upload-populationspreadsheet" style="display:none">-->
 
 <script type="text/javascript" src="{{rootPath}}static/editor-widgets/storeInvGrid.js"></script>
-<h2>{{_("Edit the Storage Devices at each location for ")}}</h2>
+<h2>{{_("Edit the Storage Devices at each location")}}</h2>
 <h4>
-{{_("Please enter in the inventory of storage devices that are to be present at each location in the model. You can change the number of existing devices by clicking on the number and editing.  If you would to remove a device, you can set its number to zero. Finally, if you would like to add a storage device to a location, click the 'Add Storage Device' button and select the device from the dropdown menu.")}}</h4>
+{{_("Please enter in the inventory of storage devices that are to be present at each location in the model. You can change the number of existing devices by clicking on the number and editing.  To remove a device, set its number to zero. Finally, if you would like to add a storage device to a location, click the 'Add Storage Device' button and select the device from the dropdown menu.")}}</h4>
 <br>
 
 <div id = "grid_loading"><img src="{{rootPath}}static/images/kloader.gif"></div>

@@ -45,7 +45,7 @@ a.model-operation-item:visited{
 	data-url="{{rootPath}}upload-geocoordspreadsheet" style="display:none">
 
 <script type="text/javascript" src="{{rootPath}}static/editor-widgets/geoCoordinateGrid.js"></script>
-<h2>{{_("Edit the Geographic Coordinates for ")}}</h2>
+<h2>{{_("Edit the Geographic Coordinates")}}</h2>
 <h4>
 {{_("Please enter in the geographic coordinates of individual locations in the table below. Your entries will be saved automatically as you add them.")}}</h4>
 <br>
