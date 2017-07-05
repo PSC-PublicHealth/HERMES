@@ -58,7 +58,7 @@ def geoCoordTes(db,uiSession):
         
         return bottle.template("model_geocoords_edit.tpl",
                                {"breadcrumbPairs":crumbTrack,
-                               'modelId':modelId})
+                               'modelId':modelId,'name':m.name})
     except bottle.HTTPResponse:
         raise 
     

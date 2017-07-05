@@ -54,7 +54,7 @@ def popTabPage(db,uiSession):
         
         return bottle.template("model_popdemand_edit.tpl",
                                {"breadcrumbPairs":crumbTrack,
-                               'modelId':modelId,
+                               'modelId':modelId,'name':m.name,
                                'popTypeNames':popTypes})
     except bottle.HTTPResponse:
         raise 
