@@ -76,7 +76,7 @@
 %        'createHeader'  : _("Creating Your Staff Type")
 %        },
 %    'perdiems': {
-%        'label'         : _('PerDiems'),
+%        'label'         : _('Per Diems'),
 %        'infoUrl'       : 'json/perdiem-info',
 %        'editUrl'       : 'perdiem-edit',
 %        'editForm'      : 'json/perdiem-edit-form',

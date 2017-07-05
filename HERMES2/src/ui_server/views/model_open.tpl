@@ -556,13 +556,13 @@ $(document).ready(function(){
 				console.log(srcModelId);
 				var dstName = $("#model_copy_dlg_new_name").val();
 				if (dstName == "") {
-				    alert('{{_("A name for the newly copyied model must be given to proceed.")}}');
+				    alert('{{_("A name for the newly copied model must be given to proceed.")}}');
 				}
 				else {
 				    $.getJSON('json/get-existing-model-names')
 				    .done(function(result){
 				    	if(!result.success){
-				    		alert("Failure in Coping Model dialog getting existing model names: " + result.msg);
+				    		alert("Failure in Copying Model dialog getting existing model names: " + result.msg);
 				    	}
 				    	else{
 				    		if(result.names.indexOf(dstName) !== -1){

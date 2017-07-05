@@ -22,7 +22,7 @@
 %    ['trucks',   _('Transport'),       'truck-top'],
 %    ['fridges',  _('Storage'),         'fridge-top'],
 %    ['people',   _('Population'),      'people-top'],
-%    ['perdiems', _('PerDiems'),        'perdiem-top'],
+%    ['perdiems', _('Per Diems'),        'perdiem-top'],
 %    ['staff',    _('Staff'),           'staff-top'],
 % ]
 

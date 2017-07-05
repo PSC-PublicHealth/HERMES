@@ -693,7 +693,7 @@ $(function(){
 $(function(){
 	var phrases = {0:'Edit Route',
 				   1:'Delete Route',
-				   2:'set as default template'};
+				   2:'Set As Default Template'};
 	translate_phrases(phrases)
 	.done(function(tphrases){
 		tp = tphrases.translated_phrases;

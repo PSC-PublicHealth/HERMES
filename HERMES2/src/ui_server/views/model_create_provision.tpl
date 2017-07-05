@@ -39,13 +39,13 @@ var modelInfo = ModelInfoFromJson(modJson);
 
 <p>
 	<span class="hermes-top-sub">
-		{{_('Now, we need to allocate the equipment for storage and population that will be served for each location at each level.').format(name)}}
+		{{_('Now, we need to allocate what storage equipment each level will require and how many people each level is expected to serve.').format(name)}}
 		{{_('To add an item to all locations at a level, edit the cell to indicate the number to be added.  You can modify individual locations by editing the model.')}}
 	</span>
 </p>
 <p>
 	<span class="hermes-top-sub">
-		{{_('NOTE: The count should be the number you would like at each location in the level (e.g. if you specify 100 Newborns at the Health Post level, each location at that level will be assigned 100 Newborns)"')}}
+		{{_('NOTE: The count should be the number you would like at each location in the level (e.g. if you specify 100 newborns at the health facility level, each location at that level will be assigned 100 newborns)"')}}
 	</span>
 </p>
 

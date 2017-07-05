@@ -45,7 +45,7 @@ a.model-operation-item:visited{
 	data-url="{{rootPath}}upload-geocoordspreadsheet" style="display:none">
 
 <script type="text/javascript" src="{{rootPath}}static/editor-widgets/geoCoordinateGrid.js"></script>
-<h2>{{_("Edit the Geographic Coordinates for ")}}</h2>
+<h2>{{_("Edit the Geographic Coordinates")}}</h2>
 <h4>
 {{_("Please enter in the geographic coordinates of individual locations in the table below. Your entries will be saved automatically as you add them.")}}</h4>
 <br>
@@ -54,13 +54,13 @@ a.model-operation-item:visited{
 <div id="uploadSpreadsheetDialog">
 	<span class="large_dialog_font">
 		<p>
-			{{_("You can upload an excel file that contains the geographic coordinates of locations in your model.")}}
+			{{_("You can upload an Excel file that contains the geographic coordinates of locations in your model.")}}
 		</p>
 		<p> 
 			{{_('Would you like to')}} 
 		</p>
 		<p style="margin-left:10px;">
-			<a href="#" id="download_choice">{{_("Download a Preformated Spreadsheet")}}</a>
+			<a href="#" id="download_choice">{{_("Download a Preformatted Spreadsheet")}}</a>
 		</p>
 		<p>	
 			{{_('or')}}
@@ -214,7 +214,7 @@ $( "#spreadupload-dialog" ).dialog({
     		click: function() {
     			//Error Checking
     			if(!$("#xlsfilename").val()){
-    				alert("{{_('Must specify an excel file to upload.')}}");
+    				alert("{{_('Must specify an Excel file to upload.')}}");
     			}
     			else{
     				var files = $("#xlsfilename").prop('files');

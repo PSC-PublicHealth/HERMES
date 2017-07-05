@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!usr/bin/env python
 
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
@@ -163,7 +163,7 @@ def getResultsGroupTree(rG,m,db):
     rGName = u"{0} <button id='rg_del_but_rG_{1}_{2}' class='res_del_button'>{3}</button>".format(rG.name,
                                                                                                  rG.modelId,
                                                                                                  rG.resultsGroupId,
-                                                                                                 _('delete'))
+                                                                                                 _('Delete'))
     rGDict = {'text':u'{0}'.format(rGName),'state':{'opened':True},
               'id':u'rG_{0}_{1}'.format(rG.modelId,rG.resultsGroupId),
               'children':[]}
@@ -196,7 +196,7 @@ def getResultsGroupTree(rG,m,db):
     
         rName += u" <button id='res_del_but_r_{0}_{1}' class='res_del_button' >{2}</button>".format(rG.modelId,
                                                                                                  r.resultsId,
-                                                                                                 _("delete"))
+                                                                                                 _("Delete"))
         rGDict['children'].append({'text':u"{0}".format(rName),'tabText':u"{0}".format(tText),
                                    'id':u"r_{0}_{1}_{2}".format(rG.modelId,r.resultsId,hasCosts)})
     return rGDict

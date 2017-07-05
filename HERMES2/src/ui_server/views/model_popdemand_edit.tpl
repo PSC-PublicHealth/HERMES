@@ -45,7 +45,7 @@ a.model-operation-item:visited{
 	data-url="{{rootPath}}upload-populationspreadsheet" style="display:none">
 
 <script type="text/javascript" src="{{rootPath}}static/editor-widgets/popDemandGrid.js"></script>
-<h2>{{_("Edit the Population Estimates for ")}}</h2>
+<h2>{{_("Edit the Population Estimates")}}</h2>
 <h4>
 {{_("Please enter in the population estimates for the number individuals of each type to be vaccinated during a year at individual locations in the table below. Your entries will be saved automatically as you add them.")}}</h4>
 <br>
@@ -60,7 +60,7 @@ a.model-operation-item:visited{
 			{{_('Would you like to')}} 
 		</p>
 		<p style="margin-left:10px;">
-			<a href="#" id="download_choice">{{_("Download a Preformated Spreadsheet")}}</a>
+			<a href="#" id="download_choice">{{_("Download a Preformatted Spreadsheet")}}</a>
 		</p>
 		<p>	
 			{{_('or')}}
