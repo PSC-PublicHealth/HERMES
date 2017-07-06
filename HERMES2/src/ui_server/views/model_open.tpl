@@ -198,12 +198,12 @@ var mayModify = "{{maymodify}}" == "True" ? true : false ;
 					<a class="model-operation-item" href="#" title='{{_("Define the details needed to implement the HERMES microcosting model, including storage, building, labor, transportation and vaccine costs.")}}'
 						id="costs_model_link">{{_('Add and modify')}} <span class="action-underline">{{_('costs')}}</span></a>
 				</span>	
-				<li>
+				<!--<li>
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Define the manufacturing details such as frequecy of vaccine creation, and buffer stock.")}}'
 						id="factories_link">{{_('Modify')}} <span class="action-underline">{{_('manufacturer')}}</span></a>
 				</span>
-				</li>
+				</li>-->
 				<li>
 				<span class="model-operation-item">
 					<a class="model-operation-item" href="#" title='{{_("Open the HERMES Transport Loop Generator to explore the effects of implementing transport loops at various levels in your system.")}}'
