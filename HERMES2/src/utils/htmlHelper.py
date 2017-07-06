@@ -314,6 +314,7 @@ class HTMLFormInputBox(HTMLElement):
         self.type = type_
         self.pretty = pretty_
         self.data = data_
+        #to activated
         self.activated = activated_
         
         self.default = None
