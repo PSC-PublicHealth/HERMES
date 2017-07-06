@@ -341,6 +341,11 @@ def jsonValidateRun(db, uiSession):
         report += [{'test':None,'messtype':'Costing Errors','message':u'{0}'.format(p)} for p in costMessages]
         report += [x for x in validator.getMessageList() if x['messtype'] == 'Warnings']
         
+        if len(report) == 0:
+            report = [{'test':"All",
+                       'messtype':'Success',
+                       'message':_('There were no warnings or errors in the model, please proceed to press the Run Simulation button below')}]
+        print "Report = {0}".format(report)
         return {'success':True,'report':report}
                 
     except bottle.HTTPResponse:

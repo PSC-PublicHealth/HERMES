@@ -627,6 +627,10 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 									deviceCounts:JSON.stringify($("#"+thisContainerId).data("deviceCounts"))
 								}
 							});
+							
+							var curDevCount = $("#"+thisContainerId).data("deviceCounts");
+							curDevCount[newName] = 1;
+							$("#"+thisContainerId).data("deviceCounts",curDevCount);
 							$("#"+thisTableId).jqGrid().trigger('reloadGrid',{fromServer:true});}
 =======
 						saveFunc: function(){$("#"+thisTableId).jqGrid().trigger('reloadGrid');}

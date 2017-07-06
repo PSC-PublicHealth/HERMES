@@ -54,7 +54,7 @@
   		</tr>
   		<tr>
   			<td>
-  				<label for="run_realizations">{{_('How many stochastic runs would you like to average the results over?')}}</label>
+  				<label for="run_realizations">{{_('How many stochastic (random) runs would you like to average the results over?')}}</label>
   			</td>
   			<td>
   				<input type="number" name="run_realizations" id="run_realizations" value=4>
@@ -274,6 +274,8 @@ $(function() {
     				alert(results.msg);
     			}
     			else{
+    				
+    				console.log(results);
     				var hasFatals = false;
     				var hasCosting = false
     				for(var i=0;i<results.report.length;i++){
