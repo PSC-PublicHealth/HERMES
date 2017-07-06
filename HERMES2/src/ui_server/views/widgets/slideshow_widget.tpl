@@ -39,7 +39,7 @@
 				$("#click_text").html("{{_('Please Click the Next Button to Continue')}}");
 			}
 			else if(name=="done"){
-				$("#click_text").html("{{_('Please Click the Done Button to Continue')}}");
+				$("#click_text").html("{{_('Please Click the Done Button to Finish')}}");
 			}
 			
 			$("#" + thisContainerId).data(name + "Active",true);
@@ -95,6 +95,9 @@
 			var ButtonId = thisContainerId + "_"+name;
 			if(name=="next"){
 				$("#click_text").html("{{_('Please Click the Next Button to Continue')}}");
+			}
+			else if(name=="done"){
+				$("#click_text").html("{{_('Please Click the Done Button to Finish')}}");
 			}
 			$("#" + thisContainerId).data(name + "Active",true);
 			$("#" + ButtonId).removeClass('slide_button_deact')
@@ -267,6 +270,7 @@
 						$this.removeButton("back");
 					}
 					$this.displayButton("done");
+					$this.activateButton("done");
 				}
 				if(currentActiveSlide != numSlides-1){
 					$this.activateButton("back");
