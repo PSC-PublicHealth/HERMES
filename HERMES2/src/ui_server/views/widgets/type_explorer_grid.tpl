@@ -137,6 +137,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			newOnly:false,
 			addFunction: function(){},
 			delFunction: function(){},
+			createFunction: function(){},
 			onSelectFunction: function(){},
 			title: "",
 			trant:{
@@ -606,6 +607,13 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 							var news = $("#"+thisContainerId).data("newTypes");
 							news = news.concat([newName]);
 							$("#"+thisContainerId).data("newTypes",news);
+							if(thisOptions.includeCount){
+								var curDevCount = $("#"+thisContainerId).data("deviceCounts");
+								curDevCount[newName] = 1;
+								$("#"+thisContainerId).data("deviceCounts",curDevCount);
+								
+							}
+							
 							$("#"+thisTableId).jqGrid('setGridParam',
 							{
 								postData:{
@@ -616,12 +624,11 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 									newTypes:JSON.stringify(news),
 									deviceCounts:JSON.stringify($("#"+thisContainerId).data("deviceCounts"))
 								}
-							});
+							}).trigger('reloadGrid',{fromServer:true});
 							
-							var curDevCount = $("#"+thisContainerId).data("deviceCounts");
-							curDevCount[newName] = 1;
-							$("#"+thisContainerId).data("deviceCounts",curDevCount);
-							$("#"+thisTableId).jqGrid().trigger('reloadGrid',{fromServer:true});}
+							thisOptions.createFunction(newName);
+							
+						}
 					});
 				});
 			}

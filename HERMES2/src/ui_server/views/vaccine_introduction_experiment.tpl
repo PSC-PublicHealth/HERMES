@@ -49,7 +49,10 @@
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/widget_css/slideshow_widget.css" /> 
 <script src="{{rootPath}}widgets/slideshow_widget.js" type="text/javascript"></script>
 <script src="{{rootPath}}widgets/type_explorer_grid.js" type="text/javascript"></script>
+<script src="{{rootPath}}widgets/type_editor_dialog_widget.js" type="text/javascript"></script>
+<link rel="stylesheet" href="{{rootPath}}static/widget_css/type_explorer_grid_widget.css" />
 <script src="{{rootPath}}widgets/vaccine_dose_per_person_grid.js" type="text/javascript"></script>
+
 
 <h2>{{_("HERMES Experiment Generator: Vaccine Introductions")}}</h2>
 <div id="addvacexpt_slides">
@@ -207,8 +210,11 @@ $("#addvacexpt_explorer_model_div").typeExplorerGrid({
 	namesOnly:true,
 	searchEnabled: false,
 	addFunction: function(typName){
-		console.log("HERE " + typName);
 		$("#addvacexpt_explorer_all_div").typeExplorerGrid("removeGrid",typName);
+		$("#addvacexpt_slides").slideShowWithFlowControl("activateButton","next");
+	},
+	createFunction: function(typName){
+		$("#addvacexpt_slides").slideShowWithFlowControl("activateButton","next");
 	},
 	width:$("#addvacexpt_explorer_model_div").width(),
 	deletable: true,
