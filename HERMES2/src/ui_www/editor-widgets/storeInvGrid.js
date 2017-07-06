@@ -89,6 +89,8 @@
 				gridview: true,
 				loadonce:true,
 				height:gridHeight,
+				autowidth:true,
+				width:'auto',
 				rowNum:-1,
 				pgbuttons:false,
 				pginput:false,

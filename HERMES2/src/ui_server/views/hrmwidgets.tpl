@@ -2199,7 +2199,6 @@ function addToggleExpansionButton($grid) {
 						onSelectRow: function(resultsId, status){
 							var oldCountValue = -1;
 							if(status){
-								console.log(status);
 								if(resultsId) {
 									var oldCountIndex = resultsId;
 									var oldRowData = $("#"+tableId).jqGrid("getRowData",resultsId);
