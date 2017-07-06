@@ -2311,6 +2311,7 @@ class DetachStore:
                 
     
 def addStoreAsClient(store, supStore, hintRoute=None):
+    #print "I am supposed to be here"
     if hintRoute is not None:
         if isinstance(hintRoute, shd.ShdRoute):
             recs = hintRoute.createRecords()
@@ -2371,6 +2372,7 @@ def moveStoreToRoute(store, route, srcTree, dstTree, dstParentNode, dstStatus):
         if store is supStore:
             raise InvalidUpdate(_("It is not allowed to move a store to one of its clients"))
 
+    #print "Route Here = {0}".format(route)
     if store.supplierRoute() is route:
         return reorderStops(store, None, srcTree, dstTree, dstParentNode, dstStatus)
 
@@ -2419,6 +2421,8 @@ def reorderStops(store, dstStore, srcTree, dstTree, dstParentNode, dstStatus):
     """
     route = store.supplierRoute()
 
+    #print "Store! = {0}".format(store.NAME)
+    #print "DSTStore = {0}".format(dstStore.NAME)
     #
     #BUG we do not support interface interactions with visiting the same store twice
     # on a route
@@ -2427,6 +2431,7 @@ def reorderStops(store, dstStore, srcTree, dstTree, dstParentNode, dstStatus):
     with selectTree(dstTree):
         ULCM.addUpdate(packNodeId(store), 'X', 'remove')
 
+    
     route.unlinkRoute()
 
     # remove the parent stop from this
@@ -2491,9 +2496,10 @@ def moveStoreToStore(store, dstStore, srcTree, dstTree, dstParentNode, dstStatus
 
     # see which type of move this is.  
     # if src and dst share the same parent route then we're just reordering the route
-    if store.supplierRoute() is dstStore.supplierRoute():
-        #print "suppliers are same"
-        return reorderStops(store, dstStore, srcTree, dstTree, dstParentNode, dstStatus)
+    if dstStore.supplierRoute():
+        if store.supplierRoute() is dstStore.supplierRoute():
+            #print "suppliers are same"
+            return reorderStops(store, dstStore, srcTree, dstTree, dstParentNode, dstStatus)
 
     #
     # next actually make the move
