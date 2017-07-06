@@ -230,7 +230,7 @@ $(function() {
 	    sortorder: "asc", //sort order; optional
 	    gridview: false, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
    	    onSelectRow: function(id){
-		    if(id && id!==lastsel_models){
+		    if(id){// && id!==lastsel_models){
 		    	$("#model_create_adjust_grid").restoreRow(lastsel_models);
 		    	lastsel_models=id;
 			    //jQuery('#model_create_adjust_grid').jqGrid('saveRow',lastsel_models);
@@ -240,7 +240,7 @@ $(function() {
 			    	"keys":true,
 			    	"aftersavefunc":function(rowid,response){
 			    		$("#1 td").each(function(){
-			        		console.log($(this).attr("aria-describedby"));
+			        		//console.log($(this).attr("aria-describedby"));
 			        		$this=$(this)
 			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_isfetch")
 			        			$this.html("");
