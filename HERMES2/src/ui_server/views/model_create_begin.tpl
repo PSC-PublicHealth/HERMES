@@ -208,6 +208,7 @@ function updateNetworkDiagram(){
 <div id="big-modal" title='{{_("Warning: Large number of locations")}}'>
 	<p>{{_("You are creating a model with a large number of locations.  Please note that this will require much time to create the model for simulation and if you would like to proceed, you will need patience when waiting between screens.")}}</p>
 </div>
+<div id="warning-modal" title="{{_('Notification: Invalid Entry')}}"></div>
 <script>
 
 var page_step = 0;
@@ -341,24 +342,43 @@ $(function() {
 			page_step = 1;
 		}
 		else if(page_step == 1){
-			updateLevelCountsTable().done(function(result){
-				if(!result.success){
-					if(result.type == "error")
-						alert(result.msg);
-				}
-				else{
-					$("#model_create_number_places").html(result.htmlString);
-					//updateNetworkDiagram();
-					add_level_count_handlers();
-					$("#model_create_name_levels").fadeTo(400,0.5);
-					$("#model_create_name_levels :input").prop("disabled",true)
-					$("#model_create_number_places").fadeIn("slow");
-					$("#model_create_lcounts_2").focus();
-					$("#model_create_lcounts_2").select();
-					$('#next_button').prop('value','{{_("Next Screen")}}')
-				}
-			});
-			page_step = 2;
+			var validateValue = validate_levelNames();
+			if(validateValue == false){
+				$("#warning-modal").html("{{_('Supply chain level names must be unique, please edit the boxes highlighted in red')}}");
+				$("#warning-modal").dialog({
+					modal:true,
+					autoOpen:true,
+					width:'auto',
+					buttons:{
+						{{_('OK')}}: function(){
+							$(this).html("");
+							$(this).dialog("close");
+							$(this).dialog("destroy");
+						}
+					}
+				});
+			}
+			else{
+				$("#model_create_name_levels :input").each(function(){$(this).css("border-color","initial");});
+				updateLevelCountsTable().done(function(result){
+					if(!result.success){
+						if(result.type == "error")
+							alert(result.msg);
+					}
+					else{
+						$("#model_create_number_places").html(result.htmlString);
+						//updateNetworkDiagram();
+						add_level_count_handlers();
+						$("#model_create_name_levels").fadeTo(400,0.5);
+						$("#model_create_name_levels :input").prop("disabled",true)
+						$("#model_create_number_places").fadeIn("slow");
+						$("#model_create_lcounts_2").focus();
+						$("#model_create_lcounts_2").select();
+						$('#next_button').prop('value','{{_("Next Screen")}}')
+					}
+				});
+				page_step = 2;
+			}
 		}
 		else if(page_step == 2){
 			modelInfo.updateSession('{{rootPath}}')
@@ -520,7 +540,7 @@ $(function() {
 		});
 	};
 	
-	/// Validatation functions
+	// Validatation functions
 	function validate_levelName(levelname,levelnum,origValue){
 		if(levelname.length == 0){
 			$("#dialog-modal-text").text("{{_('The name of a level cannot be blank')}}");
@@ -529,6 +549,30 @@ $(function() {
 		}
 		return levelname;
 	}
+	
+	function validate_levelNames(){
+		var origNames = $("#model_create_name_levels :input").map(function(){return this.value;}).get();
+		var a = {};
+		for(var i=0, j=origNames.length; i<j; i++){
+			a[origNames[i]] = (a[origNames[i]] || 0) + 1;
+		}
+		var returnTest = true;
+		for(var v in a){
+			if(a[v] != 1){
+				$("#model_create_name_levels :input").each(function(){
+					if($(this).val() == v){
+						$(this).css('border-color','red');
+					}
+				});
+				
+				returnTest = false;
+			}
+		}
+		return returnTest;
+	}
+	// Make sure there are no duplicates
+	var values = $("#model_create_name_levels :input").map(function(){return this.value;}).get();
+	
 	
 	function validate_levelcount(levelcount,levelnum,origValue){
 		if(isNaN(levelcount) || levelcount == ""){
