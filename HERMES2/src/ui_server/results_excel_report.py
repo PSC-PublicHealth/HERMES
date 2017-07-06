@@ -1313,8 +1313,9 @@ class MicroCostDisplay():
         for h, cList in self.columns:
             for cHead, data in cList:
                 ss.postNext(round(info[data], 2), style)
-        if len(unknownCategories) > 0:
-            ss.set("unknown categories: %s"%unknownCategories)
+        ### STB While this is great for debugging, looks bad on the spreadsheet.
+        #if len(unknownCategories) > 0:
+        #    ss.set("unknown categories: %s"%unknownCategories)
 
     def levelSummary(self, costs, levels, ss):
         columnCount = 1 + self.columnCount
