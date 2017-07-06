@@ -129,7 +129,7 @@ Please make sure that whatever tpl file that you put this widget in has the foll
 						})
 						.done(function(results){
 							if(!results.success){
-								alert(results.msg);
+								alert("There was an error getting the model notes: " + results.msg);
 							}
 							else{
 								$("#"+divIds.noteAreaID).val(results.notes);
@@ -153,7 +153,7 @@ Please make sure that whatever tpl file that you put this widget in has the foll
 							})
 							.done(function(results){
 								if(!results.success){
-									alert(results.msg);
+									alert("There was an error in updateing the model note: " + results.msg);
 								}
 								else{
 									$("#note-update-notify").fadeIn(400).delay(200).fadeOut(400);
@@ -166,7 +166,7 @@ Please make sure that whatever tpl file that you put this widget in has the foll
 					}; // if notesOn
 				})
 				.fail(function(data){ //translate_phrases
-					alert(data);
+					alert("There was an error translating phrases " + data);
 				});
 			
 			
@@ -178,7 +178,7 @@ Please make sure that whatever tpl file that you put this widget in has the foll
 				})
 				.done(function(result){
 					if(!result.success){
-						alert(results.msg);
+						alert("There was an error in getting the model tree structure: " + results.msg);
 					}
 					else{
 						$("#"+divIds.collapseDiagID).diagram({
@@ -195,7 +195,7 @@ Please make sure that whatever tpl file that you put this widget in has the foll
 					}
 				})
 				.fail(function(data){ 
-					alert(data);
+					alert("There was a failure in getting the model tree structure: " + data);
 				});
 			};
 			
