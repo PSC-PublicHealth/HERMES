@@ -130,16 +130,17 @@ def addStorageExptImplement(db,uiSession):
         
         levelToModify = exptData['level']
         option = exptData['option']
-        print "HETER!!!!"
-        print option
+        #print "HETER!!!!"
+        #print option
         if option == "addstorexpt_addition":
             addDevice = exptData['addDevices']
             deviceCounts = exptData['deviceCounts']
-            
             for storeId,store in m.stores.items():
                 if store.CATEGORY == levelToModify and not store.isAttached() and not store.isSurrogate():
                     for dev in addDevice:
                         curCount = store.countInventory(dev)
+#                        print "curCount = {0}".format(curCount)
+#                        print "deviceCounts = {0}".format(deviceCounts)
                         store.updateInventory(dev,int(curCount) + int(deviceCounts[dev]))
         
         elif option == "addstorexpt_replace":
