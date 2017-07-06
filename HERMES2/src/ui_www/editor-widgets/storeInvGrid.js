@@ -155,7 +155,12 @@
 							onSelectOpen:function(){
 								console.log(thiscontainerID);
 								$("#"+thiscontainerID).children(".ui-jqgrid").children(".ui-jqgrid-view").children(".ui-jqgrid-bdiv").css({"overflow":"hidden"});
+							},
+							onSelectClose:function(){
+								$("#"+thiscontainerID).children(".ui-jqgrid").children(".ui-jqgrid-view").children(".ui-jqgrid-bdiv").css({"overflow":"scroll"});
 							}
+						
+						
 						});
 					});
 					
