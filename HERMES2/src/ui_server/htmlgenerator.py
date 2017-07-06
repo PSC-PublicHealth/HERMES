@@ -537,13 +537,18 @@ def _buildNumberPlacesPerLevelsFormFromSession(prefix="",levelInfo={},levelNames
     
     htmlDoc = HTMLDocument("levalplacenumbersform",None,standAlone_=False)
     htmlForm = HTMLForm("Level_Place_Numbers")
-        
+    
     for i in range(0,len(levelNames)):
+        activated = True
+        if i == 0:
+            activated = False
+        #print "IS THIS ACTIVE: {0}".format(activated)
         htmlForm.addElement(HTMLFormInputBox('model_create_lcounts_{0}'.format(i+1),
                                              _('Number of Locations in')+u'<span class="levelcount-em"> {0} </span> '.format(levelNames[i]) + _('level'),
                                              levelCounts[i],
                                              'int',
-                                             True))
+                                             activated_=activated,
+                                             pretty_=True))
                             
     htmlDoc.addConstruct(htmlForm)
     htmlString = htmlDoc.htmlString()
