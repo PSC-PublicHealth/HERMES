@@ -92,7 +92,7 @@
 		<div class = "options_div" style="float:left">
 			<div id="welcome_title">
 				<span class="big_title">
-					{{_("Welcome to HERMES")}}
+					{{_("Welcome to HERMES Version 0.95")}}
 				</span>
 				<br>
 				<span class="second_title">
