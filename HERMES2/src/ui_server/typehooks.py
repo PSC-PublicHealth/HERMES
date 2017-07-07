@@ -13,6 +13,7 @@
 # in the file LICENSE.txt.                                                        #
 #                                                                                 #
 ###################################################################################
+from typehelper import getListOfAllTypesInModel
 
 _hermes_svn_id_="$Id: typehooks.py 1989 2014-10-22 22:58:03Z welling $"
 
@@ -239,14 +240,18 @@ def jsonGetAllTypeNamesInModel(db,uiSession):
         typeClass = _safeGetReqParam(bottle.request.params, "typeClass", default=None)
         fallback = _safeGetReqParam(bottle.request.params,'fallback',default=False)
         
-        m = shadow_network_db_api.ShdNetworkDB(db,modelId)     
-        
+#         m = shadow_network_db_api.ShdNetworkDB(db,modelId)     
+#         
         if typeClass:
             typeNames = [x['Name'] for x in typehelper.getTypeList(db,modelId,typeClass,fallback)]
             typeDisplayNames = [x['DisplayName'] for x in typehelper.getTypeList(db,modelId,typeClass,fallback)]
         else:
-            typeNames = [x for x in m.types]
-            typeDisplayNames = [typehelper.getTypeWithFallback(db,modelId,x,fallback)[1].DisplayName for x in m.types]
+            tList = getListOfAllTypesInModel(db, modelId, fallback)
+            typeNames = [x['Name'] for x in tList]
+            typeDisplayNames = [x['DisplayName'] for x in tList]
+            
+#             typeNames = [x for x in m.types]
+#             typeDisplayNames = [typehelper.getTypeWithFallback(db,modelId,x,fallback)[1].DisplayName for x in m.types]
             
         #if typeClass:
         #    typeNames = [x for x in typeNamesAll if ]

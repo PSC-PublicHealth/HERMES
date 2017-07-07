@@ -278,61 +278,7 @@ var typesMap = {
 				    					$(this).dialog("close");
 				    				},
 				    				'{{_("Save")}}':function(){
-				    					var flag = false;
-				    					var debug = false;;
-				    					$(".required_string_input").each(function(){
-				    						var value = $(this).val();
-				    						if(!value || value.length === 0 || !value.trim()){
-				    							$(this).css("border-color","red");
-				    							if(debug) alert("String Bad " + $(this).attr('id'))
-				    							flag=true;
-				    						}
-				    					});
-				    					$(".required_int_input").each(function(){
-				    						var value = $(this).val();
-				    						if(!value || value.length === 0 || !value.trim()){
-				    							$(this).css("border-color","red");
-				    							if(debug) alert("int Bad " + $(this).attr('id'))
-				    							flag=true;
-				    						}
-				    						if($(this).hasClass("canzero")){
-				    							if(value < 0.0){
-				    								$(this).css("border-color","red");
-				    								flag=true;
-				    								if(debug) alert("int zero Bad " + $(this).attr('id'))
-				    							}
-				    						}
-				    						else{
-				    							if(value <= 0.0){
-				    								$(this).css("border-color","red");
-				    								flag=true;
-				    								if(debug) alert("int eq zero Bad " + $(this).attr('id'))
-				    							}
-				    						}
-				    					});
-				    					$(".required_float_input").each(function(){
-				    						var value = $(this).val();
-				    						//alert("could be zero");}
-				    						if(!value || value.length === 0 || !value.trim()){
-				    							$(this).css("border-color","red");
-				    							if(debug) alert("float Bad " + $(this).attr('id') + "Value = " + value)
-				    							flag=true;
-				    						}
-				    						if($(this).hasClass("canzero")){
-				    							if(value < 0.0){
-				    								$(this).css("border-color","red");
-				    								if(debug) alert("float zero Bad " + $(this).attr('id'))
-				    								flag=true;
-				    							}
-				    						}
-				    						else{
-				    							if(value <= 0.0){
-				    								$(this).css("border-color","red");
-				    								if(debug) alert("float eq zero Bad " + $(this).attr('id'))
-				    								flag=true;
-				    							}
-				    						}
-				    					});
+				    					var flag = validate_fields();
 				    					if(!flag){
 					    					var dict = $('#' + thisEditFormId).editFormManager('getEntries');
 					    					dict['overwrite'] = 1;
@@ -474,6 +420,66 @@ var typesMap = {
 				}
 			}).promise();
 		};
+		
+		function validate_fields(){
+			var flag = false;
+			var debug = false;
+			$(".required_string_input").each(function(){
+				var value = $(this).val();
+				if(!value || value.length === 0 || !value.trim()){
+					$(this).css("border-color","red");
+					if(debug) alert("String Bad " + $(this).attr('id'))
+					flag=true;
+				}
+			});
+			$(".required_int_input").each(function(){
+				var value = $(this).val();
+				if(!value || value.length === 0 || !value.trim()){
+					$(this).css("border-color","red");
+					if(debug) alert("int Bad " + $(this).attr('id'))
+					flag=true;
+				}
+				if($(this).hasClass("canzero")){
+					if(value < 0.0){
+						$(this).css("border-color","red");
+						flag=true;
+						if(debug) alert("int zero Bad " + $(this).attr('id'))
+					}
+				}
+				else{
+					if(value <= 0.0){
+						$(this).css("border-color","red");
+						flag=true;
+						if(debug) alert("int eq zero Bad " + $(this).attr('id'))
+					}
+				}
+			});
+			$(".required_float_input").each(function(){
+				var value = $(this).val();
+				//alert("could be zero");}
+				if(!value || value.length === 0 || !value.trim() || isNaN(parseFloat(value))){
+					$(this).css("border-color","red");
+					if(debug) alert("float Bad " + $(this).attr('id') + "Value = " + value)
+					flag=true;
+				}
+				if($(this).hasClass("canzero")){
+					if(value < 0.0){
+						$(this).css("border-color","red");
+						if(debug) alert("float zero Bad " + $(this).attr('id'))
+						flag=true;
+					}
+				}
+				else{
+					if(value <= 0.0){
+						$(this).css("border-color","red");
+						if(debug) alert("float eq zero Bad " + $(this).attr('id'))
+						flag=true;
+					}
+				}
+			});
+			return flag;
+		}
+
 	
 		}, // end _create
 		_destroy:function(){

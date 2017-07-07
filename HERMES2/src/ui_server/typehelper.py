@@ -42,12 +42,12 @@ hiddenTypesSet = set(['OUTDOORS'])
 
 alwaysPresentTypes = defaultdict(lambda: [],
                                  {'staff': ['Std_WarehouseStaff', 'Std_Driver'],
-                                  'perdiems': ['Std_PerDiem_None'],
-                                  'types': ['Std_WarehouseStaff', 'Std_Driver', 'Std_PerDiem_None']
+                                  'perdiems': ['Std_Per_Diem_None'],
+                                  'types': ['Std_WarehouseStaff', 'Std_Driver', 'Std_Per_Diem_None']
                                   })
 
 # The following typenames are used elsewhere and should be considered reserved
-specialTypeNames = {'no-perdiem': 'Std_PerDiem_None'
+specialTypeNames = {'no-perdiem': 'Std_Per_Diem_None'
                     }
 
 

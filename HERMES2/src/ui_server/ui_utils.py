@@ -130,7 +130,7 @@ def _mergeFormResults(bottleRequest, db, uiSession, fieldMap, allowNameCollision
         m = shadow_network_db_api.ShdNetworkDB(db,attrRec['modelId'])
         if attrRec['Name'] in m.types and not allowNameCollisions:
             badStr += _("The name {0} is already in use. ").format(attrRec['Name'])
-        tList = typehelper.getListOfAllTypesInModel(db,attrRec['modelId'],fallback=True)
+        tList = typehelper.getListOfAllTypesInModel(db,attrRec['modelId'],fallback=False)
         #print "TList = {0}".format(tList)
         displayNames = [x['DisplayName'] for x in tList]
         print "dispNames = {0}".format(displayNames)
