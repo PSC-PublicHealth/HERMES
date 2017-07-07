@@ -497,6 +497,7 @@ $("#addvacexpt_explorer_model_div").typeExplorerGrid({
 	groupingEnabled:false,
 <<<<<<< HEAD
 	createEnabled:true,
+	createDialogTitle:"{{_('Create a Storage Device to Add to Compliment')}}",
 	searchEnabled: false,
 	newOnly:true,
 	colorNewRows:false,

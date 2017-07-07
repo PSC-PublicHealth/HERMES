@@ -205,6 +205,7 @@ $("#addvacexpt_explorer_model_div").typeExplorerGrid({
 	checkBoxes: false,
 	selectEnabled: false,
 	createEnabled: true,
+	createDialogTitle: "{{_('Create a New Vaccine to Introduce')}}",
 	expandAll: true,
 	groupingEnabled:false,
 	namesOnly:true,
