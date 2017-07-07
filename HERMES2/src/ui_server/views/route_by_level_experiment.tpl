@@ -476,6 +476,7 @@ $("#modrouteexpt_change_vehicle_grid").typeExplorerGrid({
 	groupingEnabled:false,
 	namesOnly: false,
 	createEnabled:true,
+	createDialogTitle:"{{_('Create a New Mode of Transport for the Modified Routes')}}",
 	width:$("#modrouteexpt_change_vehicle_grid").width()-2.5,
 	onSelectFunction:function(){$("#modrouteexpt_slides").slideShowWithFlowControl("activateButton","next");}
 });

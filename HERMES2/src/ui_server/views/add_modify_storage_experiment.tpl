@@ -354,6 +354,7 @@ $("#addstorexpt_explorer_compliment_div").typeExplorerGrid({
 	expandAll: true,
 	groupingEnabled:false,
 	createEnabled:true,
+	createDialogTitle:"{{_('Create a Storage Device to Add to Compliment')}}",
 	searchEnabled: false,
 	newOnly:true,
 	colorNewRows:false,

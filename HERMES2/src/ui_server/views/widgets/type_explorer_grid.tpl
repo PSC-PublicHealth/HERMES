@@ -122,6 +122,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			expandAll: false,
 			groupingEnabled: true,
 			createEnabled: true,
+			createDialogTitle: '',
 			namesOnly: false,
 			searchEnabled: true,
 			width:400,
@@ -603,6 +604,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 					$("#"+ thisCreateDialogId).typeEditorDialog({
 						modelId: thisOptions.modelId,
 						typeClass: thisOptions.typeClass,
+						title:thisOptions.createDialogTitle,
 						saveFunc: function(newName){
 							var news = $("#"+thisContainerId).data("newTypes");
 							news = news.concat([newName]);

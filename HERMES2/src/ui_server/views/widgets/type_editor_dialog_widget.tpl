@@ -78,7 +78,7 @@ var typesMap = {
 			modelId:'',
 			typeClass:'',
 			height: 300,
-			width:700,
+			width:'auto',
 			saveFunc:function(newName){},
 			title:'',
 			trant:{
@@ -251,13 +251,14 @@ var typesMap = {
 							}
 						})
 						.done(function(data){
-							console.log(data);
+							titleStr = typesMap[thisOptions.typeClass].createHeader
+							if(thisOptions.title != '') titleStr = thisOptions.title;
 							$("#"+thisMainDialogId).dialog({
 								autoOpen:true,
 								modal:true,
 								//height: thisOptions.height,
 								width:thisOptions.width,
-				    			title:typesMap[thisOptions.typeClass].editHeader,
+				    			title:titleStr,
 				    			close:function(){
 				    				//$("#"+thisEditFormId).html('');
 				    				$("#"+thisContainerId).typeEditorDialog("destroy");
