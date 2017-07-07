@@ -854,10 +854,11 @@ function editType(id) {
 						$("#edit_form_content").hrmWidget({
 			    			widget:'editFormManager',
 			    			html:data['htmlstring'],
-			    			modelId:modelId
+			    			modelId:modelId,
 			    		});
 						$("#edit_dialog").dialog({
 			    			title:typesMap[currentType].editHeader,
+			    			autoOpen: true,
 			    			buttons:{
 			    				'{{_("Cancel")}}':function(){
 			    					$(this).dialog("close");
@@ -939,13 +940,16 @@ function editType(id) {
 			    						$("#req_modal").dialog("open");
 			    					}
 			    				}
+			    			},
+			    			close:function(){
+			    				$("#edit_form_content").html("");
 			    			}
 			    		});
 					})
 					.fail(function(jqxhr, textStatus, error) {
 						alert("Error: "+jqxhr.responseText);
 					});
-					$("#edit_dialog").dialog("open");
+					//$("#edit_dialog").dialog("open");
 				}
 				else{
 					alert('{{_("There was a problem getting the new increment for the new type name")}}');
