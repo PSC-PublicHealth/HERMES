@@ -534,7 +534,7 @@ var columnNames = [
 ];
 
 var columnModelSrc = [
-    {name: 'dispName', width:250, index: 'dispName'},
+    {name: 'dispName', width:250, index: 'dispName', search:true, stype:'text',sopt:['cn']},
     {name: 'name', index: 'name', hidden: true},
     {name: 'modelId', index: 'modelId', hidden: true},
     {name: 'flags', index: 'flags', align:'center', formatter:infoFormatter},
@@ -1118,7 +1118,7 @@ $("#dest_grid").jqGrid({
     caption: "{{_('Used Types')}}",
 }).jqGrid('hermify',{debug:true});
 	
-$("#dest_grid").jqGrid('navGrid', '#dest_pager', {edit:false, add:false, del:false});
+$("#dest_grid").jqGrid('navGrid', '#dest_pager', {edit:false, add:false, del:false, search: false,refresh:false});
 
 function catchNewType(event, ui, data, $source, $target) {
     ui.helper.dropped = false;
@@ -1155,7 +1155,7 @@ $("#src_grid").jqGrid({
     // editurl:
     caption: "{{_('Available Types')}}",
 }).jqGrid('hermify',{debug:true});
-$("#src_grid").jqGrid('navGrid', '#src_pager', {edit:false, add:false, del:false});
+$("#src_grid").jqGrid('navGrid', '#src_pager', {edit:false, add:false, del:false,search:false,refresh:false});
 $("#src_grid").jqGrid('gridDnD', {connectWith : '#dest_grid', 
 				  dragcopy : true, 
 				  beforedrop : catchNewType });
@@ -1232,8 +1232,60 @@ $(function() {
 			getParms:function(){
 				return {};
 			},
-			checkParms:function(parmDict) {
-				return {success:true};
+			nextFunction:function() {
+				//return {success:true};
+				return $.ajax({
+					url:"{{rootPath}}json/validate-required-types-of-model",
+					data:{modelId:{{modelId}}}
+				})
+				.done(function(results){
+					if(results.success){
+						if(results.pass){
+							var parmDict = {}; // should be the same as above
+							window.location= '{{! breadcrumbPairs.getNextURL() }}' + '?' + parmDict;
+						}
+						else{
+							$("#wrappage_dialog_modal").html(results.message);
+							$("#wrappage_dialog_modal").dialog({
+								autoOpen:true,
+								modal:true,
+								width:'auto',
+								title: "{{_('Required Component Validation Failed')}}",
+								buttons:{
+									"{{_('Return To HERMES')}}":function(){
+										$(this).dialog("close");
+										$(this).html('');
+										$(this).dialog("destroy");
+									}
+								}
+							});
+							//$("#wrappage_dialog_modal").dialog('option','title',"{{_('Required Component Validation Failed')}}");
+							//$("#wrappage_dialog_modal").dialog("open");
+						}
+					}
+					else{
+						$("#wrappage_dialog_modal").html("{{_('There was an error with HERMES: ')}}" + results.msg);
+						$("#wrappage_dialog_modal").dialog({
+							autoOpen:true,
+							modal:true,
+							width:'auto',
+							title: "{{_('Failur Running Component Validation')}}",
+							buttons:{
+								"{{_('Return To HERMES')}}":function(){
+									$(this).dialog("close");
+									$(this).html('');
+									$(this).dialog("destroy");
+								}
+							}
+						});
+						//$("#wrappage_dialog_modal").dialog('option','title',"{{_('Failure Running Component Validation')}}");
+						//$("#wrappage_dialog_modal").dialog("open");
+					}
+				})
+				.fail(function(jqxhr, textStatus, errorThrown) {
+					alert('{{_("There was a failure in calling component validation algorithm: ")}}'+jqxhr.responseText);
+				});
+
 			},
 			nextURL:'{{! breadcrumbPairs.getNextURL() }}',
 			backURL:'{{! breadcrumbPairs.getBackURL() }}',
@@ -1242,4 +1294,12 @@ $(function() {
 		$(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'});
 	% end
 });
+
+function validate_types(){
+	
+	return $.ajax({
+		url:"{{rootPath}}json/validate-required-types-of-model",
+		data:{modelId:{{modelId}}}
+	}).promise();
+}
 </script>

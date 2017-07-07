@@ -326,9 +326,11 @@ def _createModel(db,uiSession):
                     shipIntervalDays = math.floor(7./rec['howoften'])
                 shipLatencyDays = 0.0
                 #print "RouteType = " + routeType
+                print "I AM adding a route"
                 route = shdNetwork.addRoute({'RouteName':routeName, 'Type':routeType,
                                              'ShipIntervalDays':shipIntervalDays,
                                              'ShipLatencyDays':shipLatencyDays}, noStops=True)
+                print "I AM DONE ADDING A ROUTE"
                 ignoredNumber = 17
                 transitUnits = newModelInfoCN['shiptransitunits'][len(storeStack)-2]
                 transitTimeRaw = newModelInfoCN['shiptransittimes'][len(storeStack)-2]
@@ -379,8 +381,10 @@ def _createModel(db,uiSession):
 
     # All models have copies of a few standard types from AllTypesModel
     aM = typehelper._getAllTypesModel(db)
+    #print "All Types Model = {0}".format(typehelper.getTypeList(db,aM.modelId,'perdiems'));
+    
     for tpName, tp in [(u'OUTDOORS', shd.ShdStorageType),
-                       (u'Std_PerDiem_None', shd.ShdPerDiemType),
+                       (u'Std_Per_Diem_None', shd.ShdPerDiemType),
                        (u'Std_WarehouseStaff', shd.ShdStaffType),
                        (u'Std_Driver', shd.ShdStaffType)]:
         attrRec = {'_inmodel': False, 'modelId': aM.modelId}
@@ -2834,8 +2838,41 @@ def assignVehiclesToRoutes(db,uiSession):
         result = {'success':False, 'type':'error','msg':str(e)}
         return result  
 
+@bottle.route('/json/validate-required-types-of-model')
+def validateRequiredTypesOfModel(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
         
-
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        #m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         
+        vaccs = typehelper.getTypeList(db,modelId,'vaccines',fallback=False)
+        trucks = typehelper.getTypeList(db,modelId,'trucks',fallback=False)
+        peeps = typehelper.getTypeList(db,modelId,'people',fallback=False)
+        fridges = typehelper.getTypeList(db,modelId,'fridges',fallback=False)
+        
+        messageTypes = []
+        if len(vaccs) == 0:
+            messageTypes.append(_('Vaccines'))
+        if len(trucks) == 0:
+            messageTypes.append(_('Transport Types'))
+        if len(peeps) == 0:
+            messageTypes.append(_('Population Types'))
+        if len(fridges) == 0:
+            messageTypes.append(_('Storage Devices'))
 
+        passTest = True
+        
+        message = ""
+        if len(messageTypes) > 1:
+            passTest = False
+            message = _("You must add the following Components before continuing otherwise your model will not be valid: {0}".format(", ".join(messageTypes)))
+
+        return {'success':True,'pass':passTest,'message':message}
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error','msg':str(e)}
+        return result  
 
