@@ -92,6 +92,14 @@ def getTypeList(db, modelId, typeClass, fallback=True):
     return tList
 
 
+def getListOfAllTypesInModel(db,modelId,fallback=True):
+    typesMap = shadow_network.ShdTypes.typesMap
+    tList = []
+    for k in typesMap.keys():
+        tList += getTypeList(db,modelId,k,fallback)
+    
+    return tList
+
 def checkTypeDependencies(db, oldModelOrModelId, newModelOrModelId, typeName):
     if oldModelOrModelId is None:
         oM = _getAllTypesModel(db)

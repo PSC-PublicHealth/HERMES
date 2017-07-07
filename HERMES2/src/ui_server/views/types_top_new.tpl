@@ -921,7 +921,6 @@ function editType(id) {
 			    					});
 			    					if(!flag){
 				    					var dict = $('#edit_form_content').editFormManager('getEntries');
-				    					dict['overwrite'] = 1;
 				    					$.ajax({
 				    						url:typesMap[currentType].commitUrl,
 				    						data:dict,
