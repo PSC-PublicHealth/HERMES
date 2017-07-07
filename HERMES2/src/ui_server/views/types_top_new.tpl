@@ -792,20 +792,26 @@ $("#save_name_modal").dialog({
 							var dict = $("#edit_form_content").editFormManager('getEntries');
 							dict['Name'] = $("#new_type_dbname_text").val();
 							dict['DisplayName'] = $("#new_type_name_text").val();
-							$.ajax({
-	    						url:typesMap[currentType].commitUrl,
-	    						data:dict,
-	    					})
-	    					.done(function(result){
-	    						if(result.success && (result.value == undefined || result.value)) {
-	    							$("#save_name_modal").dialog("close");
-	    							$("#edit_dialog").dialog("close");
-	    							reloadGrid(dest);
-	    						}
-	    						else{
-	    							alert(result.msg);
-	    						}
-	    					}); 
+							var flag = false; //validate_fields();
+							if(!flag){
+								$.ajax({
+		    						url:typesMap[currentType].commitUrl,
+		    						data:dict,
+		    					})
+		    					.done(function(result){
+		    						if(result.success && (result.value == undefined || result.value)) {
+		    							$("#save_name_modal").dialog("close");
+		    							$("#edit_dialog").dialog("close");
+		    							reloadGrid(dest);
+		    						}
+		    						else{
+		    							alert(result.msg);
+		    						}
+		    					});
+							}
+							else{
+								$("#req_modal").dialog("open");
+							}
 						}
 					}
 				}
@@ -864,61 +870,7 @@ function editType(id) {
 			    					$(this).dialog("close");
 			    				},
 			    				'{{_("Save")}}':function(){
-			    					var flag = false;
-			    					var debug = true;
-			    					$(".required_string_input").each(function(){
-			    						var value = $(this).val();
-			    						if(!value || value.length === 0 || !value.trim()){
-			    							$(this).css("border-color","red");
-			    							if(debug) alert("String Bad " + $(this).attr('id'))
-			    							flag=true;
-			    						}
-			    					});
-			    					$(".required_int_input").each(function(){
-			    						var value = $(this).val();
-			    						if(!value || value.length === 0 || !value.trim()){
-			    							$(this).css("border-color","red");
-			    							if(debug) alert("int Bad " + $(this).attr('id'))
-			    							flag=true;
-			    						}
-			    						if($(this).hasClass("canzero")){
-			    							if(value < 0.0){
-			    								$(this).css("border-color","red");
-			    								flag=true;
-			    								if(debug) alert("int zero Bad " + $(this).attr('id'))
-			    							}
-			    						}
-			    						else{
-			    							if(value <= 0.0){
-			    								$(this).css("border-color","red");
-			    								flag=true;
-			    								if(debug) alert("int eq zero Bad " + $(this).attr('id'))
-			    							}
-			    						}
-			    					});
-			    					$(".required_float_input").each(function(){
-			    						var value = $(this).val();
-			    						//alert("could be zero");}
-			    						if(!value || value.length === 0 || !value.trim()){
-			    							$(this).css("border-color","red");
-			    							if(debug) alert("float Bad " + $(this).attr('id') + "Value = " + value)
-			    							flag=true;
-			    						}
-			    						if($(this).hasClass("canzero")){
-			    							if(value < 0.0){
-			    								$(this).css("border-color","red");
-			    								if(debug) alert("float zero Bad " + $(this).attr('id'))
-			    								flag=true;
-			    							}
-			    						}
-			    						else{
-			    							if(value <= 0.0){
-			    								$(this).css("border-color","red");
-			    								if(debug) alert("float eq zero Bad " + $(this).attr('id'))
-			    								flag=true;
-			    							}
-			    						}
-			    					});
+									var flag = validate_fields();
 			    					if(!flag){
 				    					var dict = $('#edit_form_content').editFormManager('getEntries');
 				    					$.ajax({
@@ -989,50 +941,63 @@ function editType(id) {
 	    				},
 	    				'{{_("Save")}}':function(){
 	    					var dict = $('#edit_form_content').editFormManager('getEntries');
-	    					dict['overwrite'] = 1;
-	    					$.ajax({
-	    						url:typesMap[currentType].commitUrl,
-	    						data:dict,
-	    					})
-	    					.done(function(result){
-	    						if(result.success && (result.value == undefined || result.value)) {
-	    							$("#edit_dialog").dialog("close");
-	    							reloadGrid(dest);
-	    						}
-	    						else{
-	    							alert(result.msg);
-	    						}
-	    					}); 
+	    					var flag = validate_fields();
+	    					if(!flag){
+	    						
+	    						dict['overwrite'] = 1;
+		    					//var dict = $('#edit_form_content').editFormManager('getEntries');
+		    					$.ajax({
+		    						url:typesMap[currentType].commitUrl,
+		    						data:dict,
+		    					})
+		    					.done(function(result){
+		    						if(result.success && (result.value == undefined || result.value)) {
+		    							$("#edit_dialog").dialog("close");
+		    							reloadGrid(dest);
+		    						}
+		    						else{
+		    							alert(result.msg);
+		    						}
+		    					}); 
+	    					}
+	    					else{
+	    						$("#req_modal").dialog("open");
+	    					}
 	    				},
 	    				'{{_("Save As New Component")}}':function(){
 	    					var dict = $('#edit_form_content').editFormManager('getEntries');
-	    					$.ajax({
-	    						url:'{{rootPath}}json/get-all-typenames-in-model',
-	    						data:{
-	    							'modelId':{{modelId}}
-	    						}
-	    					})
-	    					.done(function(result){
-	    						if(result.success){
-	    							count=0;
-	    							typename = dict['Name'];
-	    							while(result.typenames.indexOf(typename)!=-1){
-	    								typename = typename.slice(0,typename.length-1)+count;
-	    								count++;
-	    							}
-	    							$("#new_type_dbname_text").val(typename);
-	    	    					$("#new_type_name_text").val(dict['DisplayName'] + " (modified)");
-	    	    					
-	    	    					$("#save_name_modal").dialog("open");
-	    						}
-	    						else{
-	    							alert(result.msg);
-	    						}
-	    					})
-	    					.fail(function(jqxhr, textStatus, error) {
-	    						alert("Error: "+jqxhr.responseText);
-	    					});
-	    					
+	    					var flag = validate_fields();
+	    					if(!flag){
+		    					$.ajax({
+		    						url:'{{rootPath}}json/get-all-typenames-in-model',
+		    						data:{
+		    							'modelId':{{modelId}}
+		    						}
+		    					})
+		    					.done(function(result){
+		    						if(result.success){
+		    							count=0;
+		    							typename = dict['Name'];
+		    							while(result.typenames.indexOf(typename)!=-1){
+		    								typename = typename.slice(0,typename.length-1)+count;
+		    								count++;
+		    							}
+		    							$("#new_type_dbname_text").val(typename);
+		    	    					$("#new_type_name_text").val(dict['DisplayName'] + " (modified)");
+		    	    					
+		    	    					$("#save_name_modal").dialog("open");
+		    						}
+		    						else{
+		    							alert(result.msg);
+		    						}
+		    					})
+		    					.fail(function(jqxhr, textStatus, error) {
+		    						alert("Error: "+jqxhr.responseText);
+		    					});
+	    					}
+	    					else{
+	    						$("#req_modal").dialog("open");
+	    					}	
 	    				}
 	    			}
 	    		});
@@ -1305,4 +1270,64 @@ function validate_types(){
 		data:{modelId:{{modelId}}}
 	}).promise();
 }
+
+function validate_fields(){
+	var flag = false;
+	var debug = false;
+	$(".required_string_input").each(function(){
+		var value = $(this).val();
+		if(!value || value.length === 0 || !value.trim()){
+			$(this).css("border-color","red");
+			if(debug) alert("String Bad " + $(this).attr('id'))
+			flag=true;
+		}
+	});
+	$(".required_int_input").each(function(){
+		var value = $(this).val();
+		if(!value || value.length === 0 || !value.trim()){
+			$(this).css("border-color","red");
+			if(debug) alert("int Bad " + $(this).attr('id'))
+			flag=true;
+		}
+		if($(this).hasClass("canzero")){
+			if(value < 0.0){
+				$(this).css("border-color","red");
+				flag=true;
+				if(debug) alert("int zero Bad " + $(this).attr('id'))
+			}
+		}
+		else{
+			if(value <= 0.0){
+				$(this).css("border-color","red");
+				flag=true;
+				if(debug) alert("int eq zero Bad " + $(this).attr('id'))
+			}
+		}
+	});
+	$(".required_float_input").each(function(){
+		var value = $(this).val();
+		//alert("could be zero");}
+		if(!value || value.length === 0 || !value.trim() || isNaN(parseFloat(value))){
+			$(this).css("border-color","red");
+			if(debug) alert("float Bad " + $(this).attr('id') + "Value = " + value)
+			flag=true;
+		}
+		if($(this).hasClass("canzero")){
+			if(value < 0.0){
+				$(this).css("border-color","red");
+				if(debug) alert("float zero Bad " + $(this).attr('id'))
+				flag=true;
+			}
+		}
+		else{
+			if(value <= 0.0){
+				$(this).css("border-color","red");
+				if(debug) alert("float eq zero Bad " + $(this).attr('id'))
+				flag=true;
+			}
+		}
+	});
+	return flag;
+}
+
 </script>

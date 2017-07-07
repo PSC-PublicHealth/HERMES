@@ -867,11 +867,11 @@ function addToggleExpansionButton($grid) {
 	 			if(settings['label']!= ''){
 	 				htmlString += '  <div class="hrmWidget_time_input_row_1" style="-webkit:1 1 30%;flex:1 1 30%;"><label>'+settings['label']+'</label></div>';
 	 				htmlString +='   <div class="hrmWidget_time_input_row_2" style="-webkit:1 1 40%;flex:1 1 40%;">';
-	 				htmlString += '    <input type="number" class="hrm_time_time '+req_string+'" id="'+$(this).attr('id')+'_time"></input>';
+	 				htmlString += '    <input type="text"  class="hrm_time_time '+req_string+'" id="'+$(this).attr('id')+'_time"></input>';
 	 			}
 	 			else{
 	 				htmlString +='   <div class="hrmWidget_time_input_row_2" style="-webkit:1 1 70%;flex:1 1 70%;">';
-	 				htmlString += '    <input type="number" class="hrm_time_time '+req_string+'"  id="'+$(this).attr('id')+'_time"></input>';
+	 				htmlString += '    <input type="text"  class="hrm_time_time '+req_string+'"  id="'+$(this).attr('id')+'_time"></input>';
 	 			}
 	 			htmlString += '  </div>';
 	 			htmlString += '  <div class="hrmWidget_time_input_row_3" style="-webkit:1 1 30%;flex:1 1 30%;">';
@@ -1668,7 +1668,7 @@ function addToggleExpansionButton($grid) {
 	 				.then( function(parmDict) {
 	 					return ($.when( settings['checkParms'](parmDict) )
 	 							.done( function(chkData) {
-	 								alert("Why am I here" + chkData);
+	 								//alert("Why am I here" + chkData);
 	 								if (chkData.success && (chkData.value == undefined || chkData.value)) {
 	 									return parmDict;
 	 								}
@@ -2546,7 +2546,7 @@ function addToggleExpansionButton($grid) {
  					});
  					$(this).find('.hrm_timeforminput').each(function(){
  						var tj = $(this);
- 						tj.timeFormInput('clean');
+ 						//tj.timeFormInput('clean');
  						value = tj.timeFormInput('valueJson');
  						for(key in value){
  							console.log(key);
