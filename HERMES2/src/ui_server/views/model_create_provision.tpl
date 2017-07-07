@@ -69,7 +69,15 @@ var modelInfo = ModelInfoFromJson(modJson);
 <script>
 
 function itemsInfoButtonFormatter(cellvalue,options,rowObject){
-	return "<button type='button' class='hermes_info_button' id="+cellvalue+">"+'{{_("Info")}}'+"</button>";
+ 	var typeName = rowObject.id.replace(".","PeRiOd");
+ 	console.log(rowObject);
+ 	if(rowObject.type == "Devices to Store Vaccines at this Level"){
+ 		return "<div class='hermes_info_fridge_button_div' id='" +options.gid + "_" + typeName+ "_info_button_div'></div>";
+ 	}
+ 	else{
+ 		return "<div class='hermes_info_people_button_div' id='" +options.gid + "_" + typeName+ "_info_button_div'></div>";
+ 	}
+	//return "<button type='button' class='hermes_info_button' id='"++"'>"+'{{_("Info")}}'+"</button>";
 }
 
 for(var i = 0; i < modelInfo.nlevels; i++){
@@ -268,9 +276,37 @@ $.ajax({
 			},
 			editurl:'clientArray',
 			gridComplete: function(){
-				$('.hermes_info_button').click(function(event){
-					alert("info goes here");
+				
+				$("#provision_table .hermes_info_fridge_button_div").each(function(){
+					$this = $(this);
+					var typeNameHere = $this.attr("id").replace("_info_button_div","").replace("provision_table_","");
+					$this.hrmWidget({
+						widget:'typeInfoButtonAndDialog',
+						modelId: modelInfo['modelId'],
+						typeId: typeNameHere,
+						typeClass: 'fridges',
+						autoOpen: false
+					});
+					
 				});
+				$("#provision_table .hermes_info_people_button_div").each(function(){
+					$this = $(this);
+					var typeNameHere = $this.attr("id").replace("_info_button_div","").replace("provision_table_","");
+					$this.hrmWidget({
+						widget:'typeInfoButtonAndDialog',
+						modelId: modelInfo['modelId'],
+						typeId: typeNameHere,
+						typeClass: 'people',
+						autoOpen: false
+					});
+					
+				});
+//				$('.hermes_info_button').each(function(){
+//					$this = $(this);
+//					var typeNameHere = $this.attr('id').replace('')
+//				}
+//					
+//				});
 				ids = $("#provision_table").getDataIDs();
 			}
 		}).jqGrid('hermify',{debug:true, resizable_hz:true});
