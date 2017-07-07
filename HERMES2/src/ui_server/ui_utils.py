@@ -25,6 +25,7 @@ import base64
 from HermesServiceException import HermesServiceException
 
 import shadow_network_db_api
+import typehelper
 
 #def _(s): raise HermesServiceException("Inlizer needed but not imported")
 def _(s):
@@ -129,6 +130,15 @@ def _mergeFormResults(bottleRequest, db, uiSession, fieldMap, allowNameCollision
         m = shadow_network_db_api.ShdNetworkDB(db,attrRec['modelId'])
         if attrRec['Name'] in m.types and not allowNameCollisions:
             badStr += _("The name {0} is already in use. ").format(attrRec['Name'])
+        tList = typehelper.getListOfAllTypesInModel(db,attrRec['modelId'],fallback=True)
+        #print "TList = {0}".format(tList)
+        displayNames = [x['DisplayName'] for x in tList]
+        print "dispNames = {0}".format(displayNames)
+        print attrRec['DisplayName']
+        print attrRec['DisplayName'] in displayNames
+        print allowNameCollisions
+        if attrRec['DisplayName'] in displayNames and not allowNameCollisions:
+            badStr += _('The name {0} is already in use. Please choose a unique name'.format(attrRec['DisplayName']))
     else:
         m = None
         badStr += _("Model information is missing.")
