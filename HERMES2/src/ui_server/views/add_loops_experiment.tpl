@@ -45,7 +45,7 @@
 		</span>
 		<p class='expt_text'>
 			{{_('Many supply chains utilize transport routes that start at one location and visit multiple locations before returning to their origin. This type of shipping route is known as a "loop."')}}
-			{{_('Loops can be more efficient and provide more reliable shipping of products because they require maintaining a smaller fleet vehicles that can potentially travel less distance and providing a more regular shipping pattern.')}}
+			{{_('Loops can be more efficient and provide more reliable shipping of products because they require maintaining a smaller fleet vehicles that can potentially travel less distance and provide a more regular shipping pattern.')}}
 			{{_('However, transport loops may also require larger vehicles which may be more costly to operate and maintain and may incur per diem costs as the routes can become quite long.')}}
 			{{_('Modeling can help you to understand these tradeoffs and where and when transport loops may make sense for your supply chain.')}}
 		</p>

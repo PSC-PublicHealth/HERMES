@@ -78,12 +78,8 @@ var typesMap = {
 			modelId:'',
 			typeClass:'',
 			height: 300,
-			width:700,
-<<<<<<< HEAD
+			width:'auto',
 			saveFunc:function(newName){},
-=======
-			saveFunc:function(){},
->>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 			title:'',
 			trant:{
 				title: "{{_('Type Explore Grid')}}"
@@ -255,13 +251,14 @@ var typesMap = {
 							}
 						})
 						.done(function(data){
-							console.log(data);
+							titleStr = typesMap[thisOptions.typeClass].createHeader
+							if(thisOptions.title != '') titleStr = thisOptions.title;
 							$("#"+thisMainDialogId).dialog({
 								autoOpen:true,
 								modal:true,
 								//height: thisOptions.height,
 								width:thisOptions.width,
-				    			title:typesMap[thisOptions.typeClass].editHeader,
+				    			title:titleStr,
 				    			close:function(){
 				    				//$("#"+thisEditFormId).html('');
 				    				$("#"+thisContainerId).typeEditorDialog("destroy");
@@ -289,11 +286,7 @@ var typesMap = {
 					    					.done(function(result){
 					    						if(result.success && (result.value == undefined || result.value)) {
 					    							$("#"+thisMainDialogId).dialog("close");
-<<<<<<< HEAD
 					    							thisOptions.saveFunc(name);
-=======
-					    							thisOptions.saveFunc();
->>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 					    						}
 					    						else{
 					    							alert(result.msg);

@@ -773,4 +773,3 @@ def generateTripManifestForRoute(db,uiSession):
                 
             
         
-=======

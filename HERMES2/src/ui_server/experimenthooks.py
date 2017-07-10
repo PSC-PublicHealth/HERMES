@@ -82,13 +82,8 @@ def addAVaccineExptPage(db,uiSession):
                                                "breadcrumbPairs":crumbTrack})   
         
 @bottle.route('/level_removal_experiment')
-<<<<<<< HEAD
 def levelRemExptPage(db,uiSession):
     crumbTrack = addCrumb(uiSession, _("Remove Level Experiment"))
-=======
-def addAVaccineExptPage(db,uiSession):
-    crumbTrack = addCrumb(uiSession, _("Add/Remove Level Experiment"))
->>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
     try:
         modelId = _getOrThrowError(bottle.request.params, "modelId", isInt=True)
         uiSession.getPrivs().mayReadModelId(db,modelId)
@@ -103,7 +98,6 @@ def addAVaccineExptPage(db,uiSession):
         return bottle.template("problem.tpl", {"comment": str(e),  
                                                "breadcrumbPairs":crumbTrack})   
         
-<<<<<<< HEAD
 @bottle.route('/add_storage_experiment')
 def addStorageExptPage(db,uiSession):
     crumbTrack = addCrumb(uiSession, _("Add/Modify Storage By Level Experiment"))
@@ -654,8 +648,6 @@ def levelRemovalExptSummary(db,uiSession):
                      
             
                 
-=======
->>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 @bottle.route('/json/vaccine_introduction_summary')
 def addAVaccineExptSummary(db,uiSession):
     try:

@@ -30,7 +30,6 @@
 <script src="{{rootPath}}static/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
 
 <!-- FOR DEBUGGING - Make sure that our local versions of jquery work -->
-<<<<<<< HEAD
 
 <!--
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -40,14 +39,6 @@
 
 
 
-=======
-<!--<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>-->
-
-
-
->>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 <link rel="stylesheet" href="{{rootPath}}static/animate.css"/>
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-svg-1.4.5/jquery.svg.css" />
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/hermes_custom.css" />

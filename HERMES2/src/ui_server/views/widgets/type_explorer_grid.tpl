@@ -122,6 +122,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			expandAll: false,
 			groupingEnabled: true,
 			createEnabled: true,
+			createDialogTitle: '',
 			namesOnly: false,
 			searchEnabled: true,
 			width:400,
@@ -137,6 +138,7 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 			newOnly:false,
 			addFunction: function(){},
 			delFunction: function(){},
+			createFunction: function(){},
 			onSelectFunction: function(){},
 			title: "",
 			trant:{
@@ -389,7 +391,6 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				colModel: colModels,
 				rowNum: -1,
 				caption: title,
-<<<<<<< HEAD
 				shrinkToFit:true,
 				width:thisOptions.width,
 				gridview:true,
@@ -397,14 +398,6 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				loadonce:true,
 				height: thisOptions.height-120,
 				//maxHeight: thisOptions.height-120,
-=======
-				autowidth:true,
-				shrinkToFit:true,
-				gridview:true,
-				autoencode:true,
-				loadonce:true,
-				maxHeight: thisOptions.height-120,
->>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
 				pgbuttons:false,
 				pginput:false,
 				pgtext:false,
@@ -611,11 +604,18 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 					$("#"+ thisCreateDialogId).typeEditorDialog({
 						modelId: thisOptions.modelId,
 						typeClass: thisOptions.typeClass,
-<<<<<<< HEAD
+					        title: thisOptions.createDialogTitle,	
 						saveFunc: function(newName){
 							var news = $("#"+thisContainerId).data("newTypes");
 							news = news.concat([newName]);
 							$("#"+thisContainerId).data("newTypes",news);
+							if(thisOptions.includeCount){
+								var curDevCount = $("#"+thisContainerId).data("deviceCounts");
+								curDevCount[newName] = 1;
+								$("#"+thisContainerId).data("deviceCounts",curDevCount);
+
+							}
+
 							$("#"+thisTableId).jqGrid('setGridParam',
 							{
 								postData:{
@@ -626,15 +626,11 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 									newTypes:JSON.stringify(news),
 									deviceCounts:JSON.stringify($("#"+thisContainerId).data("deviceCounts"))
 								}
-							});
+							}).trigger('reloadGrid',{fromServer:true});
+
+							thisOptions.createFunction(newName);
 							
-							var curDevCount = $("#"+thisContainerId).data("deviceCounts");
-							curDevCount[newName] = 1;
-							$("#"+thisContainerId).data("deviceCounts",curDevCount);
-							$("#"+thisTableId).jqGrid().trigger('reloadGrid',{fromServer:true});}
-=======
-						saveFunc: function(){$("#"+thisTableId).jqGrid().trigger('reloadGrid');}
->>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
+						}
 					});
 				});
 			}

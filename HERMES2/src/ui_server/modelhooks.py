@@ -2485,7 +2485,6 @@ def jsonGetModelLevelsSansClientsAndRoot(db,uiSession):
         result = {'success':False, 'msg':str(e)}
         return result
    
-<<<<<<< HEAD
 
 @bottle.route('/json/get-levels-sans-clients')
 def jsonGetModelLevelsSansClients(db,uiSession):
@@ -2635,11 +2634,7 @@ def jsonGetModelOriginatingRouteLevels(db,uiSession):
         result = {'success':False, 'msg':str(e)}
         return result                
                 
-=======
     
-                    
->>>>>>> Added a typeEditorDialog Widget that provides a popup for creating new types.  It is not working for existing types yet, and specification in years breaks it on saves.
-                
 ### this is a last minute hack
 @bottle.route('/json/get-transport-type-names-in-model')
 def jsonGetTransportModelNames(db,uiSession):
