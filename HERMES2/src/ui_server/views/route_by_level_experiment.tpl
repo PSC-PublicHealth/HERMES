@@ -137,7 +137,7 @@
 			<div id="modrouteexpt_operations_div" class='flex_col'>
 				<div style='padding:0 0 10px 0;'>
 					<label for='modrouteexpt_operations_changefreq' class='modrouteexpt_level_select_opts_level'>
-						{{_('Change the frequency at which shippments occur.')}}
+						{{_('Change the frequency at which shipments occur.')}}
 					</label>
 					<input type='checkbox' name='modrouteexpt_operations' id="modrouteexpt_operations_changefreq">
 				</div>

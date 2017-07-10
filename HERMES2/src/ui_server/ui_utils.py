@@ -18,6 +18,7 @@
 _hermes_svn_id_="$Id: ui_utils.py 2262 2015-02-09 14:38:25Z stbrown $"
 
 import sys,os,time,traceback,types
+import ipath
 import site_info
 
 import base64
@@ -25,7 +26,7 @@ import base64
 from HermesServiceException import HermesServiceException
 
 import shadow_network_db_api
-import typehelper
+#from typehelper import getListOfAllTypesInModel
 
 #def _(s): raise HermesServiceException("Inlizer needed but not imported")
 def _(s):
@@ -121,6 +122,7 @@ def _mergeFormResults(bottleRequest, db, uiSession, fieldMap, allowNameCollision
     """
     fieldMap is a field map list, as described for various routines in the htmlgenerator module.
     """
+    import typehelper
     fieldDict = dict([(r['id'],r) for r in fieldMap])
     attrRec = _getAttrDict(bottleRequest, db, uiSession, fieldMap)
     print "AttrRec:"
