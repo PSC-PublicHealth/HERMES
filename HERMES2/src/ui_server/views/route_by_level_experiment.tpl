@@ -43,11 +43,11 @@
 		<p class='expt_text'>
 			{{_('A supply chain is mostly about moving products between locations till finally the products arrives where it will be given to people.')}}
 			{{_('Therefore, transport is a critical component to the supply chain.')}}
-			{{_('The type of vehicle or mode of transport one uses, the policy that dicates ordering and moving of product, and geographic characteristics all can have a signficant impact on the performance and efficiency of the supply chain.')}}
+			{{_('The type of vehicle or mode of transport one uses, the policy that dictates ordering and moving of product, and geographic characteristics can all have a signficant impact on the performance and efficiency of the supply chain.')}}
 			{{_('Modeling can help one understand and quantify this impact.')}}
 		</p>
 		<p class='expt_text'>
-			{{_('This experiment will allow you to choose a collection of routes based on what supply chain level the routes originate or which supply chain levels the routes run between')}}
+			{{_('This experiment will allow you to choose a collection of routes based on what supply chain level the routes originate at or which supply chain levels the routes run between.')}}
 			{{_('You can then specify operations to perform on the routes such as increasing the frequency and changing the mode of transport that will be used on the routes.')}}
 			{{_('Based on the specifications, HERMES will create a new model that alters all of the selected routes.')}}
 		</p>	

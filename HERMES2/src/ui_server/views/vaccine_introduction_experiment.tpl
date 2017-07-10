@@ -61,17 +61,21 @@
 			{{_('Description of the Vaccine Introduction Experiments')}}
 		</span>
 		<p class='expt_text'>
-			{{_('Many countries stuggle with having their current supply chains delivering new vaccines that have the potential to prevent illness and save lives.')}}
+			{{_("Many countries struggle when trying to add new vaccines, with their potential to prevent illness and save lives, to their existing supply chains.")}}
 			{{_("If the supply chain has not been planned with adequate storage and transport capacity to handle the increased amounts and volume that result from adding vaccines to the country's schedule, performance and efficiency may suffer.")}}
-			{{_("Modeling can help you plan for a vaccine introduction by helping choose an appropriate presentation, vaccine dose schedule, and determine the increases in storage and transport capacity that are needed.")}}
+			{{_("Modeling can help you plan for a vaccine introduction by helping administrators choose an appropriate presentation and vaccine dose schedule and determine the increases in storage and transport capacity that are needed.")}}
 		</p>
 		<p class='expt_text'>
-			{{_('This experiment will take you through a series of screens that will allow you define new vaccines that you would like to introduce into the supply chain and the appropriate vaccine dose schedule for the new vaccines.')}}
-			{{_('Once specified, HERMES will automatically create a new model that will allow you to run simulations to assess the impact of the additional vaccines.')}}
-		</p>	
+			{{_("The following pages will guide you through introducing a new vaccine, or multiple new vaccines, to the immunization schedule in your model. You will be able to choose from vaccines in the HERMES database and can also create additional vaccines with altered characteristics. These vaccines can be given to existing populations in the model, or you will have the option to define new populations to receive the vaccines.")}}
+			{{_("Once specified, HERMES will automatically create a new model that will allow you to run simulations to assess the impact of the additional vaccines.")}}
+		</p>
+		<p class='expt_text'>
+		{{_("If instead of introducing a new vaccine you wish to introduce additional doses of vaccines that are already in your model, you should proceed to Edit the Vaccine Dose Schedule.")}}
+		</p>
+<!--need link to edit vaccine dose schedule for this model-->
 		<br><hr><br>
 		<p class='expt_text'>
-		{{_('Below are some example publications where the introduction or one or more vaccines to the supply chain is explored with HERMES modeling: ')}}
+		{{_('Below are some example publications where the introduction of one or more vaccines to the supply chain is explored with HERMES modeling: ')}}
 		<ul class='proper_ul'>
 			<li>
 				<a href="https://www.ncbi.nlm.nih.gov/pubmed/21940923" target="blank">
@@ -126,7 +130,7 @@
 		<div>
 			<p class='expt_text'>
 			{{_('Now, for the new vaccines, please specify the dose schedule that you would like to have for each new vaccine that you are introducing.')}}
-			{{_('You will need to specify in the table below at least one dose be administered for each vaccine.')}}
+			{{_('You will need to specify in the table below at least one dose be administered to one population for each new vaccine.')}}
 		</div>
 		<div id="addvacexpt_dose_per_person_grid_div"></div>
 	</div>

@@ -44,14 +44,14 @@
 			{{_('Description of Adding Transport Loops Experiments')}}
 		</span>
 		<p class='expt_text'>
-			{{_('Many supply chains utilize transport routes that start at one location and visit multiple locations before returning to its origin. This type of shipping route is known as a "loop".')}}
+			{{_('Many supply chains utilize transport routes that start at one location and visit multiple locations before returning to their origin. This type of shipping route is known as a "loop."')}}
 			{{_('Loops can be more efficient and provide more reliable shipping of products because they require maintaining a smaller fleet vehicles that can potentially travel less distance and providing a more regular shipping pattern.')}}
-			{{_('Potentially, transport loops require larger vehicles which may be more costly to operate and maintain and may incur per diem costs as the routes can become quite long.')}}
+			{{_('However, transport loops may also require larger vehicles which may be more costly to operate and maintain and may incur per diem costs as the routes can become quite long.')}}
 			{{_('Modeling can help you to understand these tradeoffs and where and when transport loops may make sense for your supply chain.')}}
 		</p>
 		<p class='expt_text'>
-			{{_('This experiment will take you through a series of screens that will ask you between which supply chain levels you would like to create transport loops between,')}}
-			{{_(' the number of locations per transport loop, and the vehicle that you would like to use for each transport loop and then HERMES will automatically create transport loops for the model based on the shortest distance.')}}
+			{{_('This experiment will take you through a series of screens that will ask you between which supply chain levels you would like to create transport loops,')}}
+			{{_(' the number of locations per transport loop, and the vehicle that you would like to use for each transport loop. After you give it your paramaters, HERMES will automatically create transport loops for the model based on the shortest distance.')}}
 		</p>
 		<br><hr><br>
 		<p class='expt_text'>
@@ -100,7 +100,7 @@
 			<div id='addloopsexpt_level_end_div' style='display:none;'>
 				<div class="expt_text">
 					<p class='expt_text'>
-						{{_('Please select below the level you at which you would like to start the transport loops.')}}
+						{{_('Please select below the level(s) to include in the transport loops.')}}
 					</p>
 				</div>
 				<div id='addloopsexpt_level_end'></div>
