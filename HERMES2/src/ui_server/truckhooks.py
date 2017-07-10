@@ -276,7 +276,7 @@ def jsonManageTruckExplorerTable(db,uiSession):
         print str(e)
         return {'success': 'false'}
     try:
-        tList = typehelper.getTypeList(db,modelId,'trucks')
+        tList = typehelper.getTypeList(db,modelId,'trucks',fallback=False)
         #print tList
         
         exTList = []

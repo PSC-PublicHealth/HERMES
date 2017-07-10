@@ -453,6 +453,9 @@ def modifyRouteSummary(db,uiSession):
             htmlArray.append("</tr>")
         
         if exptData['changeVehicle'] and exptData['vehicleChange']:
+            print tList
+            print exptData['vehicleChange']
+            
             dev = [x for x in tList if x['Name']==exptData['vehicleChange']]
             htmlArray.append("<tr class='hermes_expt_summary_table_row'>")
             htmlArray.append("<td class='hermes_expt_summary_table_placeholder_col'></td>")

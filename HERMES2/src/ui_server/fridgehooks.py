@@ -176,7 +176,7 @@ def jsonManageFridgeExplorerTable(db,uiSession):
         print str(e)
         return {'success': 'false'}
     try:
-        tList = typehelper.getTypeList(db,modelId,'fridges')
+        tList = typehelper.getTypeList(db,modelId,'fridges',fallback=False)
         
         exTList = []
         if excludeTypesFromModel > -1:

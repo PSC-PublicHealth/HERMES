@@ -117,7 +117,7 @@ def jsonManagePeopleExplorerTable(db,uiSession):
         print str(e)
         return {'success': 'false'}
     try:
-        tList = typehelper.getTypeList(db,modelId,'staff')
+        tList = typehelper.getTypeList(db,modelId,'staff',fallback=False)
         #print tList
         rows = []
         for v in tList:
