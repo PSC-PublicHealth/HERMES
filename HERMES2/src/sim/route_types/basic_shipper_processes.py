@@ -171,7 +171,7 @@ class ShipperProcess(SimPy.Simulation.Process, abstractbaseclasses.UnicodeSuppor
         return "<ShipperProcess(%s,%s,%g)>"%\
             (repr(self.fromW),repr(self.transitChain),self.interval)
     def __str__(self):
-        return "<ShipperProcess(%s,%s,%s,%g)>"%\
+        return "<ShipperProcess(%s,%s,%g)>"%\
             (self.fromW.name,str(self.transitChain),self.interval)
             
 class ScheduledShipment(Process, abstractbaseclasses.UnicodeSupport):

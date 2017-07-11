@@ -1535,7 +1535,9 @@ class Warehouse(Store, abstractbaseclasses.Place):
         self._clientRoutes.append(infoDict)
         for clientW in clientL:
             if name not in clientW._supplierRouteD:
+                supplyFrac = 1.0 if len(clientW._supplierRouteD) == 0 else 0.0
                 clientW._supplierRouteD[name] = infoDict.copy()
+                clientW._supplierRouteD[name]['supplyFrac'] = supplyFrac
     def getSuppliers(self):
         return self._suppliers
     def getClients(self):
@@ -2167,10 +2169,26 @@ class Warehouse(Store, abstractbaseclasses.Place):
         It allows the Warehouse to precalculate quantities that depend on information
         from elsewhere in the network.
         """
-        if len(self._supplierRouteD):
-            fracSuppliedPerRoute = 1.0/len(self._supplierRouteD)  # Initialize to equal fractions
-            for k, dct in self._supplierRouteD.items():
-                dct['supplyFrac'] = fracSuppliedPerRoute
+#         if len(self._supplierRouteD):
+#             fracSuppliedPerRoute = 1.0/len(self._supplierRouteD)  # Initialize to equal fractions
+#             for k, dct in self._supplierRouteD.items():
+#                 dct['supplyFrac'] = fracSuppliedPerRoute
+
+#         if len(self._supplierRouteD):
+#             for k in self._supplierRouteD.keys():
+#                 #self._supplierRouteD[k]['supplyFrac'] = 0.0
+#                 self._supplierRouteD[k]['supplyFrac'] = 0.2
+#             k = self._supplierRouteD.keys()[0]
+#             #self._supplierRouteD[k]['supplyFrac'] = 1.0
+#             self._supplierRouteD[k]['supplyFrac'] = 0.8
+
+        if len(self._supplierRouteD) > 1:
+            for k in self._supplierRouteD.keys():
+                supplyFrac = 1.0 if self._supplierRouteD[k]['supplyFrac'] == 0.0 else 0.0
+                self._supplierRouteD[k]['supplyFrac'] = supplyFrac
+
+        if len(self._supplierRouteD)>1:
+            print '%s: suppliers will be %s' % (self.name, {k:vD['supplyFrac'] for k, vD in self._supplierRouteD.items()})
         self.buildFinished= True
         self._calcTotalDownstreamPopServedPC()
         
@@ -2842,7 +2860,9 @@ class Factory(Process, abstractbaseclasses.UnicodeSupport):
                     'latency':latency}
         for clientW in clientL:
             if name not in clientW._supplierRouteD:
+                supplyFrac = 1.0 if len(clientW._supplierRouteD) == 0 else 0.0
                 clientW._supplierRouteD[name] = infoDict.copy()
+                clientW._supplierRouteD[name]['supplyFrac'] = supplyFrac
     def addPendingShipment(self,client,tupleListOrVC):
         raise RuntimeError("Factory shipments are defined at creation time")
     def getAndForgetPendingShipment(self,client):

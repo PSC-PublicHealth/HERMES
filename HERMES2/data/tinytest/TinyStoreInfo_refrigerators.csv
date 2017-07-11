@@ -24,7 +24,7 @@ Integrated Health Center,Administration,ImplicitPull,1030105,,0,0,0,0,1,,,0,0,15
 District,Distribution,Doutchi,1030200,,0,0,1228,169,1,,,13.64,4.03,,,,,,,,,7,1,2*N_vaccine_carrier_WHO_PQS+N_MF304_1997_E+4*N_MF314_2004_E+N_TCW1152CF_1998_E,,,,individual
 Integrated Health Center,Administration,DoutchiSud,1030201,,0,0,36,55,1,,,13.39,3.9,2624,1373,1373,1251,,,,,7,1,N_V170GE_2006_E,,,,individual
 Integrated Health Center,Administration,Birni Lokoyo,1030202,,0,0,0,17,1,,,13.8,4.04,2624,1373,1373,1251,,,,,7,1,N_V110GE_2005_G,,,,individual
-District,Distribution,Pittsburgh,1030300,,0,0,0,0,1,,,40.442505,-79.995575,,,,,,,,,7,1,N_vaccine_carrier_WHO_PQS+N_vaccine_carrier_WHO_PQS_plus_ice+N_4x4_truck_ice+N_V110GE_2006_G+N_V170GE_U_G+N_TC883_1987_E+4*N_STDCARRIER_CHARGE,,,,individual
+District,Distribution,Pittsburgh,1030300,,0,0,0,0,1,,,40.442505,-79.995575,,,,,,,,,7,1,N_vaccine_carrier_WHO_PQS+N_vaccine_carrier_WHO_PQS_plus_ice+N_4x4_truck_ice+N_V110GE_2006_G+N_V170GE_U_G+N_TC883_1987_E+4*N_STDCARRIER_CHARGE+N_4x4_truck,,,,individual
 Integrated Health Center,Administration,RegentSquare,1030301,muddy,0,0,0,0,1,,,40.432576,-79.897256,1323,345,543,435,,,,1,7,1,N_StdCarrier_U_I+N_STDCARRIER_CHARGE,,,,individual
 Integrated Health Center,Administration,Wilkinsburgh,1030302,,0,0,0,0,1,,,40.441656,-79.882193,1624,445,544,635,,,,1,7,1,N_StdCarrier_U_I+N_STDCARRIER_CHARGE,,,,individual
 Integrated Health Center,Administration,PointBreeze,1030303,,0,0,0,0,1,,,40.443681,-79.904766,2263,845,583,835,,,,2,7,1,2*N_StdCarrier_U_I+2*N_STDCARRIER_CHARGE+N_V170GE_2001_G,,,,individual
@@ -46,7 +46,7 @@ Integrated Health Center,Outreach,Harrisburg_or1,1040201,,0,0,0,0,1,,,40.372191,
 Integrated Health Center,Outreach,Harrisburg_or2,1040202,,0,0,0,0,1,,,40.472191,-76.887817,,459,459,418,,,1,,7.2,3,,,,,
 Integrated Health Center,Outreach,Harrisburg_or3,1040203,,0,0,0,0,1,,,40.572191,-76.887817,,459,459,418,,,1,,7.2,3,,,,,
 District2,Distribution,Chicago,1050100,,0,0,0,0,1,,,41.8781136,-87.6297982,,,,,,,,,,,TT_motorcycle+3*N_LargeCarrier_U_I+N_V170GE_2001_G,,,,box
-District2,Distribution,Tucson,1060100,,0,0,0,0,1,,,32.2217429,-110.926479,,,,,,,,,,,3*N_LargeCarrier_U_I+N_V170GE_2001_G,,,,individual
+District2,Distribution,Tucson,1060100,,0,0,0,0,1,,,32.2217429,-110.926479,,,,,,,,,,,3*N_LargeCarrier_U_I+N_V170GE_2001_G+N_4x4_truck,,,,individual
 Integrated Health Center,Administration,Diamondville,1050101,,0,0,0,0,1,,,42,-88.6,,459,459,418,,,1,,7.5,3,N_V170GE_2001_G,,,,individual
-Integrated Health Center,Administration,Diamondtown,1060101,,0,0,0,0,1,,,33.1,-109.9,,459,459,418,,,,,8.5,4,TT_motorcycle+N_V170GE_2001_G,,,,individual
+Integrated Health Center,Administration,Diamondtown,1060101,,0,0,0,0,1,,,33.1,-109.9,,459,459,418,,,1,,8.5,4,TT_motorcycle+N_V170GE_2001_G,,,,individual
 Integrated Health Center,Administration,ChicagoHope,1050102,,0,0,0,0,1,,,41.8781136,-87.62979982,,459,459,418,,,,,,1,,,,,individual

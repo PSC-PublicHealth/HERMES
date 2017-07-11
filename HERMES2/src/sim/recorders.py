@@ -262,12 +262,13 @@ class RecorderGroup:
                     gb.draw(go, yaxis= (0.0,yrangemax))        
             f.pack()
         else:
-	    print "No curves to plot"
+            print "No curves to plot"
         
     def showPlots(self):
         if RecorderGroup.plt is None:
             print "No plots to show"
         else:
+            print 'entering mainloop'
             RecorderGroup.plt.mainloop()
                    
     def saveMonitors(self,saveAllFile,storeDict):
