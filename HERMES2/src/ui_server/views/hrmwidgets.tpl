@@ -533,7 +533,7 @@ function addToggleExpansionButton($grid) {
 	 					.selectmenu("menuWidget").addClass("hrm_selectmenu_overflow");
  					}
  					else{
- 						alert("{{_('Failed in currency selector getting select-currency list')}}" + data.msg.htmlEscape());
+ 						alert("{{_('Failed in currency selector getting select-currency list')}}");
  					}
  				})
  				.fail(function(jqxhr, textStatus, error){
@@ -969,9 +969,14 @@ function addToggleExpansionButton($grid) {
  				if(arg=='valueJson'){
  					var fieldMap = $("#"+tId).data('fieldmap');
  					var returnJson = {};
- 					returnJson[fieldMap.price] = $("#"+tId+"_price").val();
- 					returnJson[fieldMap.currency] = $("#"+tId+"_currency").currencySelectorSimple('value');
- 					returnJson[fieldMap.year] = $("#"+tId+"_year").val();
+ 					returnJson['price'] = $("#"+tId+"_price").val();
+ 					returnJson['currency'] = $("#"+tId+"_currency").currencySelectorSimple('value');
+ 					returnJson['year'] = $("#"+tId+"_year").val();
+ 					if(fieldMap){
+	 					returnJson[fieldMap.price] = $("#"+tId+"_price").val();
+	 					returnJson[fieldMap.currency] = $("#"+tId+"_currency").currencySelectorSimple('value');
+	 					returnJson[fieldMap.year] = $("#"+tId+"_year").val();
+ 					}
  					
  					return returnJson;
  				}
@@ -988,18 +993,26 @@ function addToggleExpansionButton($grid) {
  				for(var i=0;i<15;++i){
  					allowedYears.push(currentYear - i);
 				}
+ 				console.log("HERE in cost form");
  				//var allowedYears = [2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014];
  				var $elem  = $(elem);
- 				var value = settings['value'];
- 				var values = value.split(':');
- 				$elem.data('fieldMap',$elem.attr("data-fieldMap"));
+ 				var value = '0.0:USD:2017';
+ 				if(settings['value']){
+ 					var value = settings['value'];
+ 				}
  				var req_string = "";
-	 			if($elem.data("fieldMap").required){
-	 				req_string = ' required_float_input';
-	 				if($elem.data("fieldMap").canzero){
-	 					req_string += ' canzero';
-	 				}
+ 				var values = value.split(':');
+ 				if($elem.data('fieldMap')){
+	 				$elem.data('fieldMap',$elem.attr("data-fieldMap"));
+		 			if($elem.data("fieldMap").required){
+		 				req_string = ' required_float_input';
+		 				if($elem.data("fieldMap").canzero){
+		 					req_string += ' canzero';
+		 				}
+		 			}
 	 			}
+ 				label = '';
+ 				if(settings['label']){ label = settings.label;}
  				//console.log(settings);
  				//put error handling here to validate
  				htmlString = '<div style="float:left;"><label>'+settings['label']+'</label>';

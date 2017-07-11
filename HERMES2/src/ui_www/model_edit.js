@@ -287,7 +287,9 @@ function doUpdate(u) {
 	if (element)
 	    element.innerHTML = u.value;
 		var transformations = [['hrm_widget_become_currencySelector', 
-		                        {widget:'currencySelector', label:''}],
+		                        {widget:'currencySelectorSimple', label:'Currency',modelId:modelId}],
+		                      ['hrm_widget_become_cost_field',
+		                       	{widget:'costFormInput', label:'', modelId:modelId}],
 		                       ['hrm_widget_become_perDiemSelector',
 		                        {widget:'typeSelector', label:'', invtype:'perdiems', canBeBlank:false, modelId:modelId}]
 							  ];
@@ -455,20 +457,20 @@ function changeStringSuccess(data, textStatus, jqXHR) {
     // this has become the catchall handler for anything
     // that just returns an update list
     if (!('success' in data)) {
-	alert('got invalid server response from a field update');
+    	alert('got invalid server response from a field update');
 	return;
     }
     
     if ('updateList' in data) {
-	doUpdates(data.updateList);
+    	doUpdates(data.updateList);
     }
     
     if (data.success == false) {
-	if ('errorString' in data) {
-	    alert(data.errorString);
-	} else {
-	    alert('unknown server error');
-	}
+		if ('errorString' in data) {
+		    alert(data.errorString);
+		} else {
+		    alert('unknown server error');
+		}
     }
     $(document).tooltips('applyTips');
 }
@@ -950,9 +952,13 @@ function updateRSEValue(unique, storeId, tree, action) {
 function updateRSECostValue(unique, storeId, tree, action) {
     var category = getSelectValue('rse_category_' + unique);
     var field = getSelectValue('rse_field_' + unique);
-    var cost = document.getElementById('rseInput_set_cost_' + unique).value;
-    var costcur = $('#rseInput_set_costcur_' + unique).currencySelector('selId');
-    var costyear = document.getElementById('rseInput_set_costyear_' + unique).value;
+    var costWidgetValue = $("#rse_set_cost_" + unique).costFormInput("valueJson");
+    var cost = costWidgetValue['price'];
+    var costcur = costWidgetValue['currency'];
+    var costyear = costWidgetValue['year'];
+    //var cost = document.getElementById('rseInput_set_cost_' + unique).value;
+    //var costcur = $('#rseInput_set_costcur_' + unique).currencySelector('selId');
+   // var costyear = document.getElementById('rseInput_set_costyear_' + unique).value;
     
     var div = document.getElementById('rse_content_' + unique);
     div.innerHTML = '<p>Updating.  This may take a moment...</p>';

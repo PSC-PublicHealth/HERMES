@@ -2864,14 +2864,25 @@ def rseUpdateUtilization(store, field, category, unique, action, value, secondar
 def rseDispCosts(store, field, category, unique):
     global currentTree
     divId = 'rse_content_%s'%unique
+    print store.idcode
     ret = []
     ret.append('<p>' + _('Set cost information:'))
-    ret.append('<div class="rse_cost_set_input" id="rseInput_set_%s">'%unique)
-    ret.append('<input type="text" class="rse_cost1_set_input" id="rseInput_set_cost_%s" />'%unique)
-    ret.append('<div id="rseInput_set_costcur_%s" class="hrm_widget_become_currencySelector"></div>' % unique)
-    ret.append('<input type="text" class="rse_cost3_set_input" id="rseInput_set_costyear_%s" />'%unique)
-    ret.append('</div>\n')
-    ret.append('<button type="button" class="rse_cost_set_button" onclick="updateRSECostValue(%s,%s,\'%s\',\'set\');">%s</button>'%(unique, store.idcode, currentTree, _('Ok')))
+    ret.append('<div class="hrm_widget_become_cost_field" id="rse_set_cost_{0}"></div>'.format(unique))
+    ret.append('<div><button type="button" class="rse_cost_set_button" onclick="updateRSECostValue({0},{1},\'{2}\',\'set\');">{3}</button></div>'.format(unique, store.idcode, currentTree, _('Save Costs')))
+#     ret.append('<div class="rse_cost_set_input" id="rseInput_set_%s">'%unique)
+#     ret.append('<div>')
+#     ret.append('<label for="rseInput_set_cost_%s">Value</label>'%unique)
+#     ret.append('<input type="text" class="rse_cost1_set_input" id="rseInput_set_cost_%s" />'%unique)
+#     ret.append('</div>')
+#     ret.append('<div>')
+#     ret.append('<div id="rseInput_set_costcur_%s" class="hrm_widget_become_currencySelector"></div>' % unique)
+#     ret.append('</div>')
+#     ret.append('<div>')
+#     ret.append('<input type="text" class="rse_cost3_set_input" id="rseInput_set_costyear_%s" />'%unique)
+#     ret.append('</div>\n')
+#     ret.append('<div>')
+#     ret.append('<button type="button" class="rse_cost_set_button" onclick="updateRSECostValue(%s,%s,\'%s\',\'set\');">%s</button>'%(unique, store.idcode, currentTree, _('Ok')))
+#     ret.append('</div>')
     ret.append('</p>')
     ret = string.join(ret, '\n')
     ULCM.addUpdate(divId, ret, 'html')
