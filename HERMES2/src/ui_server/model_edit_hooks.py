@@ -1481,6 +1481,7 @@ def updateRouteTruckType(inputId, model, origStr, newStr):
 def routePerDiemWidgetOpts(route):
     opts = {'widget': 'typeSelector',
             'label': '',
+            'showDisplayName':True,
             'invtype': 'perdiems',
             'modelId': route.model.modelId,
             'selected': route.PerDiemType
@@ -1492,9 +1493,9 @@ def renderRoutePerDiemType(route):
     opts = routePerDiemWidgetOpts(route)
 
     displayValue = ''
+    print route.PerDiemType
     if route.PerDiemType in route.model.perdiems:
         displayValue = route.model.perdiems[route.PerDiemType].getDisplayName()
-
     return renderBasicEditableField(route, 'routePerDiemType', _('per diem rule'),
                                     route.PerDiemType,
                                     widgetOpts=opts,

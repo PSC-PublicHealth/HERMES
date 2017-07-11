@@ -626,9 +626,11 @@ def handleListType(db, uiSession):
         typestring = _safeGetReqParam(bottle.request.params, 'typestring')
         escapeFlag = _safeGetReqParam(bottle.request.params, 'encode', isBool=True)
         blankFlag = _safeGetReqParam(bottle.request.params, 'allowblank', isBool=True)
+        displayName = _safeGetReqParam(bottle.request.params,'displayName', isBool=True,default=False)
         if typestring == 'null' or typestring == '':
             typestring = None
         typeList = typehelper.getTypeList(db, modelId, invtype, fallback=False)
+        
         # print "#$#$#$#$#$#$#$#$#$#$#$#$#$#$"
         # print typeList
         sio = StringIO()
@@ -639,17 +641,23 @@ def handleListType(db, uiSession):
             else:
                 sio.write("  <option value=''>%s</option>\n" % _('--No Selection--'))
         for t in typeList:
-
+            
             if escapeFlag:
                 eName = urllib.quote(t['Name'].encode('utf8'))
             else:
                 eName = t['Name']
-
+                
+            dName = eName
+            if displayName:
+                dName = t['DisplayName']
+                if dName == '' or dName is None:
+                    dName = t['Name']
+            
             if typestring and typestring == t['Name']:
-                sio.write("  <option value='%s' selected >%s</option>\n" % (eName, eName))
+                sio.write("  <option value='%s' selected >%s</option>\n" % (eName, dName))
                 foundType = True
             else:
-                sio.write("  <option value='%s'>%s</option>\n" % (eName, eName))
+                sio.write("  <option value='%s'>%s</option>\n" % (eName, dName))
         if typestring and not foundType:
             raise RuntimeError(_("The selected type {0} is not a known type").format(typestring))
 

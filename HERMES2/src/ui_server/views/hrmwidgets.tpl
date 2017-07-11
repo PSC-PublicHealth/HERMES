@@ -1212,12 +1212,18 @@ function addToggleExpansionButton($grid) {
 						}
 						else selected = settings.selected;
 					}
-				
+					
+					showDisplayName = false;
+					if(settings.showDisplayName){
+						showDisplayName = settings.showDisplayName;
+					}
+					
 					$.getJSON('{{rootPath}}list/select-type', { 
 						modelId: modelId,
 						invtype: invtype,
 						encode: true,
 						typestring: selected,
+						displayName: showDisplayName,
 						allowblank: (!!settings.canBeBlank)
 					})
 					.done(function(data) {
