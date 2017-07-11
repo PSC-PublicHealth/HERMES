@@ -745,7 +745,7 @@ def renderBasicEditableFields(storeOrRoute, groupClassName, EditableFields):
     modelId, itemId = getIds(storeOrRoute)
 
     ret = []
-    ret.append('<div class="%s" title="this is a tool tip">'%groupClassName)
+    ret.append('<div class="%s">'%groupClassName) #title="this is a tool tip"
     EditableFields = listify(EditableFields)
     for f in EditableFields:
         ret.append('<table><tr><td>%s: </td><td><div class="edit_%s">'%(f.fieldName, groupClassName))
