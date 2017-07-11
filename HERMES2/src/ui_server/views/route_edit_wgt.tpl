@@ -103,14 +103,22 @@ $(function() {
 		canBeBlank:true
 	});
 
-	$('#perdiem_select_div_{{unique}}').hrmWidget({
-		widget:'typeSelector',
-		label:'',
-		invtype:'perdiems',
+	$("#perdiem_select_div_{{unique}}").hrmWidget({
+		widget:'simpleTypeSelectField',
 		modelId:{{modelId}},
-		selected:'{{perdiemType}}',
-		canBeBlank:true
+		invType:'perdiems',
+		persistent:true,
+		maxHeight:300
 	});
+	
+//	$('#perdiem_select_div_{{unique}}').hrmWidget({
+//		widget:'typeSelector',
+//		label:'',
+//		invtype:'perdiems',
+//		modelId:{{modelId}},
+//		selected:'{{perdiemType}}',
+//		canBeBlank:true
+//	});
 
 	$('#route_edit_wgt_stops_tbl_{{unique}}').jqGrid({
    		url:'{{rootPath}}json/route-edit-manage-stop-table',

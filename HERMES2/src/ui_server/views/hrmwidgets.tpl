@@ -1859,7 +1859,7 @@ function addToggleExpansionButton($grid) {
 		 					$elem.data('default','None');
 		 				}
 	 					
- 						$("<div id ='" + dialogId +"'></div>").appendTo("body");
+ 						$("<div id ='" + dialogId +"' style='z-index:1003'></div>").appendTo("body");
  						//selHtmlString = "<div id ='" + dialogId +"'></div>";
 	 					selHtmlString = "<div id = 'div_"+selectId+"'><select id = '" + selectId + "' class='hrmWidget_simply_type_select_field'>";
 	 					var optionsList = [];
