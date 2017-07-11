@@ -81,14 +81,19 @@
 <div id='store_edit_wgt_{{unique}}_tab7'>
 <table>
 <tr>
-<td><label for='store_edit_wgt_f10_{{unique}}'>{{_("Annual Cost")}}</label></td>
+<td>
+<div class='hrmWidget_become_cost_field' id='store_edit_wgt_cost_div_{{unique}}'></div>
+</td>
+
+
+<!--<label for='store_edit_wgt_f10_{{unique}}'>{{_("Annual Cost")}}</label></td>
 <td><input type=text class='sew_cost_input' id='store_edit_wgt_f10_{{unique}}' name='cost' value='{{cost}}'></td>
 <td><div id='store_edit_wgt_cost_div_{{unique}}'></div>
 </tr>
 <tr>
 <td><label for='store_edit_wgt_f11_{{unique}}'>{{_("in base year")}}</label></td>
 <td><input type=text class='sew_cost_year_input' id='store_edit_wgt_f11_{{unique}}' name='costyear' value='{{costYear}}'></td>
-<td></td>
+<td></td>-->
 </tr>
 </table>
 </div>
@@ -127,11 +132,17 @@ $(function() {
 	$("#store_type_info_dialog_{{unique}}").dialog({autoOpen:false, height:"auto", width:"auto"});
 
 	$("#store_edit_wgt_cost_div_{{unique}}").hrmWidget({
-		 widget:'currencySelector',
-		 modelId:{{modelId}},
-		 label:'',
-		 selected:"{{costCur}}"
-	})
+		widget:'costFormInput',
+		modelId:{{modelId}},
+		label:'',
+		value:"{{cost}}:{{costCur}}:{{costYear}}"
+	});
+//	$("#store_edit_wgt_cost_div_{{unique}}").hrmWidget({
+//		 widget:'currencySelector',
+//		 modelId:{{modelId}},
+//		 label:'',
+//		 selected:"{{costCur}}"
+//	})
 	
 	$("#store_edit_wgt_fridges_div_{{unique}}").inventory_grid({
 		modelId:{{modelId}},
@@ -202,7 +213,7 @@ $(function() {
 		$( this ).ajaxSubmit({
 			data:{
 				modelId:{{modelId}}, idcode:{{idcode}}, unique:{{unique}},
-				costcur:$('#store_edit_wgt_cost_div_{{unique}}').currencySelector('selId'),
+				costval:$('#store_edit_wgt_cost_div_{{unique}}').costFormInput('value'),
 				fridgedata:$('#store_edit_wgt_fridges_div_{{unique}}').inventory_grid("data"),
 				peopledata:$('#store_edit_wgt_people_div_{{unique}}').inventory_grid("data"),
 				truckdata: $('#store_edit_wgt_trucks_div_{{unique}}').inventory_grid("data"),

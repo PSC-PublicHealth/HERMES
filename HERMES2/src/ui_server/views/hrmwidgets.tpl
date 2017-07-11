@@ -998,7 +998,9 @@ function addToggleExpansionButton($grid) {
  				var $elem  = $(elem);
  				var value = '0.0:USD:2017';
  				if(settings['value']){
- 					var value = settings['value'];
+ 					if(settings['value']!="::"){
+ 						var value = settings['value'];
+ 					}
  				}
  				var req_string = "";
  				var values = value.split(':');
@@ -1937,10 +1939,10 @@ function addToggleExpansionButton($grid) {
 	 							if(focusFun){
 	 								focusFun();
 	 							}
-	 							console.log("#"+dialogId);
-	 							console.log($("#"+dialogId).hasClass('hermes_popup_div'));
+	 							//console.log("#"+dialogId);
+	 							//console.log($("#"+dialogId).hasClass('hermes_popup_div'));
 	 							if($("#"+dialogId).hasClass('hrmWidget_popup_div')){
-	 								console.log("focusing on "+ui.item.value);
+	 								//console.log("focusing on "+ui.item.value);
 	 								$("#"+dialogId).typeInfoPopup("update",[ui.item.value,invType]);
 	 							}
 	 						},

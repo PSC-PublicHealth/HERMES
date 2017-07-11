@@ -922,8 +922,8 @@ def jsonStoreUpdate(db, uiSession):
                                                    ('utilizationrate','utilizationRate',False,True,None,(0.0,1.0)),
                                                    ('longitude','Longitude',False,True,None,(-180.0,180.0)),
                                                    ('latitude','Latitude',False,True,None,(-90.0,90.0)),
-                                                   ('cost','SiteCost',False,True,None,(0.0,float('inf'))),
-                                                   ('costyear','SiteCostYear',True,False,None,(2000,3000))
+                                                   #('cost','SiteCost',False,True,None,(0.0,float('inf'))),
+                                                   #('costyear','SiteCostYear',True,False,None,(2000,3000))
                                                    ]:
             v = _safeGetReqParam(bottle.request.params, key)
             if v:
@@ -935,11 +935,22 @@ def jsonStoreUpdate(db, uiSession):
                     badParms.append(_("{0} must be in the range {1} to {2}".format(key,range[0],range[1])))
                 else:
                     goodPairs.append((name,v))
-        key, name = ('costcur','SiteCostCurCode')
+        
         try:
-            v = getCurrencyFromRequest(db, m, key)
-            goodPairs.append((name, v))
+            v = _safeGetReqParam(bottle.request.params,'costval',default='0.0:USD:2017')
+            print "V = {0}".format(v)
+            vSplit = v.split(':')
+            print "VSplit = {0}".format(vSplit)
+            goodPairs.append(('SiteCost',float(vSplit[0])))
+            goodPairs.append(('SiteCostCurCode',vSplit[1]))
+            goodPairs.append(('SiteCostYear',vSplit[2]))
+        
+#         key, name = ('costcur','SiteCostCurCode')
+#         try:
+#             v = getCurrencyFromRequest(db, m, key)
+#             goodPairs.append((name, v))
         except Exception, e:
+            print "E = {0}".format(e)
             badParms.append(_("{0} is not a valid currency code").format(v))
 
         if badParms==[]:
