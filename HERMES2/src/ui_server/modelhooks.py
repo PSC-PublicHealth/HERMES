@@ -2802,7 +2802,7 @@ def assignVehiclesToRoutes(db,uiSession):
         ## lets put this is somethign a little easier to parse
         routeDict = {}
         for r in routeData:
-            routeDict[(r['l1'],r['l2'])] = (r['vName'],int(r['vcount']))
+            routeDict[(r['l1'],r['l2'])] = (r['vName'],int(r['vcount']),r['vPDRule'])
         
         ### clear all of the transport from the system
         for storeId,store in m.stores.items():
@@ -2820,10 +2820,12 @@ def assignVehiclesToRoutes(db,uiSession):
                 clientLevel = route.stops[1].store.CATEGORY
                 vehicle = routeDict[(supplierLevel,clientLevel)][0]
                 vcount = routeDict[(supplierLevel,clientLevel)][1]
+                vPDRule = routeDict[(supplierLevel,clientLevel)][2]
                 
                 if route.stops[0].store.countInventory(vehicle) == 0:
                     route.stops[0].store.addInventory(vehicle,vcount)
                 route.TruckType = vehicle
+                route.PerDiemType = vPDRule
                 
         return {'success':True}
     

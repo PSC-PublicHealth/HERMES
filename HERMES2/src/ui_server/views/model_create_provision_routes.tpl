@@ -62,8 +62,10 @@ for (var i = 0; i < modelInfo.nlevels; i++){
 					+levelN2+"</span> {{_('levels')}}:</td>"
 					+"<td><select id='select_route_"+levelN1+"_"+levelN2+"' l1='"+levelN1+"' l2='"+levelN2+"'></select></td>" 
 					+"<td>{{_('with the number of vehicles per location in the level being')}}</td>" 
-					+"<td><input type=number id='num_route_"+levelN1+"_"+levelN2+"' l1='"
-					+levelN1+"' l2='"+levelN2+"' value=1 style='text-align:center;'></input></td></tr>");
+					+"<td><input type=number id='num_route_" + levelN1 + "_" + levelN2 + "' l1='"
+					+ levelN1 + "' l2='" + levelN2 + "' value=1 style='text-align:center;'></input></td>"
+					+"<td>{{_(' with a Per Diem Policy of ')}}</td>"
+					+"<td><div class='hrm_become_perdiem_widget' id='perdiem_route_"+levelN1+"_"+levelN2+"' l1='"+levelN1+"' l2='"+levelN2+"'></div></td></tr>");
 		}
 	}
 }
@@ -125,6 +127,14 @@ $(function(){
 	});
 });
 
+$(".hrm_become_perdiem_widget").hrmWidget({
+	widget: 'simpleTypeSelectField',
+	modelId:modelInfo['modelId'],
+	invType:'perdiems',
+	persistent:true,
+	maxHeight:300
+});
+
 $(function() {
 	var btn = $("#back_button");
 	btn.button();
@@ -140,7 +150,8 @@ $(function() {
 		routeData = []
 		$("[id^='select_route_']").each(function(){
 			countID = $(this).attr('id').replace('select_','num_');
-			routeData.push({'l1':$(this).attr('l1'),'l2':$(this).attr('l2'),'vName':$(this).val(),'vcount':$("[id='"+countID +"']").val()});
+			pDId = $(this).attr('id').replace('select_', 'perdiem_');
+			routeData.push({'l1':$(this).attr('l1'),'l2':$(this).attr('l2'),'vName':$(this).val(),'vcount':$("[id='"+countID +"']").val(),'vPDRule':$("[id='"+pDId +"']").simpleTypeSelectField('value')});
 		});
 		$.ajax({
 			url:'{{rootPath}}json/provision-routes',

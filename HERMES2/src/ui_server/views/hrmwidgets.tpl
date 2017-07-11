@@ -1933,10 +1933,14 @@ function addToggleExpansionButton($grid) {
 	 							}
 	 						},
 	 						focus: function(event,ui){
+	 							//alert(ui.item.value)
 	 							if(focusFun){
 	 								focusFun();
 	 							}
-	 							if($("#"+dialogId).hasClass('ui-dialog-content')){
+	 							console.log("#"+dialogId);
+	 							console.log($("#"+dialogId).hasClass('hermes_popup_div'));
+	 							if($("#"+dialogId).hasClass('hrmWidget_popup_div')){
+	 								console.log("focusing on "+ui.item.value);
 	 								$("#"+dialogId).typeInfoPopup("update",[ui.item.value,invType]);
 	 							}
 	 						},
@@ -2006,7 +2010,7 @@ function addToggleExpansionButton($grid) {
 				var xpos = settings['xpos'];
  				var ypos = settings['ypos'];
  				var persistent = false;
- 				if (settings['persisten']){
+ 				if (settings['persistent']){
  					persistent = settings['persistent'];
  				}
  				
