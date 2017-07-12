@@ -123,13 +123,13 @@
 				</p>
 				<p>
 					<label for="remlevexpt_fromabove" class='remlevexpt_opts_label'>
-							{{_('Use the charactistics of routes from the supply chain level above the level to be removed')}}
+							{{_('Use the characteristics of routes from the supply chain level above the level to be removed')}}
 					</label>
 					<input type='radio' name="remlevexpt_route_options" id="remlevexpt_fromabove">
 				</p>
 				<p>
 					<label for="remlevexpt_frombelow" class='remlevexpt_opts_label'>
-						{{_('Use the charactistics of routes from the supply chain level below the level to be removed')}}
+						{{_('Use the characteristics of routes from the supply chain level below the level to be removed')}}
 					</label>
 					<input type='radio' name="remlevexpt_route_options" id="remlevexpt_frombelow" checked>
 				</p>
