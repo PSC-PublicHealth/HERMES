@@ -53,19 +53,21 @@ var modelInfo = ModelInfoFromJson(modJson);
 <script>
 for (var i = 0; i < modelInfo.nlevels; i++){
 	var levelN1 = modelInfo.levelnames[i];
+	var levelN1Clean = levelN1.replace(" ","_");
 	for (j = 0; j < modelInfo.nlevels; j++){
-		var levelN2 = modelInfo.levelnames[j];
+		var levelN2 = modelInfo.levelnames[j]
+		var levelN2Clean = levelN2.replace(" ","_");
 		if(modelInfo.canonicalroutesdict[levelN1][levelN2]){
 			$("#provision_route_levels").append(
 					"<tr><td>{{_('For Routes between the')}} <span style='font-weight:bold;'>"
 					+levelN1+"</span> {{_('and the')}} <span style='font-weight:bold;'>"
 					+levelN2+"</span> {{_('levels')}}:</td>"
-					+"<td><select id='select_route_"+levelN1+"_"+levelN2+"' l1='"+levelN1+"' l2='"+levelN2+"'></select></td>" 
+					+"<td><select id='select_route_"+levelN1Clean+"_"+levelN2Clean+"' l1='"+levelN1+"' l2='"+levelN2+"'></select></td>" 
 					+"<td>{{_('with the number of vehicles per location in the level being')}}</td>" 
-					+"<td><input type=number id='num_route_" + levelN1 + "_" + levelN2 + "' l1='"
+					+"<td><input type=number id='num_route_" + levelN1Clean + "_" + levelN2Clean + "' l1='"
 					+ levelN1 + "' l2='" + levelN2 + "' value=1 style='text-align:center;'></input></td>"
 					+"<td>{{_(' with a Per Diem Policy of ')}}</td>"
-					+"<td><div class='hrm_become_perdiem_widget' id='perdiem_route_"+levelN1+"_"+levelN2+"' l1='"+levelN1+"' l2='"+levelN2+"'></div></td></tr>");
+					+"<td><div class='hrm_become_perdiem_widget' id='perdiem_route_"+levelN1Clean+"_"+levelN2Clean+"' l1='"+levelN1+"' l2='"+levelN2+"'></div></td></tr>");
 		}
 	}
 }
