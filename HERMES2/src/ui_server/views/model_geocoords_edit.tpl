@@ -90,7 +90,7 @@ a.model-operation-item:visited{
 	</form>
 </div>
 <div id="spreadsheetbuttondiv">
-	<button id="spreadsheetbutton">{{_('Upload a Spreadsheet')}}</button>
+	<button id="spreadsheetbutton">{{_('Download a Template/Upload a Spreadsheet')}}</button>
 </div>
 <div id="validSpread-dialog" title='{{_("Spreadsheet Validation Result")}}'> </div>
 <div id="success-dialog" title='{{_("Spreadsheet Update Successful")}}'>{{_('Updating Geocoordates via Spreadsheet Successful')}}</div>
