@@ -1136,7 +1136,7 @@ $(function() {
     sel.change( function() {
     	sel_model_id = $("#src_model_select").val();
     	src.modelId = sel_model_id;
-//		alert(sel_model_id);
+		//alert(sel_model_id);
     	$.getJSON('{{rootPath}}json/set-selected-model', {id : sel_model_id})
 	    	.done(function(data) {
 	    		sel_model_name = data['name'];
