@@ -207,7 +207,7 @@
 					var newBounds = [[0.0,0.0],[0.0,0.0]];
 					var yDiff = bounds[1][0]-bounds[0][0]
 					var xDiff = bounds[1][1]-bounds[0][1];
-					var perDiff = 3.0;
+					var perDiff = 5.0;
 					newBounds[0][0] = bounds[0][0] - perDiff*yDiff;
 					newBounds[1][0] = bounds[1][0] + perDiff*yDiff;
 					newBounds[0][1] = bounds[0][1] - perDiff*xDiff;
