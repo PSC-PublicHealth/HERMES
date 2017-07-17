@@ -334,8 +334,8 @@ class Model(model.Model):
         # an attached clinic, which means we shouldn't be dealing with it
         whatFitsVC= vaccinesOnlyVC*fillVC
         for v,n in whatFitsVC.items():
-            print "V = {0} n = {1}".format(v,n)
-            if n >= 0.0 and n < 1.0:
+            #print "V = {0} n = {1}".format(v,n)
+            if n > 0.0 and n < 1.0:
                 whatFitsVC[v] = 1.0
         whatFitsVC.roundDown()
         #print "clinicShipThresholdFunc %s: %s"%(toW.name,[(v.name,n) for v,n in whatFitsVC.items()])
@@ -351,7 +351,7 @@ class Model(model.Model):
 
         if self.autoUpdateThresholdsFlag:
             threshVialsVC = vaccineVialsVC * (toW.bufferStockFraction)
-            print "thresh here = {0}".format(threshVialsVC)
+            #print "thresh here = {0}".format(threshVialsVC)
             threshVialsVC.roundUp()
             fVC,cVC,wVC = toW.calculateStorageFillRatios(threshVialsVC+otherVialsVC)
             threshVialsVC = threshVialsVC * (fVC + cVC + wVC)
@@ -395,7 +395,7 @@ class Model(model.Model):
         threshVC= scaledVaccineVialsVC*toW.bufferStockFraction
         # This is to prevent there being no threshold at all
         for v,n in threshVC.items():
-            if n >= 0.0 and n < 1.0:
+            if n > 0.0 and n < 1.0:
                 threshVC[v] = 1.0
         threshVC.roundDown()
         #threshVC= scaledVaccineVialsVC*toW.bufferStockFraction
