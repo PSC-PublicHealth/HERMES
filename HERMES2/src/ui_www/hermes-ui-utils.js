@@ -69,7 +69,7 @@ function get_alltypesmodelId(){
 
 // objects that have the known types for HERMES
 
-var typesAllowed = ['fridges','trucks','vaccines','people','staff','perdiems'];
+var typesAllowed = ['vaccines','fridges','trucks','people','staff','perdiems'];
 
 var typeInfoUrls = {
 		'fridges':'json/fridge-info',

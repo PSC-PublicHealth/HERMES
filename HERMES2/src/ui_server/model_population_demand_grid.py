@@ -166,15 +166,21 @@ def jsonStoreGridGeoCoordVerifyAndCommitFromJson(db, uiSession):
         modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
         jsonStrToUpdate = _getOrThrowError(bottle.request.params,'jsonStr',isInt=False)
         jsonToUpdate = json.loads(jsonStrToUpdate)
-         
+        overrideNames = _safeGetReqParam(bottle.request.params,'overrideNames',isBool=True,default=False)
+        
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         #print "JSON!!!!! = {0}".format(jsonToUpdate)
         for updateItem in jsonToUpdate:
             idcode = updateItem[0]
             storeToUpdate = m.stores[idcode]
-            for uI in updateItem[1:]:
-                storeToUpdate.updateDemand(uI[0],uI[1])
+            if overrideNames:
+                for ul in updateItem[1:-2]:
+                    storeToUpdate.updateDemand(ul[0],ul[1])
+                storeToUpdate.NAME =updateItem[-2]
+            else:
+                for uI in updateItem[1:]:
+                    storeToUpdate.updateDemand(uI[0],uI[1])
                 #print "US = {0}".format(uI)
             #storeToUpdate.Latitude = updateItem[1]
             #storeToUpdate.Longitude = updateItem[2]
@@ -264,7 +270,7 @@ def downloadTemplatePopulationXLS(db,uiSession):
 
 
 
-def validatePopulationSpreadsheet(fileName,m):
+def validatePopulationSpreadsheet(fileName,m,ignoreNames=True,overrideNames=False):
     from collections import Counter
     from openpyxl import load_workbook
     returnDict = {'success':True,'badNames':[],'dups':[],'updates':[],'message':''}
@@ -301,9 +307,12 @@ def validatePopulationSpreadsheet(fileName,m):
             return returnDict
     
     badNames = []
+    badNamesTmp = []
     dupNames = []
+    dupNamesTmp = []
     updateList = []
     modelNameTuples = [(x.idcode,x.NAME, x.CATEGORY) for x in m.stores.values()]
+    modelStoreIds = [x.idcode for x in m.stores.values()]
         
     spreadNameDict = {(x[0].value,x[1].value,x[2].value):[(popTypes[y],x[y+4].value) for y in range(0,len(popTypes))]\
                        for x in ws.iter_rows(row_offset=1) if x[0].value is not None}
@@ -311,14 +320,23 @@ def validatePopulationSpreadsheet(fileName,m):
     
     for name in spreadNameDict.keys():
         if name not in modelNameTuples:
-            badNames.append(name)
+            badNamesTmp.append(name)
                     
 
     countsList = Counter(spreadNameDict.keys())
     for elem,count in countsList.items():
         if count > 1:
-            dupNames.append(elem)
+            dupNamesTmp.append(elem)
     
+    if overrideNames or ignoreNames:
+        for name in badNamesTmp:
+            if name[0] not in modelStoreIds:
+                badNames.append(name)
+        
+        for name in dupNamesTmp:
+            if name[0] not in modelStoreIds:
+                dupNames.append(name)
+                
     if len(badNames) > 0:
         returnDict['badNames'] = badNames
         returnDict['success'] = True
@@ -330,7 +348,10 @@ def validatePopulationSpreadsheet(fileName,m):
     
     for name,pops in spreadNameDict.items():
         if name not in badNames and name not in dupNames:
-            updateList.append(tuple([name[0]]+pops))
+            if overrideNames:
+                updateList.append(tuple([name[0]] + pops + [name[1],name[2]]))
+            else:
+                updateList.append(tuple([name[0]]+pops))
     
     returnDict['updates'] = updateList
     return returnDict
@@ -342,6 +363,8 @@ def uploadGeoCoordSpreadsheet(db,uiSession):
         
         info = uploadAndStore(bottle.request, uiSession)
         modelId = info['modelId']
+        overrideNames = info['overrideNames']
+        print "override Names !!!!!!!! = {0}".format(overrideNames)
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId) 
         clientData = makeClientFileInfo(info)
@@ -352,7 +375,7 @@ def uploadGeoCoordSpreadsheet(db,uiSession):
                                'size':os.path.getsize(info['serverSideName'])
                                }]
         
-        validDict = validatePopulationSpreadsheet(info['serverSideName'], m)
+        validDict = validatePopulationSpreadsheet(info['serverSideName'], m,overrideNames=overrideNames)
         print validDict
         clientData['validResult'] = validDict
         

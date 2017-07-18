@@ -170,8 +170,8 @@ function boxClick(cb,event) {
 function vaccineInfoButtonFormatter(cellvalue, options, rowObject)
 {
     // cellvalue will be the name string
-    return "<div class='hermes_info_button' id='"+cellvalue+"'></div>";
-	//return "<button type=\"button\" class=\"hermes_info_button\" id="+escape(cellvalue)+">Info</button>";
+    //return "<div class='hermes_info_button' id='"+cellvalue+"'></div>";
+	return "<button type=\"button\" class=\"hermes_info_button\" id="+escape(cellvalue)+">Info</button>";
 };
 
 function checkboxFormatter(cellvalue, options, rowObject)
@@ -291,30 +291,30 @@ $("#manage_vaccine_grid").jqGrid({ //set your grid id
 
           gridComplete: function(){
         	  
-        	$(".hermes_info_button").hrmWidget({
-        		widget: 'typeInfoButtonAndDialog',
-        		typeClass: 'vaccines',
-        		typeId: $(this).attr('id'),
-        		modelId: $("#vaccine_top_model_select").val()
-        	});
-//		    $(".hermes_info_button").click(function(event) {
-//			  $.getJSON('{{rootPath}}json/vaccine-info',{name:unescape($(this).attr('id')), 
-//				modelId:$("#vaccine_top_model_select").val()})
-//			  .done(function(data) {
-//				if (data.success) {
-//				    $("#vaccine_info_dialog").html(data['htmlstring']);
-//			    	$("#vaccine_info_dialog").dialog('option','title',data['title']);
-//					$("#vaccine_info_dialog").dialog("open");		
-//				}
-//				else {
-//    				alert('{{_("Failed: ")}}'+data.msg);
-//				}
-//			  })
-//			  .fail(function(jqxhr, textStatus, error) {
-//    			alert('{{_("Error: ")}}'+jqxhr.responseText);
-//			  });
-//			  event.stopPropagation();
-//		    });
+//        	$(".hermes_info_button").hrmWidget({
+//        		widget: 'typeInfoButtonAndDialog',
+//        		typeClass: 'vaccines',
+//        		typeId: $(this).attr('id'),
+//        		modelId: $("#vaccine_top_model_select").val()
+//        	});
+		    $(".hermes_info_button").click(function(event) {
+			  $.getJSON('{{rootPath}}json/vaccine-info',{name:unescape($(this).attr('id')), 
+				modelId:$("#vaccine_top_model_select").val()})
+			  .done(function(data) {
+				if (data.success) {
+				    $("#vaccine_info_dialog").html(data['htmlstring']);
+			    	$("#vaccine_info_dialog").dialog('option','title',data['title']);
+					$("#vaccine_info_dialog").dialog("open");		
+				}
+				else {
+    				alert('{{_("Failed: ")}}'+data.msg);
+				}
+			  })
+			  .fail(function(jqxhr, textStatus, error) {
+    			alert('{{_("Error: ")}}'+jqxhr.responseText);
+			  });
+			  event.stopPropagation();
+		    });
 	      },
         // set hermify options for subgrids
        }).jqGrid('hermify',{debug:true, subgrid:true, resizable:true});

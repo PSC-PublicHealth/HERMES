@@ -361,8 +361,8 @@ def jsonManageVaccineSubTable(db, uiSession):
     for t in tList:
         if t[subkey] == subval:
             if t.viewkeys() >= {'Name', '_inmodel', 'DisplayName'}:
-                rows.append({"name":t['Name'], "cell": [ t['Name'], t['_inmodel'],
-                      t['DisplayName'], t['Name']]})
+                rows.append({"name":t['Name'], "cell": [ t['Name'], t['_inmodel'],t['DisplayName'],t['Name']]})
+                #, t['Name']]})
     result = {
               "total":1,    # total pages
               "page":1,     # which page is this

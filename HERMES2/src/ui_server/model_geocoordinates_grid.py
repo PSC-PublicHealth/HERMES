@@ -151,6 +151,7 @@ def jsonStoreGridGeoCoordVerifyAndCommitFromJson(db, uiSession):
         modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
         jsonStrToUpdate = _getOrThrowError(bottle.request.params,'jsonStr',isInt=False)
         jsonToUpdate = json.loads(jsonStrToUpdate)
+        overrideNames = _safeGetReqParam(bottle.request.params,'overrideNames',isBool=True,default=False)
         
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db,modelId)
@@ -159,6 +160,9 @@ def jsonStoreGridGeoCoordVerifyAndCommitFromJson(db, uiSession):
             storeToUpdate = m.stores[idcode]
             storeToUpdate.Latitude = updateItem[1]
             storeToUpdate.Longitude = updateItem[2]
+            if len(updateItem) > 3:
+                storeToUpdate.NAME = updateItem[3]
+                storeToUpdate.CATEGORY = updateItem[4]
         
         db.commit()
             
@@ -235,7 +239,7 @@ def downloadTemplateGeoCoordXLS(db,uiSession):
         print 'Exception: %s'%e
         raise
     
-def validateGeoCoordSpreadsheet(fileName,m):
+def validateGeoCoordSpreadsheet(fileName,m,ignoreNames=True, overrideNames=False):
     from collections import Counter
     from openpyxl import load_workbook
     returnDict = {'success':True,'badNames':[],'dups':[],'updates':[],'message':''}
@@ -258,24 +262,37 @@ def validateGeoCoordSpreadsheet(fileName,m):
         returnDict['message'] = "Headers of spreadsheet do not conform"
         return returnDict
     
+    badNamesTmp = []
     badNames = []
+    dupNamesTmp = []
     dupNames = []
     updateList = []
     modelNameTuples = [(x.idcode,x.NAME, x.CATEGORY) for x in m.stores.values()]
+    modelStoreIds = [(x.idcode) for x in m.stores.values()]
+    
     spreadNameDict = {(x[0].value,x[1].value,x[2].value):(x[3].value,x[4].value)\
                        for x in ws.iter_rows(row_offset=1) if x[0].value is not None}
     ## Find Bad Names
     
     for name in spreadNameDict.keys():
         if name not in modelNameTuples:
-            badNames.append(name)
+            badNamesTmp.append(name)
                     
 
     countsList = Counter(spreadNameDict.keys())
     for elem,count in countsList.items():
         if count > 1:
-            dupNames.append(elem)
+            dupNamesTmp.append(elem)
     
+    if overrideNames or ignoreNames:
+        for name in badNamesTmp:
+            if name[0] not in modelStoreIds:
+                badNames.append(name)
+        
+        for name in dupNamesTmp:
+            if name[0] not in modelStoreIds:
+                dupNames.append(name)
+                
     if len(badNames) > 0:
         returnDict['badNames'] = badNames
         returnDict['success'] = True
@@ -284,10 +301,17 @@ def validateGeoCoordSpreadsheet(fileName,m):
         returnDict['dups'] = dupNames
         returnDict['success'] = True
     
+    print "Bad NAmes Tmp = {0}".format(badNamesTmp)
+    print "Bad Names = {0}".format(badNames)
+     
     for name,latlons in spreadNameDict.items():
         if name not in badNames and name not in dupNames:
-            updateList.append((name[0],latlons[0],latlons[1]))
+            if overrideNames:
+                updateList.append((name[0],latlons[0],latlons[1],name[1],name[2]))
+            else:
+                updateList.append((name[0],latlons[0],latlons[1]))
     
+    print "Update List = {0}".format(updateList)
     returnDict['updates'] = updateList
     return returnDict
         
@@ -297,7 +321,11 @@ def uploadGeoCoordSpreadsheet(db,uiSession):
     try:
         
         info = uploadAndStore(bottle.request, uiSession)
+        #print "Info = {0}".format(info)
+        #print "Info Keys = {0}".format(info.keys())
         modelId = info['modelId']
+        overrideNames = info['overrideNames']
+        #print "Override Names = {0}".format(overrideNames)
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId) 
         clientData = makeClientFileInfo(info)
@@ -308,8 +336,8 @@ def uploadGeoCoordSpreadsheet(db,uiSession):
                                'size':os.path.getsize(info['serverSideName'])
                                }]
         
-        validDict = validateGeoCoordSpreadsheet(info['serverSideName'], m)
-        print validDict
+        validDict = validateGeoCoordSpreadsheet(info['serverSideName'], m,overrideNames=overrideNames)
+        #print validDict
         clientData['validResult'] = validDict
         
         return json.dumps(clientData)

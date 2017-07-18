@@ -85,6 +85,14 @@ a.model-operation-item:visited{
 						<input id="xlsfilename" type="file" name="files[]" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
 					</td>
 				</tr>
+				<tr>
+					<td>
+						{{_('Would you like to override the Location Names with those in your spreadsheet?')}}
+					</td>
+					<td>
+						<input id='override-names-checkbox' type="checkbox">
+					</td>
+				</tr>
 			</table>
 		</fieldset>
 	</form>
@@ -128,7 +136,7 @@ $("#uploadSpreadsheetDialog").dialog({
 	resizable:false,
 	model:true,
 	autoOpen:false,
-	width:400,
+	width:'auto',
 	buttons:{
 		'{{_("Close")}}':function(){
 			$(this).dialog("close");
@@ -148,6 +156,7 @@ $("#down-success-dialog").dialog({
 	resizable:false,
 	model:true,
 	autoOpen:false,
+	width:'auto',
 	buttons:{
 		'{{_("OK")}}':function(){
 			$(this).dialog("close");
@@ -205,8 +214,8 @@ $("#validSpread-dialog").dialog({
 
 $( "#spreadupload-dialog" ).dialog({
 	autoOpen: false,
- 	height: 300,
-	width: 400,
+ 	height:'auto',
+	width: 'auto',
 	modal: true,
 	buttons: {
     	'OK': {
@@ -221,7 +230,8 @@ $( "#spreadupload-dialog" ).dialog({
     				$("#shortname").val($("#xlsfilename").val().replace(/^.*[\\\/]/, ''));
     				$("#xlsupload").fileupload('add',{files:files,
     												 formData:[{name:'shortname',value:$("#shortname").val()},
-    												           {name:'modelId',value:{{modelId}}}]
+    												           			{name:'modelId',value:{{modelId}}},
+    												           			{name:'overrideNames',value:$("#override-names-checkbox").is(":checked")}]
     												}
     				);
     				
@@ -270,7 +280,7 @@ $("#xlsupload").fileupload({
 						method:'post',
 						data:{
 							'modelId':{{modelId}},
-							'jsonStr':JSON.stringify(data.result.validResult.updates)
+							'jsonStr':JSON.stringify(data.result.validResult.updates),
 							},
 						success: function(result){
 							if(result.success){

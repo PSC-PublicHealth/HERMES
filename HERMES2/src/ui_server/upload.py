@@ -112,6 +112,12 @@ def uploadAndStore(bottleRequest,uiSession):
     print formMDict.keys()
     if 'modelId' in formMDict.keys():
         info['modelId'] = formMDict['modelId']
-        
+    
+    if 'overrideNames' in formMDict.keys():
+        if formMDict['overrideNames'] == 'true':
+            info['overrideNames'] = True
+        else:
+            info['overrideNames'] = False
+        #info['overrideNames'] = formMDict['overrideNames']
     return info
 

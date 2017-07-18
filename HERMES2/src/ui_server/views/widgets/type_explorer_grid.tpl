@@ -704,6 +704,14 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 					resButt.hide();
 				});
 			}
+		},
+		_destroy:function(){
+			trant = this.options.trant;
+			this.containerId = $(this.element).attr('id');
+			
+			var thisContainerId = this.containerId;
+			
+			$("#thisContainerId").html("");
 		}
 	});
 })(jQuery);
