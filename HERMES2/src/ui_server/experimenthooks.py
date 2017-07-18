@@ -234,10 +234,11 @@ def modifyRouteExptImplement(db,uiSession):
         else:
             raise RuntimeError("in route_by_level_experiment_implement, unrecognized levelOpt")
         
-        
+        #print "Routes To Change in implement = {0}".format(routesToChange)
         ### Now perform the transformation on the selected routes
         
         if changeFreq:
+            print "Got to change Freq"
             transDict ={'modrouteexpt_freq_half':0.5,
                         'modrouteexpt_freq_double':2,
                         'modrouteexpt_freq_quadruple':4} 
@@ -252,11 +253,11 @@ def modifyRouteExptImplement(db,uiSession):
                         continue
                     
                     if len(route.stops) > 2:
-                        pass
+                        continue
                         #route.ShipIntervalDays = 1
                     else:
                         newRouteType = "persistentdemandfetch"
-                        if routeDesc.supplierStop == 0:
+                        if routeDesc.supplierStop() == 0:
                             newRouteType = "persistentpull"
                             
                         route.Type = newRouteType
