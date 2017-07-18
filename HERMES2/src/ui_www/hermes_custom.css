@@ -3100,3 +3100,11 @@ ul.proper_ul {
 	width:100px;
 	height:36px;
 }
+
+.ui-tooltip { 
+	box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5); 
+}
+
+.ui-tooltip-content{
+	font-size:small;
+}

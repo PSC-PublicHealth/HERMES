@@ -80,6 +80,9 @@
 /*
 * Magic to make AJAX ops like $.getJSON send the same cookies as normal fetches
 */
+
+
+
 $(document).ajaxSend(function (event, xhr, settings) {
 	settings.async = true,
     settings.xhrFields = {
@@ -365,3 +368,7 @@ function reportError(jqxhdrOrData, textStatus, error) {
 		</footer> 
     </div>    
 </body>
+
+<script>
+$("a[title]").tooltip();
+</script>
