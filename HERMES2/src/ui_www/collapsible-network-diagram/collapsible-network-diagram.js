@@ -75,7 +75,7 @@
 			absoluteHeight:null,
 			absoluteWidth:null,
 			minWidth:500,
-			minHeight:300,
+			minHeight:500,
 			maxWidth:null,
 			maxHeight:null,
 			scrollable:false,
@@ -425,6 +425,7 @@
 		    
 
 		    function resize() {
+		    	alert("window.innerHeight = " + window.innerHeight);
 		    	x = window.innerWidth - margin*2;
 		    	y = window.innerHeight - 400;
 		    	svgGroup.attr("width",x).attr("height",y);
@@ -984,10 +985,11 @@
 		    currentNode = root;
 		    
 		    if(resizeOn){
-				window.addEventListener('resize',function(event){
-			    	//var wH = window.innerHeight-300;
+				//window.addEventListener('resize',function(event){
+		    	$(window).resize(function(){
+			    	var wH = window.innerHeight-300;
 			    	//var wW = window.innerWidth - margin*2;
-			    	var wH = $("#"+thiscontainerID).height();
+			    	//var wH = $("#"+thiscontainerID).height();
 			    	var wW = $("#"+thiscontainerID).width();
 			    	var bH = parseInt(baseSvg.style("height"));
 			    	var bW = parseInt(baseSvg.style("width"));
@@ -996,7 +998,7 @@
 			    	//console.log(bH);
 			    	
 			    	baseSvg.attr("width",wW).attr("height",wH);
-			    	console.log("resizing");
+			    	//console.log("resizing");
 			    	centerNode(currentNode);	
 				});
 			}
