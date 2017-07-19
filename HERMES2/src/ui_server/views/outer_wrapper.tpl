@@ -363,7 +363,7 @@ function reportError(jqxhdrOrData, textStatus, error) {
 	
 		<footer class="art-footer clearfix">
 			<div class="art-footer-inner">
-	  			&nbsp; &nbsp; &nbsp; &nbsp;{{_('HERMES Project')}} - Copyright &copy; 2015. {{_('All Rights Reserved.')}}
+	  			&nbsp; &nbsp; &nbsp; &nbsp;{{_('HERMES Project')}} - Copyright &copy; 2017. {{_('All Rights Reserved.')}}
 			</div>
 		</footer> 
     </div>    
