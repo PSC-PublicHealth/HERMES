@@ -65,13 +65,13 @@
 			
 			$("#"+thiscontainerID).append("<div id='" + mapContainerID + "' class='geoContainer'></div>");
 			$("#"+thiscontainerID).append("<div id='" + layersLegendID + "' class='geoLayerLeg'></div>");
-			$("#"+thiscontainerID).append('<div id="' + popLegendID + '" style="float:right;position:absolute;bottom:40px;left:800px;background:white;">'
+			$("#"+thiscontainerID).append('<div id="' + popLegendID + '" style="float:right;position:absolute;bottom:40px;left:1000px;background:white;">'
 					+'<img height="200px" src="'+rootPath+'static/images/PopLegend.PNG"></div>');
-			$("#"+thiscontainerID).append('<div id="' +storeLegendID + '" style="float:right;position:absolute;bottom:40px;left:800px;background:white;">'+
+			$("#"+thiscontainerID).append('<div id="' +storeLegendID + '" style="float:right;position:absolute;bottom:40px;left:1000px;background:white;">'+
 					'<img height="200px" src="'+rootPath+'static/images/StoreLegend.PNG"></div>');
-			$("#"+thiscontainerID).append('<div id="' + vaLegendID + '" style="float:right;position:absolute;bottom:40px;left:800px;background:white;">'+
+			$("#"+thiscontainerID).append('<div id="' + vaLegendID + '" style="float:right;position:absolute;bottom:40px;left:1000px;background:white;">'+
 					'<img height="200px" src="'+rootPath+'static/images/VALegend.PNG"></div>');
-			$("#"+thiscontainerID).append('<div id="' + transLegendID + '" style="float:right;position:absolute;bottom:40px;left:800px;background:white;">'+
+			$("#"+thiscontainerID).append('<div id="' + transLegendID + '" style="float:right;position:absolute;bottom:40px;left:1000px;background:white;">'+
 					'<img height="200px" src="'+rootPath+'static/images/TransLegend.PNG"></div>');
 			
 			
