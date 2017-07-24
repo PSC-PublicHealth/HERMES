@@ -1004,6 +1004,9 @@ function addToggleExpansionButton($grid) {
  				}
  				var req_string = "";
  				var values = value.split(':');
+ 				if(values[0] == ""){
+ 					values[0] = 0.0;
+ 				}
  				if($elem.data('fieldMap')){
 	 				$elem.data('fieldMap',$elem.attr("data-fieldMap"));
 		 			if($elem.data("fieldMap").required){
