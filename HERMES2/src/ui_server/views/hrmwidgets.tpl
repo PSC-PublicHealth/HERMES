@@ -1607,6 +1607,9 @@ function addToggleExpansionButton($grid) {
  			$('#wrappage_done_row').show();
  			$('#wrappage_done_button').button()
  			.click( function() {
+ 				if(settings['doneFunc']){
+ 					settings['doneFunc']();
+ 				}
  				window.location = settings['doneURL'];
  			});
 
@@ -1683,6 +1686,7 @@ function addToggleExpansionButton($grid) {
 	 			.click( function() {
 	 				// This is a hack, but I cannot figure out a better way to do it at the moment
 	 				settings['nextFunction']();
+	 				window.location = settings['nextURL'];
 	 			});
  			}
  			else{

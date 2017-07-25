@@ -395,7 +395,7 @@ function buildSideTable(modelId, modelName) {
 	    }
 	}).jqGrid('hermify',{debug:true});
 };
-
+var lastSel = null;
 function buildPage(modelId, modelName) {
 	$.getJSON('{{rootPath}}json/get-demand-table',{modelId:function(){ return $("#model_sel_widget").modelSelector('selId');}})
 	.done(function(data) {
@@ -420,13 +420,17 @@ function buildPage(modelId, modelName) {
 					gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
     				caption:'{{_("How many doses of each vaccine per person per year?")}}',
 					onSelectRow: function(resultsid, status){
-   						//if (status) {
+   						if (status) {
    							if (resultsid) {
-								var $this = $(this);
+   								var $this = $(this);
+   								var modelId = $("#model_sel_widget").modelSelector('selId');
+   								if(lastSel != resultsid){
+   									$this.jqGrid('saveRow',lastSel,{extraparam:{modelId:modelId}});
+   								}
 								$this.jqGrid('editRow',resultsid,{
 									keys:true,
 									extraparam: { 
-										modelId: function() { return $("#model_sel_widget").modelSelector('selId') }
+										modelId: modelId
 									},
 									successfunc: function(response) {
 										if (response.status >=200 && response.status<300) {
@@ -447,24 +451,29 @@ function buildPage(modelId, modelName) {
 										}
 									},
 								});
-                  var ids = $("#demand_edit_grid").jqGrid('getDataIDs');
-									for(var i=0; i<ids.length; i++) { 
-                      $( document ).on( "blur", "input[id^='" + ids[i] + "_']", function() { 
-                          var focusfrom = $(this).parent().parent().attr('id');
-                          setTimeout(function()
-                          {
-                              if ($(document.activeElement).parent().parent().attr("id")!=focusfrom) {
-                                  $('#demand_edit_grid').jqGrid('saveRow',focusfrom);
-                              }
-                          }, 1);
-                      });
-									}
+			                  var ids = $("#demand_edit_grid").jqGrid('getDataIDs');
+							  for(var i=0; i<ids.length; i++) { 
+			                      $( document ).on( "blur", "input[id^='" + ids[i] + "_']", function() { 
+			                          var focusfrom = $(this).parent().parent().attr('id');
+			                          setTimeout(function(){
+			                              if ($(document.activeElement).parent().parent().attr("id")!=focusfrom) {
+			                                  $('#demand_edit_grid').jqGrid('saveRow',focusfrom);
+			                              }
+			                          	}, 1);
+			                      });
+								}
    							}
-						//}
-						//else {
-						//	alert('outside click '+resultsid);
-						//}
+						}
+						else {
+							alert('outside click '+resultsid);
+						}
+   						lastSel = resultsid;
 					},
+					gridComplete:function(){
+						$('#ajax_busy_blank').show(); 
+						$('#ajax_busy_image').hide(); 
+					},
+					
 				}).jqGrid('hermify',{debug:true});
 				resize_grid();
 			}
@@ -715,12 +724,29 @@ $(function() {
 			checkParms:function(parmDict) {
 				return {success:true};
 			},
+			nextFunction:function(){
+				//alert($("#model_sel_widget").modelSelector('selId'));
+				$("#demand_edit_grid").jqGrid('saveRow',lastSel,{
+					extraparam:{modelId:$("#model_sel_widget").modelSelector('selId')}
+				});
+			},
 			nextURL:'{{! breadcrumbPairs.getNextURL() }}',
 			backURL:'{{! breadcrumbPairs.getBackURL() }}',
 		})
 	% else:
-		$(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'});
+		//console.log()
+		$(document).hrmWidget({
+			widget:'stdDoneButton', 
+			doneFunc:function(){
+				//alert($("#model_sel_widget").modelSelector('selId'));
+				$("#demand_edit_grid").jqGrid('saveRow',lastSel,{
+					extraparam:{modelId:$("#model_sel_widget").modelSelector('selId')}
+				});
+			},
+			doneURL:'{{breadcrumbPairs.getDoneURL()}}'
+		   });
 	% end
+	
 });
 
 }
