@@ -101,13 +101,13 @@ Source: "req64\*"; Excludes: "*.pyc,*.pyo"; DestDir: "{app}\python"; Flags: igno
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-;Name: "{group}\{#MyAppName}"; Filename: "{app}\hermes-tray.exe"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\hermes-tray.exe"
 ;Name: "{group}\{#MyAppName}"; Filename: "{app}\src\tools\start_hermes_ui.bat"; IconFilename: "{app}\win.ico"
-Name: "{group}\{#MyAppName}"; Filename: "{app}\python\pythonw.exe"; Parameters: "hermes_ui.py"; WorkingDir: "{app}\src\tools"; IconFilename: "{app}\win.ico"
+;Name: "{group}\{#MyAppName}"; Filename: "{app}\python\pythonw.exe"; Parameters: "hermes_ui.py"; WorkingDir: "{app}\src\tools"; IconFilename: "{app}\win.ico"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-;Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\hermes-tray.exe"; Tasks: desktopicon
+Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\hermes-tray.exe"; Tasks: desktopicon
 ;Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\src\tools\start_hermes_ui.bat"; IconFilename: "{app}\win.ico"; Tasks: desktopicon
-Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\python\pythonw.exe"; Parameters: "hermes_ui.py"; WorkingDir: "{app}\src\tools"; IconFilename: "{app}\win.ico"; Tasks: desktopicon
+;Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\python\pythonw.exe"; Parameters: "hermes_ui.py"; WorkingDir: "{app}\src\tools"; IconFilename: "{app}\win.ico"; Tasks: desktopicon
 
 [Dirs]
 Name: {commonappdata}\HERMES; permissions: everyone-modify admins-full;
@@ -127,9 +127,9 @@ Filename: "{app}\hermes_conf.kvp"; Section:"settings"; Key:"baseDir";String:"'{a
 Filename: "{app}\python\pythonw.exe"; Parameters: "-m compileall ""{app}"""
 Filename: "{app}\python\pythonw.exe"; WorkingDir: "{app}\src\tools"; Parameters: "unblurred_win.py"
 Filename: "{cmd}"; Parameters: "/C ""{app}\src\tools\log_install_hermes.bat"""; Flags: runhidden
-;Filename: "{app}\hermes-tray.exe"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\hermes-tray.exe"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 ;Filename: "{app}\src\tools\start_hermes_ui.bat"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-Filename: "{app}\python\pythonw.exe"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Parameters: "hermes_ui.py"; WorkingDir: "{app}\src\tools"; Flags: nowait postinstall skipifsilent
+;Filename: "{app}\python\pythonw.exe"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Parameters: "hermes_ui.py"; WorkingDir: "{app}\src\tools"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
 ;Type: files; Name: "{commonappdata}\HERMES\standalone.log"
