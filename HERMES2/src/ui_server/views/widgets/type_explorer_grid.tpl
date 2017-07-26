@@ -292,6 +292,13 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 				}
 			});
 		},
+		reloadGrid: function(){
+			this.containerId = $(this.element).attr('id');
+			var thisContainerId = this.containerId;
+			var thisTableId = thisContainerId + "_tbl";
+			
+			$("#"+thisTableId).jqGrid().trigger('reloadGrid',{fromServer:true});
+		},
 		createGrid: function(){
 			this.containerId = $(this.element).attr('id');
 			var thisContainerId = this.containerId;

@@ -221,6 +221,9 @@ $("#addvacexpt_explorer_model_div").typeExplorerGrid({
 	createFunction: function(typName){
 		$("#addvacexpt_slides").slideShowWithFlowControl("activateButton","next");
 	},
+	delFunction: function(typName){
+		$("#addvacexpt_explorer_all_div").typeExplorerGrid("reloadGrid");
+	},
 	width:$("#addvacexpt_explorer_model_div").width(),
 	deletable: true,
 	title: "{{_('Vaccines Currently in the Model')}}"
