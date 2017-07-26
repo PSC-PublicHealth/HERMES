@@ -262,7 +262,7 @@ def modifyRouteExptImplement(db,uiSession):
                             
                         route.Type = newRouteType
                         for stop in route.stops:
-                            stop.PullOrderAmountDays = 1
+                            stop.PullOrderAmountDays = route.ShipIntervalDays
                         route.ShipIntervalDays = 1
                         
                         
