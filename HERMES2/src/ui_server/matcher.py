@@ -59,7 +59,7 @@ import model_population_demand_grid
 import factoryhooks
 import model_storage_inventory_grid
 import experimenthooks
-import databasehooks
+#import databasehooks
 
 ## If executing under mod_wsgi, we need to add the path to the source
 ## directory of this script.
