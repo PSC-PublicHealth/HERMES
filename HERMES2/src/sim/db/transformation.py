@@ -484,7 +484,7 @@ def makeLoopsOptimizedByDistanceBetweenLevels(shdNtwk,startLevel,endLevel,places
                     'idcode':hubLoc[2].idcode,
                     'RouteOrder':0,
                     'TransitHours':actualTimes[0],
-                    'ShipIntervalDays':20,
+                    'ShipIntervalDays':28,
                     'ShipLatencyDays':2,
                     'PullOrderAmountDays':'',
                     'Notes':'Automatically Generated',
@@ -494,7 +494,7 @@ def makeLoopsOptimizedByDistanceBetweenLevels(shdNtwk,startLevel,endLevel,places
                     'PickupDelayMagnitude':0,
                     'PickupDelaySigma':0,
                     'PickupDelayFrequency':0,
-                    'PerDiem':'Std_PerDiem_None'
+                    'PerDiemType':'Std_Per_Diem_None'
                     }
                 ]
             loopCount = 0
@@ -523,7 +523,7 @@ def makeLoopsOptimizedByDistanceBetweenLevels(shdNtwk,startLevel,endLevel,places
                         'idcode':location[2].idcode,
                         'RouteOrder':loopCount,
                         'TransitHours':actualTimes[ind],
-                        'ShipIntervalDays':20,
+                        'ShipIntervalDays':28,
                         'ShipLatencyDays':2,
                         'PullOrderAmountDays':'',
                         'Notes':'Automatically Generated',
@@ -533,7 +533,7 @@ def makeLoopsOptimizedByDistanceBetweenLevels(shdNtwk,startLevel,endLevel,places
                         'PickupDelayMagnitude':0,
                         'PickupDelaySigma':0,
                         'PickupDelayFrequency':0,
-                        'PerDiem':'Std_PerDiem_None'
+                        'PerDiemType':'Std_Per_Diem_None'
 
                         }
                     )
