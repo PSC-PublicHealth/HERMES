@@ -3013,6 +3013,7 @@ class TimerProcess(Process, abstractbaseclasses.UnicodeSupport):
         else:
             return "<TimerProcess(%s)>"%self.name
 
+
 class SnoozeTimerProcess(Process, abstractbaseclasses.UnicodeSupport):
     counter= 0
     def __init__(self,sim,name,delayDays,snoozeDays,snoozealarmclockFunc,funArgs):
@@ -3069,6 +3070,8 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
         tickInterval: interval between activations in days
         useVialPriority: 'get' priority for withdrawal of supplies from clinic
         startupLatency: delay before first activation in days
+        openVialDenyFraction: optional dict, if vaccine in dict don't open vial unless a certain fraction of vial will be used
+                              the key "_all" is for any vaccine not explicitly enumerated in the dict
         """
         Process.__init__(self,name="UseVials_%s"%clinic.name, sim=clinic.sim)
         if tickInterval<1.0:
@@ -3303,11 +3306,19 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
             
             if self.openVialDenyFraction:
                 for v,n in doseVC.items():
-                    threshold = math.floor(v.getNDosesPerVial()*self.openVialDenyFraction)
+                    try:
+                        denyFraction = self.openVialDenyFraction[v]
+                    except KeyError:
+                        try:
+                            denyFraction = self.openVialDenyFraction['_all']
+                        except KeyError:
+                            continue
+
+                    threshold = math.floor(v.getNDosesPerVial() * denyFraction)
                     nLeft = n % v.getNDosesPerVial()
                     #print "n = {0} nLeft = {1}".format(n,nLeft)
                     if nLeft > 0 and nLeft < threshold:
-                        testVar = elaboratedVC[v]
+                        #testVar = elaboratedVC[v]
                         elaboratedVC[v] -= 1
                         if elaboratedVC[v] < 0:
                             elaboratedVC[v] = 0
@@ -3413,7 +3424,7 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
 class UseOrDiscardVials(UseVials):
     def __init__(self,clinic,
                  tickInterval,patientWaitInterval,useVialPriority,
-                 startupLatency=0.0):
+                 startupLatency=0.0, openVialDenyFraction=None):
         """
         This process is just like a UseVials process, except that any vaccine
         left over at the end of a treatment session is discarded.  The store 
@@ -3431,8 +3442,9 @@ class UseOrDiscardVials(UseVials):
         startupLatency: delay before first activation in days
         """
         UseVials.__init__(self,clinic,
-                 tickInterval,patientWaitInterval,useVialPriority,
-                 startupLatency)
+                          tickInterval,patientWaitInterval,useVialPriority,
+                          startupLatency,
+                          openVialDenyFraction=openVialDenyFraction)
         
     def sortDoseRequirments(self, doseVC):
         """
@@ -3514,7 +3526,7 @@ class UseOrDiscardVials(UseVials):
 class UseOrRecycleVials(UseVials):
     def __init__(self,clinic,
                  tickInterval,patientWaitInterval,useVialPriority,
-                 startupLatency=0.0):
+                 startupLatency=0.0, openVialDenyFraction=None):
         """
         This process is just like a UseVials process, except that any unopened
         vaccine left over at the end of a treatment session is marked for recycling.
@@ -3531,8 +3543,9 @@ class UseOrRecycleVials(UseVials):
         startupLatency: delay before first activation in days
         """
         UseVials.__init__(self,clinic,
-                 tickInterval,patientWaitInterval,useVialPriority,
-                 startupLatency)
+                          tickInterval,patientWaitInterval,useVialPriority,
+                          startupLatency,
+                          openVialDenyFraction=openVialDenyFraction)
         
     def sortDoseRequirments(self, doseVC):
         """

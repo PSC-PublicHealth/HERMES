@@ -37,7 +37,7 @@ import storagetypes
 import vaccinetypes
 import trucktypes
 import peopletypes as pt
-from util import openDataFullPath
+from util import openDataFullPath,listify
 from noteholder import NoteHolderGroup
 import warehouse
 import sampler
@@ -153,12 +153,6 @@ class Model(model.Model):
         self.defaultTruckTypeName= self.sim.userInput['defaulttrucktypename']
         self.autoUpdateThresholdsFlag = self.sim.userInput['autoupdatethresholds']
         self.defaultBufferStockFraction = self.sim.userInput['bufferstockfraction']
-        
-        self.openVialDenyFraction = None
-#         if  self.sim.userInput['openvialdenyfraction'] < 0:
-#             self.openVialDenyFraction = None
-#         else:
-#             self.openVialDenyFraction = self.sim.userInput['openvialdenyfraction']
 
         self.monthlyReportActivated= False
         if self.sim.userInput['monthlyreports']:
@@ -172,6 +166,20 @@ class Model(model.Model):
         if self.sim.perfect:
             for dm in self.demandModelTuple:
                 dm.setPerfectCanStore()
+
+        # this must be done after the demand model has been instantiated
+        if self.sim.userInput['openvialdenyfractionbytype'] is not None:
+            self.openVialDenyFraction = processTypeFractionPairList(self.sim.vaccines,
+                                                                    self.sim.userInput['openvialdenyfractionbytype'])
+        else:
+            self.openVialDenyFraction = {}
+
+        # self.openVialDenyFraction = None
+        denyFraction = self.sim.userInput['openvialdenyfraction']
+        if denyFraction > 0.0:
+            self.openVialDenyFraction['_all'] = denyFraction
+        if len(self.openVialDenyFraction) == 0:
+            self.openVialDenyFraction = None
 
         self.levelList = self.sim.userInput['levellist']
         #print "level list is: %s"%self.levelList
@@ -692,15 +700,15 @@ class Model(model.Model):
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency)
-                                                         # openVialDenyFraction = self.openVialDenyFraction)
+                                                          totalLatency,
+                                                          openVialDenyFraction = self.openVialDenyFraction)
                 else:
                     useVials= warehouse.UseOrDiscardVials(wh,
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency)
-                                                          #openVialDenyFraction = self.openVialDenyFraction)
+                                                          totalLatency,
+                                                          openVialDenyFraction = self.openVialDenyFraction)
             else:
                 if isinstance(wh,Model.SurrogateClinic):
                     useVials= warehouse.UseVialsSilently(wh,
@@ -713,15 +721,15 @@ class Model(model.Model):
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency)
-                                                          #openVialDenyFraction = self.openVialDenyFraction)
+                                                          totalLatency,
+                                                          openVialDenyFraction = self.openVialDenyFraction)
                 else:
                     useVials= warehouse.UseVials(wh,
                                                  tickInterval,
                                                  patientWaitInterval,
                                                  C.useVialPriority,
-                                                 totalLatency)
-                                                 #openVialDenyFraction = self.openVialDenyFraction)
+                                                 totalLatency,
+                                                 openVialDenyFraction = self.openVialDenyFraction)
             return useVials
         else:
             return None
@@ -1015,3 +1023,24 @@ class Model(model.Model):
         return w
 
 
+def processTypeFractionPairList(typeManagers, tfList):
+    typeManagers = listify(typeManagers)
+    tfList = listify(tfList)
+
+    types = {}
+        
+    # is there ever a demand for storage, trucks or people?
+    for typeManager in typeManagers:
+        for t in typeManager.getActiveTypes():
+            types[t.name] = t
+            
+    ret = {}
+
+    for line in tfList:
+        (t,f) = line.split(':',1)
+        f = float(f)
+        if t in types:
+            ret[types[t]] = f
+        else:
+            raise RuntimeError("type %s unknown in %s"%(t,tfList))
+    return ret

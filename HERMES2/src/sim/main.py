@@ -24,6 +24,7 @@ _hermes_svn_id_="$Id$"
 import ipath
 
 import sys,os,optparse,traceback,time,string,locale
+import signal
 from kitchen.text.converters import getwriter
 #multiprocessing import Process, JoinableQueue, current_process
 import multiprocessing
@@ -664,7 +665,9 @@ def ValidatePostSimInputs(userInput):
         
             
             
-                          
+def handle_pdb(sig, frame):
+    import pdb
+    pdb.Pdb().set_trace(frame)        
             
 ############
 # Main hook
@@ -673,6 +676,8 @@ def ValidatePostSimInputs(userInput):
 if __name__=="__main__":
     if sys.platform.startswith('win'):
         multiprocessing.freeze_support()
+    else:
+        signal.signal(signal.SIGUSR1, handle_pdb)
     try:
         main()
     except Exception,e:
