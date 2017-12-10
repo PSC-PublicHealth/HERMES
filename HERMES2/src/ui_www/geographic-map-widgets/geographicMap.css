@@ -36,6 +36,7 @@
   border-width:1px;
   border-radius:3px;
   background-color: white;
+  z-index:1000;
 
 }
 

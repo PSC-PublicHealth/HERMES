@@ -59,6 +59,7 @@
 			// Create all of the pertinent containers
 			var mapContainerID = thiscontainerID + "_map-container";
 			var layersLegendID = thiscontainerID + "_layers-container";
+			var legendContainerID = thiscontainerID + "_legend-container";
 			var popLegendID = thiscontainerID + "_poplegend";
 			var vaLegendID = thiscontainerID + "_valegend";
 			var storeLegendID = thiscontainerID + "_storelegend";
@@ -67,16 +68,7 @@
 			
 			$("#"+thiscontainerID).append("<div id='" + mapContainerID + "' class='geoContainer'></div>");
 			$("#"+thiscontainerID).append("<div id='" + layersLegendID + "' class='geoLayerLeg'></div>");
-			$("#"+thiscontainerID).append('<div id="' + popLegendID + '" style="float:right;position:absolute;bottom:40px;left:1000px;background:white;">'
-					+'<img height="200px" src="'+rootPath+'static/images/PopLegend.PNG"></div>');
-			$("#"+thiscontainerID).append('<div id="' +storeLegendID + '" style="float:right;position:absolute;bottom:40px;left:1000px;background:white;">'+
-					'<img height="200px" src="'+rootPath+'static/images/StoreLegend.PNG"></div>');
-			$("#"+thiscontainerID).append('<div id="' + vaLegendID + '" style="float:right;position:absolute;bottom:40px;left:1000px;background:white;">'+
-					'<img height="200px" src="'+rootPath+'static/images/VALegend.PNG"></div>');
-			$("#"+thiscontainerID).append('<div id="' + transLegendID + '" style="float:right;position:absolute;bottom:40px;left:1000px;background:white;">'+
-					'<img height="200px" src="'+rootPath+'static/images/TransLegend.PNG"></div>');
-			
-			
+			$("#"+thiscontainerID).append("<div id='" + legendContainerID) + "class='geoLegend'></div>";
 			
 			
 			
@@ -102,18 +94,32 @@
 			var height = $("#"+mapContainerID).height();
 			
 			$(function() {
-				$("#"+vaLegendID).hide();
-				$("#"+popLegendID).hide();
-				$("#"+storeLegendID).hide();
-				$("#"+transLegendID).hide();
 				$('#ajax_busy_image').show();
 				
 			});
-
+			
+			function showLegend(whichLegend){
+				$("#legendContainer").html("");
+				$("#legendContainer").html("<img src='" + rootPath + "static/images/" + whichLegend+".png' width=170>");
+			}
+			function removeLegend(){
+				$("#legendContainer").html("");
+			}
+			
+			function showRouteLegend(){
+				$("#routeLegendContainer").html("");
+				$("#routeLegendContainer").html("<img src='" + rootPath + "static/images/util.png' width=170>");
+			}
+			
+			function removeRouteLegend(){
+				$("#routeLegendContainer").html("");
+			}
 			function doneLoading(){
 				$('#ajax_busy_image').hide();
 			}
 			
+			//$("#legendContainer").html("<img src='" + rootPath + "static/images/popserved.png' width=100>");
+			//$("#legendContainer").html("");
 			var projection = d3.geo.mercator()
 			.clipAngle(90)
 			.scale(width / 2 / Math.PI)
@@ -256,6 +262,7 @@
 					});
 				}
 				
+				//$("#legendContainer").html("<img src='" + rootPath + "static/images/popserved.png' width=180>")
 				$("#show_all_levels").change(function(){
 					$("[id^=show_level_]").prop("checked",false);
 					if($(this).is(':checked')){
@@ -306,15 +313,13 @@
 						}
 						features.selectAll(".store-circle").style('visibility','hidden');
 						features.selectAll(".pop-circle").style('visibility','visible');
-						$("#"+popLegendID).width("100px");
-						$("#"+popLegendID).show();
+						showLegend("popserved");
 						vizJson.popOn = true;
 					}
 					else {
 						features.selectAll(".pop-circle").style('visibility','hidden');
 						features.selectAll(".store-circle").style('visibility','visible');
-						$("#"+popLegendID).width("0px");
-						$("#"+popLegendID).hide();
+						removeLegend();
 						vizJson.popOn = false;
 					}
 					if (!$("#show_all_levels").is(":checked")){
@@ -328,15 +333,13 @@
 					if ($("#show_routes_util").is(':checked')){
 						features.selectAll(".route-util-line").style('visibility','visible');
 						features.selectAll(".route-line").style('visibility','hidden');
-						$("#"+transLegendID).width("100px");
-						$("#"+transLegendID).show();
+						showRouteLegend();
 						vizJson.routeUtilOn = true;
 					}
 					else {
 						features.selectAll(".route-util-line").style('visibility','hidden');
 						features.selectAll(".route-line").style('visibility','visible');
-						$("#"+transLegendID).width("0px");
-						$("#"+transLegendID).hide();
+						removeRouteLegend();
 						vizJson.routeUtilOn = false;
 					}
 					console.log(vizJson);
@@ -353,15 +356,13 @@
 						}
 						features.selectAll(".store-circle").style('visibility','hidden');
 						features.selectAll(".va-circle").style('visibility','visible');
-						$("#"+vaLegendID).width("100px");
-						$("#"+vaLegendID).show();
+						showLegend("vaccAvail");
 						vizJson.vacOn = true;
 					}
 					else {
 						features.selectAll(".va-circle").style('visibility','hidden');
 						features.selectAll(".store-circle").style('visibility','visible');
-						$("#"+vaLegendID).width("0px");
-						$("#"+vaLegendID).hide();
+						removeLegend();
 						vizJson.vacOn = false;
 					}
 					if (!$("#show_all_levels").is(":checked")){
@@ -380,15 +381,13 @@
 						}
 						features.selectAll(".store-circle").style('visibility','hidden');
 						features.selectAll(".util-circle").style('visibility','visible');
-						$("#"+storeLegendID).width("100px");
-						$("#"+storeLegendID).show();
+						showLegend("util");
 						vizJson.utilOn = true;
 					}
 					else {
 						features.selectAll(".util-circle").style('visibility','hidden');
 						features.selectAll(".store-circle").style('visibility','visible');
-						$("#"+storeLegendID).width("0px");
-						$("#"+storeLegendID).hide();
+						removeLegend()
 						vizJson.utilOn = false;
 					}
 					if (!$("#show_all_levels").is(":checked")){
@@ -496,26 +495,30 @@
 				if(vizJson.popOn){
 					features.selectAll(".store-circle").style('visibility','hidden');
 					features.selectAll(".pop-circle").style('visibility','visible');
-					$("#"+popLegendID).width("100px");
-					$("#"+popLegendID).show();
+					showLegend("popserved");
+					//$("#"+popLegendID).width("100px");
+					//$("#"+popLegendID).show();
 				}
 				if(vizJson.vacOn){
 					features.selectAll(".store-circle").style('visibility','hidden');
 					features.selectAll(".va-circle").style('visibility','visible');
-					$("#"+vaLegendID).width("100px");
-					$("#"+vaLegendID).show();
+					showLegend("vaccAvail");
+					//$("#"+vaLegendID).width("100px");
+					//$("#"+vaLegendID).show();
 				}
 				if(vizJson.utilOn){
 					features.selectAll(".store-circle").style('visibility','hidden');
 					features.selectAll(".util-circle").style('visibility','visible');
-					$("#"+storeLegendID).width("100px");
-					$("#"+storeLegendID).show();
+					showLegend("util");
+					//$("#"+storeLegendID).width("100px");
+					//$("#"+storeLegendID).show();
 				}
 				if(vizJson.routeUtilOn){
 					features.selectAll(".route-util-line").style('visibility','visible');
 					features.selectAll(".route-line").style('visibility','hidden');
-					$("#"+transLegendID).width("100px");
-					$("#"+transLegendID).show();
+					showRouteLegend("");
+					//$("#"+transLegendID).width("100px");
+					//$("#"+transLegendID).show();
 				}
 				if(vizJson.allOn){
 					showAllStores();
@@ -831,7 +834,7 @@
 				;
 			};
 
-
+			
 			function zoomed() { 
 				  // console.log(d3.event.translate);
 				  translate = d3.event.translate
@@ -964,6 +967,14 @@
 				htmlString += '<input type="checkbox" id="show_routes_util" value="On"/>';
 				htmlString += '</td>';
 				htmlString += '</tr>';
+				htmlString += '</table>';
+				htmlString += '<table>';
+				htmlString += '<tr>';
+				htmlString += '<td><div id="legendContainer"></div></td>'
+				htmlString += '</table>';
+				htmlString += '<table>';
+				htmlString += '<tr>';
+				htmlString += '<td><div id="routeLegendContainer"></div></td>'
 				htmlString += '</table>';
 
 				return htmlString;
