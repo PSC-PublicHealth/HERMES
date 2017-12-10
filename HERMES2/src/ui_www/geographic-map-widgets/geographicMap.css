@@ -39,7 +39,10 @@
   z-index:1000;
 
 }
-
+.zoombut{
+	width: 5;
+	font-size:xx-small;
+}
 .ge_layer_button_container { 
   align: center;
 }

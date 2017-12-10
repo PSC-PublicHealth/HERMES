@@ -70,8 +70,7 @@
 			$("#"+thiscontainerID).append("<div id='" + layersLegendID + "' class='geoLayerLeg'></div>");
 			$("#"+thiscontainerID).append("<div id='" + legendContainerID) + "class='geoLegend'></div>";
 			
-			
-			
+		
 			
 			var rainbow = new Rainbow();
 			rainbow.setSpectrum('blue','red');
@@ -116,6 +115,8 @@
 			}
 			function doneLoading(){
 				$('#ajax_busy_image').hide();
+				
+			
 			}
 			
 			//$("#legendContainer").html("<img src='" + rootPath + "static/images/popserved.png' width=100>");
@@ -183,6 +184,14 @@
 				.defer(d3.json,rootPath+"json/routeresultslines?modelId="+modelId+"&resultsId="+resultsId)
 				.await(ready);
 				
+				var zoomIn = $("#zoomIn").button();
+				zoomIn.click(function(){
+					zoomByFactor(1.2);
+				});
+				var zoomOut = $("#zoomOut").button();
+				zoomOut.click(function(){
+					zoomByFactor(0.8);
+				});
 				// Fix this bullshit	
 				$(document).on('keydown', 'body', function(event) { 
 				    if ((event.keyCode == 109)||(event.keyCode == 173 && event.shiftKey == false)) {
@@ -896,8 +905,8 @@
 
 				htmlString = '<table class="legend-table">';
 				htmlString += '<tr>';
-				htmlString += '<td colspan=2 class="legend-title">'+tphrases[0]+'</td>';
-				htmlString += '<td width="120px"></td>'
+				htmlString += '<td class="legend-title">'+tphrases[0]+'</td>';
+				htmlString += '<td colspan=2 style="text-align:right;" width="160px">Zoom <button class="zoombut" id="zoomIn">+</button><button class="zoombut" id="zoomOut">-</button></td>'
 				htmlString += '</tr>'
 				htmlString += '<tr>';
 				htmlString += '<td width="45px"></td>';
