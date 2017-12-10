@@ -1,5 +1,5 @@
 <p>View locations and routes with simulation results on a map.
-Zoom in and out using the scrollwheel or press and hold the Ctrl key while pressing the + key to zoom in or the - key to zoom out.
+Zoom in and out using the scrollwheel or press the + or - buttons labelled Zoom at the top of the box on the left.
 </p><br>
 <p>Circles on the map represent locations in the supply chain.
 Initially, the size and color of the circles correspond to the level of the supply chain, with larger circles representing locations at higher levels.
