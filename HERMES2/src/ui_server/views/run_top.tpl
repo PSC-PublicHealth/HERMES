@@ -217,6 +217,11 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
 			var state = $('#manage_runs_grid').getCell(id, 'isrunning');
 			$(this).prop('disabled', (state == 'false'));
 		});
+		$(".hermes_logs_button").each(function() {
+			var id = $(this).attr('id');
+			var state = $('#manage_runs_grid').getCell(id, 'isrunning');
+			$(this).prop('disabled', (state == 'true'));
+		});
 		if (lastsel_runs != undefined) {
 			// preserve selection across reload
 			$('#manage_runs_grid').jqGrid('setSelection', lastsel_runs);
