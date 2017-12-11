@@ -581,12 +581,15 @@ function unpackId(id) {
 }
 
 function infoFormatter(value, options, rowObject) {
-    s = "";
-    s += "<button class='new_hermes_info_button' onclick='infoType(\""
-    s += packId(rowObject);
-    s += "\");'>{{_('Info')}}</button>";
-    return s;
-    return "<div class='new_hermes_info_button' id='bt_" + packId(rowObject) + "'></div>";
+    //s = "";
+    //s += "<button class='new_hermes_info_button' onclick='infoType(\""
+    //s += packId(rowObject);
+    //s += "\");'>{{_('Info')}}</button>";
+    //return s;
+    //return "<div class='new_hermes_info_button' id='bt_" + packId(rowObject) + "'></div>";
+    
+    var typeName = rowObject[1].replace(".","PeRiOd");
+	return "<div class='hermes_info_button_div' id='" +options.gid + "_" + typeName+ "_info_button_div'></div>";
 }
 
 function tripleFormatter(value, options, rowObject) {
@@ -1114,10 +1117,21 @@ $("#src_grid").jqGrid({
     sortorder: 'asc',
     gridview: true,
     onSelectRow: function(id) {
-	selectRow(id, src);
+		selectRow(id, src);
     },
     gridComplete: function() { 
-	setupButtonTriples(); 
+    	$("#src_grid .hermes_info_button_div").each(function(){
+			$this = $(this);
+			var typeNameHere = $this.attr("id").replace("_info_button_div","").replace("src_grid_","");
+			$this.hrmWidget({
+				widget:'typeInfoButtonAndDialog',
+				modelId: sel_model_id,
+				typeId: typeNameHere,
+				typeClass: currentType,
+				autoOpen: false
+			});
+		});
+	//setupButtonTriples(); 
 //	src.modelId = sel_model_id;
     },
     // editurl:

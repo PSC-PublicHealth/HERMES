@@ -2131,7 +2131,9 @@ function addToggleExpansionButton($grid) {
  				
  				//console.log("typeId = " + typeId);
  				$("#"+buttonId).button();
- 				$("#"+buttonId).click( function(){
+ 				$("#"+buttonId).click( function(event){
+ 					event.preventDefault();
+ 					event.stopPropagation();
  					$("<div id='" + dialogId + "' class='hrmWidget_type_info_dialog'></div>").appendTo("body");
  					$("#"+dialogId).hrmWidget({
  	 					widget: 'typeInfoDialog',
@@ -2141,7 +2143,7 @@ function addToggleExpansionButton($grid) {
  	 					autoOpen: true,
  	 					modal: true
  	 				});
- 	 		
+ 	 				//event.stopPropogation();
  					//$("#" + dialogId).dialog("open");
  				});
  				
