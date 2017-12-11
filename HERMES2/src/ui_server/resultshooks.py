@@ -625,7 +625,9 @@ def costsSummaryKey(m, r):
     ret = {'costPerFIC' : costPerFIC,
            'costPerDose' : costPerDose, 
            'logCostPerFIC' : logCostPerFIC,
-           'logCostPerDose' : logCostPerDose }
+           'logCostPerDose' : logCostPerDose,
+           'totDoseDelivered' : totDosesDelivered,
+           'totFIC': nFullyTreated }
 
     return ret
 
@@ -646,6 +648,11 @@ def generateCostsSummaryKeyPointsFromResult(r):
             'values': [vals['costPerDose'],
                        vals['costPerFIC']
                        ],
+            'totals': [vals['totDoseDelivered'],
+                     vals['totFIC']
+                     ],
+            'totlabel': [_('Doses Delivered'),
+                         _('Fully Immunized Children')],
             'fmts': ['money',
                      'money'
                     ]  # valid formats are 'money', 'text', 'number'
@@ -659,9 +666,10 @@ def jsonCostsSummaryKeyPoints(db, uiSession):
         uiSession.getPrivs().mayReadModelId(db, modelId)
         m = shadow_network_db_api.ShdNetworkDB(db, modelId)
         r = m.getResultById(resultsId)
-        results = r.getCostSummaryKeyPointsJson()
-        results['labels'] = [_('Logistics Cost per Dose Administered'),
-                             _('Logistics Cost per Fully Immunized Child (FIC)')]
+        #results = r.generateCostSummaryKeyPointsJson()
+        #results['labels'] = [_('Logistics Cost per Dose Administered'),
+        #                     _('Logistics Cost per Fully Immunized Child (FIC)')]
+        results = generateCostsSummaryKeyPointsFromResult(r)
         results['success'] = True
         return results
         
