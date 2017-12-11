@@ -11,9 +11,10 @@
   border-radius:2px;
 }
 
+
+
 #geoContainer {
 	width:100%;
-	height:650px;
 }
 
 .ge_layer_button_table { 
@@ -35,9 +36,13 @@
   border-width:1px;
   border-radius:3px;
   background-color: white;
+  z-index:1000;
 
 }
-
+.zoombut{
+	width: 5;
+	font-size:xx-small;
+}
 .ge_layer_button_container { 
   align: center;
 }
@@ -59,6 +64,25 @@
 	stroke-width: 1.0px;
 }
 
+.legend-item{
+	width:100px;
+	font-size:x-small;
+	margin:0px 1px 0px 0px !important;
+}
+
+.legend-table td{
+	padding:0px 0px 0px 0px;
+	vertical-align: middle;
+}
+
+.legend-heading{
+	font-size:small;
+	padding:0px 0px 0px 0px !important;
+	margin:0px 1px;
+}
+.legend-title{
+	font-size:medium;
+}
 .road {
 	fill: none;
 	stroke: #707070;
