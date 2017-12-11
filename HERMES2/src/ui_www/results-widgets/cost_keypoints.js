@@ -75,8 +75,21 @@
 						for (var i=0; i<data.labels.length; i++) {
 							var lbl = data.labels[i];
 							var val = data.values[i];
+							var tot = data.totals[i];
+							var totlab = data.totlabel[i];
+							
 							if (data.fmts[i] == 'money') val = val.formatMoney();
-							$row1.append('<td><table><tr><th class="rs_kp_label">'+lbl+'</th></tr><tr><td class="rs_kp_value">'+val+'</td></tr></table></td>');
+							var rowString = "<td>";
+							rowString    += "<table><tr><th class='rs_kp_label'>";
+							rowString    += lbl;
+							rowString    += "</th></tr>";
+							rowString    += "<tr><td class='rs_kp_value'>";
+							rowString    += val + " (" + tot + " " + totlab + ")";
+							rowString    += "</td></tr>";
+							rowString    += "</table></td>";
+							$row1.append(rowString);
+							//$row1.append('<td><table><tr><th class="rs_kp_label">'+
+							//			lbl+'</th></tr><tr><td class="rs_kp_value">'+val+'( ' + tot</td></tr></table></td>');
 						}
 					}
 					else {
