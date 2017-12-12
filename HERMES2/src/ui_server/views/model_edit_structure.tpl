@@ -38,9 +38,11 @@
 %    { 'field' : "Distances",    'type' : 'route', 'title' : _('distances') },
 %    { 'field' : "OrderAmount",  'type' : 'route', 'title' : _('order amounts') },
 %    { 'field' : "TruckType",    'type' : 'route', 'title' : _('truck type') },
-%    { 'field' : "Timings",      'type' : 'route', 'title' : _('timings') },
+%#    { 'field' : "Timings",      'type' : 'route', 'title' : _('timings') },
+%    { 'field' : "Interval",      'type' : 'route', 'title' : _('interval') },
+%    { 'field' : "Latency",      'type' : 'route', 'title' : _('latency') },
 %    { 'field' : "PerDiemType",  'type' : 'route', 'title' : _('per diem policy')},
-%    { 'field' : "Conditions",   'type' : 'route', 'title' : _('conditions') }
+%#    { 'field' : "Conditions",   'type' : 'route', 'title' : _('conditions') }
 % ]
 
 <style>

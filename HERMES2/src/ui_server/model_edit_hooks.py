@@ -1602,12 +1602,20 @@ def updateRouteType(inputId, model, origStr, newStr):
             
     return True
 
-def renderRouteTimings(route):
-    fields = [EditableFieldInfo('routeInterval', _('shipping interval(days)'),
-                                route.ShipIntervalDays, size=8),
-              EditableFieldInfo('routeLatency', _('latency(days)'),
-                                route.ShipLatencyDays, size=8)]
-    return renderBasicEditableFields(route, 'routeTimings', fields)
+#def renderRouteTimings(route):
+#    fields = [EditableFieldInfo('routeInterval', _('shipping interval(days)'),
+#                                route.ShipIntervalDays, size=8),
+#              EditableFieldInfo('routeLatency', _('latency(days)'),
+#                                route.ShipLatencyDays, size=8)]
+#    return renderBasicEditableFields(route, 'routeTimings', fields)
+
+def renderRouteInterval(route):
+    return renderBasicEditableField(route, 'routeInterval', _('shipping interval(days)'),
+                                    route.ShipIntervalDays)
+
+def renderRouteLatency(route):
+    return renderBasicEditableField(route, 'routeLatency', _('latency(days)'),
+                                    route.ShipLatencyDays)
 
 def renderRouteConditions(route):
     return renderBasicEditableField(route, 'routeConditions', _('conditions'), route.Conditions)
@@ -1723,11 +1731,13 @@ def renderRouteData(route):
     ret.extend(renderRouteName(route))
     ret.extend(renderRouteType(route))
     ret.extend(renderRouteTruckType(route))
-    ret.extend(renderRouteTimings(route))
+    ret.extend(renderRouteInterval(route))
+    ret.extend(renderRouteLatency(route))
     ret.extend(renderRouteTransitHours(route))
     ret.extend(renderRouteDistances(route))
     ret.extend(renderRouteOrderAmount(route))
-    ret.extend(renderRouteConditions(route))
+    # since route conditions aren't supported in the gui don't show them
+    # ret.extend(renderRouteConditions(route))
     ret.extend(renderRoutePerDiemType(route))
     ret.append('</div>')
     return ret
