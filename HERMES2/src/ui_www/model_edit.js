@@ -927,6 +927,8 @@ function updateRSEValue(unique, storeId, tree, action) {
     
     var div = document.getElementById('rse_content_' + unique);
     div.innerHTML = '<p>Updating.  This may take a moment...</p>';
+    var div = document.getElementById('rse_tail_' + unique);
+    div.innerHTML = '';
 
     var request = $.ajax({
 	url:'json/meUpdateRSEValue',
@@ -962,6 +964,8 @@ function updateRSECostValue(unique, storeId, tree, action) {
     
     var div = document.getElementById('rse_content_' + unique);
     div.innerHTML = '<p>Updating.  This may take a moment...</p>';
+    var div = document.getElementById('rse_tail_' + unique);
+    div.innerHTML = '';
 
     var request = $.ajax({
 	url:'json/meUpdateRSEValue',
@@ -990,6 +994,8 @@ function updateRSERoutePerDiemValue(unique, storeId, tree, action) {
     
     var div = document.getElementById('rse_content_' + unique);
     div.innerHTML = '<p>Updating.  This may take a moment...</p>';
+    var div = document.getElementById('rse_tail_' + unique);
+    div.innerHTML = '';
 
     var request = $.ajax({
 	url:'json/meUpdateRSEValue',
@@ -1020,6 +1026,8 @@ function updateRSETypeValue(unique, storeId, tree) {
     var repl = getSelectValue('rse_input_repl_' + unique);
     var div = document.getElementById('rse_content_' + unique);
     div.innerHTML = '<p>Updating.  This may take a moment...</p>';
+    var div = document.getElementById('rse_tail_' + unique);
+    div.innerHTML = '';
 
     var request = $.ajax({
 	url:'json/meUpdateRSEValue',

@@ -3250,6 +3250,8 @@ def jsonRecursiveStoreEditCreate(db, uiSession):
             ret.extend(rseRenderAffectedCategories(unique, store, clients))
             ret.extend(rseRenderAvailableFields(unique, store))
             ret.append('<div id="rse_content_%d"></div>'%unique)
+            ret.append('<br />')
+            ret.append('<div id="rse_tail_%d"></div>'%unique)
             ret.append('</div>')
 
             return { 'success' : True,
@@ -3334,6 +3336,14 @@ def jsonUpdateRSEValue(db, uiSession):
 
                 # as long as we're mostly ok, we still want to print this
                 dispFn(store, field, category, unique)
+
+                divId = 'rse_tail_%d'%int(unique)
+                if errorString is None:
+                    upd = '<p>%s</p>'%_('successfully updated {0}').format(field)
+                else:
+                    upd = '<p>%s</p>'%_('failed to update {0}').format(field)
+                ULCM.addUpdate(divId, upd, 'html')
+                    
 
                 ret = { 'success' : success,
                         'updateList' : ULCM.updateList() }
