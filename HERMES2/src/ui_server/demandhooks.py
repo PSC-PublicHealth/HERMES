@@ -233,15 +233,21 @@ def jsonManageEmptyDemand(db, uiSession):
             if add:
                 if len(m.unifiedDemands)>0:
                     peopleStr = m.unifiedDemands[0].peopleStr
+                    m.unifiedDemands.append(shadow_network.ShdDemand(modelId=modelId,
+                                                                     demandType=shadow_network.DemandEnums.TYPE_UNIFIED,
+                                                                     vaccineStr=name,
+                                                                     peopleStr=peopleStr,
+                                                                     count=0))
                 elif m.people:
-                    peopleStr = m.people.keys()[0]
+                    for peopleStr in m.people.keys():
+                        m.unifiedDemands.append(shadow_network.ShdDemand(modelId=modelId,
+                                                                         demandType=shadow_network.DemandEnums.TYPE_UNIFIED,
+                                                                         vaccineStr=name,
+                                                                         peopleStr=peopleStr,
+                                                                         count=0))
+                    
                 else:
                     raise bottle.BottleException(_("You must first add a population type to this model"))
-                m.unifiedDemands.append(shadow_network.ShdDemand(modelId=modelId,
-                                                                 demandType=shadow_network.DemandEnums.TYPE_UNIFIED,
-                                                                 vaccineStr=name,
-                                                                 peopleStr=peopleStr,
-                                                                 count=0))
             else:
                 killList = []
                 for dmnd in m.unifiedDemands:
