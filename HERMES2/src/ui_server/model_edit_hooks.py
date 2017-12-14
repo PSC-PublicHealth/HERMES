@@ -3245,7 +3245,7 @@ def jsonRecursiveStoreEditCreate(db, uiSession):
 
             ret = []
 
-            ret.append('<div id="store_edit_wgt_%s">')
+            ret.append('<div id="store_edit_wgt_%d">'%unique)
             ret.append('<p>%s</p>'%_('Modify Stores Supplied by {0}').format(store.NAME))
             ret.extend(rseRenderAffectedCategories(unique, store, clients))
             ret.extend(rseRenderAvailableFields(unique, store))
@@ -3261,7 +3261,7 @@ def jsonRecursiveStoreEditCreate(db, uiSession):
         print 'Exception: %s'%e
         traceback.print_exc()
         return { 'success' : False,
-                 'msg' : 'screwed up somewhere' }
+                 'msg' : 'failed to create recursive store editor' }
 
 @bottle.route('/json/meUpdateRSEDialog')
 def jsonUpdateRSEDialog(db, uiSession):
