@@ -465,7 +465,7 @@ function buildSideTable(modelId, modelName) {
    				    }
 				}
 				else {
-				    alert('outside click '+resultsid);
+				    //alert('outside click '+resultsid);
 				}
    				lastSel = resultsid;
 			    },
@@ -477,7 +477,8 @@ function buildSideTable(modelId, modelName) {
 			editOptions = {
 			    editData: {
 				modelId: function() {
-				    alert("in editData"); 
+				    //alert("in editData");
+				    // We never get here because of our version of jqgrid predates this.
 				    return $("#model_sel_widget").modelSelector('selId');
 				}
 			    },
