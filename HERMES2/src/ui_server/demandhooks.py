@@ -359,8 +359,9 @@ def jsonGetDemandTable(db, uiSession):
                   "requireVectorCal":( summary['hasVectorCal'] and not allCalMatch ),
                   "scalarCalSetting":initialCal,
 
-                  "colNames":["",_('Vaccine')] + [pStr for pStr in pList],
+                  "colNames":["","",_('Vaccine')] + [pStr for pStr in pList],
                   "colModel":[{'name':'vaccine', 'index':'vaccine', 'hidden':True, 'sorttype':'text','editable':False, 'key':True},
+                              {'name':'modelId','index':'modelId','hidden':True,'editable':True,'sorttype':'text'},
                               {'name':'dvaccine','index':'dname','sorttype':'text','editable':False}] \
                             + [{'name':pStr,'index':pStr, 'sorttype':'text',
                                 'editable':True, 'edittype':'text', 'editrules':{'integer':True}} 
@@ -392,20 +393,21 @@ def jsonManageDemandTable(db, uiSession):
         vList = list(vSet)
         tList = []
         for vStr in vList:
-            d = {'vaccine':vStr,'dname':m.vaccines[vStr].DisplayName}
+            d = {'vaccine':vStr,'dname':m.vaccines[vStr].DisplayName, 'modelId':modelId}
             for pStr in pList:
                 if (pStr,vStr) in counts: d[pStr] = counts[(pStr,vStr)]
                 else: d[pStr] = 0
             tList.append(d)
         transDict = {p:p for p in pList}
-        transDict['vaccine']='vaccine'
+        transDict['vaccine'] = 'vaccine'
+        transDict['modelId'] = 'modelId'
         nPages,thisPageNum,totRecs,tList = orderAndChopPage(tList, transDict, bottle.request)
         return {'success':True,
                 "total":nPages,    # total pages
                 "page":thisPageNum,     # which page is this
                 "records":totRecs,  # total records
                 "rows": [ {"vaccine":t['vaccine'], 
-                           "cell":[t['vaccine'],t['dname']]+[t[p] for p in pList]}
+                           "cell":[t['vaccine'],t['modelId'],t['dname']]+[t[p] for p in pList]}
                          for t in tList ]
                 }
     except Exception,e:
