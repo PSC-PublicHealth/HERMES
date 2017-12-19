@@ -334,7 +334,7 @@ div.types-top-main-4{
 	<div class='types-top-main-4'>
     	<div class='types-top-dest-main'>
     		<div class='types-top-dest-top' id='src_header'>
-		    	<label for="src_model_select">{{_('source')}}</label>
+		    	<label for="src_model_select" style="font-size:120%; font-weight:bold">{{_('source')}}</label>
 		    	<select name="src_model_select" id="src_model_select"></select>
 		    </div>
 		    <div class='types-top-dest-grid'>
@@ -433,9 +433,13 @@ function setCurrentType(t) {
 //    btn.prop('disabled', true);
     prevBtn.button("enable");
     btn.button('disable');
+    //alert(btn[0]);
+    prevBtn[0].style.fontWeight = "normal";
+    btn[0].style.opacity = "1";
+    btn[0].style.fontWeight = "bold";
     currentType = t;
     //alert(currentType);
-    $('#dest_header').html(typesMap[t].dispName + "{{_(' in ')}}" + modelName);
+    $('#dest_header').html('<span style="font-size:120%; font-weight:bold">' + typesMap[t].dispName + "{{_(' in ')}}" + modelName + "</span>");
     populateSrcModelSelect();
     reloadGrid(dest);
 }
