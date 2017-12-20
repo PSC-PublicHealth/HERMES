@@ -46,6 +46,7 @@ var openStoreDialogs = {};
 var openRouteDialogs = {};
 </script>
 <div id="geowidgetTest"></div>
+<p id="firefox_warning" hidden><b>{{_('There is a known bug showing routes in Firefox when zoomed in.')}}</b></p>
 <script>
 var LevList = [];
 %for i in range(0,len(levels)):
@@ -57,6 +58,12 @@ $("#geowidgetTest").geographicResultsMap({
 	resultsId:{{resultsId}},
 	rootPath:"{{rootPath}}",
 	levelList:LevList,
+});
+
+$(function() {
+    if (navigator.userAgent.indexOf("Firefox") != -1) {
+	$('#firefox_warning').removeAttr('hidden');
+    }
 });
 </script>
 
