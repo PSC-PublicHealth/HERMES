@@ -239,38 +239,27 @@ $(function() {
 			    jQuery('#model_create_adjust_grid').jqGrid('editRow',id,{
 			    	"keys":true,
 			    	"aftersavefunc":function(rowid,response){
-			    		$("#1 td").each(function(){
-			        		//console.log($(this).attr("aria-describedby"));
-			        		$this=$(this)
-			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_isfetch")
-			        			$this.html("");
-			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_issched")
-			        			$this.html("");
-			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_isfixedam")
-			        			$this.html("");
-			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_howoften")
-			        			$this.html("");
-			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_ymw")
-			        			$this.html("");
-			            });
+				    clearLevel1();
 			    	}
 			    	//"aftersavefunc": function(rowid,response) {
 			    	//	$("#model_create_adjust_grid").trigger('reloadGrid');
 					//}
 			    });
-			    if(id==1){
-		    		$("#1_isfetch").hide();
-		            $("#1_issched").hide();
-		            $("#1_isfixedam").hide();
-		            $("#1_howoften").val(0);
-		            $("#1_howoften").hide();
-		            $("#1_ymw").val("year");
-		            $("#1_ymw").hide();
+			if(id==1){
+			    clearLevel1();
+		    	    //$("#1_isfetch").hide();
+		            //$("#1_issched").hide();
+		            //$("#1_isfixedam").hide();
+		            //$("#1_howoften").val(0);
+		            //$("#1_howoften").hide();
+		            //$("#1_ymw").val("year");
+		            //$("#1_ymw").hide();
 		    	}
 			    //lastsel_models=id;
                 var ids = $("#model_create_adjust_grid").jqGrid('getDataIDs');
                 for(var i=0; i<ids.length; i++) {
                     $( document ).on( "blur", "input[id^='" + ids[i] + "_'], " + "select[id^='" + ids[i] + "_']", function() {
+			clearLevel1();
                       var focusfrom = $(this).closest("tr").attr('id')
                       setTimeout(function()
                       {
@@ -286,24 +275,7 @@ $(function() {
         height: 'auto',	
         caption:'{{_("Model Transport Network")}}',
         ExpandColumn : 'levelname',
-        loadComplete: function(){
-        	$("#1 td").each(function(){
-        		console.log($(this).attr("aria-describedby"));
-        		$this=$(this)
-        		if($this.attr("aria-describedby")=="model_create_adjust_grid_isfetch")
-        			$this.html("");
-        		if($this.attr("aria-describedby")=="model_create_adjust_grid_issched")
-        			$this.html("");
-        		if($this.attr("aria-describedby")=="model_create_adjust_grid_isfixedam")
-        			$this.html("");
-        		if($this.attr("aria-describedby")=="model_create_adjust_grid_howoften")
-        			$this.html("");
-        		if($this.attr("aria-describedby")=="model_create_adjust_grid_ymw")
-        			$this.html("");
-        		$("#model_create_adjust_grid").jqGrid('expandNode',$("#model_create_adjust_grid").jqGrid('getRootNodes'));
-        		
-        	});
-        },
+        loadComplete: clearLevel1,
     }).jqGrid('hermify',{debug:true, resizable_hz:true});
     setTimeout("jQuery('.treeclick').click();",100);
     $("#model_create_adjust_grid").jqGrid('navGrid','#model_create_adjust_pager',{edit:false,add:false,del:false});
@@ -315,5 +287,27 @@ function deleteModel(modelId, modelName) {
     $("#model_confirm_delete").data('modelId', modelId);
     $("#model_confirm_delete").dialog("open");
 }
+
+function clearLevel1() {
+    //alert("clearing");
+    $("#1 td").each(function(){
+        //console.log($(this).attr("aria-describedby"));
+        $this=$(this)
+        if($this.attr("aria-describedby")=="model_create_adjust_grid_isfetch")
+            $this.html("");
+        if($this.attr("aria-describedby")=="model_create_adjust_grid_issched")
+            $this.html("");
+        if($this.attr("aria-describedby")=="model_create_adjust_grid_isfixedam")
+            $this.html("");
+        if($this.attr("aria-describedby")=="model_create_adjust_grid_howoften")
+            $this.html("");
+        if($this.attr("aria-describedby")=="model_create_adjust_grid_ymw")
+            $this.html("");
+        //$("#model_create_adjust_grid").jqGrid('expandNode',$("#model_create_adjust_grid").jqGrid('getRootNodes'));
+        		
+    });
+}
+
+    
 </script>
  
