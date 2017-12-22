@@ -414,6 +414,7 @@ function buildSideTable(modelId, modelName) {
 			    colNames:data.colNames,
 			    colModel:data.colModel,
 			    sortname:data.sortname,
+			    cmTemplate: {title: false},
 			    scroll: true,
 			    rowNum: 9999,
 			    viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� optional
