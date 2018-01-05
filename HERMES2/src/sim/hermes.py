@@ -153,7 +153,7 @@ class DBTickProcess( Process ):
         while True:
             yield hold, self, 1.0
             self.stp.fracDone = self.totalTicks / self.sim.model.getTotalRunDays()
-            self.stp.status = "running %0.2f"%(self.stp.fracDone * 100) + "%" + " (run %d)"%(self.stp.runCount+1)
+            self.stp.status = "running %0.2f"%(self.stp.fracDone * 100) + "%" + " (simulation %d)"%(self.stp.runCount+1)
             self.session.commit()
             self.totalTicks += 1.0
 
