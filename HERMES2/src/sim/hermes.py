@@ -139,10 +139,9 @@ class DBTickProcess( Process ):
         self.stp.modelName = sim.shdNet.name
         self.stp.processId = os.getpid()
         self.stp.hostName = socket.gethostname()
-        self.stp.status = "simulation setup"
+        self.stp.status = "simulation setup (simulation %d of %d)"%(self.sim.runNumber+1, self.stp.runCount)
         self.stp.fracDone = 0.0
         self.stp.lastUpdate = int(time.time())
-        self.stp.runCount = sim.runNumber
         
         self.session.add(self.stp)
         self.session.commit()
@@ -153,7 +152,7 @@ class DBTickProcess( Process ):
         while True:
             yield hold, self, 1.0
             self.stp.fracDone = self.totalTicks / self.sim.model.getTotalRunDays()
-            self.stp.status = "running %0.2f"%(self.stp.fracDone * 100) + "%" + " (simulation %d)"%(self.stp.runCount+1)
+            self.stp.status = "running %0.2f"%(self.stp.fracDone * 100) + "%" + " (simulation %d of %d)"%(self.sim.runNumber+1, self.stp.runCount)
             self.session.commit()
             self.totalTicks += 1.0
 
