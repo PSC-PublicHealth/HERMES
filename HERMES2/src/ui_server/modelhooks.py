@@ -2744,10 +2744,30 @@ def populateTableforStoreProvision(db,uiSession):
         #    rows.append({'type':_('Transport Modes to Use at this Level'),'id':id,'name':name})
             
         ### Make the Level columns
-        
+
+        # leave this in to set the defaults if somehow a level has zero stores or something
+        # that we miss somehow in the future.
         for row in rows:
             for level in levelList:
                 row[u"{0}".format(level)] = 0
+
+        # now read in the current levels of things
+        levelsDone = set()
+        for storeId, store in m.stores.items():
+            if store.isAttached():
+                continue
+
+            if store.CATEGORY in levelsDone:
+                continue
+            levelsDone.add(store.CATEGORY)
+            for row in rows:
+                row[u"{0}".format(store.CATEGORY)] = store.countInventory(
+                    row['id'],
+                    row['type']==_("Population To Vaccinate at this Level"))
+
+                    
+                
+                
                 
         return {'success':True,'levels':levelList,'data':{'total':1,'page':1,'records':len(rows),'rows':rows}}
     
@@ -2770,7 +2790,7 @@ def provisionStoresFromGrid(db,uiSession):
         
         typeData = json.loads(typeDataJSON)
         for storeId,store in m.stores.items():
-            print storeId
+            #print storeId
             if not store.isAttached():
                 if resetStores:
                     store.clearInventory()
