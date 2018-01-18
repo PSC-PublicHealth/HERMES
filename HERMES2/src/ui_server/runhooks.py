@@ -37,6 +37,7 @@ import crumbtracks
 import costmodel
 import psutil
 import socket
+import time
 
 from ui_utils import _logMessage, _logStacktrace, _safeGetReqParam, _getOrThrowError, _getAttrDict
 
@@ -86,7 +87,8 @@ def newModelRunPage(db,uiSession):
         return bottle.template("run_model.tpl",
                                breadcrumbPairs=crumbTrack,
                                modelId=modelId,
-                               developer=developer)
+                               developer=developer,
+                               runName="sim " + time.strftime("%Y-%m-%d_%H:%M"))
 
     except bottle.HTTPResponse:
         raise # bottle will handle this
