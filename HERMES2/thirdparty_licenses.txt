@@ -1,0 +1,147 @@
+These are the licenses of the third party libraries and tools included in hermes:
+
+animate.css
+http://daneden.me/animate
+MIT license http://opensource.org/licenses/MIT
+
+---
+
+base64v1_0.js
+Vassilis Petroulias [DRDigit]
+Apache License http://www.apache.org/licenses/LICENSE-2.0
+
+---
+
+D3
+Copyright (c) 2010-2015, Michael Bostock
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* The name Michael Bostock may not be used to endorse or promote products
+  derived from this software without specific prior written permission.
+
+---
+
+dimple 
+
+Copyright 2015 AlignAlytics
+www.align-alytics.com
+
+MIT license
+
+---
+
+jit.js
+copyright (c) 2011 Sencha Inc. - Author: Nicolas Garcia Belmonte (http://philogb.github.com/)
+MIT license
+
+---
+
+jqgrid-free-4.7
+
+Copyright (c) 2014-2017 Oleg Kiriljuk
+
+Both MIT license and GNU GPL v2
+
+forked from jqgrid
+Copyright (c) 2008, Tony Tomov, tony@trirand.com
+also dual licensed MIT and GNU GPL v2
+
+---
+
+jQuery
+http://jquery.com
+MIT license
+
+---
+
+jsTree
+www.jstree.com
+MIT license
+
+---
+
+jquery-svgpan
+Copyright 2012 John Krauss. All rights reserved.
+MIT license
+
+forked from svgpan
+Copyright 2009-2010 Andrea Leofreddi <a.leofreddi@itcharm.com>
+BSD license
+
+---
+
+RainbowVis-JS 
+Released under Eclipse Public License - v 1.0
+
+---
+
+Rickshaw
+
+Rickshaw is a JavaScript toolkit for creating interactive time series graphs, developed at [Shutterstock](http://www.shutterstock.com)
+
+Copyright (C) 2011-2014 by Shutterstock Images, LLC
+
+MIT license
+
+---
+
+virtualenv
+Copyright (c) 2007 Ian Bicking and Contributors
+Copyright (c) 2009 Ian Bicking, The Open Planning Project
+Copyright (c) 2011-2014 The virtualenv developers
+
+MIT license
+
+
+---
+
+bottle
+
+Copyright (c) 2012, Marcel Hellkamp.
+MIT license
+
+---
+
+bottle_sqalchemy
+
+Copyright (c) 2011-2012, Iuri de Silvio
+MIT license
+
+---
+
+python setuptools
+
+Author: Python Packaging Authority
+Home Page: https://github.com/pypa/setuptools
+License :: OSI Approved :: MIT License
+
+---
+
+simpy
+
+SimPy was originally created by Klaus G. Müller and Tony Vignaux in 2002.
+
+In 2008, Ontje Lünsdorf and Stefan Scherfke started to contribute to SimPy and
+became active maintainers in 2011.
+
+In 2011, Karen Turner came on board to generally help with all the bits and
+pieces that may get forgotten :-)
+
+We’d also like to thank:
+
+- Johannes Koomer for a fix for Store._put.
+
+
+GNU LGPL v2.1
+
+
