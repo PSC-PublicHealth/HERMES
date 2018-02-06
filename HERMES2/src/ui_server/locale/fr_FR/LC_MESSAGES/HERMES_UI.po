@@ -3618,7 +3618,7 @@ msgstr "Quels sont les temps de trajet typique entre les niveaux ?"
 
 #: views/model_create_interlevel_timings.tpl:88
 msgid ""
-"Please asnwer the questions below about on average how long it takes and how "
+"Please answer the questions below about on average how long it takes and how "
 "far it is to ship goods between these levels."
 msgstr ""
 "S'il vous plaît répondez aux les questions ci-dessous à propos en moyenne "

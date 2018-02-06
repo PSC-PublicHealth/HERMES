@@ -348,8 +348,8 @@ def getRunInfoHTML(db, uiSession, tickInfo):
     table = HTMLTable(name_='Run Information',title_= _('Run Information'),width='100%',height='100%')
     table.addRow([_('Name'),tickInfo.runDisplayName],['c',1,1])
     table.addRow([_('Model Name'),tickInfo.modelName],['c',1,1])
-    table.addRow([_('Staring Time of Run'),tickInfo.starttime],['c',1,1])
-    table.addRow([_('Runing on the Machine Named'),tickInfo.hostName],['c',1,1])
+    table.addRow([_('Starting Time of Run'),tickInfo.starttime],['c',1,1])
+    table.addRow([_('Running on the Machine Named'),tickInfo.hostName],['c',1,1])
     table.addRow([_('Under the Proccess Number'),tickInfo.processId],['c',1,1])
     table.addRow([_('Current Run Status'),tickInfo.status],['c',1,1])
     

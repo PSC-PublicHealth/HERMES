@@ -2098,8 +2098,8 @@ def jsonCreateLevelsFromFromJson(db,uiSession):
     try:
         import htmlgenerator
         return {'success':True,
-                'htmlString':'<span class="levelnames-head">'+ _('Please give each of the levels a name') + '</span>'\
-                +'<span class="levelnames-note"><br>'+_('(e.g., Level 1 could be called Central, Level 2 called Regional, etc.)')+'</span>' \
+                'htmlString':'<span class="levelnames-head">'+ _('Please give each of the levels a name.') + '</span>'\
+                +'<span class="levelnames-note"><br>'+_('(Note that Level 1 is where products originate as indicated in diagram to the right.<br>&nbspIf you need to change the number of levels, please start model creation over.)')+'</span>' \
                 + htmlgenerator._buildNameLevelsFormFromSession("model_create", levelInfo=modelInfoJson)}
     
     except bottle.HTTPResponse:
