@@ -1,7 +1,0 @@
-*.pyc
-*.ini
-*.ini.sav
-*.project
-*.pydevproject
-*.mo
-hermes.db
