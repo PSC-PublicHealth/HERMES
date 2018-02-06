@@ -119,6 +119,7 @@ $("#manage_models_grid").jqGrid({ //set your grid id
     url:'json/manage-models-table',
     datatype: "json",
     rowNum:9999, // rowNum=-1 has bugs, suggested solution is absurdly large setting to show all on one page
+    cmTemplate: {title: false},
     colNames:[
 	"{{_('Name')}}",
 	"{{_('Model ID')}}",

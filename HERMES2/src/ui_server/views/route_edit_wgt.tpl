@@ -25,7 +25,7 @@
 	<tr>
 		<td><label>{{_("Route Type")}}</label></td>
 		<td><div id='routetype_select_div_{{unique}}'></div></td>
-		<td><label>{{_('Truck Type')}}</label></td>
+		<td><label>{{_('Transport Mode')}}</label></td>
 		<td><div id='truck_select_div_{{unique}}'></div></td>
 	</tr>
 	<tr>

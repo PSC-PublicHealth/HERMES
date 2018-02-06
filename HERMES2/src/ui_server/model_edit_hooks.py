@@ -3206,7 +3206,7 @@ rseFields = {
     'transport' : ['transport', rseDispTransport, rseUpdateTransport, 3],
     'population' : ['population', rseDispDemand, rseUpdateDemand, 4],
     'staff' : ['staff', rseDispStaff, rseUpdateStaff, 5],
-    'costs' : ['costs', rseDispCosts, rseUpdateCosts, 6],
+    'costs' : ['site costs', rseDispCosts, rseUpdateCosts, 6],
     'perdiems' : ['route perdiems', rseDispPerDiem, rseUpdatePerDiem, 7]
     }
     

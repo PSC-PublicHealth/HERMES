@@ -295,7 +295,7 @@ $(function() {
 		//Set tooltips
 			$("#demand_scale_grid_scale").prop("title",'{{_("Proportion of population getting vaccinated: The number of people who show up to be vaccinated divided by the total population; if this value is less than 1, only a proportion of the total population arrive at clinics during the simulation.")}}');
 			$("#demand_scale_grid_relscale").prop("title",'{{_("Projected vs. actual: Indicates the number of products expected to be consumed divided by actual consumption; if this value is less than 1, more products are consumed than expected, while if the value is greater than 1 fewer products are consumed than expected.")}}');
-			$("#cal_edit_row").prop("title",'{{_("Treatment calendar: for simulations in which treatment does not occur every day, select the days per week, weeks per month, and months per year that treatment does occur.")}}');
+			$("#cal_edit_row").prop("title",'{{_("Treatment calendar: for simulations in which treatment does not occur every day, select the days per week, weeks per month, and months per year that treatment does occur. HERMES defines all months to contain 28 days (4 weeks).")}}');
 			$("#left_grid_form").prop("title",'{{_("Toggle these buttons to switch between the included vaccines and populations")}}');
 			$("#gview_demand_vac_grid").prop("title",'{{_("Use the checkboxes to add vaccines or population categories to the table on the right")}}');
 			

@@ -91,7 +91,7 @@ function updateNetworkDiagram(){
 </p>
 <p>
 	<span class="hermes-top-sub">
-		{{_("Now please answer this series of questions about the shipping policies between the levels of the network.  The answer below will be used to create a new route between each of the locations at these levels.")}}
+		{{_("Now please answer this series of questions about the shipping policies between the levels of the network.  The answers below will be used to create a new route between each of the locations at these levels. If different types of shipping policies are required for facilities at the same level, they can be fine tuned using the Advanced Model Editor after the model has been created.")}}
 	</span>
 </p>
 <div name="model_create_ui_holder" id="model_create_ui_holder">
