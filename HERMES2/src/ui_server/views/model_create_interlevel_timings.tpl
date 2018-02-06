@@ -85,7 +85,7 @@ function updateNetworkDiagram(){
 </p>
 <p>
 	<span class="hermes-top-sub">
-		{{_("Please answer the questions below about on average how long it takes and how far it is to ship goods between these levels.")}}
+		{{_("Please answer the questions below about on average how long it takes and how far it is to ship goods between these levels. If necessary, specific times and distances can be added using the Advanced Model Editor after model creation is complete.")}}
 	</span>
 </p>
 

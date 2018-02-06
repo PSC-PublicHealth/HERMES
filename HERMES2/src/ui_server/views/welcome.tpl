@@ -54,7 +54,6 @@
 .welcome_item{
 	font-size:18px;
 }
-
 .welcome_item a:visited{
 	color:#282A57;
 }
@@ -67,6 +66,23 @@
 .welcome_item a:link{
 	color:#282A57;
 }
+.info_item{
+        font-size:14px;
+}
+.info_item a:visited{
+        color:#282A57;
+}
+.info_item a:active{
+        color:#282A57;
+}
+.info_item a:hover{
+        color:#282A57;
+}
+.info_item a:link{
+        color:#282A57;
+}
+
+
 #wrappage_help_button{
 	opacity:0;
 }
@@ -92,7 +108,7 @@
 		<div class = "options_div" style="float:left">
 			<div id="welcome_title">
 				<span class="big_title">
-					{{_("Welcome to HERMES Version 0.95")}}
+					{{_("Welcome to HERMES Version 1.0")}}
 				</span>
 				<br>
 				<span class="second_title">
@@ -124,8 +140,22 @@
 						</a>
 					</span>
 				</p>
+				<br><br>
 				<p>
-					<span class="welcome_item">
+					<span class="second_title" color="#282A57">
+						{{_("For more information:")}}
+					</span>
+				</p>
+	                        <p>
+	                                <span class="info_item">
+		                                <a href="http://hermes.psc.edu/release/current" target=_blank
+		                                        title='{{_("Download PDF containing tutorials for creating and using HERMES models.")}}'>
+		                                        {{_("HERMES Tutorials")}}
+		                                </a>
+	                                </span>
+	                        </p>
+				<p>
+					<span class="info_item">
 						<a href="{{rootPath}}vaccines-top"
 							title='{{_("View supply chain component databases. Databases include vaccines, population, vehicles, and storage devices. This will allow users to view detailed information about supply chain components available for use in HERMES models.")}}'>
 							{{_("View Databases")}}
@@ -133,15 +163,7 @@
 					</span>
 				</p>
 				<p>
-					<span class="welcome_item">
-						<a href="{{rootPath}}tutorial" target=_blank
-							title='{{_("See a demonstration of the HERMES platform.")}}'>
-							{{_("HERMES Demo")}}
-						</a>
-					</span>
-				</p>
-				<p>
-					<span class="welcome_item">
+					<span class="info_item">
 						<a href="http://hermes.psc.edu" target="blank"
 							title='{{_("Visit the HERMES Website to see team members, project details, and publications.")}}'>
 						{{_('Visit the HERMES Website for More Information about the Project')}}
@@ -222,7 +244,7 @@
 <div id="model_confirm_delete" title='{{_("Delete Model")}}'></div>
 
 <div id="model_create_existing_dialog" title='{{_("Model Creation Started")}}'>
-	<p>{{_('You have already started creating this model, would you like to continue or start over?')}}; 
+	<p>{{_('You have already started creating this model, would you like to continue or start over?')}} 
 </div>
 
 <script>

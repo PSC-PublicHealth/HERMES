@@ -31,7 +31,7 @@ console.log(modelInfo);
 
 <p>
 	<span class="hermes-top-sub">
-		{{_("Here you can make some minor adjustments to the supply chain.  Make adjustments to the model by clicking the cell to be modified and then hitting the enter key when finished.  You can expand or collapse levels by clicking the triangle next to the location name.")}}
+		{{_("Here you can make some minor adjustments to the supply chain.  Make adjustments to the model by clicking the cell to be modified and then hitting the Enter key when finished.  You can expand or collapse levels by clicking the triangle next to the location name in the Level column.")}}
 	</span>
 </p>
 
@@ -52,11 +52,11 @@ console.log(modelInfo);
 <div id="model_confirm_delete" title='{{_("Delete Model")}}'></div>
 
 <div id="model_create_existing_dialog" title='{{_("Model Creation Started")}}'>
-	<p>{{_('This model has already been saved to the HERMES database, proceeding will overwrite the previous model.  Would you like to continue?')}}; 
+	<p>{{_('This model has already been saved to the HERMES database; proceeding will overwrite the previously saved model.  Would you like to continue?')}}</p> 
 </div>
 
 <div id="back-modal" title = '{{_("Warning")}}'>
-	<p>{{_('Going back and changing any items will result in resetting changes made in this page. Would you like to continue?')}}</p>
+	<p>{{_('Going back and changing any items will result in resetting changes made on this page. Would you like to continue?')}}</p>
 </div>
 
 <div id="dialog-modal" title='{{_("Invalid Entry")}}'>

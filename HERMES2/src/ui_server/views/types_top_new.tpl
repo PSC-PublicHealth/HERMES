@@ -294,7 +294,7 @@ div.types-top-main-4{
 
 <p>
 	<span class='hermes-top-sub'>
-		{{_('Use the Source dropdown box to change what database or model to use to look for components.  Select the component you wish to add to the {0} model, and click the arrow button located between the two tables to make it available to the model. To remove an existing component from the model, click the Del(ete) button in the component\'s row in the Used Types table on the left.').format(modelName)}}
+		{{_('Use the Source dropdown box to change what database or model to use to look for components.  First select the component category from the buttons on the left, then select the component type you wish to add to the {0} model from the Available Types table on the right, and click the arrow button located between the two tables to make it available to the model. To remove an existing component from the model, click the Del(ete) button in the component\'s row in the Used Types table on the left.').format(modelName)}}
 	</span>
 </p>
 </div> <!-- types-top-main-top -->

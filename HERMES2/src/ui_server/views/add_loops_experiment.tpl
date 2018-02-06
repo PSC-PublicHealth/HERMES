@@ -51,7 +51,7 @@
 		</p>
 		<p class='expt_text'>
 			{{_('This experiment will take you through a series of screens that will ask you between which supply chain levels you would like to create transport loops,')}}
-			{{_(' the number of locations per transport loop, and the vehicle that you would like to use for each transport loop. After you give it your paramaters, HERMES will automatically create transport loops for the model based on the shortest distance.')}}
+			{{_(' the number of locations per transport loop, and the vehicle that you would like to use for each transport loop. After you give it your paramaters, HERMES will automatically create transport loops for the model based on the shortest distance. HERMES will estimate road distances by applying a modification factor to the straight-line distance for each route.')}}
 		</p>
 		<br><hr><br>
 		<p class='expt_text'>
