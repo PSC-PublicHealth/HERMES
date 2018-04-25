@@ -35,7 +35,7 @@ if [ ! -f .INSTALL_HERMES_COMPLETE ]; then
     #	python envtest.py
     python src/tools/install_hermes.py
     #../browse.sh&
-    echo "Please start HERMES from Launchpad or from your Applications folder"
+    echo "Installation complete.  Please close and quit this window and start HERMES from Launchpad or from your Applications folder"
     touch .INSTALL_HERMES_COMPLETE
 else
     cd src/tools
