@@ -22,24 +22,45 @@ from __future__ import print_function
 import platform, sys, subprocess, os, shlex, time, urllib, socket
 
 import psutil
-from cefpython3 import cefpython as cef
+#from cefpython3 import cefpython as cef
+import webbrowser
 
-def main():
+import signal
+
+def main(useCef=True):
     url = "http://localhost:8080/bottle_hermes/top"
     os.chdir("../ui_server")
     worked = False
+    if psutil.OSX:
+        sys.stderr.write('Please cancel and then quit this dialog, or exit from the menu bar to shut down the HERMES app.\n')
+        sys.stderr.write('Please remember to close any remaining browser windows or tabs after shutting down the HERMES app.\n')
+
     procServer = hiddenProcess("python standalone_server.py")
     for second in range(15): # seconds to wait for the started server to fully respond with "200 OK"
         if getHttpCode(url) == 200: # server up
             worked = True
+            break
         time.sleep(1) # second
+
     if worked:
-        startBrowser(url)
-        kill(procServer.pid) # then clean up
+        if useCef:
+            startBrowser(url)
+            kill(procServer.pid) # then clean up
+        else:
+            webbrowser.open_new(url)
     else:
         print("Error starting server")
         kill(procServer.pid) # just in case our server detector failed and it actually started
         sys.exit(1) # return error
+
+    if psutil.OSX:
+        def sigterm_handler(sig, stack):
+            kill(procServer.pid) # just in case our server detector failed and it actually started
+            sys.exit(0)
+        signal.signal(signal.SIGTERM, sigterm_handler)
+        while True:
+            time.sleep(2)
+
 
 def getHttpCode(url,timeout=30): # seconds to wait for the server to even handshake, and not have IOError
     pingstarttime = time.clock()
@@ -59,7 +80,12 @@ def hiddenProcess(cmd):
     if os.name == 'nt':
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
-    p = subprocess.Popen(shlex.split(cmd),startupinfo=startupinfo)
+        p = subprocess.Popen(shlex.split(cmd),startupinfo=startupinfo)
+    elif psutil.OSX:
+        p = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    else:
+        p = subprocess.Popen(shlex.split(cmd),startupinfo=startupinfo)
+
     return p
 
 def kill(proc_pid):
@@ -94,4 +120,4 @@ def check_versions():
     assert cef.__version__ >= "55.3", "CEF Python v55.3+ required to run this"
 
 if __name__ == '__main__':
-    main()
+    main(useCef=False)

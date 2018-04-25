@@ -949,10 +949,10 @@ def _install_hermes(overwrite = False):
     addInitialModels()
 
 def _install_dependencies(upgrade=False):
-    installEZInstall()
+#    installEZInstall()
     #maybeInstallSqlalchemy()
     #maybeInstallAlembic()
-    installPip()
+#    installPip()
     installRequirements()
  
 def main():
