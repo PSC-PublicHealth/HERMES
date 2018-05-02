@@ -50,7 +50,8 @@ import copy
 import calculateFill
 from enums import StorageTypeEnums as ST
 
-DEBUG = False
+DEBUG = True
+DEBUG2 = False
 
 """
 The class HDict will be an ordered dict if globals.deterministic is true
@@ -209,7 +210,7 @@ def getStoreByName(storeDict,storeName):
     raise RuntimeError('Could not find store by Name %s'%storeName)
 
 def calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
-    if DEBUG:
+    if DEBUG2:
         oldVal = shareCool_calculateOwnerStorageFillRatios(canOwn, thisVC, assumeEmpty)
         newVal = share3_calculateOwnerStorageFillRatiosPreferred(canOwn, thisVC, assumeEmpty)
         print "**** do they match:  ****"
@@ -252,9 +253,13 @@ def shareCool_calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
     frozenStorage= canOwn.sim.storage.frozenStorage() # cache for speed
     coolStorageList= canOwn.sim.storage.coolStorageList() # cache for speed
     sM = canOwn.getStorageModel()
+    notwarm=False
+    if hasattr(canOwn, 'category'):
+        print "canOwn.category= ",canOwn.category 
+        if canOwn.category.endswith('notwarm'): notwarm=True
     for v,n in thisVC.getTupleList():
         if isinstance(v,abstractbaseclasses.ShippableType):
-            if sM.canStoreShippableType(v, ST.STORE_WARM): warmTuples.append((v,n))
+            if sM.canStoreShippableType(v, ST.STORE_WARM) and not notwarm: warmTuples.append((v,n))
             elif sM.canStoreShippableType(v, ST.STORE_FREEZE): freezeTuples.append((v,n))
             else: coolTuples.append((v,n))
         else:
