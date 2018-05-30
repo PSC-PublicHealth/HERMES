@@ -32,8 +32,7 @@ class StorageModel:
     """
     def __init__(self,storeDiluentWithVaccines):
         """
-        This is the base class; the user is not expected to instantiate
-        this type directly.
+        This is the base class.  We are using it as the primary class
         """
         self.storeDiluentWithVaccines = storeDiluentWithVaccines
 
@@ -139,3 +138,70 @@ class DummyStorageModel(StorageModel):
             raise RuntimeError("Attempt to access dummyStorageModel.getStoreVaccinesWithDiluent")
     
       
+class AvoidWarmStorageModel(StorageModel):
+    """
+    This derived class exists for cases where we need to provide a StorageModel, but
+    where it should never actually be used.  For example, an AttachedClinic must by
+    definition have a StorageModel, but any access should go through its host Warehouse.
+    """
+    def __init__(self,storeDiluentWithVaccines):
+        StorageModel.__init__(self,storeDiluentWithVaccines)
+
+        # cache this
+#        self.warmStorage = typeManager.getTypeByName("roomtemperature")
+
+    
+    def getShippableTypeStoragePriorityList(self,shippableType):
+        """
+        Filter the natural storage priority list for the shippableType according to the
+        StorageModel.  For example, diluents can normally be stored warm, but at clinics
+        they are typically stored with the associated vaccine and thus must be stored
+        cold.
+        """
+        warmStorage = shippableType.sim.typeManager.getTypeByName("roomtemperature")
+        pList = StorageModel.getShippableTypeStoragePriorityList(self, shippableType)
+
+        ret = []
+        found = False
+        for st in pList:
+            if st is warmStorage:
+                found = True
+                continue
+            ret.append(st)
+        if found:
+            ret.append(warmStorage)
+
+        return ret
+            
+
+    def canStoreShippableType(self, shippableType, storageType):
+        """
+        return whether a specific shippable type _can_ be reasonably stored in a specific storageType.
+        (there may be better places to store the shippable but if this returns true it shouldn't be
+        bad to store it in this type)
+        """
+
+        if storageType == 'roomtemperature':
+            return False
+        return StorageModel.canStoreShippableType(self, shippableType, storageType)
+
+
+    def wantStoreShippableType(self, shippableType, storageType):
+        """
+        return whether a specific shippable type prefers to be stored in a specific storageType.  
+        If this returns true then this should be a nearly optimal storage type for this shippable.
+        """
+        if storageType == 'roomtemperature':
+            return False
+        return StorageModel.wantStoreShippableType(self, shippableType, storageType)
+
+
+    def preferredStoreShippableType(self, shippableType):
+        """
+        return whether a specific shippable type prefers to be stored in a specific storageType.  
+        If this returns true then this should be a nearly optimal storage type for this shippable.
+        """
+        if storageType == 'roomtemperature':
+            return False
+        return StorageModel.preferredStoreShippableType(self, shippableType, storageType)
+        
