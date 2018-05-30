@@ -50,7 +50,7 @@ import copy
 import calculateFill
 from enums import StorageTypeEnums as ST
 
-DEBUG = True
+DEBUG = False
 DEBUG2 = False
 
 """
@@ -245,6 +245,7 @@ def shareCool_calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
 
     if DEBUG:
         print "**** Old version ****"
+
     freezeTuples= []
     coolTuples= []
     warmTuples= []
@@ -253,13 +254,9 @@ def shareCool_calculateOwnerStorageFillRatios(canOwn,thisVC,assumeEmpty):
     frozenStorage= canOwn.sim.storage.frozenStorage() # cache for speed
     coolStorageList= canOwn.sim.storage.coolStorageList() # cache for speed
     sM = canOwn.getStorageModel()
-    notwarm=False
-    if hasattr(canOwn, 'category'):
-        print "canOwn.category= ",canOwn.category 
-        if canOwn.category.endswith('notwarm'): notwarm=True
     for v,n in thisVC.getTupleList():
         if isinstance(v,abstractbaseclasses.ShippableType):
-            if sM.canStoreShippableType(v, ST.STORE_WARM) and not notwarm: warmTuples.append((v,n))
+            if sM.canStoreShippableType(v, ST.STORE_WARM): warmTuples.append((v,n))
             elif sM.canStoreShippableType(v, ST.STORE_FREEZE): freezeTuples.append((v,n))
             else: coolTuples.append((v,n))
         else:
@@ -445,7 +442,6 @@ def shareCool_allocateOwnerStorageSpace(canOwn,stockBuf):
     # We store vaccines largest-first to improve packing efficiency.
     vaxInPackingOrder = canOwn.getPackagingModel().sortToPackingOrder(allVC.keys(),
                                                                       canOwn.getStorageModel())
-    
     for vax in vaxInPackingOrder:
         # The storage spaces in coolCollection need to be ordered
         # according to the storage priority list of the vaccine
@@ -1729,6 +1725,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
                     self.lowStockSet.discard(v)
         self.allocateStorageSpace()
         self.maybeRecordVialCount()
+
         if self.noteHolder is not None:
             storeRat = self.getStorageRatio()
             self.noteHolder.addNote(storeRat)

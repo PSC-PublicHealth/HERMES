@@ -442,7 +442,7 @@ class VaccineType(GroupedShippableType, HasOVW):
         pairList= [(lifetimeFreezerDays,"freezer"),
                    (lifetimeCoolerDays,"cooler"),
                    (lifetimeRoomTempDays,"roomtemperature")]
-        pairList.sort(None,None,True)
+        pairList.sort(reverse=True)
         storagePriorityList= [ typeManager.getTypeByName(s) for (t,s) in pairList ]
         maxAge,junk= pairList[0]
         freezerFac= float(maxAge)/float(lifetimeFreezerDays)
