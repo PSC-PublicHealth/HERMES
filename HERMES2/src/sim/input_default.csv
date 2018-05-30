@@ -136,3 +136,4 @@ usevialsrandomdelay,This is a development parameter that is used to add some sto
 requestlatencydelay,This is a development parameter that is used to add some delay to make sure a request happens before a truck is actually loaded,float,0.01,4,135,"Advanced Feature, don't use unless you know what you are doing",
 warehouseshortdelay,This is a development parameter that is used to add some delay to warehouse shipments,float,0.01,4,136,"Advanced Feature, don't use unless you know what you are doing",
 tripmanifestfile,,filenameOrNone,None,4,137,,
+avoidwarmlist,List of CATEGORY names,string_list,None,4,136,The CATEGORYs or levels that will avoid storing vaccines that can be stored warm in warm storage,

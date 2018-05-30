@@ -195,6 +195,11 @@ class Model(model.Model):
             if not clLevel in self.levelList:
                 raise RuntimeError("The model's clinicLevelList is not defined correctly as %s is not in the levelList"%clLevel)
 
+        self.avoidWarmList = self.sim.userInput['avoidwarmlist']
+        if self.avoidWarmList is None:
+            self.avoidWarmList = []
+
+            
         # Info for loss due to breakage [Central Store, Region, Province, District, Clinic]
         lll = len(self.levelList)
         storageBreakage = _createAndExtendList(lll, self.sim.userInput['storagebreakage'], 0.0)
@@ -844,6 +849,12 @@ class Model(model.Model):
         if category in self.clinicLevelList:
             assert function.lower() in ['administration','surrogate','outreach'],\
                 "Store %s %ld is at Clinic level but not Administration, Surrogate, or Outreach"%(name,code)
+
+        if category in self.avoidWarmList:
+            storageModelClass = storagemodel.AvoidWarmStorageModel
+        else:
+            storageModelClass = storagemodel.StorageModel
+            
         brModel= self.breakageModelList[self.levelList.index(category)]
 
         # Function information must be consistent with expectedType.
@@ -947,7 +958,7 @@ class Model(model.Model):
                                         func=function,category=category,name=name,breakageModel=brModel,
                                         demandModel=self.demandModelTuple,
                                         packagingModel=packagingModel,
-                                        storageModel=storagemodel.StorageModel(True),
+                                        storageModel=storageModelClass(True),
                                         latitude=latitude,longitude=longitude,
                                         useVialsLatency = clinicLatency, useVialsTickInterval= clinicInterval,
                                         conditions = conditions,origCapacityInfoOrInventory=inventoryOrg,
@@ -972,7 +983,7 @@ class Model(model.Model):
                                     func=function,category=category,name=name,breakageModel=brModel,
                                     demandModel=self.demandModelTuple,
                                     packagingModel=packagingModel,
-                                    storageModel=storagemodel.StorageModel(True),
+                                    storageModel=storageModelClass(True),
                                     latitude=latitude,longitude=longitude,
                                     useVialsLatency = clinicLatency, useVialsTickInterval= clinicInterval,
                                     conditions = conditions,origCapacityInfoOrInventory=inventoryOrg,
@@ -990,7 +1001,7 @@ class Model(model.Model):
                                           func=function,category=category,name=name,
                                           breakageModel=brModel,
                                           packagingModel=packagingModel,
-                                          storageModel=storagemodel.StorageModel(False),
+                                          storageModel=storageModelClass(False),
                                           latitude=latitude,longitude=longitude, conditions=conditions,
                                           origCapacityInfoOrInventory=inventoryOrg,
                                           bufferStockFraction = bufferStockFraction)
@@ -1002,7 +1013,7 @@ class Model(model.Model):
                                        func=function,category=category,name=name,
                                        breakageModel=brModel,
                                        packagingModel=packagingModel,
-                                       storageModel=storagemodel.StorageModel(False),
+                                       storageModel=storageModelClass(False),
                                        latitude=latitude, longitude=longitude, conditions=conditions,
                                        origCapacityInfoOrInventory=inventoryOrg,
                                        bufferStockFraction=bufferStockFraction)
