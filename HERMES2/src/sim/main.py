@@ -608,15 +608,16 @@ def main():
 
             # create merged output file
             if gblInputs['average'] == True and gblInputs['use_dbmodel'] == False:
-                #mergedOutput = HermesOutput.HermesOutputMerged(outputList)
+                if gblInputs['merge_outputs'] is not None:
+                    mergedOutput = HermesOutput.HermesOutputMerged(outputList)
                 mergedOutput.writeOutputs()
                 if gblInputs['save_hdata'] is not None:
                     mergedOutput.save(gblInputs['save_hdata'])
 
         if gapFinalize:
             import HermesGap
-            #if simCount > 1:
-                #mergedOutput = HermesOutput.HermesOutputMerged(outputList)
+            if simCount > 1 and mergedOutput is None:
+                mergedOutput = HermesOutput.HermesOutputMerged(outputList)
             HermesGap.HermesGap(userInputList, unifiedInput, gblInputs, outputList, mergedOutput)
                 
         if gblInputs['minion']:

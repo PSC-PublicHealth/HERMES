@@ -22,6 +22,7 @@ import sys, os, types, optparse
 import csv_tools, input, util
 
 def create_merged_CSV(outFileName, inputFnameList, desiredTags, forbiddenKeys, sortKey=None):
+    print "inputFnameList: %s"%inputFnameList
     outRecList= []
     outKeyList= []
     unhandledKeySet= set()
@@ -69,29 +70,33 @@ def create_merged_CSV(outFileName, inputFnameList, desiredTags, forbiddenKeys, s
                                        (v,k,inputFnameList[0]))
             outRecList.append(outRowDict)
     for fname in inputFnameList[1:]:
-        with util.openOutputFileForRead(fname,"rU") as f:
-            keyList, recList= csv_tools.parseCSV(f)
-            for rowDict, outRowDict in zip(recList,outRecList):
-                for k, v in rowDict.items():
-                    if k in forbiddenKeys:
-                        pass
-                        #if v != outRowDict[k]:
-                         #   raise RuntimeError('Mis-matched %s value: %s vs. %s in %s and %s'%
-                          #                     (v,outRowDict[k],fname,inputFnameList[0]))
-                    elif type(v) in [types.IntType, types.LongType, types.FloatType]:
-                        if k not in outRowDict or outRowDict[k] == 'NA':
-                            outRowDict[k]= util.AccumVal(v)
-                            if k in unhandledKeySet:
-                                for suffix in desiredTags: outKeyList.append(k+suffix)
-                                unhandledKeySet.discard(k)
+#        try:
+            with util.openOutputFileForRead(fname,"rU") as f:
+                keyList, recList= csv_tools.parseCSV(f)
+                for rowDict, outRowDict in zip(recList,outRecList):
+                    for k, v in rowDict.items():
+                        if k in forbiddenKeys:
+                            pass
+                            #if v != outRowDict[k]:
+                             #   raise RuntimeError('Mis-matched %s value: %s vs. %s in %s and %s'%
+                              #                     (v,outRowDict[k],fname,inputFnameList[0]))
+                        elif type(v) in [types.IntType, types.LongType, types.FloatType]:
+                            if k not in outRowDict or outRowDict[k] == 'NA':
+                                outRowDict[k]= util.AccumVal(v)
+                                if k in unhandledKeySet:
+                                    for suffix in desiredTags: outKeyList.append(k+suffix)
+                                    unhandledKeySet.discard(k)
+                            else:
+                                outRowDict[k] += v
+                        elif v=='NA':
+                            pass
                         else:
-                            outRowDict[k] += v
-                    elif v=='NA':
-                        pass
-                    else:
-                        raise RuntimeError("Can't cope with non-numerical value %s for key %s in %s"%
-                                           (v,k,inputFnameList[0]))
-    
+                            raise RuntimeError("Can't cope with non-numerical value %s for key %s in %s"%
+                                               (v,k,inputFnameList[0]))
+#        except KeyError:
+#            # file doesn't exit
+#            continue
+            
     for k in unhandledKeySet:
         outKeyList.append(k)
 
