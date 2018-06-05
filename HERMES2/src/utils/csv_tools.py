@@ -155,10 +155,13 @@ def parseCSV( ifile ):
         if verbose: print "parsing preprocessed tuple instead of CSV"
         return ifile
 
-    if isinstance(ifile, types.StringTypes):
-        name = ifile
-    else:
-        name = ifile.name
+    try:
+        if isinstance(ifile, types.StringTypes):
+            name = ifile
+        else:
+            name = ifile.name
+    except:
+        name = "unknown_file"
 
     #debug = True
     if verbose: print "parsing %s"%name
