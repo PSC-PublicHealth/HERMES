@@ -1,17 +1,3 @@
-REM ###################################################################################
-REM # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
-REM # =============================================================================== #
-REM #                                                                                 #
-REM # Permission to use, copy, and modify this software and its documentation without # 
-REM # fee for personal use within your organization is hereby granted, provided that  #
-REM # the above copyright notice is preserved in all copies and that the copyright    # 
-REM # and this permission notice appear in supporting documentation.  All other       #
-REM # restrictions and obligations are defined in the GNU Affero General Public       #
-REM # License v3 (AGPL-3.0) located at http://www.gnu.org/licenses/agpl-3.0.html  A   #
-REM # copy of the license is also provided in the top level of the source directory,  #
-REM # in the file LICENSE.txt.                                                        #
-REM #                                                                                 #
-REM ###################################################################################
 @echo off
 setlocal
 
