@@ -66,9 +66,9 @@
 <div id="main_help_tabs">
 	<ul>
 		<li><a href="#help_overview">{{_("Overview")}}</a></li>
-		<li><a href="#help_welcome_page">{{_("The Welcome Page")}}</a></li>
-		<li><a href="#help_available_models_page">{{_("Available Models Page")}}</a></li>
-		<li><a href="#help_create_a_model">{{_("Create A New Model")}}</a></li>
+		<li><a href="#help_user_guide">{{_("User Guide")}}</a></li>
+		<li><a href="#help_tutorials">{{_("Tutorials")}}</a></li>
+		<li><a href="#help_license">{{_("License")}}</a></li>
 	</ul>
 	<div id="help_overview">
 		<p>
@@ -110,64 +110,66 @@
 			  vial and accessories count as medical waste. Unused doses in open vaccine vials count as open vial wastage.
 		  </p>
 	 </div>
-	 <div id="help_welcome_page">
-	 	<h2>The Welcome Page</h2>
-	 	<hr>
-	 	<p>
-			When HERMES is initially opened, the user is presented with the <span class="option_em">Welcome Page</span> which provides you with a few options of tasks to do with HERMES.  
-			Clicking on any of these options will take you to a new page that will give you the ability to do the task. Please click on one of these options to begin.
-		</p>
-		
-		<p>The options are:</p>
-		<hr>
-		<h3>
-			Create or Upload a New Model
-		</h3>
-		<p>
-			When this is selected, a dialog will appear that will ask you whether they would like to 
-			<span class="option_em">Create a New Model</span> or 
-			<span class="option_em">Upload an Exisiting Model from a HERMES Zip File</span>.  If <span class="option_em">Create a New Model</span> is selected, you will be taken to the beginning of 
-			the <span class="option_em">Create a New Model Workflow</span>, where you will be taken through a series of steps to define a new model. If <span class="option_em">Upload an Exisiting Model from a HERMES Zip File</span>
-			is selected, you will be presented with a dialog box. Clicking on the <span class="option_em">Choose File</span> button will open a window to explore your computer's directories to specify where the HERMES Zip
-			file exists.  You can give the uploaded model any name you would like (by default, the name will mimic the zip file's name).  Once both of these are selected
-			then you can click the <span class="option_em">Upload model</span> button and the model will be uploaded to the HERMES Database.  Once the zip is successfully uploaded, you will be notified by a dialog, and you can click <span class="option_em">OK</span>.
-			You can navigate to the <span class="option_em"><a href="#help_available_models_page" class="open-tab">Availables Models</a></span> page to open and use the model.
-		</p>
-		<p>
-		Please note, that if you try to upload an invalid zip file that does not conform to the HERMES inputs, you will be notified that the upload failed, and no model will be uploaded to the HERMES Database.
-		</p>
-		<hr>
-		<p><b>Open, Modify, and Run an Exisiting Model</b></p>
-		<p>
-			When this is selected, a new page will open that lists all of the models that are currently available in your installation of HERMES.
-			For each model, there is a line in the list with its name, its ID, a place for Notes, and several buttons that define actions that you can 
-			perform on the model.
-		</p>	
-	</div>
-	<div id="help_available_models_page">
-		<p>
-			<b>To Change the name or add notes to the model</b> you can double click on the line of the model you wish to change and a dialog box will
-			open that gives you a place to put the new name and some notes.  Once you are finished editing, can click the Save button, and you list will be 
-			updated with the new information.
-		</p>
-		<p>
-			On each line, there are a series of action buttons which will perform various operations on the model in that line.
-		</p>
-		<p>
-			<b>The "Open" Button</b> will take you the "Model Page" where you will be able to perform more detailed tasks on the model such as editing 
-			and running simulations.
-		</p>
-		<p>
-			<b>The "Run" Button</b> will open the "Run Simulations Page" which will allow you to set up and execute a simulation run with this model.
-		</p>
-		<p>
-			<b>The "Results" Button</b> will be active if simulations have been performed with this model. If there are no results for this model yet, 
-			then the button will be faded and greyed out until there are results available.
-		</p>
-	</div>
-	<div id="help_create_a_model">
-		There shoudl be help here
-	</div>
+
+	 <div id="help_user_guide">
+	      <embed src="{{rootPath}}static/HERMES_User_Guide_3.12.18.pdf" type="application/pdf" width="100%" height=1000 alt="pdf" pluginspage="http://www.adobe.com/products/acrobat/readstep2.html"/>
+	      <p>This document is also available <a target=_blank href="http://hermes.psc.edu/release/HERMES_User_Guide_3.12.18.pdf">online</a>.</p>
+	 </div>
+
+	 <div id="help_tutorials">
+	      <embed src="{{rootPath}}static/HERMES_Tutorials_1-7.pdf" type="application/pdf" width="100%" height=1000 alt="pdf" pluginspage="http://www.adobe.com/products/acrobat/readstep2.html"/>
+	      <p>This document is also available <a target=_blank href="http://hermes.psc.edu/release/HERMES_Tutorials_1-7.pdf">online</a>.</p>
+	 </div>
+
+	 <div id="help_license">
+                <p class='lictitle'>END-USER AGREEMENT</p>
+                <p class='licheading'>15 June 2018</p>
+
+                <p class='lictext'>
+This End-User Agreement (the Agreement) is between you (User) and The Johns Hopkins University, a Maryland non-stock non-profit corporation (JHU). By purchasing, downloading, accessing, viewing and/or using the HERMES VACCINE LOGISTICS PROGRAM (the Program), User attests that it is over the age of 13, acknowledges that User has read and understands this Agreement in its entirety, and hereby accepts and agrees to be bound by all of its terms and conditions. With respect to this Agreement, the term Program includes all data, information, functions, calculations, and other content in, on, output from or performed by the Program, including, without limitation, all educational, literary, and scientific materials, programs, codes, user interfaces and other software, audio and video content, text, illustrations, photographs, designs, marks and logos, in, on, output from or performed by the Program.
+                </p>
+
+                <p class='lictext'>
+                    1. <b>License</b>. Upon User’s acceptance of all of the terms and conditions herein, <b>Permission is hereby granted, free of charge, to any User obtaining a copy of this software and associated documentation files (the Software), to deal in the Software without restriction</b>, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:  The copyright notice below and this permission notice shall be included in all copies or substantial portions of this software:
+</p>
+                <p class='lictext' style='text-align:center'>               Copyright © 2018 The Johns Hopkins University</p>
+                <p class='lictext' style='text-align:center'>               Copyright © 2018 Carnegie Mellon University</p>
+                <p class='lictext' style='text-align:center'>               Copyright © 2018 The University of Pittsburgh</p>
+                <p class='lictext'>
+AS FURTHER DESCRIBED BELOW, THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</p>
+                <p class='lictext'>2. <b>Disclaimer of Warranties and Users Assumption of Risk.  </b></p>
+
+                <p class='lictext'> <b>
+(a) USER HEREBY AGREES THAT THE USE OF OR INABILITY TO USE, OR RELIANCE ON, THE PROGRAM BY OR ON BEHALF OF USER IS AT USERS SOLE RISK. USER ACKNOWLEDGES THAT THE PROGRAM IS PROVIDED ON AN AS IS AND AS AVAILABLE BASIS. JHU (REFERRED TO HEREINAFTER AS UNIVERSITY OR UNIVERSITIES) MAKES NO GUARANTEES, REPRESENTATIONS OR WARRANTIES WHATSOEVER, AND TO THE FULLEST EXTENT PERMITTED BY LAW, EXPRESSLY DISCLAIMS ALL REPRESENTATIONS AND WARRANTIES, EXPRESS OR IMPLIED OR STATUTORY, WITH RESPECT TO THE PROGRAM, INCLUDING, WITHOUT LIMITATION, REPRESENTATIONS AND WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT OF THIRD-PARTY RIGHTS, QUIET ENJOYMENT, QUALITY, RELIABILITY, ACCURACY, CURRENCY, TIMELINESS, USEFULNESS, COMPLETENESS, SUITABILITY, SATISFACTORY QUALITY, SECURITY AND/OR FUNCTIONALITY. UNIVERSITY MAKES NO GUARANTEES, REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED, THAT THE USE OF THE PROGRAM WILL BE ERROR FREE OR UNINTERRUPTED OR THAT THE PROGRAM WILL BE FREE FROM LOSS, CORRUPTION, INTERFERENCE, HACKING, ATTACK, VIRUSES, OR OTHER SECURITY INTRUSION. UNIVERSITY HEREBY SPECIFICALLY DISCLAIMS ANY LIABILITY RELATING TO THE F
+OREGOING AND USER HEREBY ASSUMES AND BEARS THE ENTIRE RISK WITH RESPECT THERETO. BECAUSE SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF IMPLIED WARRANTIES, PORTIONS OF THE ABOVE EXCLUSIONS MAY NOT APPLY TO USER. IN SUCH JURISDICTIONS, THE DURATION AND SCOPE OF THE APPLICABLE WARRANTY WILL BE THE MINIMUM PERMITTED UNDER APPLICABLE LAW.
+</b>
+</p>
+
+                <p class='lictext'>
+(b)User acknowledges that updates to the Program are at the sole discretion of UNIVERSITY and that UNIVERSITY undertakes no obligation to supplement or update the Program. UNIVERSITY makes no guarantees, representations or warranties whatsoever, express or implied, with respect to the compatibility of the Program, or future releases thereof, if any, with any hardware or software, or with respect to the continuity of the features or facilities provided by or through the Program as between various releases thereof, if any.
+</p>
+                <p class='lictext'><b>
+(c) UNIVERSITY SHALL NOT BE LIABLE TO USER OR ANY OTHER INDIVIDUAL OR ENTITY FOR ANY COSTS, EXPENSES, LIABILITIES, PENALTIES, FINES, LOSSES, DAMAGES, DEMANDS, THIRD-PARTY CLAIMS, JUDGMENTS AND/OR OTHER FORMS OF LIABILITY, WHETHER ARISING FROM CONTRACT, PERSONAL OR BODILY INJURY, ILLNESS, OR DEATH, OR TANGIBLE OR INTANGIBLE PROPERTY DAMAGE OR LOSS, OR OTHERWISE (COLLECTIVELY, CLAIMS) IN CONNECTION WITH, ARISING OUT OF OR RELATING TO: (A) ANY USE OF OR INABILITY TO USE, OR RELIANCE ON, THE PROGRAM BY OR ON BEHALF OF USER; (B) ANY MISSTATEMENTS, INACCURACIES, ERRORS, OMISSIONS, DELAYS OR INTERRUPTIONS IN CONNECTION WITH THE PROGRAM; AND/OR (C) ANY DIAGNOSIS, RECOMMENDATION, ADVICE, TREATMENT, PROCEDURE OR OTHER ACTION BY OR ON BEHALF OF USER IN CONNECTION WITH VIEWING, USING OR RELYING ON THE PROGRAM WITH RESPECT TO ANY INDIVIDUAL(S), REGARDLESS OF THE LEGAL BASIS FOR THE CLAIM(S). USER HEREBY ASSUMES AND BEARS THE ENTIRE RISK WITH RESPECT TO THE FOREGOING, AND TO THE FULLEST EXTENT PERMITTED BY LAW, USER RELEASES UNIVERSITIES AND EACH UNIVERSITIES MEMBER (AS HEREINAFTER DEFINED) FROM ANY LIABILITY RELATING TO THE FOREGOING.
+</b>
+</p>
+
+                <p class='lictext'>3. <b>Limitation of Liability</b>. IN NO EVENT SHALL UNIVERSITY BE LIABLE TO USER OR ANY THIRD-PARTY FOR ANY SPECIAL, INCIDENTAL, CONSEQUENTIAL, PUNITIVE OR INDIRECT DAMAGES IN CONNECTION WITH, ARISING OUT OF, OR RELATING TO THIS AGREEMENT OR THE PROGRAM EVEN IF UNIVERSITY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. BECAUSE SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF OR LIMITATION OF LIABILITY FOR CERTAIN TYPES OF DAMAGES, IN SUCH JURISDICTIONS, UNIVERSITY'S LIABILITY SHALL BE LIMITED TO THE EXTENT PERMITTED BY LAW. NOTWITHSTANDING ANYTHING TO THE CONTRARY HEREIN, UNDER NO CIRCUMSTANCES WILL UNIVERSITY BE LIABLE TO USER OR ANY THIRD-PARTY FOR ANY REASON FOR ANY AMOUNT IN EXCESS OF THE GREATER OF: (A) FIFTY UNITED STATES DOLLARS (US $50); AND (B) THE TOTAL FEES PAID BY USER TO UNIVERSITY, IF ANY, UNDER THIS AGREEMENT (REGARDLESS OF THE LEGAL BASIS FOR THE CLAIM(S)).
+</p>
+                <p class='lictext'>4. <b>Agreement</b>. This Agreement constitutes the entire agreement between User and JHU regarding the subject matter hereof and supersedes all previous oral or written communications, proposals, agreements and representations, if any, relating to the subject matter hereof. JHU reserves the right to modify this Agreement and to impose new or additional terms or conditions on the access, viewing and use of the Program at any time and in its sole discretion. Such modifications and additional terms and conditions will be effective immediately and incorporated into this Agreement. The continued use of the Program by or on behalf of User will be deemed acceptance thereof. The failure of any party to require the performance of any term or obligation of this Agreement, or the waiver by any party of any breach of this Agreement, will not act as a bar to subsequent enforcement of such term or obligation or be deemed a waiver of any subsequent breach. The provisions of this Agreement will be considered severable, so that the invalidity or unenforceability of any provisions will not affect the validity or enforceability of the remaining provisions; provided that no such severability will be effective if it materially changes the agreement contained herein. The headings contained in this Agreement are for reference purposes only and will not affect in any way the meaning and interpretation of this Agreement. All terms and conditions that by their nature should survive the termination or expiration of this Agreement, including, without limitation, Sections 2, 3, and 4 hereof, will survive. If applicable, User hereby agrees that User will not use or otherwise export the Program in violation or prohibition of United States and any other applicable laws, statutes and regulations.
+</p>
+
+                <p class='lictext'>5. <b>Governing Law and Jurisdiction; Waiver of Trial by Jury</b>.  The validity, construction and enforcement of this Agreement, and the use of the Program, will be determined in accordance with the laws of the State of Maryland, without reference to conflicts of laws principles. User and University hereby irrevocably and unconditionally: (i) consent to submit to the exclusive jurisdiction of the courts of the State of Maryland for any proceeding arising in connection with this Agreement and each such party agrees not to commence any such proceeding except in such courts, and (ii) waives any objection to the laying of venue of any such proceeding in the courts of the State of Maryland. <b>EACH OF UNIVERSITY AND USER, KNOWINGLY, FOR ITSELF, ITS SUCCESSORS AND ASSIGNS, WAIVES ALL RIGHT TO TRIAL BY JURY OF ANY CLAIM ARISING WITH RESPECT TO THIS AGREEMENT OR ANY MATTER RELATED IN ANY WAY THERETO.</b>
+</p>
+
+                <p class='lictext'><b>BY PURCHASING, DOWNLOADING, ACCESSING, VIEWING AND/OR USING THE PROGRAM, USER ACKNOWLEDGES THAT USER HAS READ AND UNDERSTANDS THIS AGREEMENT IN ITS ENTIRETY, AND HEREBY ACCEPTS AND AGREES TO BE BOUND BY ALL OF THE TERMS AND CONDITIONS SET FORTH HEREIN FOR THE PERMISSION HEREBY GRANTED.</b>
+</p>
+        </div>
+
+
+
+
+	 </div>
 </div>
 
 <script>
@@ -178,7 +180,8 @@ $(document).ready(function(){
 	$('.open-tab').click(function (event) {
 	    var tab = $(this).attr('href');
 	    var index = $(tab).parent().index();
-	    //console.log(tab.attr('tabindex'));
+	    console.log(tab.attr('tabindex'));
+	    console.log(navigator.onLine);
 	    $('#main_help_tabs').tabs('option','active',index);
 	});
 });
