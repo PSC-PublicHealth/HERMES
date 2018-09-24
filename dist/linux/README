@@ -1,0 +1,22 @@
+To setup and run hermes:
+
+First make sure you have pip and virtualenv installed.
+On debian/ubuntu based systems:
+
+sudo apt install python-pip
+sudo apt install virtualenv
+
+Hermes runs out of the directory that you untar it into but will need to
+be initialized first.  Run
+
+./setup_hermes
+
+which should perform all of the initializations.
+
+To run hermes cd to this directory and then
+
+./run_hermes
+
+This should start up a local hermes webserver and then open a tab in your preferred browser to http://localhost:8080/bottle_hermes/top
+
+Hit ctrl-C in the terminal to stop the server when you're done.

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+virtualenv hermesenv
+source hermesenv/bin/activate
+pip install -r HERMES2/requirements/production.txt
+cd HERMES2/src/tools
+python install_hermes.py -n

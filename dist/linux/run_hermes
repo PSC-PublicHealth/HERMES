@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source hermesenv/bin/activate
+CURDIR=`pwd`
+sleep 10 && sensible-browser http://localhost:8080/bottle_hermes/top &
+cd HERMES2/src/ui_server/
+python standalone_server.py
+
