@@ -358,7 +358,7 @@ class Fridge(abstractbaseclasses.CanStore, abstractbaseclasses.Costable):
                 self.volUsed += vol
                 self.contents.append(vaccineGroup)
                 #SILLY_CHECK_FOR_OUTDOORS
-                if self.volAvail == 1000000000000:
+                if self.volAvail == C.outdoorsLotsOfSpace:
                     vaccineGroup.setStorage(storagetypes.OUTDOORS, withDiluent)
                 else:
                     vaccineGroup.setStorage(self.storageType, withDiluent)
@@ -992,7 +992,7 @@ class FridgeTypeManager(trackabletypes.TrackableTypeManager):
             assert(isinstance(entry,FridgeType))
             for st,vol in entry.storageCapacityInfo:
                 if ignoreOutdoors:
-                    if vol == 1000000000000:
+                    if vol == C.outdoorsLotsOfSpace:
                         continue
                 if st in sDict:
                     sDict[st] += vol

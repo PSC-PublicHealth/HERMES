@@ -1011,7 +1011,10 @@ class Model(model.Model):
                               #"ClassName":w.__class__.__name__
                               })
         for tp,vol in storageSC.items():
-                    w.noteHolder.addNote({(tp.name+"_vol"):vol/C.ccPerLiter})
+            if sim.limitedRoomTemp:
+                if tp.name == "roomtemperature":
+                    vol -= C.outdoorsLotsOfSpace
+            w.noteHolder.addNote({(tp.name+"_vol"):vol/C.ccPerLiter})
 
         # Attach the idcode to the warehouse, for convenience later.
         w.idcode= code
