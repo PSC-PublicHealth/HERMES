@@ -55,7 +55,7 @@ def parseInventoryString(string):
     return ret
 
 class Model:
-    lotsOfSpaceLiters= 1.0e9; # used for room temp storage
+    lotsOfSpaceLiters= C.outdoorsLotsOfSpace / C.ccPerLiter # used for room temp storage
     class UpdateWastageEstimates(warehouse.PeriodicProcess):
         def __init__(self,sim,updatefreq,startupLatency):
             warehouse.PeriodicProcess.__init__(self,sim,"UpdateWastage",updatefreq,startupLatency)

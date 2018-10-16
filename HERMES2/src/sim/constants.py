@@ -23,6 +23,8 @@ ccPerLiter= 1000
 storageLotsOfSpace = 1232123234342.0 
 transportLotsOfSpace = 1232123214432.0 
 
+outdoorsLotsOfSpace = 1000000000000
+
 daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 daysPerMonth = 28
 secondsInDay = 86400.0
