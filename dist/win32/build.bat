@@ -1,11 +1,18 @@
 @echo off
 setlocal
 set oldcurdir=%cd%
-cd /d %~dp0
+
+cd
+echo current directory %oldcurdir%
+
 if not exist ..\..\HERMES2\src\version.txt (
-    where /q svnversion
-    if not errorlevel 1 for /f "usebackq tokens=*" %%v in (`svnversion ..\..\HERMES2\ https://redmine.hindsight.psc.edu/svn/hermes/trunk/HERMES2`) do set SvnRevision="/dSvnRevision=%%v"
+    do set CurrentVersion=""
+) else (
+    if not errorlevel 1 for /f "usebackq tokens=*" %%v in (`powershell -command "& {Get-Content ..\..\HERMES2\src\version.txt | Select-Object -last 1}"`) do set CurrentVersion="/dCurrentVersion=%%v"
 )
+
+echo current version %CurrentVersion%
+
 if not exist misc\hermes-tray.exe goto :buildtray
 ..\tools\md5sum misc\hermes-tray.ahk > misc\hermes-tray.ahk.curr.md5
 if not exist misc\hermes-tray.ahk.last.md5 goto :buildtray
