@@ -2,14 +2,14 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "HERMES"
-#define MyAppPublisher "HERMES Team"
+#define MyAppPublisher "HERMES Logistics Team"
 #define MyAppURL "http://hermes.psc.edu"
-#define BaseVersion "0.9"
+#define BaseVersion "1.0"
 #define BaseFilename "hermes-setup"
 
-#ifdef SvnRevision
-#	define MyAppVersion BaseVersion + "." + SvnRevision
-#	define MySetupName BaseFilename + "-r" + StringChange(SvnRevision, ":", "-")
+#ifdef CurrentVersion
+#	define MyAppVersion CurrentVersion
+#	define MySetupName BaseFilename + "-r" + StringChange(CurrentVersion, ":", "-")
 #else
 #	define MyAppVersion BaseVersion
 #	define MySetupName BaseFilename
