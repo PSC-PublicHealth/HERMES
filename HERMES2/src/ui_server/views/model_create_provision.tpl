@@ -116,9 +116,9 @@ $.ajax({
 								   dataInit: function(element){
 									   $(element).keyup(function(){
 										   var val1=element.value;
-										   var num = parseInt(val1);
-										   if((isNaN(num)) && (val1 != '')){
-											   alert("{{_('Please enter an integer')}}");
+										   var num = parseFloat(val1);
+										   if(num % 1 !== 0 || num < 0){
+											   alert("Data must be integers greater than or equal to zero.");
 											   errFlag = true;
 										   }
 									   });
@@ -127,13 +127,13 @@ $.ajax({
 								               {
 								            	   type:'keydown',
 								            	   fn:function(e){
-								            		   var key = e.charCode || e.keyCode;								            	
+								            		   var key = e.charCode || e.keyCode;
 								            		   if(key == 9){
 								            			   thisId = $("#"+ids[ids.indexOf(selRowID)])[0].rowIndex;
 								            			   if(errFlag){
 								            				   e.preventDefault();
 								            				   setTimeout("jQuery('#provision_table').editCell(" + thisId + ",4,true);",100);
-								            				   
+
 								            				   errFlag = false;
 								            			   }
 								            			   else if(ids.indexOf(selRowID) != ids.length-1){
@@ -151,7 +151,7 @@ $.ajax({
 														   if(errFlag){
 								            				   e.preventDefault();
 								            				   setTimeout("jQuery('#provision_table').editCell(" + thisId + ",4,true);",100);
-								            				   
+
 								            				   errFlag = false;
 								            			   }
 														   else if(ids.indexOf(selRowID) != ids.length-1){
@@ -181,9 +181,9 @@ $.ajax({
 						   dataInit: function(element){
 							   $(element).keyup(function(){
 								   var val1=element.value;
-								   var num = parseInt(val1);
-								   if((isNaN(num)) && (val1 != '')){
-									   alert("{{_('Please enter an integer')}}");
+								   var num = parseFloat(val1);
+								   if(num % 1 !== 0 || num < 0){
+									   alert("Data must be integers greater than or equal to zero.");
 									   errFlag = true;
 								   }
 							   });
@@ -192,13 +192,13 @@ $.ajax({
 						               {
 											type:'keydown',
 											fn:function(e){
-												   var key = e.charCode || e.keyCode;								            	
+												   var key = e.charCode || e.keyCode;
 												   if(key == 13){
 													   thisId = $("#"+ids[ids.indexOf(selRowID)])[0].rowIndex;
 													   if(errFlag){
 							            				   e.preventDefault();
 							            				   setTimeout("jQuery('#provision_table').editCell(" + thisId + ",4,true);",100);
-							            				   
+
 							            				   errFlag = false;
 							            			   }
 													   else if(ids.indexOf(selRowID) != ids.length-1){
@@ -218,7 +218,7 @@ $.ajax({
 					});
 			}
 		}
-		
+
 		console.log(results.data);
 		var lastsel;
 		$("#provision_table").jqGrid({
@@ -254,9 +254,14 @@ $.ajax({
 				$("#" + this.id + " tbody>tr:eq(" + iRow + ")>td:eq(" + iCol + ") input, select, textarea").css("text-align","center");
 				$("#" + this.id + " tbody>tr:eq(" + iRow + ")>td:eq(" + iCol + ") input, select, textarea").select();
 			},
+			// If cell value is int >= 0, grey background, otherwise darkred
 			afterSaveCell:function(rowId,cellname,value,iRow,iCol){
-				if(value > 0){
+				if(parseFloat(value) % 1 === 0 && value >= 0){
 					$("#" + this.id + " tbody>tr:eq(" + iRow + ")>td:eq(" + iCol +")").css("background","grey");
+					$("#" + this.id + " tbody>tr:eq(" + iRow + ")>td:eq(" + iCol +")").css("color","white");
+				}
+				else{
+				    $("#" + this.id + " tbody>tr:eq(" + iRow + ")>td:eq(" + iCol +")").css("background","darkred");
 					$("#" + this.id + " tbody>tr:eq(" + iRow + ")>td:eq(" + iCol +")").css("color","white");
 				}
 			},
