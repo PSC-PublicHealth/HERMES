@@ -499,13 +499,6 @@ function checkBoxFieldFormatter(cellvalue, options, rowObject){
 						});
 					}
 					
-					//Color the new ones
-					if(thisOptions.colorNewRows){
-						var newTypes = $("#"+thisContainerId).data("newTypes");
-						for(var typ in newTypes){
-							$("#"+thisContainerId).find("#"+newTypes[typ]).find("td").css("background-color","darkgrey").css("color","white");
-						}
-					}
 				}
 				
 			});
