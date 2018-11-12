@@ -309,7 +309,6 @@
 					$this.deactivateButton("back");
 				}
 				$this.activateButton("next");
-				$this.hideButton("done");
 				console.log("Current Back Setting: " + currentActiveSlide);
 				$("#"+thisContainerId).data('activeSlide',currentActiveSlide);
 			}	
