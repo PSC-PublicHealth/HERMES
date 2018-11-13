@@ -53,10 +53,24 @@
 			
 			
 			$("#"+thiscontainerID).append("<div id='" + mapContainerID + "' class='geoContainer'></div>");
-			$("#"+thiscontainerID).append("<div id='" + layersLegendID + "' class='geoLayerLeg'></div>");
+			$("#"+thiscontainerID).append("<div id='" + layersLegendID + "' class='geoLayerLeg ui-resizable ui-draggable ui-widget-content'></div>");
 			$("#"+thiscontainerID).append("<div id='" + legendContainerID) + "class='geoLegend'></div>";
 			
-		
+
+			// functions to handle dragging and resizing of map legend
+			$( function() {
+				$( ".geoLayerLeg" ).draggable();
+			} );
+
+			$( function() {
+				$( ".geoLayerLeg" ).resizable({
+					handles: "all",
+					minWidth: 225,
+					minHeight: 175,
+					maxWidth: 350,
+					maxHeight: 480
+				}).css({overflow:'hidden'});
+			} );
 			
 			var rainbow = new Rainbow();
 			rainbow.setSpectrum('blue','red');
@@ -85,7 +99,7 @@
 			
 			function showLegend(whichLegend){
 				$("#legendContainer").html("");
-				$("#legendContainer").html("<img src='" + rootPath + "static/images/" + whichLegend+".png' width=170>");
+				$("#legendContainer").html("<img src='" + rootPath + "static/images/" + whichLegend+".png' width=95% height='15%'>");
 			}
 			function removeLegend(){
 				$("#legendContainer").html("");
@@ -93,7 +107,7 @@
 			
 			function showRouteLegend(){
 				$("#routeLegendContainer").html("");
-				$("#routeLegendContainer").html("<img src='" + rootPath + "static/images/util.png' width=170>");
+				$("#routeLegendContainer").html("<img src='" + rootPath + "static/images/util.png' width=95% height='15%'>");
 			}
 			
 			function removeRouteLegend(){
@@ -211,7 +225,8 @@
 			
 				function ready(error, stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,routesJSON){
 					drawMap(stateJSON, countryJSON, ppJSON, roadsJSON, storeJSON,routesJSON,height,width);
-					console.log(vizJson);			
+					console.log(vizJson);
+					/*
 					// RESIZE MAP IF WINDOW RESIZES	
 					$(window).resize(function(){
 						d3.select(".geoContainer").select("svg").remove();
@@ -254,7 +269,7 @@
 						zoomToCollection(storeJSON.geoFC);
 						restoreFromVizJson(vizJson);
 						
-					});
+					});*/
 				}
 				
 				//$("#legendContainer").html("<img src='" + rootPath + "static/images/popserved.png' width=180>")
@@ -892,7 +907,7 @@
 				htmlString = '<table class="legend-table">';
 				htmlString += '<tr>';
 				htmlString += '<td class="legend-title">'+tphrases[0]+'</td>';
-				htmlString += '<td colspan=2 style="text-align:right;" width="160px">Zoom <button class="zoombut" id="zoomIn">+</button><button class="zoombut" id="zoomOut">-</button></td>'
+				htmlString += '<td colspan=2 style="text-align:right;" width="100%">Zoom <button class="zoombut" id="zoomIn">+</button><button class="zoombut" id="zoomOut">-</button></td>'
 				htmlString += '</tr>'
 				htmlString += '<tr>';
 				htmlString += '<td width="45px"></td>';
