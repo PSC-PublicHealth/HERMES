@@ -69,7 +69,7 @@ function priceCheck(value) {
 }
 
 function updateEditDlgTitle(btnStr, $form, rowid, gridId, prefix) {
-	var $mySpan = $form.parents('.ui-jqdialog').children('.ui-jqdialog-titlebar').children('span');
+	var $mySpan = $form.parents('div.ui-jqdialog').find('span.ui-jqdialog-title');
 	var $g = $('#'+gridId);
 	var ids = $g.jqGrid('getDataIDs');
 	var idx = ids.indexOf(rowid);
