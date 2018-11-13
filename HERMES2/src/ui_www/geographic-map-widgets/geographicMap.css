@@ -37,7 +37,6 @@
   border-radius:3px;
   background-color: white;
   z-index:1000;
-
 }
 .zoombut{
 	width: 5;
@@ -66,7 +65,7 @@
 
 .legend-item{
 	width:100px;
-	font-size:x-small;
+	font-size:small;
 	margin:0px 1px 0px 0px !important;
 }
 
@@ -76,12 +75,12 @@
 }
 
 .legend-heading{
-	font-size:small;
+	font-size:medium;
 	padding:0px 0px 0px 0px !important;
 	margin:0px 1px;
 }
 .legend-title{
-	font-size:medium;
+	font-size:large;
 }
 .road {
 	fill: none;
