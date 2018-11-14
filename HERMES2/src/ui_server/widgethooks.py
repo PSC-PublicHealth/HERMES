@@ -60,6 +60,16 @@ def getHrmWidgetsJS(db, uiSession):
     bottle.response.set_header('content-type','text/javascript')
     return bottle.template("hrmwidgets.tpl") # to fill in rootPath
 
+# @bottle.route('/widgets/type_explorer_grid.js')
+# def getWidgetTypeExplorerGrid(db, uiSession):
+#     bottle.response.set_header('content-type','text/javascript')
+#     return bottle.template('type_explorer_grid.tpl')
+# 
+# @bottle.route('/widgets/slideshow_widget.js')
+# def getSlideShowWidget(db, uiSession):
+#     bottle.response.set_header('content-type','text/javascript')
+#     return bottle.template('slideshow_widget.tpl')
+
 @bottle.route('/clientArray', method='POST')
 def noOpCall():
     """
@@ -616,9 +626,11 @@ def handleListType(db, uiSession):
         typestring = _safeGetReqParam(bottle.request.params, 'typestring')
         escapeFlag = _safeGetReqParam(bottle.request.params, 'encode', isBool=True)
         blankFlag = _safeGetReqParam(bottle.request.params, 'allowblank', isBool=True)
+        displayName = _safeGetReqParam(bottle.request.params,'displayName', isBool=True,default=False)
         if typestring == 'null' or typestring == '':
             typestring = None
         typeList = typehelper.getTypeList(db, modelId, invtype, fallback=False)
+        
         # print "#$#$#$#$#$#$#$#$#$#$#$#$#$#$"
         # print typeList
         sio = StringIO()
@@ -629,17 +641,23 @@ def handleListType(db, uiSession):
             else:
                 sio.write("  <option value=''>%s</option>\n" % _('--No Selection--'))
         for t in typeList:
-
+            
             if escapeFlag:
                 eName = urllib.quote(t['Name'].encode('utf8'))
             else:
                 eName = t['Name']
-
+                
+            dName = eName
+            if displayName:
+                dName = t['DisplayName']
+                if dName == '' or dName is None:
+                    dName = t['Name']
+            
             if typestring and typestring == t['Name']:
-                sio.write("  <option value='%s' selected >%s</option>\n" % (eName, eName))
+                sio.write("  <option value='%s' selected >%s</option>\n" % (eName, dName))
                 foundType = True
             else:
-                sio.write("  <option value='%s'>%s</option>\n" % (eName, eName))
+                sio.write("  <option value='%s'>%s</option>\n" % (eName, dName))
         if typestring and not foundType:
             raise RuntimeError(_("The selected type {0} is not a known type").format(typestring))
 
@@ -751,7 +769,23 @@ def handleListFuel(db, uiSession):
 def getFuelFromRequest(m, key):
     return _getThingFromRequest(m, key,  _('fuel'), fuelTranslationDict)
 
-
+@bottle.route('/json/type-list-for-invtype-in-model')
+def jsonTypeListForInvTypeInModel(db,uiSession):
+    """
+    Return a JSON of a list of types that are of a specific inventory
+    """
+    try:
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        invType = _getOrThrowError(bottle.request.params, 'invtype', isInt=False)
+        allTypes = _safeGetReqParam(bottle.request.params, 'alltypes',isBool=True, default=False)        
+        typeList = typehelper.getTypeList(db, modelId, invType,fallback=allTypes)
+        
+        return {'success':True,'typelist':typeList}
+    except Exception, e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+    
 @bottle.route('/list/select-type-full')
 def listSelectTypeFull(db, uiSession):
     """
@@ -811,10 +845,12 @@ def editStoreEditEdit(db, uiSession):
                 store.updateInventory(visibletypestring, newCountNewType, useDemandList=demandFlag)
         elif oper=='add':
             typestring = _getOrThrowError(bottle.request.params, 'typestring')
+            
             if count is None:
                 pass
             else:
-                store.updateInventory(visibletypestring, count, useDemandList=demandFlag)
+                ### changed to addInventory to account for if there is something already there
+                store.addInventory(typestring, count, useDemandList=demandFlag)
         elif oper=='del':
             typestring = _getOrThrowError(bottle.request.params, 'id')
             store.updateInventory(typestring, 0, useDemandList=demandFlag)
@@ -886,8 +922,8 @@ def jsonStoreUpdate(db, uiSession):
                                                    ('utilizationrate','utilizationRate',False,True,None,(0.0,1.0)),
                                                    ('longitude','Longitude',False,True,None,(-180.0,180.0)),
                                                    ('latitude','Latitude',False,True,None,(-90.0,90.0)),
-                                                   ('cost','SiteCost',False,True,None,(0.0,float('inf'))),
-                                                   ('costyear','SiteCostYear',True,False,None,(2000,3000))
+                                                   #('cost','SiteCost',False,True,None,(0.0,float('inf'))),
+                                                   #('costyear','SiteCostYear',True,False,None,(2000,3000))
                                                    ]:
             v = _safeGetReqParam(bottle.request.params, key)
             if v:
@@ -899,11 +935,22 @@ def jsonStoreUpdate(db, uiSession):
                     badParms.append(_("{0} must be in the range {1} to {2}".format(key,range[0],range[1])))
                 else:
                     goodPairs.append((name,v))
-        key, name = ('costcur','SiteCostCurCode')
+        
         try:
-            v = getCurrencyFromRequest(db, m, key)
-            goodPairs.append((name, v))
+            v = _safeGetReqParam(bottle.request.params,'costval',default='0.0:USD:2017')
+            print "V = {0}".format(v)
+            vSplit = v.split(':')
+            print "VSplit = {0}".format(vSplit)
+            goodPairs.append(('SiteCost',float(vSplit[0])))
+            goodPairs.append(('SiteCostCurCode',vSplit[1]))
+            goodPairs.append(('SiteCostYear',vSplit[2]))
+        
+#         key, name = ('costcur','SiteCostCurCode')
+#         try:
+#             v = getCurrencyFromRequest(db, m, key)
+#             goodPairs.append((name, v))
         except Exception, e:
+            print "E = {0}".format(e)
             badParms.append(_("{0} is not a valid currency code").format(v))
 
         if badParms==[]:

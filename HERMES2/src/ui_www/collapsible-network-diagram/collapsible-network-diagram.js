@@ -22,6 +22,7 @@
 	var baseSvg;
 	var svgGroup;
 	var diagonal;
+	var thiscontainerID;
 	
 	var margin = 50;
 	var currentNode = null;
@@ -71,8 +72,12 @@
 			rootPath:'',
 			modelId:'',
 			resultsId:'',
+			absoluteHeight:null,
+			absoluteWidth:null,
 			minWidth:500,
-			minHeight:300,
+			minHeight:500,
+			maxWidth:null,
+			maxHeight:null,
 			scrollable:false,
 			resizable:true,
 			hideRouteNames:false,
@@ -187,13 +192,13 @@
 		    var zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
 		        // define the baseSvg, attaching a class for styling and the zoomListener
 		    console.log($("#"+this.containerID).attr("height"));
-		    var initHeight = this.options.resizeOn ? window.innerHeight - 300 : this.options.minHeight;
-		    var initWidth = this.options.resizeOn ? window.innerWidth - margin*3 : this.options.minWidth;
+		    var initHeight = this.options.resizeOn ? window.innerHeight - 300 : this.options.absoluteHeight;
+		    var initWidth = this.options.resizeOn ? window.innerWidth - margin*3 : this.options.absoluteWidth;
 		    baseSvg = d3.select("#"+this.svgContainerID).append("svg")
 		    		.attr("id","netSVG")
 		    		.attr("width", initWidth)
 		    		.attr("height",initHeight)
-		    		.attr("class", "overlay")
+		    		.attr("class", "colDiag-overlay")
 		    		.call(zoomListener)
 		    		.on('contextmenu',function(){
 		    			d3.event.preventDefault();
@@ -420,6 +425,7 @@
 		    
 
 		    function resize() {
+		    	alert("window.innerHeight = " + window.innerHeight);
 		    	x = window.innerWidth - margin*2;
 		    	y = window.innerHeight - 400;
 		    	svgGroup.attr("width",x).attr("height",y);
@@ -716,13 +722,13 @@
 				            })
 				            .style('opacity',function(d){
 				            	if(d.level==9999){
-				            		if($("#collapsible-network-diagram").diagram('option','hideRouteNames'))
+				            		if($("#"+thiscontainerID).diagram('option','hideRouteNames'))
 				            			return 0;
 				            		else
 				            			return 1;
 				            	}
 				            	else{
-				            		if($("#collapsible-network-diagram").diagram('option','hidePlaceNames'))
+				            		if($("#"+thiscontainerID).diagram('option','hidePlaceNames'))
 				            			return 0;
 				            		else
 				            			return 1;
@@ -979,10 +985,11 @@
 		    currentNode = root;
 		    
 		    if(resizeOn){
-				window.addEventListener('resize',function(event){
-			    	//var wH = window.innerHeight-300;
+				//window.addEventListener('resize',function(event){
+		    	$(window).resize(function(){
+			    	var wH = window.innerHeight-300;
 			    	//var wW = window.innerWidth - margin*2;
-			    	var wH = $("#"+thiscontainerID).height();
+			    	//var wH = $("#"+thiscontainerID).height();
 			    	var wW = $("#"+thiscontainerID).width();
 			    	var bH = parseInt(baseSvg.style("height"));
 			    	var bW = parseInt(baseSvg.style("width"));
@@ -991,7 +998,7 @@
 			    	//console.log(bH);
 			    	
 			    	baseSvg.attr("width",wW).attr("height",wH);
-			    	console.log("resizing");
+			    	//console.log("resizing");
 			    	centerNode(currentNode);	
 				});
 			}
@@ -1029,7 +1036,7 @@ function zoom_step(listener, where) {
     }
     scale = scale + step_scale;
 
-    rootSvg = d3.select("#collapsible-network-diagramsvgContainer");
+    rootSvg = d3.select("#"+thiscontainerID+"svgContainer");
     //listener.translate([traparsed[2],traparsed[3]]).scale(scale);
     listener.scale(scale);
     //listener.event(rootSvg.transition().duration(500)); /* transition does not always happen */

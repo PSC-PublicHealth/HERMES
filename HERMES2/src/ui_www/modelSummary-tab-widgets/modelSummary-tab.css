@@ -1,0 +1,68 @@
+.model-collapse-diagram-div{
+	background:whitesmoke;
+}
+#geographic-diagram{
+	width:100%;
+	height:100%;
+	min-height:500px;
+	min-width:380px;
+}
+.model-summary-tab-inner{
+	padding:0em;
+}
+.model-diagram-title{
+	font-size:14px;
+	font-weight:bold;
+}
+.model-diagram-note{
+	font-size:11px;
+	font-weight:normal;
+	font-style:italics;
+}
+.notification{
+	padding:30px;
+	position:absolute;
+	top:40%;
+	left:40%;
+	background-color:#A0A3A6;
+	color:white;
+	font-weight:bold;
+	opacity:0;
+	z-index:100;
+	display:none;
+}
+.action-underline{
+    border-bottom: 1px dashed;
+}
+a.model-operation-item:hover{
+    text-decoration: none;
+    /* border-bottom: none; */
+    border-bottom: thin solid;
+}
+#loading-notify{
+	display:inline;
+	opacity:0.0;
+	position:absolute;
+	padding:20px;
+	top: 55%;
+	left: 32%;
+	background:grey;
+	font-weight:bold;
+	color:white;
+}
+
+#note-update-notify{
+	display:inline;
+	#opacity:0.0;
+	position:absolute;
+	padding:20px;
+	top: 50%;
+	left: 36%;
+	background:grey;
+	font-weight:bold;
+	color:white;
+}
+#model_dialog_note_edit{
+	width:100%;
+	height:500px;
+}

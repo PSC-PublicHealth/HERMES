@@ -745,7 +745,7 @@ def renderBasicEditableFields(storeOrRoute, groupClassName, EditableFields):
     modelId, itemId = getIds(storeOrRoute)
 
     ret = []
-    ret.append('<div class="%s" title="this is a tool tip">'%groupClassName)
+    ret.append('<div class="%s">'%groupClassName) #title="this is a tool tip"
     EditableFields = listify(EditableFields)
     for f in EditableFields:
         ret.append('<table><tr><td>%s: </td><td><div class="edit_%s">'%(f.fieldName, groupClassName))
@@ -956,7 +956,45 @@ def updateCategory(inputId, model, origStr, newStr):
     store.CATEGORY = newStr.strip()
     return store.CATEGORY
 
+def renderStoreFunction(store):
+#    userInput = getUserInput(store.model)
+#     levels = set(categoryLevelList(store.model, userInput))
+#     centralLevels = set(centralLevelCategories(store.model, userInput))
+#     
+#     levels = levels - centralLevels
+# 
+#     if store.CATEGORY in centralLevels:
+#         opts = list(centralLevels)
+#     elif store.CATEGORY in levels:
+#         opts = list(levels)
+#     else:
+#         print "store %d in model %d has invalid category %s"%(store.idcode, store.modelId, store.CATEGORY)
+#         levels.add(store.CATEGORY)
+#         opts = list(levels)
+    
+    opts = ["Distribution","Administration","Outreach"]
+    return renderBasicEditableField(store, 'storeFunction', _('Function'), store.FUNCTION, 
+                                    pullDownOpts = opts)
 
+def updateFunction(inputId, model, origStr, newStr):
+    modelId, itemId, field = inputIdTriple(inputId)
+    store = getStoreFromItemId(model, itemId)
+    
+    userInput = getUserInput(model)
+    #levels = set(categoryLevelList(model, userInput))
+    #centralLevels = set(centralLevelCategories(model, userInput))
+    #levels = levels - centralLevels
+
+#     if origStr in centralLevels:
+#         if newStr not in centralLevels:
+#             raise InvalidUpdate(_("Central stores can't change categories."))
+# 
+#     else:
+#         if newStr not in levels:
+#             raise InvalidUpdate(_("Attempting to change to an invalid category"))
+
+    store.FUNCTION = newStr.strip()
+    return store.FUNCTION
 def renderStoreLatLon(store):
     fields = [EditableFieldInfo('storeLatitude', _('Latitude'), store.Latitude, size=10),
               EditableFieldInfo('storeLongitude', _('Longitude'), store.Longitude, size=10)]
@@ -1336,6 +1374,7 @@ def renderStoreData(store):
     ret.append('<div class="store-edits-border">')
     ret.extend(renderStoreName(store))
     ret.extend(renderStoreCategory(store))
+    ret.extend(renderStoreFunction(store))
     ret.extend(renderStoreLatLon(store))
     ret.extend(renderStoreUseVials(store))
     ret.extend(renderStoreDeviceUtilizationRate(store))
@@ -1442,6 +1481,7 @@ def updateRouteTruckType(inputId, model, origStr, newStr):
 def routePerDiemWidgetOpts(route):
     opts = {'widget': 'typeSelector',
             'label': '',
+            'showDisplayName':True,
             'invtype': 'perdiems',
             'modelId': route.model.modelId,
             'selected': route.PerDiemType
@@ -1453,9 +1493,9 @@ def renderRoutePerDiemType(route):
     opts = routePerDiemWidgetOpts(route)
 
     displayValue = ''
+    print route.PerDiemType
     if route.PerDiemType in route.model.perdiems:
         displayValue = route.model.perdiems[route.PerDiemType].getDisplayName()
-
     return renderBasicEditableField(route, 'routePerDiemType', _('per diem rule'),
                                     route.PerDiemType,
                                     widgetOpts=opts,
@@ -1562,12 +1602,20 @@ def updateRouteType(inputId, model, origStr, newStr):
             
     return True
 
-def renderRouteTimings(route):
-    fields = [EditableFieldInfo('routeInterval', _('shipping interval(days)'),
-                                route.ShipIntervalDays, size=8),
-              EditableFieldInfo('routeLatency', _('latency(days)'),
-                                route.ShipLatencyDays, size=8)]
-    return renderBasicEditableFields(route, 'routeTimings', fields)
+#def renderRouteTimings(route):
+#    fields = [EditableFieldInfo('routeInterval', _('shipping interval(days)'),
+#                                route.ShipIntervalDays, size=8),
+#              EditableFieldInfo('routeLatency', _('latency(days)'),
+#                                route.ShipLatencyDays, size=8)]
+#    return renderBasicEditableFields(route, 'routeTimings', fields)
+
+def renderRouteInterval(route):
+    return renderBasicEditableField(route, 'routeInterval', _('shipping interval(days)'),
+                                    route.ShipIntervalDays)
+
+def renderRouteLatency(route):
+    return renderBasicEditableField(route, 'routeLatency', _('latency(days)'),
+                                    route.ShipLatencyDays)
 
 def renderRouteConditions(route):
     return renderBasicEditableField(route, 'routeConditions', _('conditions'), route.Conditions)
@@ -1602,7 +1650,7 @@ def renderRouteDistances(route):
         nextName = stop.nextStop(loopOk=True).store.NAME
         etl.addTuple(EditableTuple(stop.DistanceKM,
                                    getItemId(stop),
-                                   _('distance to %s(km)').format(nextName)))
+                                   _('distance to {0}(km)').format(nextName)))
     return renderBasicTupleList(route,
                                 'routeDistances',
                                 EditableFieldInfo('routeDistances',
@@ -1683,11 +1731,13 @@ def renderRouteData(route):
     ret.extend(renderRouteName(route))
     ret.extend(renderRouteType(route))
     ret.extend(renderRouteTruckType(route))
-    ret.extend(renderRouteTimings(route))
+    ret.extend(renderRouteInterval(route))
+    ret.extend(renderRouteLatency(route))
     ret.extend(renderRouteTransitHours(route))
     ret.extend(renderRouteDistances(route))
     ret.extend(renderRouteOrderAmount(route))
-    ret.extend(renderRouteConditions(route))
+    # since route conditions aren't supported in the gui don't show them
+    # ret.extend(renderRouteConditions(route))
     ret.extend(renderRoutePerDiemType(route))
     ret.append('</div>')
     return ret
@@ -1809,6 +1859,7 @@ def jsonModelRoutes(db, uiSession, modelId):
 
     (tree, nodeType, nodeId) = TupleFromNodeId(nodeId)
 
+    print "NODE ID = {0},{1},{2}".format(tree,nodeType,nodeId)
     with selectTree(tree):
         with ULCM():
             modelId = int(modelId)
@@ -1874,6 +1925,7 @@ def jsonModelRoutes(db, uiSession, modelId):
 # (or throw an invalid update exception)
 updateFn = {
     'storeCategory' : updateCategory,
+    'storeFunction' : updateFunction,
     'storeLatitude' : updateFloat,
     'storeLongitude' : updateFloat,
     'storeUseVialsInterval' : updateFloat,
@@ -2270,6 +2322,7 @@ class DetachStore:
                 
     
 def addStoreAsClient(store, supStore, hintRoute=None):
+    #print "I am supposed to be here"
     if hintRoute is not None:
         if isinstance(hintRoute, shd.ShdRoute):
             recs = hintRoute.createRecords()
@@ -2330,6 +2383,7 @@ def moveStoreToRoute(store, route, srcTree, dstTree, dstParentNode, dstStatus):
         if store is supStore:
             raise InvalidUpdate(_("It is not allowed to move a store to one of its clients"))
 
+    #print "Route Here = {0}".format(route)
     if store.supplierRoute() is route:
         return reorderStops(store, None, srcTree, dstTree, dstParentNode, dstStatus)
 
@@ -2378,6 +2432,8 @@ def reorderStops(store, dstStore, srcTree, dstTree, dstParentNode, dstStatus):
     """
     route = store.supplierRoute()
 
+    #print "Store! = {0}".format(store.NAME)
+    #print "DSTStore = {0}".format(dstStore.NAME)
     #
     #BUG we do not support interface interactions with visiting the same store twice
     # on a route
@@ -2386,6 +2442,7 @@ def reorderStops(store, dstStore, srcTree, dstTree, dstParentNode, dstStatus):
     with selectTree(dstTree):
         ULCM.addUpdate(packNodeId(store), 'X', 'remove')
 
+    
     route.unlinkRoute()
 
     # remove the parent stop from this
@@ -2450,9 +2507,10 @@ def moveStoreToStore(store, dstStore, srcTree, dstTree, dstParentNode, dstStatus
 
     # see which type of move this is.  
     # if src and dst share the same parent route then we're just reordering the route
-    if store.supplierRoute() is dstStore.supplierRoute():
-        #print "suppliers are same"
-        return reorderStops(store, dstStore, srcTree, dstTree, dstParentNode, dstStatus)
+    if dstStore.supplierRoute():
+        if store.supplierRoute() is dstStore.supplierRoute():
+            #print "suppliers are same"
+            return reorderStops(store, dstStore, srcTree, dstTree, dstParentNode, dstStatus)
 
     #
     # next actually make the move
@@ -2816,14 +2874,25 @@ def rseUpdateUtilization(store, field, category, unique, action, value, secondar
 def rseDispCosts(store, field, category, unique):
     global currentTree
     divId = 'rse_content_%s'%unique
+    print store.idcode
     ret = []
     ret.append('<p>' + _('Set cost information:'))
-    ret.append('<div class="rse_cost_set_input" id="rseInput_set_%s">'%unique)
-    ret.append('<input type="text" class="rse_cost1_set_input" id="rseInput_set_cost_%s" />'%unique)
-    ret.append('<div id="rseInput_set_costcur_%s" class="hrm_widget_become_currencySelector"></div>' % unique)
-    ret.append('<input type="text" class="rse_cost3_set_input" id="rseInput_set_costyear_%s" />'%unique)
-    ret.append('</div>\n')
-    ret.append('<button type="button" class="rse_cost_set_button" onclick="updateRSECostValue(%s,%s,\'%s\',\'set\');">%s</button>'%(unique, store.idcode, currentTree, _('Ok')))
+    ret.append('<div class="hrm_widget_become_cost_field" id="rse_set_cost_{0}"></div>'.format(unique))
+    ret.append('<div><button type="button" class="rse_cost_set_button" onclick="updateRSECostValue({0},{1},\'{2}\',\'set\');">{3}</button></div>'.format(unique, store.idcode, currentTree, _('Save Costs')))
+#     ret.append('<div class="rse_cost_set_input" id="rseInput_set_%s">'%unique)
+#     ret.append('<div>')
+#     ret.append('<label for="rseInput_set_cost_%s">Value</label>'%unique)
+#     ret.append('<input type="text" class="rse_cost1_set_input" id="rseInput_set_cost_%s" />'%unique)
+#     ret.append('</div>')
+#     ret.append('<div>')
+#     ret.append('<div id="rseInput_set_costcur_%s" class="hrm_widget_become_currencySelector"></div>' % unique)
+#     ret.append('</div>')
+#     ret.append('<div>')
+#     ret.append('<input type="text" class="rse_cost3_set_input" id="rseInput_set_costyear_%s" />'%unique)
+#     ret.append('</div>\n')
+#     ret.append('<div>')
+#     ret.append('<button type="button" class="rse_cost_set_button" onclick="updateRSECostValue(%s,%s,\'%s\',\'set\');">%s</button>'%(unique, store.idcode, currentTree, _('Ok')))
+#     ret.append('</div>')
     ret.append('</p>')
     ret = string.join(ret, '\n')
     ULCM.addUpdate(divId, ret, 'html')
@@ -3176,11 +3245,13 @@ def jsonRecursiveStoreEditCreate(db, uiSession):
 
             ret = []
 
-            ret.append('<div id="store_edit_wgt_%s">')
+            ret.append('<div id="store_edit_wgt_%d">'%unique)
             ret.append('<p>%s</p>'%_('Modify Stores Supplied by {0}').format(store.NAME))
             ret.extend(rseRenderAffectedCategories(unique, store, clients))
             ret.extend(rseRenderAvailableFields(unique, store))
             ret.append('<div id="rse_content_%d"></div>'%unique)
+            ret.append('<br />')
+            ret.append('<div id="rse_tail_%d"></div>'%unique)
             ret.append('</div>')
 
             return { 'success' : True,
@@ -3190,7 +3261,7 @@ def jsonRecursiveStoreEditCreate(db, uiSession):
         print 'Exception: %s'%e
         traceback.print_exc()
         return { 'success' : False,
-                 'msg' : 'screwed up somewhere' }
+                 'msg' : 'failed to create recursive store editor' }
 
 @bottle.route('/json/meUpdateRSEDialog')
 def jsonUpdateRSEDialog(db, uiSession):
@@ -3265,6 +3336,14 @@ def jsonUpdateRSEValue(db, uiSession):
 
                 # as long as we're mostly ok, we still want to print this
                 dispFn(store, field, category, unique)
+
+                divId = 'rse_tail_%d'%int(unique)
+                if errorString is None:
+                    upd = '<p>%s</p>'%_('successfully updated {0}').format(field)
+                else:
+                    upd = '<p>%s</p>'%_('failed to update {0}').format(field)
+                ULCM.addUpdate(divId, upd, 'html')
+                    
 
                 ret = { 'success' : success,
                         'updateList' : ULCM.updateList() }

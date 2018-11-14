@@ -132,7 +132,7 @@ function buildPage(modelId) {
 		], //define column names
 		colModel:[
 		          {name:'id', jsonmap:'id', index:'id', key:true},
-		          {name:'name', jsonmap:'name', index:'name', key:true},
+		          {name:'name', jsonmap:'name', index:'name'},
 		          {name:'level', jsonmap:'level', index:'level'},
 		          {name:'cost', jsonmap:'cost', index:'cost', jsonmapwidth:100, align:'center',
 	        		  formatter:'currency', formatoptions:{defaultValue:''},
@@ -214,8 +214,11 @@ function buildPage(modelId) {
 					event.stopPropagation();
 				},
 				onEdit:function(event){
+					
 					var id = unescape($(this).parent().attr("id"));
+					console.log("id = "+ id);
 					var storeName = $("#store_cost_grid").jqGrid('getCell',id,"name");
+					console.log("storeName = " + storeName);
 					$("#store_cost_grid").jqGrid('editGridRow',id,{
 						closeAfterEdit:false,
 						bSubmit: "Save",

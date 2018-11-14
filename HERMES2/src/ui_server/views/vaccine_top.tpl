@@ -22,7 +22,7 @@
 %    ['trucks',   _('Transport'),       'truck-top'],
 %    ['fridges',  _('Storage'),         'fridge-top'],
 %    ['people',   _('Population'),      'people-top'],
-%    ['perdiems', _('PerDiems'),        'perdiem-top'],
+%    ['perdiems', _('Per Diems'),        'perdiem-top'],
 %    ['staff',    _('Staff'),           'staff-top'],
 % ]
 
@@ -170,6 +170,7 @@ function boxClick(cb,event) {
 function vaccineInfoButtonFormatter(cellvalue, options, rowObject)
 {
     // cellvalue will be the name string
+    //return "<div class='hermes_info_button' id='"+cellvalue+"'></div>";
 	return "<button type=\"button\" class=\"hermes_info_button\" id="+escape(cellvalue)+">Info</button>";
 };
 
@@ -289,6 +290,13 @@ $("#manage_vaccine_grid").jqGrid({ //set your grid id
 	      },
 
           gridComplete: function(){
+        	  
+//        	$(".hermes_info_button").hrmWidget({
+//        		widget: 'typeInfoButtonAndDialog',
+//        		typeClass: 'vaccines',
+//        		typeId: $(this).attr('id'),
+//        		modelId: $("#vaccine_top_model_select").val()
+//        	});
 		    $(".hermes_info_button").click(function(event) {
 			  $.getJSON('{{rootPath}}json/vaccine-info',{name:unescape($(this).attr('id')), 
 				modelId:$("#vaccine_top_model_select").val()})

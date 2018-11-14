@@ -40,7 +40,7 @@ import vaccinetypes
 import fridgetypes
 import packagingmodel
 import storagemodel
-from util import StatVal, AccumVal, TimeStampAccumVal, PushbackIterWrapper, AccumMultiVal, HistoVal
+from util import StatVal, AccumVal, ContinuousTimeStampAccumVal,SpanTimeStampAccumVal, PushbackIterWrapper, AccumMultiVal, HistoVal
 import trucktypes
 import constants as C
 import eventlog as evl
@@ -1215,8 +1215,10 @@ def share3_allocateOwnerStorageSpace(canOwn,stockBuf):
         if sb.storageType==canOwn.sim.storage.roomtempStorage():
             #SILLY_CHECK_FOR_OUTDOORS
             if sb.volAvail == 1000000000000:
+                #print "appending Outdoors"
                 outdoorBlocks.append(sb)
             else:
+                #print "appending Warm Block {0}".format(sb)
                 warmBlocks.append(sb)
         elif sb.storageType==canOwn.sim.storage.frozenStorage():
             freezeBlocks.append(sb)
@@ -1405,7 +1407,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
                  popServedPC,
                  func=None, category=None, name=None, recorder=None, breakageModel=None,
                  packagingModel=None, storageModel=None, conditions=None,longitude=0.0,
-                 latitude=0.0, origCapacityInfoOrInventory=None):
+                 latitude=0.0, origCapacityInfoOrInventory=None,bufferStockFraction=0.25):
         """
         sim is the HermesSim instance in which the warehouse is created.
         capacityInfoOrInventory is:
@@ -1466,6 +1468,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
         self.origCapacityInfoOrInventory= origCapacityInfoOrInventory
         self.buildFinished= False
         self.storageIntervalDict = {}
+        self.bufferStockFraction = bufferStockFraction
 
         #Create a list of weak references to Warehouse objects
         sim.warehouseWeakRefs.append( weakref.ref(self) )
@@ -1581,7 +1584,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
         """
         self._popServedPC= popServedPC.copy()
     def __repr__(self):
-        return "<Warehouse(%s)>"%self.name
+        return u"<Warehouse({0})>".format(self.name)
     def __str__(self): return self.__repr__()
     def maybeRecordVialCount(self):
         if not self.recorder is None:
@@ -1727,7 +1730,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
             ## NOTE: This will not accurately record the storage ratio for mobile devices
             for st in storeRat.keys():
                 if 'vol_used' not in st:
-                    self.noteHolder.addNote({st+"_timestamp":TimeStampAccumVal(storeRat[st],self.sim.now())})             
+                    self.noteHolder.addNote({st+"_timestamp":ContinuousTimeStampAccumVal(storeRat[st],self.sim.now())})             
 
             if not hasattr(self, "storeRatioNotesKeys"):
                 nameList = copy.copy(storagetypes.storageTypeNames)
@@ -1779,7 +1782,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
             ## NOTE: This will not accurately record the storage ratio for mobile devices
             for st in storeRat.keys():
                 if 'vol_used' not in st:
-                    self.noteHolder.addNote({st+"_timestamp":TimeStampAccumVal(storeRat[st],self.sim.now())})                
+                    self.noteHolder.addNote({st+"_timestamp":ContinuousTimeStampAccumVal(storeRat[st],self.sim.now())})                
             if not hasattr(self, "storeRatioNotesKeys"):
                 nameList = copy.copy(storagetypes.storageTypeNames)
                 nameList.append('time')
@@ -1865,7 +1868,9 @@ class Warehouse(Store, abstractbaseclasses.Place):
                 break
     def setLowThresholdAndGetEvent(self,typeInfo,thresh):
         self.fromAboveThresholdDict[typeInfo]= thresh
+        print "Thresh = {0}".format(thresh)
         if self.lowEvent is None:
+            print "Setting low Event"
             self.lowEvent= SimEvent("Low event from %s"%self.name,sim=self.sim)
         return self.lowEvent
     def setHighThresholdAndGetEvent(self,typeInfo,thresh):
@@ -1919,7 +1924,7 @@ class Warehouse(Store, abstractbaseclasses.Place):
         self._instantaneousDemandVC= instantaneousDemandVC*self.sim.vaccines.getVialsToDosesVC()
         self._instantaneousDemandInterval= interval
 
-    def getProjectedDemandVC(self,interval,recurLevel=0):
+    def getProjectedDemandVCOrg(self,interval,recurLevel=0):
         """
         This routine provides a (rather expensive) way to propagate demand
         figures up the distribution tree immediately, as if all the warehouses
@@ -1963,6 +1968,73 @@ class Warehouse(Store, abstractbaseclasses.Place):
             delta= w.getProjectedDemandVC((bestPrev,bestNext),recurLevel=recurLevel+1)
             #print "    %s--> %s"%("    "*recurLevel,delta)
             resultVC += delta
+        #print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
+        return resultVC
+
+    def getProjectedDemandVC(self,interval,recurLevel=0):
+        """
+        This routine provides a (rather expensive) way to propagate demand
+        figures up the distribution tree immediately, as if all the warehouses
+        had called each other on the phone to total things up. This routine
+        recurses through the distribution network, totaling all the demand
+        levels registered by downstream clients.  Beware diamond- shaped
+        distribution graphs; demand can be double-counted!  By convention the
+        result is in vials, not doses.
+        
+        interval should be a tuple, (timeStart, timeEnd).
+        """
+        tStart,tEnd= interval
+        #print "sh %s%s %s %s:"%("    "*recurLevel,self.bName,tStart,tEnd)
+        resultVC = self.sim.shippables.getCollection()
+        clientDict= dict([(w.code,(w,[])) for w in self.getClients()])      
+        #print clientDict          
+        for rDict in self.getClientRoutes():
+            print rDict
+            interval= rDict['interval']
+            latency=  rDict['latency']
+            for c in rDict['clientIds']:
+                w,routeTupleList= clientDict[c]
+                routeTupleList.append((interval,latency))
+        nonMan = 0
+        for code,valTuple in clientDict.items():
+            w,routeList= valTuple
+            bestPrev= None
+            bestNext= None
+            #print "RL = {0}".format(routeList)
+            mdelta = self.sim.shippables.getCollection()
+            for interval,latency in routeList:
+                if isinstance(interval,list):
+                    
+                    if len(interval) > 0 and len(mdelta) == 0:
+                        for v in interval[0][1].keys():
+                            mdelta[v] = 0.0
+                    for startI,amount in interval:
+                        if startI >= tStart and startI <= tEnd:
+                            for v,n in amount.items():
+                                vacc = self.sim.vaccines.getTypeByName(v)
+                                mdelta[vacc] += n
+                else:
+                    nonMan+=1
+                    if interval is None: # denoting an attached clinic
+                        prevTime= tStart
+                        nextTime= tEnd
+                    else:
+                        prevCycle= max(math.ceil((tStart-latency)/interval),0)
+                        nextCycle= max(math.floor((tEnd-latency)/interval)+1,1)
+                        if nextCycle == prevCycle: nextCycle += 1
+                        prevTime= prevCycle*interval+latency
+                        nextTime= nextCycle*interval+latency
+                    if bestPrev is None: bestPrev= prevTime
+                    else: bestPrev= max(bestPrev,prevTime)
+                    if bestNext is None: bestNext= nextTime
+                    else: bestNext= min(bestNext,nextTime)
+                #print "    %s%s: %s %s"%("   "*recurLevel,w.bName,bestPrev,bestNext)
+                if nonMan > 0:
+                    delta= w.getProjectedDemandVC((bestPrev,bestNext),recurLevel=recurLevel+1)
+                    
+                    resultVC += delta
+            #print "    %s--> %s"%("    "*recurLevel,delta)
+            resultVC += mdelta
         #print "%s%s --> %s:"%("    "*recurLevel,self.bName,resultVC)
         return resultVC
     
@@ -2282,7 +2354,8 @@ class Clinic(Warehouse):
                  demandModel=None,packagingModel=None,storageModel=None,
                  longitude=0.0,latitude=0.0,
                  useVialsLatency=None, useVialsTickInterval=None,
-                 origCapacityInfoOrInventory=None):
+                 origCapacityInfoOrInventory=None,
+                 bufferStockFraction=0.25):
         """
         A Clinic is a location that treats patients.  It does not ship out, so only AttachedClinics
         can be the children of Clinics.  In addition to the parameters to the constructor of
@@ -2305,7 +2378,8 @@ class Clinic(Warehouse):
                            name=name,recorder=recorder, breakageModel=breakageModel,
                            packagingModel=packagingModel, storageModel=storageModel,
                            longitude=longitude, latitude=latitude,
-                           origCapacityInfoOrInventory=origCapacityInfoOrInventory)
+                           origCapacityInfoOrInventory=origCapacityInfoOrInventory,
+                           bufferStockFraction=bufferStockFraction)
         self.leftoverDoses= HDict()
         self._accumulatedUsageVC= self.sim.shippables.getCollection()
         self._instantUsageVC = self.sim.shippables.getCollection()
@@ -2492,7 +2566,8 @@ abstractbaseclasses.Place.register(Clinic) # @UndefinedVariable
 class AttachedClinic(Clinic):
     def __init__(self,sim,owningWH,
                  popServedPC,name=None,recorder=None,breakageModel=None,
-                 demandModel=None, useVialsLatency = None, useVialsTickInterval = None):
+                 demandModel=None, useVialsLatency = None, useVialsTickInterval = None,
+                 bufferStockFraction=0.25):
         """
         This is meant to represent a clinic which is closely
         associated with a warehouse, and uses that warehouse's stores
@@ -2523,7 +2598,8 @@ class AttachedClinic(Clinic):
                         storageModel=storagemodel.DummyStorageModel(),
                         longitude=0.0,
                         latitude=0.0,useVialsLatency=useVialsLatency,
-                        useVialsTickInterval=useVialsTickInterval)
+                        useVialsTickInterval=useVialsTickInterval,
+                        bufferStockFraction=bufferStockFraction)
         if owningWH is not None:
             self.addSupplier(owningWH,{'Type':'attached'})
             owningWH.addClient(self)
@@ -2845,1640 +2921,7 @@ class Factory(Process, abstractbaseclasses.UnicodeSupport):
 
 abstractbaseclasses.Place.register(Factory) # @UndefinedVariable
 
-def createTravelGenerator(name, stepList, truckType, delayInfo, proc, 
-                          totalVC=None, truck=None, scaleVC=None, legStartTime=None, fractionGotVC=None,
-                          tripJournal=None, legConditions=None, tripID=None, pendingCostEvents=None):
-    """
-    This function returns a generator, successive steps of which carry a shipment 
-    along a programmed route.  name is a name for the generator, stepList is the
-    series of successive actions (see below), truckType is the truck type to be used,
-    delayInfo is the delay information (which may be None), and proc is the calling
-    process.  The defaulted parameters totalVC, truck, scaleVC, legStartTime,
-    fractionGotVC and tripJoural are used to continue an existing trip and should not 
-    generally be used by outside callers.
-    
-    stepList is a list of the form [(stepname,paramTuple),(stepname,paramTuple),...]
-    where the valid stepnames and the forms of their associated parameters are:
-    
-        'gettruck'            (truckSupplierWH,)
-        'loadexistingtruck'   (supplierWH, packagingModel, storageModel, totalVC)  totalVC is sum of all requested deliveries
-        'load'                (supplierWH, packagingModel, storageModel, totalVC)  this one includes acquiring the truck
-        'move'                (transitTime, fromWH, toWH, conditionsString)
-        'deliver'             (wh, requestVC, timeToNextShipment)  note that requestVC will be scaled automatically
-        'alldeliver'          (wh, requestVC, timeToNextShipment)  requestVC ignored; delivers everything left
-        'askanddeliver'       (wh, requestVC, timeToNextShipment)  requestVC ignored; checks quantity before delivery
-        'markanddeliver'      (wh, requestVC, timeToNextShipment)  like 'deliver' but marks for recycling
-        'allmarkanddeliver'   (wh, requestVC, timeToNextShipment)  like 'alldeliver' but marks for recycling
-        'recycle'             (wh, packagingModel, storageModel) pick up recycling
-        'unload'              (wh,)            drop off leftovers and recycling
-        'finish'              (endingWH, costOwnerWH) 
-        
-    stepList must start with either gettruck or load, and end with finish.  The location should
-    be the same at the start and end, as the truck will be acquired from that location at the
-    start and put to that location at the end.
-    
-    As it is executed, the travel generator appends tuples to the tripJournal, which presumably starts the
-    trip empty.  Tuples have the format (stepname, legStartTime, legEndTime, legConditions...) where the
-    stepname corresponds to one of the strings above.  legConditions==None is equivalent to legConditions=='normal'.
-    Depending on the stepname additional tuple entries may be present, as follows:
-        
-        ('gettruck',legStartTime,legEndTime,legConditions,truckSupplierW,miscCosts)
-        ('loadexistingtruck',legStartTime,legEndTime,legConditions,supplierW,litersLoaded,miscCosts)
-        ('load',legStartTime,legEndTime,legConditions,supplierW,litersLoaded,miscCosts)
-        ("move",legStartTime,legEndTime,legConditions,fromW,toW,volCarriedOnRouteL,miscCosts)
-        (op,legStartTime,legEndTime,legConditions,supplierW,leftVolumeLiter,miscCosts)
-          where op is ['deliver','alldeliver','askanddeliver','markanddeliver','allmarkanddeliver']
-        ('recycle',legStartTime,legEndTime,legConditions,miscCosts)
-        ('unload',legStartTime,legEndTime,legConditions,thisW,totVolLiters,miscCosts)
-        ("finish",legStartTime,legEndTime,legConditions,endingW,miscCosts)
-        
-    """
-    #bName = name.encode('utf8')
-    bName = name
-    RECYCLE_TAG= abstractbaseclasses.Shippable.RECYCLE_TAG # for brevity
-    deliveryStepNamesSet= set(['deliver','alldeliver','askanddeliver','markanddeliver','allmarkanddeliver'])
-    if tripJournal is None: 
-        tripJournal = []
-        leftHome= False
-    else:
-        leftHome= True
-    if tripID is None:
-        tripID = proc.sim.getUniqueNum()
-    finished = False
-    #segmentFill = []
-    if pendingCostEvents is None:
-        pendingCostEvents = []
-    try:
-        for op,paramTuple in stepList:
-            #
-            #  Gettruck operation:
-            #    params: ( truckSupplierW, )
-            #    steps:
-            #      get the truck 
-            #      legStartTime = now
-            #      write start-of-trip notes
-            #
-            #
-            if op == 'gettruck':
-                truckSupplierW,  = paramTuple
-                assert legStartTime is None, "Internal error: gettruck is not the first step in a loop"
-                legStartTime = proc.sim.now()
-                logDebug(proc.sim,"%s: ----- acquiring truck at %s at %g"%(bName,truckSupplierW.bName,proc.sim.now()))
-                yield get,proc,truckSupplierW.getStore(), \
-                   curry.curry(fillTruckOrderByTypeFilter,truckType), \
-                   proc.shipPriority
-                assert len(proc.got)==1
-                truck= proc.got[0]
-                truck.maybeTrack('acquired by %s'%name)
-                truck.noteHolder= proc.noteHolder
-                legEndTime= proc.sim.now()
-                tripJournal.append(('gettruck',legStartTime,legEndTime,'normal',truckSupplierW,pendingCostEvents))
-                pendingCostEvents = []
-                logDebug(proc.sim,"%s: ----- truck acquired at %s at %g"%(bName,truckSupplierW.bName,proc.sim.now()))                    
 
-            #
-            #  Loadexistingtruck operation: used when a truck is loaded on other than the first stop
-            #    params: ( supplierW, truckPackagingModel, truckStorageModel, totalVC )
-            #    steps:
-            #      calculate truck volume scaling; yields loadFac, scaleVC; scales totalVC
-            #      get from the store
-            #      apply breakage in storage
-            #      legStartTime = now
-            #      calculate fractionGot
-            #      write start-of-trip notes
-            #      applyBreakageInStorage 
-            #
-            #
-            elif op == 'loadexistingtruck':
-                legStartTime = proc.sim.now()
-                supplierW, truckPackagingModel, truckStorageModel, totalVC = paramTuple
-                totalVC = totalVC.copy() # preserve the parameter tuple
-                truck.setPackagingModel(truckPackagingModel)
-                truck.setStorageModel(truckStorageModel)
-                # Check against space in truck
-                logDebug(proc.sim,"%s: ----- ready to load %s at %s at %g"%(bName,truck.bName,supplierW.bName,proc.sim.now()))
-                stats,scaleVC,totVolCC= truckType.checkStorageCapacity(totalVC, truckPackagingModel, truckStorageModel)
-                logDebug(proc.sim,"%s: %s has %s"%(bName,supplierW.bName,supplierW.getSupplySummary()))
-                logDebug(proc.sim,"%s: requesting %s"%(bName,totalVC))
-                logDebug(proc.sim,"%s: yields scaleVC %s"%(bName,scaleVC))
-                proc.sim.evL.log(proc.sim.now(),evl.EVT_REQUEST,totalVC,supplier=supplierW.bName,tripID=tripID,
-                                 route=proc.bName)
-                totalVC *= scaleVC
-                totalVC.roundDown()
-                logVerbose(proc.sim,"%s: requesting %s after truck volume scaling"%(bName,totalVC))
-                proc.sim.evL.log(proc.sim.now(),evl.EVT_SCALEDREQUEST,totalVC,supplier=supplierW.bName,
-                                 tripID=tripID,route=proc.bName)
-                yield (get,proc,supplierW.getStore(),
-                       curry.curry(fillThisOrderGroupFilter,totalVC), 
-                       proc.shipPriority),(hold,proc,proc.orderPendingLifetime)
-                if proc.acquired(supplierW.getStore()):
-                    gotThese= proc.got[:] # shallow copy
-                    
-                    for g in gotThese:
-                        if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
-                        g.getAge() # to force an age update for the group
-                        g.detach(proc)
-                    gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
-                    fractionGotVC= gotTheseVC/totalVC
-    
-                    if proc.noteHolder is not None:
-                        nActualVaccines= sum([g.getCount() for g in gotThese if isinstance(g.getType(),vaccinetypes.VaccineType)])
-                        if nActualVaccines>0: 
-                            for stat,val in stats.items():
-                                proc.noteHolder.addNote({stat:StatVal(val)})
-                            proc.noteHolder.addNote({"Route_L_vol_used_time":AccumVal(totVolCC/C.ccPerLiter)})                        
-                            if truck.truckType.origStorageCapacityInfo is not None:
-                                storageSC = proc.sim.fridges.getTotalVolumeSCFromFridgeTypeList(truck.truckType.origStorageCapacityInfo)
-                                truckVolL = proc.sim.storage.getTotalRefrigeratedVol(storageSC)
-                                if totVolCC > truckVolL:
-                                    proc.noteHolder.addNote({'gap_route_trip_over':1.0})
-                                #segmentFill.append(loadFac)
-                        else:
-                            proc.noteHolder.addNote({"RouteFill":StatVal(0.0),
-                                                     "Route_L_vol_used_time":AccumVal(0.0)})
-                            #segmentFill.append(0.0)
-                    logDebug(proc.sim,"%s: ----- loaded at %s at %g"%(bName,supplierW.bName,proc.sim.now()))
-                    logDebug(proc.sim,"%s: got %s total at %s"%(bName,gotTheseVC,proc.sim.now()))                                                        
-                    proc.sim.evL.log(proc.sim.now(),evl.EVT_PICKUP,gotTheseVC,supplier=supplierW.bName,
-                                     tripID=tripID,route=proc.bName)
-                    if supplierW.breakageModel is not None:
-                        gotThese,bL= supplierW.breakageModel.applyBreakageInStorage(supplierW,gotThese)
-                        gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
-                        fractionGotVC= gotTheseVC/totalVC
-                        logDebug(proc.sim,"broken in storage at %s: %s"%(supplierW.bName,proc.sim.shippables.getCollectionFromGroupList(bL)))
-                        if supplierW.getNoteHolder() is not None:
-                            supplierW.getNoteHolder().addNote(dict([(g.getType().name+'_broken',g.getCount())
-                                                                    for g in bL]))
-                        # No need to detach broken vials, because they are currently not attached
-                                                                            
-                    logVerbose(proc.sim,"%s: got %s after breakage in storage (fraction %s) at %g"%(bName,gotTheseVC,fractionGotVC,proc.sim.now()))
-                    if supplierW.getNoteHolder() is not None:
-                        supplierW.getNoteHolder().addNote(dict([(v.name+'_outshipped',n)
-                                                                for v,n in gotTheseVC.items()]))
-                    for g in gotThese: 
-                        g.attach(truck, proc)
-                        g.maybeTrack("shipment")
-                    truck.allocateStorageSpace()
-                    gotThese= truck.getCargo()
-                else:
-                    logVerbose(proc.sim,"%s: no supply available at %f"%(bName,proc.sim.now()))
-                    # Bail- drive home and unload any recycling.
-                    # How can we implement this?  By creating a generator inside this generator, naturally!
-                    innerOp, innerParamTuple= stepList[-1]
-                    assert innerOp == 'finish', "Internal error in operator order in %s"%name
-                    innerEndingW, innerCostOwnerW = innerParamTuple
-                    firstMoveStep= [s for s in stepList if s[0]=='move'][0]
-                    innerOp2, innerParamTuple2 = firstMoveStep
-                    innerTripTime, w1, w2, innerConditions = innerParamTuple2
-                    assert w1==innerEndingW and w2==supplierW, \
-                        "Internal error: can't find move to get home in %s"%name
-                    bailStepList= [('move', (innerTripTime,supplierW,innerEndingW,innerConditions) ),
-                                   ('unload',(innerEndingW,)),
-                                   ('finish',(innerEndingW,innerCostOwnerW))
-                                   ]
-                    bailGenerator= createTravelGenerator(bName, bailStepList, truckType, delayInfo, proc,
-                                                         totalVC=totalVC, fractionGotVC=fractionGotVC,
-                                                         scaleVC=scaleVC, truck=truck, legStartTime=legStartTime,
-                                                         tripJournal=tripJournal, legConditions=legConditions,
-                                                         tripID=tripID,pendingCostEvents=pendingCostEvents)
-                    for val in bailGenerator: yield val
-                    break 
-                                            
-                # Final bookkeeping for this stop
-                legEndTime= proc.sim.now()
-                litersLoaded = sum([(n*v.getSingletonStorageVolume(True)) for v,n in gotTheseVC.items()])/C.ccPerLiter
-                tripJournal.append(('loadexistingtruck',legStartTime,legEndTime,legConditions,supplierW,litersLoaded,pendingCostEvents))
-                pendingCostEvents = []
-                legConditions = None
-                #legStartTime= legEndTime
-                    
-            #
-            #  Load operation: used to load and acquire the truck
-            #    params: ( supplierW, truckPackagingModel, truckStorageModel, totalVC )
-            #    steps:
-            #      calculate truck volume scaling; yields loadFac, scaleVC; scales totalVC
-            #      get from the store
-            #      get the truck 
-            #      apply breakage in storage
-            #      legStartTime = now
-            #      calculate fractionGot
-            #      write start-of-trip notes
-            #      applyBreakageInStorage 
-            #
-            #
-            elif op == 'load':
-                legStartTime = proc.sim.now()
-                supplierW, truckPackagingModel, truckStorageModel, totalVC = paramTuple
-                totalVC = totalVC.copy() # preserve the parameter tuple
-                # Check against space in truck
-                stats,scaleVC,totVolCC= truckType.checkStorageCapacity(totalVC, truckPackagingModel, truckStorageModel)
-                logDebug(proc.sim,"%s: ----- ready to load at %s at %g"%(bName,supplierW.bName,proc.sim.now()))
-                logDebug(proc.sim,"%s: %s has %s"%(bName,supplierW.bName,supplierW.getSupplySummary()))
-                logDebug(proc.sim,"%s: requesting %s"%(bName,totalVC))                                                            
-                logDebug(proc.sim,"%s: yields scaleVC %s"%(bName,scaleVC))
-                proc.sim.evL.log(proc.sim.now(),evl.EVT_REQUEST,totalVC,supplier=supplierW.bName,
-                                 tripID=tripID,route=proc.bName)
-                totalVC *= scaleVC
-                totalVC.roundDown()
-                logVerbose(proc.sim,"%s: requesting %s after truck volume scaling"%(bName,totalVC))
-                proc.sim.evL.log(proc.sim.now(),evl.EVT_SCALEDREQUEST,totalVC,supplier=supplierW.bName,
-                                 tripID=tripID,route=proc.bName)
-                yield (get,proc,supplierW.getStore(),
-                       curry.curry(fillThisOrderGroupFilter,totalVC), 
-                       proc.shipPriority),(hold,proc,proc.orderPendingLifetime)
-                if proc.acquired(supplierW.getStore()):
-                    gotThese= proc.got[:] # shallow copy
-                    
-                    logDebug(proc.sim,"%s: ----- acquiring truck at %s at %g"%(bName,supplierW.bName,proc.sim.now()))
-                    yield get,proc,supplierW.getStore(), \
-                       curry.curry(fillTruckOrderByTypeFilter,truckType), \
-                       proc.shipPriority
-                    assert len(proc.got)==1
-                    truck= proc.got[0]
-                    truck.maybeTrack('acquired by %s'%name)
-                    truck.setPackagingModel(truckPackagingModel)
-                    truck.setStorageModel(truckStorageModel)
-                    truck.noteHolder= proc.noteHolder
-                    legStartTime= proc.sim.now()
-                    logDebug(proc.sim,"%s: ----- truck acquired at %s at %g"%(bName,supplierW.bName,proc.sim.now()))
-                    
-                    for g in gotThese:
-                        if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
-                        g.getAge() # to force a time statistics update for the group
-                        g.detach(proc)
-                    gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
-                    fractionGotVC= gotTheseVC/totalVC
-    
-                    if proc.noteHolder is not None:
-                        nActualVaccines= sum([g.getCount() for g in gotThese if isinstance(g.getType(),vaccinetypes.VaccineType)])
-                        if nActualVaccines>0: 
-                            for stat,val in stats.items():
-                                proc.noteHolder.addNote({stat:StatVal(val)})
-                            proc.noteHolder.addNote({"Route_L_vol_used_time":AccumVal(totVolCC/C.ccPerLiter)})                        
-                            #segmentFill.append(loadFac)
-                        else:
-                            proc.noteHolder.addNote({"RouteFill":StatVal(0.0),
-                                                     "Route_L_vol_used_time":AccumVal(0.0)})
-                            #segmentFill.append(0.0)
-                    logDebug(proc.sim,"%s: ----- loaded at %s at %g"%(bName,supplierW.bName,proc.sim.now()))
-                    logDebug(proc.sim,"%s: got %s total at %s"%(bName,gotTheseVC,proc.sim.now()))
-                                                                            
-                    proc.sim.evL.log(proc.sim.now(),evl.EVT_PICKUP,gotTheseVC,supplier=supplierW.bName,
-                                     tripID=tripID,route=proc.bName)
-                    if supplierW.breakageModel is not None:
-                        gotThese,bL= supplierW.breakageModel.applyBreakageInStorage(supplierW,gotThese)
-                        gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
-                        fractionGotVC= gotTheseVC/totalVC
-                        logDebug(proc.sim,"broken in storage at %s: %s"%(supplierW.bName,proc.sim.shippables.getCollectionFromGroupList(bL)))
-                                                                            
-                        # No need to detach broken vials, because they are currently not attached
-                        if supplierW.getNoteHolder() is not None:
-                            supplierW.getNoteHolder().addNote(dict([(g.getType().name+'_broken',g.getCount())
-                                                                    for g in bL]))
-                    logVerbose(proc.sim,"%s: got %s after breakage in storage (fraction %s) at %g"%(bName,gotTheseVC,fractionGotVC,proc.sim.now()))
-                    for g in gotThese: 
-                        g.attach(truck, proc)
-                        g.maybeTrack("shipment")
-                    truck.allocateStorageSpace()
-                    gotThese= truck.getCargo()
-                    if supplierW.getNoteHolder() is not None:
-                        supplierW.getNoteHolder().addNote(dict([(v.name+'_outshipped',n)
-                                                                for v,n in gotTheseVC.items()]))
-                    
-                else:
-                    logVerbose(proc.sim,"%s: no supply available at %f"%(bName,proc.sim.now()))
-                    break
-                legEndTime= proc.sim.now()
-                ## Compute Volume loaded
-                litersLoaded = sum([n*v.getSingletonStorageVolume(True) for v,n in gotTheseVC.items()])/C.ccPerLiter
-                tripJournal.append(('load',legStartTime,legEndTime,legConditions,supplierW,litersLoaded,pendingCostEvents))
-                pendingCostEvents = []
-                legConditions = None
-                    
-            #
-            #  Move operation:
-            #    params: (triptime, fromW, toW, conditions)
-            #
-            #
-            elif op == 'move':
-                legStartTime = proc.sim.now()  
-                t, fromW, toW, conditions = paramTuple
-                thisTransitTime = t
-                legConditions = conditions
-                # see if our truck is delayed
-                if delayInfo is not None:
-                    delay= delayInfo.getDeliveryDelay()
-                    if delay>0.0:
-                        logDebug(proc.sim,"%s: shipment is delayed en route by %f days"%(bName,delay))
-                        thisTransitTime += delay
-
-                logDebug(proc.sim,"%s moving from %s to %s at %s; transit time will be %s"%(bName,fromW.bName,toW.bName,proc.sim.now(),thisTransitTime))
-
-                # beware: vaccine can expire during this hold!
-                yield hold,proc,thisTransitTime
-
-                # We must reconstruct gotThese, since autonomous events happening in transit may
-                # have split vaccines.
-                gotThese= truck.getCargo()
-                        
-                if fromW.breakageModel is not None:
-                    gotThese,bL= fromW.breakageModel.applyBreakageInTransit(fromW, toW, gotThese)
-                    logDebug(proc.sim,"%s: broken in transit from %s: %s"%(bName,fromW.bName,proc.sim.shippables.getCollectionFromGroupList(bL)))
-                    for g in bL: 
-                        if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
-                        g.detach(proc)
-                gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
-                volCarriedOnRouteL = sum([n*v.getSingletonStorageVolume(False) for v,n in gotTheseVC.getTupleList() if isinstance(v,vaccinetypes.VaccineType)])/C.ccPerLiter
-                #print "Carried " + str(proc.bName) + " " + str(volCarriedOnRouteL)
-                for v,n in gotTheseVC.getTupleList():
-                    if isinstance(v,abstractbaseclasses.ShippableType):
-                        v.recordTransport(n,fromW,toW,thisTransitTime, toW.category, conditions)
-                
-                truckType.recordTransport(fromW,toW,thisTransitTime, toW.category, conditions)
-                
-                if not leftHome:
-                    leftHome = True
-                    if proc.noteHolder is not None:
-                        proc.noteHolder.addNote({"RouteTrips":1})
-                
-                legEndTime = proc.sim.now()
-                tripJournal.append(("move",legStartTime,legEndTime,legConditions,fromW,toW,volCarriedOnRouteL,pendingCostEvents))
-                pendingCostEvents = []
-            
-                
-            #
-            #  deliver, askanddeliver, and alldeliver operation:
-            #    params: (w, vc)
-            #    steps:
-            #      calculate groupsAllocVC
-            #      record info about groupsAllocVC
-            #      if groupsAllocVC > 0:
-            #        get groupsToPut
-            #        if w is a clinic, apply breakage in storage, since UseVials will not.
-            #        put groupsToPut
-            #        update gotThese and gotTheseVC
-            #        make notes about delivery
-            #      legEndTime=now(); add leg to tripJournal; legStartTime=legEndTime
-            #
-            #
-            elif op in deliveryStepNamesSet:
-                legStartTime = proc.sim.now()
-                w, vc, timeToNextShipment= paramTuple
-                vc = vc * scaleVC # effect of truck volume scaling
-                gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
-
-                if op in ['alldeliver','allmarkanddeliver']:
-                    # Last stop- if they will take it, they get everything on the truck.  Some
-                    # may end up at room temperature, but that's no worse than staying on the truck.
-                    tupleList= [(t,gotTheseVC[t]) for t,v in vc.items() 
-                                if v!=0.0 and isinstance(t,vaccinetypes.VaccineType)]
-                    tupleList += [(t,v) for t,v in vc.items() if not isinstance(t,vaccinetypes.VaccineType)]
-                    groupsAllocVC= proc.sim.shippables.getCollection(tupleList)
-                    groupsAllocVC.roundDown()
-                elif op == 'askanddeliver':
-                    groupsAllocVC = vc*fractionGotVC
-                    # we use vc to access the class method here
-                    groupsAllocVC = vc.min(proc.sim.model.getDeliverySize(w, groupsAllocVC, timeToNextShipment, proc.sim.now()),
-                                           groupsAllocVC)
-                    groupsAllocVC.roundDown()
-                else:
-                    groupsAllocVC= vc*fractionGotVC
-                    groupsAllocVC.roundDown()
-                logDebug(proc.sim,"%s: ----- at %s"%(bName,w.bName))
-                logDebug(proc.sim,"%s: gotTheseVC is now %s"%(bName,gotTheseVC))
-                logDebug(proc.sim,"%s: totalVC now %s"%(bName,totalVC))
-                logDebug(proc.sim,"%s: client %s: wants %s; getting %s (frac %s)"%(bName,w.bName,vc,groupsAllocVC,fractionGotVC))     
-                if groupsAllocVC.totalCount()>0:
-                    groupsToPut,gotThese,failTuples= allocateSomeGroups(gotThese,
-                                                                        groupsAllocVC,
-                                                                        proc.sim,
-                                                                        excludeRecycling=True)
-
-                    groupsToPutVC= proc.sim.shippables.getCollectionFromGroupList(groupsToPut)
-                    gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
-                    logDebug(proc.sim,"%s: about to put %s=%s to %s at %g"%(bName,groupsToPutVC,
-                                                                            [g.getUniqueName() for g in groupsToPut],
-                                                                            w.bName,proc.sim.now()))
-                    logDebug(proc.sim,"%s: gotTheseVC is now %s"%(bName,gotTheseVC))                                                                            
-                    proc.sim.evL.log(proc.sim.now(),evl.EVT_DELIVERY,groupsToPutVC,
-                                     supplier=supplierW.bName,client=w.bName, tripID=tripID,
-                                     route=proc.bName)
-
-                    if w.noteHolder is None:
-                        raise RuntimeError("%s unexpectedly has no NoteHolder!"%w.name)
-
-                    if isinstance(w, Clinic) and w.breakageModel is not None:
-                        # We need to pick up in-storage breakage at the clinic
-                        groupsToPut,bL= w.breakageModel.applyBreakageInStorage(w, groupsToPut)
-                        logDebug(proc.sim,"%s: broken in clinic storage at %s: %s"%(bName,w.bName,proc.sim.shippables.getCollectionFromGroupList(bL)))
-                        w.getNoteHolder().addNote(dict([(g.getType().name+'_broken',g.getCount())
-                                                        for g in bL]))
-                        for g in bL: 
-                            if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
-                            g.detach(proc)
-                    
-                    if len(groupsToPut) > 0:
-                        markFlag = ( op in ['markanddeliver', 'allmarkanddeliver'])
-                        for g in groupsToPut:
-                            g.maybeTrack("delivery %s"%w.bName)
-                            if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
-                            g.detach(proc)
-                            g.attach(w, proc)
-                            if markFlag: g.setTag(RECYCLE_TAG)
-                        yield put,proc,w.getStore(),groupsToPut
-                    truck.allocateStorageSpace()
-                    gotThese= truck.getCargo()
-                    if len(groupsToPut) > 0:
-                        logVerbose(proc.sim,"%s finished put %s to %s at %g"%(bName,groupsToPutVC,w.bName,proc.sim.now()))
-                    else:
-                        logVerbose(proc.sim,"%s aborted empty put to %s at %g"%(bName,w.bName,proc.sim.now()))
-                    logVerbose(proc.sim,"%s: %s has %s"%(bName,w.bName,w.getSupplySummary()))
-                                                
-                    totVolCC= 0.0
-                    for v,n in groupsToPutVC.getTupleList():
-                        if isinstance(v,vaccinetypes.VaccineType):
-                            totVolCC += w.getStorageVolumeWOPackagingOrDiluent(v,n)
-                    w.noteHolder.addNote({"tot_delivery_vol":
-                                          totVolCC/C.ccPerLiter})
-                    w.noteHolder.addNote(dict([(v.name+'_delivered',n)
-                                                            for v,n in groupsToPutVC.items()]))
-
-                # Final bookkeeping for this stop
-                totalVC -= vc
-                ## get the volume of remaining vaccines
-                leftVolumeLiter = sum([n*v.getSingletonStorageVolume(True) for v,n in totalVC.getTupleList() if isinstance(v,vaccinetypes.VaccineType)])/C.ccPerLiter
-                
-                legEndTime= proc.sim.now()
-                tripJournal.append((op,legStartTime,legEndTime,legConditions,supplierW,leftVolumeLiter,pendingCostEvents))
-                pendingCostEvents = []
-                legConditions = None
-                #legStartTime= legEndTime
-
-            #
-            # Recycle operation:
-            #   params: (w, truckPackagingModel, truckStorageModel)
-            #   steps:
-            #      pick up recycling
-            #      if any recycling:
-            #        apply breakage in storage to recycling                    
-            #
-            elif op == "recycle":
-                legStartTime = proc.sim.now()
-                w,truckPackagingModel,truckStorageModel = paramTuple
-                truck.setPackagingModel(truckPackagingModel)
-                truck.setStorageModel(truckStorageModel)
-                # Pick up recycling, if any
-                yield (get,proc,w.getStore(),recyclingGroupFilter,
-                       proc.shipPriority),(hold,proc,Warehouse.shortDelayTime)
-                if proc.acquired(w.getStore()):
-                    newRecycle= proc.got[:]
-
-                    if w.getNoteHolder() is None:
-                        raise RuntimeError("%s unexpectedly has no NoteHolder!"%w.name)
-
-                    if w.breakageModel is not None:
-                        newRecycle,bL= w.breakageModel.applyBreakageInStorage(w, newRecycle)
-                        logDebug(proc.sim,"%s: recycling broken in storage at %s: %s"%(bName,w.bName,proc.sim.shippables.getCollectionFromGroupList(bL)))
-                        w.getNoteHolder().addNote(dict([(g.getType().name+'_broken',g.getCount())
-                                                        for g in bL]))
-                        for g in bL:
-                            if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
-                            g.detach(proc)
-                    
-                    if len(newRecycle)>0:
-                        for g in newRecycle:
-                            if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
-                            g.detach(proc)
-                            g.attach(truck, proc)
-                        newRecycleVC = proc.sim.shippables.getCollectionFromGroupList(newRecycle)
-                        logVerbose(proc.sim,"%s: got recycling %s at %g"%(bName,newRecycleVC,proc.sim.now()))
-                        w.getNoteHolder().addNote(dict([(v.name+'_recycled',n)
-                                                        for v,n in newRecycleVC.items()]))
-                        proc.sim.evL.log(proc.sim.now(),evl.EVT_RECYCLE,newRecycleVC,supplier=w.bName,
-                                         tripID=tripID,route=proc.bName)
-                        truck.allocateStorageSpace()
-                        gotThese= truck.getCargo()
-                        gotTheseVC= proc.sim.shippables.getCollectionFromGroupList(gotThese)
-                    else:
-                        logDebug(proc.sim,"%s: nothing unbroken to recycle at %f"%(bName,proc.sim.now()))
-                else:
-                    logDebug(proc.sim,"%s: nothing to recycle at %f"%(bName,proc.sim.now()))
-                    # We must reconstruct gotThese, since autonomous events happening while
-                    # we were waiting for the recycling pickup may have split vials
-                    gotThese= truck.getCargo()
-                
-                legEndTime = proc.sim.now()
-                tripJournal.append(('recycle',legStartTime,legEndTime,legConditions,pendingCostEvents))
-                pendingCostEvents = []
-
-            #
-            # Unload operation:
-            #   params: (w,)
-            #   steps:
-            #     No breakage, because it was picked up in the 'move' and 'delivery' steps
-            #     No recordTransport, because 'move' did that.
-            #     put the leftovers
-            #     update the trip journal
-            #
-            elif op == 'unload':
-                legStartTime = proc.sim.now()
-                totVolCC = 0.0
-                w, = paramTuple
-
-                leftovers= [g for g in gotThese 
-                            if isinstance(g.getType(),vaccinetypes.VaccineType) or 
-                            (isinstance(g, abstractbaseclasses.Shippable) and g.getTag(RECYCLE_TAG))]
-
-                if len(leftovers) > 0:
-                    for g in leftovers:
-                        g.maybeTrack("recycling delivery %s"%w.bName)
-                    leftoversVC= proc.sim.shippables.getCollectionFromGroupList(leftovers)
-                    logVerbose(proc.sim,"%s about to put %s to %s for recycling at %g"%(bName,leftoversVC,w.bName,proc.sim.now()))
-                    proc.sim.evL.log(proc.sim.now(),evl.EVT_RECYCLEDELIVERY,leftoversVC,client=w.bName,
-                                     tripID=tripID,route=proc.bName)
-                    for g in leftovers:
-                        if isinstance(g,abstractbaseclasses.Costable): pendingCostEvents.extend(g.getPendingCostEvents())
-                        g.detach(proc)
-                        g.attach(w.getStore(), proc)
-                    yield put,proc,w.getStore(),leftovers
-                    if w.noteHolder is None:
-                        raise RuntimeError("Noteholder for %s is unexpectedly None!"%w.name)
-                    else:
-                        for v,n in leftoversVC.getTupleList():
-                            if isinstance(v,vaccinetypes.VaccineType):
-                                totVolCC += w.getStorageVolumeWOPackagingOrDiluent(v,n)
-                        w.noteHolder.addNote({"tot_delivery_vol":
-                                              totVolCC/C.ccPerLiter})
-                        w.noteHolder.addNote(dict([(v.name+'_recyclingdelivery',n)
-                                                   for v,n in leftoversVC.items()]))
-                    truck.allocateStorageSpace()
-                else:
-                    logVerbose(proc.sim,"%s put nothing to %s for recycling at %g"%(bName,w.bName,proc.sim.now()))
-                    if w.noteHolder is None:
-                        raise RuntimeError("Noteholder for %s is unexpectedly None!"%w.name)
-                    else:
-                        w.noteHolder.addNote({"tot_delivery_vol":0.0})
-                    
-                legEndTime= proc.sim.now()
-                tripJournal.append(('unload',legStartTime,legEndTime,legConditions,w,totVolCC/C.ccPerLiter,pendingCostEvents))
-                pendingCostEvents = []
-                legConditions = None
-                
-            #
-            # Finish operation:
-            #   params: (endingW, costOwnerW)
-            #   steps:
-            #     release the truck
-            #     make the final entry in the trip journal
-            #
-            elif op == 'finish':
-                endingW, costOwnerW = paramTuple
-                tripJournal.append(("finish",legStartTime,proc.sim.now(),legConditions,endingW,pendingCostEvents))
-                pendingCostEvents = []
-                legConditions = None
-                truck.dropTrash()
-                truck.maybeTrack('released by %s'%name)
-                assert len(truck.getStock())==0, "Released non-empty truck"
-                # call discharge on all CanStore objects on the truck!!!
-                for fridge in truck.getFridges():
-                    fridge.discharge(proc)
-
-                truck.setPackagingModel(packagingmodel.DummyPackagingModel())
-                truck.setStorageModel(storagemodel.DummyStorageModel())
-                delattr(truck,"noteHolder")
-                yield put,proc,endingW.getStore(),[truck]
-                truck= None
-                if proc.noteHolder is None:
-                    raise RuntimeError("This route lacks noteHolder needed for accounting!")
-                else:
-                    if hasattr(proc, 'getPerDiemModel'):
-                        perDiemModel = proc.getPerDiemModel()
-                        costMgr = proc.sim.costManager
-                        tripNotes = costMgr.generateTripCostNotes(truckType,
-                                                                  costOwnerW.reportingLevel,
-                                                                  costOwnerW.conditions,
-                                                                  tripJournal,
-                                                                  endingW,
-                                                                  perDiemModel)
-                        proc.noteHolder.addNote(tripNotes)
-                    else:
-                        raise RuntimeError("proc %s has no PerDiemModel" %
-                                           proc.name)
-                segmentCount = 0
-                for journalEntry in tripJournal:
-                    if journalEntry[0] == "move":
-                        #if journalEntry[6] > 1000.0:
-                        #    print "Journ " + str(journalEntry[6])
-                        proc.noteHolder.addNote({"triptimes_timestamp":TimeStampAccumVal(journalEntry[6],(journalEntry[1],journalEntry[2]))})
-
-                        if not hasattr(proc, 'triptimeKeys'):
-                            proc.triptimeKeys = ("volumeCarried", "startTime", "endTime")
-                        proc.noteHolder.addNote({"triptimes_multival":AccumMultiVal(proc.triptimeKeys, 
-                                                                                    journalEntry[6],
-                                                                                    journalEntry[1],
-                                                                                    journalEntry[2])})
-                        segmentCount += 1 
-                finished = True
-                    
-            else:
-                raise RuntimeError("Internal error in %s: Inconsistency in stepList"%name)
-
-    except GeneratorExit:
-        # The close method of the generator was called.
-        if not finished:
-            # Early exit- we could put clean-up code here, but it would have to not include
-            # any yields.  
-            pass
-
-class ShipperProcess(Process, abstractbaseclasses.UnicodeSupport):
-    def __init__(self,fromWarehouse,transitChain,interval,
-                 orderPendingLifetime,shipPriority,startupLatency=0.0,
-                 truckType=None,name=None, delayInfo=None):
-        """
-        format of transitChain is:
-        [(triptime,warehouse,conditions), 
-         (triptime,warehouse,conditions),
-         ...]
-         
-         where 'conditions' is optional (in which case the tuple has only 2
-         elements and the condition "normal" is assumed). The final element of
-         the list should be a tuple representing the trip from the last client
-         warehouse back to the supplier (fromWarehouse).  As a backward
-         compatibility feature, if this last tuple is missing a rather lame
-         version is created.
-        """
-        if name is None: name= "ShipperProcess_%s"%fromWarehouse.name
-        Process.__init__(self, name=name, sim=fromWarehouse.sim)
-        if interval<1.0:
-            raise RuntimeError("ShipperProcess %s has cycle time of less than a day- probably not what you wanted"%\
-                               name)
-        if startupLatency<0.0:
-            raise RuntimeError("ShipperProcess %s has a negative startup latency"%startupLatency)
-        self.fromW= fromWarehouse
-        self.transitChain= transitChain[:]
-        # test whether the return trip is coded in the transit chain, and if not, add one
-        # based on the very first leg of the chain
-        if self.transitChain[-1][1] != fromWarehouse:
-            if len(self.transitChain[0]) == 3:
-                self.transitChain += [(self.transitChain[0][0], fromWarehouse, self.transitChain[0][2])]
-            else:
-                self.transitChain += [(self.transitChain[0][0], fromWarehouse)]                
-        self.interval= interval
-        self.startupLatency= startupLatency
-        self.shipPriority= shipPriority
-        self.orderPendingLifetime= orderPendingLifetime
-        if truckType is None:
-            self.truckType=self.sim.trucktypes.getTypeByName("default")
-        else:
-            self.truckType= truckType
-        self.delayInfo = delayInfo
-        self.noteHolder= None
-        self.nextWakeTime= startupLatency
-        self.packagingModel = packagingmodel.DummyPackagingModel() # to be replaced later
-        self.storageModel = storagemodel.DummyStorageModel() # to be replaced later
-        self.perDiemModel = None
-        fromWarehouse.sim.processWeakRefs.append( weakref.ref(self) )
-
-    def setPerDiemModel(self, perDiemModel):
-        self.perDiemModel = perDiemModel
-
-    def getPerDiemModel(self):
-        return self.perDiemModel
-
-    def finishBuild(self, szFunc):
-        """
-        This method should be called after the shipping network has been assembled.
-        It allows the ShipperProcess to precalculate quantities that depend on information
-        from elsewhere in the network.
-        
-        szFunc has the signature:
-    
-          shipSizeVialsVC= szFunc(fromWH,toWH,shipIntervalDays)
-
-        """
-        pMMM = packagingmodel.PackagingModelMergerModel(self.sim)
-        pMMM.addUpstreamPackagingModel(self.fromW.getPackagingModel())
-        for tripTime,wh,conditions in self.transitChain:
-            if wh != self.fromW: pMMM.addDownstreamPackagingModel(wh.getPackagingModel())
-        self.packagingModel = pMMM.getNetPackagingModel()
-        self.storageModel = self.fromW.getStorageModel()
-        
-    def setNoteHolder(self,noteHolder):
-        self.noteHolder= noteHolder
-    def getNoteHolder(self):
-        return self.noteHolder
-    def run(self):
-        if self.startupLatency>0.0:
-            yield hold,self,self.startupLatency
-        logVerbose(self.sim,"%s: latency %f, interval %f; my transit chain is %s"%(self.bName,self.startupLatency,self.interval,self.transitChain))
-        while True:
-            self.nextWakeTime += self.interval
-
-            # simulate a truck delay
-            if self.delayInfo is not None:
-                delay= self.delayInfo.getPickupDelay()
-                if delay > 0.0:
-                    logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
-                    yield hold, self, delay
-
-            logDebug(self.sim,"%s: my transit chain is %s"%(self.bName,self.transitChain))   
-                      
-            totalVC= self.sim.shippables.getCollection()
-            upstreamW = self.fromW
-            stepList = [('load', (self.fromW, self.packagingModel, self.storageModel, totalVC))]
-            for num,tpl in enumerate(self.transitChain):
-                if len(tpl) == 3:
-                    t,w,conditions = tpl
-                else:
-                    t,w = tpl
-                    conditions = 'normal'
-                if w == self.fromW:
-                    # last step of the trip
-                    stepList += [('move',(t,upstreamW,w,conditions)),
-                                 ('unload',(w,)),
-                                 ('finish',(w,self.fromW))]
-                else:
-                    stepList.append(('move',(t,upstreamW,w,conditions)))
-                    vc= self.fromW.getAndForgetPendingShipment(w)
-                    #print "%s: %s requests %s"%(self.bName,w.bName,[(v.bName,n) for v,n in vc.items() if n>0.0])
-                    totalVC += vc
-                    if num == len(self.transitChain) - 2:
-                        stepList.append(('alldeliver',(w,vc,self.interval)))
-                    else:
-                        stepList.append(('deliver',(w,vc,self.interval)))
-                    stepList.append( ('recycle', (w,self.packagingModel,self.storageModel)) )
-                upstreamW = w
-                      
-            if totalVC.totalCount()>0:
-                travelGen= createTravelGenerator(self.bName, stepList, self.truckType, 
-                                                 self.delayInfo, self)
-                # This should maybe be more like the code block from PEP380: 
-                # http://www.python.org/dev/peps/pep-0380/#id13
-                for val in travelGen: yield val
-            else:
-                logVerbose(self.sim,"%s: no order to ship at %f"%(self.bName,self.sim.now()))
-            while self.nextWakeTime <= self.sim.now(): self.nextWakeTime += self.interval
-            yield hold,self,self.nextWakeTime-self.sim.now()
-                
-    def __repr__(self):
-        return "<ShipperProcess(%s,%s,%g)>"%\
-            (repr(self.fromW),repr(self.transitChain),self.interval)
-    def __str__(self):
-        return "<ShipperProcess(%s,%s,%s,%g)>"%\
-            (self.fromW.name,str(self.transitChain),self.interval)
-
-class AskOnDeliveryShipperProcess(ShipperProcess):
-    def __init__(self,fromWarehouse,transitChain,interval,
-                 orderPendingLifetime,shipPriority,startupLatency=0.0,
-                 truckType=None,name=None, delayInfo=None):
-        """
-        This is very much like a normal ShipperProcess, but the delivery size is
-        checked at each client via Model.getDeliverySize(), and any leftovers are
-        returned to the supplier.
-        """
-        if name is None: name= "AskOnDeliveryShipperProcess_%s"%fromWarehouse.name
-        ShipperProcess.__init__(self,fromWarehouse,transitChain,interval,
-                                orderPendingLifetime,shipPriority,startupLatency=startupLatency,
-                                truckType=truckType, name=name, delayInfo=delayInfo)
-    def run(self):
-        if self.startupLatency>0.0:
-            yield hold,self,self.startupLatency
-        logVerbose(self.sim,"%s: latency %f, interval %f; my transit chain is %s"%(self.bName,self.startupLatency,self.interval,self.transitChain))
-        while True:
-            self.nextWakeTime += self.interval
-
-            # simulate a truck delay
-            if self.delayInfo is not None:
-                delay= self.delayInfo.getPickupDelay()
-                if delay > 0.0:
-                    logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
-                    yield hold, self, delay
-
-            logDebug(self.sim,"%s: my transit chain is %s"%(self.bName,self.transitChain))   
-                      
-            totalVC= self.sim.shippables.getCollection()
-            upstreamW = self.fromW
-            stepList = [('load', (self.fromW, self.packagingModel, self.storageModel, totalVC))]
-            for tpl in self.transitChain:
-                if len(tpl) == 3:
-                    t,w,conditions = tpl
-                else:
-                    t,w = tpl
-                    conditions = 'normal'
-                if w == self.fromW:
-                    # last step of the trip
-                    stepList += [('move',(t,upstreamW,w,conditions)),
-                                 ('unload',(w,)),
-                                 ('finish',(w,self.fromW))]
-                else:
-                    stepList.append(('move',(t,upstreamW,w,conditions)))
-                    vc= self.fromW.getAndForgetPendingShipment(w)
-                    #print "%s: %s requests %s"%(self.bName,w.bName,[(v.bName,n) for v,n in vc.items() if n>0.0])
-                    totalVC += vc
-                    stepList.append(('askanddeliver',(w,vc,self.interval)))
-                    stepList.append( ('recycle', (w,self.packagingModel,self.storageModel)) )
-                upstreamW = w
-                      
-            if totalVC.totalCount()>0:
-                travelGen= createTravelGenerator(self.bName, stepList, self.truckType, 
-                                                 self.delayInfo, self)
-                # This should maybe be more like the code block from PEP380: 
-                # http://www.python.org/dev/peps/pep-0380/#id13
-                for val in travelGen: yield val
-            else:
-                logVerbose(self.sim,"%s: no order to ship at %f"%(self.bName,self.sim.now()))
-            while self.nextWakeTime <= self.sim.now(): self.nextWakeTime += self.interval
-            yield hold,self,self.nextWakeTime-self.sim.now()
-                
-    def __repr__(self):
-        return "<AskOnDeliveryShipperProcess(%s,%s,%g)>"%\
-            (repr(self.fromW),repr(self.transitChain),self.interval)
-    def __str__(self):
-        return "<AskOnDeliveryShipperProcess(%s,%s,%s,%g)>"%\
-            (self.fromW.name,str(self.transitChain),self.interval)
-
-class DropAndCollectShipperProcess(ShipperProcess, abstractbaseclasses.UnicodeSupport):
-    def __init__(self,fromWarehouse,transitChain,interval,
-                 orderPendingLifetime,shipPriority,startupLatency=0.0,
-                 truckType=None,name=None, delayInfo=None):
-        """
-        This differs from a normal ShipperProcess in that each client is visited twice-
-        once to drop off and once to pick up recycling.  The transit chain must include
-        both visits explicitly (because timing and order need to be specified), and is
-        checked to verify that each client is visited exactly twice.  The first visit is
-        a delivery only; no recycling is picked up.  The second visit is recycling only;
-        no delivery is made.  The truck is assumed to start at the supplier warehouse.
-        """
-        if name is None: name= "DropAndCollectShipperProcess_%s"%fromWarehouse.name
-        if name is None: name= "AskOnDeliveryShipperProcess_%s"%fromWarehouse.name
-        # Verify that all locations but the last is visited twice, and the last (the supplier) is
-        # visited once.
-        visitCounts = {}
-        for tripTime,cl,conditions in transitChain[:-1]:
-            if cl in visitCounts:
-                visitCounts[cl] += 1
-            else:
-                visitCounts[cl] = 1
-        for cl, visits in visitCounts.items():
-            if visits != 2: 
-                raise RuntimeError("%s (and possibly others) is visited only once in drop-and-collect route %s"%\
-                                   (cl.name,name))
-        tripTime,cl,conditions = transitChain[-1]
-        if cl != fromWarehouse: 
-            raise RuntimeError("drop-and-collect route %s should end at its supplier warehouse %s"%\
-                               (bName,fromWarehouse.name))
-        if cl in visitCounts:
-            raise RuntimeError("drop-and-collect route %s visits its supplier %s"%(bName,cl.name))
-        ShipperProcess.__init__(self,fromWarehouse,transitChain,interval,
-                                orderPendingLifetime,shipPriority,startupLatency=startupLatency,
-                                truckType=truckType, name=name, delayInfo=delayInfo)
-    def run(self):
-        if self.startupLatency>0.0:
-            yield hold,self,self.startupLatency
-        logVerbose(self.sim,"%s: latency %f, interval %f; my transit chain is %s"%(self.bName,self.startupLatency,self.interval,self.transitChain))
-        while True:
-            self.nextWakeTime += self.interval
-
-            # simulate a truck delay
-            if self.delayInfo is not None:
-                delay= self.delayInfo.getPickupDelay()
-                if delay > 0.0:
-                    logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
-                    yield hold, self, delay
-
-            logDebug(self.sim,"%s: my transit chain is %s"%(self.bName,self.transitChain))   
-                      
-            totalVC= self.sim.shippables.getCollection()
-            upstreamW = self.fromW
-            visited = set()
-            stepList = [('load', (self.fromW, self.packagingModel, self.storageModel, totalVC))]
-            nClients = (len(self.transitChain)-1)/2
-            for tpl in self.transitChain:
-                if len(tpl) == 3:
-                    t,w,conditions = tpl
-                else:
-                    t,w = tpl
-                    conditions = 'normal'
-                if w == self.fromW:
-                    # last step of the trip
-                    stepList += [('move',(t,upstreamW,w,conditions)),
-                                 ('unload',(w,)),
-                                 ('finish',(w,self.fromW))]
-                elif w in visited:
-                    # Second visit; pick up recycling
-                    stepList.append(('move',(t,upstreamW,w,conditions)))
-                    stepList.append( ('recycle', (w,self.packagingModel,self.storageModel)) )
-                else:
-                    # First visit; drop off
-                    visited.add(w)
-                    stepList.append(('move',(t,upstreamW,w,conditions)))
-                    vc= self.fromW.getAndForgetPendingShipment(w)
-                    #print "%s: %s requests %s"%(self.bName,w.bName,[(v.bName,n) for v,n in vc.items() if n>0.0])
-                    totalVC += vc
-                    if len(visited) == nClients:
-                        # Last client
-                        stepList.append(('allmarkanddeliver',(w,vc,self.interval)))
-                    else:
-                        stepList.append(('markanddeliver',(w,vc,self.interval)))
-                upstreamW = w
-            if totalVC.totalCount()>0:
-                travelGen= createTravelGenerator(self.bName, stepList, self.truckType, 
-                                                 self.delayInfo, self)
-                # This should maybe be more like the code block from PEP380: 
-                # http://www.python.org/dev/peps/pep-0380/#id13
-                for val in travelGen: yield val
-            else:
-                logVerbose(self.sim,"%s: no order to ship at %f"%(self.bName,self.sim.now()))
-            while self.nextWakeTime <= self.sim.now(): self.nextWakeTime += self.interval
-            yield hold,self,self.nextWakeTime-self.sim.now()
-                
-    def __repr__(self):
-        return "<AskOnDeliveryShipperProcess(%s,%s,%g)>"%\
-            (repr(self.fromW),repr(self.transitChain),self.interval)
-    def __str__(self):
-        return "<AskOnDeliveryShipperProcess(%s,%s,%s,%g)>"%\
-            (self.fromW.name,str(self.transitChain),self.interval)
-
-
-class FetchShipperProcess(ShipperProcess):
-    def __init__(self,fromWarehouse,transitChain,interval,
-                 orderPendingLifetime,shipPriority,startupLatency=0.0,
-                 truckType=None,name=None, delayInfo=None):
-        """
-        A FetchShipperProcess is like a ShipperProcess, except that the trip starts at 
-        the first client warehouse and then travels to the supplier as the first leg.
-        
-        fromWarehouse is the first client warehouse, not the supplier; it is there that
-        the trip starts.  The format of transitChain is:
-        
-            [(triptime,warehouse,conditions), 
-             (triptime,warehouse,conditions),
-             ...]
-         
-        where in this case the warehouse specified in the first record will be the supplier
-        and the warehouse specified in the last record will be fromWarehouse, the first client.
-        Typically these routes will have only one client and thus be two-
-        leg trips, but inserting additional clients is supported.  
-         
-        In transitChain, 'conditions' is optional (in which case the tuple has only 2
-        elements and the condition "normal" is assumed).
-        """
-        if name is None: name= "FetchShipperProcess_%s"%fromWarehouse.name
-        ShipperProcess.__init__(self, fromWarehouse, transitChain, interval,
-                                orderPendingLifetime, shipPriority, startupLatency,
-                                truckType, name, delayInfo)
-
-        # un-do mods to the transit chain performed by ShipperProcess.__init__()
-        self.transitChain= transitChain[:]
-    def run(self):
-        if self.startupLatency>0.0:
-            yield hold,self,self.startupLatency
-        logVerbose(self.sim,"%s: latency %f, interval %f; my transit chain is %s"%(self.bName,self.startupLatency,self.interval,self.transitChain))
-        while True:
-            self.nextWakeTime += self.interval
-
-            # simulate a truck delay
-            if self.delayInfo is not None:
-                delay= self.delayInfo.getPickupDelay()
-                if delay > 0.0:
-                    logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
-                    yield hold, self, delay
-
-            logDebug(self.sim,"%s: my transit chain is %s"%(self.bName,self.transitChain))
-
-            supplierW= self.transitChain[0][1]
-            totalVC= self.sim.shippables.getCollection()
-            stepList = [('gettruck', (self.fromW,)),
-                        ('recycle',(self.fromW,self.packagingModel,self.storageModel)),
-                        ]
-            if len(self.transitChain[0]) == 3:
-                transitTime, supplierW, conditions = self.transitChain[0]
-            else:
-                transitTime, supplierW = self.transitChain[0]
-                conditions = 'normal'
-            stepList += [('move',(transitTime,self.fromW,supplierW,conditions)),
-                         ('unload',(supplierW,)),
-                         ('loadexistingtruck',(supplierW, self.packagingModel, self.storageModel, totalVC))]
-            prevW = supplierW
-            for tpl in self.transitChain[1:-1]:
-                if len(tpl) == 3:
-                    t,w,conditions = tpl
-                else:
-                    t,w = tpl
-                    conditions = 'normal'
-                stepList.append(('move',(t,prevW,w,conditions)))
-                vc= supplierW.getAndForgetPendingShipment(w)
-                totalVC += vc
-                stepList.append(('deliver',(w,vc,self.interval)))
-                stepList.append( ('recycle', (w,self.packagingModel,self.storageModel)) )
-                prevW = w
-            if len(self.transitChain[-1]) == 3:
-                transitTime, finalW, conditions = self.transitChain[-1]
-            else:
-                transitTime, finalW = self.transitChain[-1]
-                conditions = 'normal'
-            assert finalW==self.fromW, "Internal error: %s is not a loop"%self.name
-            vc= supplierW.getAndForgetPendingShipment(finalW)
-            totalVC += vc
-            stepList += [('move',(transitTime,prevW,finalW,conditions)),
-                         ('alldeliver',(finalW,vc,self.interval)),
-                         ('unload',(finalW,)),
-                         ('finish',(finalW,self.fromW))
-                         ]
-                      
-            if totalVC.totalCount()>0:
-                travelGen= createTravelGenerator(self.bName, stepList, self.truckType, self.delayInfo, self)
-                # This should maybe be more like the code block from PEP380: 
-                # http://www.python.org/dev/peps/pep-0380/#id13
-                for val in travelGen: yield val
-            else:
-                logVerbose(self.sim,"%s: no order to ship at %f"%(self.bName,self.sim.now()))
-            while self.nextWakeTime <= self.sim.now(): self.nextWakeTime += self.interval
-            yield hold,self,self.nextWakeTime-self.sim.now()
-                
-    def __repr__(self):
-        return "<FetchShipperProcess(%s,%s,%g)>"%\
-            (repr(self.fromW),repr(self.transitChain),self.interval)
-    def __str__(self):
-        return "<FetchShipperProcess(%s,%s,%s,%g)>"%\
-            (self.fromW.name,str(self.transitChain),self.interval)
-
-class OnDemandShipment(Process, abstractbaseclasses.UnicodeSupport):
-    def __init__(self,fromWarehouse,toWarehouse,thresholdFunction,
-                 quantityFunction,transitTime,orderPendingLifetime,
-                 pullMeanFrequencyDays,shipPriority,startupLatency=0.0,
-                 truckType=None,name=None, 
-                 minimumDaysBetweenShipments=0.0,
-                 delayInfo=None, conditions="normal"):
-        """
-        thresholdFunction and quantityFunction have the signatures:
-        
-        vaccineCollection= thresholdFunction(toWarehouse,pullMeanFrequency)
-        vaccineCollection= quantityFunction(fromWarehouse,toWarehouse,pullMeanFrequencyDays,timeNow)
-        
-        The first function is used after the shipping network has been built
-        to construct a VaccineCollection giving the reorder threshold points 
-        for the given warehouse.  The second is used repeatedly to calculate
-        the shipment sizes between the given warehouses.
-
-        transitTime may be single scalar time which will apply to both legs
-        of the trip, or a tuple (timeOutboundTrip, timeReturnTrip that specify
-        separate times for the two halves of the trip.
-        """
-        if name is None:
-            name= "OnDemandShipment_%s_%s"%(fromWarehouse.name,toWarehouse.name)
-        Process.__init__(self, name=name, sim=fromWarehouse.sim)
-        if startupLatency<0.0:
-            raise RuntimeError("OnDemandShipment %s has a negative startup latency"%startupLatency)
-        self.fromW= fromWarehouse
-        self.toW= toWarehouse
-        self.thresholdFunc= thresholdFunction
-        self.thresholdVC= None
-        self.quantityFunction= quantityFunction
-        self.transitTime= transitTime
-        self.orderPendingLifetime= orderPendingLifetime
-        self.pullMeanFrequency= pullMeanFrequencyDays
-        self.shipPriority= shipPriority
-        if truckType is None:
-            self.truckType=self.sim.trucktypes.getTypeByName("default")
-        else:
-            self.truckType= truckType
-        self.conditions= conditions
-        #toWarehouse.addSupplier(fromWarehouse,{'Type':'pull',
-        #                                       'TruckType':truckType,
-        #                                       'Conditions':conditions})
-        #fromWarehouse.addClient(toWarehouse)
-        self.warningEvent= None
-        self.nextAllowedDeparture= startupLatency
-        self.minimumDaysBetweenShipments= minimumDaysBetweenShipments
-        self.delayInfo = delayInfo
-        self.noteHolder= None
-        self.packagingModel = packagingmodel.DummyPackagingModel()
-        self.storageModel = storagemodel.DummyStorageModel()
-        self.first = True
-        self.perDiemModel = None
-        fromWarehouse.sim.processWeakRefs.append( weakref.ref(self) )
-
-    def setPerDiemModel(self, perDiemModel):
-        self.perDiemModel = perDiemModel
-
-    def getPerDiemModel(self):
-        return self.perDiemModel
-
-    def finishBuild(self, szFunc):
-        """
-        This method should be called after the shipping network has been assembled.
-        It allows the OnDemandShipment to precalculate quantities that depend on information
-        from elsewhere in the network.
-        
-        szFunc has the signature:
-    
-          shipSizeVialsVC= szFunc(fromWH,toWH,shipIntervalDays,pullMeanFrequencyDays)
-
-        """
-        event= None
-        thresholdVC= self.thresholdFunc(self.toW, self.pullMeanFrequency)
-        for v,n in thresholdVC.getTupleList():
-            if n>0.0:
-                event= self.toW.setLowThresholdAndGetEvent(v,n)
-        if event is None:
-            raise RuntimeError("%s shipping threshold calculation yielded nothing"%self.bName)
-        self.warningEvent= event
-        pMMM = packagingmodel.PackagingModelMergerModel(self.sim)
-        pMMM.addUpstreamPackagingModel(self.fromW.getPackagingModel())
-        pMMM.addDownstreamPackagingModel(self.toW.getPackagingModel())
-        self.packagingModel = pMMM.getNetPackagingModel()
-        self.storageModel = self.fromW.getStorageModel()
-    def setNoteHolder(self,noteHolder):
-        self.noteHolder= noteHolder
-    def getNoteHolder(self):
-        return self.noteHolder
-    def run(self):
-        self.truck= None
-        if self.nextAllowedDeparture>0.0:
-            yield hold,self,self.nextAllowedDeparture
-        while True:
-            # We want to start by doing a shipment, or the downstream
-            # warehouse will just sit at 0.
-
-            totalVC= self.quantityFunction(self.fromW, self.toW, self.pullMeanFrequency,
-                                           self.sim.now())
-            if totalVC.totalCount()>0:
-                # see if our truck is delayed
-                if self.delayInfo is not None:
-                    delay= self.delayInfo.getPickupDelay()
-                    if delay > 0.0:
-                        logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
-                        yield hold, self, delay
-                        
-                        if self.delayInfo.d['PickupDelayReorder']:
-                            # this is completely lame but if someone places an order
-                            # then the truck is delayed and then when they are asked
-                            # what size of an order to make they order nothing we're
-                            # going to give them what they originally wanted.  Otherwise
-                            # we need to jump through some impressive hoops unless we
-                            # wish to go about refactoring this code
-                            newTotalVC= self.quantityFunction(self.fromW, self.toW,
-                                                              self.pullMeanFrequency,
-                                                              self.sim.now())
-                            if newTotalVC.totalCount > 0:
-                                totalVC = newTotalVC
-
-                # We're leaving now; when is the next permitted departure?
-                self.nextAllowedDeparture= self.sim.now()+self.minimumDaysBetweenShipments
-                
-                # Let's cancel the trip if the supplier doesn't have any of what's needed
-                if self.fromW.gotAnyOfThese(self.toW.lowStockSet) or self.first == True:
-                    self.first = False
-                    if isinstance(self.transitTime,types.TupleType):
-                        toTime,froTime = self.transitTime
-                    else:
-                        toTime = froTime = self.transitTime
-                        
-                    # Make one or more trips.  In normal operation only one trip will be required, but 
-                    # additional trips may be executed if the available shipping volume is too low to raise
-                    # an otherwise-available shippable above its trigger threshold.
-                    stepList = [('load', (self.fromW, self.packagingModel, self.storageModel, totalVC)),
-                                ('move',(toTime,self.fromW,self.toW,self.conditions)),
-                                ('alldeliver',(self.toW,totalVC,self.pullMeanFrequency)),
-                                ('recycle',(self.toW,self.packagingModel, self.storageModel)),
-                                ('move',(froTime,self.toW,self.fromW,self.conditions)),
-                                ('unload',(self.fromW,)),
-                                ('finish',(self.fromW,self.fromW))
-                                ]
-        
-                    travelGen= createTravelGenerator(self.bName, stepList, self.truckType, self.delayInfo, self)
-                    # This should maybe be more like the code block from PEP380: 
-                    # http://www.python.org/dev/peps/pep-0380/#id13
-                    for val in travelGen: yield val
-                else:
-                    logVerbose(self.sim,"%s: supplier has no needed stock at %g"%(self.bName,self.sim.now()))
-                    
-            else:
-                logVerbose(self.sim,"%s:quantity to order is zero at %g"%(self.bName,self.sim.now()))
-
-            extraDelay = 0.0
-            if self.toW.lowStockSet:
-                # Some shippables are below the trigger threshold- run another trip as soon as allowed.
-                # By triggering the event and then waiting on it (which returns immediately), we 
-                # clear any pending event and continue.
-                logDebug(self.sim,"%s still triggered at %g"%(self.bName,self.sim.now()))
-                if self.minimumDaysBetweenShipments < 1.0:
-                    extraDelay = 1.0 # to keep from cycling forever if the supplier has no stock
-                self.warningEvent.signal()
-                yield waitevent,self,self.warningEvent
-            else:
-                # The trigger threshold mechanism will initiate a new trip when needed                
-                logVerbose(self.sim,"%s: enters waitEvent at %g"%(self.bName,self.sim.now()))
-                yield waitevent,self,self.warningEvent
-                logVerbose(self.sim,"%s: received trigger event at %g"%(self.bName,self.sim.now()))
-                
-            # Short pause to keep shipping events triggered by upstream
-            # deliveries acting through attemptRestock() from piling up 
-            # at the same 'moment'.  If we've gotten a request before the
-            # next allowed departure, wait until then.
-            delay= max(self.sim.rndm.gauss(0.1,0.025)+extraDelay, Warehouse.shortDelayTime)
-            if self.nextAllowedDeparture - self.sim.now() > 0.0:
-                delay += self.nextAllowedDeparture-self.sim.now()
-            logDebug(self.sim,"%s pausing %g at %g"%(self.bName,delay,self.sim.now()))
-            yield hold,self,delay
-            logVerbose(self.sim,"%s finished waiting; shipping at %g"%(self.bName,self.sim.now()))
-
-    def __repr__(self):
-        return "<OnDemandShipment(%s,%s,%s,%s,%g,%g,%g)>"%\
-            (self.fromW.name,self.toW.name,
-             self.thresholdVC,self.quantityFunction,self.transitTime,
-             self.pullMeanFrequency,self.minimumDaysBetweenShipments)
-    def __str__(self): 
-        return "<OnDemandShipment(%s,%s)>"%(self.fromW.name,self.toW.name)
-
-class PersistentOnDemandShipment(OnDemandShipment):
-    def __init__(self,supplierWarehouse,clientWarehouse,thresholdFunction,
-                 quantityFunction,transitTime,orderPendingLifetime,
-                 pullMeanFrequencyDays,shipPriority,startupLatency=0.0,
-                 truckType=None,name=None, 
-                 minimumDaysBetweenShipments=0.0,
-                 delayInfo=None, conditions="normal"):
-        """
-        This shipping pattern is like that of OnDemandShipment, except that 
-        the shipping cycle 'persists' - it will continue to make shipping trips
-        until either all shippables have been brought up above their shipping
-        trigger thresholds or the supplier has no more of the needed shippables.
-        At that point the process goes back to sleep until a trigger threshold
-        is crossed, as with OnDemandShipment.  This is intended as a remedy for
-        shipments using undersized trucks.
-        
-        thresholdFunction and quantityFunction have the signatures:
-        
-        vaccineCollection= thresholdFunction(toWarehouse,pullMeanFrequency)
-        vaccineCollection= quantityFunction(fromWarehouse,toWarehouse,pullMeanFrequencyDays,timeNow)
-        
-        The first function is used after the shipping network has been built
-        to construct a VaccineCollection giving the reorder threshold points 
-        for the given warehouse.  The second is used repeatedly to calculate
-        the shipment sizes between the given warehouses.
-
-
-        transitTime may be single scalar time which will apply to both legs
-        of the trip, or a tuple (timeOutboundTrip, timeReturnTrip that specify
-        separate times for the two halves of the trip.
-        """
-        if name is None:
-            name= "PersistentOnDemandShipment_%s_%s"%(clientWarehouse.name,supplierWarehouse.name)
-        OnDemandShipment.__init__(self, supplierWarehouse, clientWarehouse, thresholdFunction,
-                                  quantityFunction, transitTime, orderPendingLifetime,
-                                  pullMeanFrequencyDays, shipPriority, startupLatency,
-                                  truckType, name, minimumDaysBetweenShipments,
-                                  delayInfo, conditions)
-    def run(self):
-        self.truck= None
-        if self.nextAllowedDeparture>0.0:
-            yield hold,self,self.nextAllowedDeparture
-        while True:
-            # We want to start by doing a shipment, or the downstream
-            # warehouse will just sit at 0.
-
-            totalVC= self.quantityFunction(self.fromW, self.toW, self.pullMeanFrequency,
-                                           self.sim.now())
-            if totalVC.totalCount()>0:
-                # see if our truck is delayed
-                if self.delayInfo is not None:
-                    delay= self.delayInfo.getPickupDelay()
-                    if delay > 0.0:
-                        logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
-                        yield hold, self, delay
-                        
-                        if self.delayInfo.d['PickupDelayReorder']:
-                            # this is completely lame but if someone places an order
-                            # then the truck is delayed and then when they are asked
-                            # what size of an order to make they order nothing we're
-                            # going to give them what they originally wanted.  Otherwise
-                            # we need to jump through some impressive hoops unless we
-                            # wish to go about refactoring this code
-                            newTotalVC= self.quantityFunction(self.fromW, self.toW,
-                                                              self.pullMeanFrequency,
-                                                              self.sim.now())
-                            if newTotalVC.totalCount > 0:
-                                totalVC = newTotalVC
-
-                # We're leaving now; when is the next permitted departure?
-                self.nextAllowedDeparture= self.sim.now()+self.minimumDaysBetweenShipments
-                
-                if isinstance(self.transitTime,types.TupleType):
-                    toTime,froTime = self.transitTime
-                else:
-                    toTime = froTime = self.transitTime
-                    
-                while True:
-                    # Make one or more trips.  In normal operation only one trip will be required, but 
-                    # additional trips may be executed if the available shipping volume is too low to raise
-                    # an otherwise-available shippable above its trigger threshold.
-                    stepList = [('load', (self.fromW, self.packagingModel, self.storageModel, totalVC)),
-                                ('move',(toTime,self.fromW,self.toW,self.conditions)),
-                                ('alldeliver',(self.toW,totalVC,self.pullMeanFrequency)),
-                                ('recycle',(self.toW,self.packagingModel, self.storageModel)),
-                                ('move',(froTime,self.toW,self.fromW,self.conditions)),
-                                ('unload',(self.fromW,)),
-                                ('finish',(self.fromW,self.fromW))
-                                ]
-        
-                    travelGen= createTravelGenerator(self.bName, stepList, self.truckType, self.delayInfo, self)
-                    # This should maybe be more like the code block from PEP380: 
-                    # http://www.python.org/dev/peps/pep-0380/#id13
-                    for val in travelGen: yield val
-                    
-                    if self.toW.lowStockSet and self.fromW.gotAnyOfThese(self.toW.lowStockSet):
-                        totalVC= self.quantityFunction(self.fromW, self.toW, self.pullMeanFrequency,
-                                                       self.sim.now())
-                        # And continue for another loop
-                    else:
-                        break
-
-            else:
-                logVerbose(self.sim,"%s:quantity to order is zero at %g"%(self.bName,self.sim.now()))
-                
-            logVerbose(self.sim,"%s: enters waitEvent at %f"%(self.bName,self.sim.now()))
-            yield waitevent,self,self.warningEvent
-            # Short pause to keep shipping events triggered by upstream
-            # deliveries acting through attemptRestock() from piling up 
-            # at the same 'moment'.  If we've gotten a request before the
-            # next allowed departure, wait until then.
-            delay= max(self.sim.rndm.gauss(0.1,0.025), Warehouse.shortDelayTime)
-            if self.nextAllowedDeparture - self.sim.now() > 0.0:
-                delay += self.nextAllowedDeparture-self.sim.now()
-            logDebug(self.sim,"%s received event at %g, pausing %g"%(self.bName,self.sim.now(),delay))
-            yield hold,self,delay
-            logVerbose(self.sim,"%s received event and waited; shipping at %g"%(self.bName,self.sim.now()))
-
-    def __repr__(self):
-        return "<PersistentOnDemandShipment(%s,%s,%s,%s,%g,%g,%g)>"%\
-            (self.fromW.name,self.toW.name,
-             self.thresholdVC,self.quantityFunction,self.transitTime,
-             self.pullMeanFrequency,self.minimumDaysBetweenShipments)
-    def __str__(self): 
-        return "<PersistentOnDemandShipment(%s,%s)>"%(self.fromW.name,self.toW.name)
-
-
-class FetchOnDemandShipment(OnDemandShipment):
-    def __init__(self,supplierWarehouse,clientWarehouse,thresholdFunction,
-                 quantityFunction,transitTime,orderPendingLifetime,
-                 pullMeanFrequencyDays,shipPriority,startupLatency=0.0,
-                 truckType=None,name=None, 
-                 minimumDaysBetweenShipments=0.0,
-                 delayInfo=None, conditions="normal"):
-        """
-        This shipping pattern is like that of OnDemandShipment, except that
-        the truck starts at and returns to clientWarehouse, stopping at supplierWarehouse
-        for supplies.
-        
-        thresholdFunction and quantityFunction have the signatures:
-        
-        vaccineCollection= thresholdFunction(toWarehouse,pullMeanFrequency)
-        vaccineCollection= quantityFunction(fromWarehouse,toWarehouse,pullMeanFrequencyDays,timeNow)
-        
-        The first function is used after the shipping network has been built
-        to construct a VaccineCollection giving the reorder threshold points 
-        for the given warehouse.  The second is used repeatedly to calculate
-        the shipment sizes between the given warehouses.
-
-
-        transitTime may be single scalar time which will apply to both legs
-        of the trip, or a tuple (timeOutboundTrip, timeReturnTrip that specify
-        separate times for the two halves of the trip.
-        """
-        if name is None:
-            name= "FetchOnDemandShipment_%s_%s"%(clientWarehouse.name,supplierWarehouse.name)
-        OnDemandShipment.__init__(self, supplierWarehouse, clientWarehouse, thresholdFunction,
-                                  quantityFunction, transitTime, orderPendingLifetime,
-                                  pullMeanFrequencyDays, shipPriority, startupLatency,
-                                  truckType, name, minimumDaysBetweenShipments,
-                                  delayInfo, conditions)
-        self.first = True
-    def run(self):
-        clientW = self.toW
-        supplierW = self.fromW
-        if self.nextAllowedDeparture>0.0:
-            yield hold,self,self.nextAllowedDeparture
-        while True:
-            # We want to start by doing a shipment, or the downstream
-            # warehouse will just sit at 0.
-            totalVC= self.quantityFunction(self.fromW, self.toW, self.pullMeanFrequency,
-                                           self.sim.now())
-            if totalVC.totalCount()>0:
-                
-                # simulate a truck delay
-                if self.delayInfo is not None:
-                    delay= self.delayInfo.getPickupDelay()
-                    if delay > 0.0:
-                        logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
-
-                        yield hold, self, delay
-                        if self.delayInfo.d['PickupDelayReorder']:
-                            # this is completely lame but if someone places an order
-                            # then the truck is delayed and then when they are asked
-                            # what size of an order to make they order nothing we're
-                            # going to give them what they originally wanted.  Otherwise
-                            # we need to jump through some impressive hoops unless we
-                            # wish to go about refactoring this code
-                            newTotalVC= self.quantityFunction(self.fromW, self.toW,
-                                                              self.pullMeanFrequency,
-                                                              self.sim.now())
-                            if newTotalVC.totalCount > 0:
-                                totalVC = newTotalVC
-
-                # We're leaving now; when is the next permitted departure?
-                self.nextAllowedDeparture= self.sim.now()+self.minimumDaysBetweenShipments
-
-                # Let's cancel the trip if the supplier doesn't have any of what's needed
-                if self.fromW.gotAnyOfThese(self.toW.lowStockSet) or self.first == True:
-                    self.first = False
-                    if isinstance(self.transitTime,types.TupleType):
-                        toTime,froTime = self.transitTime
-                    else:
-                        toTime = froTime = self.transitTime
-    
-                    # Make one or more trips.  In normal operation only one trip will be required, but 
-                    # additional trips may be executed if the available shipping volume is too low to raise
-                    # an otherwise-available shippable above its trigger threshold.
-                    stepList = [('gettruck', (clientW,)),
-                                ('recycle',(clientW,self.packagingModel,self.storageModel)),
-                                ('move',(toTime,clientW,supplierW,self.conditions)),
-                                ('unload',(supplierW,)),
-                                ('loadexistingtruck',(supplierW, self.packagingModel, self.storageModel, totalVC)),
-                                ('move',(froTime,supplierW,clientW,self.conditions)),
-                                ('alldeliver',(clientW,totalVC,self.pullMeanFrequency)),
-                                ('unload',(clientW,)),
-                                ('finish',(clientW,clientW))
-                                ]
-        
-                    travelGen= createTravelGenerator(self.bName, stepList, self.truckType, self.delayInfo, self)
-                    # This should maybe be more like the code block from PEP380: 
-                    # http://www.python.org/dev/peps/pep-0380/#id13
-                    for val in travelGen: yield val
-                else:
-                    logVerbose(self.sim,"%s: supplier has no needed stock at %g"%(self.bName,self.sim.now()))
-                
-            else:
-                logVerbose(self.sim,"%s:quantity to order is zero at %g"%(self.bName,self.sim.now()))
-
-            extraDelay = 0.0
-            if self.toW.lowStockSet:
-                # Some shippables are below the trigger threshold- run another trip as soon as allowed
-                # By triggering the event and then waiting on it (which returns immediately), we 
-                # clear any pending event and continue.
-                logDebug(self.sim,"%s still triggered at %g"%(self.bName,self.sim.now()))
-                if self.minimumDaysBetweenShipments < 1.0:
-                    extraDelay = 1.0 # to prevent rapid looping if the supplier is stocked out
-                self.warningEvent.signal()
-                yield waitevent,self,self.warningEvent                
-            else:
-                # The trigger threshold mechanism will initiate a new trip when needed                
-                logVerbose(self.sim,"%s: enters waitEvent at %g"%(self.bName,self.sim.now()))
-                yield waitevent,self,self.warningEvent
-                logVerbose(self.sim,"%s: received trigger event at %g"%(self.bName,self.sim.now()))
-                
-            # Short pause to keep shipping events triggered by upstream
-            # deliveries acting through attemptRestock() from piling up 
-            # at the same 'moment'.  If we've gotten a request before the
-            # next allowed departure, wait until then.
-            delay= max(self.sim.rndm.gauss(0.1,0.025)+extraDelay, Warehouse.shortDelayTime)
-            if self.nextAllowedDeparture - self.sim.now() > 0.0:
-                delay += self.nextAllowedDeparture-self.sim.now()
-            logDebug(self.sim,"%s pausing %g at %g"%(self.bName,delay,self.sim.now()))
-            yield hold,self,delay
-            logVerbose(self.sim,"%s finished waiting; shipping at %g"%(self.bName,self.sim.now()))
-
-    def __repr__(self):
-        return "<FetchOnDemandShipment(%s,%s,%s,%s,%g,%g,%g)>"%\
-            (self.fromW.name,self.toW.name,
-             self.thresholdVC,self.quantityFunction,self.transitTime,
-             self.pullMeanFrequency,self.minimumDaysBetweenShipments)
-    def __str__(self): 
-        return "<FetchOnDemandShipment(%s,%s)>"%(self.fromW.name,self.toW.name)
-
-class PersistentFetchOnDemandShipment(OnDemandShipment):
-    def __init__(self,supplierWarehouse,clientWarehouse,thresholdFunction,
-                 quantityFunction,transitTime,orderPendingLifetime,
-                 pullMeanFrequencyDays,shipPriority,startupLatency=0.0,
-                 truckType=None,name=None, 
-                 minimumDaysBetweenShipments=0.0,
-                 delayInfo=None, conditions="normal"):
-        """
-        This shipping pattern is like that of PersistentOnDemandShipment, except that
-        the truck starts at and returns to clientWarehouse, stopping at supplierWarehouse
-        for supplies.
-        
-        thresholdFunction and quantityFunction have the signatures:
-        
-        vaccineCollection= thresholdFunction(toWarehouse,pullMeanFrequency)
-        vaccineCollection= quantityFunction(fromWarehouse,toWarehouse,pullMeanFrequencyDays,timeNow)
-        
-        The first function is used after the shipping network has been built
-        to construct a VaccineCollection giving the reorder threshold points 
-        for the given warehouse.  The second is used repeatedly to calculate
-        the shipment sizes between the given warehouses.
-
-
-        transitTime may be single scalar time which will apply to both legs
-        of the trip, or a tuple (timeOutboundTrip, timeReturnTrip that specify
-        separate times for the two halves of the trip.
-        """
-        if name is None:
-            name= "PersistentFetchOnDemandShipment_%s_%s"%(clientWarehouse.name,supplierWarehouse.name)
-        OnDemandShipment.__init__(self, supplierWarehouse, clientWarehouse, thresholdFunction,
-                                  quantityFunction, transitTime, orderPendingLifetime,
-                                  pullMeanFrequencyDays, shipPriority, startupLatency,
-                                  truckType, name, minimumDaysBetweenShipments,
-                                  delayInfo, conditions)
-    def run(self):
-        clientW = self.toW
-        supplierW = self.fromW
-        if self.nextAllowedDeparture>0.0:
-            yield hold,self,self.nextAllowedDeparture
-        while True:
-            # We want to start by doing a shipment, or the downstream
-            # warehouse will just sit at 0.
-            totalVC= self.quantityFunction(self.fromW, self.toW, self.pullMeanFrequency,
-                                           self.sim.now())
-            if totalVC.totalCount()>0:
-                
-                # simulate a truck delay
-                if self.delayInfo is not None:
-                    delay= self.delayInfo.getPickupDelay()
-                    if delay > 0.0:
-                        logDebug(self.sim,"%s: shipment is delayed by %f days"%(self.bName, delay))
-
-                        yield hold, self, delay
-                        if self.delayInfo.d['PickupDelayReorder']:
-                            # this is completely lame but if someone places an order
-                            # then the truck is delayed and then when they are asked
-                            # what size of an order to make they order nothing we're
-                            # going to give them what they originally wanted.  Otherwise
-                            # we need to jump through some impressive hoops unless we
-                            # wish to go about refactoring this code
-                            newTotalVC= self.quantityFunction(self.fromW, self.toW,
-                                                              self.pullMeanFrequency,
-                                                              self.sim.now())
-                            if newTotalVC.totalCount > 0:
-                                totalVC = newTotalVC
-
-                # We're leaving now; when is the next permitted departure?
-                self.nextAllowedDeparture= self.sim.now()+self.minimumDaysBetweenShipments
-
-                if isinstance(self.transitTime,types.TupleType):
-                    toTime,froTime = self.transitTime
-                else:
-                    toTime = froTime = self.transitTime
-
-                while True:
-                    # Make one or more trips.  In normal operation only one trip will be required, but 
-                    # additional trips may be executed if the available shipping volume is too low to raise
-                    # an otherwise-available shippable above its trigger threshold.
-                    stepList = [('gettruck', (clientW,)),
-                                ('recycle',(clientW,self.packagingModel,self.storageModel)),
-                                ('move',(toTime,clientW,supplierW,self.conditions)),
-                                ('unload',(supplierW,)),
-                                ('loadexistingtruck',(supplierW, self.packagingModel, self.storageModel, totalVC)),
-                                ('move',(froTime,supplierW,clientW,self.conditions)),
-                                ('alldeliver',(clientW,totalVC,self.pullMeanFrequency)),
-                                ('unload',(clientW,)),
-                                ('finish',(clientW,clientW))
-                                ]
-        
-                    travelGen= createTravelGenerator(self.bName, stepList, self.truckType, self.delayInfo, self)
-                    # This should maybe be more like the code block from PEP380: 
-                    # http://www.python.org/dev/peps/pep-0380/#id13
-                    for val in travelGen: yield val
-                
-                    if self.toW.lowStockSet and self.fromW.gotAnyOfThese(self.toW.lowStockSet):
-                        totalVC= self.quantityFunction(self.fromW, self.toW, self.pullMeanFrequency,
-                                                       self.sim.now())
-                        # And continue for another loop
-                    else:
-                        break
-                
-            else:
-                logVerbose(self.sim,"%s:quantity to order is zero at %g"%(self.bName,self.sim.now()))
-            logVerbose(self.sim,"%s: enters waitEvent at %f"%(self.bName,self.sim.now()))
-            yield waitevent,self,self.warningEvent
-            # Short pause to keep shipping events triggered by upstream
-            # deliveries acting through attemptRestock() from piling up 
-            # at the same 'moment'.  If we've gotten a request before the
-            # next allowed departure, wait until then.
-            delay= max(self.sim.rndm.gauss(0.1,0.025), Warehouse.shortDelayTime)
-            if self.nextAllowedDeparture - self.sim.now() > 0.0:
-                delay += self.nextAllowedDeparture-self.sim.now()
-            logDebug(self.sim,"%s received event at %g, pausing %g"%(self.bName,self.sim.now(),delay))
-            yield hold,self,delay
-            logVerbose(self.sim,"%s received event and waited; shipping at %g"%(self.bName,self.sim.now()))
-
-    def __repr__(self):
-        return "<PersistentFetchOnDemandShipment(%s,%s,%s,%s,%g,%g,%g)>"%\
-            (self.fromW.name,self.toW.name,
-             self.thresholdVC,self.quantityFunction,self.transitTime,
-             self.pullMeanFrequency,self.minimumDaysBetweenShipments)
-    def __str__(self): 
-        return "<PersistentFetchOnDemandShipment(%s,%s)>"%(self.fromW.name,self.toW.name)
 
 class PeriodicProcess(Process, abstractbaseclasses.UnicodeSupport):
     def __init__(self,sim,name,interval,startupLatency=0.0):
@@ -4570,6 +3013,7 @@ class TimerProcess(Process, abstractbaseclasses.UnicodeSupport):
         else:
             return "<TimerProcess(%s)>"%self.name
 
+
 class SnoozeTimerProcess(Process, abstractbaseclasses.UnicodeSupport):
     counter= 0
     def __init__(self,sim,name,delayDays,snoozeDays,snoozealarmclockFunc,funArgs):
@@ -4614,137 +3058,11 @@ class SnoozeTimerProcess(Process, abstractbaseclasses.UnicodeSupport):
         else:
             return "<SnoozeTimerProcess(%s)>"%self.name
 
-class ScheduledShipment(Process, abstractbaseclasses.UnicodeSupport):
-    def __init__(self,fromWarehouse,toWarehouse,interval,shipVC,
-                 startupLatency=0.0,name=None):
-        """
-        The shipping interval and startupLatency are in days.
-        shipVC should be a VaccineCollection giving the quantity to ship,
-         or None, in which case the quantity is calculated after network
-         assembly by finishBuild().
-        """
-        if name is None: 
-            name="ScheduledShipment_%s_%s"%(fromWarehouse.name,toWarehouse.name)
-        Process.__init__(self, name=name, sim=fromWarehouse.sim)
-        if interval<1.0:
-            raise RuntimeError("ScheduledShipment %s has cycle time of less than a day- probably not what you wanted"%\
-                               name)
-        if startupLatency<0.0:
-            raise RuntimeError("ScheduledShipment %s has a negative startup latency"%startupLatency)
-        self.fromW= fromWarehouse
-        self.toW= toWarehouse
-        self.interval= interval
-        self.shipVC= shipVC
-        self.startupLatency= startupLatency
-        #toWarehouse.addSupplier(fromWarehouse,{"Type":"push"})
-        #fromWarehouse.addClient(toWarehouse)
-        fromWarehouse.sim.processWeakRefs.append( weakref.ref(self) )
-
-    def finishBuild(self,szFunc):
-        """
-        This method should be called after the shipping network has been assembled.
-        It allows the ScheduledShipment to precalculate quantities that depend on information
-        from elsewhere in the network.
-        
-        szFunc has the signature:
-    
-          shipSizeVialsVC= szFunc(fromWH,toWH,shipIntervalDays,timeNow)
-          
-        As used by this class, szFunc is called once with timeNow= 0.0 at the beginning of simulation.
-
-        """
-        if self.shipVC is None and szFunc is not None:
-            totalShipVC= szFunc(self.fromW,self.toW,self.interval,self.sim.now())
-            fVC,cVC,wVC= self.toW.calculateStorageFillRatios(totalShipVC, assumeEmpty=False)
-            fillVC= fVC+cVC+wVC
-            scaledShipVC= totalShipVC*fillVC
-            scaledShipVC.roundDown()
-            self.shipVC= scaledShipVC
-
-    def run(self):
-        if self.startupLatency>0.0:
-            yield hold,self,self.startupLatency
-        while True:
-            if self.shipVC is None:
-                raise RuntimeError("ScheduledShipment %s to %s: time to ship but shipVC has not been set",
-                                   (self.fromW.name,self.toW.name))
-            else:
-                self.fromW.addPendingShipment(self.toW, self.shipVC)
-                logVerbose(self.sim,"%s requesting %s at %g"%(self.bName,self.shipVC,self.sim.now()))
-            yield hold,self,self.interval
-    def setShipVC(self,shipVC):
-        self.shipVC= shipVC
-    def __repr__(self):
-        return "<ScheduledShipment(%s,%s,%f,%s)>"%\
-            (self.fromW.name,self.toW.name,self.interval,repr(self.shipVC))
-    def __str__(self): 
-        return "<ScheduledShipment(%s,%s)>"%(self.fromW.name,self.toW.name)
-
-class ScheduledVariableSizeShipment(Process,abstractbaseclasses.UnicodeSupport):
-    def __init__(self,fromWarehouse,toWarehouse,interval,quantityFunction,
-                 startupLatency=0.0,name=None):
-        """
-        quantityFunction is called every 'interval' days and produces a
-        VaccineCollection giving the size of the order.  Its signature is:
-
-          vaccineCollection quantityFunction(fromWarehouse, toWarehouse, shipInterval, timeNow)
-            
-        szFunc has the signature:
-    
-          shipSizeVialsVC= szFunc(fromWH,toWH,shipIntervalDays,timeNow)
-
-        szFunc must impose limits due to available storage space, since the shipment
-        size will depend on supplies already on hand and this class doesn't have
-        that information.
-        """
-        if name is None:
-            name= "ScheduledVariableSizeShipment_%s_%s"%(fromWarehouse.name,toWarehouse.name)
-        Process.__init__(self,name=name, sim=fromWarehouse.sim)
-        if interval<1.0:
-            raise RuntimeError("ScheduledVariableSizeShipment %s has cycle time of less than a day- probably not what you wanted"%\
-                               name)
-        if startupLatency<0.0:
-            raise RuntimeError("ScheduledVariableSizeShipment %s has a negative startup latency"%startupLatency)
-        self.fromW= fromWarehouse
-        self.toW= toWarehouse
-        self.interval= interval
-        self.quantityFunction= quantityFunction
-        self.startupLatency= startupLatency
-        #toWarehouse.addSupplier(fromWarehouse)
-        #fromWarehouse.addClient(toWarehouse)
-        fromWarehouse.sim.processWeakRefs.append( weakref.ref(self) )
-    def finishBuild(self, szFunc):
-        """
-        This method should be called after the shipping network has been assembled.
-        It allows the ScheduledVariableSizeShipment to precalculate quantities that 
-        depend on information from elsewhere in the network.
-        
-        szFunc has the signature:
-    
-          shipSizeVialsVC= szFunc(fromWH,toWH,shipIntervalDays,timeNow)
-        """
-        if self.quantityFunction is None:
-            self.quantityFunction= szFunc
-    def run(self):
-        if self.startupLatency>0.0:
-            yield hold,self,self.startupLatency
-        while True:
-            shipVC= self.quantityFunction(self.fromW,self.toW,self.interval,self.sim.now())
-            shipVC.floorZero()
-            shipVC.roundDown()
-            fullVC = shipVC
-            self.fromW.addPendingShipment(self.toW,fullVC)
-            logVerbose(self.sim,"%s requesting %s at %g"%(self.bName,fullVC,self.sim.now()))
-            yield hold,self,self.interval
-    def __repr__(self):
-        return "<ScheduledVariableSizeShipment(%s,%s,%f)>"%(self.fromW.name,self.toW.name,self.interval)
-    def __str__(self): 
-        return "<ScheduledVariableSizeShipment(%s,%s)>"%(self.fromW.name,self.toW.name)
 
 class UseVials(Process, abstractbaseclasses.UnicodeSupport):
     def __init__(self,clinic,
                  tickInterval,patientWaitInterval,useVialPriority,
-                 startupLatency=0.0):
+                 startupLatency=0.0,openVialDenyFraction=None):
         """
         The paramters are:
 
@@ -4752,6 +3070,8 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
         tickInterval: interval between activations in days
         useVialPriority: 'get' priority for withdrawal of supplies from clinic
         startupLatency: delay before first activation in days
+        openVialDenyFraction: optional dict, if vaccine in dict don't open vial unless a certain fraction of vial will be used
+                              the key "_all" is for any vaccine not explicitly enumerated in the dict
         """
         Process.__init__(self,name="UseVials_%s"%clinic.name, sim=clinic.sim)
         if tickInterval<1.0:
@@ -4769,6 +3089,7 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
         self.nextTickTime= 0.0
         self.useVialPriority= useVialPriority
         self.startupLatency= startupLatency
+        self.openVialDenyFraction = openVialDenyFraction
         clinic.sim.processWeakRefs.append( weakref.ref(self) )
         
     def _buildTreatmentSummaryString(self,sim,paramTuple):
@@ -4877,6 +3198,7 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
         This is provided to allow overrides by derived classes.  The input expectedNeedVC will
         include both Deliverables and the Shippables needed to prep them.
         """
+        
         return expectedNeedVC
     
     def saveLeftoverDoses(self, leftoversList):
@@ -4969,7 +3291,7 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
             # those supplies needed to prep them for delivery.
             doseVC= self.clinic.consumptionDemandModel.getDemand(self.clinic.getPopServedPC(),
                                                                  self.tickInterval,self.sim.now())
-
+            
             treatmentTupleList, elaboratedTypeRateList, vcList, notUsedForTreatmentList = \
                 self.sortDoseRequirments(doseVC)
             #print "%s: notUsedForTreatment: %s"%(self.bName,[(v.bName,n) for v,n in notUsedForTreatmentList])
@@ -4981,6 +3303,26 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
             #print "%s: neededDeliverablesVC is %s"%(self.bName, [(v.bName,n) for v,n in neededDeliverablesVC.items()])
             elaboratedVC = self.sim.shippables.addPrepSupplies(neededDeliverablesVC)
             #print "%s: elaboratedVC is %s"%(self.bName, [(v.bName,n) for v,n in elaboratedVC.items()])
+            
+            if self.openVialDenyFraction:
+                for v,n in doseVC.items():
+                    try:
+                        denyFraction = self.openVialDenyFraction[v]
+                    except KeyError:
+                        try:
+                            denyFraction = self.openVialDenyFraction['_all']
+                        except KeyError:
+                            continue
+
+                    threshold = math.floor(v.getNDosesPerVial() * denyFraction)
+                    nLeft = n % v.getNDosesPerVial()
+                    #print "n = {0} nLeft = {1}".format(n,nLeft)
+                    if nLeft > 0 and nLeft < threshold:
+                        #testVar = elaboratedVC[v]
+                        elaboratedVC[v] -= 1
+                        if elaboratedVC[v] < 0:
+                            elaboratedVC[v] = 0
+                        #print "N = {0} threshold = {1} Before = {2} After ={3}".format(nLeft,threshold,testVar,elaboratedVC[v])
             
             self.clinic._instantUsageVC += elaboratedVC
             self.clinic._accumulatedUsageVC += elaboratedVC
@@ -5082,7 +3424,7 @@ class UseVials(Process, abstractbaseclasses.UnicodeSupport):
 class UseOrDiscardVials(UseVials):
     def __init__(self,clinic,
                  tickInterval,patientWaitInterval,useVialPriority,
-                 startupLatency=0.0):
+                 startupLatency=0.0, openVialDenyFraction=None):
         """
         This process is just like a UseVials process, except that any vaccine
         left over at the end of a treatment session is discarded.  The store 
@@ -5100,8 +3442,9 @@ class UseOrDiscardVials(UseVials):
         startupLatency: delay before first activation in days
         """
         UseVials.__init__(self,clinic,
-                 tickInterval,patientWaitInterval,useVialPriority,
-                 startupLatency)
+                          tickInterval,patientWaitInterval,useVialPriority,
+                          startupLatency,
+                          openVialDenyFraction=openVialDenyFraction)
         
     def sortDoseRequirments(self, doseVC):
         """
@@ -5183,7 +3526,7 @@ class UseOrDiscardVials(UseVials):
 class UseOrRecycleVials(UseVials):
     def __init__(self,clinic,
                  tickInterval,patientWaitInterval,useVialPriority,
-                 startupLatency=0.0):
+                 startupLatency=0.0, openVialDenyFraction=None):
         """
         This process is just like a UseVials process, except that any unopened
         vaccine left over at the end of a treatment session is marked for recycling.
@@ -5200,8 +3543,9 @@ class UseOrRecycleVials(UseVials):
         startupLatency: delay before first activation in days
         """
         UseVials.__init__(self,clinic,
-                 tickInterval,patientWaitInterval,useVialPriority,
-                 startupLatency)
+                          tickInterval,patientWaitInterval,useVialPriority,
+                          startupLatency,
+                          openVialDenyFraction=openVialDenyFraction)
         
     def sortDoseRequirments(self, doseVC):
         """

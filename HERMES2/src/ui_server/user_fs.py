@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+  
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
 # =============================================================================== #
@@ -154,15 +154,15 @@ class HermesUserFS(object):
         if not noUpload:
             info['uploading'] = True
 
-        if shortName in self.shortNames:
-            if deleteIfPresent:
-                try:
-                    os.remove(self.getFileInfoByShortName(shortName)['serverSideName'])
-                except:
-                    pass
-                self.removeFileInfo(self.getFileKeyByShortName(shortName))
-            else:
-                raise HermesServiceException('shortName %s already exists'%shortName)
+#         if shortName in self.shortNames:
+#             if deleteIfPresent:
+#                 try:
+#                     os.remove(self.getFileInfoByShortName(shortName)['serverSideName'])
+#                 except:
+#                     pass
+#                 self.removeFileInfo(self.getFileKeyByShortName(shortName))
+#             else:
+#                 raise HermesServiceException('shortName %s already exists'%shortName)
         self.shortNames[shortName] = fileKey
         self.files[fileKey] = info
         self.save()
@@ -280,8 +280,8 @@ class HermesUserFS(object):
         """
         change the short name for a file
         """
-        if dstShortName in self.shortNames:
-            raise HermesServiceException("shortName %s already exists"%dstShortName)
+        #if dstShortName in self.shortNames:
+        #    raise HermesServiceException("shortName %s already exists"%dstShortName)
         info = self.getFileInfo(fileKey, 'renameShortName')
         oldShortName = info['shortName']
         del self.shortNames[oldShortName]
@@ -291,8 +291,10 @@ class HermesUserFS(object):
         if _debug: _logMessage("user_fs.renameShortName renamed %s to %s"%(fileKey,dstShortName))
 
     def extensionToType(self, ext):
+        ext = ext.lower()
         tmap = {'.csv':'text/csv', '.dot':'text/xml', '.svg':'image/svg+xml', '.jpg':'image/jpeg', 
-                '.png':'image/png', '.zip':'application/zip'}
+                '.png':'image/png', '.zip':'application/zip', '.hzp':'application/zip','.xls':'application/vnd.ms-excel',
+                '.xlsx':'application/vnd.ms-excel'}
         if ext in tmap: 
             if _debug: _logMessage("user_fs.extensionToType mapped %s to %s"%(ext,tmap[ext]))
             return tmap[ext]
@@ -308,7 +310,11 @@ class HermesUserFS(object):
                           'NetGraph_svg':('.svg', 'image/svg+xml'),
                           'NetGraph_jpg':('.jpg', 'image/jpeg'),
                           'NetGraph_png':('.png', 'image/png'),
-                          'zip-archive':('.zip', 'application/zip')}
+                          'zip-archive':('.zip', 'application/zip'),
+                          'HERMES-archive':('.hzp', 'application/zip'),
+                          'excel-file':('.xls', 'application/vnd.ms-excel'),
+                          'excelx-file':('.xlsx','application/vnd.ms-excel')
+                          }
 
         info = self.getFileInfo(fileKey, 'getExtensionAndType')
         if info['type'] not in typeExtensions:

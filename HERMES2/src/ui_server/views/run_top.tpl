@@ -1,4 +1,4 @@
-%rebase outer_wrapper title_slogan=_('Run A Model'), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
+%rebase outer_wrapper title_slogan=_('Run Status'), breadcrumbPairs=breadcrumbPairs,_=_,inlizer=inlizer
 <!---
 ###################################################################################
 # Copyright   2015, Pittsburgh Supercomputing Center (PSC).  All Rights Reserved. #
@@ -22,32 +22,34 @@
 </p>
 
 <table>
-<tr>
-<td>
-<h3 style="display:none">{{_('Run Status')}}</h3>
-<table id="manage_runs_grid"></table>
-<div id="manage_runs_pager"> </div>
-
-</td>
-</tr>
+	<tr>
+		<td>
+			<h3 style="display:none">{{_('Run Status')}}</h3>
+					<table id="manage_runs_grid"></table>
+					<div id="manage_runs_pager"> </div>
+		</td>
+	</tr>
 </table>
-
-<div id="run_info_dialog" title="This should get replaced">
-</div>
+<div id='run_info_dialog'></div>
+<div id='run_log_dialog'></div>
+<div id="run_cancel_confirm_dialog" title="{{_('Confirming Run Cancelation')}}"></div>
+<div id="run_cancel_info_dialog" title="{{_('Notification')}}"></div>
 
 <script>
-{{!setupToolTips()}}
+
 
 function runInfoButtonFormatter(cellvalue, options, rowObject)
 {
     // cellvalue will be an integer
-	return "<button type=\"button\" class=\"hermes_info_button\" id="+cellvalue+">Info</button>";
+	return "<button  class='hermes_info_button' id='"+cellvalue+"'>Info</button>";
 }
 
 function runCancelButtonFormatter(cellvalue, options, rowObject)
 {
     // cellvalue will be an integer
-	return "<button type=\"button\" class=\"hermes_cancel_button\" id="+cellvalue+">{{_('Cancel')}}</button>";
+	return "<button class='hermes_cancel_button' id='"+cellvalue+"'>{{_('Cancel')}}</button>" +
+	"<button  class='hermes_clear_button' id='"+cellvalue+"'>{{_('Clear')}}</button>" +
+	"<button  class='hermes_logs_button' id='"+cellvalue+"'>{{_('Logs')}}</button>";
 }
 
 var lastsel_runs;
@@ -58,6 +60,7 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
 	//height: 'auto', //expand height according to number of records
 	rowNum:9999, // rowNum=-1 has bugs, suggested solution is absurdly large setting to show all on one page
 	colNames:[
+		"{{_('Run Name Bad')}}",
 		"{{_('Run Name')}}",
 		"{{_('Run ID')}}",
 		"{{_('Model Name')}}",
@@ -69,7 +72,8 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
         "{{_('Running')}}"
 	], //define column names
 	colModel:[
-	{name:'runname', index:'runname', editable:false, width:275},
+	{name:'runname', index:'runname', editable:false, hidden:true, width:275},
+	{name:'rundispname',index:'rundispname',editable:false,width:275},
 	{name:'runid', index:'runid', key:true, hidden:true, sorttype:'int'},
 	{name:'modelname', index:'modelname', editable:false, width:275},
 	{name:'modelid', index:'modelid', sorttype:'int', width:150},
@@ -85,7 +89,7 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
   pgbuttons: false, //since showing all records on one page, remove ability to navigate pages
   pginput: false, //ditto
 	sortname: 'runname', //the column according to which data is to be sorted; optional
-	viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Z” optional
+	viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� optional
 	sortorder: "asc", //sort order; optional
 	gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
    	onSelectRow: function(runid, status){
@@ -103,6 +107,8 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
 	},
 	gridComplete: function(){
 		$(".hermes_info_button").click(function(event) {
+			//runId = $(this).attr('id');
+			//alert(runId);
 			$.getJSON('json/run-info',{runId:$(this).attr('id')})
 			.done(function(data) {
 				if (data.success) {
@@ -119,11 +125,13 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
 			});
 			event.stopPropagation();
 		});
-		$(".hermes_cancel_button").click(function(event) {
-			$.getJSON('json/run-terminate',{runId:$(this).attr('id')})
+		$(".hermes_clear_button").click(function(event) {
+			//runId = $(this).attr('id');
+			//alert(runId);
+			$.getJSON('json/run-clear',{runId:$(this).attr('id')})
 			.done(function(data) {
-    			if (data.success) {
-    				alert('{{_("Canceled")}}');
+				if (data.success) {
+				        refreshGrid();
     			}
     			else {
     				alert('{{_("Failed: ")}}'+data.msg);
@@ -134,10 +142,85 @@ $("#manage_runs_grid").jqGrid({ //set your grid id
 			});
 			event.stopPropagation();
 		});
+		$(".hermes_logs_button").click(function(event) {
+			//runId = $(this).attr('id');
+			//alert(runId);
+			$.getJSON('json/run-logs',{runId:$(this).attr('id')})
+			.done(function(data) {
+				if (data.success) {
+    				    $("#run_log_dialog").html(data['htmlstring']);
+    					$("#run_log_dialog").dialog({
+    						title:data['title'],
+    						width: 700,
+    						height:500,
+    						modal:true
+    					});
+    					$("#run_log_dialog").dialog("open");		
+    			}
+    			else {
+    				alert('{{_("Failed: ")}}'+data.msg);
+    			}
+			})
+			.fail(function(jqxhr, textStatus, error) {
+				alert('{{_("Error: ")}}'+jqxhr.responseText);
+			});
+			event.stopPropagation();
+		});
+		$(".hermes_cancel_button").click(function(event) {
+			//$.getJSON('json/run-terminate',{runId:$(this).attr('id')})
+			var $thisId = $(this).attr('id');
+			$("#run_cancel_confirm_dialog").html("{{_('Are you sure that you would like to cancel the currently run?')}}");
+			$("#run_cancel_confirm_dialog").dialog({
+				modal:true,
+				autoOpen: true,
+				width:'auto',
+				buttons:{
+					"{{_('Yes')}}": function(){
+						$.getJSON('json/run-terminate',{runId:$thisId})
+						.done(function(data) {
+			    			if (data.success) {
+			    				$("#run_cancel_confirm_dialog").html("");
+			    				$("#run_cancel_confirm_dialog").dialog("close");
+								$("#run_cancel_confirm_dialog").dialog("destroy");
+								$("#run_cancel_info_dialog").html("{{_('The run has been successfully cancelled')}}");
+			    				$("#run_cancel_info_dialog").dialog({
+			    					modal:true,
+			    					autoOpen:true,
+			    					width:'auto',
+			    					buttons:{
+			    						"{{_('OK')}}":function(){
+			    							$("#run_cancel_info_dialog").html("");
+			    							$(this).dialog("close");
+			    							$(this).dialog("destroy");
+			    						}
+			    					}
+			    				});
+			    			}
+			    			else {
+			    				alert('{{_("Failed: ")}}'+data.msg);
+			    			}
+						})
+						.fail(function(jqxhr, textStatus, error) {
+							alert('{{_("Error: ")}}'+jqxhr.responseText);
+						});
+						event.stopPropagation();
+					},
+					"{{_('No')}}": function(){
+						$(this).dialog("close");
+						$(this).dialog("destroy");
+					}
+				}
+			});
+		});
 		$(".hermes_cancel_button").each(function() {
 			var id = $(this).attr('id');
 			var state = $('#manage_runs_grid').getCell(id, 'isrunning');
 			$(this).prop('disabled', (state == 'false'));
+		});
+		$(".hermes_logs_button").each(function() {
+			var id = $(this).attr('id');
+			var state = $('#manage_runs_grid').getCell(id, 'isrunning');
+			$(this).prop('disabled', (state == 'true'));
 		});
 		if (lastsel_runs != undefined) {
 			// preserve selection across reload
@@ -172,7 +255,7 @@ $(function() {
 });
 
 $(function() {
-	$("#run_info_dialog").dialog({autoOpen:false, height:"auto", width:"auto"});
+	$("#run_info_dialog").dialog({autoOpen:false, height:"auto", width:600});
 });
 
 $(function() {

@@ -127,11 +127,7 @@ $("#manage_models_grid").jqGrid({ //set your grid id
 	"{{_('Actions')}}"
     ], //define column names
     colModel:[
-//	{name:'name', index:'name', width:100, editable:true, edittype:'text'},
-//	{name:'id', index:'id',width:50, key:true, sorttype:'int',hidden:false},
-//	{name:'note', index:'note', width:200, editable:true, edittype:'textarea'},
-//	{name:'download zip', index:'downloadzip',hidden:true},
-//	{name:'statinfo', index:'statinfo', width:110, align:'center', formatter:modelsInfoButtonFormatter}
+
 	{name:'name', index:'name', editable:true, edittype:'text'},
 	{name:'id', index:'id',width:30,key:true, sorttype:'int',hidden:false},
 	{name:'note', width:200, index:'note'},

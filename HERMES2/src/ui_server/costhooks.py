@@ -1229,7 +1229,8 @@ def jsonManageCostBuildingsTable(db, uiSession):
                   "records": totRecs,  # total records
                   "rows": [{"id": t['id'],
                             "name": t['name'],
-                            "level": "%d_%s" % (lvlMap[t['level']], t['level']),
+                            "level": t['level'],
+        #"%d_%s" % (lvlMap[t['level']], t['level']),
                             "cost": t['cost'],
                             "costcur": t['costcur'],
                             "costyear": t['costyear'],

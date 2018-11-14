@@ -39,13 +39,13 @@ var modelInfo = ModelInfoFromJson(modJson);
 
 <p>
 	<span class="hermes-top-sub">
-		{{_('Now, we need to allocate the equipment for storage and population that will be served for each location at each level.').format(name)}}
+		{{_('Now, we need to allocate what storage equipment each level will require and how many people each level is expected to serve.').format(name)}}
 		{{_('To add an item to all locations at a level, edit the cell to indicate the number to be added.  You can modify individual locations by editing the model.')}}
 	</span>
 </p>
 <p>
 	<span class="hermes-top-sub">
-		{{_('NOTE: The count should be the number you would like at each location in the level (e.g. if you specify 100 Newborns at the Health Post level, each location at that level will be assigned 100 Newborns)"')}}
+		{{_('NOTE: The count should be the number you would like at each location in the level (e.g. if you specify 100 newborns at the health facility level, each location at that level will be assigned 100 newborns)"')}}
 	</span>
 </p>
 
@@ -69,7 +69,15 @@ var modelInfo = ModelInfoFromJson(modJson);
 <script>
 
 function itemsInfoButtonFormatter(cellvalue,options,rowObject){
-	return "<button type='button' class='hermes_info_button' id="+cellvalue+">"+'{{_("Info")}}'+"</button>";
+ 	var typeName = rowObject.id.replace(".","PeRiOd");
+ 	console.log(rowObject);
+ 	if(rowObject.type == "Devices to Store Vaccines at this Level"){
+ 		return "<div class='hermes_info_fridge_button_div' id='" +options.gid + "_" + typeName+ "_info_button_div'></div>";
+ 	}
+ 	else{
+ 		return "<div class='hermes_info_people_button_div' id='" +options.gid + "_" + typeName+ "_info_button_div'></div>";
+ 	}
+	//return "<button type='button' class='hermes_info_button' id='"++"'>"+'{{_("Info")}}'+"</button>";
 }
 
 for(var i = 0; i < modelInfo.nlevels; i++){
@@ -268,9 +276,37 @@ $.ajax({
 			},
 			editurl:'clientArray',
 			gridComplete: function(){
-				$('.hermes_info_button').click(function(event){
-					alert("info goes here");
+				
+				$("#provision_table .hermes_info_fridge_button_div").each(function(){
+					$this = $(this);
+					var typeNameHere = $this.attr("id").replace("_info_button_div","").replace("provision_table_","");
+					$this.hrmWidget({
+						widget:'typeInfoButtonAndDialog',
+						modelId: modelInfo['modelId'],
+						typeId: typeNameHere,
+						typeClass: 'fridges',
+						autoOpen: false
+					});
+					
 				});
+				$("#provision_table .hermes_info_people_button_div").each(function(){
+					$this = $(this);
+					var typeNameHere = $this.attr("id").replace("_info_button_div","").replace("provision_table_","");
+					$this.hrmWidget({
+						widget:'typeInfoButtonAndDialog',
+						modelId: modelInfo['modelId'],
+						typeId: typeNameHere,
+						typeClass: 'people',
+						autoOpen: false
+					});
+					
+				});
+//				$('.hermes_info_button').each(function(){
+//					$this = $(this);
+//					var typeNameHere = $this.attr('id').replace('')
+//				}
+//					
+//				});
 				ids = $("#provision_table").getDataIDs();
 			}
 		}).jqGrid('hermify',{debug:true, resizable_hz:true});

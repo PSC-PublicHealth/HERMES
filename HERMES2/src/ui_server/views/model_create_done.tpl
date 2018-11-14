@@ -31,7 +31,7 @@ console.log(modelInfo);
 
 <p>
 	<span class="hermes-top-sub">
-		{{_("Here you can make some minor adjustments to the supply chain.  Make adjustments to the model by clicking the cell to be modified and then hitting the enter key when finished.  You can expand or collapase levels by click the triangle next to the location name.")}}
+		{{_("Here you can make some minor adjustments to the supply chain.  Make adjustments to the model by clicking the cell to be modified and then hitting the enter key when finished.  You can expand or collapse levels by clicking the triangle next to the location name.")}}
 	</span>
 </p>
 
@@ -174,6 +174,19 @@ $(function() {
 	});
 });
 
+function checkHowOften(value,colname){
+	var rowId = $("#model_create_adjust_grid").jqGrid('getGridParam','selrow');
+	if(rowId == 1){
+		//alert("RowId = 1 and value = "+ value);
+		return [true,""];
+	}
+	else{
+		//alert(value == parseInt(value,10));
+		if(value == parseInt(value,10)) return[true,""];
+	}
+	
+	return [false,'{{_("Please provide an integer for the Frequency of Shipments")}}'];
+}
 
 $(function() {
 
@@ -184,24 +197,32 @@ $(function() {
         treeGrid: true,
 	    width: 1000, //specify width; optional
 	    colNames:["{{_('Level')}}",
-	              "{{_('Location Name')}}",
+	              //"{{_('Original Name')}}",
+	              "{{_('Current Location Name')}}",
 	              'idcode',
 	              "{{_('Pick Up or Receive Shipments?')}}",
 	              "{{_('Scheduled or Demand-Based Schedule of Shipments')}}",
 	              "{{_('Amount of Shipment Fixed or Demand Based')}}",
 	              "{{_('Frequency of Shipments')}}",
 	              "{{_('per')}}",
-	              "{{_('Number of Locations Supplied by this Location')}}"], //define column names
+	              "{{_('Number of Locations Supplied by this Location')}}",
+	              "level","lft","rgt","isLeaf","expanded"], //define column names
 	    colModel:[
 	        {name:'levelname', index:'level', width:100},
-	        {name:'name', index:'name', width:100, editable:true, edittype:'text'},
+	        //{name:'oname', index:'name', width:75, editable:false},
+	        {name:'name', index:'name', width:75, editable:true, edittype:'text'},
 	        {name:'idcode', index:'idcode', width:30, key:true, sorttype:'int'},
-	        {name:'isfetch',index:'isfetch',width:50,editable:true,edittype:'select',editoptions: {value:"true:{{_('pick up')}}; false:{{_('recieve')}}"}},
+	        {name:'isfetch',index:'isfetch',width:50,editable:true,edittype:'select',editoptions: {value:"true:{{_('pick up')}}; false:{{_('receive')}}"}},
 	        {name:'issched',index:'issched',width:60,editable:true,edittype:'select',editoptions: {value:"true:{{_('scheduled')}}; false:{{_('demand-based')}}"}},
 	        {name:'isfixedam',index:'isfixedam',width:50,editable:true,edittype:'select',editoptions: {value:"true:{{_('fixed')}}; false:{{_('variable')}}"}},
-	        {name:'howoften',index:'howoften',width:60, sorttype:'int',editable:true,editrules:{integer:true}},
+	        {name:'howoften',index:'howoften',width:60, sorttype:'int',editable:true,editrules:{custom: true, custom_func: checkHowOften}},
 	        {name:'ymw',index:'ymw',width:50,editable:true,edittype:'select',editoptions: {value:"year:year; month:month; week:week"}},
-	        {name:'kids', index:'kids', width:50, sorttype:'int',editable:true,edittype:'text',editrules:{integer:true}},	        
+	        {name:'kids', index:'kids', width:50, sorttype:'int',editable:true,edittype:'text',editrules:{integer:true},hidden:true},	
+	        {name:'level',index:'level',hidden:true,editable:true},
+	        {name:'lft',index:'lft',hidden:true,editable:true},
+	        {name:'rgt',index:'rgt',hidden:true,editable:true},
+	        {name:'isLeaf',index:'isLeaf',hidden:true,editable:true},
+	        {name:'expanded',index:'expanded',hidden:true,editable:true}
 	    ], //define column models
 	    pager: '#model_create_adjust_pager', // but this is actually ignored for treeGrid=true
 	    sortname: 'idcode', //the column according to which data is to be sorted; optional
@@ -209,45 +230,36 @@ $(function() {
 	    sortorder: "asc", //sort order; optional
 	    gridview: false, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
    	    onSelectRow: function(id){
-		    if(id && id!==lastsel_models){
+		    if(id){// && id!==lastsel_models){
+		    	$("#model_create_adjust_grid").restoreRow(lastsel_models);
+		    	lastsel_models=id;
 			    //jQuery('#model_create_adjust_grid').jqGrid('saveRow',lastsel_models);
 			    //jQuery('#model_create_adjust_grid').jqGrid('editRow',id,true);
 		    	
 			    jQuery('#model_create_adjust_grid').jqGrid('editRow',id,{
 			    	"keys":true,
 			    	"aftersavefunc":function(rowid,response){
-			    		$("#1 td").each(function(){
-			        		console.log($(this).attr("aria-describedby"));
-			        		$this=$(this)
-			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_isfetch")
-			        			$this.html("");
-			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_issched")
-			        			$this.html("");
-			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_isfixedam")
-			        			$this.html("");
-			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_howoften")
-			        			$this.html("");
-			        		if($this.attr("aria-describedby")=="model_create_adjust_grid_ymw")
-			        			$this.html("");
-			            });
+				    clearLevel1();
 			    	}
 			    	//"aftersavefunc": function(rowid,response) {
 			    	//	$("#model_create_adjust_grid").trigger('reloadGrid');
 					//}
 			    });
-			    if(id==1){
-		    		$("#1_isfetch").hide();
-		            $("#1_issched").hide();
-		            $("#1_isfixedam").hide();
-		            $("#1_howoften").val(0);
-		            $("#1_howoften").hide();
-		            $("#1_ymw").val("year");
-		            $("#1_ymw").hide();
+			if(id==1){
+			    clearLevel1();
+		    	    //$("#1_isfetch").hide();
+		            //$("#1_issched").hide();
+		            //$("#1_isfixedam").hide();
+		            //$("#1_howoften").val(0);
+		            //$("#1_howoften").hide();
+		            //$("#1_ymw").val("year");
+		            //$("#1_ymw").hide();
 		    	}
 			    //lastsel_models=id;
                 var ids = $("#model_create_adjust_grid").jqGrid('getDataIDs');
                 for(var i=0; i<ids.length; i++) {
                     $( document ).on( "blur", "input[id^='" + ids[i] + "_'], " + "select[id^='" + ids[i] + "_']", function() {
+			clearLevel1();
                       var focusfrom = $(this).closest("tr").attr('id')
                       setTimeout(function()
                       {
@@ -262,25 +274,8 @@ $(function() {
         editurl:'{{rootPath}}edit/edit-create-model.json',
         height: 'auto',	
         caption:'{{_("Model Transport Network")}}',
-        ExpandColumn : 'name',
-        loadComplete: function(){
-        	$("#1 td").each(function(){
-        		console.log($(this).attr("aria-describedby"));
-        		$this=$(this)
-        		if($this.attr("aria-describedby")=="model_create_adjust_grid_isfetch")
-        			$this.html("");
-        		if($this.attr("aria-describedby")=="model_create_adjust_grid_issched")
-        			$this.html("");
-        		if($this.attr("aria-describedby")=="model_create_adjust_grid_isfixedam")
-        			$this.html("");
-        		if($this.attr("aria-describedby")=="model_create_adjust_grid_howoften")
-        			$this.html("");
-        		if($this.attr("aria-describedby")=="model_create_adjust_grid_ymw")
-        			$this.html("");
-        		$("#model_create_adjust_grid").jqGrid('expandNode',$("#model_create_adjust_grid").jqGrid('getRootNodes'));
-        		
-        	});
-        },
+        ExpandColumn : 'levelname',
+        loadComplete: clearLevel1,
     }).jqGrid('hermify',{debug:true, resizable_hz:true});
     setTimeout("jQuery('.treeclick').click();",100);
     $("#model_create_adjust_grid").jqGrid('navGrid','#model_create_adjust_pager',{edit:false,add:false,del:false});
@@ -292,5 +287,27 @@ function deleteModel(modelId, modelName) {
     $("#model_confirm_delete").data('modelId', modelId);
     $("#model_confirm_delete").dialog("open");
 }
+
+function clearLevel1() {
+    //alert("clearing");
+    $("#1 td").each(function(){
+        //console.log($(this).attr("aria-describedby"));
+        $this=$(this)
+        if($this.attr("aria-describedby")=="model_create_adjust_grid_isfetch")
+            $this.html("");
+        if($this.attr("aria-describedby")=="model_create_adjust_grid_issched")
+            $this.html("");
+        if($this.attr("aria-describedby")=="model_create_adjust_grid_isfixedam")
+            $this.html("");
+        if($this.attr("aria-describedby")=="model_create_adjust_grid_howoften")
+            $this.html("");
+        if($this.attr("aria-describedby")=="model_create_adjust_grid_ymw")
+            $this.html("");
+        //$("#model_create_adjust_grid").jqGrid('expandNode',$("#model_create_adjust_grid").jqGrid('getRootNodes'));
+        		
+    });
+}
+
+    
 </script>
  

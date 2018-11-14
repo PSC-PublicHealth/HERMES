@@ -21,7 +21,7 @@ _hermes_svn_id_="$Id$"
 import sys, os, types, optparse
 import csv_tools, input, util
 
-def create_merged_CSV(outFileName, inputFnameList, desiredTags, forbiddenKeys, sortKey=None ):
+def create_merged_CSV(outFileName, inputFnameList, desiredTags, forbiddenKeys, sortKey=None):
     outRecList= []
     outKeyList= []
     unhandledKeySet= set()
@@ -131,7 +131,13 @@ def create_average_cost_CSV(outFileName, inputList, desiredTags=['_ave']):
     inputFnameList= ["./" + userInput['outputfile'] + "." + str(runNumber) + "_costs.csv" 
                      for runNumber,userInput in enumerate(inputList)]
     create_merged_CSV(outFileName, inputFnameList, desiredTags, forbiddenKeys,sortKey="ReportingLevel")
-                     
+        
+def create_average_timethrough_CSV(outFileName, inputList, desiredTags=['_ave']):
+    forbiddenKeys = ["ReportingLevel","ReportingBranch"]
+    inputFnameList = ['./'+userInput['outputfile'] + "." + str(runNumber) + "_timethroughsystem.csv"
+                      for runNumber,userInput in enumerate(inputList)]
+    create_merged_CSV(outFileName, inputFnameList, desiredTags,forbiddenKeys,sortKey="ReportingLevel") 
+                
 def main():
     "Provides a simple command line interface"
 

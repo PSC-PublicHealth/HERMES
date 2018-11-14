@@ -54,7 +54,7 @@
   		</tr>
   		<tr>
   			<td>
-  				<label for="run_realizations">{{_('How many stochastic runs would you like to average the results over?')}}</label>
+  				<label for="run_realizations">{{_('How many stochastic (random) runs would you like to average the results over?')}}</label>
   			</td>
   			<td>
   				<input type="number" name="run_realizations" id="run_realizations" value=4>
@@ -140,13 +140,13 @@
 
 <div id="fatal-notify" title="{{_('Major Errors Exist')}}">
 	<p>{{_('Your model has errors in it that could lead to erroneous results.')}}  
-		{{_('You are free to still run the simulation but we would recommend that you click the button you Go To the Advanced Model Editor and correct these problems before proceeding')}}
+		{{_('You are free to still run the simulation but we would recommend that you correct these problems before proceeding. Click the button at the bottom of the dialog box labeled Go To the Advanced Model Editor to do so.')}}
 	</p>
 </div>
 
 <div id="costing-notify" title="{{_('Major Costing Errors Exist')}}">
 <p>{{_('Your model has costing errors in it that could lead to erroneous results.  You will not be able to run the simulation until this is corrected.')}}  
-	{{_('You must correct these by editing the models costing page. Click the button at the bottom of the dialog labelled Go To Cost Model Editor to do this.')}}
+	{{_('You must correct these by editing the models costing page. Click the button at the bottom of the dialog labeled Go To Cost Model Editor to do this.')}}
 </p>
 </div>
 <script>
@@ -274,6 +274,8 @@ $(function() {
     				alert(results.msg);
     			}
     			else{
+    				
+    				console.log(results);
     				var hasFatals = false;
     				var hasCosting = false
     				for(var i=0;i<results.report.length;i++){

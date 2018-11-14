@@ -305,7 +305,7 @@ class HTMLFormSelectBox(HTMLElement):
 
 class HTMLFormInputBox(HTMLElement):
     _acceptableTypes = {'int':'number min="0" step="1"','string':'text','float':'number min="0" step="0.1"','dbkey':'text'}
-    def __init__(self,name_,title_,default_=None,type_='int',data_=None,pretty_=True,**kwargs):
+    def __init__(self,name_,title_,default_=None,type_='int',activated_=True, data_=None,pretty_=True,**kwargs):
         HTMLElement.__init__(self,name_,pretty_,**kwargs)
         self.title = title_
         
@@ -314,6 +314,8 @@ class HTMLFormInputBox(HTMLElement):
         self.type = type_
         self.pretty = pretty_
         self.data = data_
+        #to activated
+        self.activated = activated_
         
         self.default = None
         if default_ is not None:
@@ -345,12 +347,19 @@ class HTMLFormInputBox(HTMLElement):
 #         dataString = ''
 #         if self.data is not None:
 #             dataString = u'data self.data-fieldmap
+        #print "here active: {0}".format(self.activated)
         if self.default is not None:
-            thisString = u'<input id={0} type={1} value="{2}" {3} {4}>'.format(self.name,parsedType,self.default,
-                                                                               self.classString,self.styleString)
+            if self.activated:
+                thisString = u'<input id={0} type={1} value="{2}" {3} {4}>'.format(self.name,parsedType,self.default,
+                                                                                   self.classString,self.styleString)
+            else:
+                thisString = u'<span>{0}</span>'.format(self.default)
         else:
-            thisString = u'<input id=%s type=%s %s %s>'%(self.name,parsedType,
-                                                  self.classString,self.styleString)
+            if self.activated:
+                thisString = u'<input id=%s type=%s %s %s>'%(self.name,parsedType,
+                                                      self.classString,self.styleString)
+            else:
+                thisString = u'<span>{0}</span>'
             
         return thisString
 

@@ -54,6 +54,12 @@ import costhooks
 import information_dialog_box_hooks
 import results_excel_report
 import reporthooks
+import model_geocoordinates_grid
+import model_population_demand_grid
+import factoryhooks
+import model_storage_inventory_grid
+import experimenthooks
+#import databasehooks
 
 ## If executing under mod_wsgi, we need to add the path to the source
 ## directory of this script.
@@ -149,6 +155,13 @@ def topPage(uiSession):
     crumbTrack = uiSession.getCrumbs()  # to trigger automatic features, even if we don't use it here
 
     return bottle.template("welcome.tpl", title=_('This title is set in matcher'),createnew=createPass)
+
+@bottle.route('/widgets/<filepath:path>')
+def server_widget(filepath):
+    _logMessage("widget get of {0}".format(filepath))
+    bottle.response.set_header('content-type','text/javascript')
+    templateName = "widgets/{0}".format(filepath.replace("js","tpl"))
+    return bottle.template(templateName)
 
 @bottle.route('/notimpl')
 @bottle.view("notimplemented.tpl")

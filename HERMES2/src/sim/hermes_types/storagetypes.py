@@ -147,7 +147,7 @@ class StorageTypeManager(typemanager.SubTypeManager):
             "collection of %s passed to getTotalCoolVol"%collection.implementedClass
         f=c=w=0.0
         for k,v in collection.items():
-            if k is self.getTypeByName("freezer"): f = v
-            elif k is self.getTypeByName("cooler"): c = v
-            elif k is self.getTypeByName("roomtemperature"): w = v
+            if k is self.getTypeByName("freezer"): f += v
+            elif k is self.getTypeByName("cooler"): c += v
+            elif k is self.getTypeByName("roomtemperature"): w += v
         return f,c,w

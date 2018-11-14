@@ -73,12 +73,17 @@ def addResultsGroup(modelId, name, session_in=None):
     resultsGroup = shd.HermesResultsGroup(modelId, name)
     
     session.add(resultsGroup)
-    session.commit()
+    #session.commit()
 
     aveResults = shd.HermesResults(resultsGroup,resultsType='average',runNumber=99999)
     
     session.add(aveResults)
-    session.commit()
+    try:
+        session.commit()
+    except:
+        session.rollback()
+    #finally:
+    #    session.flush()
     #resultsGroup.results.append(aveResults)
     # Once committed this will be reloaded with a resultsGroupId.
     # We're going to let the session be reaped by GC so we're only
@@ -92,8 +97,6 @@ def averageResultsGroup(modelId, resultsGroupId, session_in=None):
     else:
         session = session_in
     
-    session.commit()
-    session.flush()
     
     net = session.query(shd.ShdNetwork).filter_by(modelId=modelId).one()
     resultsGroup = session.query(shd.HermesResultsGroup).filter_by(modelId=modelId,resultsGroupId=resultsGroupId).one()
@@ -108,16 +111,28 @@ def averageResultsGroup(modelId, resultsGroupId, session_in=None):
 #         
     resultsGroup._mergeResults(net)
     
-    session.commit()
+    try:
+        session.commit()
+    except:
+        session.rollback()
+    finally:
+        session.flush()
     session.flush()
     
     
-def commitResultsEntry(results, session_in=None):
+def commitResultsEntry(results, session_in=None,doFlush=True):
     if session_in is None:
         session = iface.Session()
     else:
         session = session_in
     session.add(results)
-    session.commit()
-    session.flush()
+    try:
+        session.commit()
+    except:
+        session.rollback()
+    finally:
+        if doFlush:
+            session.flush()
+    #session.commit()
+    #session.flush()
     #resultsGroup = session.query(shd.HermesResultsGroup).filter_by(modelId=modelId,resultsGroupId=results.resultsGroupIdlt).one())

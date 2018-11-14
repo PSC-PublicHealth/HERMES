@@ -18,6 +18,7 @@
 _hermes_svn_id_="$Id: ui_utils.py 2262 2015-02-09 14:38:25Z stbrown $"
 
 import sys,os,time,traceback,types
+import ipath
 import site_info
 
 import base64
@@ -25,6 +26,7 @@ import base64
 from HermesServiceException import HermesServiceException
 
 import shadow_network_db_api
+#from typehelper import getListOfAllTypesInModel
 
 #def _(s): raise HermesServiceException("Inlizer needed but not imported")
 def _(s):
@@ -120,6 +122,7 @@ def _mergeFormResults(bottleRequest, db, uiSession, fieldMap, allowNameCollision
     """
     fieldMap is a field map list, as described for various routines in the htmlgenerator module.
     """
+    import typehelper
     fieldDict = dict([(r['id'],r) for r in fieldMap])
     attrRec = _getAttrDict(bottleRequest, db, uiSession, fieldMap)
     print "AttrRec:"
@@ -129,6 +132,15 @@ def _mergeFormResults(bottleRequest, db, uiSession, fieldMap, allowNameCollision
         m = shadow_network_db_api.ShdNetworkDB(db,attrRec['modelId'])
         if attrRec['Name'] in m.types and not allowNameCollisions:
             badStr += _("The name {0} is already in use. ").format(attrRec['Name'])
+        tList = typehelper.getListOfAllTypesInModel(db,attrRec['modelId'],fallback=False)
+        #print "TList = {0}".format(tList)
+        displayNames = [x['DisplayName'] for x in tList]
+        print "dispNames = {0}".format(displayNames)
+        print attrRec['DisplayName']
+        print attrRec['DisplayName'] in displayNames
+        print allowNameCollisions
+        if attrRec['DisplayName'] in displayNames and not allowNameCollisions:
+            badStr += _('The name {0} is already in use. Please choose a unique name'.format(attrRec['DisplayName']))
     else:
         m = None
         badStr += _("Model information is missing.")

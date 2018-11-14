@@ -160,6 +160,7 @@ def parseCSV( ifile ):
     else:
         name = ifile.name
 
+    #debug = True
     if verbose: print "parsing %s"%name
     lineList= []
     possibleDelimiters= [";",",","\t",None] # empty string means whitespace-delimited

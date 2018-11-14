@@ -92,7 +92,7 @@
 		<div class = "options_div" style="float:left">
 			<div id="welcome_title">
 				<span class="big_title">
-					{{_("Welcome to HERMES")}}
+					{{_("Welcome to HERMES Version 0.95")}}
 				</span>
 				<br>
 				<span class="second_title">
@@ -166,7 +166,7 @@
 		{{_('or')}}
 	</p>
 	<p style="margin-left:10px;">
-		<a href="#" id="upload_choice">{{_("Upload an Existing Model from a HERMES Zip File")}} ? </a>
+		<a href="#" id="upload_choice">{{_("Upload an Existing Model from a HERMES .HZP File")}} ? </a>
 	</p>
 	</span>
 </div>
@@ -193,7 +193,7 @@
 	</form>
 </div>
 
-<div id="zipupload-dialog-form" title={{_("Upload a Model in Zip Form")}}>
+<div id="zipupload-dialog-form" title={{_("Upload a Model in .HZP Form")}}>
 	<p class="validateTips">{{_('What name should the new model have?')}}</p>
 	<form>
 		<fieldset>
@@ -211,7 +211,7 @@
 						<label for="filename">{{_('File')}}</label>
 					</td>
 					<td>
-						<input id="zipfilename" type="file" name="files[]" accept="application/zip">
+						<input id="zipfilename" type="file" name="files[]" accept=".hzp">
 					</td>
 				</tr>
 			</table>

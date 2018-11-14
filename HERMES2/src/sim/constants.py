@@ -38,10 +38,17 @@ storageLotsOfSpace = 1232123234342.0
 transportLotsOfSpace = 1232123214432.0 
 
 daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+daysPerMonth = 28
 secondsInDay = 86400.0
 secondsInHour = 3600.0
 minutesInHour =  60.0
 epsilon = 1.0E-8
+
+timeUnitToString = {'s':'Second',
+                    'm':'Minute',
+                    'D':'Day',
+                    'M':'Month',
+                    'Y':'Year'}
 
 
 

@@ -501,6 +501,7 @@ def createExcelSummaryOpenPyXLForResult(uiSession, m,hr):
     for cat in popCats:
         ss.postNext(cat, levelStyle)
         for title, level in levelList:
+            print "Level = {0} and count = {1}".format(level,popLevelCount)
             for statLabel, stat in statList:
                 if cat in popLevelCount[level].keys():
                     val = round(popLevelCount[level][cat][stat])
@@ -1169,7 +1170,6 @@ def downloadSVG(db,uiSession):
         print "Data = " + str(data)
         #print type(data.data)
         #svgXML = minidom.parse(str(data['data']))
-        print "Trying to save this fucking file!!!!!"
         with uiSession.getLockedState() as state:
             #fullname = "{0}/test.svg".format(state.fs().workDir)
             fullname = "test.svg"
@@ -1313,8 +1313,9 @@ class MicroCostDisplay():
         for h, cList in self.columns:
             for cHead, data in cList:
                 ss.postNext(round(info[data], 2), style)
-        if len(unknownCategories) > 0:
-            ss.set("unknown categories: %s"%unknownCategories)
+        ### STB While this is great for debugging, looks bad on the spreadsheet.
+        #if len(unknownCategories) > 0:
+        #    ss.set("unknown categories: %s"%unknownCategories)
 
     def levelSummary(self, costs, levels, ss):
         columnCount = 1 + self.columnCount

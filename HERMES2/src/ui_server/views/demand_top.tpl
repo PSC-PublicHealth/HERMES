@@ -94,7 +94,7 @@ var peopleLoaded = false;
 	<tr id='cal_edit_row'>
 		<td><input type="checkbox" id="set_cal_cb"></td>
 		<td>
-			<label>{{_("Treament Calendar")}}</label><br>
+			<label>{{_("Treatment Calendar")}}</label><br>
 			<div id="set_cal_div" style="display:none">
 				<table>
 					<tr id="demand_cal_separate_option"><td>
@@ -395,142 +395,162 @@ function buildSideTable(modelId, modelName) {
 	    }
 	}).jqGrid('hermify',{debug:true});
 };
-
-function buildPage(modelId, modelName) {
+    var lastSel = null;
+    function buildPage(modelId, modelName) {
 	$.getJSON('{{rootPath}}json/get-demand-table',{modelId:function(){ return $("#model_sel_widget").modelSelector('selId');}})
-	.done(function(data) {
+	    .done(function(data) {
 		if (data.success) {
-			if (data.supported) {
-				$("#demand_edit_grid").jqGrid({ //set your grid id
-   					url:'{{rootPath}}json/manage-demand-table',
-    				editurl:'{{rootPath}}edit/edit-demand',	
-					datatype: "json",
-					postData: {
-						modelId: function() { 
-							return $("#model_sel_widget").modelSelector('selId');
+		    if (data.supported) {
+			options = {
+			    url:'{{rootPath}}json/manage-demand-table',
+    			    editurl:'{{rootPath}}edit/edit-demand',	
+			    datatype: "json",
+			    postData: {
+				modelId: function() { 
+					return $("#model_sel_widget").modelSelector('selId');
+				}
+			    },
+			    //width: 740, //deprecated with resize_grid
+			    colNames:data.colNames,
+			    colModel:data.colModel,
+			    sortname:data.sortname,
+			    cmTemplate: {title: false},
+			    scroll: true,
+			    rowNum: 9999,
+			    viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� optional
+			    gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
+    			    caption:'{{_("How many doses of each vaccine per person per year?")}}',
+			    onSelectRow: function(resultsid, status){
+   				if (status) {
+   				    if (resultsid) {
+   					var $this = $(this);
+   					var modelId = $("#model_sel_widget").modelSelector('selId');
+   					if(lastSel != resultsid){
+   					    $this.jqGrid('saveRow',lastSel,{extraparam:{modelId:modelId}});
+   					}
+					$this.jqGrid('editRow',resultsid,{
+					    keys:true,
+					    extraparam: { 
+						modelId: modelId
+					    },
+					    successfunc: function(response) {
+						if (response.status >=200 && response.status<300) {
+						    data = $.parseJSON(response.responseText);
+						    if (data.success == undefined) return true;
+						    else {
+							if (data.success) return true;
+							else {
+							    if (data.msg != undefined) alert(data.msg);
+							    else alert('{{_("Sorry, transaction failed.")}}');
+							    return false;
+							}
+						    }
 						}
-					},
-					//width: 740, //deprecated with resize_grid
-					colNames:data.colNames,
-					colModel:data.colModel,
-					sortname:data.sortname,
-					scroll: true,
-					rowNum: 9999,
-					viewrecords: true, //if true, displays the total number of records, etc. as: "View X to Y out of Zâ€� optional
-					gridview: true, // speeds things up- turn off for treegrid, subgrid, or afterinsertrow
-    				caption:'{{_("How many doses of each vaccine per person per year?")}}',
-					onSelectRow: function(resultsid, status){
-   						//if (status) {
-   							if (resultsid) {
-								var $this = $(this);
-								$this.jqGrid('editRow',resultsid,{
-									keys:true,
-									extraparam: { 
-										modelId: function() { return $("#model_sel_widget").modelSelector('selId') }
-									},
-									successfunc: function(response) {
-										if (response.status >=200 && response.status<300) {
-											data = $.parseJSON(response.responseText);
-											if (data.success == undefined) return true;
-											else {
-												if (data.success) return true;
-												else {
-													if (data.msg != undefined) alert(data.msg);
-													else alert('{{_("Sorry, transaction failed.")}}');
-													return false;
-												}
-											}
-										}
-										else {
-											alert('{{_("Sorry, transaction failed.")}}');
-											return false;
-										}
-									},
-								});
-                  var ids = $("#demand_edit_grid").jqGrid('getDataIDs');
-									for(var i=0; i<ids.length; i++) { 
-                      $( document ).on( "blur", "input[id^='" + ids[i] + "_']", function() { 
-                          var focusfrom = $(this).parent().parent().attr('id');
-                          setTimeout(function()
-                          {
-                              if ($(document.activeElement).parent().parent().attr("id")!=focusfrom) {
-                                  $('#demand_edit_grid').jqGrid('saveRow',focusfrom);
-                              }
-                          }, 1);
-                      });
-									}
-   							}
-						//}
-						//else {
-						//	alert('outside click '+resultsid);
-						//}
-					},
-				}).jqGrid('hermify',{debug:true});
-				resize_grid();
-			}
-			else {
-				$("#demand_edit_grid").html('<h2>'+'{{_("The demand pattern associated with this model is not supported by the editor.")}}'+'</h2>');
-			}
-
-	    	if (data.hasScalarScale || data.hasVectorScale) {
+						else {
+						    alert('{{_("Sorry, transaction failed.")}}');
+						    return false;
+						}
+					    },
+					});
+			                var ids = $("#demand_edit_grid").jqGrid('getDataIDs');
+					for(var i=0; i<ids.length; i++) { 
+					    $( document ).on( "blur", "input[id^='" + ids[i] + "_']", function() { 
+			                        var focusfrom = $(this).parent().parent().attr('id');
+			                        setTimeout(function(){
+						    if ($(document.activeElement).parent().parent().attr("id")!=focusfrom) {
+			                                $('#demand_edit_grid').jqGrid('saveRow',focusfrom);
+						    }
+			                        }, 1);
+					    });
+					}
+   				    }
+				}
+				else {
+				    //alert('outside click '+resultsid);
+				}
+   				lastSel = resultsid;
+			    },
+			    gridComplete:function(){
+				$('#ajax_busy_blank').show(); 
+				$('#ajax_busy_image').hide(); 
+			    },
+			};
+			editOptions = {
+			    editData: {
+				modelId: function() {
+				    //alert("in editData");
+				    // We never get here because of our version of jqgrid predates this.
+				    return $("#model_sel_widget").modelSelector('selId');
+				}
+			    },
+    			    editurl:'{{rootPath}}edit/edit-demand',
+			};
+			$("#demand_edit_grid").jqGrid(options, editOptions).jqGrid('hermify',{debug:true});
+			resize_grid();
+		    }
+		    else {
+			$("#demand_edit_grid").html('<h2>'+'{{_("The demand pattern associated with this model is not supported by the editor.")}}'+'</h2>');
+		    }
+		    
+	    	    if (data.hasScalarScale || data.hasVectorScale) {
 	    		$("#set_scale_cb").attr('checked',true);
 	    		$("#set_scale_div").toggle(true);
-	    	}
-	    	else {
+	    	    }
+	    	    else {
 	    		$("#set_scale_cb").attr('checked',false);
 	    		$("#set_scale_div").toggle(false);
-	    	}
-	    	if (data.hasVectorScale) {
-				$("#set_scale_single_block").toggle( false );
-				$("#demand_scale_row").toggle( true );
+	    	    }
+	    	    if (data.hasVectorScale) {
+			$("#set_scale_single_block").toggle( false );
+			$("#demand_scale_row").toggle( true );
 	    		$("#set_scale_long_cb").attr('checked',true);
 	    		if (data.requireVectorScale) {
-	    			$("#demand_scale_separate_option").toggle(false);
-	    			$("#demand_scale_separate_required").toggle(true);
+	    		    $("#demand_scale_separate_option").toggle(false);
+	    		    $("#demand_scale_separate_required").toggle(true);
 	    		}
-	    	}
-	    	else {
-				$("#set_scale_single_block").toggle( true );
-				$("#demand_scale_row").toggle( false );
+	    	    }
+	    	    else {
+			$("#set_scale_single_block").toggle( true );
+			$("#demand_scale_row").toggle( false );
 	    		$("#set_scale_long_cb").attr('checked',false);
-	    	}
-	    	setTextFieldValue( $("#set_scale_text"), data.scalarScaleSetting );
-	    	setTextFieldValue( $("#set_rel_scale_text"), data.scalarRelScaleSetting );
-	    	
-	    	$("#cal_edit_row").toggle(data.calSupported);
-	    	$("#cal_hide_row").toggle(!data.calSupported);
-	    	if (data.hasScalarCal || data.hasVectorCal) {
+	    	    }
+	    	    setTextFieldValue( $("#set_scale_text"), data.scalarScaleSetting );
+	    	    setTextFieldValue( $("#set_rel_scale_text"), data.scalarRelScaleSetting );
+	    	    
+	    	    $("#cal_edit_row").toggle(data.calSupported);
+	    	    $("#cal_hide_row").toggle(!data.calSupported);
+	    	    if (data.hasScalarCal || data.hasVectorCal) {
 	    		$("#set_cal_cb").attr('checked',true);
 	    		$("#set_cal_div").toggle(true);
-	    	}
-	    	else {
+	    	    }
+	    	    else {
 	    		$("#set_cal_cb").attr('checked',false);
 	    		$("#set_cal_div").toggle(false);
-	    	}
-	    	if (data.hasVectorCal) {
-				$("#set_cal_single_block").toggle( false );
-				$("#demand_cal_row").toggle( true );
+	    	    }
+	    	    if (data.hasVectorCal) {
+			$("#set_cal_single_block").toggle( false );
+			$("#demand_cal_row").toggle( true );
 	    		$("#set_cal_long_cb").attr('checked',true);
 	    		if (data.requireVectorCal) {
-	    			$("#demand_cal_separate_option").toggle(false);
-	    			$("#demand_cal_separate_required").toggle(true);
+	    		    $("#demand_cal_separate_option").toggle(false);
+	    		    $("#demand_cal_separate_required").toggle(true);
 	    		}
-	    	}
-	    	else {
-				$("#set_cal_single_block").toggle( true );
-				$("#demand_cal_row").toggle( false );
+	    	    }
+	    	    else {
+			$("#set_cal_single_block").toggle( true );
+			$("#demand_cal_row").toggle( false );
 	    		$("#set_cal_long_cb").attr('checked',false);
-	    	}
-	    	$('#box_cal_single_div').boxCalendar('setState',data.scalarCalSetting);
+	    	    }
+	    	    $('#box_cal_single_div').boxCalendar('setState',data.scalarCalSetting);
 		}
-	    else {
-	    	alert('{{_("Failed: ")}}'+data.msg);
-	    }
-	})
-	.fail(function(jqxhr, textStatus, error) {
-	    alert('{{_("Error: ")}}'+jqxhr.responseText);
-	});
-};
+		else {
+	    	    alert('{{_("Failed: ")}}'+data.msg);
+		}
+	    })
+	    .fail(function(jqxhr, textStatus, error) {
+		alert('{{_("Error: ")}}'+jqxhr.responseText);
+	    });
+    };
 
 // resize jqGrid according to window size
 function resize_grid() {
@@ -715,12 +735,29 @@ $(function() {
 			checkParms:function(parmDict) {
 				return {success:true};
 			},
+			nextFunction:function(){
+				//alert($("#model_sel_widget").modelSelector('selId'));
+				$("#demand_edit_grid").jqGrid('saveRow',lastSel,{
+					extraparam:{modelId:$("#model_sel_widget").modelSelector('selId')}
+				});
+			},
 			nextURL:'{{! breadcrumbPairs.getNextURL() }}',
 			backURL:'{{! breadcrumbPairs.getBackURL() }}',
 		})
 	% else:
-		$(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'});
+		//console.log()
+		$(document).hrmWidget({
+			widget:'stdDoneButton', 
+			doneFunc:function(){
+				//alert($("#model_sel_widget").modelSelector('selId'));
+				$("#demand_edit_grid").jqGrid('saveRow',lastSel,{
+					extraparam:{modelId:$("#model_sel_widget").modelSelector('selId')}
+				});
+			},
+			doneURL:'{{breadcrumbPairs.getDoneURL()}}'
+		   });
 	% end
+	
 });
 
 }
