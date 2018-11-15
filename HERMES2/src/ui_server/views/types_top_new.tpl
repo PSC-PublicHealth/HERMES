@@ -1255,7 +1255,8 @@ $(function() {
 					}
 				})
 				.fail(function(jqxhr, textStatus, errorThrown) {
-					alert('{{_("There was a failure in calling component validation algorithm: ")}}'+jqxhr.responseText);
+					// error instead of alert so it doesn't confuse users
+					console.error('{{_("There was a failure in calling component validation algorithm: ")}}'+jqxhr.responseText);
 				});
 
 			},
