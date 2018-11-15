@@ -1164,10 +1164,10 @@
 					})
 					.style("stroke-width",function(d){
 						if(d.bold == "true"){
-							return 0.1+"px";
+							return 0.25+"px";
 						}
 						else{
-							return 0.010 +"px";
+							return 0.15 +"px";
 						}
 					})
 					.style("fill-opacity",function(d){
