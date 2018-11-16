@@ -443,17 +443,6 @@ function populateStoreInfoDialog(rootPath,divName,meta,modId,storId,resId){
 			vials:false
 		});
 	}
-/*
-	$( function() {
-		$( ".ui-resizable" ).resizable({
-			height: 'auto',
-			width: 'auto',
-			alsoResize: [
-				$( ".ui-resizable" ).children( "div.ui-widget-content" ).children( "div.ui-widget-content" ).children("div.ui-tabs-panel"),
-			]
-		}).children("div.ui-widget-content").children( "div.ui-widget-content" ).children("div.ui-tabs-panel").css({overflow:'scroll'});
-	} );
-	*/
 }
 
 function populateRouteInfoDialog(rootPath,divName,meta,modId,rouId,resId){
