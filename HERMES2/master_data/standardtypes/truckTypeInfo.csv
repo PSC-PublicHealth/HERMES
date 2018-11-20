@@ -1,5 +1,7 @@
-Name,DisplayName,CoolVolumeCC,Storage,BaseCost,BaseCostCur,BaseCostYear,AmortizationKm,Fuel,FuelRate,FuelRateUnits,Notes
-Std_coldtruck,Cold truck 3570L,3570000,,,,,,P,,,
-Std_DoubleCabTruck,Double cab truck 4 large CB,0,4*Std_CB_RCW25CF,,,,,P,,,Source: Communication with Simona Zipursky and www.toyota.co.uk
-Std_SingleCabTruck,Single cab truck 8 large CB,0,8*Std_CB_RCW25CF,,,,,P,,,
-Std_motorbike,Motorbike 1 VC,0,Std_VC,,,,,P,,,
+Name,DisplayName,Category,CoolVolumeCC,Storage,BaseCost,BaseCostCur,BaseCostYear,AmortizationKm,Fuel,FuelRate,FuelRateUnits,Notes
+Std_coldtruck,Cold truck 3570L,Refrigerated Vehicle,3570000,,75000,USD,2005,200000,P,3,km/liter,estimates based on Niger data
+Std_DoubleCabTruck,Double cab truck 4 large CB,Truck,0,4*Std_CB_RCW25CF,50000,USD,2010,300000,P,5,km/liter,estimates based on Mozambique data
+Std_SingleCabTruck,Single cab truck 8 large CB,Truck,0,8*Std_CB_RCW25CF,35000,USD,2010,300000,P,5,km/liter,estimates based on Mozambique data
+Std_motorbike,Motorbike 1 VC,Motorcycle,0,Std_VC,5000,USD,2010,200000,P,17,km/liter,estimates based on Mozambique data
+Std_walk,Person walking,Other,0,Std_VC,0,USD,2010,1,F,0,,
+Std_bus,Public transportation,Other,0,Std_VC,0,USD,2014,1,T,0.32,,estimates based on Mozambique data

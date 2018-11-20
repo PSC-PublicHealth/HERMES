@@ -47,7 +47,8 @@
 					resultsId:resultsId,
 					modelId:modelId,
 					showCosts:showCosts,
-					rootPath:this.options.rootPath
+					rootPath:this.options.rootPath,
+					tabText: tabText
 				});
 				// manage the tabs list
 				tabList.push(thisID);

@@ -25,6 +25,7 @@
 		    rootPath:'',
 		    scrollable:true,
 		    resizable:false,
+		    tabText:'',
 		    trant:{
 		        title:"Summary of Results"
 		    }
@@ -78,7 +79,8 @@
         var xlsDialogContainerID   = this.xlsDialogContainerID;
         var mInfobuttonContainerID = this.modelInfobuttonContainerID;
         var mInfoDialogContainerID = this.modelInfoDialogContainerID
-
+        
+        var thisOptions = this.options;
 
         // Add a div for the vaccine grid
         $("#"+this.containerID).append("<table id = '"+ this.vaccGridContainerID + 
@@ -184,8 +186,21 @@
                 $("#"+xlsbuttonContainerID).prop("title",tp[5]);
                 $("#"+containerID).append("<div id='"+xlsDialogContainerID+"' title='"+tp[6]+"'></div>");
                 var downloadNameID = containerID+"_download_xls_saveas_name";
+                
+                var resultsName = "results_" + thisOptions.modelId + "_" + thisOptions.resultsId;
+                if(thisOptions.tabText != ''){
+                	//console.log(thisOptions.tabText);
+                	var firstSplit = thisOptions.tabText.substring(6,thisOptions.tabText.indexOf("Result:"));
+                	var modelName = firstSplit.substring(0,firstSplit.length - 2);
+                	//console.log("firstSplit = "+firstSplit);
+                	//console.log("modelString = "+modelName);
+                	
+                	var secondSplit = thisOptions.tabText.split("Result:")[1];
+                	var resultName = secondSplit.replace(", ","_");
+                	//console.log("resultName = "+resultName);
+                }
                 $("#"+xlsDialogContainerID).append("<table><tr><td>"+tp[7]+"</td><td><input id='"+
-                    downloadNameID+"' type='text'></td></tr></table>");
+                    downloadNameID+"' type='text' value='results_spreadsheet_"  +modelName + "_" + resultName +"' style='width:300px;'></td></tr></table>");
 
                 $("#"+mInfobuttonContainerID).button("option","label",tp[16]);
                 $("#"+containerID).append("<div id='"+mInfoDialogContainerID+"' titel='"+tp[16]+"'><div id='mInfoTabDiv'></div></div>");
@@ -207,7 +222,7 @@
                 $("#"+xlsDialogContainerID).dialog({
                     autoOpen:false,
                     height: 300,
-                    width: 400,
+                    width: 'auto',
                     modal: true,
                     buttons:{
                         'Save':{

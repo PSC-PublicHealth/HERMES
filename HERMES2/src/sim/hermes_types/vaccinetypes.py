@@ -571,8 +571,8 @@ class VaccineType(GroupedShippableType, HasOVW):
         str += "   Broke %d vials = %d doses\n"%\
                (d['VialsBroken'], d['VialsBroken']*d['DosesPerVial'])
         if d['TransitTime_count'] > 0:
-            str += "   Histogram of transit time in days (%d counts): min = %f, q1 = %f, median = %f, q3 = %f, max = %f"%\
-                    (d['TransitTime_count'],d['TransitTime_min'], d['TransitTime_q1'], d['TransitTime_median'], d['TransitTime_q3'], d['TransitTime_max'])
+            str += "   Histogram of transit time in days (%d counts): mean = %f, min = %f, q1 = %f, median = %f, q3 = %f, max = %f"%\
+                    (d['TransitTime_count'], d['TransitTime_mean'], d['TransitTime_min'], d['TransitTime_q1'], d['TransitTime_median'], d['TransitTime_q3'], d['TransitTime_max'])
         str += "\n"
         return str
 

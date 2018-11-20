@@ -42,12 +42,12 @@ hiddenTypesSet = set(['OUTDOORS'])
 
 alwaysPresentTypes = defaultdict(lambda: [],
                                  {'staff': ['Std_WarehouseStaff', 'Std_Driver'],
-                                  'perdiems': ['Std_PerDiem_None'],
-                                  'types': ['Std_WarehouseStaff', 'Std_Driver', 'Std_PerDiem_None']
+                                  'perdiems': ['Std_Per_Diem_None'],
+                                  'types': ['Std_WarehouseStaff', 'Std_Driver', 'Std_Per_Diem_None']
                                   })
 
 # The following typenames are used elsewhere and should be considered reserved
-specialTypeNames = {'no-perdiem': 'Std_PerDiem_None'
+specialTypeNames = {'no-perdiem': 'Std_Per_Diem_None'
                     }
 
 
@@ -92,6 +92,14 @@ def getTypeList(db, modelId, typeClass, fallback=True):
     return tList
 
 
+def getListOfAllTypesInModel(db,modelId,fallback=True):
+    typesMap = shadow_network.ShdTypes.typesMap
+    tList = []
+    for k in typesMap.keys():
+        tList += getTypeList(db,modelId,k,fallback)
+    
+    return tList
+
 def checkTypeDependencies(db, oldModelOrModelId, newModelOrModelId, typeName):
     if oldModelOrModelId is None:
         oM = _getAllTypesModel(db)
@@ -131,7 +139,7 @@ def checkDependentTypes(db, modelOrModelId, typeName):
     return needs
 
 
-def addTypeToModel(db, modelOrModelId, typeName, srcModel=None, force=False):
+def addTypeToModel(db, modelOrModelId, typeName, srcModel=None, force=False, ignore=False):
     """
     Copy the given type from srcModel to the given model, if it does not already
     exist.  If srcModel is None (the usual case), AllTypesModel 
@@ -142,7 +150,10 @@ def addTypeToModel(db, modelOrModelId, typeName, srcModel=None, force=False):
     else:
         targetModel = modelOrModelId
     if typeName in targetModel.types:
-        raise RuntimeError(_("Type {0} is already present in model {1}").format(typeName,targetModel.name))
+        if ignore:
+            return
+        else:
+            raise RuntimeError(_("Type {0} is already present in model {1}").format(typeName,targetModel.name))
     if srcModel is None:
         fromModel = _getAllTypesModel(db)
     else:
@@ -253,9 +264,7 @@ def elaborateFieldMap(proposedName, instanceOrValDict, fieldMap):
             if outRec['type'] == 'lifetime':
                 outRec['value'] = (instanceOrValDict[rec['key']], instanceOrValDict[rec['key'+'Units']] )
             elif outRec['type'] == 'cost':
-                print "THERE!!!"
                 if not outRec.has_key('recMap'):
-                    print "HERE!!!!"
                     pass # NEED To throw an error
                 print instanceOrValDict.keys()
                 print rec['recMap']
@@ -269,7 +278,6 @@ def elaborateFieldMap(proposedName, instanceOrValDict, fieldMap):
             if outRec['type'] == 'lifetime':
                 outRec['value'] = (getattr(instanceOrValDict,rec['key']),getattr(instanceOrValDict,rec['key']+'Units'))
             elif outRec['type'] == 'cost':
-                print "HERE!!!"
                 if not outRec.has_key('recMap'):
                     pass # NEED To throw an error
                 outRec['value'] =  (getattr(instanceOrValDict,rec['recMap'][0]),

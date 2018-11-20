@@ -14,7 +14,6 @@
 # in the file LICENSE.txt.                                                        #
 #                                                                                 #
 ###################################################################################
-
 _hermes_svn_id_="$Id$"
 
 import sys,os,os.path,time,json,math,types
@@ -327,9 +326,11 @@ def _createModel(db,uiSession):
                     shipIntervalDays = math.floor(7./rec['howoften'])
                 shipLatencyDays = 0.0
                 #print "RouteType = " + routeType
+                print "I AM adding a route"
                 route = shdNetwork.addRoute({'RouteName':routeName, 'Type':routeType,
                                              'ShipIntervalDays':shipIntervalDays,
                                              'ShipLatencyDays':shipLatencyDays}, noStops=True)
+                print "I AM DONE ADDING A ROUTE"
                 ignoredNumber = 17
                 transitUnits = newModelInfoCN['shiptransitunits'][len(storeStack)-2]
                 transitTimeRaw = newModelInfoCN['shiptransittimes'][len(storeStack)-2]
@@ -380,8 +381,10 @@ def _createModel(db,uiSession):
 
     # All models have copies of a few standard types from AllTypesModel
     aM = typehelper._getAllTypesModel(db)
+    #print "All Types Model = {0}".format(typehelper.getTypeList(db,aM.modelId,'perdiems'));
+    
     for tpName, tp in [(u'OUTDOORS', shd.ShdStorageType),
-                       (u'Std_PerDiem_None', shd.ShdPerDiemType),
+                       (u'Std_Per_Diem_None', shd.ShdPerDiemType),
                        (u'Std_WarehouseStaff', shd.ShdStaffType),
                        (u'Std_Driver', shd.ShdStaffType)]:
         attrRec = {'_inmodel': False, 'modelId': aM.modelId}
@@ -1371,7 +1374,7 @@ def jsonManageModelsTable(db, uiSession):
               "records":totRecs,  # total records
               "rows": [ {"id":m.modelId, 
                          "cell":[m.name, m.modelId, m.note, 
-                                 '<a href="%sdownload-model?model=%d&form=zip">%s_%d.zip</a>'%\
+                                 '<a href="%sdownload-model?model=%d&form=zip">%s_%d.hzp</a>'%\
                                  (rootPath,m.modelId,m.name,m.modelId),
                                  m.modelId]} 
                        for m in mList ]
@@ -1456,9 +1459,9 @@ def jsonRemoveD3Model(db, uiSession):
 @bottle.route('/json/copyTypeToModel')
 def jsonCopyTypeToModel(db, uiSession):
     try:
-        modelId = int(getParm('modelId'))
-        srcModelId = int(getParm('srcModelId'))
-        typeName = getParm('typeName')
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        srcModelId = _getOrThrowError(bottle.request.params, 'srcModelId', isInt=True)
+        typeName = _getOrThrowError(bottle.request.params, 'typeName')
 
         uiSession.getPrivs().mayModifyModelId(db, modelId)
         dest = shadow_network_db_api.ShdNetworkDB(db, modelId)
@@ -1471,6 +1474,27 @@ def jsonCopyTypeToModel(db, uiSession):
 
     return {'success': True}
 
+@bottle.route('/json/copyMultipleTypesToModel')
+def jsonCopyMultipleTypesToModel(db, uiSession):
+    try:
+        import json
+        modelId = _getOrThrowError(bottle.request.params, 'modelId', isInt=True)
+        srcModelId = _getOrThrowError(bottle.request.params, 'srcModelId', isInt=True)
+        typeNamesJson = _getOrThrowError(bottle.request.params,'typeNamesArray')
+        ignoreExists = _safeGetReqParam(bottle.request.params,'ignoreExists',isBool=True,default=False)
+        typeNames = json.loads(typeNamesJson)
+        
+        dest = shadow_network_db_api.ShdNetworkDB(db, modelId)
+        src = shadow_network_db_api.ShdNetworkDB(db, srcModelId)
+        
+        for typ in typeNames:
+            typehelper.addTypeToModel(db,dest,typ, src, True, ignore=ignoreExists)
+        
+        return {'success':True}
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        return {'success':False, 'msg':str(e)}
 
 @bottle.route('/json/removeTypeFromModel')
 def jsonRemoveTypeFromModel(db, uiSession):
@@ -1556,7 +1580,7 @@ def fetchdeliver(value):
     if value is True or value=="true":
         return _("pick up")
     else:
-        return _("recieve")
+        return _("receive")
 
 def fixedvariable(value):
     if value is True or value == "true":
@@ -1742,7 +1766,26 @@ def jsonModelStructureTreeD3(db,uiSession):
         return {'success':False,
                 'msg':str(e)
                 }
+
+@bottle.route('/json/model-geo-structure')
+def jsonModelGeoStructure(db,uiSession):
+    try:
+        modelId = _safeGetReqParam(bottle.request.params,'modelId')
+        uiSession.getPrivs().mayReadModelId(db,modelId)
+        model = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        json = model.getGeoJson()
+        if json is None:
+            model.addGeoJson()
+            db.commit()
+            json = model.getGeoJson()
+        json['success']=True
         
+        return json
+    except Exception,e:
+        return {'success':False,
+                'msg':str(e)
+                }
+
 @bottle.route('/json/model-structure-tree')
 def jsonModelStructureTree(db, uiSession):
     modelId = _safeGetReqParam(bottle.request.params,'modelId',isInt=True)
@@ -1811,6 +1854,7 @@ def makeLoopsForModel(db,uiSession):
         return {'success':False,'msg':str(e)}
 @bottle.post('/upload-model')
 def uploadModel(db,uiSession):
+    
     _logMessage('Model file upload is happening')
     #uiSession['notes'] += ', upload request'
     fileKey = None
@@ -1884,7 +1928,7 @@ def prepareDownloadModel(db,uiSession):
         if not filename:
             filename = "{0}_{1}".format(m.name,modelId)
     
-        zipFileName = "{0}.zip".format(filename)
+        zipFileName = "{0}.hzp".format(filename)
         with uiSession.getLockedState() as state:
             (fileKey, fullZipFileName) = \
                 state.fs().makeNewFileInfo(shortName = zipFileName,
@@ -2409,6 +2453,188 @@ def jsonGetModelLevels(db,uiSession):
         result = {'success':False, 'msg':str(e)}
         return result
 
+@bottle.route('/json/get-levels-sans-clients-and-root')
+def jsonGetModelLevelsSansClientsAndRoot(db,uiSession):
+    import operator
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        levelsToReturn = []
+        
+        for storeId,store in m.stores.items():
+            if store.CATEGORY not in levelsToReturn:
+            ## Check if this is a root store
+                if len(store.suppliers()) != 0: # not a root
+                    for cR in store.clientRoutes():
+                        if cR.Type != 'attached':
+                            allAttached = False
+                            levelsToReturn.append(store.CATEGORY)
+                            break
+        levelCounts = {x:0 for x in levelsToReturn}
+        for storeId,store in m.stores.items():
+            if store.CATEGORY in levelsToReturn:
+                levelCounts[store.CATEGORY]+=1
+        
+        sortedCount = [x[0] for x in sorted(levelCounts.iteritems(),key=operator.itemgetter(1))]
+        return {'success':True,'levels':sortedCount}
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+   
+
+@bottle.route('/json/get-levels-sans-clients')
+def jsonGetModelLevelsSansClients(db,uiSession):
+    import operator
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        levelsToReturn = []
+        
+        for storeId,store in m.stores.items():
+            if store.CATEGORY not in levelsToReturn:
+            ## Check if this is a root store
+                for cR in store.clientRoutes():
+                    if cR.Type != 'attached':
+                        allAttached = False
+                        levelsToReturn.append(store.CATEGORY)
+                        break
+        levelCounts = {x:0 for x in levelsToReturn}
+        for storeId,store in m.stores.items():
+            if store.CATEGORY in levelsToReturn:
+                levelCounts[store.CATEGORY]+=1
+        
+        sortedCount = [x[0] for x in sorted(levelCounts.iteritems(),key=operator.itemgetter(1))]
+        return {'success':True,'levels':sortedCount}
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+    
+@bottle.route('/json/get-levels-below-level')
+def jsonGetModelLevelsBelowLevel(db,uiSession):
+    import operator
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        levelStart = _getOrThrowError(bottle.request.params,'level')
+        
+        
+        levelsToReturn = []
+        
+        levels = m.getLevelList()
+        
+        levelPivot = levels.index(levelStart)
+        sortedCount = levels[levelPivot+1:]
+        return {'success':True,'levels':sortedCount}
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result
+
+@bottle.route('/json/get-levels-between-routes-in-model')
+def jsonGetModelLevelsBetweenRoutes(db,uiSession):
+    import operator
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+        
+        # first we need the levels so that we can sort in the end
+        levels = m.getLevelList()
+        
+        levelPairsToReturn = []
+        loopsToReturn = []
+        for routeId,route in m.routes.items():
+            if route.Type != 'attached':
+                if len(route.stops) == 2:
+                    # This is a point to point route and straight forward
+                    routeCatList = [route.stops[0].store.CATEGORY,route.stops[1].store.CATEGORY]
+                    if routeCatList not in levelPairsToReturn:
+                        levelPairsToReturn.append(routeCatList)
+        
+                else:
+                    # This route is a loop, Worst Code in the World, written by STB!
+                    routeCatListT = [route.stops[0].store.CATEGORY]
+                    for stop in route.stops[1:]:
+                        if stop.store.CATEGORY not in routeCatListT:
+                            routeCatListT.append(stop.store.CATEGORY)
+                    ## sort the not original level
+                    routeCatListS = []
+                    for l in levels:
+                        if l in routeCatListT[1:]:
+                            routeCatListS.append(l)
+                    
+                    routeCatList = [routeCatListT[0]]
+                    for r in routeCatListS:
+                        routeCatList.append(r)
+                        
+                    if routeCatList not in loopsToReturn:
+                        loopsToReturn.append(routeCatList)
+                    
+        sortedPairs = []
+        for l in levels:
+            thisPairSet = []
+            for lp in levelPairsToReturn:
+                if lp[0] == l:
+                    thisPairSet.append(lp)
+            for l2 in levels:
+                for lp2 in thisPairSet:
+                    if lp2[1] == l2:
+                        sortedPairs.append(lp2)
+        
+        ### now handle the loops
+        for l in levels:
+            for lp in loopsToReturn:
+                if lp[0] == l:
+                    sortedPairs.append(['loop',lp])
+            
+        return {'success':True,'levelsBetween':sortedPairs}
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result    
+    
+@bottle.route('/json/get-originating-route-levels-in-model')
+def jsonGetModelOriginatingRouteLevels(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
+        m = shadow_network_db_api.ShdNetworkDB(db,modelId)
+         
+        # first we need the levels so that we can sort in the end
+        levels = m.getLevelList()
+         
+        levelsToReturn = []
+         
+        for routeId,route in m.routes.items():
+            if route.Type != 'attached':
+                if route.stops[0].store.CATEGORY not in levelsToReturn:
+                    levelsToReturn.append(route.stops[0].store.CATEGORY)
+        
+        
+        sortedLevels = []
+        for l in levels:
+            if l in levelsToReturn:
+                sortedLevels.append(l)
+               
+        return {'success':True,'levels':sortedLevels}
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'msg':str(e)}
+        return result                
+                
+    
 ### this is a last minute hack
 @bottle.route('/json/get-transport-type-names-in-model')
 def jsonGetTransportModelNames(db,uiSession):
@@ -2518,10 +2744,30 @@ def populateTableforStoreProvision(db,uiSession):
         #    rows.append({'type':_('Transport Modes to Use at this Level'),'id':id,'name':name})
             
         ### Make the Level columns
-        
+
+        # leave this in to set the defaults if somehow a level has zero stores or something
+        # that we miss somehow in the future.
         for row in rows:
             for level in levelList:
                 row[u"{0}".format(level)] = 0
+
+        # now read in the current levels of things
+        levelsDone = set()
+        for storeId, store in m.stores.items():
+            if store.isAttached():
+                continue
+
+            if store.CATEGORY in levelsDone:
+                continue
+            levelsDone.add(store.CATEGORY)
+            for row in rows:
+                row[u"{0}".format(store.CATEGORY)] = store.countInventory(
+                    row['id'],
+                    row['type']==_("Population To Vaccinate at this Level"))
+
+                    
+                
+                
                 
         return {'success':True,'levels':levelList,'data':{'total':1,'page':1,'records':len(rows),'rows':rows}}
     
@@ -2544,7 +2790,7 @@ def provisionStoresFromGrid(db,uiSession):
         
         typeData = json.loads(typeDataJSON)
         for storeId,store in m.stores.items():
-            print storeId
+            #print storeId
             if not store.isAttached():
                 if resetStores:
                     store.clearInventory()
@@ -2576,7 +2822,7 @@ def assignVehiclesToRoutes(db,uiSession):
         ## lets put this is somethign a little easier to parse
         routeDict = {}
         for r in routeData:
-            routeDict[(r['l1'],r['l2'])] = (r['vName'],int(r['vcount']))
+            routeDict[(r['l1'],r['l2'])] = (r['vName'],int(r['vcount']),r['vPDRule'])
         
         ### clear all of the transport from the system
         for storeId,store in m.stores.items():
@@ -2594,10 +2840,12 @@ def assignVehiclesToRoutes(db,uiSession):
                 clientLevel = route.stops[1].store.CATEGORY
                 vehicle = routeDict[(supplierLevel,clientLevel)][0]
                 vcount = routeDict[(supplierLevel,clientLevel)][1]
+                vPDRule = routeDict[(supplierLevel,clientLevel)][2]
                 
                 if route.stops[0].store.countInventory(vehicle) == 0:
                     route.stops[0].store.addInventory(vehicle,vcount)
                 route.TruckType = vehicle
+                route.PerDiemType = vPDRule
                 
         return {'success':True}
     
@@ -2607,7 +2855,41 @@ def assignVehiclesToRoutes(db,uiSession):
         result = {'success':False, 'type':'error','msg':str(e)}
         return result  
 
+@bottle.route('/json/validate-required-types-of-model')
+def validateRequiredTypesOfModel(db,uiSession):
+    try:
+        modelId = _getOrThrowError(bottle.request.params,'modelId',isInt=True)
         
+        uiSession.getPrivs().mayReadModelId(db, modelId)
+        #m = shadow_network_db_api.ShdNetworkDB(db,modelId)
         
+        vaccs = typehelper.getTypeList(db,modelId,'vaccines',fallback=False)
+        trucks = typehelper.getTypeList(db,modelId,'trucks',fallback=False)
+        peeps = typehelper.getTypeList(db,modelId,'people',fallback=False)
+        fridges = typehelper.getTypeList(db,modelId,'fridges',fallback=False)
         
+        messageTypes = []
+        if len(vaccs) == 0:
+            messageTypes.append(_('Vaccines'))
+        if len(trucks) == 0:
+            messageTypes.append(_('Transport Types'))
+        if len(peeps) == 0:
+            messageTypes.append(_('Population Types'))
+        if len(fridges) == 0:
+            messageTypes.append(_('Storage Devices'))
+
+        passTest = True
         
+        message = ""
+        if len(messageTypes) > 1:
+            passTest = False
+            message = _("You must add the following Components before continuing otherwise your model will not be valid: {0}".format(", ".join(messageTypes)))
+
+        return {'success':True,'pass':passTest,'message':message}
+    
+    except bottle.HTTPResponse:
+        raise # bottle will handle this
+    except Exception,e:
+        result = {'success':False, 'type':'error','msg':str(e)}
+        return result  
+

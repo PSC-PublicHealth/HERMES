@@ -845,11 +845,11 @@ class TabularCalendarScaleDemandModel(TabularDemandModel):
             doseTot= 0.0
             if isinstance(v,abstractbaseclasses.NonScalingType):
                 for peopleType,nDosesPerPerson in rec.items():
-                    nPeopleThisType = self.sim.randomRounder.round(peopleCollection[peopleType])
+                    nPeopleThisType = int(peopleCollection[peopleType])#self.sim.randomRounder.round(peopleCollection[peopleType])
                     doseTot += nDosesPerPerson*nPeopleThisType
             else:
                 for peopleType,nDosesPerPerson in rec.items():
-                    nPeopleThisType = self.sim.randomRounder.round(peopleCollection[peopleType])
+                    nPeopleThisType = int(peopleCollection[peopleType])#self.sim.randomRounder.round(peopleCollection[peopleType])
                     scale = None
                     for calEntry in calendarDictList:
                         if calEntry[2].has_key(peopleType):
@@ -904,7 +904,8 @@ class TabularCalendarScaleDemandModel(TabularDemandModel):
             if isinstance(v,abstractbaseclasses.NonScalingType):
                 doseTot= 0.0
                 for peopleType,nDosesPerPerson in rec.items():
-                    nPeopleThisType = self.sim.randomRounder.round(peopleCollection[peopleType])
+                    nPeopleThisType = int(peopleCollection[peopleType])
+                    #self.sim.randomRounder.round(peopleCollection[peopleType])
                     doseTot += nDosesPerPerson*nPeopleThisType
                 vialCounts.append((v,int(math.ceil(float(doseTot)/v.getNDosesPerVial()))))
             else:
@@ -920,7 +921,7 @@ class TabularCalendarScaleDemandModel(TabularDemandModel):
                         calendarDictList = self._getCalSegmentList(tStart+timeNow, tEnd-tStart)
                         calRecCache[tStart] = calendarDictList
                     for peopleType,nDosesPerPerson in rec.items():
-                        nPeopleThisType = self.sim.randomRounder.round(peopleCollection[peopleType])
+                        nPeopleThisType = int(peopleCollection[peopleType])#self.sim.randomRounder.round(peopleCollection[peopleType])
                         scale = None
                         for calEntry in calendarDictList:
                             if calEntry[2].has_key(peopleType):

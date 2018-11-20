@@ -37,7 +37,7 @@ import storagetypes
 import vaccinetypes
 import trucktypes
 import peopletypes as pt
-from util import openDataFullPath
+from util import openDataFullPath,listify
 from noteholder import NoteHolderGroup
 import warehouse
 import sampler
@@ -152,6 +152,7 @@ class Model(model.Model):
         self.defaultTruckInterval= self.sim.userInput['defaulttruckinterval']
         self.defaultTruckTypeName= self.sim.userInput['defaulttrucktypename']
         self.autoUpdateThresholdsFlag = self.sim.userInput['autoupdatethresholds']
+        self.defaultBufferStockFraction = self.sim.userInput['bufferstockfraction']
 
         self.monthlyReportActivated= False
         if self.sim.userInput['monthlyreports']:
@@ -165,6 +166,20 @@ class Model(model.Model):
         if self.sim.perfect:
             for dm in self.demandModelTuple:
                 dm.setPerfectCanStore()
+
+        # this must be done after the demand model has been instantiated
+        if self.sim.userInput['openvialdenyfractionbytype'] is not None:
+            self.openVialDenyFraction = processTypeFractionPairList(self.sim.vaccines,
+                                                                    self.sim.userInput['openvialdenyfractionbytype'])
+        else:
+            self.openVialDenyFraction = {}
+
+        # self.openVialDenyFraction = None
+        denyFraction = self.sim.userInput['openvialdenyfraction']
+        if denyFraction > 0.0:
+            self.openVialDenyFraction['_all'] = denyFraction
+        if len(self.openVialDenyFraction) == 0:
+            self.openVialDenyFraction = None
 
         self.levelList = self.sim.userInput['levellist']
         #print "level list is: %s"%self.levelList
@@ -205,6 +220,18 @@ class Model(model.Model):
         # allowing the vaccination to take place.
         self.patientWaitInterval= self.sim.userInput['patientwaitinterval']
 
+        # There needs to be a delay that allows the request of a vehicle to happen before 
+        # it is actually loaded.  This can have serious effects on a calendar demand 
+        # schedule that needs precision.  So This is variable can be set.  DO NOT SET UNLESS YOU KNOW WHAT YOU ARE DOING!!!
+        
+        self.reqCycleStartupDelay = self.sim.userInput['requestlatencydelay']
+        
+        # There is a factor that can be used to add a random delay for useVials to start up
+        # which for precisely timed chains (like a retrospective) this will mess all sorts of stuff up
+        # so exposing this so that it can be set. DO NOT SET UNLESS YOU KNOW WHAT YOU ARE DOING!!!
+        
+        self.useVialsRandomDelay = self.sim.userInput['usevialsrandomdelay']
+        
         ##################
         # End of info provided via the input file
         ##################
@@ -266,7 +293,7 @@ class Model(model.Model):
         vC = self.sim.shippables.addPrepSupplies(vC)
         vaccinesOnlyVC, othersVC= self._separateVaccines(vC)
         if self.autoUpdateThresholdsFlag:
-            threshVialsVC = vaccinesOnlyVC * 0.25
+            threshVialsVC = vaccinesOnlyVC * toW.bufferStockFraction
             threshVialsVC.roundUp()
             fVC,cVC,wVC = toW.calculateStorageFillRatios(threshVialsVC+othersVC)
             threshVialsVC = threshVialsVC * (fVC + cVC + wVC)
@@ -274,7 +301,7 @@ class Model(model.Model):
             toW.resetLowThresholds(threshVialsVC)
             #print "clinicShipQuantityFunc %s: thresholds reset to %s"%\
             #      (toW.name, [(v.name,n) for v,n in threshVialsVC.items()])
-        vaccinesOnlyVC *= 1.25
+        vaccinesOnlyVC *= (1.0 + toW.bufferStockFraction)
         vaccinesOnlyVC.roundUp() #yes, round up twice.
         fVC,cVC,wVC= toW.calculateStorageFillRatios(othersVC+vaccinesOnlyVC)
         fillVC= fVC+cVC+wVC
@@ -307,13 +334,17 @@ class Model(model.Model):
         vC = self.sim.shippables.addPrepSupplies(vC)
 
         vaccinesOnlyVC, othersVC= self._separateVaccines(vC)
-        vaccinesOnlyVC *= 0.25
+        vaccinesOnlyVC *= toW.bufferStockFraction
         vaccinesOnlyVC.roundUp() #yes, round up twice.
         fVC,cVC,wVC= toW.calculateStorageFillRatios(othersVC+vaccinesOnlyVC)
         fillVC= fVC+cVC+wVC
         # a fillVC value of of 0.0 implies toW has no storage, which means it's
         # an attached clinic, which means we shouldn't be dealing with it
         whatFitsVC= vaccinesOnlyVC*fillVC
+        for v,n in whatFitsVC.items():
+            #print "V = {0} n = {1}".format(v,n)
+            if n > 0.0 and n < 1.0:
+                whatFitsVC[v] = 1.0
         whatFitsVC.roundDown()
         #print "clinicShipThresholdFunc %s: %s"%(toW.name,[(v.name,n) for v,n in whatFitsVC.items()])
         return whatFitsVC
@@ -327,7 +358,8 @@ class Model(model.Model):
         vaccineVialsVC,otherVialsVC= self._separateVaccines(vC)
 
         if self.autoUpdateThresholdsFlag:
-            threshVialsVC = vaccineVialsVC * 0.25
+            threshVialsVC = vaccineVialsVC * (toW.bufferStockFraction)
+            #print "thresh here = {0}".format(threshVialsVC)
             threshVialsVC.roundUp()
             fVC,cVC,wVC = toW.calculateStorageFillRatios(threshVialsVC+otherVialsVC)
             threshVialsVC = threshVialsVC * (fVC + cVC + wVC)
@@ -335,7 +367,7 @@ class Model(model.Model):
             toW.resetLowThresholds(threshVialsVC)
             #print "warehouseShipQuantityFunc %s: thresholds reset to %s"%\
             #      (toW.name, [(v.name,n) for v,n in threshVialsVC.items()])
-        vaccineVialsVC *= 1.25
+        vaccineVialsVC *= (1.0 + toW.bufferStockFraction)
         vaccineVialsVC.roundUp()
         fVC,cVC,wVC= toW.calculateStorageFillRatios(vaccineVialsVC+otherVialsVC)
         fillVC= fVC+cVC+wVC
@@ -368,13 +400,13 @@ class Model(model.Model):
         fVC,cVC,wVC= toW.calculateStorageFillRatios(totalVialsVC)
         fillVC= fVC+cVC+wVC
         scaledVaccineVialsVC= vaccineVialsVC*fillVC
-        threshVC= scaledVaccineVialsVC*0.25
+        threshVC= scaledVaccineVialsVC*toW.bufferStockFraction
         # This is to prevent there being no threshold at all
         for v,n in threshVC.items():
             if n > 0.0 and n < 1.0:
                 threshVC[v] = 1.0
         threshVC.roundDown()
-        threshVC= scaledVaccineVialsVC*0.25
+        #threshVC= scaledVaccineVialsVC*toW.bufferStockFraction
         return threshVC
 
     def getApproxScalingVC(self,storeDict,code):
@@ -409,12 +441,13 @@ class Model(model.Model):
         # safety stock.
         #demandDownstreamVialsVC= toW.getInstantaneousDemandVC((timeNow,timeNow+shipInterval))            
         demandDownstreamVialsVC= toW.getProjectedDemandVC((timeNow,timeNow+shipInterval))
-        #if fromW.idcode == 1:
+       
         #    print "Demand: " + str(demandDownstreamVialsVC)
         vaccineVialsVC,otherVialsVC= self._separateVaccines(demandDownstreamVialsVC)
 
         # Warehouses try for a buffer stock of 1.25.
-        vaccineVialsVC *= 1.25
+        print "Buffer Stock: {0}".format(toW.bufferStockFraction)
+        vaccineVialsVC *= (1.0 + toW.bufferStockFraction)
         # Believe you need a round up here, or the buffer may not get added to the system for small vial counts
         # (e.g. if the number of vials is 3, and then the buffer makes it 3.75, the next set of commands
         # cause it to be 3 rather than 4, which is the right answer.
@@ -473,7 +506,7 @@ class Model(model.Model):
             if factory.demandType == "Projection":
                 ### Get demand in vials as a projection of the population demand
                 demandDownstreamVialsVC = targetStore.getProjectedDemandVC((timeNow, timeNow + daysUntilNextShipment))
-                #print "Before: {0}".format(demandDownstreamVialsVC)
+                print "Before: {0}".format(demandDownstreamVialsVC)
                 scaledTupleList = []
                 
                 if factory.wasteEstimatesDict:
@@ -487,12 +520,15 @@ class Model(model.Model):
                     vaccineVialsTotVC = self.sim.shippables.getCollection(scaledTupleList)
                 else:
                     vaccineVialsTotVC = demandDownstreamVialsVC
-                #print "After: {0}".format(vaccineVialsTotVC)
+                print "After: {0}".format(vaccineVialsTotVC)
                 vaccineVialsVC, otherVialsVC = self._separateVaccines(vaccineVialsTotVC)
+                print "Afterglow: {0}".format(vaccineVialsVC)
             elif factory.demandType == "Expectation":
                 ### Use the demand expectation in doses and scale it by wastage estimates
                 demandDownstreamDosesVC = self.demandModelTuple[0].getDemandExpectation(targetStore.getTotalDownstreamPopServedPC(),
                                                                                         daysUntilNextShipment)
+                if targetStore.idcode == 1:
+                    print demandDownstreamDosesVC
                 vaccineDosesVC,otherDosesVC = self._separateVaccines(demandDownstreamDosesVC)
 
                 vaccineD2VVC= vaccineDosesVC*self.sim.vaccines.getDosesToVialsVC()
@@ -504,12 +540,15 @@ class Model(model.Model):
                         if v.name in factory.wasteEstimatesDict.keys():
                             wastage =1.0 + float(factory.wasteEstimatesDict[v.name])
                         scaledTupleList.append((v,math.ceil(nVials*wastage)))
-
                     vaccineVialsVC = self.sim.shippables.getCollection(scaledTupleList)
+                else:
+                    vaccineVialsVC = vaccineD2VVC
+                #vaccineVialsVC, otherVialsVC = self._separateVaccines(vaccineVialsTotVC)
             else:
                 raise RuntimeError("in getFactoryProductionVC, invalid demandType of %s for %s" % (factory.demandType, factory.name))
 
-            #print "getFactoryProductionVC: vaccineVialsVC: " + str([(v.name,n) for v,n in vaccineVialsVC.items()])
+            
+            print "getFactoryProductionVC: vaccineVialsVC: " + str([(v.name,n) for v,n in vaccineVialsVC.items()])
             #print factory.overstockScale
             ### Filter by vaccines produced by this factory
             if factory.vaccinesProd is not None:
@@ -531,8 +570,9 @@ class Model(model.Model):
             lowVC = targetStore.getPackagingModel().applyPackagingRestrictions(lowVC)
             lowVC.roundUp()
             totalShipment[targetStore] = lowVC
-            #print "getFactoryProductionVC for %s: Actual amount: %s" % \
-            #    (targetStore.name, [(v.name, n) for v, n in lowVC.items()])
+            
+            print "getFactoryProductionVC for %s: Actual amount: %s" % \
+                (targetStore.name, [(v.name, n) for v, n in lowVC.items()])
         #print "Total Shipment = " + str(totalShipment)
         return totalShipment
 
@@ -660,13 +700,15 @@ class Model(model.Model):
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency)
+                                                          totalLatency,
+                                                          openVialDenyFraction = self.openVialDenyFraction)
                 else:
                     useVials= warehouse.UseOrDiscardVials(wh,
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency)
+                                                          totalLatency,
+                                                          openVialDenyFraction = self.openVialDenyFraction)
             else:
                 if isinstance(wh,Model.SurrogateClinic):
                     useVials= warehouse.UseVialsSilently(wh,
@@ -679,13 +721,15 @@ class Model(model.Model):
                                                           tickInterval,
                                                           patientWaitInterval,
                                                           C.useVialPriority,
-                                                          totalLatency)
+                                                          totalLatency,
+                                                          openVialDenyFraction = self.openVialDenyFraction)
                 else:
                     useVials= warehouse.UseVials(wh,
                                                  tickInterval,
                                                  patientWaitInterval,
                                                  C.useVialPriority,
-                                                 totalLatency)
+                                                 totalLatency,
+                                                 openVialDenyFraction = self.openVialDenyFraction)
             return useVials
         else:
             return None
@@ -821,10 +865,11 @@ class Model(model.Model):
             isSurrogate = False
             isOutreach = True
         elif function.lower() == "distribution":
-            isClinic = False
-            isSurrogate = False
-            assert not issubclass(expectedType, warehouse.Clinic), \
-                'Location %s(%ld) is marked as a distribution facility but is not used like a Warehouse'%(name, code)
+            pass
+            #isClinic = False
+            #isSurrogate = False
+            #assert not issubclass(expectedType, warehouse.Clinic), \
+            #    'Location %s(%ld) is marked as a distribution facility but is not used like a Warehouse'%(name, code)
         else:
             raise RuntimeError("Unknown FUNCTION %s for %s(%ld)"%(function,name,code))
 
@@ -850,6 +895,7 @@ class Model(model.Model):
 
         w= None
         inventory = self._inventoryFromTableRec(rec, sUF)
+        print inventory
         inventoryOrg = None
         if self.sim.perfect== True:
             inventoryOrg= copy(inventory)
@@ -857,8 +903,10 @@ class Model(model.Model):
 
         storageSpace= []
         for t in [g for g in inventory if isinstance(g,abstractbaseclasses.CanStore)]:
+            #print "Dev = {0}".format(t)
             storageSpace += [t.getType()] # CanStore instances are always singletons
         storageSC= self._getTotalVolumeSC(storageSpace)
+        #print storageSC
         totalStorage= sim.storage.getTotalRefrigeratedVol(storageSC)
         if issubclass(expectedType, warehouse.AttachedClinic) and totalStorage != 0.0:
             raise RuntimeError('The Stores file information for %s says it has storage, but it is an Attached Clinic'%name)
@@ -870,6 +918,15 @@ class Model(model.Model):
         else:
             packagingModel = packagingmodel.ListPackagingModel(packagingInfoList)
 
+        ### Does the location have a buffer stock set
+        if rec.has_key('BufferStockFraction'):
+            try:
+                bufferStockFraction = float(rec['BufferStockFraction'])
+            except:
+                bufferStockFraction = self.defaultBufferStockFraction
+        else:
+            bufferStockFraction = self.defaultBufferStockFraction
+        
         if (( targetPopPC is None or targetPopPC.totalCount()==0) and totalStorage==0.0):
             return None # dead warehouse
         elif isClinic:
@@ -880,7 +937,8 @@ class Model(model.Model):
                 w= Model.SurrogateClinic(sim,None,
                                          targetPopPC,
                                          name=name, breakageModel=brModel, demandModel=self.demandModelTuple,
-                                         useVialsLatency=clinicLatency, useVialsTickInterval= clinicInterval)
+                                         useVialsLatency=clinicLatency, useVialsTickInterval= clinicInterval,
+                                         bufferStockFraction=bufferStockFraction)
             elif isOutreach:
                 w= Model.OutreachClinic(sim, sim.shippables.getActiveTypes(),
                                         storagetypes.storageTypes,
@@ -892,7 +950,8 @@ class Model(model.Model):
                                         storageModel=storagemodel.StorageModel(True),
                                         latitude=latitude,longitude=longitude,
                                         useVialsLatency = clinicLatency, useVialsTickInterval= clinicInterval,
-                                        conditions = conditions,origCapacityInfoOrInventory=inventoryOrg)
+                                        conditions = conditions,origCapacityInfoOrInventory=inventoryOrg,
+                                        bufferStockFraction = bufferStockFraction)
             elif coolStorage==0.0 or issubclass(expectedType, warehouse.AttachedClinic):
                 # This is an attached clinic.
                 if conditions is not None:
@@ -901,7 +960,8 @@ class Model(model.Model):
                                             targetPopPC,
                                             name=name, breakageModel=brModel, demandModel= self.demandModelTuple,
                                             useVialsLatency=clinicLatency,
-                                            useVialsTickInterval=clinicInterval)
+                                            useVialsTickInterval=clinicInterval,
+                                            bufferStockFraction = bufferStockFraction)
 
             else:
                 # This is a clinic
@@ -915,7 +975,8 @@ class Model(model.Model):
                                     storageModel=storagemodel.StorageModel(True),
                                     latitude=latitude,longitude=longitude,
                                     useVialsLatency = clinicLatency, useVialsTickInterval= clinicInterval,
-                                    conditions = conditions,origCapacityInfoOrInventory=inventoryOrg)
+                                    conditions = conditions,origCapacityInfoOrInventory=inventoryOrg,
+                                    bufferStockFraction = bufferStockFraction)
                 #print "Using " + str(clinicInterval) + " " + str(clinicLatency)
         else:
             # This is a warehouse
@@ -931,7 +992,8 @@ class Model(model.Model):
                                           packagingModel=packagingModel,
                                           storageModel=storagemodel.StorageModel(False),
                                           latitude=latitude,longitude=longitude, conditions=conditions,
-                                          origCapacityInfoOrInventory=inventoryOrg)
+                                          origCapacityInfoOrInventory=inventoryOrg,
+                                          bufferStockFraction = bufferStockFraction)
             else:
                 w= warehouse.Warehouse(sim,sim.shippables.getActiveTypes(),
                                        storagetypes.storageTypes,
@@ -942,7 +1004,8 @@ class Model(model.Model):
                                        packagingModel=packagingModel,
                                        storageModel=storagemodel.StorageModel(False),
                                        latitude=latitude, longitude=longitude, conditions=conditions,
-                                       origCapacityInfoOrInventory=inventoryOrg)
+                                       origCapacityInfoOrInventory=inventoryOrg,
+                                       bufferStockFraction=bufferStockFraction)
 
         #print w.category,w.name
         w.setNoteHolder(sim.notes.createNoteHolder())
@@ -960,3 +1023,24 @@ class Model(model.Model):
         return w
 
 
+def processTypeFractionPairList(typeManagers, tfList):
+    typeManagers = listify(typeManagers)
+    tfList = listify(tfList)
+
+    types = {}
+        
+    # is there ever a demand for storage, trucks or people?
+    for typeManager in typeManagers:
+        for t in typeManager.getActiveTypes():
+            types[t.name] = t
+            
+    ret = {}
+
+    for line in tfList:
+        (t,f) = line.split(':',1)
+        f = float(f)
+        if t in types:
+            ret[types[t]] = f
+        else:
+            raise RuntimeError("type %s unknown in %s"%(t,tfList))
+    return ret

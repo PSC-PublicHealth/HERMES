@@ -21,7 +21,8 @@ This is the class that will run and define a single HERMES simulation
 """
 _hermes_svn_id_="$Id$"
 
-import sys, os, optparse, types
+import sys, os, optparse, types, socket
+import time
 import random
 #from SimPy.Simulation import Simulation,Process,hold
 from SimPy.SimulationStep import *
@@ -121,6 +122,49 @@ class PercentDoneTickProcess( Process ):
     def reset(self):
         pass
 
+class DBTickProcess( Process ):
+    def __init__(self, sim):
+        import db_routines as db
+        iface = db.DbInterface()
+        self.session = iface.Session()
+        
+        Process.__init__(self, sim=sim)
+        self.totalTicks = 0.0
+
+        print dir(sim.shdNet)
+
+        tickId = sim.userInput.getValue("db_status_id")
+        self.stp = self.session.query(shd.ShdTickProcess).filter_by(tickId=tickId).one()
+
+        self.stp.modelName = sim.shdNet.name
+        self.stp.processId = os.getpid()
+        self.stp.hostName = socket.gethostname()
+        self.stp.status = "simulation setup (simulation %d of %d)"%(self.sim.runNumber+1, self.stp.runCount)
+        self.stp.fracDone = 0.0
+        self.stp.lastUpdate = int(time.time())
+        
+        self.session.add(self.stp)
+        self.session.commit()
+
+        #atexit.register(self.cleanup)
+        
+    def run(self):
+        while True:
+            yield hold, self, 1.0
+            self.stp.fracDone = self.totalTicks / self.sim.model.getTotalRunDays()
+            self.stp.status = "running %0.2f"%(self.stp.fracDone * 100) + "%" + " (simulation %d of %d)"%(self.sim.runNumber+1, self.stp.runCount)
+            self.session.commit()
+            self.totalTicks += 1.0
+
+    def cleanup(self):
+        self.stp.status = "finished"
+        self.session.commit()
+        
+            
+    def reset(self):
+        pass
+    
+    
 class HermesSim(SimulationStep):
     """
     This class and its attributes contain an entire HERMES model, including separate instances
@@ -291,8 +335,10 @@ class HermesSim(SimulationStep):
             storeKeys,storeRecList = shdNet.createStoreRecs()
             routeKeys,routeRecList = shdNet.createRouteRecs()
             factoryKeys, factoryRecList = shdNet.createFactoryRecs()
+            tripManifestKeys = None
+            tripManifestRecList = None
         else:
-            (storeKeys, storeRecList, routeKeys, routeRecList, factoryKeys, factoryRecList) = \
+            (storeKeys, storeRecList, routeKeys, routeRecList, factoryKeys, factoryRecList, tripManifestKeys, tripManifestRecList) = \
                 load_networkrecords.readNetworkRecords(self.userInput)
 
 
@@ -324,7 +370,8 @@ class HermesSim(SimulationStep):
                                    self.model.getDefaultSupplier,
                                    self.model.getDefaultTruckTypeName,
                                    self.model.getDefaultTruckInterval,
-                                   self.model.getDefaultPullMeanFrequency
+                                   self.model.getDefaultPullMeanFrequency,
+                                   tripManifestKeys,tripManifestRecList
                                    )
 
         # We have to do this here because finishBuild may trigger the calculation of shipment
@@ -466,7 +513,9 @@ class HermesSim(SimulationStep):
             if not self.outputfileIsStdout:
                 assert self.outputfile.type == 'filehandle', 'in minion mode but output file is not a filehandle'
                 sys.__stderr__.write("#LogFilePath %s\n"%self.outputfile.fh.name)
-            self.tickProcess = PercentDoneTickProcess(sim=self)
+            #self.tickProcess = PercentDoneTickProcess(sim=self)
+            #self.activate(self.tickProcess,self.tickProcess.run())
+            self.tickProcess = DBTickProcess(sim=self)
             self.activate(self.tickProcess,self.tickProcess.run())
         elif not (self.verbose or self.debug):
             self.tickProcess = TickProcess(sim=self)

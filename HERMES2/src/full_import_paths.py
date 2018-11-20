@@ -31,6 +31,7 @@ paths = ['sim',
          'sim/db',
          'sim/hermes_types',
          'sim/models',
+         'sim/route_types',
          'utils',
          'tools',
          'tools/visualization',
@@ -48,3 +49,4 @@ except:
     pass
 
 HermesBaseDir = os.path.normpath(os.path.join(cwd, '..'))
+print HermesBaseDir

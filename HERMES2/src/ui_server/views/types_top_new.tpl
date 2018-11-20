@@ -76,14 +76,14 @@
 %        'createHeader'  : _("Creating Your Staff Type")
 %        },
 %    'perdiems': {
-%        'label'         : _('PerDiems'),
+%        'label'         : _('Per Diems'),
 %        'infoUrl'       : 'json/perdiem-info',
 %        'editUrl'       : 'perdiem-edit',
 %        'editForm'      : 'json/perdiem-edit-form',
 %        'commitForm'    : 'json/perdiem-edit-verify-commit',
-%        'slogan'        : _("Modify PerDiem Type"),
-%        'editHeader'    : _("Edit Your PerDiem Type"),
-%        'createHeader'  : _("Creating Your PerDiem Type")
+%        'slogan'        : _("Modify Per Diem Type"),
+%        'editHeader'    : _("Edit Your Per Diem Type"),
+%        'createHeader'  : _("Creating Your Per Diem Type")
 %        }
 % }
 % orderedTypesList = ['vaccines','fridges','trucks','people','staff','perdiems']
@@ -106,6 +106,186 @@ var typesMap = {
 };
 </script>
 
+<style>
+
+div.types-top-side-buttons-main{
+	display: -webkit-flex;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	flex-flow: column;
+	-webkit-align-items: center;
+	align-items: center;
+	-webkit-justify-content: center;
+	justify-content: center;
+	*width:100px;
+	*min-width:1000px;
+	*min-height:600px;
+}
+
+div.types-top-side-buttons-top-place{
+	margin: 0 auto;
+	padding:0px;
+	height: 25px;
+	*-webkit-flex: 1 1 10%;
+	*flex: 1 1 10%;
+	order:1
+	*background: red;
+}
+
+div.types-top-side-button-holder{
+	margin: 0 auto;
+	padding:5px;
+	*-webkit-flex: 1 1 10%;
+	*flex: 1 1 20%;
+}
+
+div.types-top-orig-main{
+	display: -webkit-flex;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	flex-flow: column;
+	-webkit-align-items: left;
+	align-items: left;
+	*-webkit-justify-content: f;
+	*justify-content: flex-start;
+	*width:100px;
+	*min-width:1000px;
+	*min-height:600px;
+}
+	
+div.types-top-orig-top {
+	margin: 0 5px;
+	padding:0px;
+	height: 30px;
+	*-webkit-flex: 1 1 10%;
+	*flex: 1 1 10%;
+	order:1;
+	align-self:flex-start;
+	*background: red;
+}
+
+div.types-top-orig-grid {
+	margin: 0 auto;
+	padding:0px;
+	*-webkit-flex: 1 1 80%;
+	*flex: 1 1 80%;
+	order:2;
+	*background: red;
+}
+
+div.types-top-orig-footer {
+	margin: 0;
+	padding:5px 0px;
+	height: 25px;
+	*-webkit-flex: 1 1 10%;
+	*flex: 1 1 10%;
+	order:3;
+	*background: red;
+}
+
+div.types-top-dest-main{
+	display: -webkit-flex;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	flex-flow: column;
+	-webkit-align-items: left;
+	align-items: left;
+	*-webkit-justify-content: f;
+	*justify-content: flex-start;
+	*width:100px;
+	*min-width:1000px;
+	*min-height:600px;
+}
+	
+div.types-top-dest-top {
+	margin: 0 5px;
+	padding:0px;
+	height: 30px;
+	*-webkit-flex: 1 1 10%;
+	*flex: 1 1 10%;
+	order:1;
+	align-self:flex-start;
+	*background: red;
+}
+
+div.types-top-dest-grid {
+	margin: 0 auto;
+	padding:0px;
+	*-webkit-flex: 1 1 80%;
+	*flex: 1 1 80%;
+	order:2;
+	*background: red;
+}
+
+div.types-top-dest-footer {
+	margin: 0;
+	padding:5px 0px;
+	height: 25px;
+	*-webkit-flex: 1 1 10%;
+	*flex: 1 1 10%;
+	order:3;
+	*background: red;
+}
+
+div.types-top-main{
+	display: -webkit-flex;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	flex-flow: row;
+	-webkit-align-items: left;
+	align-items: left;
+	*-webkit-justify-content: f;
+	*justify-content: flex-start;
+	width:800px;
+	*min-width:1000px;
+	*min-height:600px;
+}
+
+div.types-top-main-top {
+	display: block;
+	margin: 4px;
+	padding: 5px;
+	min-height: 100px;
+}
+
+div.types-top-main-1{
+	margin: 0 0;
+	padding:20px;
+	-webkit-flex: 1 1 15%;
+	flex: 1 1 15%;
+	order: 1;
+}
+
+div.types-top-main-2{
+	margin: 0 0;
+	padding:20px;
+	-webkit-flex: 1 1 35%;
+	flex: 1 1 35%;
+	order: 2;
+}
+
+div.types-top-main-3{
+	margin: 0 0;
+	padding:20px;
+	-webkit-flex: 1 1 15%;
+	flex: 1 1 15%;
+	order: 3;
+}
+
+div.types-top-main-4{
+	margin: 0 0;
+	padding:20px;
+	-webkit-flex: 1 1 35%;
+	flex: 1 1 35%;
+	order: 4;
+}
+
+</style>
+<div class='types-top-main-top'>
 <p>
 	<span class='hermes-top-main'>
 		{{_('Edit Components')}}
@@ -114,99 +294,57 @@ var typesMap = {
 
 <p>
 	<span class='hermes-top-sub'>
-		{{_('Use the Source dropdown to select the source from which components can be selected.  Select which component to add to the {0} model and click the arrow button to add it. To remove existing components, click delete.').format(modelName)}}
+		{{_('Use the Source dropdown box to change what database or model to use to look for components.  Select the component you wish to add to the {0} model, and click the arrow button located between the two tables to make it available to the model. To remove an existing component from the model, click the Del(ete) button in the component\'s row in the Used Types table on the left.').format(modelName)}}
 	</span>
 </p>
-
-<table>
-	<tr>
-    	<td>
-    		<table> 
-	    		<tr>
-	    			<td style="height:20px"></td>
-	    		</tr>
+</div> <!-- types-top-main-top -->
+<div class='types-top-main'>
+	<div class='types-top-main-1'>
+    	<div class='types-top-side-buttons-main'>
+    		<div class='types-top-side-buttons-top-place'></div>
 	        %   for te in orderedTypesList:
 	        %   	t = typesEntries[te]
-	        	<tr>
-	        		<td>
-	        			<button id="{{te}}_button" style="width:100%">{{t['label']}}</button>
-	        		</td>
-	    		</tr>
+	        <div class='types-top-side-button-holder'>
+	        	<button id="{{te}}_button" style="width:150px">{{t['label']}}</button>
+	        </div>
     		%   end
-  			</table>
-		</td>
-		<td>
-			<table>
-				<tr>
-					<td style="height:20px" id='dest_header'>
-						{{_('Current type') }}
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<table id='dest_grid'></table>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<div id='dest_pager'></div>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<div id='create_new_type_button'>{{_('Create a New Component')}}</div>
-					</td>
-				</tr>
-			</table>
-		</td>
-	    <td>
-	    	<table id='middle'>
-	    		<tr>
-	    			<td style="height:80px"></td>
-	    		</tr>
-	    		<tr>
-	    			<td>
-	    				<button id="copy_to_model_button">{{_('<--')}}</button>
-    				</td>
-				</tr>
-				<tr>
-					<td></td>
-				</tr>
-	      </table>
-	    </td>
-		<td>
-	    	<table>
-				<tr>
-					<td style="height:20px" id='src_header'>
-				    	<label for="src_model_select">{{_('source')}}</label>
-				    	<select name="src_model_select" id="src_model_select"></select>
-			    	</td>
-		    	</tr>
-				<tr>
-					<td>
-				    	<table id='src_grid'></table>
-			    	</td>
-		    	</tr>
-				<tr>
-					<td>
-				    	<div id='src_pager'></div>
-			    	</td>
-		    	</tr>
-	      </table>
-	    </td>
-% if 0: # until this button has functionality, hide it
-    <td>
-      <table>
-      <tr><td style='height:60px'></td></tr>
-      <tr><td>
-	  <button id="copy_to_model_button">{{_('Create Empty DB')}}</button>
-      </td></tr>
-      <tr><td></td></tr>
-      </table>
-    </td>
-% end
-	</tr>
-</table>
+    		<div class='types-top-side-buttons-bottom-place'></div>
+		</div> <!-- types-top-side-buttons-top-place -->
+	</div> <!-- types-top-main-1 -->
+	
+	<div class='types-top-main-2'>
+		<div class='types-top-orig-main'>
+			<div class='types-top-orig-top' id='dest_header'>
+					{{_('Current type') }}
+			</div>
+			<div class='types-top-orig-grid'>
+					<table id='dest_grid'></table>
+					<div id='dest_pager'></div>
+			</div>
+			<div class='types-top-orig-footer'>
+					<div id='create_new_type_button'>{{_('Create a New Component')}}</div>
+			</div>
+		</div> <!-- types-top-orig-main -->
+	</div> <!-- types-top-main-2 -->
+	
+	<div class='types-top-main-3' style='align-self:center;'>
+		<button id="copy_to_model_button">{{_('Add Component To Model')}}</button>
+	</div> <!-- types-top-main-3 -->
+	
+	<div class='types-top-main-4'>
+    	<div class='types-top-dest-main'>
+    		<div class='types-top-dest-top' id='src_header'>
+		    	<label for="src_model_select" style="font-size:120%; font-weight:bold">{{_('source')}}</label>
+		    	<select name="src_model_select" id="src_model_select"></select>
+		    </div>
+		    <div class='types-top-dest-grid'>
+		    	<table id='src_grid'></table>
+		    	<div id='src_pager'></div>
+		    </div>
+		    <div class='types-top-dest-footer'></div>
+	    </div> <!-- types-top-dest-main -->
+	</div> <!-- types-top-main-4 -->
+</div> <!-- types-top-main -->
 
 <!--
 	<table id="nextback" width=100%>
@@ -270,7 +408,7 @@ var typesMap = {
 <div id="save_name_exists_modal" title='{{_("Notification")}}'></div>
 <div id="req_modal">{{_('There are required entries that have invalid values, please correct the fields that are highlighted in red.')}}</div>
 <script>
-console.log('point 1');
+
 // many characters in a jquery id need escaped.
 function jId(i) {
     return '#' + i.replace( /(:|\.|\[|\]|\+|\=|\/)/g, "\\$1");
@@ -295,9 +433,13 @@ function setCurrentType(t) {
 //    btn.prop('disabled', true);
     prevBtn.button("enable");
     btn.button('disable');
+    //alert(btn[0]);
+    prevBtn[0].style.fontWeight = "normal";
+    btn[0].style.opacity = "1";
+    btn[0].style.fontWeight = "bold";
     currentType = t;
     //alert(currentType);
-    $('#dest_header').html(typesMap[t].dispName + "{{_(' in ')}}" + modelName);
+    $('#dest_header').html('<span style="font-size:120%; font-weight:bold">' + typesMap[t].dispName + "{{_(' in ')}}" + modelName + "</span>");
     populateSrcModelSelect();
     reloadGrid(dest);
 }
@@ -321,7 +463,9 @@ $(function() {
     setCurrentType('{{startClass}}');
 
     var btn = $('#copy_to_model_button')
-    btn.button();
+    btn.button({
+    	icons: {primary:'ui-icon-arrowthick-1-w'}
+    });
     btn.click( copySelected );
 
     // info dialog
@@ -394,7 +538,7 @@ var columnNames = [
 ];
 
 var columnModelSrc = [
-    {name: 'dispName', width:250, index: 'dispName'},
+    {name: 'dispName', width:250, index: 'dispName', search:true, stype:'text',sopt:['cn']},
     {name: 'name', index: 'name', hidden: true},
     {name: 'modelId', index: 'modelId', hidden: true},
     {name: 'flags', index: 'flags', align:'center', formatter:infoFormatter},
@@ -441,12 +585,15 @@ function unpackId(id) {
 }
 
 function infoFormatter(value, options, rowObject) {
-    s = "";
-    s += "<button class='new_hermes_info_button' onclick='infoType(\""
-    s += packId(rowObject);
-    s += "\");'>{{_('info')}}</button>";
-    return s;
-    return "<div class='new_hermes_info_button' id='bt_" + packId(rowObject) + "'></div>";
+    //s = "";
+    //s += "<button class='new_hermes_info_button' onclick='infoType(\""
+    //s += packId(rowObject);
+    //s += "\");'>{{_('Info')}}</button>";
+    //return s;
+    //return "<div class='new_hermes_info_button' id='bt_" + packId(rowObject) + "'></div>";
+    
+    var typeName = rowObject[1].replace(".","PeRiOd");
+	return "<div class='hermes_info_button_div' id='" +options.gid + "_" + typeName+ "_info_button_div'></div>";
 }
 
 function tripleFormatter(value, options, rowObject) {
@@ -597,7 +744,15 @@ $("#save_name_exists_modal").dialog({
 		'{{_("OK")}}':function(){
 			$(this).dialog("close");
 		}
-	}
+	},
+	open: function(e,ui) {
+	    $(this)[0].onkeypress = function(e) {
+	    	if (e.keyCode == $.ui.keyCode.ENTER) {
+	    		e.preventDefault();
+	    		$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+	    	}
+	    };
+    },
 });
 
 $("#save_name_modal").dialog({
@@ -605,6 +760,14 @@ $("#save_name_modal").dialog({
 	height: 300,
 	width: 400,
 	modal: true,
+	open: function(e,ui) {
+	    $(this)[0].onkeypress = function(e) {
+	    	if (e.keyCode == $.ui.keyCode.ENTER) {
+	    		e.preventDefault();
+	    		$(this).parent().find('.ui-dialog-buttonpane button:first').trigger('click');
+	    	}
+	    };
+    },
 	buttons:{
 		'{{_("Save")}}':function(){
 			doesTypeExistInModel($("#new_type_dbname_text").val(),$("#new_type_name_text").val())
@@ -636,20 +799,26 @@ $("#save_name_modal").dialog({
 							var dict = $("#edit_form_content").editFormManager('getEntries');
 							dict['Name'] = $("#new_type_dbname_text").val();
 							dict['DisplayName'] = $("#new_type_name_text").val();
-							$.ajax({
-	    						url:typesMap[currentType].commitUrl,
-	    						data:dict,
-	    					})
-	    					.done(function(result){
-	    						if(result.success && (result.value == undefined || result.value)) {
-	    							$("#save_name_modal").dialog("close");
-	    							$("#edit_dialog").dialog("close");
-	    							reloadGrid(dest);
-	    						}
-	    						else{
-	    							alert(result.msg);
-	    						}
-	    					}); 
+							var flag = false; //validate_fields();
+							if(!flag){
+								$.ajax({
+		    						url:typesMap[currentType].commitUrl,
+		    						data:dict,
+		    					})
+		    					.done(function(result){
+		    						if(result.success && (result.value == undefined || result.value)) {
+		    							$("#save_name_modal").dialog("close");
+		    							$("#edit_dialog").dialog("close");
+		    							reloadGrid(dest);
+		    						}
+		    						else{
+		    							alert(result.msg);
+		    						}
+		    					});
+							}
+							else{
+								$("#req_modal").dialog("open");
+							}
 						}
 					}
 				}
@@ -689,7 +858,8 @@ function editType(id) {
 						url:typesMap[currentType].editFormUrl,
 						data:{
 							'modelId':modelId,
-							'protoname':'new_type'
+							'protoname':'new_type',
+							'newname':name
 						}
 					})
 					.done(function(data){
@@ -697,65 +867,19 @@ function editType(id) {
 						$("#edit_form_content").hrmWidget({
 			    			widget:'editFormManager',
 			    			html:data['htmlstring'],
-			    			modelId:modelId
+			    			modelId:modelId,
 			    		});
 						$("#edit_dialog").dialog({
 			    			title:typesMap[currentType].editHeader,
+			    			autoOpen: true,
 			    			buttons:{
 			    				'{{_("Cancel")}}':function(){
 			    					$(this).dialog("close");
 			    				},
 			    				'{{_("Save")}}':function(){
-			    					var flag = false;
-			    					$(".required_string_input").each(function(){
-			    						var value = $(this).val();
-			    						if(!value || value.length === 0 || !value.trim()){
-			    							$(this).css("border-color","red");
-			    							flag=true;
-			    						}
-			    					});
-			    					$(".required_int_input").each(function(){
-			    						var value = $(this).val();
-			    						if(!value || value.length === 0 || !value.trim()){
-			    							$(this).css("border-color","red");
-			    							flag=true;
-			    						}
-			    						if($(this).hasClass("canzero")){
-			    							if(value < 0.0){
-			    								$(this).css("border-color","red");
-			    								flag=true;
-			    							}
-			    						}
-			    						else{
-			    							if(value <= 0.0){
-			    								$(this).css("border-color","red");
-			    								flag=true;
-			    							}
-			    						}
-			    					});
-			    					$(".required_float_input").each(function(){
-			    						var value = $(this).val();
-			    						//alert("could be zero");}
-			    						if(!value || value.length === 0 || !value.trim()){
-			    							$(this).css("border-color","red");
-			    							flag=true;
-			    						}
-			    						if($(this).hasClass("canzero")){
-			    							if(value < 0.0){
-			    								$(this).css("border-color","red");
-			    								flag=true;
-			    							}
-			    						}
-			    						else{
-			    							if(value <= 0.0){
-			    								$(this).css("border-color","red");
-			    								flag=true;
-			    							}
-			    						}
-			    					});
+									var flag = validate_fields();
 			    					if(!flag){
 				    					var dict = $('#edit_form_content').editFormManager('getEntries');
-				    					dict['overwrite'] = 1;
 				    					$.ajax({
 				    						url:typesMap[currentType].commitUrl,
 				    						data:dict,
@@ -774,13 +898,16 @@ function editType(id) {
 			    						$("#req_modal").dialog("open");
 			    					}
 			    				}
+			    			},
+			    			close:function(){
+			    				$("#edit_form_content").html("");
 			    			}
 			    		});
 					})
 					.fail(function(jqxhr, textStatus, error) {
 						alert("Error: "+jqxhr.responseText);
 					});
-					$("#edit_dialog").dialog("open");
+					//$("#edit_dialog").dialog("open");
 				}
 				else{
 					alert('{{_("There was a problem getting the new increment for the new type name")}}');
@@ -801,6 +928,7 @@ function editType(id) {
 	    	data:{
 	    		'modelId':modelId,
 	    		'protoname':name,
+	    		'newname':'None',
 	    		'overwrite':1,
 	    		'backUrl':B64.encode(myURL + "&startClass=" + currentType)
 	    	}
@@ -820,50 +948,63 @@ function editType(id) {
 	    				},
 	    				'{{_("Save")}}':function(){
 	    					var dict = $('#edit_form_content').editFormManager('getEntries');
-	    					dict['overwrite'] = 1;
-	    					$.ajax({
-	    						url:typesMap[currentType].commitUrl,
-	    						data:dict,
-	    					})
-	    					.done(function(result){
-	    						if(result.success && (result.value == undefined || result.value)) {
-	    							$("#edit_dialog").dialog("close");
-	    							reloadGrid(dest);
-	    						}
-	    						else{
-	    							alert(result.msg);
-	    						}
-	    					}); 
+	    					var flag = validate_fields();
+	    					if(!flag){
+	    						
+	    						dict['overwrite'] = 1;
+		    					//var dict = $('#edit_form_content').editFormManager('getEntries');
+		    					$.ajax({
+		    						url:typesMap[currentType].commitUrl,
+		    						data:dict,
+		    					})
+		    					.done(function(result){
+		    						if(result.success && (result.value == undefined || result.value)) {
+		    							$("#edit_dialog").dialog("close");
+		    							reloadGrid(dest);
+		    						}
+		    						else{
+		    							alert(result.msg);
+		    						}
+		    					}); 
+	    					}
+	    					else{
+	    						$("#req_modal").dialog("open");
+	    					}
 	    				},
 	    				'{{_("Save As New Component")}}':function(){
 	    					var dict = $('#edit_form_content').editFormManager('getEntries');
-	    					$.ajax({
-	    						url:'{{rootPath}}json/get-all-typenames-in-model',
-	    						data:{
-	    							'modelId':{{modelId}}
-	    						}
-	    					})
-	    					.done(function(result){
-	    						if(result.success){
-	    							count=0;
-	    							typename = dict['Name'];
-	    							while(result.typenames.indexOf(typename)!=-1){
-	    								typename = typename.slice(0,typename.length-1)+count;
-	    								count++;
-	    							}
-	    							$("#new_type_dbname_text").val(typename);
-	    	    					$("#new_type_name_text").val(dict['DisplayName'] + " (modified)");
-	    	    					
-	    	    					$("#save_name_modal").dialog("open");
-	    						}
-	    						else{
-	    							alert(result.msg);
-	    						}
-	    					})
-	    					.fail(function(jqxhr, textStatus, error) {
-	    						alert("Error: "+jqxhr.responseText);
-	    					});
-	    					
+	    					var flag = validate_fields();
+	    					if(!flag){
+		    					$.ajax({
+		    						url:'{{rootPath}}json/get-all-typenames-in-model',
+		    						data:{
+		    							'modelId':{{modelId}}
+		    						}
+		    					})
+		    					.done(function(result){
+		    						if(result.success){
+		    							count=0;
+		    							typename = dict['Name'];
+		    							while(result.typenames.indexOf(typename)!=-1){
+		    								typename = typename.slice(0,typename.length-1)+count;
+		    								count++;
+		    							}
+		    							$("#new_type_dbname_text").val(typename);
+		    	    					$("#new_type_name_text").val(dict['DisplayName'] + " (modified)");
+		    	    					
+		    	    					$("#save_name_modal").dialog("open");
+		    						}
+		    						else{
+		    							alert(result.msg);
+		    						}
+		    					})
+		    					.fail(function(jqxhr, textStatus, error) {
+		    						alert("Error: "+jqxhr.responseText);
+		    					});
+	    					}
+	    					else{
+	    						$("#req_modal").dialog("open");
+	    					}	
 	    				}
 	    			}
 	    		});
@@ -952,7 +1093,7 @@ $("#dest_grid").jqGrid({
     caption: "{{_('Used Types')}}",
 }).jqGrid('hermify',{debug:true});
 	
-$("#dest_grid").jqGrid('navGrid', '#dest_pager', {edit:false, add:false, del:false});
+$("#dest_grid").jqGrid('navGrid', '#dest_pager', {edit:false, add:false, del:false, search: false,refresh:false});
 
 function catchNewType(event, ui, data, $source, $target) {
     ui.helper.dropped = false;
@@ -980,16 +1121,27 @@ $("#src_grid").jqGrid({
     sortorder: 'asc',
     gridview: true,
     onSelectRow: function(id) {
-	selectRow(id, src);
+		selectRow(id, src);
     },
     gridComplete: function() { 
-	setupButtonTriples(); 
+    	$("#src_grid .hermes_info_button_div").each(function(){
+			$this = $(this);
+			var typeNameHere = $this.attr("id").replace("_info_button_div","").replace("src_grid_","");
+			$this.hrmWidget({
+				widget:'typeInfoButtonAndDialog',
+				modelId: sel_model_id,
+				typeId: typeNameHere,
+				typeClass: currentType,
+				autoOpen: false
+			});
+		});
+	//setupButtonTriples(); 
 //	src.modelId = sel_model_id;
     },
     // editurl:
     caption: "{{_('Available Types')}}",
 }).jqGrid('hermify',{debug:true});
-$("#src_grid").jqGrid('navGrid', '#src_pager', {edit:false, add:false, del:false});
+$("#src_grid").jqGrid('navGrid', '#src_pager', {edit:false, add:false, del:false,search:false,refresh:false});
 $("#src_grid").jqGrid('gridDnD', {connectWith : '#dest_grid', 
 				  dragcopy : true, 
 				  beforedrop : catchNewType });
@@ -1002,7 +1154,7 @@ $(function() {
     sel.change( function() {
     	sel_model_id = $("#src_model_select").val();
     	src.modelId = sel_model_id;
-//		alert(sel_model_id);
+		//alert(sel_model_id);
     	$.getJSON('{{rootPath}}json/set-selected-model', {id : sel_model_id})
 	    	.done(function(data) {
 	    		sel_model_name = data['name'];
@@ -1066,8 +1218,60 @@ $(function() {
 			getParms:function(){
 				return {};
 			},
-			checkParms:function(parmDict) {
-				return {success:true};
+			nextFunction:function() {
+				//return {success:true};
+				return $.ajax({
+					url:"{{rootPath}}json/validate-required-types-of-model",
+					data:{modelId:{{modelId}}}
+				})
+				.done(function(results){
+					if(results.success){
+						if(results.pass){
+							var parmDict = {}; // should be the same as above
+							window.location= '{{! breadcrumbPairs.getNextURL() }}' + '?' + parmDict;
+						}
+						else{
+							$("#wrappage_dialog_modal").html(results.message);
+							$("#wrappage_dialog_modal").dialog({
+								autoOpen:true,
+								modal:true,
+								width:'auto',
+								title: "{{_('Required Component Validation Failed')}}",
+								buttons:{
+									"{{_('Return To HERMES')}}":function(){
+										$(this).dialog("close");
+										$(this).html('');
+										$(this).dialog("destroy");
+									}
+								}
+							});
+							//$("#wrappage_dialog_modal").dialog('option','title',"{{_('Required Component Validation Failed')}}");
+							//$("#wrappage_dialog_modal").dialog("open");
+						}
+					}
+					else{
+						$("#wrappage_dialog_modal").html("{{_('There was an error with HERMES: ')}}" + results.msg);
+						$("#wrappage_dialog_modal").dialog({
+							autoOpen:true,
+							modal:true,
+							width:'auto',
+							title: "{{_('Failur Running Component Validation')}}",
+							buttons:{
+								"{{_('Return To HERMES')}}":function(){
+									$(this).dialog("close");
+									$(this).html('');
+									$(this).dialog("destroy");
+								}
+							}
+						});
+						//$("#wrappage_dialog_modal").dialog('option','title',"{{_('Failure Running Component Validation')}}");
+						//$("#wrappage_dialog_modal").dialog("open");
+					}
+				})
+				.fail(function(jqxhr, textStatus, errorThrown) {
+					alert('{{_("There was a failure in calling component validation algorithm: ")}}'+jqxhr.responseText);
+				});
+
 			},
 			nextURL:'{{! breadcrumbPairs.getNextURL() }}',
 			backURL:'{{! breadcrumbPairs.getBackURL() }}',
@@ -1076,4 +1280,72 @@ $(function() {
 		$(document).hrmWidget({widget:'stdDoneButton', doneURL:'{{breadcrumbPairs.getDoneURL()}}'});
 	% end
 });
+
+function validate_types(){
+	
+	return $.ajax({
+		url:"{{rootPath}}json/validate-required-types-of-model",
+		data:{modelId:{{modelId}}}
+	}).promise();
+}
+
+function validate_fields(){
+	var flag = false;
+	var debug = false;
+	$(".required_string_input").each(function(){
+		var value = $(this).val();
+		if(!value || value.length === 0 || !value.trim()){
+			$(this).css("border-color","red");
+			if(debug) alert("String Bad " + $(this).attr('id'))
+			flag=true;
+		}
+	});
+	$(".required_int_input").each(function(){
+		var value = $(this).val();
+		if(!value || value.length === 0 || !value.trim()){
+			$(this).css("border-color","red");
+			if(debug) alert("int Bad " + $(this).attr('id'))
+			flag=true;
+		}
+		if($(this).hasClass("canzero")){
+			if(value < 0.0){
+				$(this).css("border-color","red");
+				flag=true;
+				if(debug) alert("int zero Bad " + $(this).attr('id'))
+			}
+		}
+		else{
+			if(value <= 0.0){
+				$(this).css("border-color","red");
+				flag=true;
+				if(debug) alert("int eq zero Bad " + $(this).attr('id'))
+			}
+		}
+	});
+	$(".required_float_input").each(function(){
+		var value = $(this).val();
+		//alert("could be zero");}
+		if(!value || value.length === 0 || !value.trim() || isNaN(parseFloat(value))){
+			$(this).css("border-color","red");
+			if(debug) alert("float Bad " + $(this).attr('id') + "Value = " + value)
+			flag=true;
+		}
+		if($(this).hasClass("canzero")){
+			if(value < 0.0){
+				$(this).css("border-color","red");
+				if(debug) alert("float zero Bad " + $(this).attr('id'))
+				flag=true;
+			}
+		}
+		else{
+			if(value <= 0.0){
+				$(this).css("border-color","red");
+				if(debug) alert("float eq zero Bad " + $(this).attr('id'))
+				flag=true;
+			}
+		}
+	});
+	return flag;
+}
+
 </script>

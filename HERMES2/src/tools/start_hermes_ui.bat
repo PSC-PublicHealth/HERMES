@@ -22,14 +22,19 @@ if exist "%cd%\..\..\python\python.exe" (
  rem pass
 ) else if exist %HOMEDRIVE%\Python27\python.exe (
   set PATH="%path%";%HOMEDRIVE%\Python27;%HOMEDRIVE%\Python27\Scripts
+) else if exist %HOMEDRIVE%\Python27-64\python.exe (
+  set PATH="%path%";%HOMEDRIVE%\Python27-64;%HOMEDRIVE%\Python27-64\Scripts
 ) else if exist %HOMEDRIVE%\Python26\python.exe (
    set PATH="%path%";%HOMEDRIVE%\Python26;%HOMEDRIVE%\Python26\Scripts
 ) else if exist %HOMEDRIVE%\Python25\python.exe (
    set PATH="%path%";%HOMEDRIVE%\Python25;%HOMEDRIVE%\Python25\Scripts
 ) else ( 
    echo "Could not find python"
-   exit /b %errorlevel%
+REM   exit /b %errorlevel%
 )
+
+
+
 
 REM Start the server
 

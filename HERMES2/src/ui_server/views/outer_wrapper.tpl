@@ -21,23 +21,42 @@
     <title>{{_('HERMES - Supply Chain Modeling for Public Health')}}</title>
 
 <link rel="shortcut icon" type="image/x-icon" href="{{rootPath}}static/icons/favicon2.ico">
-<!--<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/themes/base/jquery-ui.css" />-->
 
-<!--<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/themes/base/jquery.ui.all.css" />-->
-<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.11.4.custom/jquery-ui.css" />
-<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-1.10.2/demos/demos.css" />
+<!-- JQUERY UI includes -->
+
+<!--<script src="{{rootPath}}static/jquery-1.12.4.min.js"></script>-->
+<script src="{{rootPath}}static/jquery-ui-1.12.1.custom/external/jquery/jquery.js"></script>
+<link rel="stylesheet" href="{{rootPath}}static/jquery-ui-themes-1.12.1/themes/smoothness/jquery-ui.min.css" />
+<script src="{{rootPath}}static/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+
+<!-- FOR DEBUGGING - Make sure that our local versions of jquery work -->
+
+<!--
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+-->
+
+
+
 <link rel="stylesheet" href="{{rootPath}}static/animate.css"/>
-<link rel="stylesheet" type="text/css" media="screen" href="{{rootPath}}static/jqGrid-4.4.4/css/ui.jqgrid.css" />
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-svg-1.4.5/jquery.svg.css" />
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/hermes_custom.css" />
-
 <link rel="stylesheet" type="text/css" href="{{rootPath}}static/jquery-rcrumbs-3234d9e/jquery.rcrumbs.css" />
-<script src="{{rootPath}}static/jquery-1.11.3.js"></script>
-<script src="{{rootPath}}static/jquery-ui-1.11.4.custom/jquery-ui.js"></script>
-<!--<script src="{{rootPath}}static/jquery-ui-1.10.2/ui/jquery-ui.js"></script>-->
 
+<!-- JQGrid 4.4.4 includes -->
+<!--
+<link rel="stylesheet" type="text/css" media="screen" href="{{rootPath}}static/jqGrid-4.4.4/css/ui.jqgrid.css" />
 <script type="text/javascript" src="{{rootPath}}static/jqGrid-4.4.4/js/i18n/grid.locale-en.js"></script>
 <script type="text/javascript" src="{{rootPath}}static/jqGrid-4.4.4/js/jquery.jqGrid.src.js"></script>
+-->
+
+<!-- freeJqGrid 4.7 includes -->
+
+<link rel="stylesheet" type="text/css" media="screen" href="{{rootPath}}static/jqGrid-free-4.7/css/ui.jqgrid.css" />
+<script type="text/javascript" src="{{rootPath}}static/jqGrid-free-4.7/js/i18n/grid.locale-en.js"></script>
+<script type="text/javascript" src="{{rootPath}}static/jqGrid-free-4.7/js/jquery.jqgrid.src.js"></script>
+
 <script type="text/javascript" src="{{rootPath}}static/jQuery-File-Upload-7.4.1/js/jquery.fileupload.js"></script>
 
 <script type="text/javascript" src="{{rootPath}}static/jquery-rcrumbs-3234d9e/jquery.rcrumbs.js"></script>
@@ -61,6 +80,9 @@
 /*
 * Magic to make AJAX ops like $.getJSON send the same cookies as normal fetches
 */
+
+
+
 $(document).ajaxSend(function (event, xhr, settings) {
 	settings.async = true,
     settings.xhrFields = {
@@ -341,8 +363,12 @@ function reportError(jqxhdrOrData, textStatus, error) {
 	
 		<footer class="art-footer clearfix">
 			<div class="art-footer-inner">
-	  			&nbsp; &nbsp; &nbsp; &nbsp;{{_('HERMES Project')}} - Copyright &copy; 2015. {{_('All Rights Reserved.')}}
+	  			&nbsp; &nbsp; &nbsp; &nbsp;{{_('HERMES Project')}} - Copyright &copy; 2017. {{_('All Rights Reserved.')}}
 			</div>
 		</footer> 
     </div>    
 </body>
+
+<script>
+$("a[title]").tooltip();
+</script>

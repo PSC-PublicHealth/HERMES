@@ -23,6 +23,7 @@
 % Attrs = [
 %    { 'field' : "Name",         'type' : 'store', 'title' : _('names') },
 %    { 'field' : "Category",     'type' : 'store', 'title' : _('categories') },
+%    { 'field' : "Function",     'type' : 'store', 'title' : _('function') },
 %    { 'field' : "LatLon",       'type' : 'store', 'title' : _('lat / lon') },
 %    { 'field' : "UseVials",     'type' : 'store', 'title' : _('use vials') },
 %    { 'field' : "UtilizationRate", 'type' : 'store', 'title' : _('utilization rate') },
@@ -31,15 +32,17 @@
 %    { 'field' : "trucks",       'type' : 'store', 'title' : _('transport') },
 %    { 'field' : "SiteCost",     'type' : 'store', 'title' : _('site cost')},
 %    { 'field' : "Notes",        'type' : 'store', 'title' : _('notes') },
-%    { 'field' : "Name",         'type' : 'route', 'title' : _('route names') },
-%    { 'field' : "Type",         'type' : 'route', 'title' : _('route types') },
+%    { 'field' : "Name",         'type' : 'route', 'title' : _('names') },
+%    { 'field' : "Type",         'type' : 'route', 'title' : _('types') },
 %    { 'field' : "TransitHours", 'type' : 'route', 'title' : _('transit hours') },
 %    { 'field' : "Distances",    'type' : 'route', 'title' : _('distances') },
 %    { 'field' : "OrderAmount",  'type' : 'route', 'title' : _('order amounts') },
 %    { 'field' : "TruckType",    'type' : 'route', 'title' : _('truck type') },
-%    { 'field' : "Timings",      'type' : 'route', 'title' : _('route timings') },
+%#    { 'field' : "Timings",      'type' : 'route', 'title' : _('timings') },
+%    { 'field' : "Interval",      'type' : 'route', 'title' : _('interval') },
+%    { 'field' : "Latency",      'type' : 'route', 'title' : _('latency') },
 %    { 'field' : "PerDiemType",  'type' : 'route', 'title' : _('per diem policy')},
-%    { 'field' : "Conditions",   'type' : 'route', 'title' : _('route conditions') }
+%#    { 'field' : "Conditions",   'type' : 'route', 'title' : _('conditions') }
 % ]
 
 <style>
@@ -215,28 +218,35 @@ $(function() {
 	    "json_data" : {
 		"ajax" : {
 		    "url" : "json/modelRoutes/{{modelId}}",
-		    "data" : function(n) { return { id : n.attr ? n.attr("id") : 'A-1' }; },
-                    "dataFilter" : function(data, type) {
-                        data = jQuery.parseJSON(data);
-			success = data.success;
-			if (!success) {
-			    if('errorString' in data) {
-				alert("{{_('error fetching node: ')}}"+data.errorString);
-			    } else {
-				alert("{{_('error fetching node')}}");
-			    }
-			    return NULL;
+		    "data" : function(n) { 
+		    		console.log(n);
+		    		var idhere = {id : n.attr ? n.attr("id") : 'A-1'};
+		    		console.log(idhere);
+		    		return { id : n.attr ? n.attr("id") : 'A-1' }; },
+            "dataFilter" : function(data, type) {
+                data = jQuery.parseJSON(data);
+                console.log(data);
+                success = data.success;
+                if (!success) {
+                	if('errorString' in data) {
+                		alert("{{_('error fetching node: ')}}"+data.errorString);
+                	} else {
+                		alert("{{_('error fetching node')}}");
+                	}
+                	return NULL;
+                }
+                $.merge(updatesSavedForLoadNode, data.updates);
+                console.log("HERE");
+                console.log(data.data);
+                return JSON.stringify(data.data);
+            },
+            "success" : function(result) {
+                //alert('success');
+            },
+            "error" : function(jqxhr, textStatus, error) {
+                alert("{{_('error fetching route tree')}}: "+eval(error) + " : " + textStatus);
+            } 
 			}
-			$.merge(updatesSavedForLoadNode, data.updates);
-                        return JSON.stringify(data.data);
-                    },
-                    "success" : function(result) {
-                        //alert('success');
-                    },
-                    "error" : function(jqxhr, textStatus, error) {
-                        alert("{{_('error fetching route tree')}}");
-                    } 
-		}
 	    }
 	});
 });

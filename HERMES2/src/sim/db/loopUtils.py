@@ -45,7 +45,7 @@ def chunks(l,n):
     for i in xrange(0,len(l),n):
         yield l[i:i+n] 
               
-def findBestLoops(hubLoc,locList,pointsPerLoop,nIterations = 10):
+def findBestLoops(hubLoc, locList, pointsPerLoop, nIterations = 10, debug = True):
     numLoops = int(math.ceil(float(len(locList))/float(pointsPerLoop)))
     
     origIndex = [x for x in range(0,len(locList))]
@@ -53,8 +53,11 @@ def findBestLoops(hubLoc,locList,pointsPerLoop,nIterations = 10):
     bestConnections = []
     bestDistance = 9999999999
     currrentConnections = []
-    
+     
+    #print "In here = {0}".format(nIterations)
     ### Begin Iteration
+    if debug:
+        print "Beginning Loop Iterations"
     for i in range(0,nIterations):
         ### first create current connections
         newIndex = deepcopy(origIndex)
@@ -62,10 +65,11 @@ def findBestLoops(hubLoc,locList,pointsPerLoop,nIterations = 10):
         #print "newIndex = " + str(newIndex)
         # make this a set of x loops
         currentConnections = list(chunks(newIndex,pointsPerLoop))
-        #print "Cur = " + str(currentConnections)
+        print "Cur = " + str(currentConnections)
         
         ### Calculate the total distance travelled with these loops
         totalDistance = 0.0
+        
         for loop in currentConnections:
             # first Leg
             #print "%s"%str(loop)
@@ -76,6 +80,7 @@ def findBestLoops(hubLoc,locList,pointsPerLoop,nIterations = 10):
             totalDistance += util.longitudeLatitudeSep(hubLoc[0],hubLoc[1],
                                                        locList[loop[len(loop)-1]][0],locList[loop[len(loop)-1]][1])
             # All the shit in between
+            #print "All"
             for stop in xrange(0,len(loop)-2):
                 start = locList[loop[stop]]
                 end = locList[loop[stop+1]]
@@ -88,7 +93,9 @@ def findBestLoops(hubLoc,locList,pointsPerLoop,nIterations = 10):
             ### set this as the best so far
             bestConnections = currentConnections
             bestDistance = totalDistance
-
+    
+    if debug:
+        print "Done with {0} iterations for a best distance of {1} KM".format(nIterations,bestDistance)       
     return (bestDistance,bestConnections)
                 
     

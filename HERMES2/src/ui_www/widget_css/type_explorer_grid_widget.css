@@ -1,0 +1,72 @@
+div.hermes_type_explorer_grid_main_div {
+	display: -webkit-flex;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	flex-flow: column;
+	-webkit-align-items: left;
+	align-items: left;
+	*-webkit-justify-content: center;
+	*justify-content: center;
+	max-width:1200px;
+	*min-width:1000px;
+	min-height:600px;
+}
+
+.hermes_type_explorer_grid_sb {
+	position:relative;
+	float:left;
+}
+.hermes_type_explorer_grid_st {
+
+	height: 30px;
+	margin-left: 10px;
+	margin-top: 8px;
+	float:left;
+	position:relative;
+}
+
+div.hermes_type_explorer_grid_bottom_button_div {
+	display: -webkit-flex;
+	display: flex;
+	margin: 0;
+	padding: 0px 0px;
+	flex-flow: rows;
+	-webkit-align-items: left;
+	align-items: left;
+	height:120px;
+}
+
+div.hermes_type_explorer_bb_div {
+	padding: 2px 5px;
+}
+
+.hermes_type_explorer_grid_main_div > .ui-jqgrid > .loading {
+	opacity: 1.0;
+	width:150px;
+	padding-top:25px;
+	padding-left:40px;
+	text-align: left;
+}
+
+.hermes_type_explorer_grid_main_div > .ui-jqgrid > .loading:after {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  -webkit-animation: ellipsis steps(4,end) 900ms infinite;      
+  animation: ellipsis steps(4,end) 900ms infinite;
+  content: "\2026"; /* ascii code for the ellipsis character */
+  width: 0px;
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.25em;    
+  }
+}
+
+@-webkit-keyframes ellipsis {
+  to {
+    width: 1.25em;    
+  }
+}
