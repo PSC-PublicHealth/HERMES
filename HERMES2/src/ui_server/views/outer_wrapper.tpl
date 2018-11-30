@@ -6,7 +6,7 @@
 	<meta charset="utf-8">
     <title>{{_('HERMES - Supply Chain Modeling for Public Health')}}</title>
 
-<link rel="shortcut icon" type="image/x-icon" href="{{rootPath}}static/icons/favicon2.ico">
+<link rel="shortcut icon" type="image/x-icon" href="{{rootPath}}static/icons/favicon4.ico">
 
 <!-- JQUERY UI includes -->
 
@@ -192,7 +192,6 @@ function reportError(jqxhdrOrData, textStatus, error) {
 	.art-content .art-postcontent-0 .layout-item-1 { padding-right: 10px;padding-left: 10px;  }
 	.ie7 .post .layout-cell {border:none !important; padding:0 !important; }
 	.ie6 .post .layout-cell {border:none !important; padding:0 !important; }
-
 </style>
     	
 </head>
@@ -201,17 +200,17 @@ function reportError(jqxhdrOrData, textStatus, error) {
 	<!-- IFrame for shim to google earth plugin -->
 	<iframe id="content-iframe" style="border:0px;width:0px;height:0px"></iframe>
 	<div id="art-main">
-		<header class="art-header clearfix">
-			<div class="art-shapes">
-				<div style="float:left">
-	     			<h1 class="art-headline">
-						HERMES
-					</h1>
-	     			<h2 class="art-slogan">
+		<header class="art-logo-header clearfix">
+			<div class="art-logo-shapes">
+			   <div class="art-logo-title">
+	     			<h1 class="art-logo">
+				  <img src="{{rootPath}}static/images/header2.png" height=45px>
+				</h1>
+	     			<h1 class="art-logo-slogan">
 						{{get('title_slogan','Slogan is undefined')}}
-					</h2>
-				</div>
-				<div style="float:right;margin-right:15px">
+				</h1>
+			   </div>
+			   <div style="float:right;margin-right:15px">
 					%if inlizer.implemented:
 					<h3 style="color:white;display:inline;">Languages:</h3>
 					<h3 style="display:inline;">
@@ -226,9 +225,10 @@ function reportError(jqxhdrOrData, textStatus, error) {
 						</select>
 					</h3>
 					%end
-				</div>
+			   </div>
 			</div>
-             	<!-- <div class="art-object1679104977"></div> -->                                       
+<!--             	<div class="art-object1679104977"></div>
+-->
 		</header>
 		
 		<nav class="art-nav clearfix">
@@ -349,7 +349,7 @@ function reportError(jqxhdrOrData, textStatus, error) {
 	
 		<footer class="art-footer clearfix">
 			<div class="art-footer-inner">
-	  			&nbsp; &nbsp; &nbsp; &nbsp;{{_('HERMES Project')}} - Copyright &copy; 2017. {{_('All Rights Reserved.')}}
+	  			&nbsp; &nbsp; &nbsp; &nbsp;{{_('HERMES Project')}} - Version 1.1 - Copyright &copy; 2017-2018. {{_('All Rights Reserved.')}}
 			</div>
 		</footer> 
     </div>    

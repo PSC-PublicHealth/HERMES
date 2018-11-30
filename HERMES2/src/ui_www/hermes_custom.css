@@ -334,7 +334,7 @@ li.no_ul a:active {
 
 #art-main
 {
-   background: #282A57;
+   background: #004477;
    margin:0 auto;
    font-size: 13px;
    font-family: 'Century Gothic', Arial, 'Arial Unicode MS', Helvetica, Sans-Serif;
@@ -626,7 +626,8 @@ body
 
 .clearfix:before, .clearfix:after {
    content: "";
-   display: table;
+   /*   display: table;*/
+   display: block;
 }
 
 .clearfix:after {
@@ -712,6 +713,7 @@ li p, .art-postcontent li p, .art-blockcontent li p
    margin-right: 0 !important;
 }
 
+/*
 .art-object1679104977
 {
     display: block;
@@ -725,6 +727,68 @@ li p, .art-postcontent li p, .art-blockcontent li p
     background-repeat: no-repeat;
     z-index: 0;
 }
+*/
+
+.art-logo-shapes
+{
+   position: absolute;
+   top: 0;
+   right: 0;
+   bottom: 0;
+   left: 0;
+   overflow: hidden;
+   z-index: 0;
+   width: 100%;
+   margin: auto;
+}
+
+
+.art-logo-header
+{
+    display: inline-block;
+    height: 45px;
+    color: white;
+    margin-left: 15px; !important;
+    width: 100%;
+    position: relative;
+}
+
+.art-logo-title
+{
+    height: 45px;
+    display: inline;
+    float: left;
+}
+
+.art-logo
+{
+    height: 45px;
+    float: left;
+}
+
+.art-logo-slogan
+{
+    position: absolute;
+    height: 45x;
+    line-height: 45x;
+    top: 3px;
+    /*bottom: 1;*/
+  /*min-width: 50px;*/
+  /*top: 98px;*/
+    /*left: 200px;*/
+    font-size: 32px;
+    /*  line-height: 100%;*/
+  margin-left: 200px;
+  -webkit-transform: rotate(0deg);
+  -moz-transform: rotate(0deg);
+  -o-transform: rotate(0deg);
+  -ms-transform: rotate(0deg);
+  transform: rotate(0deg);
+  z-index: 99;
+  white-space: nowrap;
+ */
+}
+
 .art-headline
 {
   display: inline-block;
@@ -760,13 +824,13 @@ text-shadow: 0.7px 0.7px 0px rgba(153, 153, 153, 0.8), 1.4px 1.4px 0px rgba(140,
   color: #FFFFFF !important;
   white-space: nowrap;
 }
-.art-slogan
+.art-slogan2
 {
   display: inline-block;
   /*position: absolute;*/
   min-width: 50px;
   /*top: 98px;*/
-  /*left: 200px;*/
+  left: 200px;
   line-height: 100%;
   /*margin-left: -49px; !important;*/
   -webkit-transform: rotate(0deg);
@@ -776,6 +840,7 @@ text-shadow: 0.7px 0.7px 0px rgba(153, 153, 153, 0.8), 1.4px 1.4px 0px rgba(140,
   transform: rotate(0deg);
   z-index: 99;
   white-space: nowrap;
+
 }
 
 .art-slogan, 
@@ -828,15 +893,15 @@ text-shadow: 0.7px 0.7px 0px rgba(153, 153, 153, 0.8), 1.4px 1.4px 0px rgba(140,
 
 .art-nav
 {
-   background: #404244;
-   background: linear-gradient(top, #434547 0, #45474A 40%, #45474A 80%, #2A2B2D 100%) no-repeat;
-   background: -webkit-linear-gradient(top, #434547 0, #45474A 40%, #45474A 80%, #2A2B2D 100%) no-repeat;
-   background: -moz-linear-gradient(top, #434547 0, #45474A 40%, #45474A 80%, #2A2B2D 100%) no-repeat;
-   background: -o-linear-gradient(top, #434547 0, #45474A 40%, #45474A 80%, #2A2B2D 100%) no-repeat;
-   background: -ms-linear-gradient(top, #434547 0, #45474A 40%, #45474A 80%, #2A2B2D 100%) no-repeat;
-   background: linear-gradient(top, #434547 0, #45474A 40%, #45474A 80%, #2A2B2D 100%) no-repeat;
-   -svg-background: linear-gradient(top, #434547 0, #45474A 40%, #45474A 80%, #2A2B2D 100%) no-repeat;
-   border-bottom:1px solid #A0A3A6;
+   background: #c6c9ce;
+   background: linear-gradient(top, #d1d3d7 0, #c6c9ce 40%, #c6c9ce 80%, #636467 100%) no-repeat;
+   background: -webkit-linear-gradient(top, #d1d3d7 0, #c6c9ce 40%, #c6c9ce 80%, #636467 100%) no-repeat;
+   background: -moz-linear-gradient(top, #d1d3d7 0, #c6c9ce 40%, #c6c9ce 80%, #636467 100%) no-repeat;
+   background: -o-linear-gradient(top, #d1d3d7 0, #c6c9ce 40%, #c6c9ce 80%, #636467 100%) no-repeat;
+   background: -ms-linear-gradient(top, #d1d3d7 0, #c6c9ce 40%, #c6c9ce 80%, #636467 100%) no-repeat;
+   background: linear-gradient(top, #d1d3d7 0, #c6c9ce 40%, #c6c9ce 80%, #636467 100%) no-repeat;
+   -svg-background: linear-gradient(top, #d1d3d7 0, #c6c9ce 40%, #c6c9ce 80%, #636467 100%) no-repeat;
+   border-bottom:1px solid #c6c9ce;
    padding:3px 3px 0;
    margin:auto;
    position: relative;
@@ -979,7 +1044,9 @@ ul.art-hmenu>li>a
    height: 25px;
    cursor: pointer;
    text-decoration: none;
-   color: #E0E1D1;
+   /*color: #E0E1D1;*/
+   /*color: #36375E;*/
+   color: #4B4d83;
    line-height: 25px;
    text-align: center;
 }
@@ -1000,7 +1067,7 @@ ul.art-hmenu>li>a
 
 ul.art-hmenu>li>a.active
 {
-   background: #282A57;
+   background: #004477;
    background: linear-gradient(top, #161731 0, #3A3C7E 100%) no-repeat;
    background: -webkit-linear-gradient(top, #161731 0, #3A3C7E 100%) no-repeat;
    background: -moz-linear-gradient(top, #161731 0, #3A3C7E 100%) no-repeat;
@@ -1011,7 +1078,7 @@ ul.art-hmenu>li>a.active
    -webkit-border-radius:2px 2px 0 0;
    -moz-border-radius:2px 2px 0 0;
    border-radius:2px 2px 0 0;
-   border:1px solid #A0A3A6;
+   border:1px solid #c6c9ce;
    border-bottom:none;
    padding:0 8px;
    margin:0 auto;
@@ -1029,7 +1096,7 @@ ul.art-hmenu>li:hover>a {
 
 ul.art-hmenu>li>a:hover, .desktop ul.art-hmenu>li:hover>a
 {
-   background: #A0A3A6;
+   background: #c6c9ce;
    background: linear-gradient(top, #84878B 0, #BBBDBF 100%) no-repeat;
    background: -webkit-linear-gradient(top, #84878B 0, #BBBDBF 100%) no-repeat;
    background: -moz-linear-gradient(top, #84878B 0, #BBBDBF 100%) no-repeat;
@@ -1493,7 +1560,7 @@ input.art-button
 
 .art-button.active, .art-button.active:hover
 {
-   background: #A0A3A6 url('images/activebutton.png') scroll;
+   background: #c6c9ce url('images/activebutton.png') scroll;
    background: rgba(160, 163, 166, 0.8) url('images/activebutton.png') scroll;
    -webkit-border-radius:9px;
    -moz-border-radius:9px;
@@ -1510,7 +1577,7 @@ input.art-button
 
 .art-button.hover, .art-button:hover
 {
-   background: #A0A3A6 url('images/hoveredbutton.png') scroll;
+   background: #c6c9ce url('images/hoveredbutton.png') scroll;
    background: rgba(160, 163, 166, 0.8) url('images/hoveredbutton.png') scroll;
    -webkit-border-radius:9px;
    -moz-border-radius:9px;
@@ -1640,7 +1707,7 @@ label.art-checkbox
 
 label.art-checkbox.active:before
 {
-   background: #A0A3A6;
+   background: #c6c9ce;
    -webkit-border-radius:1px;
    -moz-border-radius:1px;
    border-radius:1px;
@@ -1691,7 +1758,7 @@ label.art-radiobutton
 
 label.art-radiobutton.active:before
 {
-   background: #A0A3A6;
+   background: #c6c9ce;
    -webkit-border-radius:3px;
    -moz-border-radius:3px;
    border-radius:3px;
@@ -1814,7 +1881,7 @@ pre
 
 .art-postheader
 {
-   color: #282A57;
+   color: #004477;
    margin: 5px 0 5px 10px;
    font-size: 20px;
    font-family: 'Century Gothic', Arial, 'Arial Unicode MS', Helvetica, Sans-Serif;
@@ -2151,12 +2218,12 @@ tr.Navigator td, td span.Navigator
 .Sorter
 {
    font-family: 'Century Gothic', Arial, 'Arial Unicode MS', Helvetica, Sans-Serif;
-   color:#282A57;
+   color:#004477;
 }
 
 .art-footer
 {
-   background: #282A57;
+   background: #004477;
    margin:10px auto 0;
    position: relative;
    color: #B6B7DD;

@@ -92,7 +92,7 @@ Source: "..\..\HERMES2\master_data\unified\*"; DestDir: "{app}\master_data\unifi
 Source: "..\..\HERMES2\master_data\standardtypes\*"; DestDir:"{app}\master_data\standardtypes"; Flags: ignoreversion
 Source: "..\..\HERMES2\master_data\automodels\*"; DestDir:"{app}\master_data\automodels"; Flags: ignoreversion
 Source: "misc\hermes-tray.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "misc\win.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "misc\win2.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "misc\log_install_hermes.bat"; DestDir: "{app}\src\tools"; Flags: ignoreversion
 Source: "reqall\*"; Excludes: "*.pyc,*.pyo"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "req32\*"; Excludes: "*.pyc,*.pyo"; DestDir: "{app}\python"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: not Is64BitInstallMode
@@ -102,12 +102,12 @@ Source: "req64\*"; Excludes: "*.pyc,*.pyo"; DestDir: "{app}\python"; Flags: igno
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\hermes-tray.exe"
-;Name: "{group}\{#MyAppName}"; Filename: "{app}\src\tools\start_hermes_ui.bat"; IconFilename: "{app}\win.ico"
-;Name: "{group}\{#MyAppName}"; Filename: "{app}\python\pythonw.exe"; Parameters: "hermes_ui.py"; WorkingDir: "{app}\src\tools"; IconFilename: "{app}\win.ico"
+;Name: "{group}\{#MyAppName}"; Filename: "{app}\src\tools\start_hermes_ui.bat"; IconFilename: "{app}\win2.ico"
+;Name: "{group}\{#MyAppName}"; Filename: "{app}\python\pythonw.exe"; Parameters: "hermes_ui.py"; WorkingDir: "{app}\src\tools"; IconFilename: "{app}\win2.ico"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\hermes-tray.exe"; Tasks: desktopicon
-;Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\src\tools\start_hermes_ui.bat"; IconFilename: "{app}\win.ico"; Tasks: desktopicon
-;Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\python\pythonw.exe"; Parameters: "hermes_ui.py"; WorkingDir: "{app}\src\tools"; IconFilename: "{app}\win.ico"; Tasks: desktopicon
+;Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\src\tools\start_hermes_ui.bat"; IconFilename: "{app}\win2.ico"; Tasks: desktopicon
+;Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\python\pythonw.exe"; Parameters: "hermes_ui.py"; WorkingDir: "{app}\src\tools"; IconFilename: "{app}\win2.ico"; Tasks: desktopicon
 
 [Dirs]
 Name: {commonappdata}\HERMES; permissions: everyone-modify admins-full;

@@ -12,10 +12,13 @@
 	text-align: center;
 }
 #sp_content_div{
+	display: block;
 	position: relative;
 	width:80%;
-	float:none;
-	margin: 0 auto;
+/*	float:none;
+	margin: 0 auto;*/
+	margin-left: auto;
+	margin-right: auto;
 }
 .big_title{
 	font-size:32px;
@@ -39,6 +42,8 @@
 }
 .welcome_item{
 	font-size:18px;
+	position: relative;
+
 }
 .welcome_item a:visited{
 	color:#282A57;
@@ -78,7 +83,6 @@
 	left:50px;
 	width:50px;
 }
-
 </style>
 <input id="zipmodelupload" type="file" name="files[]" 
 	data-url="{{rootPath}}upload-model" style="display:none">
@@ -87,20 +91,12 @@
 </div>
 
 <div id="sp_top_div" class="sp_top_div">
-	<div id="sp_content_div" class="content_div" style="width:1000px">
-		<div class="logo_div" style="float:left">
-			<img src="{{rootPath}}static/images/HERMES_color_logo.png" style="width:250px">
-		</div>
-		<div class = "options_div" style="float:left">
-			<div id="welcome_title">
-				<span class="big_title">
-					{{_("Welcome to HERMES Version 1.0")}}
-				</span>
-				<br>
-				<span class="second_title">
-					{{_("What would you like to do?")}}
-				</span>
+	<div id="sp_content_div" class="content_div">
+		      	<div class="logo_div">
+			     <img src="{{rootPath}}static/images/HERMES_Text_RGB_wide.png" style="width: 400px">
 			</div>
+
+
 			<div id="welcome_options">
 				<p>
 					<span class="welcome_item">
@@ -158,7 +154,6 @@
 				</p>
 			</div>
 			<div id="dev_page_hidden"><span class="hrm_invisible"><a id="toggle_dev_mode" href="#">Toggle Dev Mode</a></span></div>
-		</div>
 	</div>
 </div>
 <!--- STB Recreating this from the models_top form to give the functionality here too.-->
