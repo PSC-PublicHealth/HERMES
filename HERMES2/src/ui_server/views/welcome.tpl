@@ -130,7 +130,7 @@
 				</p>
 	                        <p>
 	                                <span class="info_item">
-		                                <a href="http://hermes.psc.edu/release/current" target=_blank
+		                                <a href="http://hermes.psc.edu/release/tutorials.html" target=_blank
 		                                        title='{{_("Download PDF containing tutorials for creating and using HERMES models.")}}'>
 		                                        {{_("HERMES Tutorials")}}
 		                                </a>
@@ -153,7 +153,7 @@
 					</span>
 				</p>
 			</div>
-			<div id="dev_page_hidden"><span class="hrm_invisible"><a id="toggle_dev_mode" href="#">Toggle Dev Mode</a></span></div>
+			<!-- Hiding Developer Mode from Users <div id="dev_page_hidden"><span class="hrm_invisible"><a id="toggle_dev_mode" href="#">Toggle Dev Mode</a></span></div> -->
 	</div>
 </div>
 <!--- STB Recreating this from the models_top form to give the functionality here too.-->
