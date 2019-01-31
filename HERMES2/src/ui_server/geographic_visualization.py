@@ -43,12 +43,13 @@ def createNetworkResultsViz(db,uiSession):
     resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
     hRG = db.query(shadow_network.HermesResults).filter(shadow_network.HermesResults.resultsId==resultsId).one().resultsGroup
     m = shadow_network_db_api.ShdNetworkDB(db,hRG.modelId)
-    #temporary non-functional crumbtrack to display model and resultsgroup name
+
     # This is going in a separate tab, so we have to create a completely separate crumbtrack
     crumbTrack = crumbtracks.StackCrumbTrail(serverconfig.rootPath)
-    crumbTrack.push(('/'+serverconfig.topPath, _("Network Visualization")))
+    crumbTrack.push(('/' + serverconfig.topPath, _("HERMES")))
+    crumbTrack.push(('/results-top', _("Results")))
     crumbTrack.push((bottle.request.path + '?' + bottle.request.query_string, 
-                     _("Model: {0}, Result: {1}").format(m.name,hRG.name)))
+                     _("Network Visualization for Model: {0}, Result: {1}").format(m.name,hRG.name)))
     
     return bottle.template('results_show_structure.tpl',{"breadcrumbPairs":crumbTrack,
                                             "pageHelpText":_("This is intended to show page-specific help")},
@@ -62,12 +63,13 @@ def createGeographicViz(db,uiSession):
     m = shadow_network_db_api.ShdNetworkDB(db,hRG.modelId)
     levels = m.getLevelList()
     maxpop = m.getMaxPopulationByWalkOfClients(m.rootStores()[0].idcode)
-    #temporary non-functional crumbtrack to display model and resultsgroup name
+
     # This is going in a separate tab, so we have to create a completely separate crumbtrack
     crumbTrack = crumbtracks.StackCrumbTrail(serverconfig.rootPath)
-    crumbTrack.push(('/'+serverconfig.topPath, _("Geographic Visualization")))
+    crumbTrack.push(('/' + serverconfig.topPath, _("HERMES")))
+    crumbTrack.push(('/results-top', _("Results")))
     crumbTrack.push((bottle.request.path + '?' + bottle.request.query_string, 
-                     _("Model: {0}, Result: {1}").format(m.name,hRG.name)))
+                     _("Geographic Visualization for Model: {0}, Result: {1}").format(m.name,hRG.name)))
     return bottle.template('results_geo_visualization.tpl',{"breadcrumbPairs":crumbTrack,
                                             "pageHelpText":_("This is intended to show page-specific help")},
                                             _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId,
@@ -79,12 +81,13 @@ def createGeographicVizLeila(db,uiSession):
     resultsId = _getOrThrowError(bottle.request.params,'resultsId',isInt=True)
     hRG = db.query(shadow_network.HermesResults).filter(shadow_network.HermesResults.resultsId==resultsId).one().resultsGroup
     m = shadow_network_db_api.ShdNetworkDB(db,hRG.modelId)
-    #temporary non-functional crumbtrack to display model and resultsgroup name
+
     # This is going in a separate tab, so we have to create a completely separate crumbtrack
     crumbTrack = crumbtracks.StackCrumbTrail(serverconfig.rootPath)
-    crumbTrack.push(('/'+serverconfig.topPath, _("Geographic Visualization")))
+    crumbTrack.push(('/' + serverconfig.topPath, _("HERMES")))
+    crumbTrack.push(('/results-top', _("Results")))
     crumbTrack.push((bottle.request.path + '?' + bottle.request.query_string, 
-                     _("Model: {0}, Result: {1}").format(m.name,hRG.name)))
+                     _("Geographic Visualization for Model: {0}, Result: {1}").format(m.name,hRG.name)))
     return bottle.template('results_geo_visualization.tpl',{"breadcrumbPairs":crumbTrack,
                                             "pageHelpText":_("This is intended to show page-specific help")},
                                             _=_,inlizer=inlizer,modelId=modelId,resultsId=resultsId,leila="true")
