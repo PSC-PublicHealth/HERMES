@@ -404,7 +404,6 @@ $(function() {
 				$("#model_create_number_places").show();
 			}
 		});
-		updateNetworkDiagram();
 		$("#next_button").prop('value','{{_("Next Stage")}}');
 		page_step = 2;
 
